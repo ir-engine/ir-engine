@@ -1,8 +1,8 @@
-import { Component } from '../../ecs/classes/Component'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Behavior } from '../../common/interfaces/Behavior'
-import { Checker } from '../../game/types/Checker'
+import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
+import { Checker } from '../../game/types/Checker'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -58,7 +58,7 @@ export type RoleBehaviorTarget = (entity: Entity) => Entity
 
 export interface RoleBehaviors {
   [key: string]: Array<{
-    behavior: Behavior
+    behavior: any
     prepareArgs?: any
     args?: any | ((entity: Entity) => void)
     watchers?: ComponentConstructor<Component<any>>[][]

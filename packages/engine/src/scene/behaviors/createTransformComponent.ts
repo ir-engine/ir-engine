@@ -1,8 +1,7 @@
-import { Behavior } from '../../common/interfaces/Behavior'
-import { addComponent } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Euler, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
+import { addComponent } from '../../ecs/functions/EntityFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 interface XYZInterface {
   x: number
@@ -12,10 +11,9 @@ interface XYZInterface {
 
 export const createTransformComponent = (
   entity: Entity,
-  args: { position: XYZInterface; rotation: XYZInterface; scale: XYZInterface }
+  props: { position: XYZInterface; rotation: XYZInterface; scale: XYZInterface }
 ): void => {
-  // TODO: scale?
-  const { position, rotation, scale } = args
+  const { position, rotation, scale } = props
   const values: { position?: Vector3; rotation?: Quaternion; scale?: Vector3 } = {}
 
   if (position) {

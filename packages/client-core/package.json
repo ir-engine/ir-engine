@@ -16,8 +16,8 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
-    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build": "rimraf dist && mkdir dist && node build.js",
+    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
     "buildx": "esbuild",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.9",
-    "@google/model-viewer": "1.7.2",
+    "@google/model-viewer": "1.8.0",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",
@@ -57,7 +57,6 @@
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
     "cross-env": "7.0.3",
-    "ctix": "0.3.1",
     "device-detector-js": "2.2.10",
     "dompurify": "2.3.0",
     "emailjs-com": "3.2.0",
@@ -127,6 +126,6 @@
     "rollup-plugin-typescript2": "0.30.0",
     "typescript": "4.3.5"
   },
-  "license": "ISC",
+  "license": "MIT",
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

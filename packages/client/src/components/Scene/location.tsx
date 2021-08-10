@@ -22,7 +22,7 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import MediaIconsBox from '../../components/MediaIconsBox'
@@ -36,6 +36,8 @@ import RecordingApp from './../Recorder/RecordingApp'
 import GameServerWarnings from './GameServerWarnings'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 
 const goHome = () => (window.location.href = window.location.origin)
 
@@ -92,8 +94,20 @@ export const EnginePage = (props: Props) => {
   const [isInXR, setIsInXR] = useState(false)
   const [isTeleporting, setIsTeleporting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
+  const selfUser = props.authState.get('user')
+  const party = props.partyState.get('party')
 
   let sceneId = null
+
+  const userState = useUserState()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(false))
+  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
     if (Config.publicRuntimeConfig.offlineMode) {
@@ -295,7 +309,7 @@ export const EnginePage = (props: Props) => {
       <GameServerWarnings
         isTeleporting={isTeleporting}
         locationName={props.locationName}
-        instanceId={props.authState.get('user')?.instanceId ?? props.partyState.get('party')?.instanceId}
+        instanceId={selfUser?.instanceId ?? party?.instanceId}
       />
 
       <EmoteMenu />

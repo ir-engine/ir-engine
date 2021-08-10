@@ -5,7 +5,7 @@ import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame, getGameFromName } from '../../../functions/functions'
 import { getStorage } from '../../../functions/functionsStorage'
 import { getPositionNextPoint } from '../behaviors/getPositionNextPoint'
-import { YourTurn } from '../../gameDefault/components/YourTurnTagComponent'
+import { YourTurn } from '../../../components/YourTurnTagComponent'
 import { Network } from '../../../../networking/classes/Network'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
@@ -84,7 +84,7 @@ export function getPlayerNumber() {
 }
 
 export function getTeePosition() {
-  const { position } = getPositionNextPoint(Network.instance.localClientEntity, { positionCopyFromRole: 'GolfTee-' })
+  const position = getPositionNextPoint(Network.instance.localClientEntity, 'GolfTee-')
   console.log(position)
   return position
 }

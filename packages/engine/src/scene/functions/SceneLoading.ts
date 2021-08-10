@@ -16,14 +16,13 @@ import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { createGame } from '../behaviors/createGame'
 import { createGround } from '../behaviors/createGround'
-import { createGroup } from '../behaviors/createGroup'
 import { createMap } from '../behaviors/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createPortal } from '../behaviors/createPortal'
 import { createSkybox } from '../behaviors/createSkybox'
 import { createTransformComponent } from '../behaviors/createTransformComponent'
 import { createTriggerVolume } from '../behaviors/createTriggerVolume'
-import { handleAudioSettings } from '../behaviors/handleAudioSettings'
+import { handleAudioSettings } from '../behaviors/applyMediaAudioSettings'
 import { configureCSM, handleRendererSettings } from '../behaviors/handleRendererSettings'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
@@ -32,6 +31,7 @@ import { setEnvMap } from '../behaviors/setEnvMap'
 import { setFog } from '../behaviors/setFog'
 import { Clouds } from '../classes/Clouds'
 import Image from '../classes/Image'
+import PositionalAudioSettingsComponent from '../components/AudioSettingsComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import ScenePreviewCameraTagComponent from '../components/ScenePreviewCamera'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -41,7 +41,6 @@ import WalkableTagComponent from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-
 export enum SCENE_ASSET_TYPES {
   ENVMAP
 }
@@ -227,7 +226,7 @@ export class WorldScene {
         break
 
       case 'audio-settings':
-        handleAudioSettings(entity, component.data)
+        addComponent(entity, PositionalAudioSettingsComponent, component.data)
         break
 
       case 'renderer-settings':
@@ -251,10 +250,6 @@ export class WorldScene {
           castShadow: component.data.cast,
           receiveShadow: component.data.receive
         })
-        break
-
-      case 'group':
-        createGroup(entity, component.data)
         break
 
       case 'box-collider':
@@ -317,6 +312,7 @@ export class WorldScene {
       /* intentionally empty - these are only for the editor */
       case 'reflectionprobestatic':
       case 'reflectionprobe':
+      case 'group':
         break
 
       case 'visible':

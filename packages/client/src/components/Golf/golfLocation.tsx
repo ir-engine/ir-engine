@@ -31,7 +31,7 @@ import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import MediaIconsBox from '../MediaIconsBox'
@@ -51,6 +51,8 @@ import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { useUserState } from '../../../../client-core/src/user/store/UserState'
+import { UserService } from '../../../../client-core/src/user/store/UserService'
 
 const store = Store.store
 
@@ -161,6 +163,16 @@ export const EnginePage = (props: Props) => {
   const invalidLocation = locationState.get('invalidLocation')
   let sceneId = null
   let locationId = null
+
+  const userState = useUserState()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(false))
+  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
     if (Config.publicRuntimeConfig.offlineMode) {
