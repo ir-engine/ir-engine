@@ -3,6 +3,10 @@ import { createBuildings, createRoads, createGround, safelySetGroundScaleAndPosi
 import { fetchVectorTiles, fetchRasterTiles } from '../../map/MapBoxClient'
 import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
+import { getStartCoords } from '../../map'
+import { MapProps } from '../../map/MapProps'
+
+const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 
 export default class MapNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'map'
@@ -19,7 +23,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       name,
       useTimeOfDay,
       useDirectionalShadows,
-      useStartCoordinates,
+      useDeviceGeolocation,
       startLatitude,
       startLongitude,
       scale,
@@ -28,7 +32,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     node.isGlobal = isGlobal
     node.useTimeOfDay = useTimeOfDay
     node.useDirectionalShadows = useDirectionalShadows
-    node.useStartCoordinates = useStartCoordinates
+    node.useDeviceGeolocation = useDeviceGeolocation
     node.startLatitude = startLatitude
     node.startLongitude = startLongitude
     node.name = name
@@ -40,9 +44,6 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   constructor(editor) {
     super(editor)
   }
-  getStartLongLat() {
-    return [parseFloat(this.startLongitude) || -84.388, parseFloat(this.startLatitude) || 33.749]
-  }
   applyScale(object3d: Object3D) {
     object3d.position.multiplyScalar(this.scale.x)
     object3d.scale.multiplyScalar(this.scale.x)
@@ -50,7 +51,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   async addMap(editor) {
     console.log('creating map')
     const renderer = editor.renderer.renderer
-    const center = this.getStartLongLat()
+    const center = await getStartCoords(this.getProps())
     const vectorTiles = await fetchVectorTiles(center)
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
 
@@ -71,7 +72,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
   }
   async refreshGroundLayer() {
-    const center = this.getStartLongLat()
+    const center = await getStartCoords(this.getProps())
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
     this.mapLayers.ground.removeFromParent()
     this.mapLayers.ground = createGround(rasterTiles, center[1])
@@ -95,7 +96,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     if (prop) {
       if (prop === 'showRasterTiles') {
         this.refreshGroundLayer()
-      } else if (prop === 'startLatitude' || prop === 'startLongitude') {
+      } else if (PROPS_THAT_REFRESH_MAP_ON_CHANGE.indexOf(prop) >= 0) {
         this.debounceAndRefreshAllLayers()
       }
     } else {
@@ -103,19 +104,24 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     }
   }
   onUpdate(delta: number, time: number) {}
+  getProps(): MapProps {
+    return {
+      name: this.name,
+      scale: this.scale,
+      isGlobal: this.isGlobal,
+      useTimeOfDay: this.useTimeOfDay,
+      useDirectionalShadows: this.useDirectionalShadows,
+      useDeviceGeolocation: this.useDeviceGeolocation,
+      startLatitude: this.startLatitude,
+      startLongitude: this.startLongitude,
+      showRasterTiles: this.showRasterTiles
+    }
+  }
   serialize(projectID) {
     const components = {
       map: {
         id: this.id,
-        name: this.name,
-        scale: this.scale,
-        isGlobal: this.isGlobal,
-        useTimeOfDay: this.useTimeOfDay,
-        useDirectionalShadows: this.useDirectionalShadows,
-        useStartCoordinates: this.useStartCoordinates,
-        startLatitude: this.startLatitude,
-        startLongitude: this.startLongitude,
-        showRasterTiles: this.showRasterTiles
+        ...this.getProps()
       }
     } as any
     return super.serialize(projectID, components)

@@ -27,8 +27,8 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
     editor.setPropertySelected('isGlobal', payload)
   }
 
-  const onChangeUseStartCoordinates = (payload) => {
-    editor.setPropertySelected('useStartCoordinates', payload)
+  const onChangeUseGeolocation = (payload) => {
+    editor.setPropertySelected('useDeviceGeolocation', payload)
   }
 
   const onChangeShowRasterTiles = (payload) => {
@@ -51,11 +51,11 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
       </InputGroup>
       {/* @ts-ignore */}
       <InputGroup
-        name="Force start coordinates??"
-        label={t('editor:properties.map.lbl-useStartCoordinates')}
-        info={t('editor:properties.map.info-useStartCoordinates')}
+        name="Start at device's geolocation?"
+        label={t('editor:properties.map.lbl-useDeviceGeolocation')}
+        info={t('editor:properties.map.info-useDeviceGeolocation')}
       >
-        <BooleanInput value={node.isGlobal} onChange={onChangeUseStartCoordinates} />
+        <BooleanInput value={node.useDeviceGeolocation} onChange={onChangeUseGeolocation} />
       </InputGroup>
       {/* @ts-ignore */}
       <InputGroup name="Start Latitude" label={t('editor:properties.map.lbl-startLatitude')}>
