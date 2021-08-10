@@ -3,6 +3,8 @@ import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { PositionalAudioSystem } from './PositionalAudioSystem'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
 /** System class which provides methods for Audio system. */
 export class AudioSystem extends System {
@@ -81,6 +83,9 @@ export class AudioSystem extends System {
     if (this.audioReady) return
     console.log('starting audio')
     this.audioReady = true
+    EngineEvents.instance.dispatchEvent({
+      type: PositionalAudioSystem.EVENTS.START_SUSPENDED_CONTEXTS
+    })
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
       this.context = new window.AudioContext()

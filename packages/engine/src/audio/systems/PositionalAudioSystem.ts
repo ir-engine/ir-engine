@@ -9,6 +9,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { applyAvatarAudioSettings, applyMediaAudioSettings } from '../../scene/behaviors/handleAudioSettings'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -22,6 +23,9 @@ function createSilentAudioEl(streamsLive) {
 
 /** System class which provides methods for Positional Audio system. */
 export class PositionalAudioSystem extends System {
+  static EVENTS = {
+    START_SUSPENDED_CONTEXTS: 'POSITIONAL_AUDIO_EVENT_START_SUSPENDED_CONTEXTS'
+  }
   avatarAudioStream: Map<Entity, any>
 
   /** Constructs Positional Audio System. */
@@ -30,6 +34,24 @@ export class PositionalAudioSystem extends System {
     Engine.useAudioSystem = true
     Engine.spatialAudio = true
     this.avatarAudioStream = new Map<Entity, any>()
+
+    EngineEvents.instance.addEventListener(PositionalAudioSystem.EVENTS.START_SUSPENDED_CONTEXTS, () => {
+      for (const entity of this.queryResults.avatar_audio.all) {
+        const positionalAudio = getComponent(entity, PositionalAudioComponent)
+        if (positionalAudio?.value?.context?.state === 'suspended') positionalAudio.value.context.resume()
+      }
+    })
+    this.reset()
+  }
+
+  reset(): void {
+    this.avatarAudioStream = new Map<Entity, any>()
+  }
+
+  dispose(): void {
+    EngineEvents.instance.removeAllListenersForEvent(PositionalAudioSystem.EVENTS.START_SUSPENDED_CONTEXTS)
+    super.dispose()
+    this.reset()
   }
 
   /** Execute the positional audio system for different events of queries. */
