@@ -70,9 +70,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           {/* Dev Routes */}
           <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
           <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
-          {/* <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
-          <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
-          <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} /> */}
+          {/* <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} /> */}
+          <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
           <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
 
           {/* Auth Routes */}
