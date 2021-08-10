@@ -7,6 +7,7 @@ import { InputType } from '../enums/InputType'
 import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums'
 import { ClientInputSystem } from '../systems/ClientInputSystem'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 const touchSensitive = 2
 let prevTouchPosition: [number, number] = [0, 0]
@@ -322,7 +323,7 @@ export const handleMouseWheel = (event: WheelEvent): void => {
     return
   }
 
-  if ((event?.target as any).id !== Engine.options.canvasId) return
+  if (event?.target !== EngineRenderer.instance.canvas) return
 
   const value = event?.deltaY
 

@@ -15,7 +15,7 @@ export const getPositionNextPoint = (entity, args?: any) => {
   // work with playerEntity but if you give game object will searsh playerEntity from owned component
   const ownerEntity = hasComponent(entity, GamePlayer)
     ? entity
-    : Network.instance.networkObjects[getComponent(entity, NetworkObjectComponentOwner).networkId]?.component.entity
+    : Network.instance.networkObjects[getComponent(entity, NetworkObjectComponentOwner).networkId]?.entity
   const gameScore = getStorage(ownerEntity, { name: 'GameScore' })
   const game = getGame(entity)
 

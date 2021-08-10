@@ -288,7 +288,7 @@ export const GolfSystem = async (): Promise<System> => {
     for (const holeEntity of holeHitAddQuery(world)) {
       for (const ballEntity of ballHitQuery(world)) {
         const entityPlayer =
-          Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.component.entity
+          Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.entity
         const gameScore = getStorage(entityPlayer, { name: 'GameScore' })
         const game = getGame(entityPlayer)
         const currentHoleEntity = gameScore.score
@@ -304,7 +304,7 @@ export const GolfSystem = async (): Promise<System> => {
 
         if (isClient) {
           const entityYourPlayer =
-            Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.component.entity
+            Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
           if (!hasComponent(entityYourPlayer, GolfState.Goal) && !hasComponent(entityYourPlayer, State.YourTurn)) {
             // this case when other player hit ball but you still waiting yours ball to stop
             // but you need waite because you use interpolation correction bevavior, other player not and server not
@@ -345,11 +345,11 @@ export const GolfSystem = async (): Promise<System> => {
             Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId].ownerId
           ) {
             const entityYourPlayer =
-              Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.component.entity
+              Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
             removeStateComponent(entityYourPlayer, State.Waiting)
             addStateComponent(entityYourPlayer, State.WaitTurn)
             const entityPlayer =
-              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.component.entity
+              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.entity
             addStateComponent(entityPlayer, State.YourTurn)
             addStateComponent(clubEntity, GolfState.Hit)
           }
@@ -368,7 +368,7 @@ export const GolfSystem = async (): Promise<System> => {
 
     for (const clubEntity of hitRemoveQuery(world)) {
       const playerEntity =
-        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectComponentOwner).networkId]?.component.entity
+        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectComponentOwner).networkId]?.entity
       const ballEntity = golfBallQuery(world).find((e) => ifOwned(clubEntity, null, e))
       saveScore(playerEntity)
       addStateComponent(playerEntity, GolfState.AlreadyHit)

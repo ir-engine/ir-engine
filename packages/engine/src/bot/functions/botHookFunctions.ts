@@ -1,7 +1,6 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -24,9 +23,6 @@ export const setupBotHooks = (): void => {
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
-  Engine.activeSystems.getAll().forEach((system: System) => {
-    globalThis[system.name] = system.constructor
-  })
 }
 
 export const BotHookFunctions = {

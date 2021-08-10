@@ -21,7 +21,7 @@ export const AudioSystem = async (): Promise<System> => {
   /** Indicates whether the system is ready or not. */
   let audioReady = false
   /** Callbacks to be called after system is ready. */
-  let callbacks: any[]
+  let callbacks: any[] = []
   /** Audio Element. */
   let audio: any
   /** Audio Context. */

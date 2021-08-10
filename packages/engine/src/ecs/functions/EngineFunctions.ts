@@ -104,7 +104,7 @@ export async function reset(): Promise<void> {
   // Engine.enabled = false;
   Engine.inputState.clear()
   Engine.prevInputState.clear()
-  Engine.viewportElement = null
+  Engine.canvas = null
 }*/
 
 export const processLocationChange = async (newPhysicsWorker: Worker): Promise<void> => {

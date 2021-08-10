@@ -7,8 +7,6 @@ export type NetworkObjectComponentType = {
   ownerId: string
   /** Entity unique Id from editor scene. */
   uniqueId: string
-  /** Map of components associated with this object. */
-  componentMap: any
   /** Snapshot time of the object. */
   snapShotTime: any
 }

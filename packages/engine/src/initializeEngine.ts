@@ -96,7 +96,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   setupBotHooks()
 
-  addClientInputListeners()
+  addClientInputListeners(canvas)
 
   registerClientSystems(options, canvas)
 }
@@ -272,7 +272,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     }
   }
 
-  const world = new World()
+  const world = World.defaultWorld
   
   // TODO: support multiple worlds
   // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call

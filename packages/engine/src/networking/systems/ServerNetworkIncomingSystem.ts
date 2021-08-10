@@ -85,12 +85,12 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
       }
 
       const delegatedInputReceiver = getComponent(
-        Network.instance.networkObjects[clientInput.networkId].component.entity,
+        Network.instance.networkObjects[clientInput.networkId].entity,
         DelegatedInputReceiverComponent
       )
       const inputClientNetworkId = delegatedInputReceiver ? delegatedInputReceiver.networkId : clientInput.networkId
-      const entity = Network.instance.networkObjects[clientInput.networkId].component.entity
-      const entityInputReceiver = Network.instance.networkObjects[inputClientNetworkId].component.entity
+      const entity = Network.instance.networkObjects[clientInput.networkId].entity
+      const entityInputReceiver = Network.instance.networkObjects[inputClientNetworkId].entity
 
       if (clientInput.clientGameAction.length > 0) {
         clientInput.clientGameAction.forEach((action) => {
@@ -115,7 +115,7 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
       if (avatar) {
         updatePlayerRotationFromViewVector(entity, clientInput.viewVector as Vector3)
       } else {
-        console.log('input but no avatar...', clientInput.networkId)
+        console.log('input but no avatar...', entity, clientInput.networkId)
       }
 
       const userNetworkObject = getComponent(entity, NetworkObjectComponent)
@@ -215,7 +215,7 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
     for (const entity of delegatedInputRoutingAddQuery(world)) {
       const networkId = getComponent(entity, DelegatedInputReceiverComponent).networkId
       if (Network.instance.networkObjects[networkId]) {
-        cancelAllInputs(Network.instance.networkObjects[networkId].component.entity)
+        cancelAllInputs(Network.instance.networkObjects[networkId].entity)
       }
       cancelAllInputs(entity)
     }

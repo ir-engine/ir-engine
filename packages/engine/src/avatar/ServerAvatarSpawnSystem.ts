@@ -63,7 +63,6 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
 
-    const { delta } = world
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointAddQuery(world)) {
       if (!hasComponent(entity, TransformComponent)) {
@@ -81,6 +80,8 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
     }
 
     for (const entity of spawnPlayerAddQuery(world)) {
+
+      console.log('SPAWNED PLAYER ON SERVER', entity)
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
       createAvatar(entity, parameters)
 

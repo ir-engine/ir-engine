@@ -1,8 +1,6 @@
 import { Entity } from '../../../../ecs/classes/Entity'
-import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import {
   BoxBufferGeometry,
@@ -127,7 +125,7 @@ export const updateClub: Behavior = (
   checks?: any
 ): void => {
   const ownerNetworkId = getComponent(entityClub, NetworkObjectComponentOwner).networkId
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.component.entity
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.entity
 
   if (!ownerEntity) return
 
@@ -274,7 +272,7 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
   })
   addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
   const color = GolfColours[ownerPlayerNumber]

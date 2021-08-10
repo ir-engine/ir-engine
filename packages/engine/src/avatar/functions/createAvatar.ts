@@ -72,6 +72,7 @@ export const createAvatar = (
     avatarHalfHeight,
     avatarHeight,
     modelContainer,
+    tiltContainer,
     isGrounded: false,
     viewVector: new Vector3(0, 0, 1)
   })
@@ -132,8 +133,8 @@ export const createAvatar = (
 }
 
 export const createAvatarController = (entity: Entity) => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
   const { position } = getComponent(entity, TransformComponent)
+  const { tiltContainer } = getComponent(entity, AvatarComponent)
 
   const controller = PhysXInstance.instance.createController(
     new Controller({
@@ -160,8 +161,7 @@ export const createAvatarController = (entity: Entity) => {
   frustumCamera.position.setY(avatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 
-  // tiltContainer, we should add a ref for this
-  object3DComponent.value.children[0].add(frustumCamera)
+  tiltContainer.add(frustumCamera)
 
   addComponent(entity, AvatarControllerComponent, { 
     controller,

@@ -46,6 +46,14 @@ export const AvatarControllerSystem = async (): Promise<System> => {
     const { delta } = world
     
     for (const entity of characterOnServerRemovedQuery(world)) {
+      console.log('removed character')
+      console.log(
+        hasComponent(entity, LocalInputReceiverComponent),
+        hasComponent(entity, InterpolationComponent),
+        hasComponent(entity, AvatarComponent),
+        hasComponent(entity, AvatarControllerComponent),
+        
+        )
       const controller = getComponent(entity, AvatarControllerComponent, true)
 
       PhysXInstance.instance.removeController(controller.controller)

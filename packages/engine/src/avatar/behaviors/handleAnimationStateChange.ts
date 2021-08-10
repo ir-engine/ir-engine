@@ -11,7 +11,7 @@ export const handleAnimationStateChange = (editObject: NetworkObjectEditInterfac
 
   if (Network.instance.networkObjects[editObject.networkId].ownerId === Network.instance.userId) return
 
-  const entity: Entity = Network.instance.networkObjects[editObject.networkId].component.entity
+  const entity = Network.instance.networkObjects[editObject.networkId].entity
 
   const animationDetail = convertBufferSupportedStringToObj(editObject.data[0])
 

@@ -113,8 +113,6 @@ export class Engine {
   static lastTime: number
 
   static tick = 0
-  /** HTML Element in which Engine renders. */
-  static viewportElement: HTMLElement
 
   static useAudioSystem = false
 

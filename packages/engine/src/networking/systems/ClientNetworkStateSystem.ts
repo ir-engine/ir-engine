@@ -48,12 +48,12 @@ function syncNetworkObjectsTest(createObjects) {
     Object.keys(Network.instance.networkObjects)
       .map(Number)
       .forEach((key) => {
-        if (Network.instance.networkObjects[key].component == null) {
+        if (Network.instance.networkObjects[key].entity == null) {
           console.warn('TRY RESTART SERVER, MAYBE ON SERVER DONT CREATE THIS LOCATION')
         }
         if (
-          Network.instance.networkObjects[key].component.uniqueId === objectToCreate.uniqueId &&
-          Network.instance.networkObjects[key].component.ownerId === objectToCreate.ownerId
+          Network.instance.networkObjects[key].uniqueId === objectToCreate.uniqueId &&
+          Network.instance.networkObjects[key].ownerId === objectToCreate.ownerId
         ) {
           console.warn(
             '*createObjects* Correctiong networkObjects as a server id: ' +
@@ -65,9 +65,9 @@ function syncNetworkObjectsTest(createObjects) {
           const tempMistake = Network.instance.networkObjects[objectToCreate.networkId]
           Network.instance.networkObjects[key] = tempMistake
           Network.instance.networkObjects[objectToCreate.networkId] = tempCorrect
-          getComponent(Network.instance.networkObjects[key].component.entity, NetworkObjectComponent).networkId = key
+          getComponent(Network.instance.networkObjects[key].entity, NetworkObjectComponent).networkId = key
           getComponent(
-            Network.instance.networkObjects[objectToCreate.networkId].component.entity,
+            Network.instance.networkObjects[objectToCreate.networkId].entity,
             NetworkObjectComponent
           ).networkId = objectToCreate.networkId
         }
@@ -89,7 +89,7 @@ function syncPhysicsObjects(objectToCreate) {
           Network.instance.networkObjects[key] = undefined
           const newId = Network.getNetworkId()
           Network.instance.networkObjects[newId] = tempCorrect
-          getComponent(Network.instance.networkObjects[newId].component.entity, NetworkObjectComponent).networkId = newId
+          getComponent(Network.instance.networkObjects[newId].entity, NetworkObjectComponent).networkId = newId
         }
       })
   }
@@ -144,7 +144,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined
           const isSameUniqueId =
             isIdFull &&
-            Network.instance.networkObjects[objectToCreate.networkId].component.uniqueId === objectToCreate.uniqueId
+            Network.instance.networkObjects[objectToCreate.networkId].uniqueId === objectToCreate.uniqueId
 
           const entityExistsInAnotherId = searchSameInAnotherId(objectToCreate)
 
@@ -169,7 +169,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
             delete Network.instance.networkObjects[entityExistsInAnotherId]
 
             // change network component id
-            Network.instance.networkObjects[objectToCreate.networkId].component.networkId = objectToCreate.networkId
+            getComponent(Network.instance.networkObjects[objectToCreate.networkId].entity, NetworkObjectComponent).networkId = objectToCreate.networkId
 
             // if it's the local avatar
             if (objectToCreate.networkId === Network.instance.localAvatarNetworkId) {
@@ -229,7 +229,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
             console.warn('Can not remove owner...')
             continue
           }
-          const entity = Network.instance.networkObjects[networkId].component.entity
+          const entity = Network.instance.networkObjects[networkId].entity
           // Remove the entity and all of it's components
           removeEntity(entity)
           // Remove network object from list
@@ -264,17 +264,13 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           for (const transform of transformState.transforms) {
             const networkObject = Network.instance.networkObjects[transform.networkId]
             // for character entities, we are sending the view vector, so we have to apply it and retrieve the rotation
-            if (
-              networkObject &&
-              networkObject.component &&
-              hasComponent(networkObject.component.entity, AvatarComponent)
-            ) {
+            if (networkObject && hasComponent(networkObject.entity, AvatarComponent)) {
               vector3_0.set(transform.qX, transform.qY, transform.qZ)
               vector3_1.copy(vector3_0).setY(0).normalize()
               quat.setFromUnitVectors(forwardVector, applyVectorMatrixXZ(vector3_1, forwardVector).setY(0))
               // we don't want to override our own avatar
-              if (networkObject.component.entity !== Network.instance.localClientEntity) {
-                const avatar = getComponent(networkObject.component.entity, AvatarComponent)
+              if (networkObject.entity !== Network.instance.localClientEntity) {
+                const avatar = getComponent(networkObject.entity, AvatarComponent)
                 avatar.viewVector.copy(vector3_0)
               }
               // put the transform rotation on the transform to deal with later
@@ -301,7 +297,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
 
         for (const ikTransform of transformState.ikTransforms) {
           if (!Network.instance.networkObjects[ikTransform.networkId]) continue
-          const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity
+          const entity = Network.instance.networkObjects[ikTransform.networkId].entity
           // ignore our own transform
           if (entity === Network.instance.localClientEntity) continue
           if (!hasComponent(entity, XRInputSourceComponent)) {

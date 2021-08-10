@@ -8,7 +8,8 @@ import {
   ISchema,
   Type,
   addEntity,
-  getEntityComponents
+  getEntityComponents,
+  defineQuery
 } from 'bitecs'
 
 import { Entity } from '../classes/Entity'
@@ -88,10 +89,13 @@ export type MappedComponent<T, S extends ISchema> = ComponentType<S> & {
 }
 
 export const createEntity = (world = World.defaultWorld.ecsWorld): Entity => {
-  return addEntity(world)
+  const entity = addEntity(world)
+  world.world.entities.push(entity)
+  return entity
 }
 
 export const removeEntity = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
+  world.world.entities.splice(world.world.entities.indexOf(entity), 1)
   _removeEntity(world, entity)
   // TODO: remove mapped component data
 }
@@ -121,7 +125,14 @@ export const removeComponent = <T extends any, S extends ISchema>(entity: Entity
 }
 
 export const getAllComponentsOfType = <T extends any, S extends ISchema>(component: MappedComponent<T, S>, world = World.defaultWorld.ecsWorld): T[] => {
-  return (component as any)._map.values()
+  const query = defineQuery([component])
+  const entities = query(world)
+  return entities.map((e) => { return getComponent(e, component) })
+}
+
+export const getAllEntitiesWithComponent = <T extends any, S extends ISchema>(component: MappedComponent<T, S>, world = World.defaultWorld.ecsWorld): Entity[] => {
+  const query = defineQuery([component])
+  return query(world)
 }
 
 export const removeAllComponents = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
@@ -133,4 +144,5 @@ export const removeAllComponents = (entity: Entity, world = World.defaultWorld.e
 
 export const removeAllEntities = (world = World.defaultWorld.ecsWorld) => {
  // TODO
+  getEntityComponents
 }

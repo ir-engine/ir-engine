@@ -31,6 +31,7 @@ export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEna
   const raycastQuery = defineQuery([RaycastComponent])
   const raycastRemoveQuery = exitQuery(raycastQuery)
   const networkObjectQuery = defineQuery([NetworkObjectComponent])
+  const networkObjectRemoveQuery = exitQuery(networkObjectQuery)
 
   let simulationEnabled = false
 
@@ -120,7 +121,7 @@ export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEna
     }
 
     // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
-    for (const entity of networkObjectQuery(world)) {
+    for (const entity of networkObjectRemoveQuery(world)) {
       const networkObject = getComponent(entity, NetworkObjectComponent, true)
       delete Network.instance.networkObjects[networkObject.networkId]
       console.log('removed prefab with id', networkObject.networkId)

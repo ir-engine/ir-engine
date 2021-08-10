@@ -123,7 +123,7 @@ const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity) {
   const ownerNetworkId = getComponent(ballEntity, NetworkObjectComponentOwner).networkId
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
   const color = GolfColours[ownerPlayerNumber]

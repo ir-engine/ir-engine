@@ -3,6 +3,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Commands } from '../../networking/enums/Commands'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -190,7 +191,7 @@ export class AnimationGraph {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     // Send change animation commnad over network for the local client entity
     if (
-      Network.instance.localClientEntity?.id === avatarAnimationComponent.entity.id &&
+      isEntityLocalClient(entity) &&
       avatarAnimationComponent.currentState.type === AnimationType.STATIC
     ) {
       Network.instance.clientInputState.commands.push({

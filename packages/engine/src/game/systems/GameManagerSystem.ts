@@ -108,7 +108,7 @@ export const GameManagerSystem = async (): Promise<System> => {
         requireState(
           game,
           getComponent(
-            Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity,
+            Network.instance.networkObjects[Network.instance.localAvatarNetworkId].entity,
             GamePlayer
           )
         )

@@ -133,6 +133,7 @@ export class EngineRenderer {
 
   supportWebGL2: boolean = WebGL.isWebGL2Available()
   rendereringEnabled = true
+  canvas: HTMLCanvasElement
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {
@@ -151,12 +152,13 @@ export class EngineRenderer {
       preserveDrawingBuffer: !Engine.isHMD
     }
 
+    this.canvas = canvas
+
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     Engine.renderer = renderer
     Engine.renderer.physicallyCorrectLights = true
     Engine.renderer.outputEncoding = sRGBEncoding
 
-    Engine.viewportElement = renderer.domElement
     Engine.xrRenderer = renderer.xr
     Engine.xrRenderer.enabled = true
 

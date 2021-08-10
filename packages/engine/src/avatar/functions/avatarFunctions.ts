@@ -1,7 +1,7 @@
 import { AnimationMixer, Group } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent, getEntityByID, getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -10,8 +10,7 @@ import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 
-export const setAvatar = ({ entityID, avatarId, avatarURL }) => {
-  const entity = getEntityByID(entityID)
+export const setAvatar = (entity, avatarId, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
   if (avatar) {
     avatar.avatarId = avatarId
@@ -57,7 +56,7 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         // TODO: Remove me when we add retargeting
         if (o.name.includes('mixamorig')) {
           o.name = o.name.replace('mixamorig', '')
-          console.log(o.name)
+          // console.log(o.name)
         }
       })
 

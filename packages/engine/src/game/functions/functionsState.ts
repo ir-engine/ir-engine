@@ -56,8 +56,8 @@ export const sendSpawnGameObjects = (game: ReturnType<typeof GameComponent.get>,
     Object.keys(Network.instance.networkObjects).forEach((networkId) => {
       // in this if we filter and send only spawnded objects
       if (
-        hasComponent(Network.instance.networkObjects[networkId].component.entity, SpawnedObject) &&
-        getComponent(Network.instance.networkObjects[networkId].component.entity, GameObject).uuid === uuid
+        hasComponent(Network.instance.networkObjects[networkId].entity, SpawnedObject) &&
+        getComponent(Network.instance.networkObjects[networkId].entity, GameObject).uuid === uuid
       ) {
         Network.instance.worldState.createObjects.push({
           prefabType: Network.instance.networkObjects[networkId].prefabType,

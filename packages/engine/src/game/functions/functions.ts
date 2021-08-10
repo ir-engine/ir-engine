@@ -1,10 +1,8 @@
 import { isClient } from '../../common/functions/isClient'
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
 import { Network } from '../../networking/classes/Network'
-import { ActiveGames, GameManagerSystem } from '../../game/systems/GameManagerSystem'
+import { ActiveGames } from '../../game/systems/GameManagerSystem'
 import {
-  addComponent,
   getComponent,
   hasComponent,
   removeEntity
@@ -21,7 +19,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 
 export const isOwnedLocalPlayer = (entity: Entity): boolean => {
   if (!hasComponent(entity, NetworkObjectComponent)) return false
-  const localPlayerOwnerId = Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.ownerId
+  const localPlayerOwnerId = Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId
   const objectOwnerId = getComponent(entity, NetworkObjectComponent).ownerId
   return localPlayerOwnerId === objectOwnerId
 }
@@ -105,9 +103,9 @@ export const removeSpawnedObjects = (entity: Entity, playerComponent, game) => {
       if (networkObject.ownerId !== userUuId) return
       if (networkObject.uniqueId === userUuId) return
       // If it does, tell clients to destroy it
-      Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId })
+      Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })
       // get network object
-      const entityObject = Network.instance.networkObjects[key].component.entity
+      const entityObject = Network.instance.networkObjects[key].entity
       // Remove the entity and all of it's components
       removeEntity(entityObject)
       // Remove network object from list
