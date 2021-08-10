@@ -17,7 +17,7 @@ import { Game } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { ClientActionToServer } from '../templates/DefaultGameStateAction'
-import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
+import { SpawnedObject } from '../components/SpawnedObjectTagComponent'
 import { GolfClubComponent } from '../templates/Golf/components/GolfClubComponent'
 import { GolfState } from '../templates/Golf/GolfGameComponents'
 

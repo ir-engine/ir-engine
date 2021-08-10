@@ -1,25 +1,20 @@
-import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, Vector4 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
+import { Color, Group, MathUtils, Mesh, Vector3, Vector4 } from 'three'
+import { Body, BodyType, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES, ShapeType } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
-import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
-  hasComponent
+  getMutableComponent
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObject } from '../../../../networking/components/NetworkObject'
 import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
-import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
-import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
-import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import TrailRenderer from '../../../../scene/classes/TrailRenderer'
@@ -36,13 +31,10 @@ import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameCo
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnBall: Behavior = (
+export const spawnBall = (
   entityPlayer: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
+  positionCopyFromRole?: any,
+  offsetY?: any
 ): void => {
   // server sends clients the entity data
   if (isClient) return
@@ -56,7 +48,7 @@ export const spawnBall: Behavior = (
   // send position to spawn
   // now we have just one location
   // but soon
-  const teeEntity = game.gameObjects[args.positionCopyFromRole][0]
+  const teeEntity = game.gameObjects[positionCopyFromRole][0]
   const teeTransform = getComponent(teeEntity, TransformComponent)
 
   const parameters: GolfBallSpawnParameters = {
@@ -64,7 +56,7 @@ export const spawnBall: Behavior = (
     role: 'GolfBall',
     spawnPosition: new Vector3(
       teeTransform.position.x,
-      teeTransform.position.y + args.offsetY,
+      teeTransform.position.y + offsetY,
       teeTransform.position.z
     ),
     uuid,
@@ -94,13 +86,8 @@ export const spawnBall: Behavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-export const updateBall: Behavior = (
-  entityBall: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
+export const updateBall = (
+  entityBall: Entity
 ): void => {
   const collider = getComponent(entityBall, ColliderComponent)
   const ballPosition = collider.body.transform.translation

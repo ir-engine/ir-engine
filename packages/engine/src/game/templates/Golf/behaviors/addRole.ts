@@ -1,10 +1,9 @@
-import { Behavior } from '../../../../common/interfaces/Behavior'
+import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { changeRole } from '../../../../game/functions/functionsState'
-import { getGame } from '../../../functions/functions'
 import { Game } from '../../../components/Game'
+import { getGame } from '../../../functions/functions'
 import { GameMode } from '../../../types/GameMode'
-import { Engine } from '../../../../ecs/classes/Engine'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -22,13 +21,8 @@ function recurseSearchEmptyRole(game: Game, gameSchema: GameMode, newPlayerNumbe
   }
 }
 
-export const addRole: Behavior = (
-  entity: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
+export const addRole = (
+  entity: Entity
 ): void => {
   const game = getGame(entity)
   const gameSchema = Engine.gameModes.get(game.gameMode)

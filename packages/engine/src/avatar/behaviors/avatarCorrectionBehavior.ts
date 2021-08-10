@@ -23,7 +23,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 
 const vec3 = new Vector3()
 
-export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
+export const characterCorrectionBehavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const avatar = getComponent(entity, AvatarComponent)
   const networkId = getComponent(entity, NetworkObject).networkId

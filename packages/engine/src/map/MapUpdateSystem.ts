@@ -24,9 +24,6 @@ export class MapUpdateSystem extends System {
       const startTile = getTile()
       const moveTile = getCenterTile([longtitude, latitude])
 
-      // console.log(startTile)
-      // console.log(moveTile)
-
       if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
         console.log('in center')
       } else {

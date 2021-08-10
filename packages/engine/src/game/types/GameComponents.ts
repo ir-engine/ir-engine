@@ -2,16 +2,16 @@ import { Component } from '../../ecs/classes/Component'
 // Action Components
 import { GameObjectCollisionTag } from '../actions/GameObjectCollisionTag'
 // State TagComponents
-import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
-import { ButtonDown } from '../templates/gameDefault/components/ButtonDownTagComponent'
-import { ButtonUp } from '../templates/gameDefault/components/ButtonUpTagComponent'
-import { Closed } from '../templates/gameDefault/components/ClosedTagComponent'
-import { Open } from '../templates/gameDefault/components/OpenTagComponent'
-import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent'
-import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent'
-import { Active } from '../templates/gameDefault/components/ActiveTagComponent'
-import { Inactive } from '../templates/gameDefault/components/InactiveTagComponent'
-import { YourTurn } from '../templates/gameDefault/components/YourTurnTagComponent'
+import { SpawnedObject } from '../components/SpawnedObjectTagComponent'
+import { ButtonDown } from '../components/ButtonDownTagComponent'
+import { ButtonUp } from '../components/ButtonUpTagComponent'
+import { Closed } from '../components/ClosedTagComponent'
+import { Open } from '../components/OpenTagComponent'
+import { PanelDown } from '../components/PanelDownTagComponent'
+import { PanelUp } from '../components/PanelUpTagComponent'
+import { Active } from '../components/ActiveTagComponent'
+import { Inactive } from '../components/InactiveTagComponent'
+import { YourTurn } from '../components/YourTurnTagComponent'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
