@@ -266,8 +266,8 @@ const Page = () => {
 
       Engine.scene.add(new AmbientLight(0x404040))
 
-      registerSystem(NavigationSystem)
-      registerSystem(RenderSystem)
+      registerSystem(SystemUpdateType.Fixed, NavigationSystem)
+      registerSystem(SystemUpdateType.Free, RenderSystem)
       await Promise.all(Engine.systems.map((system) => system.initialize()))
 
       Engine.engineTimer.start()

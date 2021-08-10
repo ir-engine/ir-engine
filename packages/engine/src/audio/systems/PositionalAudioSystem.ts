@@ -128,7 +128,7 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.avatar_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      const settings = getMutableComponent(PositionalAudioSystem.settingsEntity, PositionalAudioSettingsComponent);
+      const settings = getMutableComponent(PositionalAudioSystem.settingsEntity, PositionalAudioSettingsComponent)
       applyMediaAudioSettings(positionalAudio.value, settings, false)
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
     }
@@ -139,7 +139,7 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.positional_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      const settings = getMutableComponent(PositionalAudioSystem.settingsEntity, PositionalAudioSettingsComponent);
+      const settings = getMutableComponent(PositionalAudioSystem.settingsEntity, PositionalAudioSettingsComponent)
       applyMediaAudioSettings(positionalAudio.value, settings)
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
     }

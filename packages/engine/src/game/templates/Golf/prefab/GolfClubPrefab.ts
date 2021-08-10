@@ -1,16 +1,23 @@
 import {
   BoxBufferGeometry,
-  DoubleSide, Euler, Group,
-  Material, MathUtils, Mesh,
+  DoubleSide,
+  Euler,
+  Group,
+  Material,
+  MathUtils,
+  Mesh,
   MeshStandardMaterial,
   Vector3
 } from 'three'
 import {
   Body,
   BodyType,
-  ColliderHitEvent, PhysXInstance, RaycastQuery,
+  ColliderHitEvent,
+  PhysXInstance,
+  RaycastQuery,
   SceneQueryType,
-  SHAPES, ShapeType
+  SHAPES,
+  ShapeType
 } from 'three-physx'
 import { isClient } from '../../../../common/functions/isClient'
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
@@ -18,7 +25,9 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent, hasComponent, removeComponent
+  getMutableComponent,
+  hasComponent,
+  removeComponent
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObject } from '../../../../networking/components/NetworkObject'
@@ -41,7 +50,6 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
 import { ifVelocity } from '../functions/ifVelocity'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 
-
 const vector0 = new Vector3()
 const vector1 = new Vector3()
 const vector2 = new Vector3()
@@ -51,9 +59,7 @@ const eulerX90 = new Euler(Math.PI * 0.5, 0, 0)
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnClub = (
-  entityPlayer: Entity
-): void => {
+export const spawnClub = (entityPlayer: Entity): void => {
   const game = getGame(entityPlayer)
   const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
 
@@ -106,9 +112,7 @@ export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): 
  * @author Josh Field <github.com/HexaField>
  */
 
-export const updateClub = (
-  entityClub: Entity
-): void => {
+export const updateClub = (entityClub: Entity): void => {
   const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.component.entity
 

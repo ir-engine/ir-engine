@@ -4,11 +4,7 @@ import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent
-} from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObject } from '../../../../networking/components/NetworkObject'
 import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
@@ -31,11 +27,7 @@ import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameCo
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnBall = (
-  entityPlayer: Entity,
-  positionCopyFromRole?: any,
-  offsetY?: any
-): void => {
+export const spawnBall = (entityPlayer: Entity, positionCopyFromRole?: any, offsetY?: any): void => {
   // server sends clients the entity data
   if (isClient) return
   console.warn('SpawnBall')
@@ -54,11 +46,7 @@ export const spawnBall = (
   const parameters: GolfBallSpawnParameters = {
     gameName: game.name,
     role: 'GolfBall',
-    spawnPosition: new Vector3(
-      teeTransform.position.x,
-      teeTransform.position.y + offsetY,
-      teeTransform.position.z
-    ),
+    spawnPosition: new Vector3(teeTransform.position.x, teeTransform.position.y + offsetY, teeTransform.position.z),
     uuid,
     ownerNetworkId: playerNetworkObject.networkId
   }
@@ -86,9 +74,7 @@ export const spawnBall = (
  * @author Josh Field <github.com/HexaField>
  */
 
-export const updateBall = (
-  entityBall: Entity
-): void => {
+export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
   const ballPosition = collider.body.transform.translation
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)

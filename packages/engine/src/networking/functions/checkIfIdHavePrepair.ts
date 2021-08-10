@@ -1,4 +1,4 @@
-import { Network } from '../classes/Network';
+import { Network } from '../classes/Network'
 
 export function checkIfIdHavePrepair(uniqueId) {
   return (
@@ -8,5 +8,5 @@ export function checkIfIdHavePrepair(uniqueId) {
         (result, key) => (Network.instance.networkObjects[key]?.uniqueId === uniqueId ? (result = key) : result),
         null
       ) ?? Network.getNetworkId()
-  );
+  )
 }

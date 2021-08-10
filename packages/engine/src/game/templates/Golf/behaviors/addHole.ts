@@ -27,9 +27,7 @@ export const onHoleCollideWithBall: GameObjectInteractionBehavior = (
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const addHole = (
-  entity: Entity
-): void => {
+export const addHole = (entity: Entity): void => {
   const transform = getComponent(entity, TransformComponent)
   const pos = transform.position ?? { x: 0, y: 0, z: 0 }
   const scale = transform.scale ?? { x: 1, y: 1, z: 1 }

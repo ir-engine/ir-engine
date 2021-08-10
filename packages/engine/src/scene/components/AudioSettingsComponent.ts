@@ -28,8 +28,7 @@ class PositionalAudioSettingsComponent extends Component<PositionalAudioSettings
     mediaRefDistance: { default: null, type: Types.Ref },
     mediaRolloffFactor: { default: null, type: Types.Ref },
     mediaVolume: { default: null, type: Types.Ref },
-    overrideAudioSettings: { default: null, type: Types.Ref },
-
+    overrideAudioSettings: { default: null, type: Types.Ref }
   }
 }
 

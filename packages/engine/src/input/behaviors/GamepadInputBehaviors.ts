@@ -51,20 +51,12 @@ export const handleGamepads = () => {
     if (gamepad.axes) {
       // GamePad 0 Left Stick XY
       if (gamepad.axes.length >= inputPerGamepad) {
-        handleGamepadAxis(
-          gamepad,
-          0,
-          GamepadAxis.Left
-        )
+        handleGamepadAxis(gamepad, 0, GamepadAxis.Left)
       }
 
       // GamePad 1 Right Stick XY
       if (gamepad.axes.length >= inputPerGamepad * 2) {
-        handleGamepadAxis(
-          gamepad,
-          1,
-          GamepadAxis.Right
-        )
+        handleGamepadAxis(gamepad, 1, GamepadAxis.Right)
       }
     }
 
@@ -73,10 +65,7 @@ export const handleGamepads = () => {
 
     // Otherwise, loop through gamepad buttons
     for (_index = 0; _index < gamepad.buttons.length; _index++) {
-      handleGamepadButton(
-        gamepad,
-        _index
-      )
+      handleGamepadButton(gamepad, _index)
     }
   }
 }

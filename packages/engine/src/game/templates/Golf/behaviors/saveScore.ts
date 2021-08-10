@@ -7,9 +7,7 @@ import { getStorage, setStorage } from '../../../../game/functions/functionsStor
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const saveScore = (
-  entity: Entity
-): void => {
+export const saveScore = (entity: Entity): void => {
   console.warn('SAVE Score')
   const gameScore = getStorage(entity, { name: 'GameScore' })
   gameScore.score.hits += 1

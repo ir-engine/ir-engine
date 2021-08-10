@@ -1,8 +1,6 @@
 import { Vector3 } from 'three'
 import { Entity } from '../../../../ecs/classes/Entity'
-import {
-  getMutableComponent
-} from '../../../../ecs/functions/EntityFunctions'
+import { getMutableComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { findInterpolationSnapshot } from '../../../../physics/behaviors/findInterpolationSnapshot'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
@@ -11,10 +9,7 @@ import { VelocityComponent } from '../../../../physics/components/VelocityCompon
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const teleportObject = (
-  entity: Entity,
-  position?: any
-): void => {
+export const teleportObject = (entity: Entity, position?: any): void => {
   const velocity = getMutableComponent(entity, VelocityComponent)
   const collider = getMutableComponent(entity, ColliderComponent)
 
@@ -46,9 +41,7 @@ export const teleportObject = (
   collider.body.setAngularVelocity(new Vector3(), true)
 }
 
-export const removeVelocity = (
-  entity: Entity
-): void => {
+export const removeVelocity = (entity: Entity): void => {
   console.log(' --- removeVelocity')
   const collider = getMutableComponent(entity, ColliderComponent)
   if (!collider) return
@@ -56,9 +49,7 @@ export const removeVelocity = (
   collider.body.setAngularDamping(10)
 }
 
-export const updateColliderPosition = (
-  entity: Entity
-): void => {
+export const updateColliderPosition = (entity: Entity): void => {
   console.log('CORRECT BALL FROM SERVER')
 
   const collider = getMutableComponent(entity, ColliderComponent)

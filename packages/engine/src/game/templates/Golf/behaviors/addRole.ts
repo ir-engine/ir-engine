@@ -21,9 +21,7 @@ function recurseSearchEmptyRole(game: Game, gameSchema: GameMode, newPlayerNumbe
   }
 }
 
-export const addRole = (
-  entity: Entity
-): void => {
+export const addRole = (entity: Entity): void => {
   const game = getGame(entity)
   const gameSchema = Engine.gameModes.get(game.gameMode)
   const [availableRole] = Object.entries(game.gamePlayers).find(([key, entities]) => {

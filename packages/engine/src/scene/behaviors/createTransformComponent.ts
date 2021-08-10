@@ -13,7 +13,6 @@ export const createTransformComponent = (
   entity: Entity,
   props: { position: XYZInterface; rotation: XYZInterface; scale: XYZInterface }
 ): void => {
-
   const { position, rotation, scale } = props
   const values: { position?: Vector3; rotation?: Quaternion; scale?: Vector3 } = {}
 

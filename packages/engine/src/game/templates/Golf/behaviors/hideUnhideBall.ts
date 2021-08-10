@@ -7,26 +7,20 @@ import { GolfState } from '../GolfGameComponents'
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const hideBall = (
-  entity: Entity
-): void => {
+export const hideBall = (entity: Entity): void => {
   const object3D = getMutableComponent(entity, Object3DComponent)?.value
   if (object3D === undefined) return
   object3D.visible = false
 }
 
-export const unhideBall = (
-  entity: Entity
-): void => {
+export const unhideBall = (entity: Entity): void => {
   const object3D = getMutableComponent(entity, Object3DComponent)?.value
   if (object3D === undefined) return
   object3D.visible = true
   //console.log('unhideBall', object3D)
 }
 
-export const applyHideOrVisibleState = (
-  entity: Entity
-): void => {
+export const applyHideOrVisibleState = (entity: Entity): void => {
   const object3D = getMutableComponent(entity, Object3DComponent)?.value
   if (object3D === undefined) return
   if (hasComponent(entity, GolfState.BallVisible)) {

@@ -9,9 +9,7 @@ import { State } from '../../../types/GameComponents'
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const nextTurn = (
-  entity: Entity
-): void => {
+export const nextTurn = (entity: Entity): void => {
   const game = getGame(entity) ?? getGameFromName(getComponent(entity, GamePlayer, true).gameName)
   const arrPlayersInGame = Object.keys(game.gamePlayers).filter(
     (role) => game.gamePlayers[role].length && role != 'newPlayer'

@@ -76,7 +76,7 @@ class RenderSystem extends System {
 const Page = () => {
   useEffect(() => {
     ;(async function () {
-      initializeEngine();
+      initializeEngine()
       // Register our systems to do stuff
       registerSystem(SystemUpdateType.Fixed, AnimationSystem)
       registerSystem(SystemUpdateType.Fixed, IKRigSystem)

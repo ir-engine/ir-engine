@@ -6,6 +6,5 @@ export const applyMediaAudioSettings = (positionalAudio, positionalAudioSettings
   positionalAudio.setMaxDistance(positionalAudioSettings.mediaMaxDistance)
   positionalAudio.setRefDistance(positionalAudioSettings.mediaRefDistance)
   positionalAudio.setRolloffFactor(positionalAudioSettings.mediaRolloffFactor)
-  if(setVolume)
-    positionalAudio.setVolume(positionalAudioSettings.mediaVolume)
+  if (setVolume) positionalAudio.setVolume(positionalAudioSettings.mediaVolume)
 }
