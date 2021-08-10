@@ -132,7 +132,7 @@ const MediaIconsBox = (props) => {
     }
   }
 
-  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START })
+  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
 
   const xrEnabled = Engine.xrSupported === true
   const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff

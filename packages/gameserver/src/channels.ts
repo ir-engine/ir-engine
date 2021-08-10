@@ -13,7 +13,7 @@ import Worker from 'web-worker'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
-import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 
 export default (app: Application): void => {
@@ -158,9 +158,9 @@ export default (app: Application): void => {
                       physics: true
                     })
 
-                    const portals = getAllMutableComponentOfType(PortalComponent)
+                    const portals = getAllComponentsOfType(PortalComponent)
                     await Promise.all(
-                      portals.map(async (portal: PortalComponent): Promise<void> => {
+                      portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
                         return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
                           if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
                         })

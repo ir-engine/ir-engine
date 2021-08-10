@@ -1,10 +1,8 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
 import { Entity } from '../../ecs/classes/Entity'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export class CopyTransformComponent extends Component<CopyTransformComponent> {
+export type CopyTransformComponentType = {
   input: Entity
 }
-CopyTransformComponent._schema = {
-  input: { default: [], type: Types.Ref }
-}
+
+export const CopyTransformComponent = createMappedComponent<CopyTransformComponentType>()

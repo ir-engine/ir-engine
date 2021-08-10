@@ -9,7 +9,8 @@ import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
-;(globalThis as any).XMLHttpRequest = XMLHttpRequest
+;import { SystemUpdateType } from '../../engine/src/ecs/functions/SystemUpdateType'
+(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 
 const currentPath = (process.platform === 'win32' ? 'file:///' : '') + path.dirname(__filename)
@@ -31,6 +32,7 @@ export class WebRTCGameServer {
     systems: [
       // TODO: we need to register this here still as this is not currently set up to work in deploy
       {
+        type: SystemUpdateType.Fixed,
         system: GolfSystem,
         after: GameManagerSystem
       }

@@ -1,11 +1,8 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { WebLayer3D } from 'ethereal'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-import type { WebLayer3D } from 'ethereal'
-
-export class UIRootComponent extends Component<UIRootComponent> {
+export type UIRootComponentType = {
   layer: WebLayer3D
-  static _schema = {
-    layer: { type: Types.Ref, default: null }
-  }
 }
+
+export const UIRootComponent = createMappedComponent<UIRootComponentType>()

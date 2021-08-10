@@ -1,3 +1,2 @@
-import { Component } from '../../ecs/classes/Component'
-
-export default class GroundPlane extends Component<any> {}
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+export const GroundPlane = createMappedComponent<{}>()

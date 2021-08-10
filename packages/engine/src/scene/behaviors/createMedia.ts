@@ -2,9 +2,9 @@ import { Object3D, PositionalAudio } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Interactable } from '../../interaction/components/Interactable'
-import VolumetricComponent from '../components/VolumetricComponent'
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { InteractableComponent } from '../../interaction/components/InteractableComponent'
+import { VolumetricComponent } from '../components/VolumetricComponent'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
 import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
@@ -45,8 +45,8 @@ export interface VideoProps extends AudioProps {
 }
 
 export function createMediaServer(entity, props: { interactable: boolean }): void {
-  addObject3DComponent(entity, new Object3D(), { interactable: props.interactable })
-  if (props.interactable) addComponent(entity, Interactable)
+  addObject3DComponent(entity, new Object3D(), props)
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
 export function createAudio(entity, props: AudioProps): void {
@@ -54,7 +54,7 @@ export function createAudio(entity, props: AudioProps): void {
   addObject3DComponent(entity, audio, props)
   audio.load()
   addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
-  if (props.interactable) addComponent(entity, Interactable)
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
 export function createVideo(entity, props: VideoProps): void {
@@ -65,7 +65,7 @@ export function createVideo(entity, props: VideoProps): void {
   }
   addObject3DComponent(entity, video, props)
   video.load()
-  if (props.interactable) addComponent(entity, Interactable)
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
 interface VolumetricProps {
@@ -76,8 +76,6 @@ interface VolumetricProps {
 }
 
 export const createVolumetric = (entity, props: VolumetricProps) => {
-  addComponent(entity, VolumetricComponent)
-  const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
   const container = new Object3D()
 
   // const worker = new PlayerWorker();
@@ -93,7 +91,11 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
     scale: 1,
     frameRate: 25
   })
-  volumetricComponent.player = DracosisSequence
+
+  addComponent(entity, VolumetricComponent, { 
+    player: DracosisSequence
+  })
+
   addObject3DComponent(entity, container, props)
-  if (props.interactable) addComponent(entity, Interactable)
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }

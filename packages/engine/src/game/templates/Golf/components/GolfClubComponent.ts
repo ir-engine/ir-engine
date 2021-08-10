@@ -1,9 +1,8 @@
 import { Group, Mesh, Vector3 } from 'three'
-import { Body, RaycastQuery } from 'three-physx'
-import { Component } from '../../../../ecs/classes/Component'
-import { Types } from '../../../../ecs/types/Types'
+import { RaycastQuery } from 'three-physx'
+import { createMappedComponent } from '../../../../ecs/functions/EntityFunctions'
 
-export class GolfClubComponent extends Component<GolfClubComponent> {
+export type GolfClubComponentType = {
   canDoChipShots: boolean
   neckObject: Mesh
   handleObject: Mesh
@@ -13,18 +12,13 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
   raycast1: RaycastQuery
   canHitBall: boolean
   hasHitBall: boolean
-  velocityPositionsToCalculate = 4
-  lastPositions: Vector3[] = []
+  velocityPositionsToCalculate: number
+  lastPositions: Vector3[]
   velocity: Vector3
   velocityServer: Vector3
   swingVelocity: number
-  hidden: boolean = false
-  disabledOpacity: number = 0.3
-
-  static _schema = {
-    canDoChipShots: { default: false, type: Types.Boolean },
-    velocity: { default: new Vector3(), type: Types.Vector3Type },
-    velocityServer: { default: new Vector3(), type: Types.Vector3Type },
-    disabledOpacity: { default: 0.3, type: Types.Number }
-  }
+  hidden: boolean
+  disabledOpacity: number
 }
+
+export const GolfClubComponent = createMappedComponent<GolfClubComponentType>()

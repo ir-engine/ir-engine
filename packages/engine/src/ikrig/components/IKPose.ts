@@ -2,7 +2,7 @@ import { Component } from '@xrengine/engine/src/ecs/classes/Component'
 import { Quaternion, Vector3 } from 'three'
 import Axis from '../classes/Axis'
 import IKRig from './IKRig'
-export class IKPose extends Component<IKPose> {
+export class IKPose extends Component <IKPose> {
   startPosition: Vector3 = new Vector3() // Start of chain (world space position of shoulder for an arm chain)
   endPosition: Vector3 = new Vector3() // Target position for chain to reach (end effector)
   axis: Axis = new Axis() // Axis of rotation toward the end position

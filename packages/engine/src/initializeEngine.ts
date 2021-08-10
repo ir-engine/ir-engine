@@ -16,9 +16,9 @@ import { Timer } from './common/functions/Timer'
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
-import { ActiveSystems } from './ecs/classes/System'
-import { execute, reset } from './ecs/functions/EngineFunctions'
-import { getSystem, registerSystem } from './ecs/functions/SystemFunctions'
+import { World } from './ecs/classes/World'
+import { reset } from './ecs/functions/EngineFunctions'
+import { createPipeline, injectSystem, registerSystem } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { GameManagerSystem } from './game/systems/GameManagerSystem'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
@@ -38,7 +38,6 @@ import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { HighlightSystem } from './renderer/HighlightSystem'
-import { VisibilitySystem } from './renderer/VisibleSystem'
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
 import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
 import { TransformSystem } from './transform/systems/TransformSystem'
@@ -100,7 +99,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   setupBotHooks()
 
-  addClientInputListeners()
+  addClientInputListeners(canvas)
 
   registerClientSystems(options, canvas)
 }
@@ -172,7 +171,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
   })
-  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, ParticleSystem)
@@ -187,7 +186,6 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Free, CameraSystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
-  registerSystem(SystemUpdateType.Free, VisibilitySystem)
 }
 
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
@@ -235,11 +233,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
   Engine.lastTime = now() / 1000
-  Engine.activeSystems = new ActiveSystems()
-
-  if (options.renderer && options.renderer.canvasId) {
-    Engine.options.canvasId = options.renderer.canvasId
-  }
 
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && navigator && window) {
@@ -267,32 +260,32 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   }
 
   options.systems?.forEach((init) => {
-    const system = new init.system(init.args)
-    Engine.systems.push(system)
-    if ('before' in init) {
-      const BeforeSystem = init.before
-      const updateType = BeforeSystem.updateType
-      const before = getSystem(BeforeSystem)
-      const idx = Engine.activeSystems[updateType].indexOf(before)
-      Engine.activeSystems[updateType].splice(idx, 0, system)
-    } else if ('after' in init) {
-      const AfterSystem = init.after
-      const updateType = AfterSystem.updateType
-      const after = getSystem(AfterSystem)
-      const idx = Engine.activeSystems[updateType].lastIndexOf(after) + 1
-      Engine.activeSystems[updateType].splice(idx, 0, system)
-    }
+    injectSystem(init)
   })
 
-  // Initialize all registered systems
-  await Promise.all(Engine.systems.map((system) => system.initialize()))
+  const fixedPipeline = await createPipeline(SystemUpdateType.Fixed)
+  const freePipeline = await createPipeline(SystemUpdateType.Free)
+  const networkPipeline = await createPipeline(SystemUpdateType.Network)
 
-  // Set timer
+  const executePipeline = (world: World, pipeline) => {
+    return (delta, elapsedTime) => {
+      world.ecsWorld.delta = delta
+      world.ecsWorld.time = elapsedTime
+      pipeline(world.ecsWorld)
+      world.ecsWorld._removedComponents.clear()
+    }
+  }
+
+  const world = World.defaultWorld
+  
+  // TODO: support multiple worlds
+  // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
+
   Engine.engineTimer = Timer(
     {
-      networkUpdate: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Network),
-      fixedUpdate: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-      update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+      networkUpdate: executePipeline(world, networkPipeline),
+      fixedUpdate: executePipeline(world, fixedPipeline),
+      update: executePipeline(world, freePipeline),
     },
     Engine.physicsFrameRate,
     Engine.networkFramerate
@@ -314,7 +307,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       window.addEventListener(type, onUserEngage)
     })
 
-    EngineEvents.instance.once(ClientNetworkStateSystem.EVENTS.CONNECT, ({ id }) => {
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })

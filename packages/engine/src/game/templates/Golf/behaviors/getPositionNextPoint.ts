@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
-import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
+import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame } from '../../../functions/functions'
@@ -15,7 +15,7 @@ export const getPositionNextPoint = (entity, positionCopyFromRole: any) => {
   // work with playerEntity but if you give game object will searsh playerEntity from owned component
   const ownerEntity = hasComponent(entity, GamePlayer)
     ? entity
-    : Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity
+    : Network.instance.networkObjects[getComponent(entity, NetworkObjectComponentOwner).networkId]?.entity
   const gameScore = getStorage(ownerEntity, { name: 'GameScore' })
   const game = getGame(entity)
 

@@ -1,12 +1,12 @@
 import { Vector3 } from 'three'
 import { Component } from '../../ecs/classes/Component'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import Pose from '../classes/Pose'
 import { Chain } from './Chain'
 import { IKPose } from './IKPose'
 import Obj from './Obj'
 
-class IKRig extends Component<IKRig> {
+class IKRig extends Component <IKRig> {
   tpose: Pose = null // Base pose to calculate math from
   pose: Pose = null // Working pose to apply math to and copy back to bones
   chains: any = {} // IK Chains
@@ -16,7 +16,7 @@ class IKRig extends Component<IKRig> {
   sourceRig: IKRig
 
   addPoint(name, boneName) {
-    const armature = getMutableComponent(this.entity, Obj).ref
+    const armature = getComponent(this.entity, Obj).ref
     this.points[name] = {
       index: armature.skeleton.bones.findIndex((bone) => bone.name.includes(boneName))
     }
@@ -26,7 +26,7 @@ class IKRig extends Component<IKRig> {
   addChain(name, nameArray, end_name = null) {
     //  axis="z",
     let i, b
-    const armature = getMutableComponent(this.entity, Obj).ref
+    const armature = getComponent(this.entity, Obj).ref
 
     const chain = new Chain() // axis
     for (i of nameArray) {
