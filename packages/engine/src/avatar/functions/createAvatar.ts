@@ -1,10 +1,8 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationMixer, Euler, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
-import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { Input } from '../../input/components/Input'
-import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarInputSchema } from '../AvatarInputSchema'
@@ -12,7 +10,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -50,7 +47,6 @@ export const createAvatar = (
     })
   })
   addComponent(entity, Input, { schema: AvatarInputSchema })
-  addComponent(entity, PositionalAudioComponent)
   addComponent(entity, VelocityComponent)
 
   // The visuals group is centered for easy actor tilting

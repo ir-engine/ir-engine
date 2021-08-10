@@ -12,7 +12,6 @@ import { Entity } from './Entity'
 import { EntityPool } from './EntityPool'
 import { EntityEventDispatcher } from './EntityEventDispatcher'
 import { Query } from './Query'
-import { createElement } from '../functions/createElement'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { GameMode } from '../../game/types/GameMode'
@@ -212,8 +211,6 @@ export class Engine {
   static tick = 0
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement
-
-  static createElement: any = createElement
 
   static useAudioSystem = false
 

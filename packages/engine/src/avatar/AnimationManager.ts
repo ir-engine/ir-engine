@@ -1,4 +1,4 @@
-import { AnimationClip, Group, Material, Mesh, SkinnedMesh } from 'three'
+import { AnimationClip, Group, Material, Mesh, SkinnedMesh, Vector3 } from 'three'
 import { getLoader } from '../assets/functions/LoadGLTF'
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'

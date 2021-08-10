@@ -1,6 +1,6 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { NetworkObject } from '../../networking/components/NetworkObject'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
@@ -8,7 +8,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { PositionalAudio } from 'three'
 import { applyAvatarAudioSettings, applyMediaAudioSettings } from '../../scene/behaviors/handleAudioSettings'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
@@ -30,28 +29,14 @@ export class PositionalAudioSystem extends System {
     super()
     Engine.useAudioSystem = true
     Engine.spatialAudio = true
-    this.reset()
-  }
-
-  reset(): void {
     this.avatarAudioStream = new Map<Entity, any>()
-  }
-
-  dispose(): void {
-    super.dispose()
-    this.reset()
   }
 
   /** Execute the positional audio system for different events of queries. */
   execute(): void {
-    for (const entity of this.queryResults.audio.added) {
-      const positionalAudio = getMutableComponent(entity, PositionalAudioComponent)
-      if (positionalAudio != null) positionalAudio.value = new PositionalAudio(Engine.audioListener)
-    }
-
     for (const entity of this.queryResults.audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
-      if (positionalAudio?.value != null && positionalAudio.value.source) positionalAudio.value.disconnect()
+      if (positionalAudio?.value?.source) positionalAudio.value.disconnect()
     }
 
     for (const entity of this.queryResults.avatar_audio.changed) {
