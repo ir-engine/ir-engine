@@ -26,6 +26,7 @@ import {
   SkeletonHelper,
   WebGLRenderer
 } from 'three'
+import { initializeEngine } from '../../../../../engine/src/initializeEngine'
 import Debug from '../../../components/Debug'
 
 class AnimationComponent extends Component<AnimationComponent> {
@@ -75,21 +76,12 @@ class RenderSystem extends System {
 const Page = () => {
   useEffect(() => {
     ;(async function () {
+      initializeEngine();
       // Register our systems to do stuff
-      registerSystem(AnimationSystem)
-      registerSystem(IKRigSystem)
-      registerSystem(RenderSystem)
+      registerSystem(SystemUpdateType.Fixed, AnimationSystem)
+      registerSystem(SystemUpdateType.Fixed, IKRigSystem)
+      registerSystem(SystemUpdateType.Free, RenderSystem)
       await Promise.all(Engine.systems.map((system) => system.initialize()))
-
-      Engine.engineTimer = Timer(
-        {
-          networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-          fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-          update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-        },
-        Engine.physicsFrameRate,
-        Engine.networkFramerate
-      )
 
       await initThree() // Set up the three.js scene with grid, light, etc
 

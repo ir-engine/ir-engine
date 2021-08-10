@@ -138,7 +138,7 @@ export class EngineRenderer {
 
     this.onResize = this.onResize.bind(this)
 
-    const canvas: HTMLCanvasElement = attributes.canvas
+    const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector("canvas")
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
     this.renderContext = context
