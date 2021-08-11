@@ -17,6 +17,8 @@ import {
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
 import styles from './MapMediaIconsBox.module.scss'
+import Microphone from './svg/Microphone.svg'
+// import Chat from './svg/Chat.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -113,7 +115,8 @@ const MediaIconsBox = (props) => {
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={handleMicClick}
         >
-          <MicIcon />
+          {/* <MicIcon /> */}
+          <img src={Microphone} alt=""></img>
         </button>
       ) : null}
       {videoEnabled && hasVideoDevice ? (
