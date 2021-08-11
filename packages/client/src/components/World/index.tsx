@@ -1,6 +1,5 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import {
   GeneralStateList,
   setAppSpecificOnBoardingStep
@@ -8,10 +7,11 @@ import {
 import { Config } from '@xrengine/client-core/src/helper'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
@@ -21,17 +21,11 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
-import RecordingApp from './../Recorder/RecordingApp'
 import GameServerWarnings from './GameServerWarnings'
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { UserService } from '../../../../client-core/src/user/store/UserService'
-import { UserMenuProps } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
@@ -59,7 +53,7 @@ export type EngineCallbacks = {
 
 interface Props {
   locationName: string
-  // appState?: any
+  allowDebug?: boolean
   authState?: any
   locationState?: any
   partyState?: any
@@ -70,13 +64,9 @@ interface Props {
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
   setAppSpecificOnBoardingStep?: typeof setAppSpecificOnBoardingStep
-  harmonyOpen?: boolean
-  showEmoteMenu?: boolean
   showTouchpad?: boolean
-  showRecordingApp?: boolean
-  showInteractable?: boolean
   engineCallbacks?: EngineCallbacks
-  userMenuProps?: UserMenuProps
+  children?: any
 }
 
 const mapStateToProps = (state: any) => {
@@ -282,9 +272,8 @@ export const EnginePage = (props: Props) => {
 
   return (
     <>
-      {isValidLocation ? (
-        <UserMenu {...props.userMenuProps} />
-      ) : (
+      {!isValidLocation &&
+      (
         <Snackbar
           open
           anchorOrigin={{
@@ -299,14 +288,9 @@ export const EnginePage = (props: Props) => {
         </Snackbar>
       )}
 
-      <NetworkDebug reinit={reinit} />
+      {props.allowDebug && <NetworkDebug reinit={reinit} />}
 
-
-      {!props.harmonyOpen && <MediaIconsBox />}
-
-      {props.showInteractable && <InteractableModal />}
-
-      {props.showRecordingApp && <RecordingApp />}
+      {props.children}
 
       <canvas id={props.engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
@@ -321,8 +305,6 @@ export const EnginePage = (props: Props) => {
         locationName={props.locationName}
         instanceId={selfUser?.instanceId ?? party?.instanceId}
       />
-
-      {props.showEmoteMenu && <EmoteMenu />}
     </>
   )
 }

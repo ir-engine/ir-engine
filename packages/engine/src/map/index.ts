@@ -1,10 +1,15 @@
-import { Position } from 'geojson'
+import { Position, Polygon, MultiPolygon } from 'geojson'
 import * as THREE from 'three'
 import { Group } from 'three'
+import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
 import { fetchRasterTiles, fetchVectorTiles, getCenterTile } from './MapBoxClient'
 import { MapProps } from './MapProps'
 import { createBuildings, createGround, createRoads, setGroundScaleAndPosition } from './MeshBuilder'
+import { NavMeshBuilder } from './NavMeshBuilder'
+import { TileFeaturesByLayer } from './types'
+import pc from 'polygon-clipping'
+import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 
 let centerCoord = {}
 let centerTile = {}
@@ -27,6 +32,8 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
 
   group.add(groundMesh)
 
+  group.userData.navMesh = generateNavMesh(vectorTiles, center)
+
   group.position.multiplyScalar(args.scale.x)
   group.scale.multiplyScalar(args.scale.x)
   group.name = 'MapObject'
@@ -34,6 +41,21 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   centerTile = Object.assign(getCenterTile(center))
 
   return group
+}
+
+const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position): NavMesh {
+  const builder = new NavMeshBuilder()
+  const gBuildings = tiles
+    .reduce((acc, tiles) => acc.concat(tiles.building), [])
+    .map((feature) => scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center as any))
+
+  const gGround = computeBoundingBox(gBuildings)
+  let gBuildingNegativeSpace = [gGround.coordinates]
+  gBuildings.forEach((gPositiveSpace) => {
+    gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
+  })
+  builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
+  return builder.build()
 }
 
 export const updateMap = async function (

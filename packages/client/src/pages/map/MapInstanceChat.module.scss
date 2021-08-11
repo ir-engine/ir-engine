@@ -3,7 +3,7 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  margin: 5px 10px 20px 10px;
+  margin: 5px 15px 20px 10px;
   align-items: center;
   color: #000;
   z-index: 20;
@@ -39,16 +39,12 @@
     margin: 0;
     width: 100vw;
   }
-  @media (max-width: 450px) {
-    margin: 0;
-    width: 100vw;
-  }
+
   .chat-box {
     display: flex;
     flex-grow: 1;
     align-items: stretch;
-    background-color: #fff;
-    padding: 3px;
+    padding: 0px;
     align-items: flex-end;
     .chat-box:last-child {
       padding-bottom: 0px;
@@ -56,26 +52,18 @@
 
     .iconContainer{
       display: flex;
-      background-color: #fff;
-      top:0;
-      right: 0;
       height: inherit;
       align-items: center;
-      padding: 2px 4px;
+      padding: 0px 10px;
       &:hover {
         cursor: pointer;
       }
-      
       svg{
         margin: 10px 0;
       }
     }
     .messageFieldContainer{
       margin:0px;
-      label{
-        color:black;
-        padding-left: 2px;
-      }
       .PrivateNotchedOutline-root-1{
         border: 0px;
       }
@@ -104,13 +92,12 @@
     
     :global(.MuiButton-root).iconContainerSend{
       display: flex;
-     height:38px;  
+      height: 37px;
       align-items: center;
-      padding:0 2px;
-      width: 52px;
-      margin: 7px;
+      // padding: 5px 10px;
+      width: 37px;
+      margin: 5px;
       min-width: 0px;
-      border-radius: 35px;
       &:hover {
         cursor: pointer;
       }

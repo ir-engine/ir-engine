@@ -4,6 +4,7 @@ import {
   Box3Helper,
   Color,
   ConeBufferGeometry,
+  Group,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -18,6 +19,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
+import { createGraphHelper } from '../../navigation/GraphHelper'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -26,8 +28,10 @@ import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
+import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 
-type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh'
+type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -42,7 +46,8 @@ export class DebugHelpers {
     box: new Map(),
     helperArrow: new Map(),
     velocityArrow: new Map(),
-    navmesh: new Map()
+    navmesh: new Map(),
+    navpath: new Map()
   }
 
   static physicsDebugRenderer: DebugRenderer
@@ -98,9 +103,13 @@ export const DebugHelpersSystem = async (): Promise<System> => {
   const ikAvatarAddQuery = enterQuery(ikAvatarQuery)
   const ikAvatarRemoveQuery = exitQuery(ikAvatarQuery)
 
-  const navmeshQuery = defineQuery([NavMeshComponent])
+  const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   const navmeshAddQuery = enterQuery(navmeshQuery)
   const navmeshRemoveQuery = exitQuery(navmeshQuery)
+
+  // const navpathQuery = defineQuery([AutoPilotComponent])
+  // const navpathAddQuery = enterQuery(navpathQuery)
+  // const navpathRemoveQuery = exitQuery(navpathQuery)
 
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
@@ -308,10 +317,14 @@ export const DebugHelpersSystem = async (): Promise<System> => {
 
     // ===== NAVMESH Helper ===== //
     for (const entity of navmeshAddQuery(world)) {
-      console.log('add mesh helper!')
+      console.log('add navmesh helper!')
       const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
-      const helper = createConvexRegionHelper(navMesh)
-      helper.visible = false
+      const convexHelper = createConvexRegionHelper(navMesh)
+      const graphHelper = createGraphHelper(navMesh.graph, 0.2)
+      const helper = new Group()
+      helper.add(convexHelper)
+      helper.add(graphHelper)
+      helper.visible = true
       Engine.scene.add(helper)
       DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
     }
@@ -327,6 +340,8 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       Engine.scene.remove(helper)
       DebugHelpers.helpersByEntity.navmesh.delete(entity)
     }
+    // ===== Autopilot Helper ===== //
+    // TODO add createPathHelper for navpathQuery
 
     DebugHelpers.physicsDebugRenderer.update()
     return world

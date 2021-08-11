@@ -1,3 +1,4 @@
+import { makeStyles } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
 import Button from '@material-ui/core/Button'
@@ -23,8 +24,9 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
-// @ts-ignore
-import styles from './InstanceChat.module.scss'
+import defaultStyles from './InstanceChat.module.scss'
+import Chat from '../../pages/map/svg/Chat.svg'
+import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -41,6 +43,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
 })
 
+const useStyles = makeStyles((theme) => ({
+  input: {
+    color: "#000"
+  }
+}))
+
 interface Props {
   authState?: any
   setBottomDrawerOpen: any
@@ -48,6 +56,7 @@ interface Props {
   instanceConnectionState?: any
   getInstanceChannel?: any
   createMessage?: any
+  styles?: any
   updateChatTarget?: any
   updateMessageScrollInit?: any
 }
@@ -61,7 +70,8 @@ const InstanceChat = (props: Props): any => {
     createMessage,
     setBottomDrawerOpen,
     updateChatTarget,
-    updateMessageScrollInit
+    updateMessageScrollInit,
+    styles = defaultStyles
   } = props
 
   let activeChannel
@@ -121,6 +131,7 @@ const InstanceChat = (props: Props): any => {
     setComposingMessage('')
   }
 
+  const classes = useStyles()
   const [openMessageContainer, setOpenMessageContainer] = React.useState(false)
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
@@ -223,7 +234,10 @@ const InstanceChat = (props: Props): any => {
           <Card className={styles['flex-center']}>
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
-                <MessageIcon onClick={() => hideShowMessagesContainer()} />
+                {/* <MessageIcon onClick={() => hideShowMessagesContainer()}  /> */}
+                <span onClick={() => hideShowMessagesContainer()}>
+                  <img src={Chat} alt="message"></img>
+                </span>
               </div>
               <TextField
                 className={styles.messageFieldContainer}
@@ -231,13 +245,15 @@ const InstanceChat = (props: Props): any => {
                 multiline={isMultiline}
                 fullWidth
                 id="newMessage"
-                label="World Chat..."
+                label="say something..."
                 name="newMessage"
+                color="secondary"
                 autoFocus
                 value={composingMessage}
                 inputProps={{
-                  maxLength: 1000,
-                  'aria-label': 'naked'
+//                   maxLength: 1000,
+//                   'aria-label': 'naked'
+                     className: classes.input
                 }}
                 InputLabelProps={{ shrink: false }}
                 onChange={handleComposingMessageChange}
@@ -280,10 +296,15 @@ const InstanceChat = (props: Props): any => {
             invisible={!unreadMessages}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           >
-            <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
+            <span onClick={() => hideShowMessagesContainer()}>
+              {' '}
+              <img src={Chat} alt="" className="openChat"></img>
+            </span>
+            {/* <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
               <MessageIcon />
+              <img src={Chat} alt=""></img>
               Chat
-            </Fab>
+            </Fab> */}
           </Badge>
         </div>
       )}

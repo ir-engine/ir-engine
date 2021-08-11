@@ -21,7 +21,7 @@ import configs from '@xrengine/client-core/src/world/components/editor/configs'
 
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
-import { EngineCallbacks } from './location'
+import { EngineCallbacks } from './'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -66,7 +66,7 @@ export const getSceneData = async (sceneId: string) => {
 export const initEngine = async (
   sceneId: string,
   initOptions: InitializeOptions,
-  newSpawnPos?: PortalComponent,
+  newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
   let sceneData = await getSceneData(sceneId)
@@ -137,7 +137,7 @@ export const initEngine = async (
 }
 
 export const teleportToLocation = async (
-  portalComponent: PortalComponent,
+  portalComponent: ReturnType<typeof PortalComponent.get>,
   slugifiedNameOfCurrentLocation: string,
   onTeleport: Function
 ) => {

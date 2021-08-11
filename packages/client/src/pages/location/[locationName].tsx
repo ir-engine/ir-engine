@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Scene, { EngineCallbacks } from '../../components/Scene/location'
+import World, { EngineCallbacks } from '../../components/World'
 import Layout from '../../components/Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -7,8 +7,13 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import RecordingApp from '../../components/Recorder/RecordingApp'
+import MediaIconsBox from '../../components/MediaIconsBox'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -51,16 +56,15 @@ const LocationPage = (props) => {
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
-      <Scene
-        locationName={props.match.params.locationName}
+      <World allowDebug={true} locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions}
-        showEmoteMenu
-        showInteractable
-        showRecordingApp
-        showTouchpad
-        engineCallbacks={engineCallbacks}
-      />
+        engineInitializeOptions={engineInitializeOptions} >
+        <InteractableModal />
+        <RecordingApp />
+        <MediaIconsBox />
+        <UserMenu />
+        <EmoteMenu />
+      </World>
     </Layout>
   )
 }
