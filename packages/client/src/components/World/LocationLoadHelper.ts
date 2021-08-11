@@ -73,7 +73,7 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
-  const isOffline = !!initOptions.networking
+  const isOffline = !initOptions.networking
   let sceneData = await getSceneData(sceneId, isOffline)
 
   // 1. Initialize Engine if not initialized
@@ -87,7 +87,7 @@ export const initEngine = async (
   }
 
   // 2. Connect to server
-  if (isOffline) await Store.store.dispatch(connectToInstanceServer('instance'))
+  if (!isOffline) await Store.store.dispatch(connectToInstanceServer('instance'))
 
   await new Promise<void>((resolve) => {
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
