@@ -19,7 +19,7 @@
         {
           "name": "audio-settings",
           "props": {
-            "overrideAudioSettings": false,
+            "usePositionalAudio": false,
             "avatarDistanceModel": "inverse",
             "avatarRolloffFactor": 2,
             "avatarRefDistance": 1,

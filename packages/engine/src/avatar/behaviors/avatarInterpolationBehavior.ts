@@ -1,4 +1,3 @@
-import type { Behavior } from '../../common/interfaces/Behavior'
 import type { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot'

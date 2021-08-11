@@ -8,7 +8,7 @@ export type NetworkObjectComponentType = {
   /** Entity unique Id from editor scene. */
   uniqueId: string
   /** Snapshot time of the object. */
-  snapShotTime: any
+  snapShotTime: number
 }
 
 export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>()
