@@ -139,19 +139,19 @@ export class WalkState extends AnimationState {
   type = AnimationType.VELOCITY_BASED
   syncActions = true
   animations: Animation[] = [
-    { name: AvatarAnimations.WALK_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: AvatarAnimations.WALK_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.WALK_FORWARD, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.WALK_BACKWARD, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity },
     {
       name: AvatarAnimations.WALK_STRAFE_LEFT,
       weight: 0,
-      timeScale: 1.2,
+      timeScale: 1,
       loopType: LoopRepeat,
       loopCount: Infinity
     },
     {
       name: AvatarAnimations.WALK_STRAFE_RIGHT,
       weight: 0,
-      timeScale: 1.2,
+      timeScale: 1,
       loopType: LoopRepeat,
       loopCount: Infinity
     }
@@ -185,10 +185,10 @@ export class RunState extends AnimationState {
   type = AnimationType.VELOCITY_BASED
   syncActions = true
   animations: Animation[] = [
-    { name: AvatarAnimations.RUN_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: AvatarAnimations.RUN_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: AvatarAnimations.RUN_STRAFE_LEFT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: AvatarAnimations.RUN_STRAFE_RIGHT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity }
+    { name: AvatarAnimations.RUN_FORWARD, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.RUN_BACKWARD, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.RUN_STRAFE_LEFT, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.RUN_STRAFE_RIGHT, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity }
   ]
 
   updateWeights = (): void => {
