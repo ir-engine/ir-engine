@@ -135,7 +135,13 @@ export function convertGeometryToSceneCoordinates(geometry: Polygon | MultiPolyg
   return geometry
 }
 export function convertPolygonToSceneCoordinates(coords: Position[][], llCenter: Position) {
-  return [coords[0].map((position) => llToScene(position, llCenter))]
+  return [
+    coords[0].map((position) => {
+      const sceneCoord = llToScene(position, llCenter)
+      sceneCoord[0] = sceneCoord[0] * -1
+      return sceneCoord
+    })
+  ]
 }
 
 export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: [number, number], scale = 1) {

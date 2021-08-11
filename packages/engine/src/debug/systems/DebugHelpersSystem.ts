@@ -325,6 +325,9 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       helper.add(convexHelper)
       helper.add(graphHelper)
       helper.visible = true
+      // TODO: remove this rotation, NavMesh should be rotated
+      helper.rotation.y = Math.PI
+      console.log('navhelper', helper)
       Engine.scene.add(helper)
       DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
     }
@@ -333,7 +336,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
       const transform = getComponent(entity, TransformComponent)
       helper.position.copy(transform.position)
-      helper.quaternion.copy(transform.rotation)
+      // helper.quaternion.copy(transform.rotation)
     }
     for (const entity of navmeshRemoveQuery(world)) {
       const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D

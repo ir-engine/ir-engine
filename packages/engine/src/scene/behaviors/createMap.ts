@@ -6,12 +6,17 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 
 export async function createMap(entity, args: MapProps): Promise<void> {
-  const mapMesh = await create(Engine.renderer, args)
+  const { mapMesh, navMesh } = await create(Engine.renderer, args)
+  console.log('mapMesh', mapMesh)
+  // TODO remove scene.add and instead use addComponent Object3DComponent to make it raycast-able
   Engine.scene.add(mapMesh)
-  console.log('map added, navmesh?', mapMesh.userData.navMesh)
-  if (mapMesh.userData.navMesh) {
+  // addComponent(entity, Object3DComponent, {
+  //   value: mapMesh
+  // })
+  console.log('map added, navmesh?', navMesh)
+  if (navMesh) {
     addComponent(entity, NavMeshComponent, {
-      yukaNavMesh: mapMesh.userData.navMesh
+      yukaNavMesh: navMesh
     })
     addComponent(entity, DebugNavMeshComponent, null)
   }
