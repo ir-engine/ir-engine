@@ -8,7 +8,8 @@ export enum CollisionGroups {
   Avatars = 1 << 1,
   Car = 1 << 2,
   Portal = 1 << 3,
-  Ground = 1 << 4
+  Ground = 1 << 4,
+  Trigger = 1 << 5
 }
 
 export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground

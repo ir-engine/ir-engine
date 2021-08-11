@@ -395,8 +395,10 @@ export const clickNavMesh: InputBehaviorType = (actorEntity, inputKey, inputValu
     return
   }
   const input = getComponent(actorEntity, InputComponent)
-  const coords = input.data.get(BaseInput.SCREENXY).value
-  addComponent(actorEntity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+  const coords = input.data.get(BaseInput.SCREENXY)?.value
+  if (coords) {
+    addComponent(actorEntity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+  }
 }
 
 // what do we want this to look like?

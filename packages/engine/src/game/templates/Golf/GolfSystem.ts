@@ -42,6 +42,7 @@ import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetw
 import { Engine } from '../../../ecs/classes/Engine'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../../ecs/bitecs'
 import { ECSWorld } from '../../../ecs/classes/World'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -49,6 +50,11 @@ import { ECSWorld } from '../../../ecs/classes/World'
  */
 
 export const GolfSystem = async (): Promise<System> => {
+  if (isClient) {
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
+  }
   Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
 
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
@@ -443,12 +449,14 @@ export const GolfSystem = async (): Promise<System> => {
     }
 
     for (const entity of activeClubAddQuery(world)) {
+      console.log('enable club')
       if (isClient) {
         enableClub(entity, true)
       }
     }
 
     for (const entity of inctiveClubAddQuery(world)) {
+      console.log('disable club')
       if (isClient) {
         enableClub(entity, false)
       }
@@ -466,8 +474,8 @@ export const GolfSystem = async (): Promise<System> => {
 
       // set up game logic
       addRole(entity)
-      addStateComponent(entity, State.WaitTurn)
       addStateComponent(entity, State.Active)
+      addStateComponent(entity, State.WaitTurn)
 
       setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 } })
 

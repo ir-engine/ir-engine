@@ -169,9 +169,9 @@ export const applyState = (game: ReturnType<typeof GameComponent.get>): void => 
         console.log('require to spawn object', v)
         requireSpawnObjects(game, v.uuid)
       } else {
-        // console.warn('////////////////////////////////////////////////////////////////')
-        // console.warn('  WE HAVE A PROBLEM')
-        // console.warn('////////////////////////////////////////////////////////////////')
+        console.warn('////////////////////////////////////////////////////////////////')
+        console.warn('  WE HAVE A PROBLEM')
+        console.warn('////////////////////////////////////////////////////////////////')
       }
     }
   })
@@ -187,6 +187,7 @@ export const applyState = (game: ReturnType<typeof GameComponent.get>): void => 
 
         if (stateObject != undefined) {
           stateObject.components.forEach((componentName: string) => {
+            console.log('addState from Network', entity, componentName)
             if (State[componentName]) {
               addComponent(entity, State[componentName], {})
             } else if (GolfState[componentName]) {
@@ -233,7 +234,8 @@ export const removeEntityFromState = (objectOrPlayerComponent, game): void => {
 // }
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<any, any>): void => {
-  if (entity === undefined || hasComponent(entity, component)) return
+  if (entity === undefined || hasComponent(entity, component))
+    return console.warn('tried to add state that already exists', entity, component.name)
 
   const uuid = getUuid(entity)
   const role = getRole(entity)
@@ -245,6 +247,7 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
   }
 
   addComponent(entity, component, {})
+  // console.log('addStateComponent', entity, component.name)
 
   let objectState = game.state.find((v) => v.uuid === uuid)
 
@@ -262,11 +265,13 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
 }
 
 export const removeStateComponent = (entity: Entity, component: ComponentConstructor<any, any>): void => {
-  if (entity === undefined || !hasComponent(entity, component)) return
+  if (entity === undefined || !hasComponent(entity, component))
+    return console.warn('tried to remove state that doesnt exists', entity, component.name)
   const uuid = getUuid(entity)
   const game = getGame(entity)
 
   removeComponent(entity, component)
+  // console.log('removeStateComponent', entity, component.name)
 
   const objectState = game.state.find((v) => v.uuid === uuid)
   const index = objectState.components.findIndex((name) => name === component.name)

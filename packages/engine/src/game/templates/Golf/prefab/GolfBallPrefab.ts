@@ -164,7 +164,6 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   })
   addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
   const isOwnedByCurrentClient = isClient && Network.instance.localAvatarNetworkId === ownerNetworkId
-  console.log('Network.instance.localAvatarNetworkId', Network.instance.localAvatarNetworkId, isOwnedByCurrentClient)
 
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
