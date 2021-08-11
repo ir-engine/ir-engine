@@ -3,10 +3,10 @@ import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
+import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
-import { Config } from '@xrengine/client-core/src/helper'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme } from '@xrengine/client-core/src/theme'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
@@ -16,57 +16,17 @@ import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import InstanceChat from '../../components/InstanceChat'
 import World, { EngineCallbacks } from '../../components/World'
-import JoinParty from './blockparty/JoinParty'
-import Chat from './chatmicoff/Chat'
-import MicOn from './chatmicon/MicOn'
-import Block from './loader/Block'
-import Loading from './loader/Loading'
 import emoteMenuStyles from './MapEmoteMenu.module.scss'
 import instanceChatStyles from './MapInstanceChat.module.scss'
 import styles from './MapLayout.module.scss'
 import MapMediaIconsBox from './MapMediaIconsBox'
-import Mic from './microphone/Mic'
-import ProfieEdit from './profileedit/ProfileEdit'
-import ProfieEditing from './profileediting/ProfileEditing'
-import UserMessage from './user/UserMessage'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
-import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
-const siteTitle: string = Config.publicRuntimeConfig.siteTitle
+const siteTitle: string = "Mappa" // Config.publicRuntimeConfig.siteTitle
 
-const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const engineInitializeOptions: InitializeOptions = {
-  publicPath: location.origin,
-  networking: {
-    schema: {
-      transport: SocketWebRTCClientTransport
-    } as NetworkSchema
-  },
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: CharacterUISystem,
-      after: UISystem
-    }
-  ]
-}
 interface Props {
   match?: any
   appState?: any
