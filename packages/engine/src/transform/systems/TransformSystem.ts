@@ -84,56 +84,28 @@ export const TransformSystem = async (): Promise<System> => {
     }
 
     for (const entity of desiredTransformQuery(world)) {
-      const transform = getComponent(entity, TransformComponent)
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
 
-      const positionIsSame = desiredTransform.position === null || transform.position.equals(desiredTransform.position)
-      const rotationIsSame = desiredTransform.rotation === null || transform.rotation.equals(desiredTransform.rotation)
+      const mutableTransform = getComponent(entity, TransformComponent)
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
 
-      if (positionIsSame && rotationIsSame) {
-        continue
-      }
+      // store rotation before interpolation
+      euler1YXZ.setFromQuaternion(mutableTransform.rotation)
+      // lerp to desired rotation
 
-      if (!positionIsSame) {
-        const mutableTransform = getComponent(entity, TransformComponent)
-        if (transform.position.distanceTo(desiredTransform.position) <= MAX_IGNORED_DISTANCE) {
-          // position is too near, no need to move closer - just copy it
-          mutableTransform.position.copy(desiredTransform.position)
-        } else {
-          // move to desired position
-          // TODO: move to desired position
-          // TODO: store alpha in DesiredTransformComponent ?
-          // TODO: use speed instead of lerp?
-          mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
-        }
+      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+      euler2YXZ.setFromQuaternion(mutableTransform.rotation)
+      // use axis locks - yes this is correct, the axis order is weird because quaternions
+      if (desiredTransform.lockRotationAxis[0]) {
+        euler2YXZ.x = euler1YXZ.x
       }
-
-      if (!rotationIsSame) {
-        const mutableTransform = getComponent(entity, TransformComponent)
-        if (transform.rotation.angleTo(desiredTransform.rotation) <= MAX_IGNORED_ANGLE) {
-          // value is close enough, just copy it
-          mutableTransform.rotation.copy(desiredTransform.rotation)
-        } else {
-          // store rotation before interpolation
-          euler1YXZ.setFromQuaternion(mutableTransform.rotation)
-          // lerp to desired rotation
-          // TODO: lerp to desired rotation
-          // TODO: store alpha in DesiredTransformComponent ?
-          mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
-          euler2YXZ.setFromQuaternion(mutableTransform.rotation)
-          // use axis locks - yes this is correct, the axis order is weird because quaternions
-          if (desiredTransform.lockRotationAxis[0]) {
-            euler2YXZ.x = euler1YXZ.x
-          }
-          if (desiredTransform.lockRotationAxis[2]) {
-            euler2YXZ.y = euler1YXZ.y
-          }
-          if (desiredTransform.lockRotationAxis[1]) {
-            euler2YXZ.z = euler1YXZ.z
-          }
-          mutableTransform.rotation.setFromEuler(euler2YXZ)
-        }
+      if (desiredTransform.lockRotationAxis[2]) {
+        euler2YXZ.y = euler1YXZ.y
       }
+      if (desiredTransform.lockRotationAxis[1]) {
+        euler2YXZ.z = euler1YXZ.z
+      }
+      mutableTransform.rotation.setFromEuler(euler2YXZ)
     }
 
     for (const entity of tweenQuery(world)) {
