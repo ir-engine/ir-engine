@@ -355,38 +355,22 @@ const lookFromXRInputs: InputBehaviorType = (
 }
 
 const lookByInputAxis: InputBehaviorType = (
-  entity: Entity,
-  inputKey: InputAlias,
-  inputValue: InputValue<NumericalType>,
-  delta: number
+  entity: Entity
 ): void => {
   const input = getComponent(entity, InputComponent)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
-  const multiplier = 0.1
-  // adding very small noise to trigger same value to be "changed"
-  // till axis values is not zero, look input should be treated as changed
-  const noise = (Math.random() > 0.5 ? 1 : -1) * 0.00001
-
   if (data.type === InputType.TWODIM) {
-    const isEmpty = Math.abs(data.value[0]) === 0 && Math.abs(data.value[1]) === 0
-    // axis is set, transfer it into output and trigger changed
-    if (!isEmpty) {
       input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
         type: data.type,
-        value: [data.value[0] * multiplier + noise, data.value[1] * multiplier + noise],
+        value: [data.value[0], data.value[1]],
         lifecycleState: LifecycleValue.CHANGED
       })
-    }
   } else if (data.type === InputType.THREEDIM) {
-    // TODO: check if this mapping correct
-    const isEmpty = Math.abs(data.value[0]) === 0 && Math.abs(data.value[2]) === 0
-    if (!isEmpty) {
       input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
         type: data.type,
-        value: [data.value[0] * multiplier + noise, data.value[2] * multiplier + noise],
+        value: [data.value[0], data.value[2]],
         lifecycleState: LifecycleValue.CHANGED
       })
-    }
   }
 }
 
@@ -395,8 +379,10 @@ export const clickNavMesh: InputBehaviorType = (actorEntity, inputKey, inputValu
     return
   }
   const input = getComponent(actorEntity, InputComponent)
-  const coords = input.data.get(BaseInput.SCREENXY).value
-  addComponent(actorEntity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+  const coords = input.data.get(BaseInput.SCREENXY)?.value
+  if (coords) {
+    addComponent(actorEntity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+  }
 }
 
 // what do we want this to look like?

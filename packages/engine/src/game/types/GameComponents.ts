@@ -51,14 +51,14 @@ export const Waiting = createMappedComponent<{}>()
 ;(Waiting as any).name = 'Waiting'
 export const YourTurn = createMappedComponent<{}>()
 ;(YourTurn as any).name = 'YourTurn'
-export const WaitTurn = createMappedComponent<{}>()
-;(WaitTurn as any).name = 'WaitTurn'
 export const SpawnedObject = createMappedComponent<{}>()
 ;(SpawnedObject as any).name = 'SpawnedObject'
 export const Active = createMappedComponent<{}>()
 ;(Active as any).name = 'Active'
 export const Inactive = createMappedComponent<{}>()
 ;(Inactive as any).name = 'Inactive'
+export const WaitTurn = createMappedComponent<{}>()
+;(WaitTurn as any).name = 'WaitTurn'
 
 export const State = {
   [gameStates.Active]: Active,

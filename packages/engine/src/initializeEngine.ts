@@ -64,6 +64,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   const canvas = configCanvasElement(options.renderer.canvasId!)
 
   Engine.audioListener = new AudioListener()
+  console.log(Engine.audioListener)
 
   Engine.scene = new Scene()
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {

@@ -118,7 +118,9 @@ export function createCollider(
     restitution: userData.restitution ?? 0.1
   }
 
-  shapeArgs.config.collisionLayer = Number(userData.collisionLayer ?? CollisionGroups.Default)
+  shapeArgs.config.collisionLayer = Number(
+    userData.collisionLayer ?? (userData.isTrigger ? CollisionGroups.Trigger : CollisionGroups.Default)
+  )
   switch (userData.collisionMask) {
     case undefined:
     case -1:
