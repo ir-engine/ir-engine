@@ -50,7 +50,7 @@ interface Props {
   updateArMediaState?: typeof updateArMediaState
 }
 
-export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: any) => {
+export const ViewMode = ({ updateArMediaState, creatorsState }: any) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
 
@@ -59,7 +59,11 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
       // @ts-ignore
       XRPlugin.accessPermission({})
     }
-    setOpen(true)
+    if (!creatorsState.get('currentCreator').steps) {
+      handleOpenNewFeedPage()
+    } else {
+      setOpen(true)
+    }
   }
 
   const handleClose = () => {
@@ -163,9 +167,6 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
     }
   })
 
-  const currentCreator = creatorsState.get('currentCreator')
-  const openSteps = useState(!!!currentCreator.steps)
-
   const updateSteps = ({ creatorsState, updateCreator }: any) => {
     updateCreator({ id: creatorsState.get('currentCreator').id, steps: false })
   }
@@ -177,7 +178,6 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
   return (
     <div className={classes.mainBlock}>
-      {/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}
       <img src="/assets/tabBar(1).svg" onClick={handleClickOpen} />
       <Dialog
         open={open}
