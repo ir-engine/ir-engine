@@ -3,7 +3,11 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import {
+  ActionType,
+  IncomingActionType,
+  WorldStateInterface
+} from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
@@ -15,6 +19,7 @@ import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
 import { NetworkObjectComponent } from '../../engine/src/networking/components/NetworkObjectComponent'
+import { decode } from 'msgpackr'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -362,6 +367,14 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     worldState: WorldStateModel.toBuffer(worldState),
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
+}
+
+export function handleIncomingActions(socket, message) {
+  if (!message) return
+  const actions = decode(message) as IncomingActionType[]
+  for (const a of actions) a.senderID = socket.id
+  console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
+  Network.instance.incomingActions.push(...actions)
 }
 
 export async function handleIncomingMessage(socket, message): Promise<any> {
