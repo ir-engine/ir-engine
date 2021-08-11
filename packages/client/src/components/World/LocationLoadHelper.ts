@@ -70,7 +70,7 @@ export const initEngine = async (
   newSpawnPos: PortalComponent
 ): Promise<any> => {
   let sceneData = await getSceneData(sceneId)
-
+  console.log(initOptions);
   // Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)

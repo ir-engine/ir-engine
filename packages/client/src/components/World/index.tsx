@@ -1,6 +1,5 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import {
   GeneralStateList,
@@ -25,17 +24,42 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import MediaIconsBox from '../../components/MediaIconsBox'
+import { CharacterUISystem } from '../../../../client-core/src/systems/CharacterUISystem'
+import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
+import { UISystem } from '../../../../engine/src/xrui/systems/UISystem'
 import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
-import RecordingApp from './../Recorder/RecordingApp'
+import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 
 const goHome = () => (window.location.href = window.location.origin)
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
+
+const defaultEngineInitializeOptions: InitializeOptions = {
+  publicPath: location.origin,
+  networking: {
+    schema: {
+      transport: SocketWebRTCClientTransport
+    } as NetworkSchema
+  },
+  renderer: {
+    canvasId: 'engine-renderer-canvas'
+  },
+  physics: {
+    simulationEnabled: false,
+    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+  },
+  systems: [
+    {
+      system: CharacterUISystem,
+      after: UISystem
+    }
+  ]
+}
 
 const canvasStyle = {
   zIndex: 0,
@@ -217,7 +241,7 @@ export const EnginePage = (props: Props) => {
   const init = async (sceneId: string): Promise<any> => {
     initEngine(
       sceneId,
-      props.engineInitializeOptions,
+      props.engineInitializeOptions ?? defaultEngineInitializeOptions,
       async () => {
         setProgressEntity(0)
         props.setAppLoaded(true)
@@ -283,12 +307,8 @@ export const EnginePage = (props: Props) => {
       {props.allowDebug && <NetworkDebug reinit={reinit} />}
 
       <LoadingScreen objectsToLoad={progressEntity} />
-
-      {!props.harmonyOpen && <MediaIconsBox />}
-
+        {props.children}
       <InteractableModal />
-
-      <RecordingApp />
 
       <canvas id={props.engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
@@ -303,8 +323,6 @@ export const EnginePage = (props: Props) => {
         locationName={props.locationName}
         instanceId={selfUser?.instanceId ?? party?.instanceId}
       />
-
-      <EmoteMenu />
     </>
   )
 }

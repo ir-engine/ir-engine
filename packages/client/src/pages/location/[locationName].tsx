@@ -13,8 +13,6 @@ import MediaIconsBox from '../../components/MediaIconsBox'
 import UserMenu from '../../../../client-core/src/user/components/UserMenu'
 import EmoteMenu from '../../../../client-core/src/common/components/EmoteMenu'
 
-const engineRendererCanvasId = 'engine-renderer-canvas'
-
 const LocationPage = (props) => {
   const { t } = useTranslation()
 
@@ -26,7 +24,7 @@ const LocationPage = (props) => {
       } as NetworkSchema
     },
     renderer: {
-      canvasId: engineRendererCanvasId
+      canvasId: 'engine-renderer-canvas'
     },
     physics: {
       simulationEnabled: false,
@@ -42,7 +40,7 @@ const LocationPage = (props) => {
 
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
-      <World alowDebug={true} locationName={props.match.params.locationName}
+      <World allowDebug={true} locationName={props.match.params.locationName}
         history={props.history}
         engineInitializeOptions={engineInitializeOptions} >
         <InteractableModal />
