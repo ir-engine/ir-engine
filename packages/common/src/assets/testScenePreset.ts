@@ -63,7 +63,7 @@ export const testScenePreset = {
         {
           name: 'audio-settings',
           props: {
-            overrideAudioSettings: false,
+            usePositionalAudio: false,
             avatarDistanceModel: 'inverse',
             avatarRolloffFactor: 2,
             avatarRefDistance: 1,
@@ -78,7 +78,7 @@ export const testScenePreset = {
             mediaConeOuterGain: 0
           },
           data: {
-            overrideAudioSettings: false,
+            usePositionalAudio: false,
             avatarDistanceModel: 'inverse',
             avatarRolloffFactor: 2,
             avatarRefDistance: 1,

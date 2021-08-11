@@ -4,6 +4,7 @@ import { TransformStateInterface, WorldStateInterface } from '../interfaces/Worl
 
 const transformSchema = new Schema({
   networkId: uint32,
+  snapShotTime: uint32,
   x: float32,
   y: float32,
   z: float32,
