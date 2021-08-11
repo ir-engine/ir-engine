@@ -18,12 +18,18 @@ import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
 
-const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
-  const points = navMesh.findPath(new YukaVector3(from.x, from.y, from.z), new YukaVector3(to.x, to.y, to.z))
+const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
+  // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
+  // TODO: handle scale and rotation of graph object, pass world matrix?
+  const graphBaseCoordinate = new YukaVector3(base.x, base.y, base.z)
+  const localFrom = new YukaVector3(from.x, from.y, from.z).sub(graphBaseCoordinate)
+  const localTo = new YukaVector3(to.x, to.y, to.z).sub(graphBaseCoordinate)
+  const points = navMesh.findPath(localFrom, localTo)
 
   const path = new Path()
   for (const point of points) {
-    path.add(point)
+    const worldPoint = point.clone().add(graphBaseCoordinate) // convert point back to world coordinates
+    path.add(worldPoint)
   }
   return path
 }
@@ -99,12 +105,12 @@ export const AutopilotSystem = async (): Promise<System> => {
         // reuse component
         autopilotComponent = getComponent(entity, AutoPilotComponent)
       } else {
-        const path = findPath(navMeshComponent.yukaNavMesh, position, request.point)
-        autopilotComponent = addComponent(entity, AutoPilotComponent, { path, navEntity: request.navEntity })
+        autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
       }
       autopilotComponent.navEntity = request.navEntity
 
-      autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point)
+      const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
+      autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate)
       console.log('autopilotComponent.path', autopilotComponent.path)
 
       // TODO: "mount" player? disable movement, etc.
