@@ -1,10 +1,8 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import {
   GeneralStateList,
-  setAppLoaded,
   setAppSpecificOnBoardingStep
 } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { Config } from '@xrengine/client-core/src/helper'
@@ -35,6 +33,7 @@ import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFe
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { UserMenuProps } from '@xrengine/client-core/src/user/components/UserMenu/util'
 
 const goHome = () => (window.location.href = window.location.origin)
 
@@ -49,6 +48,15 @@ const canvasStyle = {
   userSelect: 'none'
 } as React.CSSProperties
 
+export type EngineCallbacks = {
+  onEngineInitialized?: Function
+  onConnectedToServer?: Function
+  onSceneLoaded?: Function
+  onSceneLoadProgress?: Function
+  onJoinedToNewWorld?: Function
+  onSuccess?: Function
+}
+
 interface Props {
   locationName: string
   // appState?: any
@@ -59,11 +67,16 @@ interface Props {
   engineInitializeOptions?: InitializeOptions
   instanceConnectionState?: any
   doLoginAuto?: typeof doLoginAuto
-  setAppLoaded?: typeof setAppLoaded
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
   setAppSpecificOnBoardingStep?: typeof setAppSpecificOnBoardingStep
   harmonyOpen?: boolean
+  showEmoteMenu?: boolean
+  showTouchpad?: boolean
+  showRecordingApp?: boolean
+  showInteractable?: boolean
+  engineCallbacks?: EngineCallbacks
+  userMenuProps?: UserMenuProps
 }
 
 const mapStateToProps = (state: any) => {
@@ -77,7 +90,6 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setAppLoaded: bindActionCreators(setAppLoaded, dispatch),
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
@@ -86,7 +98,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 export const EnginePage = (props: Props) => {
   const [isUserBanned, setUserBanned] = useState(true)
-  const [progressEntity, setProgressEntity] = useState(99)
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
   const [isTeleporting, setIsTeleporting] = useState(false)
@@ -176,6 +187,12 @@ export const EnginePage = (props: Props) => {
     }
   }, [props.instanceConnectionState])
 
+  useEffect(() => {
+    return (): void => {
+      shutdownEngine()
+    }
+  }, [])
+
   // TODO: Is this still is use
   // useEffect(() => {
   //   if (
@@ -220,21 +237,13 @@ export const EnginePage = (props: Props) => {
     initEngine(
       sceneId,
       props.engineInitializeOptions,
-      async () => {
-        setProgressEntity(0)
-        props.setAppLoaded(true)
-      },
-      onSceneLoadedEntity,
-      newSpawnPos
+      newSpawnPos,
+      props.engineCallbacks
     )
 
     addUIEvents()
 
     setIsTeleporting(false)
-  }
-
-  const onSceneLoadedEntity = (left: number): void => {
-    setProgressEntity(left || 0)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
@@ -266,7 +275,7 @@ export const EnginePage = (props: Props) => {
   return (
     <>
       {isValidLocation ? (
-        <UserMenu />
+        <UserMenu {...props.userMenuProps} />
       ) : (
         <Snackbar
           open
@@ -284,17 +293,16 @@ export const EnginePage = (props: Props) => {
 
       <NetworkDebug reinit={reinit} />
 
-      <LoadingScreen objectsToLoad={progressEntity} />
 
       {!props.harmonyOpen && <MediaIconsBox />}
 
-      <InteractableModal />
+      {props.showInteractable && <InteractableModal />}
 
-      <RecordingApp />
+      {props.showRecordingApp && <RecordingApp />}
 
       <canvas id={props.engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
-      {isTouchAvailable ? (
+      {props.showTouchpad && isTouchAvailable ? (
         <Suspense fallback={<></>}>
           <TouchGamepad layout="default" />
         </Suspense>
@@ -306,7 +314,7 @@ export const EnginePage = (props: Props) => {
         instanceId={selfUser?.instanceId ?? party?.instanceId}
       />
 
-      <EmoteMenu />
+      {props.showEmoteMenu && <EmoteMenu />}
     </>
   )
 }

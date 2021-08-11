@@ -18,7 +18,7 @@ import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { ActiveSystems } from './ecs/classes/System'
 import { execute, reset } from './ecs/functions/EngineFunctions'
-import { getSystem, registerSystem } from './ecs/functions/SystemFunctions'
+import { getSystem, registerSystem, unregisterSystem } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { GameManagerSystem } from './game/systems/GameManagerSystem'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
@@ -267,20 +267,24 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   }
 
   options.systems?.forEach((init) => {
-    const system = new init.system(init.args)
-    Engine.systems.push(system)
     if ('before' in init) {
+      const system = new init.system(init.args)
+      Engine.systems.push(system)
       const BeforeSystem = init.before
       const updateType = BeforeSystem.updateType
       const before = getSystem(BeforeSystem)
       const idx = Engine.activeSystems[updateType].indexOf(before)
       Engine.activeSystems[updateType].splice(idx, 0, system)
     } else if ('after' in init) {
+      const system = new init.system(init.args)
+      Engine.systems.push(system)
       const AfterSystem = init.after
       const updateType = AfterSystem.updateType
       const after = getSystem(AfterSystem)
       const idx = Engine.activeSystems[updateType].lastIndexOf(after) + 1
       Engine.activeSystems[updateType].splice(idx, 0, system)
+    } else if ('remove' in init) {
+      unregisterSystem(init.remove.updateType, init.remove)
     }
   })
 

@@ -8,7 +8,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { GeneralStateList, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
+import { GeneralStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -21,6 +21,7 @@ import configs from '@xrengine/client-core/src/world/components/editor/configs'
 
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
+import { EngineCallbacks } from './location'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -65,44 +66,46 @@ export const getSceneData = async (sceneId: string) => {
 export const initEngine = async (
   sceneId: string,
   initOptions: InitializeOptions,
-  onWorldLoaded: Function,
-  onWorldLoadProgress: Function,
-  newSpawnPos: PortalComponent
+  newSpawnPos?: PortalComponent,
+  engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
   let sceneData = await getSceneData(sceneId)
 
-  // Initialize Engine if not initialized
+  // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
+
+    if (typeof engineCallbacks?.onEngineInitialized === 'function') {
+      engineCallbacks.onEngineInitialized()
+    }
   }
 
-  // Connect to server
+  // 2. Connect to server
   if (!Config.publicRuntimeConfig.offlineMode) await Store.store.dispatch(connectToInstanceServer('instance'))
 
-  const connectPromise = new Promise<void>((resolve) => {
+  await new Promise<void>((resolve) => {
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
   })
 
-  // Start scene loading
+  if (typeof engineCallbacks?.onConnectedToServer === 'function') {
+    engineCallbacks.onConnectedToServer()
+  }
+
+  // 3. Start scene loading
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
-  const sceneLoadPromise = new Promise<void>((resolve) => {
-    WorldScene.load(
-      sceneData,
-      () => {
-        onWorldLoaded()
-        getPortalDetails(configs)
-        Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-        resolve()
-      },
-      onWorldLoadProgress
-    )
-  })
+  await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
 
-  await Promise.all([connectPromise, sceneLoadPromise])
+  getPortalDetails(configs)
+  Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+  Store.store.dispatch(setAppLoaded(true))
 
-  // Joing to new world
+  if (typeof engineCallbacks?.onConnectedToServer === 'function') {
+    engineCallbacks.onConnectedToServer()
+  }
+
+  // 4. Joing to new world
   await new Promise<void>(async (resolve) => {
     // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     let spawnTransform
@@ -120,8 +123,17 @@ export const initEngine = async (
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
-  // Dispatch success
+  if (typeof engineCallbacks?.onJoinedToNewWorld === 'function') {
+    engineCallbacks.onJoinedToNewWorld()
+  }
+
+
+  // 5. Dispatch success
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
+
+  if (typeof engineCallbacks?.onSuccess === 'function') {
+    engineCallbacks.onSuccess()
+  }
 }
 
 export const teleportToLocation = async (
