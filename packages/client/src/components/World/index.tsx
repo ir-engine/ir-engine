@@ -9,7 +9,6 @@ import {
 import { Config } from '@xrengine/client-core/src/helper'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
@@ -287,9 +286,8 @@ export const EnginePage = (props: Props) => {
 
   return (
     <>
-      {isValidLocation ? (
-        <UserMenu />
-      ) : (
+      {!isValidLocation &&
+      (
         <Snackbar
           open
           anchorOrigin={{
@@ -308,7 +306,6 @@ export const EnginePage = (props: Props) => {
 
       <LoadingScreen objectsToLoad={progressEntity} />
         {props.children}
-      <InteractableModal />
 
       <canvas id={props.engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
