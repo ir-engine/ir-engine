@@ -333,7 +333,7 @@ export const GolfSystem = async (): Promise<System> => {
       for (const ballEntity of ballHitAddQuery(world)) {
         if (hasComponent(ballEntity, GolfState.BallStopped) && hasComponent(ballEntity, State.Active)) {
           addStateComponent(clubEntity, GolfState.Hit)
-          sendVelocity(clubEntity)
+          // sendVelocity(clubEntity)
         } else if (isClient) {
           // this case when other player hit ball but you still waiting yours ball to stop
           // but you need waite because you use interpolation correction bevavior, other player not and server not
@@ -482,10 +482,10 @@ export const GolfSystem = async (): Promise<System> => {
       const role = gameObject.role.split('-')[0]
       switch (role) {
         case 'GolfTee':
-          addComponent(entity, GolfTeeComponent, null)
+          addComponent(entity, GolfTeeComponent, {})
           break
         case 'GolfHole':
-          addComponent(entity, GolfHoleComponent, null)
+          addComponent(entity, GolfHoleComponent, {})
           break
       }
     }

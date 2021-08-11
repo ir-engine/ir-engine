@@ -25,7 +25,7 @@ export const YourTurnPanel = () => {
 export async function createYourTurnPanel(player: Entity) {
   if (player === Network.instance.localClientEntity) {
     const ui = createXRUI(YourTurnPanel, {})
-    addComponent(ui.entity, TransformComponent, null)
+    addComponent(ui.entity, TransformComponent, {})
     addComponent(
       ui.entity,
       TransformChildComponent,

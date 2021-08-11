@@ -30,11 +30,11 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       createAvatar(entity, parameters, !isLocalPlayer)
 
       addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
-      addComponent(entity, InterpolationComponent, null)
+      addComponent(entity, InterpolationComponent, {})
       addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
       if (isLocalPlayer) {
-        addComponent(entity, LocalInputReceiverComponent, null)
+        addComponent(entity, LocalInputReceiverComponent, {})
         addComponent(entity, FollowCameraComponent, {
           mode: CameraModes.ThirdPerson,
           distance: 3,
@@ -52,7 +52,7 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
           focusedInteractive: null,
           subFocusedArray: []
         })
-        addComponent(entity, PersistTagComponent, null)
+        addComponent(entity, PersistTagComponent, {})
 
         Network.instance.localAvatarNetworkId = networkId
         Network.instance.localClientEntity = entity

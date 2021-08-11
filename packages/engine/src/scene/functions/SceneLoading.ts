@@ -213,7 +213,7 @@ export class WorldScene {
         break
 
       case 'walkable':
-        addComponent(entity, WalkableTagComponent, null)
+        addComponent(entity, WalkableTagComponent, {})
         break
 
       case 'fog':
@@ -234,11 +234,11 @@ export class WorldScene {
         break
 
       case 'spawn-point':
-        addComponent(entity, SpawnPointComponent, null)
+        addComponent(entity, SpawnPointComponent, {})
         break
 
       case 'scene-preview-camera':
-        addComponent(entity, ScenePreviewCameraTagComponent, null)
+        addComponent(entity, ScenePreviewCameraTagComponent, {})
         if (isClient && Engine.activeCameraEntity) {
           addComponent(Engine.activeCameraEntity, CopyTransformComponent, { input: entity })
         }
@@ -301,7 +301,7 @@ export class WorldScene {
         break
 
       case 'persist':
-        if (isClient) addComponent(entity, PersistTagComponent, null)
+        if (isClient) addComponent(entity, PersistTagComponent, {})
         break
 
       case 'portal':

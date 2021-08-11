@@ -21,11 +21,11 @@ export const createMappedComponent = <T extends {}, S extends ISchema = {}>(sche
   const componentMap = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
 
-  if (defaultValues) {
-    Object.defineProperty(component, '_default', {
-      value: defaultValues
-    })
-  }
+  // if (defaultValues) {
+  //   Object.defineProperty(component, '_default', {
+  //     value: defaultValues
+  //   })
+  // }
 
   if (schema) {
     Object.defineProperty(component, '_schema', {
@@ -135,7 +135,7 @@ export const addComponent = <T extends any, S extends ISchema>(
       component[key][entity] = args[key]
     }
   }
-  component.set(entity, Object.assign({}, args, component._default))
+  component.set(entity, args) //, Object.assign({}, args, component._default))
   return component.get(entity)
 }
 

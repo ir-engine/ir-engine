@@ -194,14 +194,14 @@ export const CameraSystem = async (): Promise<System> => {
   const followCameraRemoveQuery = exitQuery(followCameraQuery)
 
   const cameraEntity = createEntity()
-  addComponent(cameraEntity, CameraComponent, null)
+  addComponent(cameraEntity, CameraComponent, {})
   addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
   })
-  addComponent(cameraEntity, PersistTagComponent, null)
+  addComponent(cameraEntity, PersistTagComponent, {})
   Engine.activeCameraEntity = cameraEntity
 
   // If we lose focus on the window, and regain it, copy our desired transform to avoid strange transform behavior and clipping
