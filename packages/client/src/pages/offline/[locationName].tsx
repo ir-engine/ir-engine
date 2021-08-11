@@ -43,7 +43,7 @@ const LocationPage = (props) => {
 
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
-    onSceneLoaded: () => setLoadingItemCount(0),
+    onSceneLoaded: () => setLoadingItemCount(0)
   }
 
   return (

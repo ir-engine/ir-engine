@@ -8,7 +8,11 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { GeneralStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
+import {
+  GeneralStateList,
+  setAppLoaded,
+  setAppOnBoardingStep
+} from '@xrengine/client-core/src/common/reducers/app/actions'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -127,7 +131,6 @@ export const initEngine = async (
   if (typeof engineCallbacks?.onJoinedToNewWorld === 'function') {
     engineCallbacks.onJoinedToNewWorld()
   }
-
 
   // 5. Dispatch success
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))

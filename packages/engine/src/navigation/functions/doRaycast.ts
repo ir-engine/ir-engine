@@ -24,7 +24,7 @@ export const doRaycast: InputBehaviorType = (actorEntity, inputKey, inputValue):
   const raycasterResults = []
   const clickResult = autopilotSystem.queryResults.navmeshes.all.reduce(
     (previousEntry, currentEntity) => {
-      console.log(currentEntity);
+      console.log(currentEntity)
       const mesh = getComponent(currentEntity, Object3DComponent).value
       raycasterResults.length = 0
       raycaster.intersectObject(mesh, true, raycasterResults)

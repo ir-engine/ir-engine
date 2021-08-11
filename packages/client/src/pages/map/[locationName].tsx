@@ -109,7 +109,7 @@ const Layout = (props: Props): any => {
 
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
-    onSceneLoaded: () => setLoadingItemCount(0),
+    onSceneLoaded: () => setLoadingItemCount(0)
   }
 
   const initialClickListener = () => {
@@ -139,9 +139,7 @@ const Layout = (props: Props): any => {
                 {siteTitle} | {t('location.locationName.pageTitle')}
               </title>
             </Helmet>
-            <header>
-              {path === '/login' && <NavMenu login={login} />}
-            </header>
+            <header>{path === '/login' && <NavMenu login={login} />}</header>
 
             {fullScreenActive ? (
               <button type="button" className={styles.fullScreen} onClick={handle.exit}>
@@ -152,25 +150,27 @@ const Layout = (props: Props): any => {
                 <ZoomOutMap />
               </button>
             )}
-              <UIDialog />
-              <Alerts />
-              <LoadingScreen objectsToLoad={loadingItemCount} />
-              <World
-                locationName={props.match.params.locationName}
-                history={props.history}
-                engineCallbacks={engineCallbacks}
-                showTouchpad
-              >
-                <MapMediaIconsBox />
-                <UserMenu />
-                <EmoteMenu styles={emoteMenuStyles} />
-              </World>
+            <UIDialog />
+            <Alerts />
+            <LoadingScreen objectsToLoad={loadingItemCount} />
+            <World
+              locationName={props.match.params.locationName}
+              history={props.history}
+              engineCallbacks={engineCallbacks}
+              showTouchpad
+            >
+              <MapMediaIconsBox />
+              <UserMenu />
+              <EmoteMenu styles={emoteMenuStyles} />
+            </World>
             <footer>
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null &&
                 authState.get('isLoggedIn') === true &&
                 user?.instanceId != null &&
-                !bottomDrawerOpen && <InstanceChat styles={instanceChatStyles} setBottomDrawerOpen={setBottomDrawerOpen} />}
+                !bottomDrawerOpen && (
+                  <InstanceChat styles={instanceChatStyles} setBottomDrawerOpen={setBottomDrawerOpen} />
+                )}
             </footer>
           </section>
         </ThemeProvider>

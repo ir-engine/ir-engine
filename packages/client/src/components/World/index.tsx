@@ -1,9 +1,6 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import {
-  GeneralStateList,
-  setAppSpecificOnBoardingStep
-} from '@xrengine/client-core/src/common/reducers/app/actions'
+import { GeneralStateList, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
@@ -223,12 +220,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
-    initEngine(
-      sceneId,
-      props.engineInitializeOptions,
-      newSpawnPos,
-      props.engineCallbacks
-    )
+    initEngine(sceneId, props.engineInitializeOptions, newSpawnPos, props.engineCallbacks)
 
     addUIEvents()
 
@@ -271,8 +263,7 @@ export const EnginePage = (props: Props) => {
 
   return (
     <>
-      {!isValidLocation &&
-      (
+      {!isValidLocation && (
         <Snackbar
           open
           anchorOrigin={{

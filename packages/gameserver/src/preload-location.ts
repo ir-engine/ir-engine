@@ -39,10 +39,9 @@ export default async function (locationName, app: Application) {
     }
   }, 1000)
 
-  await WorldScene.load(
-    result,
-    (left) => { entitiesLeft = left }
-  )
+  await WorldScene.load(result, (left) => {
+    entitiesLeft = left
+  })
 
   clearInterval(loadingInterval)
   const agonesSDK = (app as any).agonesSDK

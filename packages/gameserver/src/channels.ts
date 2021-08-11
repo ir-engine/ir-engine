@@ -147,10 +147,9 @@ export default (app: Application): void => {
 
                 console.log('Loading scene...')
 
-                await WorldScene.load(
-                  result,
-                  (left) => { entitiesLeft = left }
-                )
+                await WorldScene.load(result, (left) => {
+                  entitiesLeft = left
+                })
 
                 console.log('Scene loaded!')
                 clearInterval(loadingInterval)

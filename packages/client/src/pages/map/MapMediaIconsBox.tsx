@@ -29,8 +29,7 @@ const mapStateToProps = (state: any): any => {
   }
 }
 
-const mapDispatchToProps = (dispatch): any => ({
-})
+const mapDispatchToProps = (dispatch): any => ({})
 
 const MediaIconsBox = (props) => {
   const { authState, locationState, mediastream } = props

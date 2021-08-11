@@ -5,5 +5,5 @@ import dialogReducer from './dialog/reducers'
 export default {
   app: appReducer,
   alert: alertReducer,
-  dialog: dialogReducer,
+  dialog: dialogReducer
 }

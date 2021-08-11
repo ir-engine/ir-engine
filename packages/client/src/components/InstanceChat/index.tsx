@@ -45,7 +45,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const useStyles = makeStyles((theme) => ({
   input: {
-    color: "#000"
+    color: '#000'
   }
 }))
 
@@ -251,9 +251,9 @@ const InstanceChat = (props: Props): any => {
                 autoFocus
                 value={composingMessage}
                 inputProps={{
-//                   maxLength: 1000,
-//                   'aria-label': 'naked'
-                     className: classes.input
+                  // maxLength: 1000,
+                  // 'aria-label': 'naked'
+                  className: classes.input
                 }}
                 InputLabelProps={{ shrink: false }}
                 onChange={handleComposingMessageChange}

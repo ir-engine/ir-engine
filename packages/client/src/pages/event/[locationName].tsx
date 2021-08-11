@@ -66,7 +66,7 @@ const LocationPage = (props) => {
       dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false))
 
       await awaitEngaged()
-    },
+    }
   }
 
   return (
