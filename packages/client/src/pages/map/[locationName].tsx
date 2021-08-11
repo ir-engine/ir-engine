@@ -19,7 +19,7 @@ import { connect } from 'react-redux'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import InstanceChat from '../../components/InstanceChat'
-import World from '../../components/World'
+import World, { EngineCallbacks } from '../../components/World'
 import JoinParty from './blockparty/JoinParty'
 import Chat from './chatmicoff/Chat'
 import MicOn from './chatmicon/MicOn'
@@ -33,10 +33,40 @@ import Mic from './microphone/Mic'
 import ProfieEdit from './profileedit/ProfileEdit'
 import ProfieEditing from './profileediting/ProfileEditing'
 import UserMessage from './user/UserMessage'
-
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
+import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
+import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
+const engineRendererCanvasId = 'engine-renderer-canvas'
+
+const engineInitializeOptions: InitializeOptions = {
+  publicPath: location.origin,
+  networking: {
+    schema: {
+      transport: SocketWebRTCClientTransport
+    } as NetworkSchema
+  },
+  renderer: {
+    canvasId: engineRendererCanvasId
+  },
+  physics: {
+    simulationEnabled: false,
+    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+  },
+  systems: [
+    {
+      type: SystemUpdateType.Fixed,
+      system: CharacterUISystem,
+      after: UISystem
+    }
+  ]
+}
 interface Props {
   match?: any
   appState?: any
@@ -62,6 +92,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const Layout = (props: Props): any => {
+  const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()
 
   const path = useLocation().pathname
@@ -71,6 +102,15 @@ const Layout = (props: Props): any => {
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const user = authState.get('user')
   const handle = useFullScreenHandle()
+
+  const onSceneLoadProgress = (loadingItemCount: number): void => {
+    setLoadingItemCount(loadingItemCount || 0)
+  }
+
+  const engineCallbacks: EngineCallbacks = {
+    onSceneLoadProgress,
+    onSceneLoaded: () => setLoadingItemCount(0),
+  }
 
   const initialClickListener = () => {
     setUserHasInteracted()
@@ -86,11 +126,7 @@ const Layout = (props: Props): any => {
   }, [])
 
   const reportChange = useCallback((state) => {
-    if (state) {
-      setFullScreenActive(state)
-    } else {
-      setFullScreenActive(state)
-    }
+    setFullScreenActive(state)
   }, [])
 
   return (
@@ -118,7 +154,13 @@ const Layout = (props: Props): any => {
             )}
               <UIDialog />
               <Alerts />
-              <World locationName={props.match.params.locationName} history={props.history} >
+              <LoadingScreen objectsToLoad={loadingItemCount} />
+              <World
+                locationName={props.match.params.locationName}
+                history={props.history}
+                engineCallbacks={engineCallbacks}
+                showTouchpad
+              >
                 <MapMediaIconsBox />
                 <UserMenu />
                 <EmoteMenu styles={emoteMenuStyles} />

@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
-import Scene, { EngineCallbacks } from '../../components/Scene/location'
+import World, { EngineCallbacks } from '../../components/World'
 import Layout from '../../components/Layout/Layout'
 import { useTranslation } from 'react-i18next'
-import Store from '@xrengine/client-core/src/store'
+import { useDispatch } from 'react-redux'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import MediaIconsBox from '../../components/MediaIconsBox'
 import { awaitEngaged } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GeneralStateList, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
 
@@ -30,6 +35,7 @@ const engineInitializeOptions: InitializeOptions = {
   },
   systems: [
     {
+      type: SystemUpdateType.Fixed,
       system: CharacterUISystem,
       after: UISystem
     }
@@ -39,6 +45,7 @@ const engineInitializeOptions: InitializeOptions = {
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()
+  const dispatch = useDispatch()
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -56,7 +63,7 @@ const LocationPage = (props) => {
         console.log('could not run event specific logic', props.match.params.locationName, e)
       }
 
-      Store.store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false))
+      dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false))
 
       await awaitEngaged()
     },
@@ -65,19 +72,19 @@ const LocationPage = (props) => {
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
-      <Scene
+      <World
+        allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
         engineInitializeOptions={engineInitializeOptions}
-        showEmoteMenu
-        showInteractable
-        showTouchpad
         engineCallbacks={engineCallbacks}
-        userMenuProps={{
-          hideLogin: true,
-          enableSharing: false
-        }}
-      />
+        showTouchpad
+      >
+        <InteractableModal />
+        <MediaIconsBox />
+        <UserMenu hideLogin enableSharing={false} />
+        <EmoteMenu />
+      </World>
     </Layout>
   )
 }

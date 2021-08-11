@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
-// import Scene from '../../components/Golf/golfLocation'
-import Scene, { EngineCallbacks } from '../../components/Scene/location'
+import World, { EngineCallbacks } from '../../components/World'
 import Layout from '../../components/Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
+import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import MediaIconsBox from '../../components/MediaIconsBox'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
-import { AnimationSystem } from '@xrengine/engine/src/avatar/AnimationSystem'
 import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 const engineInitializeOptions: InitializeOptions = {
@@ -29,11 +30,9 @@ const engineInitializeOptions: InitializeOptions = {
   },
   systems: [
     {
+      type: SystemUpdateType.Fixed,
       system: GolfSystem,
       after: GameManagerSystem
-    },
-    {
-      remove: AnimationSystem
     }
   ]
 }
@@ -55,12 +54,16 @@ const LocationPage = (props) => {
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
-      <Scene
+      <World
+        allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
         engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
-      />
+      >
+        <UserMenu />
+        <MediaIconsBox />
+      </World>
     </Layout>
   )
 }

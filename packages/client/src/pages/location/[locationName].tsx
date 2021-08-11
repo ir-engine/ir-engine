@@ -56,9 +56,14 @@ const LocationPage = (props) => {
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
-      <World allowDebug={true} locationName={props.match.params.locationName}
+      <World
+        allowDebug={true}
+        locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions} >
+        engineInitializeOptions={engineInitializeOptions}
+        engineCallbacks={engineCallbacks}
+        showTouchpad
+      >
         <InteractableModal />
         <RecordingApp />
         <MediaIconsBox />

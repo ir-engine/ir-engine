@@ -39,48 +39,45 @@ export default async function (locationName, app: Application) {
     }
   }, 1000)
 
-  WorldScene.load(
+  await WorldScene.load(
     result,
-    async () => {
-      clearInterval(loadingInterval)
-      const agonesSDK = (app as any).agonesSDK
-      const gsResult = await agonesSDK.getGameServer()
-      const { status } = gsResult
-      const localIp = await getLocalServerIp()
-      const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
-      const newInstance = {
-        currentUsers: 0,
-        sceneId: location.sid,
-        ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:3031` : selfIpAddress,
-        locationId: location.id
-      } as any
-      ;(app as any).isChannelInstance = false
-      const instanceResult = await app.service('instance').create(newInstance)
-      ;(app as any).instance = instanceResult
-
-      if ((app as any).gsSubdomainNumber != null) {
-        const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
-          query: {
-            gs_number: (app as any).gsSubdomainNumber
-          }
-        })
-
-        if (gsSubProvision.total > 0) {
-          const provision = gsSubProvision.data[0]
-          await app.service('gameserver-subdomain-provision').patch(provision.id, {
-            instanceId: instanceResult.id
-          })
-        }
-      }
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.ENABLE_SCENE,
-        renderer: true,
-        physics: true
-      })
-    },
-    async (left) => {
-      entitiesLeft = left
-    }
+    (left) => { entitiesLeft = left }
   )
+
+  clearInterval(loadingInterval)
+  const agonesSDK = (app as any).agonesSDK
+  const gsResult = await agonesSDK.getGameServer()
+  const { status } = gsResult
+  const localIp = await getLocalServerIp()
+  const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
+  const newInstance = {
+    currentUsers: 0,
+    sceneId: location.sid,
+    ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:3031` : selfIpAddress,
+    locationId: location.id
+  } as any
+  ;(app as any).isChannelInstance = false
+  const instanceResult = await app.service('instance').create(newInstance)
+  ;(app as any).instance = instanceResult
+
+  if ((app as any).gsSubdomainNumber != null) {
+    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: (app as any).gsSubdomainNumber
+      }
+    })
+
+    if (gsSubProvision.total > 0) {
+      const provision = gsSubProvision.data[0]
+      await app.service('gameserver-subdomain-provision').patch(provision.id, {
+        instanceId: instanceResult.id
+      })
+    }
+  }
+  EngineEvents.instance.dispatchEvent({
+    type: EngineEvents.EVENTS.ENABLE_SCENE,
+    renderer: true,
+    physics: true
+  })
   console.log('Pre-loaded location', location.id)
 }

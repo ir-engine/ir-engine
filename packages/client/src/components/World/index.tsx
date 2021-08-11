@@ -4,7 +4,6 @@ import {
   GeneralStateList,
   setAppSpecificOnBoardingStep
 } from '@xrengine/client-core/src/common/reducers/app/actions'
-import { Config } from '@xrengine/client-core/src/helper'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
@@ -108,7 +107,7 @@ export const EnginePage = (props: Props) => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    if (Config.publicRuntimeConfig.offlineMode) {
+    if (!props.engineInitializeOptions.networking) {
       init(props.locationName)
     } else {
       props.doLoginAuto(true)

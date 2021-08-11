@@ -43,8 +43,8 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
   }
 }
 
-export const getSceneData = async (sceneId: string) => {
-  if (Config.publicRuntimeConfig.offlineMode) {
+export const getSceneData = async (sceneId: string, isOffline: boolean) => {
+  if (isOffline) {
     return testScenes[sceneId] || testScenes.test
   }
 
@@ -69,7 +69,8 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
-  let sceneData = await getSceneData(sceneId)
+  const isOffline = !!initOptions.networking
+  let sceneData = await getSceneData(sceneId, isOffline)
 
   // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
@@ -82,7 +83,7 @@ export const initEngine = async (
   }
 
   // 2. Connect to server
-  if (!Config.publicRuntimeConfig.offlineMode) await Store.store.dispatch(connectToInstanceServer('instance'))
+  if (isOffline) await Store.store.dispatch(connectToInstanceServer('instance'))
 
   await new Promise<void>((resolve) => {
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)

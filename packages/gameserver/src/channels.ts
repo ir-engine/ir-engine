@@ -147,29 +147,26 @@ export default (app: Application): void => {
 
                 console.log('Loading scene...')
 
-                WorldScene.load(
+                await WorldScene.load(
                   result,
-                  async () => {
-                    console.log('Scene loaded!')
-                    clearInterval(loadingInterval)
-                    EngineEvents.instance.dispatchEvent({
-                      type: EngineEvents.EVENTS.ENABLE_SCENE,
-                      renderer: true,
-                      physics: true
-                    })
+                  (left) => { entitiesLeft = left }
+                )
 
-                    const portals = getAllComponentsOfType(PortalComponent)
-                    await Promise.all(
-                      portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-                        return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-                          if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-                        })
-                      })
-                    )
-                  },
-                  (left) => {
-                    entitiesLeft = left
-                  }
+                console.log('Scene loaded!')
+                clearInterval(loadingInterval)
+                EngineEvents.instance.dispatchEvent({
+                  type: EngineEvents.EVENTS.ENABLE_SCENE,
+                  renderer: true,
+                  physics: true
+                })
+
+                const portals = getAllComponentsOfType(PortalComponent)
+                await Promise.all(
+                  portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
+                    return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
+                      if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
+                    })
+                  })
                 )
               }
             } else {
