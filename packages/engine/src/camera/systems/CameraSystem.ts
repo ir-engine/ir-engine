@@ -51,7 +51,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   // newTheta - theta ==> To rotate Right on mouse drage Right -> Left
   const dif = oldAngle - angle
 
-  if (Math.abs(dif) % Math.PI > 0.001) {
+  if (Math.abs(dif) % Math.PI > 0.0001) {
     viewVector.setX(Math.sin(oldAngle - dif))
     viewVector.setZ(Math.cos(oldAngle - dif))
   }
@@ -59,7 +59,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-const getPositionRate = () => (window?.innerWidth <= 768 ? 3.5 : 2)
+const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCameraBehavior = (entity: Entity) => {
@@ -82,13 +82,12 @@ const followCameraBehavior = (entity: Entity) => {
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-
   let inputValue =
-    inputComponent.data.get(inputAxes) ||
-    ({
-      type: 0,
-      value: [0, 0] as Vector2Type
-    } as InputValue<NumericalType>)
+  inputComponent.data.get(inputAxes) ||
+  ({
+    type: 0,
+    value: [0, 0] as Vector2Type
+  } as InputValue<NumericalType>)
 
   let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance

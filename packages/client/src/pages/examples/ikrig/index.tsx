@@ -114,18 +114,18 @@ const Page = () => {
       // Set up entity
       let sourceEntity = createEntity()
       const ac = addComponent(sourceEntity, AnimationComponent, {
-        mixer: new AnimationMixer(obj.ref),
+        mixer: new AnimationMixer(model.scene),
         animations: model.animations,
         animationSpeed: 1
       })
-      addComponent(sourceEntity, IKObj, {})
-      addComponent(sourceEntity, IKPose, {})
-      addComponent(sourceEntity, IKRig, {})
+      addComponent(sourceEntity, IKObj, {ref: model.scene})
+      addComponent(sourceEntity, IKPose, {ref: null})
+      addComponent(sourceEntity, IKRig, {sourceRig: skinnedMesh})
 
       const rig = getComponent(sourceEntity, IKRig)
       const sourcePose = getComponent(sourceEntity, IKPose)
 
-      rig.sourceRig = rig
+      rig.sourceRig = skinnedMesh
       rig.sourcePose = getComponent(sourceEntity, IKPose)
 
       setReference(sourceEntity, skinnedMesh)

@@ -11,11 +11,15 @@
     cursor: pointer;
   }
   svg{
-    margin: 0 5px 0 0 ;
+    margin: 0 2.5px 0 2.5px ;
   }
   button {
     height: 48px;
   }
+  .chatBadge{
+    border-radius:50px;
+  }
+
 }
 .instance-chat-container {
   position: absolute;
@@ -43,6 +47,11 @@
     margin: 0;
     width: 100vw;
   }
+
+  .chat-view {
+    border-radius: 50px;
+  }
+
   .chat-box {
     display: flex;
     flex-grow: 1;
@@ -110,7 +119,7 @@
       width: 52px;
       margin: 7px;
       min-width: 0px;
-      border-radius: 35px;
+      border-radius: 50px;
       &:hover {
         cursor: pointer;
       }
@@ -162,9 +171,9 @@
 :global(.MuiPaper-root).message-wrapper{
     display: flex;
     flex-direction: column;
-    height: 30vh;   
+    //height: 30vh;   
     background-color: transparent;
-    margin-left: -55px;
+    //margin-left: -55px;
     @media (max-width: 768px) {
       margin-left: 0;
     }
@@ -178,6 +187,27 @@
     .first-message-placeholder {
       font-size: 2em;
       margin: auto;
+    }
+    .message-sender-avatar{
+      margin: 0 10px 0 10px;
+      min-width: auto;
+    }
+    .message-left{
+      justify-content: flex-start;
+      text-align: start;
+    }
+
+    .message-left-text{
+      border-radius: 10px 10px 10px 0px;
+    }
+
+    .message-right{
+      justify-content: flex-end;
+      text-align: end;
+    }
+
+    .message-right-text{
+      border-radius: 10px 10px 0px 10px;
     }
   }
 }
