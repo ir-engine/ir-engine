@@ -9,7 +9,8 @@ import { createBuildings, createGround, createRoads, llToScene, setGroundScaleAn
 import { NavMeshBuilder } from './NavMeshBuilder'
 import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
-import { computeBoundingBox, convertGeometryToSceneCoordinates, scaleAndTranslate } from './GeoJSONFns'
+import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
+import { METERS_PER_DEGREE_LL } from './constants'
 
 let centerCoord = {}
 let centerTile = {}
@@ -33,7 +34,7 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
 
   group.add(groundMesh)
 
-  const navMesh = generateNavMesh(vectorTiles, center)
+  const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
   group.position.multiplyScalar(args.scale.x)
   group.scale.multiplyScalar(args.scale.x)
@@ -44,12 +45,12 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
 }
 
-const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position): NavMesh {
+const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
   const builder = new NavMeshBuilder()
   const gBuildings = tiles
     .reduce((acc, tiles) => acc.concat(tiles.building), [])
     .map((feature) => {
-      return convertGeometryToSceneCoordinates(feature.geometry as Polygon | MultiPolygon, center)
+      return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
     })
 
   const gGround = computeBoundingBox(gBuildings)

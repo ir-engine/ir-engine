@@ -324,9 +324,6 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       const helper = new Group()
       helper.add(convexHelper)
       helper.add(graphHelper)
-      helper.visible = true
-      // TODO: remove this rotation, NavMesh should be rotated
-      helper.rotation.y = Math.PI
       console.log('navhelper', helper)
       Engine.scene.add(helper)
       DebugHelpers.helpersByEntity.navmesh.set(entity, helper)

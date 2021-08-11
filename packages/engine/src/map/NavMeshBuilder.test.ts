@@ -50,16 +50,33 @@ describe('NavMeshBuilder', () => {
     return this
   }
 
+  test('_toYukaCoords', () => {
+    const sut = new NavMeshBuilder()
+    const result = sut._toYukaRing([
+      [1, 1],
+      [1, -1],
+      [-1, -1],
+      [-1, 1]
+    ])
+
+    expect(result).toEqual([
+      [1, -1],
+      [1, 1],
+      [-1, 1],
+      [-1, -1]
+    ])
+  })
+
   test('_toYukaPolygons', () => {
     jest.spyOn(YUKA.Polygon.prototype, 'fromContour').mockImplementation(fromContourMock)
     const sut = new NavMeshBuilder()
 
     let result = sut._toYukaPolygons(polygon, 0)
-    expect((result[0] as any).vec3s).toEqual(sut._toYukaVectors3(polygon.coordinates[0].reverse(), 0))
+    expect((result[0] as any).vec3s).toEqual(sut._toYukaVectors3(sut._toYukaRing(polygon.coordinates[0]), 0))
 
     result = sut._toYukaPolygons(multiPolygon, 0)
-    expect((result[0] as any).vec3s).toEqual(sut._toYukaVectors3(multiPolygon.coordinates[0][0].reverse(), 0))
-    expect((result[1] as any).vec3s).toEqual(sut._toYukaVectors3(multiPolygon.coordinates[1][0].reverse(), 0))
+    expect((result[0] as any).vec3s).toEqual(sut._toYukaVectors3(sut._toYukaRing(multiPolygon.coordinates[0][0]), 0))
+    expect((result[1] as any).vec3s).toEqual(sut._toYukaVectors3(sut._toYukaRing(multiPolygon.coordinates[1][0]), 0))
 
     result = sut._toYukaPolygons(polygonInteriorRing, 0)
     expect(result.length).toEqual(8)
