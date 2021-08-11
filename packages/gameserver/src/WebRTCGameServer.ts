@@ -10,7 +10,6 @@ import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/ini
 import { GolfClientSystem, GolfCommonSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { EquippableSystem } from '../../engine/src/interaction/systems/EquippableSystem'
 import { SystemUpdateType } from '../../engine/src/ecs/functions/SystemUpdateType'
-
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 
