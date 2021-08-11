@@ -378,14 +378,14 @@ function normalizeMouseMovement(
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-let callback;
+let callback
 
 export const handleMouseMovement = (event: MouseEvent): void => {
   if (!Engine.mouseInputEnabled) {
     return
   }
 
-  if(callback) {
+  if (callback) {
     clearTimeout(callback)
     callback = null
   }
@@ -421,20 +421,24 @@ export const handleMouseMovement = (event: MouseEvent): void => {
 
   const isDragging = Engine.inputState.get(MouseInput.MouseClickDownPosition)
 
-  let value = [0,0] as NumericalType
+  let value = [0, 0] as NumericalType
   if (isDragging && isDragging?.lifecycleState !== LifecycleValue.ENDED) {
     value = mouseMovement
     callback = setTimeout(() => {
       Engine.inputState.set(MouseInput.MouseClickDownMovement, {
         type: InputType.TWODIM,
-        value: [0,0],
-        lifecycleState: Engine.inputState.has(MouseInput.MouseClickDownMovement) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+        value: [0, 0],
+        lifecycleState: Engine.inputState.has(MouseInput.MouseClickDownMovement)
+          ? LifecycleValue.CHANGED
+          : LifecycleValue.STARTED
       })
     }, 50)
     Engine.inputState.set(MouseInput.MouseClickDownMovement, {
       type: InputType.TWODIM,
       value: value,
-      lifecycleState: Engine.inputState.has(MouseInput.MouseClickDownMovement) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+      lifecycleState: Engine.inputState.has(MouseInput.MouseClickDownMovement)
+        ? LifecycleValue.CHANGED
+        : LifecycleValue.STARTED
     })
   }
 }

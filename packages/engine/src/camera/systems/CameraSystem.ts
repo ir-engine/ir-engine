@@ -51,7 +51,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   // newTheta - theta ==> To rotate Right on mouse drage Right -> Left
   const dif = oldAngle - angle
 
-  if (Math.abs(dif) % Math.PI > 0.000001) {
+  if (Math.abs(dif) % Math.PI > 0.0001) {
     viewVector.setX(Math.sin(oldAngle - dif))
     viewVector.setZ(Math.cos(oldAngle - dif))
   }

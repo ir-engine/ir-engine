@@ -10,8 +10,6 @@ import { TransformComponent } from '../components/TransformComponent'
 import { TransformParentComponent } from '../components/TransformParentComponent'
 import { TweenComponent } from '../components/TweenComponent'
 
-const MAX_IGNORED_DISTANCE = 0.001
-const MAX_IGNORED_ANGLE = 0.001
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
@@ -86,26 +84,26 @@ export const TransformSystem = async (): Promise<System> => {
     for (const entity of desiredTransformQuery(world)) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
 
-        const mutableTransform = getComponent(entity, TransformComponent)
-        mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
+      const mutableTransform = getComponent(entity, TransformComponent)
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
 
-          // store rotation before interpolation
-          euler1YXZ.setFromQuaternion(mutableTransform.rotation)
-          // lerp to desired rotation
+      // store rotation before interpolation
+      euler1YXZ.setFromQuaternion(mutableTransform.rotation)
+      // lerp to desired rotation
 
-         mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
-          euler2YXZ.setFromQuaternion(mutableTransform.rotation)
-          // use axis locks - yes this is correct, the axis order is weird because quaternions
-          if (desiredTransform.lockRotationAxis[0]) {
-            euler2YXZ.x = euler1YXZ.x
-          }
-          if (desiredTransform.lockRotationAxis[2]) {
-            euler2YXZ.y = euler1YXZ.y
-          }
-          if (desiredTransform.lockRotationAxis[1]) {
-            euler2YXZ.z = euler1YXZ.z
-          }
-          mutableTransform.rotation.setFromEuler(euler2YXZ)
+      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+      euler2YXZ.setFromQuaternion(mutableTransform.rotation)
+      // use axis locks - yes this is correct, the axis order is weird because quaternions
+      if (desiredTransform.lockRotationAxis[0]) {
+        euler2YXZ.x = euler1YXZ.x
+      }
+      if (desiredTransform.lockRotationAxis[2]) {
+        euler2YXZ.y = euler1YXZ.y
+      }
+      if (desiredTransform.lockRotationAxis[1]) {
+        euler2YXZ.z = euler1YXZ.z
+      }
+      mutableTransform.rotation.setFromEuler(euler2YXZ)
     }
 
     for (const entity of tweenQuery(world)) {
