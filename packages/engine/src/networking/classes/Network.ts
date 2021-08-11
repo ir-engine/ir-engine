@@ -3,7 +3,7 @@ import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectList } from '../interfaces/NetworkObjectList'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
-import { NetworkTransport } from '../interfaces/NetworkTransport'
+import { NetworkTransport, IncomingActionType, ActionType } from '../interfaces/NetworkTransport'
 import { AvatarProps, NetworkClientInputInterface, WorldStateInterface } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
@@ -55,6 +55,10 @@ export class Network {
   dataProducers = new Map<string, any>()
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
+  /** Incoming actions */
+  incomingActions = [] as IncomingActionType[]
+  /** Outgoing actions */
+  outgoingActions = [] as ActionType[]
 
   clientGameAction: ClientGameActionMessage[] = []
 
