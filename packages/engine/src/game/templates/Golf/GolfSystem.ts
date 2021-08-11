@@ -1,202 +1,128 @@
-import { Quaternion } from 'three'
-import { XRInputSourceComponent } from '../../../avatar/components/XRInputSourceComponent'
-import { teleportPlayer } from '../../../avatar/functions/teleportPlayer'
-import { isClient } from '../../../common/functions/isClient'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
-import { Network } from '../../../networking/classes/Network'
-import { NetworkObjectComponent } from '../../../networking/components/NetworkObjectComponent'
-import { NetworkObjectComponentOwner } from '../../../networking/components/NetworkObjectComponentOwner'
-import { GameObject } from '../../components/GameObject'
-import { GamePlayer } from '../../components/GamePlayer'
-import { getGame, getUuid } from '../../functions/functions'
-import { addStateComponent, removeStateComponent, sendVelocity } from '../../functions/functionsState'
-import { getStorage, setStorage } from '../../functions/functionsStorage'
-import { Action, State } from '../../types/GameComponents'
-import { ifGetOut } from '../../functions/ifGetOut'
-import { ifOwned } from '../../functions/ifOwned'
-import { GolfGameMode } from '../GolfGameMode'
-import { addHole } from './behaviors/addHole'
-import { addRole } from './behaviors/addRole'
-import { addTurn } from './behaviors/addTurn'
-import { createYourTurnPanel } from './behaviors/createYourTurnPanel'
-import { saveGoalScore } from './behaviors/displayScore'
-import { getPositionNextPoint } from './behaviors/getPositionNextPoint'
-import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
-import { hitBall } from './behaviors/hitBall'
-import { nextTurn } from './behaviors/nextTurn'
-import { saveScore } from './behaviors/saveScore'
-import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './behaviors/setupPlayerAvatar'
-import { setupPlayerInput } from './behaviors/setupPlayerInput'
-import { removeVelocity, teleportObject, updateColliderPosition } from './behaviors/teleportObject'
-import { GolfBallComponent } from './components/GolfBallComponent'
-import { GolfClubComponent } from './components/GolfClubComponent'
-import { GolfHoleComponent } from './components/GolfHoleComponent'
-import { GolfTeeComponent } from './components/GolfTeeComponent'
-import { ifOutCourse } from './functions/ifOutCourse'
-import { ifVelocity } from './functions/ifVelocity'
-import { GolfState } from './GolfGameComponents'
-import { initializeGolfBall, spawnBall, updateBall } from './prefab/GolfBallPrefab'
-import { enableClub, initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
-import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
-import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../../ecs/bitecs'
 import { ECSWorld } from '../../../ecs/classes/World'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+
+export enum GOLF_ACTIONS {
+  NEW_PLAYER ,
+  PLAYER_STROKE,
+  NEXT_TURN,
+  RESET_BALL,
+  NEXT_HOLE  
+}
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
 
-export const GolfSystem = async (): Promise<System> => {
-  if (isClient) {
-    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
-    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
-    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
-  }
-  Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
-
-  // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
-  Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
-    Network.instance.schema.prefabs.set(Number(prefabType), prefab)
-  })
-
-  const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
-
-  const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
-
-  const playerQuery = defineQuery([GamePlayer])
-  const playerAddQuery = enterQuery(playerQuery)
-
-  const playerVRQuery = defineQuery([GamePlayer, XRInputSourceComponent])
-  const playerVRAddQuery = enterQuery(playerVRQuery)
-  const playerVRRemoveQuery = exitQuery(playerVRQuery)
-
-  const gameObjectQuery = defineQuery([GameObject])
-  const gameObjectAddQuery = enterQuery(gameObjectQuery)
-
-  const golfClubQuery = defineQuery([GolfClubComponent])
-  const golfClubAddQuery = enterQuery(golfClubQuery)
-
-  const golfBallQuery = defineQuery([GolfBallComponent])
-  const golfBallAddQuery = enterQuery(golfBallQuery)
-
-  const golfHoleQuery = defineQuery([GolfHoleComponent])
-  const golfHoleAddQuery = enterQuery(golfHoleQuery)
+export const GolfCommonSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
-    for (const entity of spawnGolfBallQuery(world)) {
-      const { ownerId } = getComponent(entity, NetworkObjectComponent)
-      const ownerEntity = playerQuery(world).find((player) => {
-        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
-      })
-      if (ownerEntity) {
-        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-        removeComponent(entity, GolfBallTagComponent)
-        initializeGolfBall(entity, parameters)
-      }
-    }
+    return world
+  })
+}
 
-    for (const entity of spawnGolfClubQuery(world)) {
-      const { ownerId } = getComponent(entity, NetworkObjectComponent)
-      const ownerEntity = playerQuery(world).find((player) => {
-        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
-      })
-      if (ownerEntity) {
-        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-        removeComponent(entity, GolfClubTagComponent)
-        initializeGolfClub(entity, parameters)
-      }
-    }
+export const GolfClientSystem = async (): Promise<System> => {
 
-    for (const entity of playerQuery(world)) {
-      if (!hasComponent(entity, State.Active)) continue
+  await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
+  await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
+  await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
 
-      const game = getGame(entity)
-      const playerComponent = getComponent(entity, GamePlayer)
-      const ownerId = getUuid(entity)
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
 
-      if (!playerComponent.ownedObjects['GolfClub']) {
-        const club = game.gameObjects['GolfClub'].find(
-          (entity) => getComponent(entity, NetworkObjectComponent)?.ownerId === ownerId
-        )
-        if (club) {
-          console.log('club')
-          playerComponent.ownedObjects['GolfClub'] = club
-          addStateComponent(club, State.SpawnedObject)
-        }
-      }
+    /**
+     * UI update stuff not included
+     * clubs can be client only, since they take input from 6dof network & client sends hit  data
+     */
 
-      if (!playerComponent.ownedObjects['GolfBall']) {
-        const ball = game.gameObjects['GolfBall'].find(
-          (entity) => getComponent(entity, NetworkObjectComponent)?.ownerId === ownerId
-        )
-        if (ball) {
-          console.log('ball')
-          playerComponent.ownedObjects['GolfBall'] = ball
-          addStateComponent(ball, State.SpawnedObject)
-          if (getComponent(entity, GamePlayer).role === '1-Player') {
-            addTurn(entity)
-          }
-        }
-      }
-    }
+    /**
+     * on hit ball
+     * - CLIENT_PLAYER_STROKE
+     * - club is disabled
+     */
 
-    for (const entity of playerAddQuery(world)) {
+    /**
+     * On new player
+     * - Add a player to player list (start at hole 0, scores at 0 for all holes)
+     */
 
-      setupPlayerInput(entity)
-      isClient && setupPlayerAvatar(entity)
+    /**
+     * on NEXT_TURN
+     * - hide old player's ball
+     * - show new player's ball
+     * - enable new player's club
+     */
 
-      // set up game logic
-      addRole(entity)
+    /**
+     * on NEXT_HOLE
+     * - indicate next hole
+     */
 
-      setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 } })
+    /**
+     * on MOVE_BALL
+     * - teleport ball
+     */
 
-      if (!isClient) {
-        spawnClub(entity)
-        spawnBall(entity, 'GolfTee-0', 0.3)
-      }
-    }
+    return world
+  })
+}
 
-    for (const entity of gameObjectAddQuery(world)) {
-      const gameObject = getComponent(entity, GameObject)
-      const role = gameObject.role.split('-')[0]
-      switch (role) {
-        case 'GolfTee':
-          addComponent(entity, GolfTeeComponent, {})
-          break
-        case 'GolfHole':
-          addComponent(entity, GolfHoleComponent, {})
-          break
-      }
-    }
+export const GolfServerSystem = async (): Promise<System> => {
 
-    for (const entity of golfClubAddQuery(world)) {
-      addStateComponent(entity, State.Inactive)
-    }
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
 
-    for (const entity of golfBallAddQuery(world)) {
-      addStateComponent(entity, State.Active)
-      addStateComponent(entity, GolfState.AlmostStopped)
-      addStateComponent(entity, GolfState.BallHidden)
-    }
+    /**
+     * On new player
+     * - add player to list of players
+     * - dispatch NEW_PLAYER
+     * - spawn golf club
+     * - spawn golf ball
+     */
 
-    for (const entity of golfHoleAddQuery(world)) {
-      addHole(entity)
-    }
+    /**
+     * on first player join
+     * - add turn
+     */
 
-    if (isClient) {
-      for (const entity of playerVRAddQuery(world)) {
-        setupPlayerAvatarVR(entity)
-      }
+    /**
+     * on current player leave
+     * - next turn
+     */
 
-      for (const entity of playerVRRemoveQuery(world)) {
-        setupPlayerAvatarNotInVR(entity)
-      }
-    }
+    /**
+     * On player hit ball
+     * - dispatch PLAYER_STROKE
+     *   - increment player.stroke
+     */
+
+    /**
+     * On ball stopped
+     * - dispatch NEXT_TURN
+     */
+
+    /**
+     * on NEXT_TURN
+     * - IF player's ball in hole OR If current player has had too many attempts at this hole
+     *   - Finish current hole for this player
+     *   - players[currentPlayer].scores[currentHole] = player.stroke
+     * - IF all players have scores for current hole
+     *   - currentHole = earliest hole that a player hasn’t completed yet
+     *   - dispatch NEXT_HOLE
+     *   - dispatch MOVE_BALL
+     * - ELSE 
+     *   - increment currentPlayer
+     */
+
+    /**
+     * - Detect ball out of bounds
+     *   - Reset to previous hit's start position or tee position
+     *   - dispatch MOVE_BALL
+     */
 
     return world
   })

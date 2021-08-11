@@ -45,14 +45,15 @@ import {
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
+import { GolfClientSystem, GolfCommonSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { AnimationSystem } from '@xrengine/engine/src/avatar/AnimationSystem'
 import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { useUserState } from '../../../../client-core/src/user/store/UserState'
-import { UserService } from '../../../../client-core/src/user/store/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { EquippableSystem } from '@xrengine/engine/src/interaction/systems/EquippableSystem'
 
 const store = Store.store
 
@@ -432,8 +433,13 @@ export const EnginePage = (props: Props) => {
         systems: [
           {
             type: SystemUpdateType.Fixed,
-            system: GolfSystem,
-            after: GameManagerSystem
+            system: GolfCommonSystem,
+            after: EquippableSystem
+          },
+          {
+            type: SystemUpdateType.Fixed,
+            system: GolfClientSystem,
+            after: GolfCommonSystem
           }
         ]
       }
