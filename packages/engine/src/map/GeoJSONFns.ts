@@ -122,28 +122,6 @@ export function scaleAndTranslatePolygon(coords: Position[][], llCenter: Positio
   return [coords[0].map((position) => scaleAndTranslatePosition(position, llCenter, scale))]
 }
 
-export function convertGeometryToSceneCoordinates(geometry: Polygon | MultiPolygon, llCenter: Position) {
-  switch (geometry.type) {
-    case 'MultiPolygon':
-      geometry.coordinates = geometry.coordinates.map((coords) => convertPolygonToSceneCoordinates(coords, llCenter))
-      break
-    case 'Polygon':
-      geometry.coordinates = convertPolygonToSceneCoordinates(geometry.coordinates, llCenter)
-      break
-  }
-
-  return geometry
-}
-export function convertPolygonToSceneCoordinates(coords: Position[][], llCenter: Position) {
-  return [
-    coords[0].map((position) => {
-      const sceneCoord = llToScene(position, llCenter)
-      sceneCoord[0] = sceneCoord[0] * -1
-      return sceneCoord
-    })
-  ]
-}
-
 export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: [number, number], scale = 1) {
   switch (geometry.type) {
     case 'MultiPolygon':

@@ -26,12 +26,9 @@ import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
+import { METERS_PER_DEGREE_LL } from './constants'
 
 // TODO free resources used by canvases, bitmaps etc
-
-const ENABLE_DEBUG = false
-
-const METERS_PER_DEGREE_LL = 111139
 
 export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
