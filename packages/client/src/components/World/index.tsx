@@ -13,13 +13,13 @@ import { selectPartyState } from '@xrengine/client-core/src/social/reducers/part
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
@@ -30,14 +30,8 @@ import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import RecordingApp from './../Recorder/RecordingApp'
-import configs from '@xrengine/client-core/src/world/components/editor/configs'
-import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
 import GameServerWarnings from './GameServerWarnings'
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 
 const goHome = () => (window.location.href = window.location.origin)
 
@@ -54,7 +48,7 @@ const canvasStyle = {
 
 interface Props {
   locationName: string
-  // appState?: any
+  allowDebug?: boolean
   authState?: any
   locationState?: any
   partyState?: any
@@ -67,6 +61,7 @@ interface Props {
   resetInstanceServer?: typeof resetInstanceServer
   setAppSpecificOnBoardingStep?: typeof setAppSpecificOnBoardingStep
   harmonyOpen?: boolean
+  children?: any
 }
 
 const mapStateToProps = (state: any) => {
@@ -92,13 +87,6 @@ export const EnginePage = (props: Props) => {
   const [progressEntity, setProgressEntity] = useState(99)
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
-  const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues)
-  const [noGameserverProvision, setNoGameserverProvision] = useState(false)
-  const [instanceDisconnected, setInstanceDisconnected] = useState(false)
-  const [instanceKicked, setInstanceKicked] = useState(false)
-  const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
-  const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
   const [isTeleporting, setIsTeleporting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
   const selfUser = props.authState.get('user')
@@ -247,7 +235,7 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(left || 0)
   }
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
+  const portToLocation = async ({ portalComponent }: { portalComponent: any }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
 
     teleportToLocation(portalComponent, slugifiedName, () => {
@@ -292,7 +280,7 @@ export const EnginePage = (props: Props) => {
         </Snackbar>
       )}
 
-      <NetworkDebug reinit={reinit} />
+      {props.allowDebug && <NetworkDebug reinit={reinit} />}
 
       <LoadingScreen objectsToLoad={progressEntity} />
 

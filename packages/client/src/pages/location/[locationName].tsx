@@ -1,5 +1,5 @@
 import React from 'react'
-import Scene from '../../components/Scene/location'
+import World from '../../components/World'
 import Layout from '../../components/Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -7,6 +7,11 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { InteractableModal } from '../../../../client-core/src/world/components/InteractableModal'
+import RecordingApp from '../../components/Recorder/RecordingApp'
+import MediaIconsBox from '../../components/MediaIconsBox'
+import UserMenu from '../../../../client-core/src/user/components/UserMenu'
+import EmoteMenu from '../../../../client-core/src/common/components/EmoteMenu'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -37,11 +42,15 @@ const LocationPage = (props) => {
 
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
-      <Scene
-        locationName={props.match.params.locationName}
+      <World alowDebug={true} locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions}
-      />
+        engineInitializeOptions={engineInitializeOptions} >
+        <InteractableModal />
+        <RecordingApp />
+        <MediaIconsBox />
+        <UserMenu />
+        <EmoteMenu />
+      </World>
     </Layout>
   )
 }

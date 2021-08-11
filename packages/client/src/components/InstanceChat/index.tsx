@@ -24,7 +24,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 // @ts-ignore
-import styles from './InstanceChat.module.scss'
+import defaultStyles from './InstanceChat.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -48,6 +48,7 @@ interface Props {
   instanceConnectionState?: any
   getInstanceChannel?: any
   createMessage?: any
+  styles?: any
   updateChatTarget?: any
   updateMessageScrollInit?: any
 }
@@ -61,7 +62,8 @@ const InstanceChat = (props: Props): any => {
     createMessage,
     setBottomDrawerOpen,
     updateChatTarget,
-    updateMessageScrollInit
+    updateMessageScrollInit,
+    styles = defaultStyles
   } = props
 
   let activeChannel

@@ -6,8 +6,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { changeFaceTrackingState, updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
+import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -29,7 +28,6 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch): any => ({
-  changeFaceTrackingState: bindActionCreators(changeFaceTrackingState, dispatch)
 })
 
 const MediaIconsBox = (props) => {
