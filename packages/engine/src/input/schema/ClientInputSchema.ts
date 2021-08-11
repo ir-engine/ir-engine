@@ -8,6 +8,7 @@ import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums'
 import { ClientInputSystem } from '../systems/ClientInputSystem'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { NumericalType } from '../../common/types/NumericalTypes'
 
 const touchSensitive = 2
 let prevTouchPosition: [number, number] = [0, 0]
@@ -377,9 +378,16 @@ function normalizeMouseMovement(
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
+let callback;
+
 export const handleMouseMovement = (event: MouseEvent): void => {
   if (!Engine.mouseInputEnabled) {
     return
+  }
+
+  if(callback) {
+    clearTimeout(callback)
+    callback = null
   }
 
   const normalizedPosition = normalizeMouseCoordinates(
@@ -390,43 +398,43 @@ export const handleMouseMovement = (event: MouseEvent): void => {
   )
   const mousePosition: [number, number] = [normalizedPosition.x, normalizedPosition.y]
 
-  const mappedPositionInput = MouseInput.MousePosition
-  const mappedMovementInput = MouseInput.MouseMovement
-  const mappedDragMovementInput = MouseInput.MouseClickDownMovement
-
-  Engine.inputState.set(mappedPositionInput, {
+  Engine.inputState.set(MouseInput.MousePosition, {
     type: InputType.TWODIM,
     value: mousePosition,
-    lifecycleState: Engine.inputState.has(mappedPositionInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+    lifecycleState: Engine.inputState.has(MouseInput.MousePosition) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
   })
 
   const normalizedMovement = normalizeMouseMovement(
     event.movementX,
     event.movementY,
-    window.innerWidth,
-    window.innerHeight
+    window.outerWidth,
+    window.outerHeight
   )
+
   const mouseMovement: [number, number] = [normalizedMovement.x, normalizedMovement.y]
 
-  Engine.inputState.set(mappedMovementInput, {
+  Engine.inputState.set(MouseInput.MouseMovement, {
     type: InputType.TWODIM,
     value: mouseMovement,
-    lifecycleState: Engine.inputState.has(mappedMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+    lifecycleState: Engine.inputState.has(MouseInput.MouseMovement) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
   })
 
-  // TODO: add support for seperate mouse drag events
   const isDragging = Engine.inputState.get(MouseInput.MouseClickDownPosition)
-  if (!isDragging || isDragging?.lifecycleState === LifecycleValue.ENDED) {
-    Engine.inputState.set(mappedDragMovementInput, {
+
+  let value = [0,0] as NumericalType
+  if (isDragging && isDragging?.lifecycleState !== LifecycleValue.ENDED) {
+    value = mouseMovement
+    callback = setTimeout(() => {
+      Engine.inputState.set(MouseInput.MouseClickDownMovement, {
+        type: InputType.TWODIM,
+        value: [0,0],
+        lifecycleState: Engine.inputState.has(MouseInput.MouseClickDownMovement) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+      })
+    }, 50)
+    Engine.inputState.set(MouseInput.MouseClickDownMovement, {
       type: InputType.TWODIM,
-      value: [0, 0],
-      lifecycleState: LifecycleValue.ENDED
-    })
-  } else {
-    Engine.inputState.set(mappedDragMovementInput, {
-      type: InputType.TWODIM,
-      value: mouseMovement,
-      lifecycleState: Engine.inputState.has(mappedDragMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+      value: value,
+      lifecycleState: Engine.inputState.has(MouseInput.MouseClickDownMovement) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
     })
   }
 }
