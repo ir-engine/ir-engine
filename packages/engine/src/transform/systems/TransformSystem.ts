@@ -10,8 +10,6 @@ import { TransformComponent } from '../components/TransformComponent'
 import { TransformParentComponent } from '../components/TransformParentComponent'
 import { TweenComponent } from '../components/TweenComponent'
 
-const MAX_IGNORED_DISTANCE = 0.001
-const MAX_IGNORED_ANGLE = 0.001
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
