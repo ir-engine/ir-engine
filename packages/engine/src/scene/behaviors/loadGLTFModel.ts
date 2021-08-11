@@ -14,6 +14,7 @@ import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { delay } from '../../common/functions/delay'
+import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 
 export const loadGLTFModel = (
   sceneLoader: WorldScene,
@@ -57,6 +58,7 @@ export const loadGLTFModel = (
               addComponent(entity, NavMeshComponent, {
                 yukaNavMesh: navMesh
               })
+              addComponent(entity, DebugNavMeshComponent, null)
             }
           }
 

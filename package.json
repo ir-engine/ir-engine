@@ -116,7 +116,7 @@
     "pre-push": "0.1.1",
     "prettier": "2.3.2",
     "puppeteer": "9.1.1",
-    "supertest": "6.1.4",
+    "supertest": "6.1.5",
     "yuka": "0.7.6"
   }
 }

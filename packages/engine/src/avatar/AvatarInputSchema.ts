@@ -354,23 +354,21 @@ const lookFromXRInputs: InputBehaviorType = (
   transform.rotation.multiply(quat)
 }
 
-const lookByInputAxis: InputBehaviorType = (
-  entity: Entity
-): void => {
+const lookByInputAxis: InputBehaviorType = (entity: Entity): void => {
   const input = getComponent(entity, InputComponent)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
   if (data.type === InputType.TWODIM) {
-      input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-        type: data.type,
-        value: [data.value[0], data.value[1]],
-        lifecycleState: LifecycleValue.CHANGED
-      })
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
+      type: data.type,
+      value: [data.value[0], data.value[1]],
+      lifecycleState: LifecycleValue.CHANGED
+    })
   } else if (data.type === InputType.THREEDIM) {
-      input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-        type: data.type,
-        value: [data.value[0], data.value[2]],
-        lifecycleState: LifecycleValue.CHANGED
-      })
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
+      type: data.type,
+      value: [data.value[0], data.value[2]],
+      lifecycleState: LifecycleValue.CHANGED
+    })
   }
 }
 
