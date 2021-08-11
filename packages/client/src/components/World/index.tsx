@@ -24,6 +24,36 @@ import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
+import { GameManagerSystem } from '../../../../engine/src/game/systems/GameManagerSystem'
+import { GolfSystem } from '../../../../engine/src/game/templates/Golf/GolfSystem'
+import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+
+const engineRendererCanvasId = 'engine-renderer-canvas'
+
+const defaulEngineInitializeOptions: InitializeOptions = {
+  publicPath: location.origin,
+  networking: {
+    schema: {
+      transport: SocketWebRTCClientTransport
+    } as NetworkSchema
+  },
+  renderer: {
+    canvasId: engineRendererCanvasId
+  },
+  physics: {
+    simulationEnabled: false,
+    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+  },
+  systems: [
+    {
+      type: SystemUpdateType.Fixed,
+      system: GolfSystem,
+      after: GameManagerSystem
+    }
+  ]
+}
 
 const goHome = () => (window.location.href = window.location.origin)
 
@@ -90,6 +120,7 @@ export const EnginePage = (props: Props) => {
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
+  const engineInitializeOptions = props.engineInitializeOptions ??  defaulEngineInitializeOptions
 
   let sceneId = null
 
@@ -104,7 +135,7 @@ export const EnginePage = (props: Props) => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    if (!props.engineInitializeOptions.networking) {
+    if (!engineInitializeOptions.networking) {
       init(props.locationName)
     } else {
       props.doLoginAuto(true)
@@ -220,7 +251,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
-    initEngine(sceneId, props.engineInitializeOptions, newSpawnPos, props.engineCallbacks)
+    initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
 
     addUIEvents()
 
@@ -282,7 +313,7 @@ export const EnginePage = (props: Props) => {
 
       {props.children}
 
-      <canvas id={props.engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
+      <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
       {props.showTouchpad && isTouchAvailable ? (
         <Suspense fallback={<></>}>

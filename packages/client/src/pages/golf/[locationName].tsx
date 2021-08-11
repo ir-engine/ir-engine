@@ -14,28 +14,7 @@ import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManager
 import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
-const engineInitializeOptions: InitializeOptions = {
-  publicPath: location.origin,
-  networking: {
-    schema: {
-      transport: SocketWebRTCClientTransport
-    } as NetworkSchema
-  },
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: GolfSystem,
-      after: GameManagerSystem
-    }
-  ]
-}
+
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -58,7 +37,6 @@ const LocationPage = (props) => {
         allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
       >
         <UserMenu />

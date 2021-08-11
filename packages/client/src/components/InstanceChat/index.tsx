@@ -26,7 +26,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import defaultStyles from './InstanceChat.module.scss'
 import Chat from '../../pages/map/svg/Chat.svg'
-import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -250,7 +249,7 @@ const InstanceChat = (props: Props): any => {
                   })}
             </CardContent>
           </Card>
-          <Card className={styles['flex-center','chat-view']}>
+          <Card className={styles['chat-view']}>
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
                 {/* <MessageIcon onClick={() => hideShowMessagesContainer()}  /> */}
@@ -315,7 +314,7 @@ const InstanceChat = (props: Props): any => {
             invisible={!unreadMessages}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           >
-            <Fab className={styles['openChat','chatBadge']} color="primary" onClick={() => hideShowMessagesContainer()}>
+            <Fab className={styles['chatBadge']} color="primary" onClick={() => hideShowMessagesContainer()}>
               <MessageIcon />
             </Fab>
           </Badge>
