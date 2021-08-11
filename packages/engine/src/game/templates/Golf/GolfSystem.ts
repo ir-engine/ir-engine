@@ -3,21 +3,12 @@ import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../
 import { ECSWorld } from '../../../ecs/classes/World'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 
-export enum GOLF_ACTIONS {
-  NEW_PLAYER ,
-  PLAYER_STROKE,
-  NEXT_TURN,
-  RESET_BALL,
-  NEXT_HOLE  
-}
-
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
 
 export const GolfCommonSystem = async (): Promise<System> => {
-
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
@@ -26,7 +17,6 @@ export const GolfCommonSystem = async (): Promise<System> => {
 }
 
 export const GolfClientSystem = async (): Promise<System> => {
-
   await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
   await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
   await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
@@ -72,7 +62,6 @@ export const GolfClientSystem = async (): Promise<System> => {
 }
 
 export const GolfServerSystem = async (): Promise<System> => {
-
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
@@ -114,7 +103,7 @@ export const GolfServerSystem = async (): Promise<System> => {
      *   - currentHole = earliest hole that a player hasn’t completed yet
      *   - dispatch NEXT_HOLE
      *   - dispatch MOVE_BALL
-     * - ELSE 
+     * - ELSE
      *   - increment currentPlayer
      */
 
