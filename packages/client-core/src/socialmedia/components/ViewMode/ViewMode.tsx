@@ -180,7 +180,7 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
       {/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}
       <img src="/assets/tabBar(1).svg" onClick={handleClickOpen} />
       <Dialog
-        open={openSteps}
+        open={open}
         TransitionComponent={Transition}
         keepMounted
         onClose={handleClose}
