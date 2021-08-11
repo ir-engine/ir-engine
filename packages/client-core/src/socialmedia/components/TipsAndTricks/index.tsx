@@ -10,7 +10,6 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { useTranslation } from 'react-i18next'
 
-// @ts-ignore
 import styles from './TipsAndTricks.module.scss'
 import { connect } from 'react-redux'
 import { getTipsAndTricks } from '@xrengine/client-core/src/socialmedia/reducers/tips_and_tricks/service'

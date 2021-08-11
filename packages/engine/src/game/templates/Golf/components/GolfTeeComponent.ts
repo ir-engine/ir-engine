@@ -1,3 +1,3 @@
-import { Component } from '../../../../ecs/classes/Component'
+import { createMappedComponent } from '../../../../ecs/functions/EntityFunctions'
 
-export class GolfTeeComponent extends Component<GolfTeeComponent> {}
+export const GolfTeeComponent = createMappedComponent<{}>()

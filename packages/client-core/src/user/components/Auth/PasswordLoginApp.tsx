@@ -15,7 +15,6 @@ import { selectAuthState } from '../../reducers/auth/selector'
 import { doLoginAuto } from '../../reducers/auth/service'
 import { User } from '@xrengine/common/src/interfaces/User'
 
-// @ts-ignore
 import styles from './Auth.module.scss'
 import { createCreator } from '../../../socialmedia/reducers/creator/service'
 import { selectCreatorsState } from '../../../socialmedia/reducers/creator/selector'

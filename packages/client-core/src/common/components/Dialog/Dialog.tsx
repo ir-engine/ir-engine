@@ -10,7 +10,6 @@ import { selectDialogState } from '../../reducers/dialog/selector'
 import { closeDialog } from '../../reducers/dialog/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useHistory } from 'react-router-dom'
-// @ts-ignore
 import styles from './Dialog.module.scss'
 
 interface Props {

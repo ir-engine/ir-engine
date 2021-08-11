@@ -4,7 +4,6 @@ import FaceIcon from '@material-ui/icons/Face'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
-// @ts-ignore
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import {
@@ -132,7 +131,7 @@ const MediaIconsBox = (props) => {
     }
   }
 
-  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START })
+  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
 
   const xrEnabled = Engine.xrSupported === true
   const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff

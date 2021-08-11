@@ -107,7 +107,6 @@ import {
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-// @ts-ignore
 import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'

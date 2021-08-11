@@ -1,7 +1,7 @@
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import Obj from '../components/Obj'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import IKObj from '../components/IKObj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
 import { spin_bone_forward, align_chain, align_bone_forward } from '../functions/IKFunctions'
 
@@ -50,7 +50,7 @@ class Pose {
 
   constructor(entity, clone) {
     this.entity = entity
-    const armature = getMutableComponent(entity, Obj).ref
+    const armature = getComponent(entity, IKObj).ref
     this.skeleton = clone
       ? SkeletonUtils.clone(armature.parent).children.find((skin) => skin.skeleton != null).skeleton
       : armature.parent.children.find((skin) => skin.skeleton != null).skeleton // Recreation of Bone Hierarchy
@@ -87,7 +87,7 @@ class Pose {
 
   apply() {
     // Copies modified LquatInverseocal Transforms of the Pose to the Bone Entities.
-    const targetSkeleton: Skeleton = getMutableComponent(this.entity, Obj).ref.skeleton
+    const targetSkeleton: Skeleton = getComponent(this.entity, IKObj).ref.skeleton
 
     let pb, // Pose Bone
       o // Bone Object

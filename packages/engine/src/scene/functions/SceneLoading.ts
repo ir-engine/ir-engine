@@ -6,7 +6,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { GameObject } from '../../game/components/GameObject'
-import { Interactable } from '../../interaction/components/Interactable'
+import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createCollider } from '../../physics/behaviors/createCollider'
@@ -30,13 +30,13 @@ import { setEnvMap } from '../behaviors/setEnvMap'
 import { setFog } from '../behaviors/setFog'
 import { Clouds } from '../classes/Clouds'
 import Image from '../classes/Image'
-import PositionalAudioSettingsComponent from '../components/AudioSettingsComponent'
+import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
-import ScenePreviewCameraTagComponent from '../components/ScenePreviewCamera'
+import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import WalkableTagComponent from '../components/Walkable'
+import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
@@ -72,7 +72,6 @@ export class WorldScene {
     Object.keys(scene.entities).forEach((key) => {
       const sceneEntity = scene.entities[key]
       const entity = createEntity()
-      entity.name = sceneEntity.name
 
       sceneEntity.components.forEach((component) => {
         component.data.sceneEntityId = sceneEntity.entityId
@@ -122,7 +121,8 @@ export class WorldScene {
         addComponent(entity, GameObject, {
           gameName: component.data.gameName,
           role: component.data.role,
-          uuid: component.data.sceneEntityId
+          uuid: component.data.sceneEntityId,
+          collisionBehaviors: {}
         })
         break
 
@@ -162,7 +162,7 @@ export class WorldScene {
         break
 
       case 'interact':
-        if (component.data.interactable) addComponent(entity, Interactable, { data: component.data })
+        if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
         break
 
       case 'ground-plane':
@@ -211,7 +211,7 @@ export class WorldScene {
         break
 
       case 'walkable':
-        addComponent(entity, WalkableTagComponent)
+        addComponent(entity, WalkableTagComponent, {})
         break
 
       case 'fog':
@@ -232,11 +232,11 @@ export class WorldScene {
         break
 
       case 'spawn-point':
-        addComponent(entity, SpawnPointComponent)
+        addComponent(entity, SpawnPointComponent, {})
         break
 
       case 'scene-preview-camera':
-        addComponent(entity, ScenePreviewCameraTagComponent)
+        addComponent(entity, ScenePreviewCameraTagComponent, {})
         if (isClient && Engine.activeCameraEntity) {
           addComponent(Engine.activeCameraEntity, CopyTransformComponent, { input: entity })
         }
@@ -270,7 +270,7 @@ export class WorldScene {
 
       case 'link':
         addObject3DComponent(entity, new Object3D(), component.data)
-        addComponent(entity, Interactable, { data: { action: 'link' } })
+        addComponent(entity, InteractableComponent, { data: { action: 'link' } })
         break
 
       case 'particle-emitter':
@@ -299,7 +299,7 @@ export class WorldScene {
         break
 
       case 'persist':
-        if (isClient) addComponent(entity, PersistTagComponent)
+        if (isClient) addComponent(entity, PersistTagComponent, {})
         break
 
       case 'portal':

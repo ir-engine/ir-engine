@@ -13,7 +13,6 @@ import TextField from '@material-ui/core/TextField'
 import TablePagination from '@material-ui/core/TablePagination'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import { client } from '../../../../feathers'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 
 const LocationMenu = ({ changeActiveLocation }) => {

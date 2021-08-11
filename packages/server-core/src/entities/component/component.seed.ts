@@ -26,7 +26,7 @@ export const componentSeed = {
     {
       id: '08cc03a2-24e9-11eb-bc2e-e7e742fb069f',
       data: {
-        overrideAudioSettings: false,
+        usePositionalAudio: false,
         avatarDistanceModel: 'inverse',
         avatarRolloffFactor: 2,
         avatarRefDistance: 1,

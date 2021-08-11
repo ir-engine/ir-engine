@@ -21,7 +21,6 @@ import Featured from '../Featured'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import Popover from '@material-ui/core/Popover'
 
-// @ts-ignore
 import styles from './Feed.module.scss'
 
 const mapStateToProps = (state: any): any => {

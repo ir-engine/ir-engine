@@ -1,6 +1,5 @@
-import type { Behavior } from '../../common/interfaces/Behavior'
 import type { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -23,8 +22,8 @@ export const avatarInterpolationBehavior = (entity: Entity, snapshots: SnapshotD
 
   const transform = getComponent(entity, TransformComponent)
   const velocity = getComponent(entity, VelocityComponent)
-  const avatar = getMutableComponent(entity, AvatarComponent)
-  const collider = getMutableComponent(entity, ColliderComponent)
+  const avatar = getComponent(entity, AvatarComponent)
+  const collider = getComponent(entity, ColliderComponent)
 
   collider.body.updateTransform({
     translation: {

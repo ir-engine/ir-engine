@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography'
 import Avatar from '@material-ui/core/Avatar'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
-// @ts-ignore
 import styles from './NotificationCard.module.scss'
 import { useTranslation } from 'react-i18next'
 

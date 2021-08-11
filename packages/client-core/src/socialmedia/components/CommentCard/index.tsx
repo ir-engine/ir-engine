@@ -10,7 +10,6 @@ import CardContent from '@material-ui/core/CardContent'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 
-// @ts-ignore
 import styles from './CommentCard.module.scss'
 import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
 import { bindActionCreators, Dispatch } from 'redux'

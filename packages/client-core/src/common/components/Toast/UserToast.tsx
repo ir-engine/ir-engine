@@ -1,6 +1,5 @@
 import React from 'react'
 import Toast from './Toast'
-// @ts-ignore
 import styles from './toast.module.scss'
 import { useTranslation } from 'react-i18next'
 import { accessUserState } from '../../../user/store/UserState'

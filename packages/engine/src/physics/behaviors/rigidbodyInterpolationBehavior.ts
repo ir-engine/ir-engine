@@ -1,7 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
-import { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
+import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { findInterpolationSnapshot } from './findInterpolationSnapshot'
 
@@ -14,7 +14,7 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
  */
 
 export const rigidbodyInterpolationBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
-  const collider = getMutableComponent(entity, ColliderComponent)
+  const collider = getComponent(entity, ColliderComponent)
   const interpolationSnapshot =
     findInterpolationSnapshot(entity, snapshots.interpolation) ??
     findInterpolationSnapshot(entity, Network.instance.snapshot)

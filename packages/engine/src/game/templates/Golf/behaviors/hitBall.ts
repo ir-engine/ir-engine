@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 import { isClient } from '../../../../common/functions/isClient'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
@@ -19,11 +19,12 @@ export const hitBall = (
   hitAdvanceFactor: number,
   entityBall?: Entity
 ): void => {
+  if (!isClient) return
   if (!hasComponent(entityClub, GolfClubComponent)) return
 
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-  const collider = getMutableComponent(entityBall, ColliderComponent)
-  const golfBallComponent = getMutableComponent(entityBall, GolfBallComponent)
+  const golfClubComponent = getComponent(entityClub, GolfClubComponent)
+  const collider = getComponent(entityBall, ColliderComponent)
+  const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   collider.body.setLinearDamping(0.1)
   collider.body.setAngularDamping(0.1)
   // force is in kg, we need it in grams, so x1000

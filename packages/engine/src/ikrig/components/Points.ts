@@ -1,8 +1,8 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from 'three'
 import { Component } from '../../ecs/classes/Component'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import Obj from './Obj'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import IKObj from './IKObj'
 
 class PointsComponent extends Component<PointsComponent> {
   cnt = 0
@@ -38,10 +38,10 @@ class PointsComponent extends Component<PointsComponent> {
     this.mesh = new Points(this.geo, getMaterial())
     this.mesh.name = name
 
-    let obj = getMutableComponent(this.entity, Obj)
+    let obj = getComponent(this.entity, IKObj)
     if (!obj) {
-      addComponent(this.entity, Obj)
-      obj = getMutableComponent(this.entity, Obj)
+      addComponent(this.entity, IKObj)
+      obj = getComponent(this.entity, IKObj)
     }
     obj.setReference(this.mesh)
     Engine.scene.add(obj.ref)

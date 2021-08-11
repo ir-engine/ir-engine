@@ -1,5 +1,4 @@
 import React from 'react'
-// @ts-ignore
 import styles from './PopupLogin.module.scss'
 import { useTranslation } from 'react-i18next'
 

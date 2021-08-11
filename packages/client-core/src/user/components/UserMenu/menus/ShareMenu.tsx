@@ -5,7 +5,6 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { Send, FileCopy } from '@material-ui/icons'
 import { isShareAvailable } from '../../../../../../engine/src/common/functions/DetectFeatures'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { sendInvite } from '../../../../social/reducers/invite/service'
 import { bindActionCreators, Dispatch } from 'redux'

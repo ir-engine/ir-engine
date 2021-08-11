@@ -1,4 +1,4 @@
-import { AmbientLight, PerspectiveCamera } from 'three'
+import { AmbientLight, PerspectiveCamera, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
@@ -14,8 +14,12 @@ import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
 import { PhysXInstance } from 'three-physx'
+import { createAvatarController } from '../../avatar/functions/createAvatar'
 
-export const teleportToScene = async (portalComponent: PortalComponent, handleNewScene: () => void) => {
+export const teleportToScene = async (
+  portalComponent: ReturnType<typeof PortalComponent.get>,
+  handleNewScene: () => void
+) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
@@ -95,7 +99,7 @@ export const teleportToScene = async (portalComponent: PortalComponent, handleNe
   const avatar = getComponent(Network.instance.localClientEntity, AvatarComponent)
   rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
-  addComponent(Network.instance.localClientEntity, AvatarControllerComponent)
+  createAvatarController(Network.instance.localClientEntity)
 
   const fadeOut = hyperspaceEffect.fadeOut(delta)
 

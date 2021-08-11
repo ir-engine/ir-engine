@@ -24,7 +24,6 @@ import SharedFormPopup from '@xrengine/client-core/src/socialmedia/components/po
 import Onboard from '@xrengine/client-core/src/socialmedia/components/OnBoard'
 import WebXRStart from '@xrengine/client-core/src/socialmedia/components/popups/WebXR'
 import FeedOnboarding from '@xrengine/client-core/src/socialmedia/components/FeedOnboarding'
-// @ts-ignore
 import styles from './index.module.scss'
 
 import image from '/static/images/image.jpg'

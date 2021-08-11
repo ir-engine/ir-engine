@@ -6,7 +6,6 @@ import React from 'react'
 import HomeIcon from '@material-ui/icons/Home'
 // import WhatshotIcon from '@material-ui/icons/Whatshot';
 
-// @ts-ignore
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'

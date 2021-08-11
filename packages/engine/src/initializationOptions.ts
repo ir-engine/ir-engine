@@ -3,28 +3,13 @@ import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchem
 import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
 import { PhysXConfig } from 'three-physx'
-import { System, SystemConstructor } from './ecs/classes/System'
+import { SystemInitializeType } from './ecs/functions/SystemFunctions'
 
 export enum EngineSystemPresets {
   CLIENT,
   EDITOR,
   SERVER
 }
-
-export type SystemInitializeType<S extends System, A> =
-  | {
-      system: SystemConstructor<S, A>
-      args?: A
-      before: SystemConstructor<System, any>
-    }
-  | {
-      system: SystemConstructor<S, A>
-      args?: A
-      after: SystemConstructor<System, any>
-    }
-  | {
-      remove: SystemConstructor<S, A>
-    }
 
 export type InitializeOptions = {
   type?: EngineSystemPresets
@@ -46,7 +31,7 @@ export type InitializeOptions = {
     settings?: PhysXConfig
     physxWorker?: any
   }
-  systems?: SystemInitializeType<System, any>[]
+  systems?: SystemInitializeType<any>[]
 }
 
 /**

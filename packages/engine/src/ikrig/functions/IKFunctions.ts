@@ -1,4 +1,4 @@
-import { getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import IKRig from '@xrengine/engine/src/ikrig/components/IKRig'
 import { Bone, Object3D, Quaternion, Vector3 } from 'three'
@@ -552,7 +552,7 @@ function from_mul(out, a, b) {
 }
 
 export function applyLookTwist(entity, boneInfo, ik, lookDirection, twistDirection) {
-  const rig = getMutableComponent(entity, IKRig)
+  const rig = getComponent(entity, IKRig)
 
   // First we need to get the WS Rotation of the parent to the Foot
   // Then Add the Foot's LS Bind rotation. The idea is to see where
@@ -621,7 +621,7 @@ export function applyLookTwist(entity, boneInfo, ik, lookDirection, twistDirecti
 }
 
 export function applyGrounding(entity, y_lmt) {
-  const ik: any = getMutableComponent(entity, IKPose)
+  const ik: any = getComponent(entity, IKPose)
 
   // Once we have out IK Target setup, We can use its data to test various things
   // First we can test if the end effector is below the height limit. Each foot
@@ -660,7 +660,7 @@ export function applyGrounding(entity, y_lmt) {
 }
 
 export function applySpine(entity, chain, ik, lookDirection, twistDirection) {
-  const ikPose = getMutableComponent(entity, IKPose)
+  const ikPose = getComponent(entity, IKPose)
   ikPose.targetRigs.forEach((rig) => {
     // For the spine, we have the start and end IK directions. Since spines can have various
     // amount of bones, the simplest solution is to lerp from start to finish. The first

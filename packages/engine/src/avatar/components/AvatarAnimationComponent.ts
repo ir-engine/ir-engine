@@ -1,10 +1,9 @@
 import { Vector3 } from 'three'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 
-export class AvatarAnimationComponent extends Component<AvatarAnimationComponent> {
+export type AvatarAnimationComponentType = {
   /** Animaiton graph of this entity */
   animationGraph: AnimationGraph
 
@@ -18,6 +17,4 @@ export class AvatarAnimationComponent extends Component<AvatarAnimationComponent
   prevVelocity: Vector3
 }
 
-AvatarAnimationComponent._schema = {
-  mixer: { type: Types.Ref, default: null }
-}
+export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>()

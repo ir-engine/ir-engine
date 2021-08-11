@@ -283,7 +283,7 @@ export function calculateInterpolation(parameters: string, arrayName = ''): Inte
   if (!shots) {
     console.log('Skipping network interpolation, are you lagging or disconnected?')
     EngineEvents.instance.dispatchEvent({
-      type: ClientNetworkStateSystem.EVENTS.CONNECTION_LOST,
+      type: EngineEvents.EVENTS.CONNECTION_LOST,
       hasLostConnection: true
     })
     hasLostConnection = true
@@ -292,7 +292,7 @@ export function calculateInterpolation(parameters: string, arrayName = ''): Inte
   if (hasLostConnection) {
     hasLostConnection = false
     EngineEvents.instance.dispatchEvent({
-      type: ClientNetworkStateSystem.EVENTS.CONNECTION_LOST,
+      type: EngineEvents.EVENTS.CONNECTION_LOST,
       hasLostConnection: false
     })
   }

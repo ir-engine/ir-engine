@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Fade from '@material-ui/core/Fade'
 import Modal from '@material-ui/core/Modal'
-// @ts-ignore
 import styles from '../Admin.module.scss'
 import Backdrop from '@material-ui/core/Backdrop'
 import classNames from 'classnames'

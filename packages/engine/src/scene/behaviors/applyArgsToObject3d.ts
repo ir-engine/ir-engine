@@ -2,7 +2,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { Object3D } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { Color } from 'three'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 
 export const applyArgsToObject3d = <T extends Object3D>(entity: Entity, object3d: T, objArgs?: any) => {
   /**
@@ -42,7 +42,7 @@ export const applyArgsToObject3d = <T extends Object3D>(entity: Entity, object3d
       applyDeepValue(object3d, key, objArgs[key])
     })
 
-  const hasShadow = getMutableComponent(entity, ShadowComponent)
+  const hasShadow = getComponent(entity, ShadowComponent)
   const castShadow = Boolean(hasShadow?.castShadow || objArgs?.castShadow)
   const receiveshadow = Boolean(hasShadow?.receiveShadow || objArgs?.receiveShadow)
 

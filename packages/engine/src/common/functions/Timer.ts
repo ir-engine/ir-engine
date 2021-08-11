@@ -56,10 +56,10 @@ export function Timer(
       frameDelta = (time - lastAnimTime) / 1000
       accumulated = accumulated + frameDelta
       if (callbacks.networkUpdate) {
-        callbacks.networkUpdate(frameDelta)
+        callbacks.networkUpdate(frameDelta, accumulated)
       }
       if (callbacks.fixedUpdate) {
-        callbacks.fixedUpdate(frameDelta)
+        callbacks.fixedUpdate(frameDelta, accumulated)
       }
       if (callbacks.update) {
         callbacks.update(frameDelta, accumulated)
@@ -68,13 +68,13 @@ export function Timer(
     lastAnimTime = time
   }
 
-  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     stop()
   })
-  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_SESSION, async (ev: any) => {
     Engine.xrRenderer.setAnimationLoop(xrAnimationLoop)
   })
-  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
     start()
   })
 
@@ -92,7 +92,7 @@ export function Timer(
 
     if (fixedRunner) {
       tpsSubMeasureStart('fixed')
-      callbacks.fixedUpdate(delta)
+      callbacks.fixedUpdate(delta, time)
 
       // accumulator doesn't like setInterval on client, disable for now
       // fixedRunner.run(delta);
@@ -102,7 +102,7 @@ export function Timer(
 
     if (networkRunner) {
       tpsSubMeasureStart('net')
-      callbacks.networkUpdate(delta)
+      callbacks.networkUpdate(delta, time)
 
       // accumulator doesn't like setInterval on client, disable for now
       // networkRunner.run(delta);
@@ -264,9 +264,9 @@ export function Timer(
 
   function clear() {
     cancelAnimationFrame(frameId)
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START)
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_SESSION)
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END)
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_START)
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_SESSION)
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_END)
     delete this.fixedRunner
     delete this.networkRunner
   }

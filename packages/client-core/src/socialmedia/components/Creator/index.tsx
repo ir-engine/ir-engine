@@ -17,7 +17,6 @@ import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
-// @ts-ignore
 import styles from './Creator.module.scss'
 
 const mapStateToProps = (state: any): any => {

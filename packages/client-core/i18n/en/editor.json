@@ -304,7 +304,7 @@
             "lbl-forNearDistance": "Fog Near Distance",
             "lbl-fogFarDistance": "Fog Far Distance",
             "lbl-fogDensity": "Fog Density",
-            "lbl-audioSettings": "Override Audio Settings",
+            "lbl-audioSettings": "Use Positional Audio",
             "lbl-avatarDistanceModel": "Avatar Distance Model",
             "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
             "lbl-avatarRefDistance": "Avatar Ref Distance",

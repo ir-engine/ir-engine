@@ -1,2 +1,3 @@
-import { Component } from '../../ecs/classes/Component'
-export class InterpolationComponent extends Component<InterpolationComponent> {}
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+
+export const InterpolationComponent = createMappedComponent()

@@ -1,2 +1,3 @@
-import { Component } from '../../ecs/classes/Component'
-export class RigidBodyTagComponent extends Component<RigidBodyTagComponent> {}
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+
+export const RigidBodyTagComponent = createMappedComponent<{}>()

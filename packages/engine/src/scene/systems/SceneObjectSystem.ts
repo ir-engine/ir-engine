@@ -1,12 +1,14 @@
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
+import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { beforeMaterialCompile } from '../../editor/nodes/helper/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -30,15 +32,21 @@ export class SceneOptions {
   boxProjection = false
 }
 
-export class SceneObjectSystem extends System {
-  constructor() {
-    super()
-    SceneOptions.instance = new SceneOptions()
-  }
+export const SceneObjectSystem = async (): Promise<System> => {
+  const sceneObjectQuery = defineQuery([Object3DComponent])
+  const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
+  const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
 
-  /** Executes the system. */
-  execute(deltaTime, time): void {
-    for (const entity of this.queryResults.sceneObject.added) {
+  const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
+  const persistAddQuery = enterQuery(persistQuery)
+
+  const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+  const visibleAddQuery = enterQuery(visibleQuery)
+
+  SceneOptions.instance = new SceneOptions()
+
+  return defineSystem((world: ECSWorld) => {
+    for (const entity of sceneObjectAddQuery(world)) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       const shadowComponent = getComponent(entity, ShadowComponent)
 
@@ -86,7 +94,7 @@ export class SceneObjectSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.sceneObject.removed) {
+    for (const entity of sceneObjectRemoveQuery(world)) {
       const object3DComponent = getComponent(entity, Object3DComponent, true)
 
       // Remove from scene
@@ -98,28 +106,19 @@ export class SceneObjectSystem extends System {
     }
 
     // Enable second camera layer for persistant entities for fun portal effects
-    for (const entity of this.queryResults.persist.added) {
+    for (const entity of persistAddQuery(world)) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       object3DComponent?.value?.traverse((obj) => {
         obj.layers.enable(CameraLayers.Portal)
       })
     }
-  }
-}
 
-SceneObjectSystem.queries = {
-  sceneObject: {
-    components: [Object3DComponent],
-    listen: {
-      removed: true,
-      added: true
+    for (const entity of visibleAddQuery(world)) {
+      const obj = getComponent(entity, Object3DComponent)
+      const visibleComponent = getComponent(entity, VisibleComponent)
+      obj.value.visible = visibleComponent.value
     }
-  },
-  persist: {
-    components: [Object3DComponent, PersistTagComponent],
-    listen: {
-      removed: true,
-      added: true
-    }
-  }
+
+    return world
+  })
 }

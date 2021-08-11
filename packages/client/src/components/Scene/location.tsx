@@ -15,9 +15,7 @@ import { InteractableModal } from '@xrengine/client-core/src/world/components/In
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
@@ -31,9 +29,11 @@ import RecordingApp from './../Recorder/RecordingApp'
 import GameServerWarnings from './GameServerWarnings'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { UserService } from '../../../../client-core/src/user/store/UserService'
 import { UserMenuProps } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 const goHome = () => (window.location.href = window.location.origin)
 
@@ -101,7 +101,7 @@ export const EnginePage = (props: Props) => {
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
   const [isTeleporting, setIsTeleporting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
 
@@ -246,8 +246,16 @@ export const EnginePage = (props: Props) => {
     setIsTeleporting(false)
   }
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
+  const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
+    if (slugifiedName === portalComponent.location) {
+      teleportPlayer(
+        Network.instance.localClientEntity,
+        portalComponent.remoteSpawnPosition,
+        portalComponent.remoteSpawnRotation
+      )
+      return
+    }
 
     teleportToLocation(portalComponent, slugifiedName, () => {
       setIsTeleporting(true)
@@ -259,11 +267,11 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async () => {
       setIsInXR(true)
     })
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
   }

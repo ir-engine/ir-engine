@@ -1,7 +1,7 @@
-import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import IKRig from '@xrengine/engine/src/ikrig/components/IKRig'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
 import { FORWARD, UP } from '../constants/Vector3Constants'
@@ -20,19 +20,53 @@ import {
   visualizeSpine
 } from '../functions/IKFunctions'
 
-export class IKRigSystem extends System {
-  updateType = SystemUpdateType.Fixed
+export class DebugComponent {
+  static points = null
+  static lines = null
 
-  execute(deltaTime) {
-    // DEBUG
-    for (const entity of this.queryResults.debug.all) {
-      const d = getMutableComponent(entity, DebugComponent)
-      d.reset() // For this example, Lets reset visual debug for every compute.
-    }
+  static init() {
+    const entity = createEntity()
+    addComponent(entity, Obj, {})
+    addComponent(entity, PointsComponent, {})
+
+    this.points = getComponent(entity, PointsComponent)
+    this.points.init()
+
+    addComponent(entity, Lines, {})
+    this.lines = getComponent(entity, Lines, {})
+    this.lines.init()
+    return this
+  }
+
+  static reset() {
+    this.points.reset()
+    this.lines.reset()
+    return this
+  }
+
+  static setPoint(p, hex: any = 0xff0000, shape = null, size = null) {
+    this.points.add(p, hex, shape, size)
+    return this
+  }
+  static setLine(p0, p1, hex_0: any = 0xff0000, hex_1 = null, is_dash = false) {
+    this.lines.add(p0, p1, hex_0, hex_1, is_dash)
+    return this
+  }
+}
+
+export const IKRigSystem = async (): Promise<System> => {
+  const ikrigsQuery = defineQuery([IKRig])
+  const ikposeQuery = defineQuery([IKPose])
+
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
+    d.reset() // For this example, Lets reset visual debug for every compute.
+
     // RUN
-    for (const entity of this.queryResults.ikpose.all) {
-      const ikPose = getMutableComponent(entity, IKPose)
-      const rig = getMutableComponent(entity, IKRig)
+    for (const entity of ikposeQuery(world)) {
+      const ikPose = getComponent(entity, IKPose)
+      const rig = getComponent(entity, IKRig)
 
       // // COMPUTE
       computeHip(rig, ikPose)
@@ -80,28 +114,7 @@ export class IKRigSystem extends System {
 
       // rig.pose.apply();
     }
-  }
-}
-IKRigSystem.queries = {
-  ikrigs: {
-    components: [IKRig],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  ikpose: {
-    components: [IKPose],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  debug: {
-    components: [DebugComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+
+    return world
+  })
 }

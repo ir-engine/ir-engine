@@ -3,7 +3,6 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Button from '@material-ui/core/Button'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-// @ts-ignore
 import styles from './Profile.module.scss'
 import TextField from '@material-ui/core/TextField'
 import classNames from 'classnames'

@@ -1,15 +1,12 @@
-import type { Body } from 'three-physx'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { Body } from 'three-physx'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export class ColliderComponent extends Component<ColliderComponent> {
+export type ColliderComponentType = {
   body: Body
 }
 
-ColliderComponent._schema = {
-  body: { type: Types.Ref, default: null }
-}
+export const ColliderComponent = createMappedComponent<ColliderComponentType>()

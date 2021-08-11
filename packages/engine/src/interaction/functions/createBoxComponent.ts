@@ -5,7 +5,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/En
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBox'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
 export const createBoxComponent = (entity: Entity) => {
   const dynamic =

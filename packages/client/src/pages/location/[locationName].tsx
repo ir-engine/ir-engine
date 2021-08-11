@@ -8,6 +8,7 @@ import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUI
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -27,6 +28,7 @@ const engineInitializeOptions: InitializeOptions = {
   },
   systems: [
     {
+      type: SystemUpdateType.Fixed,
       system: CharacterUISystem,
       after: UISystem
     }

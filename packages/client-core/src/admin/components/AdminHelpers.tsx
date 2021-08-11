@@ -4,7 +4,6 @@ import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 
-// @ts-ignore
 import styles from './Admin.module.scss'
 
 type Order = 'asc' | 'desc'

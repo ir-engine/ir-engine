@@ -25,7 +25,6 @@ import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-// @ts-ignore
 import styles from './Bottom.module.scss'
 
 const mapStateToProps = (state: any): any => {
