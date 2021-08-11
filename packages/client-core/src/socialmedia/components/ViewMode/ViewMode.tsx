@@ -17,6 +17,9 @@ import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'
 import StepWizard from 'react-step-wizard'
+
+import { updateCreator } from '../../reducers/creator/service'
+
 // import { Plugins } from '@capacitor/core';
 //
 // const {XRPlugin} = Plugins;
@@ -47,7 +50,7 @@ interface Props {
   updateArMediaState?: typeof updateArMediaState
 }
 
-export const ViewMode = ({ updateArMediaState }: Props) => {
+export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: any) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
 
@@ -159,26 +162,25 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
       intro: `${classes.animated} ${classes.intro}`
     }
   })
-  const [agree, setAgree] = useState(false)
-  const [agreePP, setAgreePP] = useState(false)
 
-  const checkboxHandler = () => {
-    // if agree === true, it will be set to false
-    // if agree === false, it will be set to true
-    setAgree(!agree)
-    // Don't miss the exclamation mark
+  const currentCreator = creatorsState.get('currentCreator')
+  const openSteps = useState(!!!currentCreator.steps)
+
+  const updateSteps = ({ creatorsState, updateCreator }: any) => {
+    updateCreator({ id: creatorsState.get('currentCreator').id, steps: false })
   }
 
   const handleOpenNewFeedPage = () => {
     setOpen(false)
     updateArMediaState(true)
   }
+
   return (
     <div className={classes.mainBlock}>
       {/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}
       <img src="/assets/tabBar(1).svg" onClick={handleClickOpen} />
       <Dialog
-        open={open}
+        open={openSteps}
         TransitionComponent={Transition}
         keepMounted
         onClose={handleClose}
@@ -207,8 +209,8 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
               <Four />
             </StepWizard>
             <div>
-              <input type="checkbox" id="agree" onChange={checkboxHandler} />
-              <label htmlFor="agree"> {t('social:terms.show')}</label>
+              <input type="checkbox" id="agree" onChange={updateSteps} />
+              <label htmlFor="agree"> {t('social:steps.show')}</label>
             </div>
           </div>
           <Button
