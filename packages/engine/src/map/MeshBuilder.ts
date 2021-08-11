@@ -33,7 +33,7 @@ const ENABLE_DEBUG = false
 
 const METERS_PER_DEGREE_LL = 111139
 
-function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
+export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
 }
 

@@ -3,6 +3,7 @@ import rewind from '@mapbox/geojson-rewind'
 import { groupBy } from 'lodash'
 import polygonClipping from 'polygon-clipping'
 import { multiPolygon, polygon } from '@turf/turf'
+import { llToScene } from './MeshBuilder'
 
 /**
  * Assumptions:
@@ -120,6 +121,23 @@ export function scaleAndTranslatePosition(position: Position, llCenter: Position
 export function scaleAndTranslatePolygon(coords: Position[][], llCenter: Position, scale = 1) {
   return [coords[0].map((position) => scaleAndTranslatePosition(position, llCenter, scale))]
 }
+
+export function convertGeometryToSceneCoordinates(geometry: Polygon | MultiPolygon, llCenter: Position) {
+  switch (geometry.type) {
+    case 'MultiPolygon':
+      geometry.coordinates = geometry.coordinates.map((coords) => convertPolygonToSceneCoordinates(coords, llCenter))
+      break
+    case 'Polygon':
+      geometry.coordinates = convertPolygonToSceneCoordinates(geometry.coordinates, llCenter)
+      break
+  }
+
+  return geometry
+}
+export function convertPolygonToSceneCoordinates(coords: Position[][], llCenter: Position) {
+  return [coords[0].map((position) => llToScene(position, llCenter))]
+}
+
 export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: [number, number], scale = 1) {
   switch (geometry.type) {
     case 'MultiPolygon':

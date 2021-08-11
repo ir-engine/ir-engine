@@ -5,11 +5,11 @@ import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
 import { fetchRasterTiles, fetchVectorTiles, getCenterTile } from './MapBoxClient'
 import { MapProps } from './MapProps'
-import { createBuildings, createGround, createRoads, setGroundScaleAndPosition } from './MeshBuilder'
+import { createBuildings, createGround, createRoads, llToScene, setGroundScaleAndPosition } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
 import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
-import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
+import { computeBoundingBox, convertGeometryToSceneCoordinates, scaleAndTranslate } from './GeoJSONFns'
 
 let centerCoord = {}
 let centerTile = {}
@@ -47,7 +47,8 @@ const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position
   const builder = new NavMeshBuilder()
   const gBuildings = tiles
     .reduce((acc, tiles) => acc.concat(tiles.building), [])
-    .map((feature) => scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center as any))
+    .map((feature) => convertGeometryToSceneCoordinates(feature.geometry as Polygon | MultiPolygon, center))
+  // TODO: rotate coordinates ".rotateX(-Math.PI / 2)"
 
   const gGround = computeBoundingBox(gBuildings)
   let gBuildingNegativeSpace = [gGround.coordinates]
