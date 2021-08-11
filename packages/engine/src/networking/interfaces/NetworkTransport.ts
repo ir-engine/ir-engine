@@ -28,7 +28,21 @@ export interface NetworkTransport {
   sendReliableData(data: any): void
 
   /**
+   * Send actions through reliable channel
+   */
+  sendActions(actions: ActionType[]): void
+
+  /**
    * Closes all the media soup transports
    */
   close(): void
+}
+
+export type ActionType = {
+  type: string
+  [key: string]: any
+}
+
+export type IncomingActionType = ActionType & {
+  senderId: string
 }
