@@ -7,7 +7,8 @@ import Fab from '@material-ui/core/Fab'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
-import TextField from '@material-ui/core/TextField'
+// import TextField from '@material-ui/core/TextField'
+import { TextField, makeStyles } from '@material-ui/core'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import {
@@ -28,6 +29,7 @@ import { selectInstanceConnectionState } from '../../reducers/instanceConnection
 import styles from './InstanceChat.module.scss'
 import Chat from '../../pages/map/svg/Chat.svg'
 import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
+import SmsIcon from '@material-ui/icons/Sms'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -54,6 +56,11 @@ interface Props {
   updateChatTarget?: any
   updateMessageScrollInit?: any
 }
+const useStyles = makeStyles((theme) => ({
+  input: {
+    color: '#051728;'
+  }
+}))
 
 const InstanceChat = (props: Props): any => {
   const {
@@ -153,6 +160,8 @@ const InstanceChat = (props: Props): any => {
     }
   }, [isMultiline])
 
+  const classes = useStyles()
+
   return (
     <>
       <div
@@ -208,9 +217,10 @@ const InstanceChat = (props: Props): any => {
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
                 {/* <MessageIcon onClick={() => hideShowMessagesContainer()}  /> */}
-                <span onClick={() => hideShowMessagesContainer()}>
-                  <img src={Chat} alt="message"></img>
+                <span className={styles.mesg} onClick={() => hideShowMessagesContainer()}>
+                  <img src={MessageSvg} alt="message"></img>
                 </span>
+                {/* <span className={styles.chat}onClick={() => hideShowMessagesContainer()} ><SmsIcon fontSize="small"/></span> */}
               </div>
               <TextField
                 className={styles.messageFieldContainer}
@@ -225,7 +235,8 @@ const InstanceChat = (props: Props): any => {
                 value={composingMessage}
                 inputProps={{
                   maxLength: 1000,
-                  'aria-label': 'naked'
+                  'aria-label': 'naked',
+                  className: classes.input
                 }}
                 InputLabelProps={{ shrink: false }}
                 onChange={handleComposingMessageChange}

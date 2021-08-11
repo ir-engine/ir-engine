@@ -19,7 +19,7 @@ import {
 } from '../../transports/SocketWebRTCClientFunctions'
 // @ts-ignore
 import styles from './MapMediaIconsBox.module.scss'
-import Microphone from './svg/Microphone.svg'
+// import Microphone from './svg/Microphone.svg'
 // import Chat from './svg/Chat.svg'
 
 const mapStateToProps = (state: any): any => {
@@ -108,8 +108,8 @@ const MediaIconsBox = (props) => {
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={handleMicClick}
         >
-          {/* <MicIcon /> */}
-          <img src={Microphone} alt=""></img>
+          <MicIcon />
+          {/* <img src={Microphone} alt=""></img> */}
         </button>
       ) : null}
       {videoEnabled ? (
