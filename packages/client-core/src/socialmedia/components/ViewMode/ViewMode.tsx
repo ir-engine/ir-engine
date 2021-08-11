@@ -159,6 +159,15 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
       intro: `${classes.animated} ${classes.intro}`
     }
   })
+  const [agree, setAgree] = useState(false)
+  const [agreePP, setAgreePP] = useState(false)
+
+  const checkboxHandler = () => {
+    // if agree === true, it will be set to false
+    // if agree === false, it will be set to true
+    setAgree(!agree)
+    // Don't miss the exclamation mark
+  }
 
   const handleOpenNewFeedPage = () => {
     setOpen(false)
@@ -197,6 +206,10 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
               <Tree />
               <Four />
             </StepWizard>
+            <div>
+              <input type="checkbox" id="agree" onChange={checkboxHandler} />
+              <label htmlFor="agree"> {t('social:terms.show')}</label>
+            </div>
           </div>
           <Button
             onClick={() => {

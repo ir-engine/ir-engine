@@ -166,5 +166,8 @@
   },
   "video": {
     "back": "Back"
+  },
+  "steps": {
+    "show": "Do not show again"
   }
 }
