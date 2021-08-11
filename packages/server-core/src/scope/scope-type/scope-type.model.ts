@@ -6,11 +6,11 @@ export default (app: Application): any => {
   const ScopeType = sequelizeClient.define(
     'scopeType',
     {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
+      scopeName: {
+        type: DataTypes.STRING,
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
+        unique: true
       },
       location: {
         type: DataTypes.ENUM,
@@ -52,7 +52,7 @@ export default (app: Application): any => {
     }
   )
   ;(ScopeType as any).associate = (models: any): void => {
-    ;(ScopeType as any).belongsTo(models.scope, { foreignKey: 'scopeName' })
+    ;(ScopeType as any).hasMany(models.scope, { foreignKey: 'scopeName' })
   }
 
   return ScopeType

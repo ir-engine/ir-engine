@@ -11,10 +11,6 @@ export default (app: Application): any => {
         defaultValue: DataTypes.UUIDV1,
         allowNull: false,
         primaryKey: true
-      },
-      scopeName: {
-        type: DataTypes.STRING,
-        allowNull: false
       }
     },
     {
@@ -28,7 +24,7 @@ export default (app: Application): any => {
   ;(Scope as any).associate = (models: any): void => {
     ;(Scope as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: true })
     ;(Scope as any).belongsTo(models.group, { foreignKey: 'groupId', allowNull: true })
-    ;(Scope as any).hasMany(models.scopeType, { foreignKey: 'scopeName' })
+    ;(Scope as any).belongsTo(models.scopeType, { foreignKey: 'scopeName' })
   }
 
   return Scope

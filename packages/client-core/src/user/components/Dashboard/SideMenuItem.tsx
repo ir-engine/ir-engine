@@ -183,10 +183,23 @@ const SideMenuItem = ({ location: { pathname } }) => {
             <ListItemText primary={t('user:dashboard.avatars')} />
           </ListItem>
         </Link>
+        <Link to="/admin/scope" className={classes.textLink}>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/scope' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
+            <ListItemIcon>
+              <Settings style={{ color: 'white' }} />
+            </ListItemIcon>
+            <ListItemText primary={'Scope'} />
+          </ListItem>
+        </Link>
         <Link to="/admin/bots" className={classes.textLink}>
           <ListItem
             classes={{ selected: classes.selected }}
-            selected={'/admin/admin/bots' === pathname}
+            selected={'/admin/bots' === pathname}
             style={{ color: 'white' }}
             button
           >
