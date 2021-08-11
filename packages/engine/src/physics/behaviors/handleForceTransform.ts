@@ -31,5 +31,6 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
       translation: { x, y: y + avatar.avatarHalfHeight, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })
+    controllerComponent.controller.velocity.setScalar(0)
   }
 }
