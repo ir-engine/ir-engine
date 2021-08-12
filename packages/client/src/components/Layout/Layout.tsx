@@ -20,10 +20,10 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
-// @ts-ignore
 import styles from './Layout.module.scss'
 import { Config } from '@xrengine/client-core/src/helper'
 import { useLocation } from 'react-router-dom'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -155,6 +155,7 @@ const Layout = (props: Props): any => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement
     if (canvas?.style != null) canvas.style.width = '0px'
     setHarmonyOpen(true)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO })
   }
 
   const toggleExpanded = () => setExpanded(!expanded)

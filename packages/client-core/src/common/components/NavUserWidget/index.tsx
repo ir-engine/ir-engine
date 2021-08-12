@@ -8,7 +8,6 @@ import { showDialog } from '../../reducers/dialog/service'
 import SignIn from '../../../user/components/Auth/Login'
 import Dropdown from '../../../user/components/Profile/ProfileDropdown'
 import { useTranslation } from 'react-i18next'
-// @ts-ignore
 import styles from './NavUserWidget.module.scss'
 import Button from '@material-ui/core/Button'
 

@@ -24,7 +24,6 @@ import Avatar from '@material-ui/core/Avatar'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
 import CreatorAsTitle from '../CreatorAsTitle'
-// @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
 import { addViewToFeed, removeFeed } from '../../reducers/feed/service'

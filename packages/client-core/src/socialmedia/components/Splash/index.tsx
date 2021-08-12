@@ -4,7 +4,6 @@
 import CardMedia from '@material-ui/core/CardMedia'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-// @ts-ignore
 import styles from './Splash.module.scss'
 
 interface MediaRecord {

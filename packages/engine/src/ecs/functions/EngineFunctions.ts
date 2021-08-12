@@ -118,7 +118,7 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
     }
   })
 
-  executeSystemBeforeReset()
+  // executeSystemBeforeReset()
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -136,7 +136,7 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
     removeEntity(entity)
   })
 
-  executeSystemBeforeReset()
+  // executeSystemBeforeReset()
 
   await resetPhysics(newPhysicsWorker)
 }

@@ -51,7 +51,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   // newTheta - theta ==> To rotate Right on mouse drage Right -> Left
   const dif = oldAngle - angle
 
-  if (Math.abs(dif) % Math.PI > 0.001) {
+  if (Math.abs(dif) % Math.PI > 0.0001) {
     viewVector.setX(Math.sin(oldAngle - dif))
     viewVector.setZ(Math.cos(oldAngle - dif))
   }
@@ -59,7 +59,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-const getPositionRate = () => (window?.innerWidth <= 768 ? 3.5 : 2)
+const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCameraBehavior = (entity: Entity) => {
@@ -82,7 +82,6 @@ const followCameraBehavior = (entity: Entity) => {
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-
   let inputValue =
     inputComponent.data.get(inputAxes) ||
     ({
@@ -194,14 +193,14 @@ export const CameraSystem = async (): Promise<System> => {
   const followCameraRemoveQuery = exitQuery(followCameraQuery)
 
   const cameraEntity = createEntity()
-  addComponent(cameraEntity, CameraComponent, null)
+  addComponent(cameraEntity, CameraComponent, {})
   addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
   })
-  addComponent(cameraEntity, PersistTagComponent, null)
+  addComponent(cameraEntity, PersistTagComponent, {})
   Engine.activeCameraEntity = cameraEntity
 
   // If we lose focus on the window, and regain it, copy our desired transform to avoid strange transform behavior and clipping

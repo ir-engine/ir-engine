@@ -4,7 +4,6 @@ import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'

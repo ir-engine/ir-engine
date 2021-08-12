@@ -36,7 +36,7 @@
     ]
   },
   "resolutions": {
-    "@types/react": "17.0.16",
+    "@types/react": "17.0.17",
     "react": "17.0.2",
     "terser": "5.7.1",
     "**/terser-webpack-plugin": "5.1.4"
@@ -48,7 +48,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.0-beta.4",
     "@tsconfig/docusaurus": "1.0.3",
-    "@types/react": "17.0.16",
+    "@types/react": "17.0.17",
     "@types/react-helmet": "6.1.2",
     "@types/react-router-dom": "5.1.8",
     "cross-env": "7.0.3",

@@ -14,7 +14,6 @@ import { selectAuthState } from '../../reducers/auth/selector'
 import { showDialog, closeDialog } from '../../../common/reducers/dialog/service'
 import SignUp from './Register'
 import ForgotPassword from './ForgotPassword'
-// @ts-ignore
 import styles from './Auth.module.scss'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { loginUserByPassword, addConnectionByPassword } from '../../reducers/auth/service'

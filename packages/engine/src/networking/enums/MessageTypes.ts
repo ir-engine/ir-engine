@@ -31,6 +31,7 @@ export enum MessageTypes {
   WebRTCRequestCurrentProducers = 29,
   UpdateNetworkState = 30,
   InitializeRouter = 31,
+  ActionData = 42,
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,

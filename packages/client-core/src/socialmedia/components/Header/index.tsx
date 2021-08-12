@@ -2,7 +2,6 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-// @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'

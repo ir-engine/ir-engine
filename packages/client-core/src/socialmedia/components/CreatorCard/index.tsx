@@ -17,7 +17,6 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 // import InstagramIcon from '@material-ui/icons/Instagram';
 // import TitleIcon from '@material-ui/icons/Title';
 // import SimpleModal from '../SimpleModal';
-// @ts-ignore
 import styles from './CreatorCard.module.scss'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getCreator } from '../../reducers/creator/service'

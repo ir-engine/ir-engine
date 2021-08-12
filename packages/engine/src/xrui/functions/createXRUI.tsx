@@ -72,14 +72,14 @@ async function createUIRootLayer<S extends State<any>>(UIFunc: React.FC, state: 
 
 export function createXRUI<S extends State<any>>(UIFunc: React.FC, state: S, theme = {}): XRUI<S> {
   const entity = createEntity()
-  createUIRootLayer(UIFunc, state, theme).then((uiRoot) => {
-    // Make sure entity still exists, since we are adding these components asynchronously,
-    // and bad things might happen if we add these components after entity has been removed
-    // TODO: revise this pattern after refactor
-    if (World.defaultWorld.entities.indexOf(entity) === -1) return
-    addComponent(entity, Object3DComponent, { value: uiRoot })
-    addComponent(entity, UIRootComponent, { layer: uiRoot })
-  })
+  // createUIRootLayer(UIFunc, state, theme).then((uiRoot) => {
+  //   // Make sure entity still exists, since we are adding these components asynchronously,
+  //   // and bad things might happen if we add these components after entity has been removed
+  //   // TODO: revise this pattern after refactor
+  //   if (World.defaultWorld.entities.indexOf(entity) === -1) return
+  //   addComponent(entity, Object3DComponent, { value: uiRoot })
+  //   addComponent(entity, UIRootComponent, { layer: uiRoot })
+  // })
   return { entity, state }
 }
 

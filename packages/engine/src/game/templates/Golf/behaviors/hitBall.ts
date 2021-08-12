@@ -19,6 +19,7 @@ export const hitBall = (
   hitAdvanceFactor: number,
   entityBall?: Entity
 ): void => {
+  if (!isClient) return
   if (!hasComponent(entityClub, GolfClubComponent)) return
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)

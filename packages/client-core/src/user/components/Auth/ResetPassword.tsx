@@ -4,7 +4,6 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 
-// @ts-ignore
 import styles from './Auth.module.scss'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
 import { resetPassword } from '../../reducers/auth/service'

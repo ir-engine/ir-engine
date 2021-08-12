@@ -2,6 +2,7 @@ import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { AvatarComponent } from '../../../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../../../avatar/components/XRInputSourceComponent'
 import { SkeletonUtils } from '../../../../avatar/SkeletonUtils'
+import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
@@ -15,10 +16,11 @@ export const setupPlayerAvatar = async (entityPlayer: Entity) => {
   value.remove(avatarComponent.modelContainer)
   avatarComponent.modelContainer.children.forEach((child) => child.removeFromParent())
 
-  const headGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_head.glb' })
-  const handGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_hands.glb' })
-  const torsoGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_torso.glb' })
+  const headGLTF = await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
+  const handGLTF = await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
+  const torsoGLTF = await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
 
+  console.log('LOADED AVATAR MODELS')
   const headModel = SkeletonUtils.clone(headGLTF)
   headModel.scale.multiplyScalar(avatarScale)
 
@@ -38,6 +40,7 @@ export const setupPlayerAvatar = async (entityPlayer: Entity) => {
 
 export const setupPlayerAvatarVR = async (entityPlayer: Entity) => {
   const golfAvatarComponent = getComponent(entityPlayer, GolfAvatarComponent)
+  console.log(golfAvatarComponent)
   ;[
     golfAvatarComponent.headModel,
     golfAvatarComponent.leftHandModel,

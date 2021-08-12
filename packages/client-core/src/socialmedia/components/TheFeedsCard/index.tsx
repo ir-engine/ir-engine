@@ -17,7 +17,6 @@ import VisibilityIcon from '@material-ui/icons/Visibility'
 
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
 import CreatorAsTitle from '../CreatorAsTitle'
-// @ts-ignore
 import styles from './TheFeedsCard.module.scss'
 import SimpleModal from '../SimpleModal'
 import { addViewToFeed } from '../../reducers/feed/service'

@@ -1,8 +1,10 @@
-body{
-    background:url(./background.png);
+.bcg{
+   //  background:url(./background.png);
     background-attachment:fixed;
     background-size: 100%;
     background-repeat:no-repeat;
+    width: 100vw;
+    height: 100vh;
 }
 
 .text{

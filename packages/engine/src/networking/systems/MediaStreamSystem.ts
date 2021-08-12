@@ -50,6 +50,10 @@ export class MediaStreams {
   public screenShareAudioPaused = false
   /** Whether the component is initialized or not. */
   public initialized = false
+  /** Current channel type */
+  public channelType = null
+  /** Current channel ID */
+  public channelId = null
 
   public nearbyLayerUsers = [] as NearbyUser[]
 

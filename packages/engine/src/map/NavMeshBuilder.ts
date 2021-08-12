@@ -19,15 +19,21 @@ export class NavMeshBuilder {
     }
   }
 
+  /**
+   * takes a ring from a geojson polygon and applies some transformation(s) needed to create
+   * the functionally equivalent polygon in a Yuka NavMesh.
+   */
+  _toYukaRing(ring: Position[]) {
+    return ring.map((position) => [position[0], -position[1]])
+  }
+
   _coordsToYukaPolygons(coords: Position[][], elevation: number): YUKA.Polygon[] {
     /** array of non-overlapping polygons */
-    const flatCoords: Position[][] = coords.length > 1 ? this._tessellate(coords) : coords
-    return flatCoords.map((polygonCoords) => {
+    const exteriorRings: Position[][] = coords.length > 1 ? this._tessellate(coords) : coords
+    return exteriorRings.map((ring) => {
       const result = new YUKA.Polygon()
-      const vec3s = this._toYukaVectors3(polygonCoords, elevation)
+      const vec3s = this._toYukaVectors3(this._toYukaRing(ring), elevation)
 
-      // YUKA requires Polygon vertices in the opposite order
-      vec3s.reverse()
       result.fromContour(vec3s)
 
       return result

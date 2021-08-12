@@ -10,7 +10,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 import { Link } from 'react-router-dom'
 import { Config } from '../../../helper'
-// @ts-ignore
 import styles from './Auth.module.scss'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '../../reducers/auth/service'

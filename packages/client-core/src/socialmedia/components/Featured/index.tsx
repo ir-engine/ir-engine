@@ -17,7 +17,6 @@ import { selectFeedsState } from '../../reducers/feed/selector'
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { updateFeedPageState } from '../../reducers/popupsState/service'
-// @ts-ignore
 import styles from './Featured.module.scss'
 
 const mapStateToProps = (state: any): any => {
