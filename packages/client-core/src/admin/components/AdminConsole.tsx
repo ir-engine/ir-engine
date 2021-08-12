@@ -13,7 +13,8 @@ import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Admin.module.scss'
 import VideoModal from './VideoModal'
 import { useHistory } from 'react-router-dom'
-import { selectVideoState } from '../../media/components/video/selector'
+// import { selectVideoState } from '../../media/components/video/selector'
+import { useVideostate } from '../../media/components/video/store/VideoState'
 import { selectAuthState } from '../../user/reducers/auth/selector'
 import { fetchAdminVideos } from '../reducers/admin/service'
 
@@ -26,7 +27,7 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),
-    videos: selectVideoState(state)
+    videos: useVideostate()
   }
 }
 

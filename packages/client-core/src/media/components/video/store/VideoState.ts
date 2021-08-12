@@ -23,3 +23,6 @@ export const VideoReceptor = (action: VideoActionType): void => {
     }
   }, action.type)
 }
+
+export const accessVideoState = () => state
+export const useVideostate = () => useState(state)
