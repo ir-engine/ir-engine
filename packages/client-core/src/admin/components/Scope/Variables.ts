@@ -7,13 +7,15 @@ export interface Column {
 
 export const columns: Column[] = [
   { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'description', label: 'Description', minWidth: 100 },
+  { id: 'group', label: 'GroupName', minWidth: 100 },
+  { id: 'user', label: 'User', minWidth: 100 },
   { id: 'action', label: 'Action', minWidth: 170, align: 'right' }
 ]
 
 export interface Data {
   id: string
   name: string
-  description: string
+  group: string
+  user: string
   action: any
 }

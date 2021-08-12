@@ -64,10 +64,22 @@ const CreateScope = (props: Props) => {
     name: '',
     userId: '',
     groupId: '',
+    location: '',
+    editor: 'write',
+    scene: '',
+    bot: '',
+    globalAvatars: '',
+    static_resource: '',
     formErrors: {
       name: '',
       userId: '',
-      groupId: ''
+      groupId: '',
+      location: '',
+      editor: '',
+      scene: '',
+      bot: '',
+      globalAvatars: '',
+      static_resource: ''
     }
   })
 
@@ -95,6 +107,22 @@ const CreateScope = (props: Props) => {
       case 'groupId':
         temp.groupId = value.length < 2 ? 'group is required' : ''
         break
+      case 'location':
+        temp.location = value.length < 2 ? 'location is required' : ''
+        break
+      case 'scene':
+        temp.scene = value.length < 2 ? 'scene is required' : ''
+        break
+      case 'globalAvatars':
+        temp.globalAvatars = value.length < 2 ? 'globalAvatars is required' : ''
+        break
+      case 'static_resource':
+        temp.static_resource = value.length < 2 ? 'static_resource is required' : ''
+        break
+      case 'bot':
+        temp.bot = value.length < 2 ? 'Bot is required' : ''
+        break
+
       default:
         break
     }
@@ -104,7 +132,7 @@ const CreateScope = (props: Props) => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    const { name, userId, groupId } = state
+    const { name, userId, groupId, editor, location, scene, globalAvatars, static_resource, bot } = state
     let temp = state.formErrors
 
     if (!state.name) {
@@ -116,11 +144,26 @@ const CreateScope = (props: Props) => {
     if (!state.groupId) {
       temp.groupId = 'Group is required'
     }
+    if (!state.location) {
+      temp.location = 'Location is required'
+    }
+    if (!state.scene) {
+      temp.scene = 'Scene is required'
+    }
+    if (!state.static_resource) {
+      temp.static_resource = 'Static resource is required'
+    }
+    if (!state.globalAvatars) {
+      temp.globalAvatars = 'Global Avatars is required'
+    }
+    if (!state.bot) {
+      temp.bot = 'Bot is required'
+    }
 
     setState({ ...state, formErrors: temp })
 
     if (formValid(state, state.formErrors)) {
-      createScope({ scopeName: name, userId, groupId })
+      createScope({ scopeName: name, userId, groupId, scene, location, globalAvatars, static_resource, editor, bot })
       setState({
         ...state,
         name: '',
@@ -133,7 +176,7 @@ const CreateScope = (props: Props) => {
   return (
     <React.Fragment>
       <Drawer classes={{ paper: classes.paper }} anchor="right" open={open} onClose={() => handleClose(false)}>
-        <Container maxWidth="sm" className={classes.marginTp}>
+        <Container maxWidth="sm" className={classes.marginTop}>
           <form onSubmit={(e) => handleSubmit(e)}>
             <DialogTitle id="form-dialog-title" className={classes.texAlign}>
               Create New Scope
@@ -215,18 +258,18 @@ const CreateScope = (props: Props) => {
             <label>Location</label>
             <Paper
               component="div"
-              className={state.formErrors.userId.length > 0 ? classes.redBorder : classes.createInput}
+              className={state.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
             >
               <FormControl fullWidth>
                 <Select
                   labelId="demo-controlled-open-select-label"
                   id="demo-controlled-open-select"
                   fullWidth
-                  name="userId"
+                  name="location"
                   displayEmpty
                   className={classes.select}
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  value={state.userId}
+                  value={state.location}
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
@@ -240,7 +283,7 @@ const CreateScope = (props: Props) => {
             <label>Scene</label>
             <Paper
               component="div"
-              className={state.formErrors.userId.length > 0 ? classes.redBorder : classes.createInput}
+              className={state.formErrors.scene.length > 0 ? classes.redBorder : classes.createInput}
             >
               <FormControl fullWidth>
                 <Select
@@ -251,7 +294,7 @@ const CreateScope = (props: Props) => {
                   displayEmpty
                   className={classes.select}
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  value={state.userId}
+                  value={state.scene}
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
@@ -265,18 +308,18 @@ const CreateScope = (props: Props) => {
             <label>static resource</label>
             <Paper
               component="div"
-              className={state.formErrors.userId.length > 0 ? classes.redBorder : classes.createInput}
+              className={state.formErrors.static_resource.length > 0 ? classes.redBorder : classes.createInput}
             >
               <FormControl fullWidth>
                 <Select
                   labelId="demo-controlled-open-select-label"
                   id="demo-controlled-open-select"
                   fullWidth
-                  name="userId"
+                  name="static_resource"
                   displayEmpty
                   className={classes.select}
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  value={state.userId}
+                  value={state.static_resource}
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
@@ -291,18 +334,18 @@ const CreateScope = (props: Props) => {
             <label>Bot</label>
             <Paper
               component="div"
-              className={state.formErrors.userId.length > 0 ? classes.redBorder : classes.createInput}
+              className={state.formErrors.bot.length > 0 ? classes.redBorder : classes.createInput}
             >
               <FormControl fullWidth>
                 <Select
                   labelId="demo-controlled-open-select-label"
                   id="demo-controlled-open-select"
                   fullWidth
-                  name="userId"
+                  name="bot"
                   displayEmpty
                   className={classes.select}
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  value={state.userId}
+                  value={state.bot}
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
@@ -316,18 +359,18 @@ const CreateScope = (props: Props) => {
             <label>global Avatars</label>
             <Paper
               component="div"
-              className={state.formErrors.userId.length > 0 ? classes.redBorder : classes.createInput}
+              className={state.formErrors.globalAvatars.length > 0 ? classes.redBorder : classes.createInput}
             >
               <FormControl fullWidth>
                 <Select
                   labelId="demo-controlled-open-select-label"
                   id="demo-controlled-open-select"
                   fullWidth
-                  name="userId"
+                  name="globalAvatars"
                   displayEmpty
                   className={classes.select}
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  value={state.userId}
+                  value={state.globalAvatars}
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
