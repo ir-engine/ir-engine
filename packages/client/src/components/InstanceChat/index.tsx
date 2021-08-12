@@ -231,12 +231,12 @@ const InstanceChat = (props: Props): any => {
                           <ListItemText
                             className={styles[isMessageSentBySelf(message)?'message-right-text':'message-left-text']}
                             primary={
-                              <p>
+                              <span>
                                 <span className={styles.userName} color="primary">
                                   {getMessageUser(message)}
                                 </span>
                                 <p>{message.text}</p>
-                              </p>
+                              </span>
                             }
                           /> 
 
