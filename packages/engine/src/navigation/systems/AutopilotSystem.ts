@@ -8,7 +8,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
@@ -17,8 +16,6 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 
 const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -50,12 +47,9 @@ export const AutopilotSystem = async (): Promise<System> => {
   const navClickAddQuery = enterQuery(navClickQuery)
 
   return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
     for (const entity of navClickAddQuery(world)) {
-      const input = getComponent(entity, InputComponent)
-      const coords = input.data.get(BaseInput.SCREENXY).value
-      raycaster.setFromCamera({ x: coords[0], y: coords[1] }, Engine.camera)
+      const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
+      raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
 
