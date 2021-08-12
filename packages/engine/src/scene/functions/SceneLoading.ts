@@ -30,6 +30,7 @@ import { setEnvMap } from '../behaviors/setEnvMap'
 import { setFog } from '../behaviors/setFog'
 import { Clouds } from '../classes/Clouds'
 import Image from '../classes/Image'
+import { createOceanObject } from '../classes/Ocean'
 import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
@@ -281,6 +282,10 @@ export class WorldScene {
 
       case 'cloud':
         addObject3DComponent(entity, new Clouds(), component.data)
+        break
+
+      case 'ocean':
+        createOceanObject(entity, component.data)
         break
 
       case 'postprocessing':

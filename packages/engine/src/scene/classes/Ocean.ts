@@ -15,8 +15,14 @@ import {
   Texture,
   ShaderChunk,
   EquirectangularReflectionMapping,
-  sRGBEncoding
+  sRGBEncoding,
+  TextureLoader
 } from 'three'
+import { TGALoader } from '../../assets/loaders/tga/TGALoader'
+import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
+import { addComponent } from '../../ecs/functions/EntityFunctions'
+import { OceanComponent } from '../components/OceanComponent'
 
 const vertexUniforms = `uniform float time;
 uniform sampler2D distortionMap;
@@ -62,6 +68,9 @@ uniform float waveUVFactor;
 uniform float waveDistortionFactor;
 uniform vec2 waveDistortionSpeed;
 uniform vec2 waveSpeed;
+uniform vec3 foamColor;
+uniform vec2 foamSpeed; 
+uniform float foamScale;
 `
 
 const fragmentFunctions =
@@ -87,11 +96,11 @@ vec3 foam( const in vec3 waterColor )
 {
     float diff = saturate( depthDiff() );
 
-    vec2 displacement = texture2D( distortionMap, panner( 2.0 * vUv, time, vec2(0.05, 0.0) ) ).bb;
+    vec2 displacement = texture2D( distortionMap, panner( foamScale * vUv, time, foamSpeed ) ).bb;
     displacement = ( displacement * 2.0 ) - 1.0 ;
     diff += displacement.x;
 
-    return mix( vec3(1.0), waterColor, step( 0.1 , diff ) );
+    return mix( foamColor, waterColor, step( 0.1 , diff ) );
 }
 `
 
@@ -119,60 +128,84 @@ function addImageProcess(src: string): Promise<HTMLImageElement> {
   })
 }
 
+function loadTexture(src): Promise<Texture> {
+  const loader = src.endsWith('tga') ? new TGALoader() : new TextureLoader()
+  return new Promise((resolve, reject) => {
+    loader.load(src, resolve, null, (error) => reject(error))
+  })
+}
+
+export const createOceanObject = (entity, configs): void => {
+  if (!isClient) return
+
+  const mesh = new Ocean()
+  Object.assign(mesh, configs)
+  addComponent(entity, OceanComponent, { mesh: mesh })
+  Engine.scene.add(mesh)
+}
+
 export class Ocean extends Mesh {
   depthMap: WebGLRenderTarget
   shouldResize: boolean
-  shallowWaterColor: Color
-  opacityRange: Vector2
-  color: Color
+  _shallowWaterColor: Color
+  _opacityRange: Vector2
 
   shallowToDeepDistance: number
   opacityFadeDistance: number
 
-  bigWaveScale: number
-  bigWaveUVScale: Vector2
-  bigWaveSpeed: Vector2
+  bigWaveHeight: number
+  _bigWaveTiling: Vector2
+  _bigWaveSpeed: Vector2
   // Small wave
-  waveScale: Vector2
-  waveDistortionSpeed: Vector2
-  waveDistortionFactor: number
-  waveUVFactor: number
-  waveSpeed: Vector2
+  _waveScale: Vector2
+  _waveDistortionSpeed: Vector2
+  waveDistortionTiling: number
+  waveTiling: number
+  _waveSpeed: Vector2
+
+  //Foam
+  _foamColor: Color
+  _foamSpeed: Vector2
+  foamTiling: number
+
+  // Maps
+  _envMap: string
+  _normalMap: string
+  _distortionMap: string
+  _distortionTexture: Texture
 
   constructor() {
     const planeGeometry = new PlaneBufferGeometry(10, 10, 100, 100)
-    super(planeGeometry, new MeshPhongMaterial())
+    super(planeGeometry, new MeshPhongMaterial({ color: 'red' }))
+    this.rotation.x = -Math.PI * 0.5
+
+    this.shouldResize = true
+    this._shallowWaterColor = new Color()
+    this._opacityRange = new Vector2()
+    this._waveScale = new Vector2()
+    this._bigWaveTiling = new Vector2()
+    this._bigWaveSpeed = new Vector2()
+    this._waveDistortionSpeed = new Vector2()
+    this._waveSpeed = new Vector2()
+    this._foamColor = new Color()
+    this._foamSpeed = new Vector2()
 
     this.setupMaterial()
     this.setupRenderTarget()
 
-    this.rotation.x = -Math.PI * 0.5
-    this.shouldResize = true
-    this.shallowWaterColor = new Color()
-    this.opacityRange = new Vector2()
-    this.waveScale = new Vector2()
-    this.color = new Color()
-    this.bigWaveUVScale = new Vector2()
-    this.bigWaveSpeed = new Vector2()
-    this.waveDistortionSpeed = new Vector2()
-    this.waveSpeed = new Vector2()
-
     window.addEventListener('resize', () => {
       this.shouldResize = true
     })
-
-    //this.frustumCulled = false
   }
 
   async setupMaterial() {
-    // To make the shader compiler insert vUv varying
+    // To make the three shader compiler insert vUv varying
     const pixel = await addImageProcess(pixelData)
     const tempTexture = new Texture(pixel)
 
     const material = this.material as MeshPhongMaterial
     material.normalMap = tempTexture
-    material.color = this.color
-    material.normalScale = this.waveScale
+    material.normalScale = this._waveScale
     material.transparent = true
     material.combine = AddOperation
     material.needsUpdate = true
@@ -185,17 +218,20 @@ export class Ocean extends Mesh {
       shader.uniforms.depthMap = { value: null }
       shader.uniforms.viewportSize = { value: viewportSize }
       shader.uniforms.cameraNearFar = { value: new Vector2(0.1, 100) }
-      shader.uniforms.shallowWaterColor = { value: this.shallowWaterColor }
-      shader.uniforms.opacityRange = { value: this.opacityRange }
-      shader.uniforms.bigWaveUVScale = { value: this.bigWaveUVScale }
-      shader.uniforms.bigWaveSpeed = { value: this.bigWaveSpeed }
+      shader.uniforms.shallowWaterColor = { value: this._shallowWaterColor }
+      shader.uniforms.opacityRange = { value: this._opacityRange }
+      shader.uniforms.bigWaveUVScale = { value: this._bigWaveTiling }
+      shader.uniforms.bigWaveSpeed = { value: this._bigWaveSpeed }
       shader.uniforms.bigWaveScale = { value: 0.7 }
       shader.uniforms.shallowToDeepDistance = { value: 0.1 }
       shader.uniforms.opacityFadeDistance = { value: 0.1 }
       shader.uniforms.waveDistortionFactor = { value: 7.0 }
       shader.uniforms.waveUVFactor = { value: 12.0 }
-      shader.uniforms.waveDistortionSpeed = { value: this.waveDistortionSpeed }
-      shader.uniforms.waveSpeed = { value: this.waveSpeed }
+      shader.uniforms.waveDistortionSpeed = { value: this._waveDistortionSpeed }
+      shader.uniforms.waveSpeed = { value: this._waveSpeed }
+      shader.uniforms.foamColor = { value: this._foamColor }
+      shader.uniforms.foamSpeed = { value: this._foamSpeed }
+      shader.uniforms.foamScale = { value: 2.0 }
 
       shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
       shader.vertexShader = insertBeforeString(shader.vertexShader, 'void main()', vertexFunctions)
@@ -265,47 +301,6 @@ export class Ocean extends Mesh {
     this.depthMap.depthTexture.type = UnsignedShortType
   }
 
-  _getMaterial(): MeshPhongMaterial {
-    return this.material as MeshPhongMaterial
-  }
-
-  setDistortionMap(texture: Texture) {
-    const shader = (this.material as any).userData.shader
-    if (!shader) return
-    texture.wrapS = RepeatWrapping
-    texture.wrapT = RepeatWrapping
-    shader.uniforms.distortionMap.value = texture
-  }
-
-  // Equirectangular
-  setEnvMap(texture: Texture) {
-    texture.mapping = EquirectangularReflectionMapping
-    texture.encoding = sRGBEncoding
-    this._getMaterial().envMap = texture
-  }
-
-  setNormalMap(texture: Texture) {
-    texture.wrapS = RepeatWrapping
-    texture.wrapT = RepeatWrapping
-    this._getMaterial().normalMap = texture
-  }
-
-  set shininess(value: number) {
-    this._getMaterial().shininess = value
-  }
-
-  get shininess() {
-    return this._getMaterial().shininess
-  }
-
-  set reflectivity(value: number) {
-    this._getMaterial().reflectivity = value
-  }
-
-  get reflectivity() {
-    return this._getMaterial().reflectivity
-  }
-
   onBeforeRender = (renderer, scene, camera) => {
     const shader = (this.material as any).userData.shader
     shader?.uniforms.cameraNearFar.value.set(camera.near, camera.far)
@@ -335,9 +330,11 @@ export class Ocean extends Mesh {
     const shader = (this.material as any).userData.shader
     if (!shader) return
 
-    shader.uniforms.waveDistortionFactor.value = this.waveDistortionFactor
-    shader.uniforms.waveUVFactor.value = this.waveUVFactor
-    shader.uniforms.bigWaveScale.value = this.bigWaveScale
+    shader.uniforms.distortionMap.value = this._distortionTexture
+    shader.uniforms.foamScale.value = this.foamTiling
+    shader.uniforms.waveDistortionFactor.value = this.waveDistortionTiling
+    shader.uniforms.waveUVFactor.value = this.waveTiling
+    shader.uniforms.bigWaveScale.value = this.bigWaveHeight
     shader.uniforms.opacityFadeDistance.value = this.opacityFadeDistance
     shader.uniforms.shallowToDeepDistance.value = this.shallowToDeepDistance
     shader.uniforms.depthMap.value = this.depthMap.depthTexture
@@ -346,11 +343,157 @@ export class Ocean extends Mesh {
 
   copy(source: this, recursive = true) {
     super.copy(source, recursive)
-
-    const material = (this as any).material as MeshPhongMaterial
-    const sourceMaterial = (source as any).material as MeshPhongMaterial
-
-    // material.uniforms.map.value = sourceMaterial.uniforms.map.value
     return this
+  }
+
+  get _material(): MeshPhongMaterial {
+    return this.material as MeshPhongMaterial
+  }
+
+  get distortionMap(): string {
+    return this._distortionMap
+  }
+
+  set distortionMap(path: string) {
+    this._distortionMap = path
+
+    loadTexture(path)
+      .then((texture) => {
+        texture.wrapS = RepeatWrapping
+        texture.wrapT = RepeatWrapping
+        this._distortionTexture = texture
+      })
+      .catch(console.error)
+  }
+
+  get envMap(): string {
+    return this._envMap
+  }
+
+  // Equirectangular
+  set envMap(path: string) {
+    this._envMap = path
+
+    loadTexture(path)
+      .then((texture) => {
+        texture.mapping = EquirectangularReflectionMapping
+        texture.encoding = sRGBEncoding
+        this._material.envMap = texture
+      })
+      .catch(console.error)
+  }
+
+  get normalMap(): string {
+    return this._normalMap
+  }
+
+  set normalMap(path: string) {
+    this._normalMap = path
+
+    loadTexture(path)
+      .then((texture) => {
+        texture.wrapS = RepeatWrapping
+        texture.wrapT = RepeatWrapping
+        this._material.normalMap = texture
+      })
+      .catch(console.error)
+  }
+
+  set shininess(value: number) {
+    this._material.shininess = value
+  }
+
+  get shininess() {
+    return this._material.shininess
+  }
+
+  set reflectivity(value: number) {
+    this._material.reflectivity = value
+  }
+
+  get reflectivity() {
+    return this._material.reflectivity
+  }
+
+  get color(): Color {
+    return this._material.color
+  }
+
+  set color(value) {
+    if (typeof value === 'string') this._material.color.set(value)
+    else this._material.color.copy(value)
+  }
+
+  get shallowWaterColor(): Color {
+    return this._shallowWaterColor
+  }
+
+  set shallowWaterColor(value: Color) {
+    if (typeof value === 'string') this._shallowWaterColor.set(value)
+    else this._shallowWaterColor.copy(value)
+  }
+
+  get opacityRange(): Vector2 {
+    return this._opacityRange
+  }
+
+  set opacityRange(value: Vector2) {
+    this._opacityRange.copy(value).clampScalar(0.0, 1.0)
+  }
+
+  get foamColor(): Color {
+    return this._foamColor
+  }
+
+  set foamColor(value: Color) {
+    this._foamColor.copy(value)
+  }
+
+  get foamSpeed(): Vector2 {
+    return this._foamSpeed
+  }
+
+  set foamSpeed(value: Vector2) {
+    this._foamSpeed.copy(value)
+  }
+
+  get bigWaveTiling(): Vector2 {
+    return this._bigWaveTiling
+  }
+
+  set bigWaveTiling(value: Vector2) {
+    this._bigWaveTiling.copy(value)
+  }
+
+  get bigWaveSpeed(): Vector2 {
+    return this._bigWaveSpeed
+  }
+
+  set bigWaveSpeed(value: Vector2) {
+    this._bigWaveSpeed.copy(value)
+  }
+
+  get waveScale(): Vector2 {
+    return this._waveScale
+  }
+
+  set waveScale(value: Vector2) {
+    this._waveScale.copy(value)
+  }
+
+  get waveDistortionSpeed(): Vector2 {
+    return this._waveDistortionSpeed
+  }
+
+  set waveDistortionSpeed(value: Vector2) {
+    this._waveDistortionSpeed.copy(value)
+  }
+
+  get waveSpeed(): Vector2 {
+    return this._waveSpeed
+  }
+
+  set waveSpeed(value: Vector2) {
+    this._waveSpeed.copy(value)
   }
 }
