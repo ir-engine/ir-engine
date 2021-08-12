@@ -2,12 +2,15 @@
     display: flex;
     position: fixed;
     top: 5px;
+    // top: 700px;
     z-index: 10;
     width: 100%;
     justify-content: center;
 
     .iconContainer{
-        background: rgba(0, 0, 0, 0.2);
+        // background: rgba(0, 0, 0, 0.2);
+        background: #E94747;
+        z-index: 1;
         border-radius: 50%;
         margin: 5px;
         height: 50px;
@@ -42,6 +45,7 @@
     }
     @media (max-width: 450px) {
         justify-content: flex-end;
+        //  justify-content: center;
         padding-right: 50px;
         .iconContainer {
             width: 40px;
