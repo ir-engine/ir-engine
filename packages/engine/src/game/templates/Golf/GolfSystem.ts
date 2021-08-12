@@ -19,6 +19,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { GameObject } from '../../components/GameObject'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
+import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -57,6 +58,7 @@ const dispatchOnServer = (x: ActionType) => {
 
 export const GolfSystem = async (): Promise<System> => {
   if (isClient) {
+    registerGolfBotHooks()
     // pre-cache the assets we need for this game
     await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
     await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
