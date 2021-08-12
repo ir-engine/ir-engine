@@ -32,16 +32,16 @@ export const AvatarAnimations = {
   RUN_STRAFE_LEFT: 'run_left',
 
   // Emotes
-  // CHEERING_1: 'cheering_1',
-  // CHEERING_2: 'cheering_2',
-  // CLAPPING: 'clapping',
+  CLAP: 'clapping',
   DANCING_1: 'dance1',
   DANCING_2: 'dance2',
   DANCING_3: 'dance3',
-  DANCING_4: 'dance4'
-  // LAUGHING: 'laughing',
-  // WAVE_LEFT: 'wave_left',
-  // WAVE_RIGHT: 'wave_right',
+  DANCING_4: 'dance4',
+  LAUGH: 'laugh',
+  WAVE: 'wave',
+  KISS: 'kiss',
+  DEFEAT: 'defeat',
+  CRY: 'cry'
 }
 
 /** Type of movement of the avatar in any given frame */

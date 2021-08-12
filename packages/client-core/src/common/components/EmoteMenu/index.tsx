@@ -4,12 +4,11 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import ScrollableElement from '../ScrollableElement'
 // @ts-ignore
 import defaultStyles from './EmoteMenu.module.scss'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputReceiverComponent } from '@xrengine/engine/src/input/components/LocalInputReceiverComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
-import { World } from '../../../../../engine/src/ecs/classes/World'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 type MenuItemType = {
   body: any
@@ -40,7 +39,6 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   menuItemRadius: number
   effectiveRadius: number
   menuPadding: number
-  nippleRef: React.RefObject<HTMLDivElement>
   styles: any
   constructor(props) {
     super(props)
@@ -72,13 +70,47 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
           }
+        },
+        {
+          body: <img src="/static/Clap.svg" alt="Clap" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CLAP })
+          }
+        },
+        {
+          body: <img src="/static/Cry.svg" alt="Cry" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
+          }
+        },
+        {
+          body: <img src="/static/Laugh.svg" alt="Laugh" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
+          }
+        },
+        {
+          body: <img src="/static/Defeat.svg" alt="Defeat" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
+          }
+        },
+        {
+          body: <img src="/static/Kiss.svg" alt="Kiss" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
+          }
+        },
+        {
+          body: <img src="/static/Wave.svg" alt="Wave" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
+          }
         }
       ] as any
     } as EmoteMenuStateType
 
     this.calculateOtherValues()
-
-    this.nippleRef = React.createRef<HTMLDivElement>()
   }
 
   calculateMenuRadius = (): number => {
@@ -159,7 +191,6 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                     </Button>
                   )
                 })}
-                <div className={this.styles.joyStick} ref={this.nippleRef}></div>
               </div>
             </div>
           </ClickAwayListener>
@@ -167,7 +198,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
         <section className={this.styles.emoteMenuSidebar}>
           <ScrollableElement height={400}>
             <Button className={this.styles.menuItem} onClick={this.openEmoteMenu}>
-              E
+              <img src="/static/EmoteIcon.svg" alt="E" />
             </Button>
           </ScrollableElement>
           {/* <div className={this.styles.jumpContainer}>

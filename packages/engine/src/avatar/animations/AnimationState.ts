@@ -96,6 +96,98 @@ export class LoopableEmoteState extends AnimationState {
   }
 }
 
+export class EmoteState extends AnimationState {
+  name = AvatarStates.EMOTE
+  type = AnimationType.STATIC
+  pauseTransitionDuration = 10000
+  animations: Animation[] = [
+    {
+      name: AvatarAnimations.CLAP,
+      weight: 0,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.reset()
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    },
+    {
+      name: AvatarAnimations.CRY,
+      weight: 0,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.reset()
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    },
+    {
+      name: AvatarAnimations.KISS,
+      weight: 0,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.reset()
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    },
+    {
+      name: AvatarAnimations.WAVE,
+      weight: 0,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.reset()
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    },
+    {
+      name: AvatarAnimations.DEFEAT,
+      weight: 0,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.reset()
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    },
+    {
+      name: AvatarAnimations.LAUGH,
+      weight: 0,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.reset()
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    }
+  ]
+
+  updateWeights = (): void => {
+    if (!this.weightParams.animationName) return
+
+    this.weightParams.interpolate = true
+
+    this.timeElapsedSinceUpdate = 0
+
+    this.animations.forEach((a) => {
+      if (this.weightParams.animationName === a.name) {
+        a.transitionStartWeight = a.weight
+        a.transitionEndWeight = 1
+      } else {
+        a.transitionStartWeight = a.weight
+        a.transitionEndWeight = 0
+      }
+    })
+  }
+}
+
 export class IdleState extends AnimationState {
   name = AvatarStates.IDLE
   type = AnimationType.VELOCITY_BASED
