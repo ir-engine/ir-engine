@@ -21,22 +21,6 @@
     justify-content: center;
     align-items: center;
 
-    .iconContainer{
-        // background: rgba(0, 0, 0, 0.2);
-        background-color:#27F8AB;
-        border-radius: 50%;
-        margin: 5px;
-        height: 50px;
-        width: 50px;
-        cursor: pointer;
-        position: relative;
-        border: none;
-        color: white;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
         &::before {
             content: " ";
             position: absolute;
