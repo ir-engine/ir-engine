@@ -29,6 +29,7 @@ import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
+import { GlobalActionDispatchSystem } from './networking/systems/GlobalActionDispatchSystem'
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
@@ -64,6 +65,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   const canvas = configCanvasElement(options.renderer.canvasId!)
 
   Engine.audioListener = new AudioListener()
+  console.log(Engine.audioListener)
 
   Engine.scene = new Scene()
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
@@ -86,6 +88,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     Engine.camera.layers.enableAll()
     Engine.scene.add(Engine.camera)
     Engine.camera.add(Engine.audioListener)
+    addClientInputListeners(canvas)
   }
 
   Network.instance = new Network()
@@ -100,8 +103,6 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   await FontManager.instance.getDefaultFont()
 
   setupBotHooks()
-
-  addClientInputListeners(canvas)
 
   registerClientSystems(options, canvas)
 }
@@ -183,6 +184,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, OceanSystem)
+  registerSystem(SystemUpdateType.Fixed, GlobalActionDispatchSystem)
 
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
@@ -227,7 +229,8 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, ServerAvatarSpawnSystem)
 
   // Network Outgoing Systems
-  registerSystem(SystemUpdateType.Fixed, ServerNetworkOutgoingSystem) // last
+  registerSystem(SystemUpdateType.Fixed, ServerNetworkOutgoingSystem)
+  registerSystem(SystemUpdateType.Fixed, GlobalActionDispatchSystem)
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {

@@ -3,13 +3,12 @@ import Button from '@material-ui/core/Button'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import ScrollableElement from '../ScrollableElement'
 // @ts-ignore
-import styles from './EmoteMenu.module.scss'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import defaultStyles from './EmoteMenu.module.scss'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputReceiverComponent } from '@xrengine/engine/src/input/components/LocalInputReceiverComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
-import { World } from '../../../../../engine/src/ecs/classes/World'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 type MenuItemType = {
   body: any
@@ -19,7 +18,7 @@ type MenuItemType = {
 }
 
 type EmoteMenuPropsType = {
-  // items: MenuItemType[];
+  styles?: any
   radius?: number
   thickness?: number
 }
@@ -40,11 +39,10 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   menuItemRadius: number
   effectiveRadius: number
   menuPadding: number
-  nippleRef: React.RefObject<HTMLDivElement>
-
+  styles: any
   constructor(props) {
     super(props)
-
+    this.styles = props.styles ?? defaultStyles
     this.state = {
       menuRadius: this.calculateMenuRadius(),
       menuThickness: props.thickness || DEFAULT_MENU_THICKNESS,
@@ -72,13 +70,47 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
           }
+        },
+        {
+          body: <img src="/static/Clap.svg" alt="Clap" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CLAP })
+          }
+        },
+        {
+          body: <img src="/static/Cry.svg" alt="Cry" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
+          }
+        },
+        {
+          body: <img src="/static/Laugh.svg" alt="Laugh" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
+          }
+        },
+        {
+          body: <img src="/static/Defeat.svg" alt="Defeat" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
+          }
+        },
+        {
+          body: <img src="/static/Kiss.svg" alt="Kiss" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
+          }
+        },
+        {
+          body: <img src="/static/Wave.svg" alt="Wave" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
+          }
         }
       ] as any
     } as EmoteMenuStateType
 
     this.calculateOtherValues()
-
-    this.nippleRef = React.createRef<HTMLDivElement>()
   }
 
   calculateMenuRadius = (): number => {
@@ -123,10 +155,10 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
     const angle = 360 / this.state.items.length
     return (
       <>
-        <section className={styles.emoteMenu + ' ' + (!this.state.isOpen ? styles.hideMenu : '')}>
+        <section className={this.styles.emoteMenu + ' ' + (!this.state.isOpen ? this.styles.hideMenu : '')}>
           <ClickAwayListener onClickAway={this.closeEmoteMenu} mouseEvent="onMouseDown">
             <div
-              className={styles.itemContainer}
+              className={this.styles.itemContainer}
               style={{
                 width: this.state.menuRadius * 2,
                 height: this.state.menuRadius * 2,
@@ -134,7 +166,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
               }}
             >
               <div
-                className={styles.menuItemBlock}
+                className={this.styles.menuItemBlock}
                 style={{
                   width: this.menuItemRadius,
                   height: this.menuItemRadius
@@ -146,7 +178,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                   const y = this.effectiveRadius * Math.sin((itemAngle * Math.PI) / 180)
                   return (
                     <Button
-                      className={styles.menuItem}
+                      className={this.styles.menuItem}
                       key={index}
                       style={{
                         width: this.menuItemWidth,
@@ -159,20 +191,19 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                     </Button>
                   )
                 })}
-                <div className={styles.joyStick} ref={this.nippleRef}></div>
               </div>
             </div>
           </ClickAwayListener>
         </section>
-        <section className={styles.emoteMenuSidebar}>
+        <section className={this.styles.emoteMenuSidebar}>
           <ScrollableElement height={400}>
-            <Button className={styles.menuItem} onClick={this.openEmoteMenu}>
-              E
+            <Button className={this.styles.menuItem} onClick={this.openEmoteMenu}>
+              <img src="/static/EmoteIcon.svg" alt="E" />
             </Button>
           </ScrollableElement>
-          {/* <div className={styles.jumpContainer}>
+          {/* <div className={this.styles.jumpContainer}>
               <Button
-                  className={styles.menuItem}
+                  className={this.styles.menuItem}
                   onMouseDown={jumpStart}
                   onMouseUp={jumpStop}
               >

@@ -1,5 +1,4 @@
 import React from 'react'
-// @ts-ignore
 import styles from './toast.module.scss'
 
 const Toast = ({

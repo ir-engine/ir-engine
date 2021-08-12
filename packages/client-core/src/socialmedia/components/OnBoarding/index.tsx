@@ -6,7 +6,6 @@ import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
 import { useHistory } from 'react-router-dom'
 import React, { useState } from 'react'
-// @ts-ignore
 import styles from './OnBoarding.module.scss'
 import { useTranslation } from 'react-i18next'
 

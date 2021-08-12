@@ -10,7 +10,6 @@ import TheFeed from '../TheFeed'
 import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
 
-// @ts-ignore
 import styles from './FeedMenu.module.scss'
 
 const FeedMenu = () => {

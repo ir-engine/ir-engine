@@ -34,7 +34,6 @@ import { selectAdminInstanceState } from './../reducers/admin/instance/selector'
 import { fetchAdminLocations, fetchLocationTypes } from '../reducers/admin/location/service'
 import { selectAdminSceneState } from './../reducers/admin/scene/selector'
 import Grid from '@material-ui/core/Grid'
-// @ts-ignore
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 import LocationModal from './LocationModal'

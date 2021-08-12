@@ -9,7 +9,6 @@ import { resendVerificationEmail } from '../../reducers/auth/service'
 import { selectAuthState } from '../../reducers/auth/selector'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
-// @ts-ignore
 import styles from './Auth.module.scss'
 import { Trans, useTranslation } from 'react-i18next'
 

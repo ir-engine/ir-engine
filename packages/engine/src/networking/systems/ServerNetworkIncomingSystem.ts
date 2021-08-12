@@ -23,6 +23,9 @@ import { ClientActionToServer } from '../../game/templates/DefaultGameStateActio
 import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { ClientAuthoritativeTagComponent } from '../../physics/components/ClientAuthoritativeTagComponent'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export function cancelAllInputs(entity) {
   getComponent(entity, InputComponent)?.data.forEach((value) => {
@@ -182,6 +185,17 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
           input.schema.behaviorMap.get(key)(entity, key, value, delta)
         }
       })
+
+      for (const transform of clientInput.transforms) {
+        const networkObject = Network.instance.networkObjects[transform.networkId]
+        if (networkObject && hasComponent(networkObject.entity, ClientAuthoritativeTagComponent)) {
+          const transformComponent = getComponent(networkObject.entity, TransformComponent)
+          if (transformComponent) {
+            transformComponent.position.set(transform.x, transform.y, transform.z)
+            transformComponent.rotation.set(transform.qX, transform.qY, transform.qZ, transform.qW)
+          }
+        }
+      }
     }
 
     // Apply input for local user input onto client

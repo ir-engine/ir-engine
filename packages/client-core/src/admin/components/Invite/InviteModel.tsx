@@ -7,7 +7,6 @@ import Modal from '@material-ui/core/Modal'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames'
-// @ts-ignore
 import styles from '../Admin.module.scss'
 import { sendInvite } from '../../../social/reducers/invite/service'
 import { retrieveInvites } from '../../../social/reducers/inviteType/service'
