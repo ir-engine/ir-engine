@@ -17,29 +17,6 @@ import MediaIconsBox from '../../components/MediaIconsBox'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const engineInitializeOptions: InitializeOptions = {
-  publicPath: location.origin,
-  networking: {
-    schema: {
-      transport: SocketWebRTCClientTransport
-    } as NetworkSchema
-  },
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: CharacterUISystem,
-      after: UISystem
-    }
-  ]
-}
-
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()
@@ -60,7 +37,6 @@ const LocationPage = (props) => {
         allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
         showTouchpad
       >

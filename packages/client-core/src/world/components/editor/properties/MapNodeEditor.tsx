@@ -35,6 +35,10 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
     editor.setPropertySelected('showRasterTiles', payload)
   }
 
+  const onToggleDebug = (payload) => {
+    editor.setPropertySelected('enableDebug', payload)
+  }
+
   //defining description and shows this description in NodeEditor  with title of elementt,
   // available to add in scene in assets.
   const description = i18n.t('editor:properties.map.description')
@@ -73,12 +77,21 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
           onChange={onChangeStartLongitude}
         />
       </InputGroup>
+      {/* @ts-ignore */}
       <InputGroup
         name="Show Raster Tiles?"
         label={t('editor:properties.map.lbl-showRasterTiles')}
         info={t('editor:properties.map.info-showRasterTiles')}
       >
         <BooleanInput value={node.showRasterTiles} onChange={onChangeShowRasterTiles} />
+      </InputGroup>
+      {/* @ts-ignore */}
+      <InputGroup
+        name="Enable debugging code?"
+        label={t('editor:properties.map.lbl-enableDebug')}
+        info={t('editor:properties.map.info-enableDebug')}
+      >
+        <BooleanInput value={node.enableDebug} onChange={onToggleDebug} />
       </InputGroup>
     </NodeEditor>
   )

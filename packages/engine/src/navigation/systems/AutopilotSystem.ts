@@ -8,7 +8,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
@@ -37,7 +36,7 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): 
 export const AutopilotSystem = async (): Promise<System> => {
   const raycaster = new Raycaster()
 
-  const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
+  const navmeshesQuery = defineQuery([NavMeshComponent])
 
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
   const requestsAddQuery = enterQuery(requestsQuery)
@@ -48,17 +47,15 @@ export const AutopilotSystem = async (): Promise<System> => {
   const navClickAddQuery = enterQuery(navClickQuery)
 
   return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
     for (const entity of navClickAddQuery(world)) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
-      // console.log('~~~ coords', coords)
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
+
       const clickResult = navmeshesQuery(world).reduce(
         (previousEntry, currentEntity) => {
-          const mesh = getComponent(currentEntity, Object3DComponent).value
+          const mesh = getComponent(currentEntity, NavMeshComponent).navTarget
           raycasterResults.length = 0
           raycaster.intersectObject(mesh, true, raycasterResults)
           if (!raycasterResults.length) {
@@ -77,10 +74,8 @@ export const AutopilotSystem = async (): Promise<System> => {
         },
         { distance: Infinity, point: null, entity: null }
       )
-      // console.log('~~~ clickResult', clickResult)
 
       if (clickResult.point) {
-        console.log('ADD AutoPilotRequestComponent')
         addComponent(entity, AutoPilotRequestComponent, {
           point: clickResult.point,
           navEntity: clickResult.entity

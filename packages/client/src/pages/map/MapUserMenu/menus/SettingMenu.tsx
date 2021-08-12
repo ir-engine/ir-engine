@@ -27,9 +27,9 @@ const SettingMenu = (props: any): JSX.Element => {
               value={props.setting?.audio == null ? 100 : props.setting?.audio}
               onChange={(_, value) => {
                 props.setUserSettings({ audio: value })
-                const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
-                for (let i = 0; i < mediaElements.length; i++) {
-                  mediaElements[i].volume = (value as number) / 100
+                const videoElements = document.getElementsByTagName('video')
+                for (let i = 0; i < videoElements.length; i++) {
+                  videoElements[i].volume = (value as number) / 100
                 }
               }}
               className={styles.slider}

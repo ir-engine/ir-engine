@@ -24,6 +24,7 @@ import { InteractedComponent } from '../interaction/components/InteractedCompone
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarSettings } from './AvatarControllerSystem'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -267,7 +268,6 @@ const setWalking: InputBehaviorType = (
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   controller.isWalking = inputValue.lifecycleState !== LifecycleValue.ENDED
-  controller.moveSpeed = controller.isWalking ? controller.walkSpeed : controller.runSpeed
 }
 
 const setLocalMovementDirection: InputBehaviorType = (

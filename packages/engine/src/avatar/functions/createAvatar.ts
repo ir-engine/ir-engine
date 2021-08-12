@@ -166,10 +166,6 @@ export const createAvatarController = (entity: Entity) => {
     movementEnabled: true,
     isJumping: false,
     isWalking: false,
-    walkSpeed: 1.5,
-    runSpeed: 5,
-    moveSpeed: 5,
-    jumpHeight: 4,
     localMovementDirection: new Vector3(),
     velocitySimulator
   })

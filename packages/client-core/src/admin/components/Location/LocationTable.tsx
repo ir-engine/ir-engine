@@ -74,6 +74,7 @@ const LocationTable = (props: Props) => {
   const [locationAdmin, setLocationAdmin] = React.useState('')
   const user = authState.get('user')
   const adminLocations = adminLocationState.get('locations').get('locations')
+  const adminLocationCount = adminLocationState.get('locations').get('total')
   const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -233,7 +234,7 @@ const LocationTable = (props: Props) => {
       <TablePagination
         rowsPerPageOptions={[12]}
         component="div"
-        count={12}
+        count={adminLocationCount}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

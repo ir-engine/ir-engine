@@ -1,44 +1,11 @@
-import React, { useState } from 'react'
-import World, { EngineCallbacks } from '../../components/World/index'
-import Layout from '../../components/Layout/Layout'
-import { useTranslation } from 'react-i18next'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
-import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import RecordingApp from '../../components/Recorder/RecordingApp'
-import MediaIconsBox from '../../components/MediaIconsBox'
-
-const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const engineInitializeOptions: InitializeOptions = {
-  publicPath: location.origin,
-  networking: {
-    schema: {
-      transport: SocketWebRTCClientTransport
-    } as NetworkSchema
-  },
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: CharacterUISystem,
-      after: UISystem
-    }
-  ]
-}
+import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
+import MapUserMenu from './MapUserMenu'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import Layout from '../../components/Layout/Layout'
+import World, { EngineCallbacks } from '../../components/World/index'
+import MapMediaIconsBox from './MapMediaIconsBox'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -54,19 +21,18 @@ const LocationPage = (props) => {
   }
 
   return (
-    <Layout pageTitle={t('location.locationName.pageTitle')}>
+    <Layout hideVideo={true} hideFullscreen={true} pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
       <World
         allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
         showTouchpad
       >
-        <MediaIconsBox />
-        <UserMenu />
-        <EmoteMenu />
+        <MapMediaIconsBox />
+        <MapUserMenu />
+        {/* <EmoteMenu /> */}
       </World>
     </Layout>
   )
