@@ -83,11 +83,11 @@ const followCameraBehavior = (entity: Entity) => {
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
   let inputValue =
-    inputComponent.data.get(inputAxes) ||
-    ({
-      type: 0,
-      value: [0, 0] as Vector2Type
-    } as InputValue<NumericalType>)
+  inputComponent.data.get(inputAxes) ||
+  ({
+    type: 0,
+    value: [0, 0] as Vector2Type
+  } as InputValue<NumericalType>)
 
   let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance

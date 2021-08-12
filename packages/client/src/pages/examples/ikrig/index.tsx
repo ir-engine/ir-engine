@@ -118,9 +118,9 @@ const Page = () => {
         animations: model.animations,
         animationSpeed: 1
       })
-      addComponent(sourceEntity, IKObj, { ref: model.scene })
-      addComponent(sourceEntity, IKPose, { ref: null })
-      addComponent(sourceEntity, IKRig, { sourceRig: skinnedMesh })
+      addComponent(sourceEntity, IKObj, {ref: model.scene})
+      addComponent(sourceEntity, IKPose, {ref: null})
+      addComponent(sourceEntity, IKRig, {sourceRig: skinnedMesh})
 
       const rig = getComponent(sourceEntity, IKRig)
       const sourcePose = getComponent(sourceEntity, IKPose)

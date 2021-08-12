@@ -8,8 +8,6 @@ export interface NetworkSchema {
   messageTypes: {
     [key: string]: any
   }
-  /** Default prefab for the client. */
-  defaultClientPrefab: number
   /** Prefabs for the schema. */
   prefabs: Map<number, ComponentConstructor<any>>
 }

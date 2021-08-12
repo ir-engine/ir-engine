@@ -6,8 +6,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { changeFaceTrackingState, updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
+import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -18,6 +17,8 @@ import {
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
 import styles from './MapMediaIconsBox.module.scss'
+import Microphone from './svg/Microphone.svg'
+// import Chat from './svg/Chat.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -28,9 +29,7 @@ const mapStateToProps = (state: any): any => {
   }
 }
 
-const mapDispatchToProps = (dispatch): any => ({
-  changeFaceTrackingState: bindActionCreators(changeFaceTrackingState, dispatch)
-})
+const mapDispatchToProps = (dispatch): any => ({})
 
 const MediaIconsBox = (props) => {
   const { authState, locationState, mediastream } = props
@@ -115,7 +114,8 @@ const MediaIconsBox = (props) => {
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={handleMicClick}
         >
-          <MicIcon />
+          {/* <MicIcon /> */}
+          <img src={Microphone} alt=""></img>
         </button>
       ) : null}
       {videoEnabled && hasVideoDevice ? (
