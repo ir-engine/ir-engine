@@ -273,7 +273,7 @@ const CreateScope = (props: Props) => {
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
-                    <em>Select user</em>
+                    <em>Select location</em>
                   </MenuItem>
                   <MenuItem value={'write'}>Write</MenuItem>
                   <MenuItem value={'read'}>Read</MenuItem>
@@ -298,7 +298,7 @@ const CreateScope = (props: Props) => {
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
-                    <em>Select user</em>
+                    <em>Select scene</em>
                   </MenuItem>
                   <MenuItem value={'write'}>Write</MenuItem>
                   <MenuItem value={'read'}>Read</MenuItem>
@@ -323,7 +323,7 @@ const CreateScope = (props: Props) => {
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
-                    <em>Select user</em>
+                    <em>Select static resource</em>
                   </MenuItem>
                   <MenuItem value={'write'}>Write</MenuItem>
                   <MenuItem value={'read'}>Read</MenuItem>
@@ -349,7 +349,7 @@ const CreateScope = (props: Props) => {
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
-                    <em>Select user</em>
+                    <em>Select bot</em>
                   </MenuItem>
                   <MenuItem value={'write'}>Write</MenuItem>
                   <MenuItem value={'read'}>Read</MenuItem>
@@ -374,7 +374,7 @@ const CreateScope = (props: Props) => {
                   onChange={handleChange}
                 >
                   <MenuItem value="" disabled>
-                    <em>Select user</em>
+                    <em>Select global avatar</em>
                   </MenuItem>
                   <MenuItem value={'write'}>Write</MenuItem>
                   <MenuItem value={'read'}>Read</MenuItem>
