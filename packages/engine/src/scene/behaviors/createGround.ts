@@ -11,7 +11,6 @@ type GroundProps = {
 }
 
 export const createGround = (entity: Entity, args: GroundProps) => {
-  console.log("ground entity", entity)
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
     new MeshStandardMaterial({

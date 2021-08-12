@@ -6,7 +6,7 @@ import { Raycaster } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { getSystem } from '../../ecs/functions/SystemFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
+import { Input } from '../../input/components/Input'
 import { InputBehaviorType } from '../../input/interfaces/InputSchema'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 
@@ -16,8 +16,8 @@ export const doRaycast: InputBehaviorType = (actorEntity, inputKey, inputValue):
   }
 
   const autopilotSystem = getSystem(AutopilotSystem)
-  const input = getComponent(actorEntity, InputComponent)
-  const coords = input.data.get(BaseInput.SCREENXY).value
+  const input = getComponent(actorEntity, Input)
+  const coords = input.data.get(BaseInput.SCREENXY)?.value
 
   const raycaster = new Raycaster()
   raycaster.setFromCamera({ x: coords[0], y: coords[1] }, Engine.camera)

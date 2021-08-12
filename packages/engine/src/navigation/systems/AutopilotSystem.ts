@@ -55,7 +55,6 @@ export const AutopilotSystem = async (): Promise<System> => {
     for (const entity of navClickAddQuery(world)) {
       const input = getComponent(entity, InputComponent)
       const coords = input.data.get(BaseInput.SCREENXY).value
-      console.log('~~~ coords', coords)
       raycaster.setFromCamera({ x: coords[0], y: coords[1] }, Engine.camera)
 
       const raycasterResults = []
@@ -63,7 +62,6 @@ export const AutopilotSystem = async (): Promise<System> => {
       const clickResult = navmeshesQuery(world).reduce(
         (previousEntry, currentEntity) => {
           const mesh = getComponent(currentEntity, NavMeshComponent).navTarget
-          console.log('~~~ mesh', mesh)
           raycasterResults.length = 0
           raycaster.intersectObject(mesh, true, raycasterResults)
           if (!raycasterResults.length) {
@@ -82,10 +80,8 @@ export const AutopilotSystem = async (): Promise<System> => {
         },
         { distance: Infinity, point: null, entity: null }
       )
-      console.log('~~~ clickResult', clickResult)
 
       if (clickResult.point) {
-        console.log('ADD AutoPilotRequestComponent')
         addComponent(entity, AutoPilotRequestComponent, {
           point: clickResult.point,
           navEntity: clickResult.entity
