@@ -7,6 +7,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -33,7 +34,8 @@ export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
     controller.velocitySimulator.target.copy(vec3)
     controller.velocitySimulator.simulate(deltaTime)
 
-    newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(controller.moveSpeed)
+    const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+    newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
     velocity.velocity.copy(newVelocity)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -66,7 +68,7 @@ export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
     }
 
     if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
-      controller.controller.velocity.y = controller.jumpHeight * multiplier
+      controller.controller.velocity.y = AvatarSettings.instance.jumpHeight * multiplier
       controller.isJumping = true
     }
 
