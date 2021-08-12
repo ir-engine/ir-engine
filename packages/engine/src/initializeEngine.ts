@@ -87,6 +87,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     Engine.camera.layers.enableAll()
     Engine.scene.add(Engine.camera)
     Engine.camera.add(Engine.audioListener)
+    addClientInputListeners(canvas)
   }
 
   Network.instance = new Network()
@@ -101,8 +102,6 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   await FontManager.instance.getDefaultFont()
 
   setupBotHooks()
-
-  addClientInputListeners(canvas)
 
   registerClientSystems(options, canvas)
 }
