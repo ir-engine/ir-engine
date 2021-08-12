@@ -21,7 +21,6 @@ import {
   PerspectiveCamera,
   RGBFormat,
   sRGBEncoding,
-  Vector2,
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRenderTarget
@@ -137,14 +136,10 @@ export class EngineRenderer {
   timeSamples = [17, 17, 17, 17, 17, 17, 17, 17, 17, 17]
   index = 0
 
-  /** Array of managed render targets */
-  renderTargets: WebGLRenderTarget[]
-
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {
     EngineRenderer.instance = this
 
-    this.renderTargets = []
     this.onResize = this.onResize.bind(this)
 
     const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
@@ -198,28 +193,6 @@ export class EngineRenderer {
   /** Called on resize, sets resize flag. */
   onResize(): void {
     this.needsResize = true
-  }
-
-  /** Called on resize, updates render targets size. */
-  resizeRenderTargets(width: number, height: number): void {
-    const dpr = Engine.renderer.getPixelRatio()
-
-    this.renderTargets.forEach((rt) => {
-      const scaleFactor = (rt as any).userData.scaleFactor
-      rt.setSize(width * dpr * scaleFactor.x, height * dpr * scaleFactor.y)
-    })
-  }
-
-  /**
-   * Add a managed render target.
-   * @param renderTarget Render target instance
-   * @param options optional object that holds render target parameters
-   * valid options: scaleFactor: Vector2
-   */
-  addRenderTarget(renderTarget: WebGLRenderTarget, options: {} = {}): void {
-    const data = Object.assign({ scaleFactor: new Vector2(1, 1) }, options)
-    ;(renderTarget as any).userData = data
-    this.renderTargets.push(renderTarget)
   }
 
   /**
@@ -313,8 +286,6 @@ export class EngineRenderer {
           this.qualityLevel > 0 && Engine.csm?.updateFrustums()
           Engine.renderer.setSize(width, height, false)
           Engine.effectComposer.setSize(width, height, false)
-
-          this.resizeRenderTargets(width, height)
           this.needsResize = false
         }
 
