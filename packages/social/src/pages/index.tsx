@@ -26,6 +26,7 @@ import WebXRStart from '@xrengine/client-core/src/socialmedia/components/popups/
 import FeedOnboarding from '@xrengine/client-core/src/socialmedia/components/FeedOnboarding'
 // @ts-ignore
 import styles from './index.module.scss'
+import Button from '@material-ui/core/Button'
 
 import image from '/static/images/image.jpg'
 import mockupIPhone from '/static/images/mockupIPhone.jpg'
@@ -97,13 +98,26 @@ const Home = ({
   const platformClass = isIOS ? styles.isIos : ''
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
-  if ((!currentCreator || currentCreator === null) || splashTimeout) {
+  if (!currentCreator || currentCreator === null || splashTimeout) {
     //add additional duration Splash after initialized user
-    const splash = setTimeout(()=>{
-      setSplashTimeout(false);
-      clearTimeout(splash);
+    const splash = setTimeout(() => {
+      setSplashTimeout(false)
+      clearTimeout(splash)
     }, 5000)
-    return <Splash />
+    return (
+      <Splash>
+        <Button
+          onClick={() => {
+            setSplashTimeout(false)
+            clearTimeout(splash)
+          }}
+          color="primary"
+          className={styles.btn_skip}
+        >
+          Skip
+        </Button>
+      </Splash>
+    )
   }
 
   if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
