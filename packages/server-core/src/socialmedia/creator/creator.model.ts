@@ -30,6 +30,11 @@ export default (app: Application): any => {
         type: DataTypes.BOOLEAN,
         defaultValue: (): boolean => false
       },
+      view: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => 'featured',
+        allowNull: false
+      },
       name: {
         type: DataTypes.STRING,
         defaultValue: (): string => '',

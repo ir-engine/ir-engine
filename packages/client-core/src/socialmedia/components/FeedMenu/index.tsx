@@ -9,22 +9,34 @@ import Featured from '../Featured'
 import TheFeed from '../TheFeed'
 import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
-
+import { connect } from 'react-redux'
+import { selectCreatorsState } from '../../reducers/creator/selector'
+import { bindActionCreators, Dispatch } from 'redux'
+import { updateCreator } from '../../reducers/creator/service'
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
+const mapStateToProps = (state: any): any => {
+  return {
+    creatorsState: selectCreatorsState(state)
+  }
+}
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  updateCreator: bindActionCreators(updateCreator, dispatch)
+})
+const FeedMenu = ({ creatorsState, updateCreator }: any) => {
+  const currentCreator = creatorsState.get('currentCreator')
 
-const FeedMenu = () => {
   const containerRef = useRef<HTMLInputElement>()
   const featuredRef = useRef<HTMLInputElement>()
   const creatorsRef = useRef<HTMLInputElement>()
   const thefeedRef = useRef<HTMLInputElement>()
   const tipsandtricksRef = useRef<HTMLInputElement>()
-  const [view, setView] = useState('featured')
+  const [view] = useState(currentCreator.view)
   const { t } = useTranslation()
 
   const padding = 40
   const handleMenuClick = (view) => {
-    setView(view)
+    updateCreator({ id: creatorsState.get('currentCreator').id, view: view })
 
     let leftScrollPos = 0
     switch (view) {
@@ -109,4 +121,4 @@ const FeedMenu = () => {
   )
 }
 
-export default FeedMenu
+export default connect(mapStateToProps, mapDispatchToProps)(FeedMenu)

@@ -81,6 +81,10 @@ const AppFooter = ({
     updateNewFeedPageState(false)
     updateArMediaState(false)
     updateShareFormState(false)
+    updateFeedMenu(false)
+  }
+  const updateFeedMenu = ({ creatorsState, updateCreator }: any) => {
+    updateCreator({ id: creatorsState.get('currentCreator').id, view: 'featured' })
   }
 
   return (
@@ -96,8 +100,8 @@ const AppFooter = ({
         <ViewMode />
         {/*hided for now*/}
         {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
-        {/* {creator && ( 
-          <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
+        {/* {creator && (
+          <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}}
           alt={creator.username} src={creator.avatar} />
         )} */}
         <Avatar

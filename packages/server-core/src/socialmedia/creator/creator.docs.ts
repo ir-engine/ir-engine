@@ -29,6 +29,9 @@ export default {
         email: {
           type: 'string'
         },
+        view: {
+          type: 'string'
+        },
         terms: {
           type: 'boolean'
         },
