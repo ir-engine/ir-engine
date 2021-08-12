@@ -54,6 +54,7 @@ interface Props {
   pageTitle: string
   children?: any
   hideVideo?: boolean
+  hideFullscreen?: boolean
   setUserHasInteracted?: any
   onBoardingStep?: number
 }
@@ -195,7 +196,7 @@ const Layout = (props: Props): any => {
               )}
             </header>
 
-            {fullScreenActive && harmonyOpen !== true ? (
+            {props.hideFullscreen ? null : fullScreenActive && harmonyOpen !== true ? (
               <button type="button" className={styles.fullScreen} onClick={handle.exit}>
                 <FullscreenExit />
               </button>

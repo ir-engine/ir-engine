@@ -12,7 +12,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
-import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import LocationMenu from './menus/LocationMenu'
 import CreateLocationMenu from './menus/CreateLocationMenu'
@@ -28,6 +27,7 @@ import {
   fetchAvatarList,
   removeAvatar
 } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { DownArrow } from '../icons/DownArrow'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -51,8 +51,7 @@ const UserMenu = (props: UserMenuProps): any => {
     props
 
   let menus = [
-    { id: Views.Profile, iconNode: PersonIcon },
-    { id: Views.Settings, iconNode: SettingsIcon },
+    { id: Views.Profile, iconNode: DownArrow },
     { id: Views.Share, iconNode: LinkIcon }
     //  { id: Views.Location, iconNode: FilterHdrIcon },
   ]
@@ -64,7 +63,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const menuPanel = {
     [Views.Profile]: ProfileMenu,
-    [Views.Settings]: SettingMenu,
     [Views.Share]: ShareMenu,
     [Views.Avatar]: AvatarMenu,
     [Views.AvatarUpload]: AvatarSelectMenu,

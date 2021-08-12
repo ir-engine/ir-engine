@@ -21,7 +21,7 @@ const LocationPage = (props) => {
   }
 
   return (
-    <Layout hideVideo={true} pageTitle={t('location.locationName.pageTitle')}>
+    <Layout hideVideo={true} hideFullscreen={true} pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
       <World
         allowDebug={true}
