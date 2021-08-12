@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import World, { EngineCallbacks } from '../../components/World'
+import World, { EngineCallbacks } from '../../components/World/index'
 import Layout from '../../components/Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -16,29 +16,6 @@ import RecordingApp from '../../components/Recorder/RecordingApp'
 import MediaIconsBox from '../../components/MediaIconsBox'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const engineInitializeOptions: InitializeOptions = {
-  publicPath: location.origin,
-  networking: {
-    schema: {
-      transport: SocketWebRTCClientTransport
-    } as NetworkSchema
-  },
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: CharacterUISystem,
-      after: UISystem
-    }
-  ]
-}
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -60,7 +37,6 @@ const LocationPage = (props) => {
         allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
         showTouchpad
       >

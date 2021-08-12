@@ -32,27 +32,29 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const defaulEngineInitializeOptions: InitializeOptions = {
-  publicPath: location.origin,
-  networking: {
-    schema: {
-      transport: SocketWebRTCClientTransport
-    } as NetworkSchema
-  },
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: GolfSystem,
-      after: GameManagerSystem
-    }
-  ]
+const getDefaulEngineInitializeOptions = (): InitializeOptions => {
+  return {
+    publicPath: location.origin,
+    networking: {
+      schema: {
+        transport: SocketWebRTCClientTransport
+      } as NetworkSchema
+    },
+    renderer: {
+      canvasId: engineRendererCanvasId
+    },
+    physics: {
+      simulationEnabled: false,
+      physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+    },
+    systems: [
+      {
+        type: SystemUpdateType.Fixed,
+        system: GolfSystem,
+        after: GameManagerSystem
+      }
+    ]
+  }
 }
 
 const goHome = () => (window.location.href = window.location.origin)
@@ -120,7 +122,7 @@ export const EnginePage = (props: Props) => {
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
-  const engineInitializeOptions = props.engineInitializeOptions ?? defaulEngineInitializeOptions
+  const engineInitializeOptions = props.engineInitializeOptions ?? getDefaulEngineInitializeOptions()
 
   let sceneId = null
 

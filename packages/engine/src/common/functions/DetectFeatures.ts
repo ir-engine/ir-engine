@@ -3,6 +3,8 @@ export const isTouchAvailable =
 
 export const isShareAvailable = navigator.share != null
 
-export const isImmersiveVRSupported = await (async () => {
-  return (navigator as any).xr.isSessionSupported('immersive-vr').then((isSupported) => isSupported)
+export const isImmersiveVRSupported = (async () => {
+  ;(navigator as any).xr.isSessionSupported('immersive-vr').then((isSupported) => {
+    return isSupported
+  })
 })()
