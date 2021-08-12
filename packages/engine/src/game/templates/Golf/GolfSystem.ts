@@ -9,6 +9,11 @@ import { ActionType } from '../../../networking/interfaces/NetworkTransport'
 import { GamePlayer } from '../../components/GamePlayer'
 import { BallStopped } from './GolfGameComponents'
 import { isClient } from '../../../common/functions/isClient'
+import { GolfGameMode } from '../GolfGameMode'
+import { GolfPrefabs } from './prefab/GolfGamePrefabs'
+import { NetworkObjectComponent } from '../../../networking/components/NetworkObjectComponent'
+import { getComponent } from '../../../ecs/functions/EntityFunctions'
+import { AvatarComponent } from '../../../avatar/components/AvatarComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -30,6 +35,8 @@ export const GolfState = createState({
   currentHole: 0
 })
 
+globalThis.GolfState = GolfState
+
 // IMPORTANT: unlike Redux, dispatched actions are always processed asynchronously
 const dispatchOnServer = (x: ActionType) => {
   // noop on client
@@ -38,10 +45,18 @@ const dispatchOnServer = (x: ActionType) => {
 
 export const GolfSystem = async (): Promise<System> => {
   if (isClient) {
+    // pre-cache the assets we need for this game
     await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
     await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
     await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
   }
+
+  Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
+
+  // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
+  Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
+    Network.instance.schema.prefabs.set(Number(prefabType), prefab)
+  })
 
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
   function receptor(world: ECSWorld, action: GolfActionType) {
@@ -56,7 +71,7 @@ export const GolfSystem = async (): Promise<System> => {
         case 'puttclub.PLAYER_JOINED':
           s.players.merge([
             {
-              id: action.playerNetworkId,
+              id: action.playerId,
               scores: [],
               stroke: 0
             }
@@ -68,6 +83,7 @@ export const GolfSystem = async (): Promise<System> => {
           if (s.players.length === 1) {
             dispatchOnServer(GolfAction.nextTurn())
           }
+          console.log(`player ${action.playerId} joined and added to state`)
           return
 
         /**
@@ -99,6 +115,7 @@ export const GolfSystem = async (): Promise<System> => {
           })
           player.stroke.set(0)
           dispatchOnServer(GolfAction.nextHole())
+          console.log(`it is now player ${player.id.value}'s turn`)
           return
 
         /**
@@ -132,7 +149,7 @@ export const GolfSystem = async (): Promise<System> => {
     })
   }
 
-  const playerQuery = defineQuery([GamePlayer])
+  const playerQuery = defineQuery([AvatarComponent])
   const playerEnterQuery = enterQuery(playerQuery)
   const playerExitQuery = exitQuery(playerQuery)
 
@@ -143,26 +160,32 @@ export const GolfSystem = async (): Promise<System> => {
     const currentPlayer = GolfState.players[GolfState.currentPlayer.value].value
 
     if (!isClient) {
-      for (const eid of playerEnterQuery(world)) {
-        if (GamePlayer.get(eid).gameName === 'golf') dispatchOnServer(GolfAction.playerJoined(currentPlayer.id))
+      for (const entity of playerEnterQuery(world)) {
+        const { ownerId } = getComponent(entity, NetworkObjectComponent)
+
+        // Add a player to player list (start at hole 0, scores at 0 for all holes)
+        dispatchOnServer(GolfAction.playerJoined(ownerId))
       }
 
-      for (const eid of playerExitQuery(world)) {
-        if (currentPlayer.id === GamePlayer.get(eid).uuid) dispatchOnServer(GolfAction.nextTurn())
+      for (const entity of playerExitQuery(world)) {
+        const { ownerId } = getComponent(entity, NetworkObjectComponent)
+
+        // if a player disconnects and it's their turn, change turns to the next player
+        if (currentPlayer.id === ownerId) dispatchOnServer(GolfAction.nextTurn())
       }
 
-      if (ballHit()) {
-        dispatchOnServer(GolfAction.playerStroke(currentPlayer.id))
-      }
+      // if (ballHit()) {
+      //   dispatchOnServer(GolfAction.playerStroke(currentPlayer.id))
+      // }
 
-      if (ballStoppedOrTimedOut()) {
-        dispatchOnServer(GolfAction.nextTurn())
-      }
+      // if (ballStoppedOrTimedOut()) {
+      //   dispatchOnServer(GolfAction.nextTurn())
+      // }
 
-      if (ballOutOfBounds()) {
-        dispatchOnServer(GolfAction.nextTurn())
-        dispatchOnServer(GolfAction.resetBall())
-      }
+      // if (ballOutOfBounds()) {
+      //   dispatchOnServer(GolfAction.nextTurn())
+      //   dispatchOnServer(GolfAction.resetBall())
+      // }
     }
 
     return world

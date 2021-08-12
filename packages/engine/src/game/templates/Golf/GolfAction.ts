@@ -1,15 +1,15 @@
 export const GolfAction = {
-  playerJoined(playerNetworkId: string) {
+  playerJoined(playerId: string) {
     return {
       type: 'puttclub.PLAYER_JOINED' as const,
-      playerNetworkId
+      playerId: playerId
     }
   },
 
-  playerStroke(playerNetworkId: string) {
+  playerStroke(playerId: string) {
     return {
       type: 'puttclub.PLAYER_STROKE' as const,
-      playerNetworkId
+      playerId
     }
   },
 

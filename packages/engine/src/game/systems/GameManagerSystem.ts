@@ -104,24 +104,13 @@ export const GameManagerSystem = async (): Promise<System> => {
 
     for (const entityGame of gameQueryResults) {
       const game = getComponent(entityGame, GameComponent)
-      // this part about check if client get same actions as server send him.
-      if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
-        clearPredictionCheckList()
-        requireState(
-          game,
-          getComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].entity, GamePlayer)
-        )
-      }
-
       for (const entity of avatarsAddQuery(world)) {
-        console.log('new player')
-        const gamePlayerComp = addComponent(entity, GamePlayer, {
+        addComponent(entity, GamePlayer, {
           gameName: game.name,
           role: 'newPlayer',
           uuid: getComponent(entity, NetworkObjectComponent).ownerId,
           ownedObjects: {}
         })
-        requireState(game, gamePlayerComp)
       }
     }
 
@@ -133,8 +122,8 @@ export const GameManagerSystem = async (): Promise<System> => {
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) continue
         const gameSchema = Engine.gameModes.get(game.gameMode)
         gameSchema.beforePlayerLeave(entity)
-        console.log('removeEntityFromState', gamePlayer.role)
-        removeEntityFromState(gamePlayer, game)
+        // console.log('removeEntityFromState', gamePlayer.role)
+        // removeEntityFromState(gamePlayer, game)
         // clearRemovedEntitysFromGame(game)
         game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
@@ -147,8 +136,8 @@ export const GameManagerSystem = async (): Promise<System> => {
         const game = getComponent(entityGame, GameComponent)
         const gameObject = getComponent(entity, GameObject, true)
         if (gameObject === undefined || gameObject.gameName != game.name) continue
-        console.log('removeEntityFromState', gameObject.role)
-        removeEntityFromState(gameObject, game)
+        // console.log('removeEntityFromState', gameObject.role)
+        // removeEntityFromState(gameObject, game)
         game.gameObjects[gameObject.role] = []
       }
     }
@@ -159,29 +148,16 @@ export const GameManagerSystem = async (): Promise<System> => {
         const game = getComponent(entityGame, GameComponent)
         const gamePlayer = getComponent(entity, GamePlayer)
         if (gamePlayer.gameName != game.name) continue
-
-        // befor adding first player
-        const countAllPlayersInGame = Object.keys(game.gamePlayers).reduce(
-          (acc, v) => acc + game.gamePlayers[v].length,
-          0
-        )
-        if (countAllPlayersInGame == 1) saveInitStateCopy(entityGame)
-        // add to gamePlayers list sorted by role
-        // game.gamePlayers[gamePlayer.role].push(entity)
-        requireState(game, gamePlayer)
+        game.gamePlayers[gamePlayer.role].push(entity)
       }
     }
 
     // OBJECTS ADDIND
-    // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
     for (const entity of gameObjectAddQuery(world)) {
       for (const entityGame of gameQueryResults) {
         const game = getComponent(entityGame, GameComponent)
         if (getComponent(entity, GameObject).gameName != game.name) continue
-
-        const gameObjects = game.gameObjects
-        // add to gameObjects list sorted by role
-        gameObjects[getComponent(entity, GameObject).role].push(entity)
+        game.gameObjects[getComponent(entity, GameObject).role].push(entity)
       }
     }
     return world

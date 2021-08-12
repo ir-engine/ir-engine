@@ -226,8 +226,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         Network.instance.incomingMessageQueueReliable.add(message)
       })
 
-      socket.on(MessageTypes.ActionData.toString(), (message) => {
-        const actions = decode(message) as IncomingActionType[]
+      socket.on(MessageTypes.ActionData.toString(), (message: ArrayBuffer) => {
+        const actions = decode(new Uint8Array(message)) as IncomingActionType[]
         for (const a of actions) a.senderID = socket.id
         console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
         Network.instance.incomingActions.push(...actions)
