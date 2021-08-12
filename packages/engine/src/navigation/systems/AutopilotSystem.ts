@@ -39,7 +39,7 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): 
 export const AutopilotSystem = async (): Promise<System> => {
   const raycaster = new Raycaster()
 
-  const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
+  const navmeshesQuery = defineQuery([NavMeshComponent])
 
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
   const requestsAddQuery = enterQuery(requestsQuery)
@@ -62,8 +62,8 @@ export const AutopilotSystem = async (): Promise<System> => {
 
       const clickResult = navmeshesQuery(world).reduce(
         (previousEntry, currentEntity) => {
-          const mesh = getComponent(currentEntity, Object3DComponent).value
-          console.log("~~~ mesh", mesh)
+          const mesh = getComponent(currentEntity, NavMeshComponent).navTarget
+          console.log('~~~ mesh', mesh)
           raycasterResults.length = 0
           raycaster.intersectObject(mesh, true, raycasterResults)
           if (!raycasterResults.length) {
