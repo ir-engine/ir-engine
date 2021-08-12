@@ -103,7 +103,7 @@ const Home = ({
     const splash = setTimeout(() => {
       setSplashTimeout(false)
       clearTimeout(splash)
-    }, 5000)
+    }, 115000)
     return (
       <Splash>
         <div className={styles.btn_skip}>
