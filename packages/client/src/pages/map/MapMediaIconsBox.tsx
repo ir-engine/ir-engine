@@ -8,7 +8,8 @@ import { connect } from 'react-redux'
 import { updateCamAudioState } from '../../reducers/mediastream/service'
 import {
   configureMediaTransports,
-  createCamAudioProducer, endVideoChat,
+  createCamAudioProducer,
+  endVideoChat,
   leave,
   pauseProducer,
   resumeProducer

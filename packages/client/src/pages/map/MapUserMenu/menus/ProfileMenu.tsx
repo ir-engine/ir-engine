@@ -17,7 +17,17 @@ import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { selectAuthState } from '../../../../../../client-core/src/user/reducers/auth/selector'
-import { updateUsername, updateUserAvatarId, updateUserSettings, loginUserByOAuth, loginUserByXRWallet, addConnectionBySms, addConnectionByEmail, logoutUser, removeUser } from '../../../../../../client-core/src/user/reducers/auth/service'
+import {
+  updateUsername,
+  updateUserAvatarId,
+  updateUserSettings,
+  loginUserByOAuth,
+  loginUserByXRWallet,
+  addConnectionBySms,
+  addConnectionByEmail,
+  logoutUser,
+  removeUser
+} from '../../../../../../client-core/src/user/reducers/auth/service'
 
 interface Props {
   changeActiveMenu?: any

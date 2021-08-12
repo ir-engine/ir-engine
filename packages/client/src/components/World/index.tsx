@@ -32,28 +32,29 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const getDefaulEngineInitializeOptions = (): InitializeOptions => { return {
-  publicPath: location.origin,
-  networking: {
-    schema: {
-      transport: SocketWebRTCClientTransport
-    } as NetworkSchema
-  },
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: GolfSystem,
-      after: GameManagerSystem
-    }
-  ]
-}
+const getDefaulEngineInitializeOptions = (): InitializeOptions => {
+  return {
+    publicPath: location.origin,
+    networking: {
+      schema: {
+        transport: SocketWebRTCClientTransport
+      } as NetworkSchema
+    },
+    renderer: {
+      canvasId: engineRendererCanvasId
+    },
+    physics: {
+      simulationEnabled: false,
+      physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+    },
+    systems: [
+      {
+        type: SystemUpdateType.Fixed,
+        system: GolfSystem,
+        after: GameManagerSystem
+      }
+    ]
+  }
 }
 
 const goHome = () => (window.location.href = window.location.origin)

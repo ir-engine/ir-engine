@@ -21,7 +21,13 @@ import { UserMenuProps, Views } from './util'
 import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { updateUserAvatarId, updateUserSettings, uploadAvatarModel, fetchAvatarList, removeAvatar } from '@xrengine/client-core/src/user/reducers/auth/service'
+import {
+  updateUserAvatarId,
+  updateUserSettings,
+  uploadAvatarModel,
+  fetchAvatarList,
+  removeAvatar
+} from '@xrengine/client-core/src/user/reducers/auth/service'
 
 const mapStateToProps = (state: any): any => {
   return {

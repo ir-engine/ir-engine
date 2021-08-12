@@ -257,7 +257,7 @@ const Layout = (props: Props): any => {
             {/*  </Fragment>*/}
             {/*}*/}
             <footer>
-            <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />
+              <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />
               {user?.userRole !== 'guest' && harmonyOpen === false && (
                 <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
                   <Forum />

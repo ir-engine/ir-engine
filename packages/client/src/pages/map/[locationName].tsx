@@ -7,7 +7,6 @@ import Layout from '../../components/Layout/Layout'
 import World, { EngineCallbacks } from '../../components/World/index'
 import MapMediaIconsBox from './MapMediaIconsBox'
 
-
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()
