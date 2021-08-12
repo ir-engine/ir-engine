@@ -25,7 +25,7 @@ import instanceChatStyles from './MapInstanceChat.module.scss'
 import styles from './MapLayout.module.scss'
 import MapMediaIconsBox from './MapMediaIconsBox'
 
-const siteTitle: string = "Mappa" // Config.publicRuntimeConfig.siteTitle
+const siteTitle: string = 'Mappa' // Config.publicRuntimeConfig.siteTitle
 
 interface Props {
   match?: any

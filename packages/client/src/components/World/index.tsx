@@ -120,7 +120,7 @@ export const EnginePage = (props: Props) => {
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
-  const engineInitializeOptions = props.engineInitializeOptions ??  defaulEngineInitializeOptions
+  const engineInitializeOptions = props.engineInitializeOptions ?? defaulEngineInitializeOptions
 
   let sceneId = null
 

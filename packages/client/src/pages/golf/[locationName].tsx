@@ -15,7 +15,6 @@ import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/f
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()

@@ -148,9 +148,8 @@ const InstanceChat = (props: Props): any => {
     return returned
   }
 
-  const isMessageSentBySelf = (message):boolean  => {
-    
-    return (message.senderId === user.id);    
+  const isMessageSentBySelf = (message): boolean => {
+    return message.senderId === user.id
   }
 
   useEffect(() => {
@@ -183,15 +182,14 @@ const InstanceChat = (props: Props): any => {
     })
   }
 
-  const getAvatar = (message):any =>{
-
-
-   return dimensions.width > 768 && (
-      <ListItemAvatar className={styles['message-sender-avatar']}>
-        <Avatar src={message.sender?.avatarUrl} />
-      </ListItemAvatar>
-    );
-
+  const getAvatar = (message): any => {
+    return (
+      dimensions.width > 768 && (
+        <ListItemAvatar className={styles['message-sender-avatar']}>
+          <Avatar src={message.sender?.avatarUrl} />
+        </ListItemAvatar>
+      )
+    )
   }
 
   return (
@@ -213,7 +211,6 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    
                     return (
                       <ListItem
                         className={classNames({
@@ -224,12 +221,13 @@ const InstanceChat = (props: Props): any => {
                         disableGutters={true}
                         key={message.id}
                       >
-                        <div className={styles[ isMessageSentBySelf(message)?'message-right':'message-left']}>
-                         
+                        <div className={styles[isMessageSentBySelf(message) ? 'message-right' : 'message-left']}>
                           {!isMessageSentBySelf(message) && getAvatar(message)}
-                         
+
                           <ListItemText
-                            className={styles[isMessageSentBySelf(message)?'message-right-text':'message-left-text']}
+                            className={
+                              styles[isMessageSentBySelf(message) ? 'message-right-text' : 'message-left-text']
+                            }
                             primary={
                               <span>
                                 <span className={styles.userName} color="primary">
@@ -238,10 +236,9 @@ const InstanceChat = (props: Props): any => {
                                 <p>{message.text}</p>
                               </span>
                             }
-                          /> 
+                          />
 
-                        {isMessageSentBySelf(message) && getAvatar(message)}
-
+                          {isMessageSentBySelf(message) && getAvatar(message)}
                         </div>
                       </ListItem>
                     )
