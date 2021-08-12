@@ -8,7 +8,8 @@ import Fab from '@material-ui/core/Fab'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
-import TextField from '@material-ui/core/TextField'
+// import TextField from '@material-ui/core/TextField'
+import { TextField, makeStyles } from '@material-ui/core'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import {
@@ -24,6 +25,8 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
+import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
+import SmsIcon from '@material-ui/icons/Sms'
 import defaultStyles from './InstanceChat.module.scss'
 import Chat from './Chat.svg'
 
@@ -59,6 +62,11 @@ interface Props {
   updateChatTarget?: any
   updateMessageScrollInit?: any
 }
+const useStyles = makeStyles((theme) => ({
+  input: {
+    color: '#051728;'
+  }
+}))
 
 const InstanceChat = (props: Props): any => {
   const {
@@ -169,6 +177,7 @@ const InstanceChat = (props: Props): any => {
     }
   }, [isMultiline])
 
+  const classes = useStyles()
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
 
@@ -253,9 +262,10 @@ const InstanceChat = (props: Props): any => {
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
                 {/* <MessageIcon onClick={() => hideShowMessagesContainer()}  /> */}
-                <span onClick={() => hideShowMessagesContainer()}>
-                  <img src={Chat} alt="message"></img>
+                <span className={styles.mesg} onClick={() => hideShowMessagesContainer()}>
+                  <img src={MessageSvg} alt="message"></img>
                 </span>
+                {/* <span className={styles.chat}onClick={() => hideShowMessagesContainer()} ><SmsIcon fontSize="small"/></span> */}
               </div>
               <TextField
                 className={styles.messageFieldContainer}
@@ -269,8 +279,8 @@ const InstanceChat = (props: Props): any => {
                 autoFocus
                 value={composingMessage}
                 inputProps={{
-                  // maxLength: 1000,
-                  // 'aria-label': 'naked'
+                  maxLength: 1000,
+                  'aria-label': 'naked',
                   className: classes.input
                 }}
                 InputLabelProps={{ shrink: false }}
