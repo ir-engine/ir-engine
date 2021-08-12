@@ -24,7 +24,7 @@ const Transition = React.forwardRef(
 
 const mapStateToProps = (state: any): any => {
   return {
-    creatorsState: selectCreatorsState(state),
+    creatorsState: selectCreatorsState(state)
   }
 }
 
@@ -32,7 +32,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateCreator: bindActionCreators(updateCreator, dispatch)
 })
 
-export const TermsAndPolicy = ({creatorsState, updateCreator} : any) => {
+export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
   const currentCreator = creatorsState.get('currentCreator')
 
   const [openTerms, setOpenTerms] = useState(!!!currentCreator.terms)
@@ -57,12 +57,12 @@ export const TermsAndPolicy = ({creatorsState, updateCreator} : any) => {
 
   const handleTermsAccept = () => {
     setOpenTerms(false)
-    updateCreator({ id:  creatorsState.get('currentCreator').id, terms: true })
-    !!!currentCreator.policy && setOpenPolicy(true);
+    updateCreator({ id: creatorsState.get('currentCreator').id, terms: true })
+    !!!currentCreator.policy && setOpenPolicy(true)
   }
 
   const handlePolicyAccept = () => {
-    updateCreator({ id:  creatorsState.get('currentCreator').id, policy: true })
+    updateCreator({ id: creatorsState.get('currentCreator').id, policy: true })
     setOpenPolicy(false)
   }
 
@@ -86,17 +86,14 @@ export const TermsAndPolicy = ({creatorsState, updateCreator} : any) => {
       >
         <DialogContent>
           <DialogContentText>
-            <div dangerouslySetInnerHTML={{__html: termsText}}/>          
+            <div dangerouslySetInnerHTML={{ __html: termsText }} />
           </DialogContentText>
         </DialogContent>
         <div className={styles.bottomBox}>
           <div>
             <div>
               <input type="checkbox" id="agree" onChange={checkboxHandler} />
-              <label htmlFor="agree">
-                {' '}
-                {t('social:terms.confirmTerms')}
-              </label>
+              <label htmlFor="agree"> {t('social:terms.confirmTerms')}</label>
             </div>
             {/* Don't miss the exclamation mark* */}
             <Button variant="contained" disabled={!agree} onClick={handleTermsAccept}>
@@ -123,17 +120,14 @@ export const TermsAndPolicy = ({creatorsState, updateCreator} : any) => {
       >
         <DialogContent>
           <DialogContentText>
-            <div dangerouslySetInnerHTML={{__html: policyText}}/>    
+            <div dangerouslySetInnerHTML={{ __html: policyText }} />
           </DialogContentText>
         </DialogContent>
         <div className={styles.bottomBox}>
           <div>
             <div>
               <input type="checkbox" id="agreePP" onChange={checkboxHandlerPP} />
-              <label htmlFor="agree">
-                {' '}
-                {t('social:terms.confirmPolicy')}
-              </label>
+              <label htmlFor="agree"> {t('social:terms.confirmPolicy')}</label>
             </div>
             {/* Don't miss the exclamation mark* */}
             <Button variant="contained" disabled={!agreePP} className="btn" onClick={handlePolicyAccept}>

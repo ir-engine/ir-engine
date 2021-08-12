@@ -23,7 +23,7 @@ import Popover from '@material-ui/core/Popover'
 
 // @ts-ignore
 import styles from './Feed.module.scss'
-import {createReportsNew} from "../../reducers/reports/service";
+import { createReportsNew } from '../../reducers/reports/service'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -69,13 +69,13 @@ const Feed = ({ feedsState, getFeed, popupsState, updateFeedPageState, removeFee
   }
 
   const createReport = () => {
-	  const data = {
-				title: "Report title",
-				// @ts-ignore
-				feedId: feed.id,
-				description: "Report description"
-	  }
-	  createReportsNew(data);
+    const data = {
+      title: 'Report title',
+      // @ts-ignore
+      feedId: feed.id,
+      description: 'Report description'
+    }
+    createReportsNew(data)
   }
 
   return (
@@ -108,9 +108,9 @@ const Feed = ({ feedsState, getFeed, popupsState, updateFeedPageState, removeFee
             <Button variant="outlined" onClick={() => deleteAction(feed.id, feed.previewUrl, feed.videoUrl)}>
               Report/Delete Content
             </Button>
-			<Button variant="outlined" onClick={() => createReport()}>
-				Report
-			</Button>
+            <Button variant="outlined" onClick={() => createReport()}>
+              Report
+            </Button>
           </Popover>
         </div>
       </section>

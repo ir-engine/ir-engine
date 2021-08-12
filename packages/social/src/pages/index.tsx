@@ -106,16 +106,18 @@ const Home = ({
     }, 5000)
     return (
       <Splash>
-        <Button
-          onClick={() => {
-            setSplashTimeout(false)
-            clearTimeout(splash)
-          }}
-          color="primary"
-          className={styles.btn_skip}
-        >
-          Skip
-        </Button>
+        <div className={styles.btn_skip}>
+          <Button
+            onClick={() => {
+              setSplashTimeout(false)
+              clearTimeout(splash)
+            }}
+            variant="outlined"
+            color="secondary"
+          >
+            Skip
+          </Button>
+        </div>
       </Splash>
     )
   }

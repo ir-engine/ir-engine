@@ -55,21 +55,18 @@ body {
 }
 
 .btn_skip {
-  position: fixed;
+  position: absolute;
+  display: flex;
+  justify-content: center;
   z-index: 10000;
-  bottom: 50px;
-  background-color: black;
-  color: white;
-  width: calc(100% - 34pt);
-  margin: 17pt;
-  text-transform: capitalize;
-  font-size: 17pt;
-  padding: 10pt;
-  border-radius: 15px;
+  bottom: 150pt;
 
+  .MuiButtonBase-root {
+    background-color: black;
+    color: white;
+    border-radius: 10px;
+  }
   @media screen and (max-width: 499px) {
     font-size: 14pt;
-    padding: 8pt;
-    border-radius: 10px;
   }
 }

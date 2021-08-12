@@ -31,10 +31,10 @@ const UsersPage = ({ creatorsState, getCreators }: Props) => {
     doLoginAuto(true, true)
   }, [])
   const creators = creatorsState.get('creators')
-    // creatorsState && creatorsState.get('fetching') === false && creatorsState.get('creators')
-    //   ? creatorsState.get('creators')
-    //   : null
-      console.log(creatorsState.get('creators'))
+  // creatorsState && creatorsState.get('fetching') === false && creatorsState.get('creators')
+  //   ? creatorsState.get('creators')
+  //   : null
+  console.log(creatorsState.get('creators'))
   return (
     <>
       <div>
