@@ -96,6 +96,8 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
       EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
+      MediaStreams.instance.channelType = 'channel'
+      MediaStreams.instance.channelId = channelId
       dispatch(channelServerConnected())
     } catch (err) {
       console.log(err)

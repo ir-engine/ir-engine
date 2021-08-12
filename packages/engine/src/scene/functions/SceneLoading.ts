@@ -55,9 +55,9 @@ export class WorldScene {
   static callbacks: any
   static isLoading = false
 
-  constructor(private onCompleted?: Function, private onProgress?: Function) {}
+  constructor(private onProgress?: Function) {}
 
-  loadScene = (scene: SceneData) => {
+  loadScene = (scene: SceneData): Promise<void> => {
     WorldScene.callbacks = {}
     WorldScene.isLoading = true
 
@@ -79,7 +79,7 @@ export class WorldScene {
       })
     })
 
-    Promise.all(this.loaders)
+    return Promise.all(this.loaders)
       .then(() => {
         WorldScene.isLoading = false
         Engine.sceneLoaded = true
@@ -87,8 +87,6 @@ export class WorldScene {
         configureCSM(sceneProperty.directionalLights, !sceneProperty.isCSMEnabled)
 
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
-
-        this.onCompleted()
       })
       .catch((err) => {
         console.error('Error while loading the scene entities =>', err)
@@ -329,8 +327,8 @@ export class WorldScene {
     }
   }
 
-  static load = (scene: SceneData, onCompleted: Function, onProgress?: Function) => {
-    const world = new WorldScene(onCompleted, onProgress)
-    world.loadScene(scene)
+  static load = (scene: SceneData, onProgress?: Function): Promise<void> => {
+    const world = new WorldScene(onProgress)
+    return world.loadScene(scene)
   }
 }
