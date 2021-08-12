@@ -46,6 +46,7 @@ export const viewVectorSchema = new Schema({
 export const clientGameAction = new Schema({
   type: string,
   game: string,
+  velocity: viewVectorSchema,
   ownerId: string,
   uuid: string
 })
@@ -53,6 +54,18 @@ export const clientGameAction = new Schema({
 export const commandSchema = new Schema({
   type: uint8,
   args: string
+})
+
+export const transformSchema = new Schema({
+  networkId: uint32,
+  snapShotTime: uint32,
+  x: float32,
+  y: float32,
+  z: float32,
+  qX: float32,
+  qY: float32,
+  qZ: float32,
+  qW: float32
 })
 
 /** Schema for input. */
@@ -65,7 +78,8 @@ export const inputKeyArraySchema = new Schema({
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
   clientGameAction: [clientGameAction],
-  commands: [commandSchema]
+  commands: [commandSchema],
+  transforms: [transformSchema]
 })
 
 /** Class for client input. */

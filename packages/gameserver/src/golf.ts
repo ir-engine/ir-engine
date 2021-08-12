@@ -1,6 +1,5 @@
 // TODO: this file will be removed when it is moved to the golf repository
 
-import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 import { WebRTCGameServer } from './WebRTCGameServer'
 import { start } from './start'

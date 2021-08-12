@@ -4,7 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { Input } from '../../input/components/Input'
+import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { Network } from '../../networking/classes/Network'
 import { XRSystem } from '../../xr/systems/XRSystem'
@@ -65,7 +65,7 @@ export function xrInitialized() {
 }
 
 export function startXR() {
-  EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START })
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
   window.dispatchEvent(
     new CustomEvent('webxr-pose', {
       detail: {
@@ -131,7 +131,7 @@ export function moveControllerStick(args) {
 
 // is in world space, so subtract player pos from it
 export function getXRInputPosition() {
-  const input = getComponent(Network.instance.localClientEntity, Input)
+  const input = getComponent(Network.instance.localClientEntity, InputComponent)
   const headInputValue = input.data.get(BaseInput.XR_HEAD)?.value
   const leftControllerInputValue = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND)?.value
   const rightControllerInputValue = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND)?.value

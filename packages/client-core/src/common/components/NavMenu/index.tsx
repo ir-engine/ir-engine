@@ -1,7 +1,6 @@
 import React from 'react'
 import NavUserWidget from '../NavUserWidget'
 import AppBar from '@material-ui/core/AppBar'
-// @ts-ignore
 import styles from './NavMenu.module.scss'
 
 interface Props {

@@ -1,21 +1,15 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { Mesh } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
-import { BoundingBoxComponent } from '../components/BoundingBox'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
 export const showInteractText = (interactTextEntity: Entity, focusEntity: Entity) => {
-  const transform = getMutableComponent(interactTextEntity, TransformComponent)
-  const { value } = getMutableComponent(interactTextEntity, Object3DComponent)
+  const transform = getComponent(interactTextEntity, TransformComponent)
+  const { value } = getComponent(interactTextEntity, Object3DComponent)
   let yTarget = 0
 
   const bb = getComponent(focusEntity, BoundingBoxComponent)
@@ -60,8 +54,8 @@ export const showInteractText = (interactTextEntity: Entity, focusEntity: Entity
 }
 
 export const hideInteractText = (interactTextEntity: Entity) => {
-  const transform = getMutableComponent(interactTextEntity, TransformComponent)
-  const { value } = getMutableComponent(interactTextEntity, Object3DComponent)
+  const transform = getComponent(interactTextEntity, TransformComponent)
+  const { value } = getComponent(interactTextEntity, Object3DComponent)
 
   if (hasComponent(interactTextEntity, TweenComponent)) {
     getComponent(interactTextEntity, TweenComponent).tween.stop() // doesn't trigger onComplete

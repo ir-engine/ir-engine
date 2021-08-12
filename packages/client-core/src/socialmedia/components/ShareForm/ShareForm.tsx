@@ -5,7 +5,6 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { updateShareFormState, updateNewFeedPageState } from '../../reducers/popupsState/service'
-// @ts-ignore
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'

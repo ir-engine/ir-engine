@@ -5,7 +5,7 @@ import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
 import { makeCollidersInvisible } from '../../physics/behaviors/parseModelColliders'
-import { AnimationManager } from '../../character/AnimationManager'
+import { AnimationManager } from '../../avatar/AnimationManager'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -62,19 +62,19 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.castShadow = shadowComponent.props.cast
           node.receiveShadow = shadowComponent.props.receive
         }
-        const ineractableComponent = json.components.find((c) => c.name === 'interact')
+        const interactableComponent = json.components.find((c) => c.name === 'interact')
 
-        if (ineractableComponent) {
-          node.interactable = ineractableComponent.props.interactable
-          node.interactionType = ineractableComponent.props.interactionType
-          node.interactionText = ineractableComponent.props.interactionText
-          node.interactionDistance = ineractableComponent.props.interactionDistance
-          node.payloadName = ineractableComponent.props.payloadName
-          node.payloadUrl = ineractableComponent.props.payloadUrl
-          node.payloadBuyUrl = ineractableComponent.props.payloadBuyUrl
-          node.payloadLearnMoreUrl = ineractableComponent.props.payloadLearnMoreUrl
-          node.payloadHtmlContent = ineractableComponent.props.payloadHtmlContent
-          node.payloadUrl = ineractableComponent.props.payloadUrl
+        if (interactableComponent) {
+          node.interactable = interactableComponent.props.interactable
+          node.interactionType = interactableComponent.props.interactionType
+          node.interactionText = interactableComponent.props.interactionText
+          node.interactionDistance = interactableComponent.props.interactionDistance
+          node.payloadName = interactableComponent.props.payloadName
+          node.payloadUrl = interactableComponent.props.payloadUrl
+          node.payloadBuyUrl = interactableComponent.props.payloadBuyUrl
+          node.payloadLearnMoreUrl = interactableComponent.props.payloadLearnMoreUrl
+          node.payloadHtmlContent = interactableComponent.props.payloadHtmlContent
+          node.payloadUrl = interactableComponent.props.payloadUrl
         }
       })()
     )

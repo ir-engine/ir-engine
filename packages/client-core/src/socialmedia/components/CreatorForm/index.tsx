@@ -10,7 +10,6 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
-// @ts-ignore
 import styles from './CreatorForm.module.scss'
 import AccountCircle from '@material-ui/icons/AccountCircle'
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail'

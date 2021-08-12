@@ -25,12 +25,8 @@ import { CharacterAnimations } from "../../../src/character/CharacterAnimations"
 import { CharacterComponent } from "../../../src/character/components/CharacterComponent";
 import { DefaultNetworkSchema } from "../../../src/networking/templates/DefaultNetworkSchema";
 import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
-// import * as setActorAnimationModule from "../../../src/character/behaviors/setActorAnimation";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
-// setActorAnimationModule.setActorAnimation = jest.fn((entity, args: { name: string; transitionDuration: number }) => {
-//
-// });
 const dummyObject = new Object3D();
 const dummyMixer = new AnimationMixer(dummyObject);
 const mockedAnimActions = new Map<string, AnimationAction>();

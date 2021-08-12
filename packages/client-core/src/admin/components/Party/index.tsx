@@ -1,6 +1,5 @@
 import React from 'react'
 import Grid from '@material-ui/core/Grid'
-// @ts-ignore
 import styles from '../Admin.module.scss'
 import Button from '@material-ui/core/Button'
 import Search from '../Search'

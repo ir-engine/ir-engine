@@ -38,7 +38,7 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions'
-import { setActorAvatar } from '@xrengine/engine/src/character/functions/avatarFunctions'
+import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
 const store = Store.store
 
@@ -592,12 +592,12 @@ export function uploadAvatar(data: any) {
   }
 }
 
-export function uploadAvatarModel(model: any, thumbnail: any, isPublicAvatar?: boolean) {
+export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean) {
   return async (dispatch: Dispatch, getState: any) => {
-    const name = model.name.substring(0, model.name.lastIndexOf('.'))
+    const name = avatarName ? avatarName : model.name.substring(0, model.name.lastIndexOf('.'))
     const [modelURL, thumbnailURL] = await Promise.all([
       client.service('upload-presigned').get('', {
-        query: { type: 'avatar', fileName: model.name, fileSize: model.size, isPublicAvatar: isPublicAvatar }
+        query: { type: 'avatar', fileName: name + '.glb', fileSize: model.size, isPublicAvatar: isPublicAvatar }
       }),
       client.service('upload-presigned').get('', {
         query: {
@@ -840,11 +840,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       for (let key of Object.keys(Network.instance.networkObjects)) {
         const obj = Network.instance.networkObjects[key]
         if (obj?.ownerId === user.id) {
-          setActorAvatar({
-            entityID: obj.component.entity.id,
-            avatarId: user.avatarId,
-            avatarURL
-          })
+          setAvatar(obj.entity.id, user.avatarId, avatarURL)
           break
         }
       }
@@ -877,11 +873,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     for (let key of Object.keys(Network.instance.networkObjects)) {
       const obj = Network.instance.networkObjects[key]
       if (obj?.ownerId === user.id) {
-        setActorAvatar({
-          entityID: obj.component.entity.id,
-          avatarId: user.avatarId,
-          avatarURL
-        })
+        setAvatar(obj.entity.id, user.avatarId, avatarURL)
         break
       }
     }

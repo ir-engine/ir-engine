@@ -1,9 +1,9 @@
-import { AmbientLight, PerspectiveCamera } from 'three'
+import { AmbientLight, PerspectiveCamera, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-import { CameraSystem, rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
+import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
@@ -14,16 +14,20 @@ import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
 import { PhysXInstance } from 'three-physx'
+import { createAvatarController } from '../../avatar/functions/createAvatar'
 
-export const teleportToScene = async (portalComponent: PortalComponent, handleNewScene: () => void) => {
+export const teleportToScene = async (
+  portalComponent: ReturnType<typeof PortalComponent.get>,
+  handleNewScene: () => void
+) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
   // remove controller since physics world will be destroyed and we don't want it moving
   PhysXInstance.instance.removeController(
-    getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
+    getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
   )
-  removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)
+  removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
@@ -92,10 +96,10 @@ export const teleportToScene = async (portalComponent: PortalComponent, handleNe
     portalComponent.remoteSpawnPosition.z
   )
 
-  const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-  rotateViewVectorXZ(actor.viewVector, portalComponent.remoteSpawnEuler.y)
+  const avatar = getComponent(Network.instance.localClientEntity, AvatarComponent)
+  rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
-  addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
+  createAvatarController(Network.instance.localClientEntity)
 
   const fadeOut = hyperspaceEffect.fadeOut(delta)
 

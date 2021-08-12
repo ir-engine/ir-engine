@@ -28,7 +28,6 @@ import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import LocationMenu from './menus/LocationMenu'
 import CreateLocationMenu from './menus/CreateLocationMenu'
-// @ts-ignore
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 

@@ -31,9 +31,14 @@ type ColliderData = {
   collisionMask?: number | string
 }
 
-export function createCollider(mesh: Mesh | any, pos, rot, scale): Body {
+export function createCollider(
+  mesh: Mesh | any,
+  pos = new Vector3(),
+  rot = new Quaternion(),
+  scale = new Vector3(1, 1, 1)
+): Body {
   const userData = mesh.userData as ColliderData
-  console.log(userData, pos, rot, scale)
+  // console.log(userData, pos, rot, scale)
 
   if (!userData.type) return
   if (userData.type === 'trimesh' || userData.type === 'convex') {
@@ -113,7 +118,9 @@ export function createCollider(mesh: Mesh | any, pos, rot, scale): Body {
     restitution: userData.restitution ?? 0.1
   }
 
-  shapeArgs.config.collisionLayer = Number(userData.collisionLayer ?? CollisionGroups.Default)
+  shapeArgs.config.collisionLayer = Number(
+    userData.collisionLayer ?? (userData.isTrigger ? CollisionGroups.Trigger : CollisionGroups.Default)
+  )
   switch (userData.collisionMask) {
     case undefined:
     case -1:

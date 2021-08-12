@@ -1,9 +1,9 @@
 import * as Comlink from 'comlink'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
-import { Input } from '../components/Input'
+import { InputComponent } from '../components/InputComponent'
 import { CameraInput } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
 
@@ -55,7 +55,7 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = MediaStreams.instance.mediaStream
+  faceVideo.srcObject = MediaStreams.instance.videoStream
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -73,7 +73,7 @@ const nameToInputValue = {
 export async function faceToInput(entity, detection) {
   if (detection !== undefined && detection.expressions !== undefined) {
     // console.log(detection.expressions);
-    const input = getMutableComponent(entity, Input)
+    const input = getComponent(entity, InputComponent)
     for (const expression in detection.expressions) {
       // If the detected value of the expression is more than 1/3rd-ish of total, record it
       // This should allow up to 3 expressions but usually 1-2
@@ -119,7 +119,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.mediaStream)
+  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.audioStream)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)
@@ -170,7 +170,7 @@ export const startLipsyncTracking = () => {
 }
 
 export const lipToInput = (entity, pucker, widen, open) => {
-  const input = getMutableComponent(entity, Input)
+  const input = getComponent(entity, InputComponent)
 
   if (pucker > 0.2)
     input.data.set(nameToInputValue['pucker'], {

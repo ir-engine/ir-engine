@@ -1,4 +1,4 @@
-import { Component } from '../../../ecs/classes/Component'
+import { createMappedComponent } from '../../../ecs/functions/EntityFunctions'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -20,20 +20,30 @@ export enum GolfGameStates {
   CheckCourse = 'CheckCourse'
 }
 
-export class Goal extends Component<Goal> {}
+export const Goal = createMappedComponent<{}>()
+;(Goal as any).name = 'Goal'
 
-export class Hit extends Component<Hit> {}
-export class AlreadyHit extends Component<AlreadyHit> {}
+export const Hit = createMappedComponent<{}>()
+;(Hit as any).name = 'Hit'
+export const AlreadyHit = createMappedComponent<{}>()
+;(AlreadyHit as any).name = 'AlreadyHit'
 
-export class BallMoving extends Component<BallMoving> {}
-export class AlmostStopped extends Component<AlmostStopped> {}
-export class BallStopped extends Component<BallStopped> {}
+export const BallMoving = createMappedComponent<{}>()
+;(BallMoving as any).name = 'BallMoving'
+export const AlmostStopped = createMappedComponent<{}>()
+;(AlmostStopped as any).name = 'AlmostStopped'
+export const BallStopped = createMappedComponent<{}>()
+;(BallStopped as any).name = 'BallStopped'
 
-export class BallHidden extends Component<BallHidden> {}
-export class BallVisible extends Component<BallVisible> {}
+export const BallHidden = createMappedComponent<{}>()
+;(BallHidden as any).name = 'BallHidden'
+export const BallVisible = createMappedComponent<{}>()
+;(BallVisible as any).name = 'BallVisible'
 
-export class CorrectBallPosition extends Component<CorrectBallPosition> {}
-export class CheckCourse extends Component<CheckCourse> {}
+export const CorrectBallPosition = createMappedComponent<{}>()
+;(CorrectBallPosition as any).name = 'CorrectBallPosition'
+export const CheckCourse = createMappedComponent<{}>()
+;(CheckCourse as any).name = 'CheckCourse'
 
 export const GolfState = {
   [GolfGameStates.Goal]: Goal,

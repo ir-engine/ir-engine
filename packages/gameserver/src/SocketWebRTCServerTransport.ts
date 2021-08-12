@@ -1,6 +1,10 @@
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { handleNetworkStateUpdate } from '@xrengine/engine/src/networking/functions/updateNetworkState'
-import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import {
+  NetworkTransport,
+  IncomingActionType,
+  ActionType
+} from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
 import logger from '@xrengine/server-core/src/logger'
@@ -10,6 +14,7 @@ import {
   handleConnectToWorld,
   handleDisconnect,
   handleHeartbeat,
+  handleIncomingActions,
   handleIncomingMessage,
   handleJoinWorld,
   handleLeaveWorld,
@@ -39,6 +44,7 @@ import {
   handleWebRtcTransportCreate,
   startWebRTC
 } from './WebRTCFunctions'
+import { encode } from 'msgpackr'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
@@ -61,6 +67,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   constructor(app) {
     this.app = app
+  }
+
+  public sendActions = (actions: ActionType[]): any => {
+    if (actions.length === 0) return
+    const buffer = encode(actions)
+    if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.ActionData.toString(), buffer)
   }
 
   public sendReliableData = (message: any): any => {
@@ -248,6 +260,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
             handleJoinWorld(socket, data, callback, userId, user)
           )
+
+          socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
 
           // If a reliable message is received, add it to the queue
           socket.on(MessageTypes.ReliableMessage.toString(), (data) => handleIncomingMessage(socket, data))

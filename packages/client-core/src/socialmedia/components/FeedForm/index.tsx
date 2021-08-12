@@ -17,7 +17,6 @@ import { Capacitor, Plugins } from '@capacitor/core'
 import { Http, HttpResponse } from '@capacitor-community/http'
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
-// @ts-ignore
 import styles from './FeedForm.module.scss'
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service'
 import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service'

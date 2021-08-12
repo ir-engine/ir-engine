@@ -1,6 +1,6 @@
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -8,15 +8,12 @@ import { Types } from '../../ecs/types/Types'
 type OwnedObjects = {
   [role: string]: Entity
 }
-export class GamePlayer extends Component<GamePlayer> {
+
+export type GamePlayerType = {
   gameName: string
   role: string
   uuid: string
-  ownedObjects: OwnedObjects = {}
+  ownedObjects: OwnedObjects
 }
 
-GamePlayer._schema = {
-  gameName: { type: Types.String, default: null },
-  role: { type: Types.String, default: null },
-  uuid: { type: Types.String, default: null }
-}
+export const GamePlayer = createMappedComponent<GamePlayerType>()

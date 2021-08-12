@@ -44,11 +44,6 @@ export class Config {
     offlineMode: false,
     staticPages: {
       termsOfService: ''
-    },
-    xr: {
-      vrRoomGrid: {
-        scenes: []
-      }
     }
   }
 }

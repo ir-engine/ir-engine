@@ -54,7 +54,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       config: {
         isTrigger: true,
         collisionLayer: CollisionGroups.Portal,
-        collisionMask: CollisionGroups.Characters
+        collisionMask: CollisionGroups.Avatars
       }
     }
 
@@ -118,12 +118,16 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     displayText,
     spawnPosition,
     spawnRotation,
-    spawnEuler
+    spawnEuler,
+    isPlayerInPortal: false,
+    remoteSpawnPosition: new Vector3(),
+    remoteSpawnRotation: new Quaternion(),
+    remoteSpawnEuler: new Euler()
   })
 }
 
 export const setRemoteLocationDetail = (
-  portal: PortalComponent,
+  portal: ReturnType<typeof PortalComponent.get>,
   spawnPosition: Vector3,
   spawnRotation: Euler
 ): void => {

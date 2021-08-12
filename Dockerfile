@@ -9,7 +9,7 @@ RUN apt update && apt install -y ffmpeg=*:4.** nginx
 # Create app directory
 WORKDIR /app
 
-RUN npm install -g lerna cross-env ctix rimraf --loglevel notice
+RUN npm install -g lerna cross-env rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .

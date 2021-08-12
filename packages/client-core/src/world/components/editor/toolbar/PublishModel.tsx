@@ -18,7 +18,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { createLocation, patchLocation, removeLocation } from '../../../../admin/reducers/admin/location/service'
 import { selectAppState } from '../../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../../user/reducers/auth/selector'
-// @ts-ignore
 import styles from '../../../../admin/components/Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'

@@ -170,7 +170,7 @@ export function SceneNodeEditor(props) {
   }
   const onChangeEnvmapURLSource = useSetPropertySelected(editor, 'envMapSourceURL')
 
-  const onChangeOverrideAudioSettings = useSetPropertySelected(editor, 'overrideAudioSettings')
+  const onChangeUserPositionalAudio = useSetPropertySelected(editor, 'usePositionalAudio')
   const onChangeMediaVolume = useSetPropertySelected(editor, 'mediaVolume')
   const onChangeMediaDistanceModel = useSetPropertySelected(editor, 'mediaDistanceModel')
   const onChangeMediaRolloffFactor = useSetPropertySelected(editor, 'mediaRolloffFactor')
@@ -295,9 +295,9 @@ export function SceneNodeEditor(props) {
       )}
       {/* @ts-ignore */}
       <InputGroup name="Override Audio Settings" label={t('editor:properties.scene.lbl-audioSettings')}>
-        <BooleanInput value={node.overrideAudioSettings} onChange={onChangeOverrideAudioSettings} />
+        <BooleanInput value={node.usePositionalAudio} onChange={onChangeUserPositionalAudio} />
       </InputGroup>
-      {node.overrideAudioSettings && (
+      {node.usePositionalAudio && (
         <>
           {/* @ts-ignore */}
           <InputGroup

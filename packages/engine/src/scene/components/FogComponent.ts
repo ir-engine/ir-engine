@@ -1,18 +1,11 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export class FogComponent extends Component<any> {
-  type: any
-  color: any
-  density: any
-  near: any
-  far: any
+export type FogComponentType = {
+  type: string
+  color: string
+  density: number
+  near: number
+  far: number
 }
 
-FogComponent._schema = {
-  type: { type: Types.String, default: 'disabled' },
-  color: { type: Types.String, default: '#FFFFFF' },
-  density: { type: Types.Number, default: 0.0025 },
-  near: { type: Types.Number, default: 1 },
-  far: { type: Types.Number, default: 1000 }
-}
+export const FogComponent = createMappedComponent<FogComponentType>()

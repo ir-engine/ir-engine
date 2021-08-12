@@ -27,8 +27,12 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
     editor.setPropertySelected('isGlobal', payload)
   }
 
-  const onChangeUseStartCoordinates = (payload) => {
-    editor.setPropertySelected('useStartCoordinates', payload)
+  const onChangeUseGeolocation = (payload) => {
+    editor.setPropertySelected('useDeviceGeolocation', payload)
+  }
+
+  const onChangeShowRasterTiles = (payload) => {
+    editor.setPropertySelected('showRasterTiles', payload)
   }
 
   //defining description and shows this description in NodeEditor  with title of elementt,
@@ -47,11 +51,11 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
       </InputGroup>
       {/* @ts-ignore */}
       <InputGroup
-        name="Force start coordinates??"
-        label={t('editor:properties.map.lbl-useStartCoordinates')}
-        info={t('editor:properties.map.info-useStartCoordinates')}
+        name="Start at device's geolocation?"
+        label={t('editor:properties.map.lbl-useDeviceGeolocation')}
+        info={t('editor:properties.map.info-useDeviceGeolocation')}
       >
-        <BooleanInput value={node.isGlobal} onChange={onChangeUseStartCoordinates} />
+        <BooleanInput value={node.useDeviceGeolocation} onChange={onChangeUseGeolocation} />
       </InputGroup>
       {/* @ts-ignore */}
       <InputGroup name="Start Latitude" label={t('editor:properties.map.lbl-startLatitude')}>
@@ -68,6 +72,13 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
           value={node.startLongitude}
           onChange={onChangeStartLongitude}
         />
+      </InputGroup>
+      <InputGroup
+        name="Show Raster Tiles?"
+        label={t('editor:properties.map.lbl-showRasterTiles')}
+        info={t('editor:properties.map.info-showRasterTiles')}
+      >
+        <BooleanInput value={node.showRasterTiles} onChange={onChangeShowRasterTiles} />
       </InputGroup>
     </NodeEditor>
   )

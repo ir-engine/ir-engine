@@ -4,7 +4,6 @@ import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/In
 import { ClientInputSystem, enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
-// @ts-ignore
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 

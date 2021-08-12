@@ -26,7 +26,6 @@ import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
 import { getAvatarURLFromNetwork, Views } from '../util'
 import { Config, validateEmail, validatePhoneNumber } from '../../../../helper'
 import * as polyfill from 'credential-handler-polyfill'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 

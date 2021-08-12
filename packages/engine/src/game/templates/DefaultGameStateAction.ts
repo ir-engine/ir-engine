@@ -16,5 +16,6 @@ export enum DefaultGameStateAction {
 */
 export enum ClientActionToServer {
   requireState,
-  requireObjects
+  requireObjects,
+  sendVelocity
 }

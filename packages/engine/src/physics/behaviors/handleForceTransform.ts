@@ -1,5 +1,5 @@
-import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
@@ -13,7 +13,7 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
   if (!Network.instance.networkObjects[editObject.networkId])
     return console.warn(`Entity with id ${editObject.networkId} does not exist! You should probably reconnect...`)
 
-  const entity: Entity = Network.instance.networkObjects[editObject.networkId].component.entity
+  const entity = Network.instance.networkObjects[editObject.networkId].entity
 
   const colliderComponent = getComponent(entity, ColliderComponent)
   if (colliderComponent) {
@@ -24,11 +24,13 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
     return
   }
 
-  const controllerComponent = getComponent(entity, ControllerColliderComponent)
+  const controllerComponent = getComponent(entity, AvatarControllerComponent)
   if (controllerComponent) {
+    const avatar = getComponent(entity, AvatarComponent)
     controllerComponent.controller?.updateTransform({
-      translation: { x, y, z },
+      translation: { x, y: y + avatar.avatarHalfHeight, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })
+    controllerComponent.controller.velocity.setScalar(0)
   }
 }

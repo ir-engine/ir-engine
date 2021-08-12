@@ -1,28 +1,19 @@
-import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, Vector4 } from 'three'
+import { Color, Group, MathUtils, Mesh, Quaternion, Vector3, Vector4 } from 'three'
 import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
-import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent
-} from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
-import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
-import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
-import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
+import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
+import { ClientAuthoritativeTagComponent } from '../../../../physics/components/ClientAuthoritativeTagComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
-import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent'
-import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
-import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
@@ -37,48 +28,38 @@ import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameCo
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnBall: Behavior = (
-  entityPlayer: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
-): void => {
+export const spawnBall = (entityPlayer: Entity, positionCopyFromRole?: any, offsetY?: any): void => {
   // server sends clients the entity data
   if (isClient) return
   console.warn('SpawnBall')
 
   const game = getGame(entityPlayer)
-  const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
   // send position to spawn
   // now we have just one location
   // but soon
-  const teeEntity = game.gameObjects[args.positionCopyFromRole][0]
+  const teeEntity = game.gameObjects[positionCopyFromRole][0]
   const teeTransform = getComponent(teeEntity, TransformComponent)
 
   const parameters: GolfBallSpawnParameters = {
     gameName: game.name,
     role: 'GolfBall',
-    spawnPosition: new Vector3(
-      teeTransform.position.x,
-      teeTransform.position.y + args.offsetY,
-      teeTransform.position.z
-    ),
+    spawnPosition: new Vector3(teeTransform.position.x, teeTransform.position.y + offsetY, teeTransform.position.z),
     uuid,
     ownerNetworkId: playerNetworkObject.networkId
   }
 
   // this spawns the ball on the server
-  createGolfBallPrefab({
+  spawnPrefab(
+    GolfPrefabTypes.Ball,
+    playerNetworkObject.ownerId, // the uuid of the player whose ball this is
+    uuid,
     networkId,
-    uniqueId: uuid,
-    ownerId: playerNetworkObject.ownerId, // the uuid of the player whose ball this is
     parameters
-  })
+  )
 
   // this sends the ball to the clients
   Network.instance.worldState.createObjects.push({
@@ -94,14 +75,7 @@ export const spawnBall: Behavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-export const updateBall: Behavior = (
-  entityBall: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
-): void => {
+export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
   const ballPosition = collider.body.transform.translation
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
@@ -130,8 +104,8 @@ const golfBallRadius = 0.03
 const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity) {
-  const ownerNetworkId = getComponent(ballEntity, NetworkObjectOwner).networkId
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
+  const ownerNetworkId = getComponent(ballEntity, NetworkObjectComponentOwner).networkId
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
   const color = GolfColours[ownerPlayerNumber]
@@ -165,11 +139,34 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.userData.lastTrailUpdateTime = Date.now()
 }
 
-export const initializeGolfBall = (ballEntity: Entity) => {
-  // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
-  const transform = getComponent(ballEntity, TransformComponent)
+type GolfBallSpawnParameters = {
+  gameName: string
+  role: string
+  uuid: string
+  spawnPosition: Vector3
+  ownerNetworkId: number
+}
+
+export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawnParameters) => {
+  const { gameName, role, uuid, spawnPosition, ownerNetworkId } = parameters
+
+  const transform = addComponent(ballEntity, TransformComponent, {
+    position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
+    rotation: new Quaternion(),
+    scale: new Vector3().setScalar(golfBallRadius)
+  })
+  addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
+  addComponent(ballEntity, GameObject, {
+    gameName,
+    role,
+    uuid,
+    collisionBehaviors: {}
+  })
+  addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
+  const isOwnedByCurrentClient = isClient && Network.instance.localAvatarNetworkId === ownerNetworkId
 
   if (isClient) {
+    // addComponent(ballEntity, InterpolationComponent, {})
     AssetLoader.load(
       {
         url: Engine.publicPath + '/models/golf/golf_ball.glb'
@@ -199,7 +196,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shape],
-      type: BodyType.DYNAMIC,
+      type: isOwnedByCurrentClient ? BodyType.DYNAMIC : BodyType.KINEMATIC,
       transform: {
         translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
       },
@@ -209,14 +206,11 @@ export const initializeGolfBall = (ballEntity: Entity) => {
 
   addComponent(ballEntity, ColliderComponent, { body })
 
-  const golfBallComponent = getMutableComponent(ballEntity, GolfBallComponent)
-  const ballPosition = getComponent(ballEntity, ColliderComponent).body.transform.translation
-
   // for track ground
-  golfBallComponent.groundRaycast = PhysXInstance.instance.addRaycastQuery(
+  const groundRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
-      origin: ballPosition,
+      origin: transform.position,
       direction: new Vector3(0, -1, 0),
       maxDistance: 1,
       collisionMask: GolfCollisionGroups.Course
@@ -224,89 +218,16 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   )
 
   // for track wall
-  golfBallComponent.wallRaycast = PhysXInstance.instance.addRaycastQuery(
+  const wallRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
-      origin: ballPosition,
+      origin: transform.position,
       direction: new Vector3(0, 0, 0),
       maxDistance: 0.5,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
-}
 
-type GolfBallSpawnParameters = {
-  gameName: string
-  role: string
-  uuid: string
-  ownerNetworkId?: number
-  spawnPosition: Vector3
-}
-
-export const createGolfBallPrefab = (args: {
-  parameters?: GolfBallSpawnParameters
-  networkId?: number
-  uniqueId: string
-  ownerId?: string
-}) => {
-  // console.log('createGolfBallPrefab', args)
-  initializeNetworkObject({
-    prefabType: GolfPrefabTypes.Ball,
-    uniqueId: args.uniqueId,
-    ownerId: args.ownerId,
-    networkId: args.networkId,
-    parameters: args.parameters,
-    override: {
-      networkComponents: [
-        {
-          type: GameObject,
-          data: {
-            gameName: args.parameters.gameName,
-            role: args.parameters.role,
-            uuid: args.parameters.uuid
-          }
-        },
-        {
-          type: TransformComponent,
-          data: {
-            position: new Vector3(
-              args.parameters.spawnPosition.x,
-              args.parameters.spawnPosition.y + golfBallRadius,
-              args.parameters.spawnPosition.z
-            ),
-            scale: new Vector3().setScalar(golfBallRadius)
-          }
-        },
-        {
-          type: NetworkObjectOwner,
-          data: {
-            networkId: args.parameters.ownerNetworkId
-          }
-        }
-      ]
-    }
-  })
-}
-
-// Prefab is a pattern for creating an entity and component collection as a prototype
-export const GolfBallPrefab: NetworkPrefab = {
-  //@ts-ignore
-  initialize: createGolfBallPrefab,
-  // These will be created for all players on the network
-  networkComponents: [
-    // Transform system applies values from transform component to three.js object (position, rotation, etc)
-    { type: TransformComponent },
-    { type: VelocityComponent },
-    { type: RigidBodyComponent },
-    { type: GameObject },
-    { type: NetworkObjectOwner },
-    { type: GolfBallComponent }
-    // Local player input mapped to behaviors in the input map
-  ],
-  // These are only created for the local player who owns this prefab
-  localClientComponents: [{ type: LocalInterpolationComponent }],
-  clientComponents: [{ type: InterpolationComponent }],
-  serverComponents: [],
-  onAfterCreate: [],
-  onBeforeDestroy: []
+  addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast })
+  addComponent(ballEntity, ClientAuthoritativeTagComponent, {})
 }

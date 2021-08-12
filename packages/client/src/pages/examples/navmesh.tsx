@@ -1,16 +1,12 @@
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { Component } from '@xrengine/engine/src/ecs/classes/Component'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { registerComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { execute } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import {
   addComponent,
   createEntity,
-  getComponent,
-  getMutableComponent
+  createMappedComponent,
+  getComponent
 } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
@@ -33,18 +29,28 @@ import {
   WebGLRenderer
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
+import { defineQuery, defineSystem, System, Types } from '@xrengine/engine/src/ecs/bitecs'
+import { AnimationClip, AnimationMixer } from 'three'
+import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 
-class RenderSystem extends System {
-  updateType = SystemUpdateType.Fixed
-  /**
-   * Execute the camera system for different events of queries.\
-   * Called each frame by default.
-   *
-   * @param delta time since last frame.
-   */
-  execute(delta: number): void {
+type NavigationComponentType = {
+  pathPlanner: PathPlanner
+  entityManager: EntityManager
+  time: Time
+  vehicles
+  pathHelpers
+  spatialIndexHelper
+  regionHelper
+  navigationMesh
+}
+
+const NavigationComponent = createMappedComponent<NavigationComponentType>()
+
+const RenderSystem = async (): Promise<System> => {
+  return defineSystem((world: ECSWorld) => {
     Engine.renderer.render(Engine.scene, Engine.camera)
-  }
+    return world
+  })
 }
 
 const pathMaterial = new LineBasicMaterial({ color: 0xff0000 })
@@ -63,17 +69,6 @@ const width = 100,
 const cellsX = 20,
   cellsY = 5,
   cellsZ = 20
-
-class NavigationComponent extends Component<NavigationComponent> {
-  pathPlanner: PathPlanner = new PathPlanner()
-  entityManager: EntityManager = new EntityManager()
-  time: Time = new Time()
-  vehicles = []
-  pathHelpers = []
-  spatialIndexHelper
-  regionHelper
-  navigationMesh
-}
 
 const meshUrl = '/models/navmesh/navmesh.glb'
 
@@ -101,7 +96,7 @@ const loadNavMesh = async (navigationMesh, navigationComponent) => {
 }
 
 async function startDemo(entity) {
-  const navigationComponent = getMutableComponent(entity, NavigationComponent)
+  const navigationComponent = getComponent(entity, NavigationComponent)
   await loadNavMeshFromUrl(meshUrl, navigationComponent)
 
   vehicleMesh.frustumCulled = false
@@ -136,25 +131,26 @@ async function startDemo(entity) {
   }
 }
 
-class NavigationSystem extends System {
-  updateType = SystemUpdateType.Fixed
+export const NavigationSystem = async (): Promise<System> => {
+  const entity = createEntity()
+  addComponent(entity, NavigationComponent, {
+    pathPlanner: new PathPlanner(),
+    entityManager: new EntityManager(),
+    time: new Time(),
+    vehicles: [],
+    pathHelpers: [],
+    spatialIndexHelper: null,
+    regionHelper: null,
+    navigationMesh: null
+  })
+  startDemo(entity)
 
-  constructor() {
-    super()
-    registerComponent(NavigationComponent)
-    const entity = createEntity()
-    addComponent(entity, NavigationComponent)
-    startDemo(entity)
-  }
+  const navigationQuery = defineQuery([NavigationComponent])
 
-  /**
-   * Execute the camera system for different events of queries.\
-   * Called each frame by default.
-   *
-   * @param delta time since last frame.
-   */
-  execute(delta: number): void {
-    for (const entity of this.queryResults.navigation.all) {
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
+    for (const entity of navigationQuery(world)) {
       const navComponent = getComponent(entity, NavigationComponent)
 
       navComponent.entityManager.update(delta)
@@ -203,17 +199,8 @@ class NavigationSystem extends System {
 
       vehicleMesh.instanceMatrix.needsUpdate = true
     }
-  }
-}
-
-NavigationSystem.queries = {
-  navigation: {
-    components: [NavigationComponent],
-    listen: {
-      removed: true,
-      added: true
-    }
-  }
+    return world
+  })
 }
 
 // This is a functional React component
@@ -222,16 +209,33 @@ const Page = () => {
     ;(async function () {
       // Register our systems to do stuff
 
+      registerSystem(SystemUpdateType.Fixed, NavigationSystem)
+      registerSystem(SystemUpdateType.Free, RenderSystem)
+
+      const fixedPipeline = await createPipeline(SystemUpdateType.Fixed)
+      const freePipeline = await createPipeline(SystemUpdateType.Free)
+      const networkPipeline = await createPipeline(SystemUpdateType.Network)
+
+      const executePipeline = (world: World, pipeline) => {
+        return (delta, elapsedTime) => {
+          world.ecsWorld.delta = delta
+          world.ecsWorld.time = elapsedTime
+          pipeline(world.ecsWorld)
+          world.ecsWorld._removedComponents.clear()
+        }
+      }
+
+      const world = World.defaultWorld
+
       Engine.engineTimer = Timer(
         {
-          networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-          fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-          update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+          networkUpdate: executePipeline(world, networkPipeline),
+          fixedUpdate: executePipeline(world, fixedPipeline),
+          update: executePipeline(world, freePipeline)
         },
         Engine.physicsFrameRate,
         Engine.networkFramerate
       )
-
       // Set up rendering and basic scene for demo
       const canvas = document.createElement('canvas')
       document.body.appendChild(canvas) // adds the canvas to the body element
@@ -265,10 +269,6 @@ const Page = () => {
       Engine.scene.add(light)
 
       Engine.scene.add(new AmbientLight(0x404040))
-
-      registerSystem(NavigationSystem)
-      registerSystem(RenderSystem)
-      await Promise.all(Engine.systems.map((system) => system.initialize()))
 
       Engine.engineTimer.start()
     })()

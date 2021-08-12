@@ -6,6 +6,15 @@ import url from 'url'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
+if (globalThis.process?.env.NODE_ENV === 'development') {
+  var fs = require('fs')
+  if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
+    var fromEnvPath = appRootPath.path + '/.env.local.default'
+    var toEnvPath = appRootPath.path + '/.env.local'
+    fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
+  }
+}
+
 if (!kubernetesEnabled) {
   dotenv.config({
     path: appRootPath.path
@@ -261,7 +270,5 @@ chargebeeInst.configure({
   site: process.env.CHARGEBEE_SITE,
   api_key: config.chargebee.apiKey
 })
-
-if (process.env.LOCAL === 'true') process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 export default config

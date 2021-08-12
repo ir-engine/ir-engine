@@ -109,7 +109,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       const audioSettings = json.components.find((c) => c.name === 'audio-settings')
       if (audioSettings) {
         const props = audioSettings.props
-        node.overrideAudioSettings = props.overrideAudioSettings
+        node.usePositionalAudio = props.usePositionalAudio
         node.avatarDistanceModel = props.avatarDistanceModel
         node.avatarRolloffFactor = props.avatarRolloffFactor
         node.avatarRefDistance = props.avatarRefDistance
@@ -159,15 +159,15 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   _fogExp2 = new FogExp2(0xffffff, 0.0025)
   fog = null
 
-  overrideAudioSettings = false
+  usePositionalAudio = false
   avatarDistanceModel = DistanceModelType.Inverse
   avatarRolloffFactor = 2
-  avatarRefDistance = 1
+  avatarRefDistance = 20
   avatarMaxDistance = 10000
   mediaVolume = 0.5
   mediaDistanceModel = DistanceModelType.Inverse
   mediaRolloffFactor = 1
-  mediaRefDistance = 1
+  mediaRefDistance = 20
   mediaMaxDistance = 10000
   mediaConeInnerAngle = 360
   mediaConeOuterAngle = 0
@@ -411,7 +411,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.fogNearDistance = source.fogNearDistance
     this.fogFarDistance = source.fogFarDistance
 
-    this.overrideAudioSettings = source.overrideAudioSettings
+    this.usePositionalAudio = source.usePositionalAudio
     this.avatarDistanceModel = source.avatarDistanceModel
     this.avatarRolloffFactor = source.avatarRolloffFactor
     this.avatarRefDistance = source.avatarRefDistance
@@ -459,7 +459,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             {
               name: 'audio-settings',
               props: {
-                overrideAudioSettings: this.overrideAudioSettings,
+                usePositionalAudio: this.usePositionalAudio,
                 avatarDistanceModel: this.avatarDistanceModel,
                 avatarRolloffFactor: this.avatarRolloffFactor,
                 avatarRefDistance: this.avatarRefDistance,
@@ -547,7 +547,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         density: this.fogDensity
       })
     }
-    if (this.overrideAudioSettings) {
+    if (this.usePositionalAudio) {
       this.addGLTFComponent('audio-settings', {
         avatarDistanceModel: this.avatarDistanceModel,
         avatarRolloffFactor: this.avatarRolloffFactor,

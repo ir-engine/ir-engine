@@ -2,7 +2,6 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React from 'react'
-// @ts-ignore
 import styles from './SimpleModal.module.scss'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'

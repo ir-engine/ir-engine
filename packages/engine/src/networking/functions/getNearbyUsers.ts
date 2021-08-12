@@ -10,7 +10,7 @@ const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distanc
 export function getNearbyUsers(userId: string, maxMediaUsers = 8): Array<NearbyUser> {
   const otherAvatars = [] as Array<NetworkObjectList[any]>
   const { clients, networkObjects } = Network.instance!
-  let userAvatar
+  let userAvatar: NetworkObjectList[any]
   for (const id in networkObjects) {
     const object = networkObjects[id]
     if (!object) continue
@@ -18,18 +18,20 @@ export function getNearbyUsers(userId: string, maxMediaUsers = 8): Array<NearbyU
     else if (object.uniqueId in clients) otherAvatars.push(object)
   }
   if (userAvatar != null) {
-    const userComponent = getComponent(userAvatar.component.entity, Object3DComponent)
+    const userComponent = getComponent(userAvatar.entity, Object3DComponent)
     const userPosition = userComponent?.value?.position
     if (userPosition != null) {
       const userDistances = [] as Array<{ id: string; distance: number }>
       for (const avatar of otherAvatars) {
-        const component = getComponent(avatar.component.entity, Object3DComponent)
-        const position = component?.value?.position
-        if (position != null)
-          userDistances.push({
-            id: avatar.uniqueId,
-            distance: position.distanceTo(userPosition)
-          })
+        if (typeof avatar !== 'undefined') {
+          const component = getComponent(avatar.entity, Object3DComponent)
+          const position = component?.value?.position
+          if (position != null)
+            userDistances.push({
+              id: avatar.uniqueId,
+              distance: position.distanceTo(userPosition)
+            })
+        }
       }
       return userDistances.sort(compareDistance).slice(0, maxMediaUsers)
     } else return []

@@ -2,6 +2,7 @@ import { ILayerName, TileFeaturesByLayer } from './types'
 import { VectorTile } from '@mapbox/vector-tile'
 import { Feature, Position } from 'geojson'
 import { Config } from '@xrengine/client-core/src/helper'
+import { vectors } from './vectors'
 
 const TILE_ZOOM = 16
 const LAYERS: ILayerName[] = ['building', 'road']
@@ -9,7 +10,8 @@ export const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
-import { vectors } from './vectors'
+export const RASTER_TILE_SIZE_HDPI = 256
+
 function long2tile(lon: number, zoom: number) {
   return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom))
 }
@@ -42,13 +44,17 @@ function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFea
   return result
 }
 
-function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string) {
-  return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
+/**
+ * @param highDpi only applicable to raster tiles
+ */
+function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string, highDpi = false) {
+  return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}${
+    highDpi ? '@2x' : ''
+  }.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
 }
 
 async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
   const url = getMapBoxUrl('mapbox.mapbox-streets-v8', tileX, tileY, 'vector.pbf')
-
   const response = await fetch(url)
   const blob = await response.blob()
   return new Promise((resolve) => {
@@ -56,6 +62,14 @@ async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeat
       resolve(vectorTile2GeoJSON(tile, [tileX, tileY]))
     })
   })
+}
+
+async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitmap> {
+  const url = getMapBoxUrl('mapbox.satellite', tileX, tileY, 'png')
+
+  const response = await fetch(url)
+  const blob = await response.blob()
+  return createImageBitmap(blob)
 }
 
 function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, tileY: number) => void) {
@@ -72,15 +86,26 @@ function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, ti
   }
 }
 
+export function getCenterTile(llCenter: Position) {
+  const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
+  const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
+  return [tileX0, tileY0]
+}
+
 /**
  * @returns promise resolving to array containing one array of features per tile
  */
-function fetchSurroundingTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
+export function fetchVectorTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
   const promises = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchTileFeatures(tileX, tileY)))
   return Promise.all(promises)
 }
 
-export function fetchTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
-  return fetchSurroundingTiles(llCenter)
+/**
+ * @returns promise resolving to array of raster tiles
+ */
+export function fetchRasterTiles(llCenter: Position): Promise<ImageBitmap[]> {
+  const promises = []
+  forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchRasterTile(tileX, tileY)))
+  return Promise.all(promises)
 }

@@ -1,29 +1,15 @@
-import { CharacterInputSchema } from './character/CharacterInputSchema'
-import { DefaultGameMode } from './game/templates/DefaultGameMode'
+import { AvatarInputSchema } from './avatar/AvatarInputSchema'
 import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
-import { GameMode } from './game/types/GameMode'
 import { PhysXConfig } from 'three-physx'
-import { System, SystemConstructor } from './ecs/classes/System'
+import { SystemInitializeType } from './ecs/functions/SystemFunctions'
 
 export enum EngineSystemPresets {
   CLIENT,
   EDITOR,
   SERVER
 }
-
-export type SystemInitializeType<S extends System, A> =
-  | {
-      system: SystemConstructor<S, A>
-      args?: A
-      before: SystemConstructor<System, any>
-    }
-  | {
-      system: SystemConstructor<S, A>
-      args?: A
-      after: SystemConstructor<System, any>
-    }
 
 export type InitializeOptions = {
   type?: EngineSystemPresets
@@ -39,16 +25,13 @@ export type InitializeOptions = {
     canvasId?: string
     postProcessing?: boolean
   }
-  gameModes?: {
-    [key: string]: GameMode
-  }
   publicPath?: string
   physics?: {
     simulationEnabled?: boolean
     settings?: PhysXConfig
     physxWorker?: any
   }
-  systems?: SystemInitializeType<System, any>[]
+  systems?: SystemInitializeType<any>[]
 }
 
 /**
@@ -61,7 +44,7 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   type: EngineSystemPresets.CLIENT,
   publicPath: '',
   input: {
-    schemas: [CharacterInputSchema]
+    schemas: [AvatarInputSchema]
   },
   networking: {
     schema: DefaultNetworkSchema
@@ -69,9 +52,6 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   renderer: {
     disabled: false,
     postProcessing: true
-  },
-  gameModes: {
-    [DefaultGameMode.name]: DefaultGameMode
   },
   physics: {
     settings: {

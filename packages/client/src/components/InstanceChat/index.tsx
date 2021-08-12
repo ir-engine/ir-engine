@@ -1,3 +1,4 @@
+import { makeStyles } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
 import Button from '@material-ui/core/Button'
@@ -19,17 +20,15 @@ import {
 } from '@xrengine/client-core/src/social/reducers/chat/service'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { User } from '@xrengine/common/src/interfaces/User'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
-// @ts-ignore
-import styles from './InstanceChat.module.scss'
-import Chat from '../../pages/map/svg/Chat.svg'
 import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
 import SmsIcon from '@material-ui/icons/Sms'
+import defaultStyles from './InstanceChat.module.scss'
+import Chat from './Chat.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -46,6 +45,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
 })
 
+const useStyles = makeStyles((theme) => ({
+  input: {
+    color: '#000'
+  }
+}))
+
 interface Props {
   authState?: any
   setBottomDrawerOpen: any
@@ -53,6 +58,7 @@ interface Props {
   instanceConnectionState?: any
   getInstanceChannel?: any
   createMessage?: any
+  styles?: any
   updateChatTarget?: any
   updateMessageScrollInit?: any
 }
@@ -71,7 +77,8 @@ const InstanceChat = (props: Props): any => {
     createMessage,
     setBottomDrawerOpen,
     updateChatTarget,
-    updateMessageScrollInit
+    updateMessageScrollInit,
+    styles = defaultStyles
   } = props
 
   let activeChannel
@@ -131,6 +138,7 @@ const InstanceChat = (props: Props): any => {
     setComposingMessage('')
   }
 
+  const classes = useStyles()
   const [openMessageContainer, setOpenMessageContainer] = React.useState(false)
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
@@ -138,12 +146,21 @@ const InstanceChat = (props: Props): any => {
     setOpenMessageContainer(!openMessageContainer)
     openMessageContainer && setUnreadMessages(false)
   }
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth
+  })
 
   const getMessageUser = (message): string => {
     let returned = message.sender?.name
     if (message.senderId === user.id) returned += ' (you)'
-    returned += ': '
+    //returned += ': '
     return returned
+  }
+
+  const isMessageSentBySelf = (message):boolean  => {
+    
+    return (message.senderId === user.id);    
   }
 
   useEffect(() => {
@@ -161,6 +178,31 @@ const InstanceChat = (props: Props): any => {
   }, [isMultiline])
 
   const classes = useStyles()
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const handleWindowResize = () => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
+  }
+
+  const getAvatar = (message):any =>{
+
+
+   return dimensions.width > 768 && (
+      <ListItemAvatar className={styles['message-sender-avatar']}>
+        <Avatar src={message.sender?.avatarUrl} />
+      </ListItemAvatar>
+    );
+
+  }
 
   return (
     <>
@@ -181,39 +223,42 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
+                    
                     return (
                       <ListItem
                         className={classNames({
                           [styles.message]: true,
-                          [styles.self]: message.senderId === user.id,
-                          [styles.other]: message.senderId !== user.id
+                          [styles.self]: isMessageSentBySelf(message),
+                          [styles.other]: !isMessageSentBySelf(message)
                         })}
                         disableGutters={true}
                         key={message.id}
                       >
-                        <div>
-                          {!isMobile && (
-                            <ListItemAvatar>
-                              <Avatar src={message.sender?.avatarUrl} />
-                            </ListItemAvatar>
-                          )}
+                        <div className={styles[ isMessageSentBySelf(message)?'message-right':'message-left']}>
+                         
+                          {!isMessageSentBySelf(message) && getAvatar(message)}
+                         
                           <ListItemText
+                            className={styles[isMessageSentBySelf(message)?'message-right-text':'message-left-text']}
                             primary={
                               <p>
                                 <span className={styles.userName} color="primary">
                                   {getMessageUser(message)}
                                 </span>
-                                {message.text}
+                                <p>{message.text}</p>
                               </p>
                             }
-                          />
+                          /> 
+
+                        {isMessageSentBySelf(message) && getAvatar(message)}
+
                         </div>
                       </ListItem>
                     )
                   })}
             </CardContent>
           </Card>
-          <Card className={styles['flex-center']}>
+          <Card className={styles['chat-view']}>
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
                 {/* <MessageIcon onClick={() => hideShowMessagesContainer()}  /> */}
@@ -279,15 +324,9 @@ const InstanceChat = (props: Props): any => {
             invisible={!unreadMessages}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           >
-            <span onClick={() => hideShowMessagesContainer()}>
-              {' '}
-              <img src={Chat} alt="" className="openChat"></img>
-            </span>
-            {/* <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
+            <Fab className={styles['chatBadge']} color="primary" onClick={() => hideShowMessagesContainer()}>
               <MessageIcon />
-              <img src={Chat} alt=""></img>
-              Chat
-            </Fab> */}
+            </Fab>
           </Badge>
         </div>
       )}

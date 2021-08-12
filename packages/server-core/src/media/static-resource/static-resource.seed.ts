@@ -50,162 +50,89 @@ export const staticResourceSeed = {
       key: 'avatars/Sonny.jpg',
       staticResourceType: 'user-thumbnail'
     },
-
     {
-      name: 'Razer1',
-      url: getAvatarURL('Razer1.glb'),
-      key: 'avatars/Razer1.glb',
+      name: 'Allison',
+      url: getAvatarURL('Allison.glb'),
+      key: 'avatars/Allison.glb',
       staticResourceType: 'avatar'
     },
     {
-      name: 'Razer1',
-      url: getAvatarURL('Razer1.jpg'),
-      key: 'avatars/Razer1.jpg',
+      name: 'Allison',
+      url: getAvatarURL('Allison.png'),
+      key: 'avatars/Allison.png',
       staticResourceType: 'user-thumbnail'
     },
     {
-      name: 'Razer2',
-      url: getAvatarURL('Razer2.glb'),
-      key: 'avatars/Razer2.glb',
+      name: 'Cornelius',
+      url: getAvatarURL('Cornelius.glb'),
+      key: 'avatars/Cornelius.glb',
       staticResourceType: 'avatar'
     },
     {
-      name: 'Razer2',
-      url: getAvatarURL('Razer2.jpg'),
-      key: 'avatars/Razer2.jpg',
+      name: 'Cornelius',
+      url: getAvatarURL('Cornelius.png'),
+      key: 'avatars/Cornelius.png',
       staticResourceType: 'user-thumbnail'
     },
     {
-      name: 'Razer3',
-      url: getAvatarURL('Razer3.glb'),
-      key: 'avatars/Razer3.glb',
+      name: 'James_ReadyPlayerMe',
+      url: getAvatarURL('James_ReadyPlayerMe.glb'),
+      key: 'avatars/James_ReadyPlayerMe.glb',
       staticResourceType: 'avatar'
     },
     {
-      name: 'Razer3',
-      url: getAvatarURL('Razer3.jpg'),
-      key: 'avatars/Razer3.jpg',
+      name: 'James_ReadyPlayerMe',
+      url: getAvatarURL('James_ReadyPlayerMe.png'),
+      key: 'avatars/James_ReadyPlayerMe.png',
       staticResourceType: 'user-thumbnail'
     },
     {
-      name: 'Razer4',
-      url: getAvatarURL('Razer4.glb'),
-      key: 'avatars/Razer4.glb',
+      name: 'Jamie',
+      url: getAvatarURL('Jamie.glb'),
+      key: 'avatars/Jamie.glb',
       staticResourceType: 'avatar'
     },
     {
-      name: 'Razer4',
-      url: getAvatarURL('Razer4.jpg'),
-      key: 'avatars/Razer4.jpg',
+      name: 'Jamie',
+      url: getAvatarURL('Jamie.png'),
+      key: 'avatars/Jamie.png',
       staticResourceType: 'user-thumbnail'
     },
     {
-      name: 'Razer5',
-      url: getAvatarURL('Razer5.glb'),
-      key: 'avatars/Razer5.glb',
+      name: 'Mogrid',
+      url: getAvatarURL('Mogrid.glb'),
+      key: 'avatars/Mogrid.glb',
       staticResourceType: 'avatar'
     },
     {
-      name: 'Razer5',
-      url: getAvatarURL('Razer5.jpg'),
-      key: 'avatars/Razer5.jpg',
+      name: 'Mogrid',
+      url: getAvatarURL('Mogrid.png'),
+      key: 'avatars/Mogrid.png',
       staticResourceType: 'user-thumbnail'
     },
     {
-      name: 'Razer6',
-      url: getAvatarURL('Razer6.glb'),
-      key: 'avatars/Razer6.glb',
+      name: 'Warrior',
+      url: getAvatarURL('Warrior.glb'),
+      key: 'avatars/Warrior.glb',
       staticResourceType: 'avatar'
     },
     {
-      name: 'Razer6',
-      url: getAvatarURL('Razer6.jpg'),
-      key: 'avatars/Razer6.jpg',
+      name: 'Warrior',
+      url: getAvatarURL('Warrior.png'),
+      key: 'avatars/Warrior.png',
+      staticResourceType: 'user-thumbnail'
+    },
+    {
+      name: 'Zaris',
+      url: getAvatarURL('Zaris.glb'),
+      key: 'avatars/Zaris.glb',
+      staticResourceType: 'avatar'
+    },
+    {
+      name: 'Zaris',
+      url: getAvatarURL('Zaris.png'),
+      key: 'avatars/Zaris.png',
       staticResourceType: 'user-thumbnail'
     }
-    // {
-    //   name: 'Allison',
-    //   url: getAvatarURL('Allison.glb'),
-    //   key: 'avatars/Allison.glb',
-    //   staticResourceType: 'avatar',
-    // },
-    // {
-    //   name: 'Allison',
-    //   url: getAvatarURL('Allison.png'),
-    //   key: 'avatars/Allison.png',
-    //   staticResourceType: 'user-thumbnail',
-    // },
-    // {
-    //   name: 'Andy',
-    //   url: getAvatarURL('Andy.glb'),
-    //   key: 'avatars/Andy.glb',
-    //   staticResourceType: 'avatar',
-    // },
-    // {
-    //   name: 'Andy',
-    //   url: getAvatarURL('Andy.png'),
-    //   key: 'avatars/Andy.png',
-    //   staticResourceType: 'user-thumbnail',
-    // },
-    // {
-    //   name: 'Erik',
-    //   url: getAvatarURL('Erik.glb'),
-    //   key: 'avatars/Erik.glb',
-    //   staticResourceType: 'avatar',
-    // },
-    // {
-    //   name: 'Erik',
-    //   url: getAvatarURL('Erik.png'),
-    //   key: 'avatars/Erik.png',
-    //   staticResourceType: 'user-thumbnail',
-    // },
-    // {
-    //   name: 'Geoff',
-    //   url: getAvatarURL('Geoff.glb'),
-    //   key: 'avatars/Geoff.glb',
-    //   staticResourceType: 'avatar',
-    // },
-    // {
-    //   name: 'Geoff',
-    //   url: getAvatarURL('Geoff.png'),
-    //   key: 'avatars/Geoff.png',
-    //   staticResourceType: 'user-thumbnail',
-    // },
-    // {
-    //   name: 'Jace',
-    //   url: getAvatarURL('Jace.glb'),
-    //   key: 'avatars/Jace.glb',
-    //   staticResourceType: 'avatar',
-    // },
-    // {
-    //   name: 'Jace',
-    //   url: getAvatarURL('Jace.png'),
-    //   key: 'avatars/Jace.png',
-    //   staticResourceType: 'user-thumbnail',
-    // },
-    // {
-    //   name: 'Karthik',
-    //   url: getAvatarURL('Karthik.glb'),
-    //   key: 'avatars/Karthik.glb',
-    //   staticResourceType: 'avatar',
-    // },
-    // {
-    //   name: 'Karthik',
-    //   url: getAvatarURL('Karthik.png'),
-    //   key: 'avatars/Karthik.png',
-    //   staticResourceType: 'user-thumbnail',
-    // },
-    // {
-    //   name: 'Rose',
-    //   url: getAvatarURL('Rose.glb'),
-    //   key: 'avatars/Rose.glb',
-    //   staticResourceType: 'avatar',
-    // },
-    // {
-    //   name: 'Rose',
-    //   url: getAvatarURL('Rose.png'),
-    //   key: 'avatars/Rose.png',
-    //   staticResourceType: 'user-thumbnail',
-    // },
   ]
 }

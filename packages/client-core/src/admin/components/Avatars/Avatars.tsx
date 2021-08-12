@@ -18,13 +18,11 @@ import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
-// @ts-ignore
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { removeAvatar, uploadAvatarModel } from '../../../user/reducers/auth/service'
+import { uploadAvatarModel } from '../../../user/reducers/auth/service'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -36,6 +34,7 @@ interface Props {
   fetchAdminAvatars?: any
   fetchLocationTypes?: any
   adminAvatarState?: any
+  uploadAvatarModel?: Function
 }
 
 const mapStateToProps = (state: any): any => {
@@ -148,6 +147,10 @@ const Avatars = (props: Props) => {
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedAvatars, setSelectedAvatars] = useState([])
   const [avatarSelectMenuOpen, setAvatarSelectMenuOpen] = useState(false)
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth
+  })
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -213,6 +216,21 @@ const Avatars = (props: Props) => {
     setRefetch(false)
   }, [authState, adminAvatarState, refetch])
 
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const handleWindowResize = () => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
+  }
+
   return (
     <div>
       <Paper className={styles.adminRoot}>
@@ -236,7 +254,7 @@ const Avatars = (props: Props) => {
               color="primary"
               onClick={() => setAddToContentPackModalOpen(true)}
             >
-              {isMobile === true ? '+ Pack' : 'Add to Content Pack'}
+              {dimensions.width <= 768 ? '+ Pack' : 'Add to Content Pack'}
             </Button>
           </Grid>
         </Grid>
