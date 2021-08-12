@@ -43,6 +43,10 @@
     margin: 0;
     width: 100vw;
   }
+  @media (max-width: 450px) {
+    margin: 0;
+    width: 100vw;
+  }
 
   .chat-view {
     border-radius: 50px;
