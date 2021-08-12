@@ -6,20 +6,30 @@ import { GolfAction, GolfActionType } from './GolfAction'
 import { Network } from '../../../networking/classes/Network'
 import { createState } from '@hookstate/core'
 import { ActionType } from '../../../networking/interfaces/NetworkTransport'
-import { GamePlayer } from '../../components/GamePlayer'
-import { BallStopped } from './GolfGameComponents'
 import { isClient } from '../../../common/functions/isClient'
-import { GolfGameMode } from '../GolfGameMode'
-import { GolfPrefabs } from './prefab/GolfGamePrefabs'
+import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
 import { NetworkObjectComponent } from '../../../networking/components/NetworkObjectComponent'
-import { getComponent } from '../../../ecs/functions/EntityFunctions'
+import { getComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../../avatar/components/AvatarComponent'
+import { initializeGolfBall, spawnBall } from './prefab/GolfBallPrefab'
+import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
+import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
+import { NetworkObjectType } from '../../../networking/interfaces/NetworkObjectList'
+import { Entity } from '../../../ecs/classes/Entity'
+import { GameObject } from '../../components/GameObject'
+import { GolfClubComponent } from './components/GolfClubComponent'
+import { setupPlayerInput } from './behaviors/setupPlayerInput'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  * @author Gheric Speiginer <github.com/speigg>
  */
+
+/**
+ * A map of all game objects by role
+ */
+export const GolfObjectEntities = new Map<string, Entity>()
 
 /**
  *
@@ -34,6 +44,8 @@ export const GolfState = createState({
   currentPlayer: 0,
   currentHole: 0
 })
+
+// Note: player numbers are 0-indexed
 
 globalThis.GolfState = GolfState
 
@@ -50,8 +62,6 @@ export const GolfSystem = async (): Promise<System> => {
     await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
     await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
   }
-
-  Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
 
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
@@ -76,10 +86,16 @@ export const GolfSystem = async (): Promise<System> => {
               stroke: 0
             }
           ])
-          // spawn golf ball
-          if (isClient) {
-            // spawn golf club
+
+          const playerNumber = s.players.findIndex((player) => player.id.value === action.playerId)
+          setupPlayerInput(action.entity, playerNumber)
+
+          if (!isClient) {
+            if (!action.entity) return console.error(`Entity with id ${action.playerId} could not be found`)
+            spawnBall(action.entity, playerNumber, s.currentHole.value)
+            spawnClub(action.entity, playerNumber)
           }
+
           if (s.players.length === 1) {
             dispatchOnServer(GolfAction.nextTurn())
           }
@@ -153,18 +169,29 @@ export const GolfSystem = async (): Promise<System> => {
   const playerEnterQuery = enterQuery(playerQuery)
   const playerExitQuery = exitQuery(playerQuery)
 
+  const gameObjectQuery = defineQuery([GameObject])
+  const gameObjectEnterQuery = enterQuery(gameObjectQuery)
+
+  const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
+  const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
+
+  const golfClubQuery = defineQuery([GolfClubComponent])
+  const golfClubAddQuery = enterQuery(golfClubQuery)
+
   return defineSystem((world: ECSWorld) => {
     // runs on server & client:
     for (const action of Network.instance.incomingActions) receptor(world, action as any)
 
     const currentPlayer = GolfState.players[GolfState.currentPlayer.value].value
 
+    const playerEnterQueryResults = playerEnterQuery(world)
+
     if (!isClient) {
-      for (const entity of playerEnterQuery(world)) {
+      for (const entity of playerEnterQueryResults) {
         const { ownerId } = getComponent(entity, NetworkObjectComponent)
 
         // Add a player to player list (start at hole 0, scores at 0 for all holes)
-        dispatchOnServer(GolfAction.playerJoined(ownerId))
+        dispatchOnServer(GolfAction.playerJoined(entity, ownerId))
       }
 
       for (const entity of playerExitQuery(world)) {
@@ -186,6 +213,44 @@ export const GolfSystem = async (): Promise<System> => {
       //   dispatchOnServer(GolfAction.nextTurn())
       //   dispatchOnServer(GolfAction.resetBall())
       // }
+    }
+
+    for (const entity of gameObjectEnterQuery(world)) {
+      const { role } = getComponent(entity, GameObject)
+      GolfObjectEntities.set(role, entity)
+    }
+    /**
+     * we use an plain query here in case the player and club/ball arrive at the client in the same frame,
+     * as there can be a race condition between the two
+     */
+    for (const entity of spawnGolfBallQuery(world)) {
+      const { ownerId } = getComponent(entity, NetworkObjectComponent)
+      const ownerEntity = playerQuery(world).find((player) => {
+        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
+      })
+      if (ownerEntity) {
+        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+        removeComponent(entity, GolfBallTagComponent)
+        initializeGolfBall(entity, parameters)
+      }
+    }
+
+    for (const entity of spawnGolfClubQuery(world)) {
+      const { ownerId } = getComponent(entity, NetworkObjectComponent)
+      const ownerEntity = playerQuery(world).find((player) => {
+        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
+      })
+      if (ownerEntity) {
+        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+        removeComponent(entity, GolfClubTagComponent)
+        initializeGolfClub(entity, parameters)
+      }
+    }
+
+    if (isClient) {
+      for (const entity of golfClubQuery(world)) {
+        updateClub(entity)
+      }
     }
 
     return world

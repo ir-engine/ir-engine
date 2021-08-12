@@ -119,10 +119,10 @@ export class WorldScene {
 
       case 'game-object':
         addComponent(entity, GameObject, {
-          gameName: component.data.gameName,
-          role: component.data.role,
-          uuid: component.data.sceneEntityId,
-          collisionBehaviors: {}
+          // gameName: component.data.gameName,
+          role: component.data.role
+          // uuid: component.data.sceneEntityId,
+          // collisionBehaviors: {}
         })
         break
 

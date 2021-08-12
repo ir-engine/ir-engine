@@ -1,8 +1,11 @@
+import { Entity } from '../../../ecs/classes/Entity'
+
 export const GolfAction = {
-  playerJoined(playerId: string) {
+  playerJoined(entity: Entity, playerId: string) {
     return {
       type: 'puttclub.PLAYER_JOINED' as const,
-      playerId: playerId
+      entity,
+      playerId
     }
   },
 

@@ -32,8 +32,6 @@ import { NetworkObjectComponent } from '../../../../networking/components/Networ
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '../../../../xr/functions/WebXRFunctions'
 import { GameObject } from '../../../components/GameObject'
-import { GamePlayer } from '../../../components/GamePlayer'
-import { getGame } from '../../../functions/functions'
 import { addActionComponent } from '../../../functions/functionsActions'
 import { ifOwned } from '../../../functions/ifOwned'
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab'
@@ -43,7 +41,6 @@ import { ifVelocity } from '../functions/ifVelocity'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
-import { isClient } from '../../../../common/functions/isClient'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -54,17 +51,14 @@ const eulerX90 = new Euler(Math.PI * 0.5, 0, 0)
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnClub = (entityPlayer: Entity): void => {
-  const game = getGame(entityPlayer)
+export const spawnClub = (entityPlayer: Entity, ownerPlayerNumber: number): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
 
   const parameters: GolfClubSpawnParameters = {
-    gameName: game.name,
-    role: 'GolfClub',
-    uuid,
+    ownerPlayerNumber,
     ownerNetworkId: playerNetworkObject.networkId
   }
 
@@ -232,31 +226,23 @@ const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
 type GolfClubSpawnParameters = {
-  gameName: string
-  role: string
-  uuid: string
+  ownerPlayerNumber: number
   ownerNetworkId: number
 }
 
 export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawnParameters) => {
-  const { gameName, role, uuid, ownerNetworkId } = parameters
+  console.log(parameters)
+  const { ownerPlayerNumber, ownerNetworkId } = parameters
 
   const transform = addComponent(entityClub, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
   })
-  addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
-  const gameObject = addComponent(entityClub, GameObject, {
-    gameName,
-    role,
-    uuid,
-    collisionBehaviors: {}
-  })
-  addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].entity
-  const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
+  addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
+  addComponent(entityClub, GameObject, { role: `GolfClub-${ownerPlayerNumber}` })
+  addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   const color = GolfColours[ownerPlayerNumber]
 
@@ -358,13 +344,6 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
   for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
     golfClubComponent.lastPositions[i] = new Vector3()
   }
-  gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall
-
-  if (isClient) {
-    if (hasComponent(entityClub, State.Active)) {
-      enableClub(entityClub, true)
-    } else if (hasComponent(entityClub, State.Inactive)) {
-      enableClub(entityClub, false)
-    }
-  }
+  // TODO: register collision events another way
+  // gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall
 }

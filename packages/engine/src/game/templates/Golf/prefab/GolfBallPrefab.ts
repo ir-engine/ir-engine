@@ -11,44 +11,33 @@ import { NetworkObjectComponentOwner } from '../../../../networking/components/N
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 import { ClientAuthoritativeTagComponent } from '../../../../physics/components/ClientAuthoritativeTagComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GameObject } from '../../../components/GameObject'
-import { GamePlayer } from '../../../components/GamePlayer'
-import { getGame } from '../../../functions/functions'
 import { applyHideOrVisibleState } from '../behaviors/hideUnhideBall'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
+import { GolfObjectEntities } from '../GolfSystem'
 
 /**
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnBall = (entityPlayer: Entity, positionCopyFromRole?: any, offsetY?: any): void => {
-  // server sends clients the entity data
-  if (isClient) return
-  console.warn('SpawnBall')
-
-  const game = getGame(entityPlayer)
+export const spawnBall = (entityPlayer: Entity, ownerPlayerNumber: number, playerCurrentHole: number): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
-  // send position to spawn
-  // now we have just one location
-  // but soon
-  const teeEntity = game.gameObjects[positionCopyFromRole][0]
+
+  const teeEntity = GolfObjectEntities.get(`GolfTee-${playerCurrentHole}`)
   const teeTransform = getComponent(teeEntity, TransformComponent)
 
   const parameters: GolfBallSpawnParameters = {
-    gameName: game.name,
-    role: 'GolfBall',
-    spawnPosition: new Vector3(teeTransform.position.x, teeTransform.position.y + offsetY, teeTransform.position.z),
-    uuid,
+    spawnPosition: new Vector3().copy(teeTransform.position),
+    ownerPlayerNumber,
     ownerNetworkId: playerNetworkObject.networkId
   }
 
@@ -103,10 +92,9 @@ export const updateBall = (entityBall: Entity): void => {
 const golfBallRadius = 0.03
 const golfBallColliderExpansion = 0.01
 
-function assetLoadCallback(group: Group, ballEntity: Entity) {
+function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: number) {
   const ownerNetworkId = getComponent(ballEntity, NetworkObjectComponentOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].entity
-  const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
   const color = GolfColours[ownerPlayerNumber]
 
@@ -140,15 +128,13 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
 }
 
 type GolfBallSpawnParameters = {
-  gameName: string
-  role: string
-  uuid: string
   spawnPosition: Vector3
+  ownerPlayerNumber: number
   ownerNetworkId: number
 }
 
 export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawnParameters) => {
-  const { gameName, role, uuid, spawnPosition, ownerNetworkId } = parameters
+  const { ownerPlayerNumber, spawnPosition, ownerNetworkId } = parameters
 
   const transform = addComponent(ballEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
@@ -156,12 +142,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
     scale: new Vector3().setScalar(golfBallRadius)
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
-  addComponent(ballEntity, GameObject, {
-    gameName,
-    role,
-    uuid,
-    collisionBehaviors: {}
-  })
+  addComponent(ballEntity, GameObject, { role: `GolfBall-${ownerPlayerNumber}` })
   addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
   const isOwnedByCurrentClient = isClient && Network.instance.localAvatarNetworkId === ownerNetworkId
 
@@ -172,7 +153,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
         url: Engine.publicPath + '/models/golf/golf_ball.glb'
       },
       (group: Group) => {
-        assetLoadCallback(group, ballEntity)
+        assetLoadCallback(group, ballEntity, ownerPlayerNumber)
       }
     )
   }

@@ -10,7 +10,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Entity } from './Entity'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { GameMode } from '../../game/types/GameMode'
+// import { GameMode } from '../../game/types/GameMode'
 import { EngineEvents } from './EngineEvents'
 import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
@@ -27,7 +27,7 @@ export class Engine {
   public static initOptions: InitializeOptions
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null
 
-  public static gameModes: Map<string, GameMode> = new Map()
+  // public static gameModes: Map<string, GameMode> = new Map()
 
   public static xrSupported = false
   public static isBot = false
