@@ -53,6 +53,7 @@ interface Props {
   login?: boolean
   pageTitle: string
   children?: any
+  hideVideo?: boolean
   setUserHasInteracted?: any
   onBoardingStep?: number
 }
@@ -77,7 +78,7 @@ const Layout = (props: Props): any => {
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
-  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
+  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(true)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const [expanded, setExpanded] = useState(true)
@@ -174,7 +175,7 @@ const Layout = (props: Props): any => {
             </Helmet>
             <header>
               {path === '/login' && <NavMenu login={login} />}
-              {harmonyOpen !== true ? (
+              {!props.hideVideo && harmonyOpen !== true && (
                 <>
                   {expanded ? (
                     <section className={styles.locationUserMenu}>
@@ -191,7 +192,7 @@ const Layout = (props: Props): any => {
                   </button>
                   <UserToast />
                 </>
-              ) : null}
+              )}
             </header>
 
             {fullScreenActive && harmonyOpen !== true ? (
@@ -256,14 +257,7 @@ const Layout = (props: Props): any => {
             {/*  </Fragment>*/}
             {/*}*/}
             <footer>
-              {locationState.get('currentLocation')?.get('location')?.id &&
-                authState.get('authUser') != null &&
-                authState.get('isLoggedIn') === true &&
-                user?.instanceId != null &&
-                !leftDrawerOpen &&
-                !rightDrawerOpen &&
-                !topDrawerOpen &&
-                !bottomDrawerOpen && <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
+            <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />
               {user?.userRole !== 'guest' && harmonyOpen === false && (
                 <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
                   <Forum />
