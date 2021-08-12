@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core'
+import { makeStyles, TextField } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
 import Button from '@material-ui/core/Button'
@@ -8,8 +8,6 @@ import Fab from '@material-ui/core/Fab'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
-// import TextField from '@material-ui/core/TextField'
-import { TextField, makeStyles } from '@material-ui/core'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import {
@@ -24,11 +22,9 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
-import SmsIcon from '@material-ui/icons/Sms'
+import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import defaultStyles from './InstanceChat.module.scss'
-import Chat from './Chat.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -62,11 +58,6 @@ interface Props {
   updateChatTarget?: any
   updateMessageScrollInit?: any
 }
-const useStyles = makeStyles((theme) => ({
-  input: {
-    color: '#051728;'
-  }
-}))
 
 const InstanceChat = (props: Props): any => {
   const {
