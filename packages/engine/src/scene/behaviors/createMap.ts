@@ -14,16 +14,10 @@ export async function createMap(entity, args: MapProps): Promise<void> {
   Engine.scene.add(mapMesh)
   Engine.scene.add(groundMesh)
   Engine.scene.add(roadsMesh)
-  const g = new SphereGeometry(5, 10, 10)
+  const g = new SphereGeometry(20, 10, 10)
   const m = new MeshLambertMaterial()
   const testMesh = new Mesh(g, m)
   Engine.scene.add(testMesh)
-  addComponent(entity, Object3DComponent, {
-    value: mapMesh
-  })
-  addComponent(entity, Object3DComponent, {
-    value: groundMesh
-  })
   addComponent(entity, Object3DComponent, {
     value: testMesh
   })

@@ -63,6 +63,7 @@ export const AutopilotSystem = async (): Promise<System> => {
       const clickResult = navmeshesQuery(world).reduce(
         (previousEntry, currentEntity) => {
           const mesh = getComponent(currentEntity, Object3DComponent).value
+          console.log("~~~ mesh", mesh)
           raycasterResults.length = 0
           raycaster.intersectObject(mesh, true, raycasterResults)
           if (!raycasterResults.length) {
