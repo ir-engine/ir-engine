@@ -13,8 +13,6 @@ export const createDirectionalLight = (
 ) => {
   if (!isClient) return
 
-  console.log("directionalLights entity", entity)
-
   const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
 
   const args = {
