@@ -138,7 +138,6 @@ const InstanceChat = (props: Props): any => {
     setComposingMessage('')
   }
 
-  const classes = useStyles()
   const [openMessageContainer, setOpenMessageContainer] = React.useState(false)
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
