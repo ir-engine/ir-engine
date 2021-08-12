@@ -17,6 +17,8 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
+import { InputComponent } from '../../input/components/InputComponent'
+import { BaseInput } from '../../input/enums/BaseInput'
 
 const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -51,11 +53,13 @@ export const AutopilotSystem = async (): Promise<System> => {
     const { delta } = world
 
     for (const entity of navClickAddQuery(world)) {
-      const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
-      // console.log('~~~ coords', coords)
-      raycaster.setFromCamera(coords, Engine.camera)
+      const input = getComponent(entity, InputComponent)
+      const coords = input.data.get(BaseInput.SCREENXY).value
+      console.log('~~~ coords', coords)
+      raycaster.setFromCamera({ x: coords[0], y: coords[1] }, Engine.camera)
 
       const raycasterResults = []
+
       const clickResult = navmeshesQuery(world).reduce(
         (previousEntry, currentEntity) => {
           const mesh = getComponent(currentEntity, Object3DComponent).value
@@ -77,7 +81,7 @@ export const AutopilotSystem = async (): Promise<System> => {
         },
         { distance: Infinity, point: null, entity: null }
       )
-      // console.log('~~~ clickResult', clickResult)
+      console.log('~~~ clickResult', clickResult)
 
       if (clickResult.point) {
         console.log('ADD AutoPilotRequestComponent')
