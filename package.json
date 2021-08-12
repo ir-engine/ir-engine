@@ -120,7 +120,7 @@
     "yuka": "0.7.6"
   },
   "dependencies": {
-    "@hookstate/core": "3.0.8",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "5.2.0",
+    "@hookstate/core": "3.0.8"
   }
 }
