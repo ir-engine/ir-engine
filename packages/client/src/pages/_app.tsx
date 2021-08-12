@@ -11,7 +11,6 @@ import { ApiContext } from '@xrengine/client-core/src/world/components/editor/co
 import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle'
 import theme from '@xrengine/client-core/src/world/components/editor/theme'
 import { Config } from '@xrengine/client-core/src/helper'
-import { detectDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/service'
 import { restoreState } from '@xrengine/client-core/src/persisted.store'
 import RouterComp from '../route/public'
 import reducers from '../reducers'
@@ -33,8 +32,6 @@ const App = (): any => {
     initGA()
 
     logPageView()
-
-    detectDeviceType()(dispatch)
 
     setApi(new Api())
   }, [])

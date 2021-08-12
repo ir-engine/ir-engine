@@ -13,6 +13,5 @@ export const DefaultNetworkSchema: NetworkSchema = {
   messageTypes: {
     ...MessageTypes
   },
-  prefabs: DefaultPrefabs,
-  defaultClientPrefab: PrefabType.Player
+  prefabs: DefaultPrefabs
 }

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-// @ts-ignore
 import styles from './Me.module.scss'
 import PartyParticipantWindow from '../PartyParticipantWindow'
 import { ChevronRight } from '@material-ui/icons'

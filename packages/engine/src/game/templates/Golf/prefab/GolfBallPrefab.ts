@@ -9,6 +9,7 @@ import { Network } from '../../../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
+import { ClientAuthoritativeTagComponent } from '../../../../physics/components/ClientAuthoritativeTagComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
@@ -162,9 +163,10 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
     collisionBehaviors: {}
   })
   addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
+  const isOwnedByCurrentClient = isClient && Network.instance.localAvatarNetworkId === ownerNetworkId
 
   if (isClient) {
-    addComponent(ballEntity, InterpolationComponent, null)
+    // addComponent(ballEntity, InterpolationComponent, {})
     AssetLoader.load(
       {
         url: Engine.publicPath + '/models/golf/golf_ball.glb'
@@ -194,7 +196,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shape],
-      type: BodyType.DYNAMIC,
+      type: isOwnedByCurrentClient ? BodyType.DYNAMIC : BodyType.KINEMATIC,
       transform: {
         translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
       },
@@ -227,4 +229,5 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   )
 
   addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast })
+  addComponent(ballEntity, ClientAuthoritativeTagComponent, {})
 }

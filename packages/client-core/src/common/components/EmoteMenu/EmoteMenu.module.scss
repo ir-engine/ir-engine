@@ -66,7 +66,7 @@
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        border: solid 100px #0007;
+        border: solid 100px rgba(0, 0, 0, 0.8);
 
         .menuItemBlock {
             position: relative;
@@ -86,12 +86,6 @@
                 display: block;
                 width: 100%;
             }
-        }
-
-        .joyStick {
-            position: absolute;
-            top: 50%;
-            left: 50%;
         }
     }
 }

@@ -14,17 +14,17 @@ export const doRaycast: InputBehaviorType = (actorEntity, inputKey, inputValue):
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) {
     return
   }
-  console.log('CLICK!!!')
+
   const autopilotSystem = getSystem(AutopilotSystem)
   const input = getComponent(actorEntity, InputComponent)
   const coords = input.data.get(BaseInput.SCREENXY).value
-  console.log('~~~ coords', coords)
 
   const raycaster = new Raycaster()
   raycaster.setFromCamera({ x: coords[0], y: coords[1] }, Engine.camera)
   const raycasterResults = []
-  const clickResult = autopilotSystem.queryResults.navmeshes?.all.reduce(
+  const clickResult = autopilotSystem.queryResults.navmeshes.all.reduce(
     (previousEntry, currentEntity) => {
+      console.log(currentEntity)
       const mesh = getComponent(currentEntity, Object3DComponent).value
       raycasterResults.length = 0
       raycaster.intersectObject(mesh, true, raycasterResults)

@@ -1,9 +1,6 @@
 import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraModes } from '../camera/types/CameraModes'
-import { PositionalAudio } from 'three'
-import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
-import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
@@ -17,6 +14,7 @@ import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { SpawnNetworkObjectComponent } from '../scene/components/SpawnNetworkObjectComponent'
 import { AvatarTagComponent } from './components/AvatarTagComponent'
 import { createAvatar } from './functions/createAvatar'
+import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 
 export const ClientAvatarSpawnSystem = async (): Promise<System> => {
   const spawnQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
@@ -29,12 +27,12 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       const isLocalPlayer = uniqueId === Network.instance.userId
       createAvatar(entity, parameters, !isLocalPlayer)
 
-      addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
-      addComponent(entity, InterpolationComponent, null)
+      addComponent(entity, AudioTagComponent, {})
+      addComponent(entity, InterpolationComponent, {})
       addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
       if (isLocalPlayer) {
-        addComponent(entity, LocalInputReceiverComponent, null)
+        addComponent(entity, LocalInputReceiverComponent, {})
         addComponent(entity, FollowCameraComponent, {
           mode: CameraModes.ThirdPerson,
           distance: 3,
@@ -52,7 +50,7 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
           focusedInteractive: null,
           subFocusedArray: []
         })
-        addComponent(entity, PersistTagComponent, null)
+        addComponent(entity, PersistTagComponent, {})
 
         Network.instance.localAvatarNetworkId = networkId
         Network.instance.localClientEntity = entity

@@ -14,7 +14,6 @@ import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/client-core/src/socialmedia/components/Preloader'
 
-// @ts-ignore
 import styles from './ArMedia.module.scss'
 
 // const {XRPlugin} = Plugins;

@@ -21,7 +21,6 @@ import {
 } from '../../reducers/auth/service'
 import { ConnectionTexts } from './ConnectionTexts'
 import { useTranslation } from 'react-i18next'
-// @ts-ignore
 import styles from './ProfileConnections.module.scss'
 
 interface Props {

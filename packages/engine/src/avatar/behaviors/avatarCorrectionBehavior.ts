@@ -2,7 +2,6 @@
  * @author HydraFire <github.com/HydraFire>
  */
 
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'

@@ -20,10 +20,10 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
-// @ts-ignore
 import styles from './Layout.module.scss'
 import { Config } from '@xrengine/client-core/src/helper'
 import { useLocation } from 'react-router-dom'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -53,6 +53,8 @@ interface Props {
   login?: boolean
   pageTitle: string
   children?: any
+  hideVideo?: boolean
+  hideFullscreen?: boolean
   setUserHasInteracted?: any
   onBoardingStep?: number
 }
@@ -77,7 +79,7 @@ const Layout = (props: Props): any => {
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
-  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
+  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(true)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const [expanded, setExpanded] = useState(true)
@@ -155,6 +157,7 @@ const Layout = (props: Props): any => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement
     if (canvas?.style != null) canvas.style.width = '0px'
     setHarmonyOpen(true)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO })
   }
 
   const toggleExpanded = () => setExpanded(!expanded)
@@ -173,7 +176,7 @@ const Layout = (props: Props): any => {
             </Helmet>
             <header>
               {path === '/login' && <NavMenu login={login} />}
-              {harmonyOpen !== true ? (
+              {!props.hideVideo && harmonyOpen !== true && (
                 <>
                   {expanded ? (
                     <section className={styles.locationUserMenu}>
@@ -190,10 +193,10 @@ const Layout = (props: Props): any => {
                   </button>
                   <UserToast />
                 </>
-              ) : null}
+              )}
             </header>
 
-            {fullScreenActive && harmonyOpen !== true ? (
+            {props.hideFullscreen ? null : fullScreenActive && harmonyOpen !== true ? (
               <button type="button" className={styles.fullScreen} onClick={handle.exit}>
                 <FullscreenExit />
               </button>
@@ -255,14 +258,7 @@ const Layout = (props: Props): any => {
             {/*  </Fragment>*/}
             {/*}*/}
             <footer>
-              {locationState.get('currentLocation')?.get('location')?.id &&
-                authState.get('authUser') != null &&
-                authState.get('isLoggedIn') === true &&
-                user?.instanceId != null &&
-                !leftDrawerOpen &&
-                !rightDrawerOpen &&
-                !topDrawerOpen &&
-                !bottomDrawerOpen && <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
+              <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />
               {user?.userRole !== 'guest' && harmonyOpen === false && (
                 <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
                   <Forum />

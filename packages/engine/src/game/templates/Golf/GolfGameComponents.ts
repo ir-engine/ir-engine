@@ -21,19 +21,29 @@ export enum GolfGameStates {
 }
 
 export const Goal = createMappedComponent<{}>()
+;(Goal as any).name = 'Goal'
 
 export const Hit = createMappedComponent<{}>()
+;(Hit as any).name = 'Hit'
 export const AlreadyHit = createMappedComponent<{}>()
+;(AlreadyHit as any).name = 'AlreadyHit'
 
 export const BallMoving = createMappedComponent<{}>()
+;(BallMoving as any).name = 'BallMoving'
 export const AlmostStopped = createMappedComponent<{}>()
+;(AlmostStopped as any).name = 'AlmostStopped'
 export const BallStopped = createMappedComponent<{}>()
+;(BallStopped as any).name = 'BallStopped'
 
 export const BallHidden = createMappedComponent<{}>()
+;(BallHidden as any).name = 'BallHidden'
 export const BallVisible = createMappedComponent<{}>()
+;(BallVisible as any).name = 'BallVisible'
 
 export const CorrectBallPosition = createMappedComponent<{}>()
+;(CorrectBallPosition as any).name = 'CorrectBallPosition'
 export const CheckCourse = createMappedComponent<{}>()
+;(CheckCourse as any).name = 'CheckCourse'
 
 export const GolfState = {
   [GolfGameStates.Goal]: Goal,

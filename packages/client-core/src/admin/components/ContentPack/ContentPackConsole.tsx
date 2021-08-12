@@ -13,7 +13,6 @@ import { selectContentPackState } from '../../reducers/contentPack/selector'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { fetchContentPacks } from '../../reducers/contentPack/service'
 import ContentPackDetailsModal from './ContentPackDetailsModal'
-// @ts-ignore
 import styles from './ContentPack.module.scss'
 
 interface Props {

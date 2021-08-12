@@ -12,7 +12,7 @@ left	(0,1,2)
 up		(3,4,5)
 forward	(6,7,9)
 */
-class Axis {
+export class Axis {
   x: Vector3
   y: Vector3
   z: Vector3
@@ -88,5 +88,3 @@ class Axis {
     return out
   }
 }
-
-export default Axis

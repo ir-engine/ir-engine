@@ -18,6 +18,7 @@ const mat4 = new Matrix4()
 const newVelocity = new Vector3()
 const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
+const multiplier = 1 / 60
 
 export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -28,7 +29,7 @@ export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
   if (!controller.movementEnabled) return
 
   if (avatar.isGrounded) {
-    vec3.copy(controller.localMovementDirection).multiplyScalar(deltaTime)
+    vec3.copy(controller.localMovementDirection).multiplyScalar(multiplier)
     controller.velocitySimulator.target.copy(vec3)
     controller.velocitySimulator.simulate(deltaTime)
 
@@ -65,7 +66,7 @@ export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
     }
 
     if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
-      controller.controller.velocity.y = controller.jumpHeight * deltaTime
+      controller.controller.velocity.y = controller.jumpHeight * multiplier
       controller.isJumping = true
     }
 

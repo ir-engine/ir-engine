@@ -1,5 +1,5 @@
 import { Entity } from '../../../../ecs/classes/Entity'
-import { hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState'
 import { getGame } from '../../../functions/functions'
 import { State } from '../../../types/GameComponents'
@@ -16,8 +16,10 @@ export const addTurn = (entityPlayer: Entity): void => {
     )
   )
 
+  // console.log(hasComponent(entityPlayer, State.WaitTurn))
+  // console.log(getComponent(entityPlayer, State.WaitTurn))
   if (!hasComponent(entityPlayer, State.WaitTurn)) {
-    console.warn('try to give turn to 1-Player, but he dont have WaitTurn State')
+    console.warn(entityPlayer, 'try to give turn to 1-Player, but he dont have WaitTurn State')
     return
   }
   if (noOneTurn) {

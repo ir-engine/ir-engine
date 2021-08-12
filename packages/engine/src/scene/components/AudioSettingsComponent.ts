@@ -13,7 +13,7 @@ export type PositionalAudioSettingsComponentType = {
   mediaRefDistance: number
   mediaRolloffFactor: number
   mediaVolume: number
-  overrideAudioSettings: boolean
+  usePositionalAudio: boolean
 }
 
 export const PositionalAudioSettingsComponent = createMappedComponent<PositionalAudioSettingsComponentType>()

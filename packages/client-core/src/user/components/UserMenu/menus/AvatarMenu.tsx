@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@material-ui/icons'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../../common/components/LazyImage'
