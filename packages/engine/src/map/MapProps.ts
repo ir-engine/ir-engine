@@ -11,4 +11,5 @@ export interface MapProps {
   startLatitude?: string
   startLongitude?: string
   showRasterTiles?: boolean
+  enableDebug?: boolean
 }

@@ -16,5 +16,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     yukaNavMesh: navMesh,
     navTarget: groundMesh
   })
-  addComponent(entity, DebugNavMeshComponent, null)
+  if (args.enableDebug) {
+    addComponent(entity, DebugNavMeshComponent, null)
+  }
 }
