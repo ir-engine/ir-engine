@@ -54,9 +54,14 @@ export const PositionalAudioSystem = async (): Promise<System> => {
   Engine.spatialAudio = true
 
   let startSuspendedContexts = false
+  let suspendPositionalAudio = false
 
-  EngineEvents.instance.once(EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS, () => {
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS, () => {
     startSuspendedContexts = true
+  })
+
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO, () => {
+    suspendPositionalAudio = true
   })
 
   let positionalAudioSettings: ReturnType<typeof PositionalAudioSettingsComponent.get>
@@ -74,10 +79,23 @@ export const PositionalAudioSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     if (startSuspendedContexts) {
-      for (const entity of positionalAudioQuery(world)) {
-        const positionalAudio = getComponent(entity, PositionalAudioComponent)
-        if (positionalAudio?.value?.context?.state === 'suspended') positionalAudio.value.context.resume()
+      for (const entity of avatarAudioQuery(world)) {
+        const audio = positionalAudioSettings?.usePositionalAudio
+          ? getComponent(entity, PositionalAudioComponent, true)
+          : getComponent(entity, AudioComponent, true)
+        if (audio?.value?.context?.state === 'suspended') audio.value.context.resume()
       }
+      startSuspendedContexts = false
+    }
+
+    if (suspendPositionalAudio) {
+      for (const entity of avatarAudioQuery(world)) {
+        const audio = positionalAudioSettings?.usePositionalAudio
+          ? getComponent(entity, PositionalAudioComponent, true)
+          : getComponent(entity, AudioComponent, true)
+        audio.value.context.suspend()
+      }
+      suspendPositionalAudio = false
     }
 
     for (const entity of settingsAddQuery(world)) {

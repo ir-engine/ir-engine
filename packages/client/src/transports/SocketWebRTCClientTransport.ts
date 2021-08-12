@@ -1,7 +1,11 @@
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import {
+  ActionType,
+  IncomingActionType,
+  NetworkTransport
+} from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { Config } from '@xrengine/client-core/src/helper'
@@ -15,10 +19,11 @@ import {
   subscribeToTrack
 } from './SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
+//@ts-ignore
+import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static EVENTS = {
@@ -54,6 +59,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   instanceDataProducer: any
   channelDataProducer: any
   reconnecting = false
+
+  sendActions(actions: ActionType[]) {
+    if (actions.length === 0) return
+    // TODO: should we be checking for existence of `emit` here ??
+    this.instanceSocket.emit(MessageTypes.ActionData.toString(), encode(actions))
+  }
 
   /**
    * Send a message over TCP with websockets
@@ -213,6 +224,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // If a reliable message is received, add it to the queue
       socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
         Network.instance.incomingMessageQueueReliable.add(message)
+      })
+
+      socket.on(MessageTypes.ActionData.toString(), (message) => {
+        const actions = decode(message) as IncomingActionType[]
+        for (const a of actions) a.senderID = socket.id
+        console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
+        Network.instance.incomingActions.push(...actions)
       })
 
       // use sendBeacon to tell the server we're disconnecting when

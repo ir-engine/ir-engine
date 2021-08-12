@@ -140,9 +140,8 @@ const InstanceChat = (props: Props): any => {
     return returned
   }
 
-  const isMessageSentBySelf = (message):boolean  => {
-    
-    return (message.senderId === user.id);    
+  const isMessageSentBySelf = (message): boolean => {
+    return message.senderId === user.id
   }
 
   useEffect(() => {
@@ -174,15 +173,14 @@ const InstanceChat = (props: Props): any => {
     })
   }
 
-  const getAvatar = (message):any =>{
-
-
-   return dimensions.width > 768 && (
-      <ListItemAvatar className={styles['message-sender-avatar']}>
-        <Avatar src={message.sender?.avatarUrl} />
-      </ListItemAvatar>
-    );
-
+  const getAvatar = (message): any => {
+    return (
+      dimensions.width > 768 && (
+        <ListItemAvatar className={styles['message-sender-avatar']}>
+          <Avatar src={message.sender?.avatarUrl} />
+        </ListItemAvatar>
+      )
+    )
   }
 
   return (
@@ -204,7 +202,6 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    
                     return (
                       <ListItem
                         className={classNames({
@@ -215,31 +212,31 @@ const InstanceChat = (props: Props): any => {
                         disableGutters={true}
                         key={message.id}
                       >
-                        <div className={styles[ isMessageSentBySelf(message)?'message-right':'message-left']}>
-                         
+                        <div className={styles[isMessageSentBySelf(message) ? 'message-right' : 'message-left']}>
                           {!isMessageSentBySelf(message) && getAvatar(message)}
-                         
+
                           <ListItemText
-                            className={styles[isMessageSentBySelf(message)?'message-right-text':'message-left-text']}
+                            className={
+                              styles[isMessageSentBySelf(message) ? 'message-right-text' : 'message-left-text']
+                            }
                             primary={
-                              <p>
+                              <span>
                                 <span className={styles.userName} color="primary">
                                   {getMessageUser(message)}
                                 </span>
                                 <p>{message.text}</p>
-                              </p>
+                              </span>
                             }
-                          /> 
+                          />
 
-                        {isMessageSentBySelf(message) && getAvatar(message)}
-
+                          {isMessageSentBySelf(message) && getAvatar(message)}
                         </div>
                       </ListItem>
                     )
                   })}
             </CardContent>
           </Card>
-          <Card className={styles['flex-center','chat-view']}>
+          <Card className={styles[('flex-center', 'chat-view')]}>
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
                 <MessageIcon onClick={() => hideShowMessagesContainer()} />
@@ -299,7 +296,11 @@ const InstanceChat = (props: Props): any => {
             invisible={!unreadMessages}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           >
-            <Fab className={styles['openChat','chatBadge']} color="primary" onClick={() => hideShowMessagesContainer()}>
+            <Fab
+              className={styles[('openChat', 'chatBadge')]}
+              color="primary"
+              onClick={() => hideShowMessagesContainer()}
+            >
               <MessageIcon />
             </Fab>
           </Badge>

@@ -62,13 +62,9 @@ const DevPage = () => {
 
     addUIEvents()
 
-    const loadScene = new Promise<void>((resolve) => {
-      WorldScene.load(sceneData as any, () => {
-        store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-        setAppLoaded(true)
-        resolve()
-      })
-    })
+    const loadScene = WorldScene.load(sceneData as any)
+    store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+    setAppLoaded(true)
 
     const getWorldState = new Promise<void>((resolve) => {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: testUserId })
