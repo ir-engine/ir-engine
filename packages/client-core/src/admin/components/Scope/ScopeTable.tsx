@@ -52,27 +52,12 @@ const ScopeTable = (props: Props) => {
     if (adminScopeState.get('scope').get('updateNeeded') && user.id) fetchData()
   }, [adminScopeState, user])
 
-  const data = [
-    {
-      id: '123',
-      name: 'scope A',
-      description: 'some description',
-      action: (
-        <>
-          <a href="#h" className={classes.actionStyle}>
-            <span className={classes.spanWhite}>View</span>
-          </a>
-          <a href="#h" className={classes.actionStyle}>
-            {' '}
-            <span className={classes.spanDange}>Delete</span>{' '}
-          </a>
-        </>
-      )
-    },
-    {
-      id: '1234',
-      name: 'scope B',
-      description: 'some description',
+  const createData = (id: any, name: any, group: string, user: string): Data => {
+    return {
+      id,
+      name,
+      group,
+      user,
       action: (
         <>
           <a href="#h" className={classes.actionStyle}>
@@ -85,9 +70,13 @@ const ScopeTable = (props: Props) => {
         </>
       )
     }
-  ]
+  }
 
-  const count = data.size ? data.size : data.length
+  const rows = adminScopes.map((el) => {
+    return createData(el.id, el.scopeName, el.user.name, el.group.name)
+  })
+
+  const count = rows.size ? rows.size : rows.length
 
   return (
     <div className={classx.root}>
@@ -108,7 +97,7 @@ const ScopeTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((data, id) => {
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((data, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={data.id}>
                   {columns.map((column) => {

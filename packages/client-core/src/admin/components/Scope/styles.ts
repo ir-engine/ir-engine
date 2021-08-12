@@ -82,6 +82,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     marginTp: {
       marginTop: '20%'
     },
+    marginTop: {
+      marginTop: '10%'
+    },
     actionStyle: {
       textDecoration: 'none',
       color: '#000',
