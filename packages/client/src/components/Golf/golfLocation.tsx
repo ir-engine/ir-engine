@@ -45,7 +45,7 @@ import {
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { GolfClientSystem, GolfCommonSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
+import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { AnimationSystem } from '@xrengine/engine/src/avatar/AnimationSystem'
 import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
@@ -433,13 +433,8 @@ export const EnginePage = (props: Props) => {
         systems: [
           {
             type: SystemUpdateType.Fixed,
-            system: GolfCommonSystem,
+            system: GolfSystem,
             after: EquippableSystem
-          },
-          {
-            type: SystemUpdateType.Fixed,
-            system: GolfClientSystem,
-            after: GolfCommonSystem
           }
         ]
       }

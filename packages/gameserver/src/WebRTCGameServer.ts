@@ -7,7 +7,7 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { GolfClientSystem, GolfCommonSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
+import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { EquippableSystem } from '../../engine/src/interaction/systems/EquippableSystem'
 import { SystemUpdateType } from '../../engine/src/ecs/functions/SystemUpdateType'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
@@ -33,13 +33,8 @@ export class WebRTCGameServer {
       // TODO: we need to register this here still as this is not currently set up to work in deploy
       {
         type: SystemUpdateType.Fixed,
-        system: GolfCommonSystem,
+        system: GolfSystem,
         after: EquippableSystem
-      },
-      {
-        type: SystemUpdateType.Fixed,
-        system: GolfClientSystem,
-        after: GolfCommonSystem
       }
     ]
   }

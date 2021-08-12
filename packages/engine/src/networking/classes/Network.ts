@@ -56,7 +56,7 @@ export class Network {
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
   /** Incoming actions */
-  incomingActions = [] as IncomingActionType[]
+  incomingActions = [] as ActionType[]
   /** Outgoing actions */
   outgoingActions = [] as ActionType[]
 

@@ -2,116 +2,168 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../../ecs/bitecs'
 import { ECSWorld } from '../../../ecs/classes/World'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { GolfAction, GolfActionType } from './GolfAction'
+import { Network } from '../../../networking/classes/Network'
+import { createState } from '@hookstate/core'
+import { ActionType } from '../../../networking/interfaces/NetworkTransport'
+import { GamePlayer } from '../../components/GamePlayer'
+import { BallStopped } from './GolfGameComponents'
+import { isClient } from '../../../common/functions/isClient'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
+ * @author Gheric Speiginer <github.com/speigg>
  */
 
-export const GolfCommonSystem = async (): Promise<System> => {
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
+/**
+ *
+ */
+export const GolfState = createState({
+  holes: [] as Array<{ par: number }>,
+  players: [] as Array<{
+    id: string
+    scores: Array<number>
+    stroke: number
+  }>,
+  currentPlayer: 0,
+  currentHole: 0
+})
 
-    return world
-  })
+// IMPORTANT: unlike Redux, dispatched actions are always processed asynchronously
+const dispatchOnServer = (x: ActionType) => {
+  // noop on client
+  if (!isClient) Network.instance.outgoingActions.push(x)
 }
 
-export const GolfClientSystem = async (): Promise<System> => {
-  await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
-  await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
-  await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
+export const GolfSystem = async (): Promise<System> => {
+  if (isClient) {
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
+  }
+
+  // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
+  function receptor(world: ECSWorld, action: GolfActionType) {
+    GolfState.batch((s) => {
+      switch (action.type) {
+        /**
+         * On PLAYER_JOINED
+         * - Add a player to player list (start at hole 0, scores at 0 for all holes)
+         * - spawn golf club
+         * - spawn golf ball
+         */
+        case 'puttclub.PLAYER_JOINED':
+          s.players.merge([
+            {
+              id: action.playerNetworkId,
+              scores: [],
+              stroke: 0
+            }
+          ])
+          // spawn golf ball
+          if (isClient) {
+            // spawn golf club
+          }
+          if (s.players.length === 1) {
+            dispatchOnServer(GolfAction.nextTurn())
+          }
+          return
+
+        /**
+         * on PLAYER_STROKE
+         *   - Finish current hole for this player
+         *   - players[currentPlayer].scores[currentHole] = player.stroke
+         */
+        case 'puttclub.PLAYER_STROKE':
+          s.players[s.currentPlayer.value].merge((s) => {
+            return { stroke: s.stroke + 1 }
+          })
+          return
+
+        /**
+         * on NEXT_TURN
+         *   - Finish current hole for this player
+         *   - players[currentPlayer].scores[currentHole] = player.stroke
+         *   - currentHole = earliest hole that a player hasn’t completed yet
+         *   - dispatch NEXT_HOLE
+         *   - increment currentPlayer
+         *   - hide old player's ball
+         *   - show new player's ball
+         *   - enable new player's club
+         */
+        case 'puttclub.NEXT_TURN':
+          const player = s.players[s.currentPlayer.value]
+          player.scores.merge({
+            [s.currentHole.value]: player.stroke.value
+          })
+          player.stroke.set(0)
+          dispatchOnServer(GolfAction.nextHole())
+          return
+
+        /**
+         * on NEXT_HOLE
+         *   - indicate next hole
+         *   - currentHole = earliest hole that a player hasn’t completed yet
+         *   - dispatch RESET_BALL
+         * - ELSE
+         *   - increment currentPlayer
+         */
+        case 'puttclub.NEXT_HOLE':
+          holes: for (const [i] of s.holes.entries()) {
+            const nextHole = i
+            for (const p of s.players) {
+              if (p.scores[i] === undefined) {
+                s.currentHole.set(nextHole)
+                break holes
+              }
+            }
+          }
+          dispatchOnServer(GolfAction.resetBall())
+          return
+
+        /**
+         * on RESET_BALL
+         * - teleport ball
+         */
+        case 'puttclub.RESET_BALL':
+          return
+      }
+    })
+  }
+
+  const playerQuery = defineQuery([GamePlayer])
+  const playerEnterQuery = enterQuery(playerQuery)
+  const playerExitQuery = exitQuery(playerQuery)
 
   return defineSystem((world: ECSWorld) => {
-    const { delta } = world
+    // runs on server & client:
+    for (const action of Network.instance.incomingActions) receptor(world, action as any)
 
-    /**
-     * UI update stuff not included
-     * clubs can be client only, since they take input from 6dof network & client sends hit  data
-     */
+    const currentPlayer = GolfState.players[GolfState.currentPlayer.value].value
 
-    /**
-     * on hit ball
-     * - CLIENT_PLAYER_STROKE
-     * - club is disabled
-     */
+    if (!isClient) {
+      for (const eid of playerEnterQuery(world)) {
+        if (GamePlayer.get(eid).gameName === 'golf') dispatchOnServer(GolfAction.playerJoined(currentPlayer.id))
+      }
 
-    /**
-     * On new player
-     * - Add a player to player list (start at hole 0, scores at 0 for all holes)
-     */
+      for (const eid of playerExitQuery(world)) {
+        if (currentPlayer.id === GamePlayer.get(eid).uuid) dispatchOnServer(GolfAction.nextTurn())
+      }
 
-    /**
-     * on NEXT_TURN
-     * - hide old player's ball
-     * - show new player's ball
-     * - enable new player's club
-     */
+      if (ballHit()) {
+        dispatchOnServer(GolfAction.playerStroke(currentPlayer.id))
+      }
 
-    /**
-     * on NEXT_HOLE
-     * - indicate next hole
-     */
+      if (ballStoppedOrTimedOut()) {
+        dispatchOnServer(GolfAction.nextTurn())
+      }
 
-    /**
-     * on MOVE_BALL
-     * - teleport ball
-     */
-
-    return world
-  })
-}
-
-export const GolfServerSystem = async (): Promise<System> => {
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
-    /**
-     * On new player
-     * - add player to list of players
-     * - dispatch NEW_PLAYER
-     * - spawn golf club
-     * - spawn golf ball
-     */
-
-    /**
-     * on first player join
-     * - add turn
-     */
-
-    /**
-     * on current player leave
-     * - next turn
-     */
-
-    /**
-     * On player hit ball
-     * - dispatch PLAYER_STROKE
-     *   - increment player.stroke
-     */
-
-    /**
-     * On ball stopped
-     * - dispatch NEXT_TURN
-     */
-
-    /**
-     * on NEXT_TURN
-     * - IF player's ball in hole OR If current player has had too many attempts at this hole
-     *   - Finish current hole for this player
-     *   - players[currentPlayer].scores[currentHole] = player.stroke
-     * - IF all players have scores for current hole
-     *   - currentHole = earliest hole that a player hasn’t completed yet
-     *   - dispatch NEXT_HOLE
-     *   - dispatch MOVE_BALL
-     * - ELSE
-     *   - increment currentPlayer
-     */
-
-    /**
-     * - Detect ball out of bounds
-     *   - Reset to previous hit's start position or tee position
-     *   - dispatch MOVE_BALL
-     */
+      if (ballOutOfBounds()) {
+        dispatchOnServer(GolfAction.nextTurn())
+        dispatchOnServer(GolfAction.resetBall())
+      }
+    }
 
     return world
   })
