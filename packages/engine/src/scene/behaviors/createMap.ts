@@ -22,10 +22,10 @@ export async function createMap(entity, args: MapProps): Promise<void> {
     value: testMesh
   })
   console.log('map added, navmesh?', navMesh)
-  if (navMesh) {
+  // if (navMesh) {
     addComponent(entity, NavMeshComponent, {
       yukaNavMesh: navMesh
     })
     addComponent(entity, DebugNavMeshComponent, null)
-  }
+  // }
 }
