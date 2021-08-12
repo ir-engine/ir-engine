@@ -393,6 +393,16 @@ const Harmony = (props: Props): any => {
   }, [])
 
   useEffect(() => {
+    if (
+      selfUser?.instanceId != null &&
+      MediaStreams.instance.channelType === 'instance' &&
+      (MediaStreams.instance.channelId == null || MediaStreams.instance.channelId === '')
+    ) {
+      const channelEntries = [...channels.entries()]
+      const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
+      MediaStreams.instance.channelId = instanceChannel[0]
+      updateChannelTypeState()
+    }
     if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
     if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
@@ -400,17 +410,7 @@ const Harmony = (props: Props): any => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    if ((Network.instance?.transport as any)?.channelType === 'instance') {
-      const channelEntries = [...channels.entries()]
-      const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
-      if (
-        instanceChannel != null &&
-        (MediaStreams.instance.camAudioProducer != null || MediaStreams.instance.camVideoProducer != null)
-      )
-        setActiveAVChannelId(instanceChannel[0])
-    } else {
-      setActiveAVChannelId(transportState.get('channelId'))
-    }
+    setActiveAVChannelId(transportState.get('channelId'))
   }, [transportState])
 
   useEffect(() => {
@@ -586,6 +586,8 @@ const Harmony = (props: Props): any => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
       resetChannelServer()
       setLastConnectToWorldId('')
+      MediaStreams.instance.channelId = ''
+      MediaStreams.instance.channelType = ''
       if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
       updateChannelTypeState()
       updateCamVideoState()
@@ -754,6 +756,8 @@ const Harmony = (props: Props): any => {
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId('')
+    MediaStreams.instance.channelType = ''
+    MediaStreams.instance.channelId = ''
     updateCamVideoState()
     updateCamAudioState()
   }
@@ -924,6 +928,16 @@ const Harmony = (props: Props): any => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement
     if (canvas?.style != null) canvas.style.width = '100%'
     setHarmonyOpen(false)
+    if (MediaStreams.instance.channelType === '' || MediaStreams.instance.channelType == null) {
+      const channelEntries = [...channels.entries()]
+      const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
+      if (instanceChannel != null) {
+        MediaStreams.instance.channelType = 'instance'
+        MediaStreams.instance.channelType = instanceChannel[0]
+        setActiveAVChannelId(instanceChannel[0])
+      }
+    }
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS })
   }
 
   const openProfileMenu = (): void => {
@@ -1311,7 +1325,7 @@ const Harmony = (props: Props): any => {
             )}
           </div>
         </div>
-        {activeAVChannelId !== '' && (
+        {activeAVChannelId !== '' && harmonyHidden !== true && (
           <div className={styles['video-container']}>
             <div className={styles['active-chat-plate']}>{getAVChannelName()}</div>
             <Grid className={styles['party-user-container']} container direction="row">
