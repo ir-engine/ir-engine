@@ -9,10 +9,6 @@ export type AvatarControllerComponentType = {
   movementEnabled: boolean
   isJumping: boolean
   isWalking: boolean
-  walkSpeed: number
-  runSpeed: number
-  moveSpeed: number
-  jumpHeight: number
   localMovementDirection: Vector3
   velocitySimulator: VectorSpringSimulator
 }

@@ -6,6 +6,7 @@ import { Commands } from '../../networking/enums/Commands'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -133,7 +134,6 @@ export class AnimationGraph {
    */
   render = (entity: Entity, delta: number): void => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-    const avatarController = getComponent(entity, AvatarControllerComponent)
     const avatar = getComponent(entity, AvatarComponent)
     let params: WeightsParameterType = {}
 
@@ -163,7 +163,10 @@ export class AnimationGraph {
       vector2.set(movement.velocity.x, movement.velocity.z).multiplyScalar(1 / delta)
       const speedSqr = vector2.lengthSq()
       if (speedSqr > this.EPSILON) {
-        newStateName = avatarController.isWalking ? AvatarStates.WALK : AvatarStates.RUN
+        newStateName =
+          speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
+            ? AvatarStates.WALK
+            : AvatarStates.RUN
       } else {
         newStateName = AvatarStates.IDLE
       }

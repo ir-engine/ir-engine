@@ -132,7 +132,7 @@ const InstanceTable = (props: Props) => {
       <TablePagination
         rowsPerPageOptions={[12]}
         component="div"
-        count={12}
+        count={adminInstances.get('total')}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}
