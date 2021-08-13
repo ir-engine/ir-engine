@@ -1,7 +1,7 @@
 import { Material } from 'three'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type MaterialMap = {
+export type MaterialMap = {
   id: string
   material: Material
 }
