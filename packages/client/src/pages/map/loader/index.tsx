@@ -62,7 +62,7 @@ const LoadingScreen = (props: Props) => {
     <>
       <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
         <section className={styles.linearProgressContainer}>
-        <Loader />
+          <Loader />
           <span className={styles.loadingProgressInfo}>{loadingText}</span>
         </section>
       </section>

@@ -53,28 +53,29 @@ export class UploadPresigned implements ServiceMethods<Data> {
       ]
     )
     url.cloudfrontDomain = config.aws.cloudfront.domain
-    await new Promise((resolve, reject) => {
-      s3.cloudfront.createInvalidation(
-        {
-          DistributionId: config.aws.cloudfront.distributionId,
-          InvalidationBatch: {
-            CallerReference: Date.now().toString(),
-            Paths: {
-              Quantity: 1,
-              Items: [`/${key}`]
+    if (config.server.storageProvider === 'aws')
+      await new Promise((resolve, reject) => {
+        s3.cloudfront.createInvalidation(
+          {
+            DistributionId: config.aws.cloudfront.distributionId,
+            InvalidationBatch: {
+              CallerReference: Date.now().toString(),
+              Paths: {
+                Quantity: 1,
+                Items: [`/${key}`]
+              }
+            }
+          },
+          (err, data) => {
+            if (err) {
+              console.error(err)
+              reject(err)
+            } else {
+              resolve(data)
             }
           }
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
+        )
+      })
     return url
   }
 

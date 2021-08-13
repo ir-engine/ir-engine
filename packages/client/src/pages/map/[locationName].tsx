@@ -11,15 +11,11 @@ import MapInstanceChatStyle from './MapInstanceChat.module.scss'
 import { CloseChat } from './icons/CloseChat'
 import { Chat } from './icons/Chat'
 import { SendMessage } from './icons/SendMessage'
-import { theme } from "./theme"
+import { theme } from './theme'
 import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-
-
-
-
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -64,7 +60,13 @@ const LocationPage = (props) => {
         engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
       >
-        <InstanceChat newMessageLabel={"say something..."} CloseButton={CloseChat} MessageButton={Chat} SendButton={SendMessage} styles={MapInstanceChatStyle} />
+        <InstanceChat
+          newMessageLabel={'say something...'}
+          CloseButton={CloseChat}
+          MessageButton={Chat}
+          SendButton={SendMessage}
+          styles={MapInstanceChatStyle}
+        />
         <MapMediaIconsBox />
         {/* <MapUserMenu /> */}
       </World>
