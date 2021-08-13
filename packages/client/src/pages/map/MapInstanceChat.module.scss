@@ -42,11 +42,12 @@ div, span {
   display: flex;
   position: absolute;
   left: 0;
-  bottom: 0;
+  // bottom: 0;
+  bottom: 32px;
   margin: 20px 20px 20px 20px;
   align-items: center;
-  color: #000;
   z-index: 20;
+
   &:hover {
     cursor: pointer;
   }
@@ -65,7 +66,6 @@ div, span {
 }
 .instance-chat-container {
   color: #000!important;
-
   position: absolute;
   bottom: 100px;
   display: flex;
