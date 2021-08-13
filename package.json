@@ -74,6 +74,7 @@
   "pre-commit": [
     "format-staged"
   ],
+  "pre-push": [],
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
