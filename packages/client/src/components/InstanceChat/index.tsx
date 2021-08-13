@@ -23,8 +23,8 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
-// @ts-ignore
-import styles from './InstanceChat.module.scss'
+
+import defaultStyles from './InstanceChat.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -43,13 +43,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface Props {
   authState?: any
-  setBottomDrawerOpen: any
   chatState?: any
   instanceConnectionState?: any
   getInstanceChannel?: any
   createMessage?: any
-  updateChatTarget?: any
-  updateMessageScrollInit?: any
+  styles?: any
+  MessageButton?: any
+  CloseButton?: any
+  SendButton?: any
+  newMessageLabel?: string
 }
 
 const InstanceChat = (props: Props): any => {
@@ -59,9 +61,11 @@ const InstanceChat = (props: Props): any => {
     instanceConnectionState,
     getInstanceChannel,
     createMessage,
-    setBottomDrawerOpen,
-    updateChatTarget,
-    updateMessageScrollInit
+    styles = defaultStyles,
+    MessageButton = MessageIcon,
+    CloseButton = MessageIcon,
+    SendButton = Send,
+    newMessageLabel = "World Chat..."
   } = props
 
   let activeChannel
@@ -82,10 +86,6 @@ const InstanceChat = (props: Props): any => {
     }
   }, [instanceConnectionState])
 
-  const openBottomDrawer = (e: any): void => {
-    setBottomDrawerOpen(true)
-  }
-
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
     setComposingMessage(message)
@@ -102,31 +102,13 @@ const InstanceChat = (props: Props): any => {
     }
   }
 
-  const setActiveChat = (channel): void => {
-    updateMessageScrollInit(true)
-    const channelType = channel.channelType
-    const target =
-      channelType === 'user'
-        ? channel.user1?.id === user.id
-          ? channel.user2
-          : channel.user2?.id === user.id
-          ? channel.user1
-          : {}
-        : channelType === 'group'
-        ? channel.group
-        : channelType === 'instance'
-        ? channel.instance
-        : channel.party
-    updateChatTarget(channelType, target, channel.id)
-    setComposingMessage('')
-  }
-
-  const [openMessageContainer, setOpenMessageContainer] = React.useState(false)
+  const [chatWindowOpen, setChatWindowOpen] = React.useState(false)
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
-  const hideShowMessagesContainer = () => {
-    setOpenMessageContainer(!openMessageContainer)
-    openMessageContainer && setUnreadMessages(false)
+  const toggleChatWindow = () => {
+    console.log("click");
+    setChatWindowOpen(!chatWindowOpen)
+    chatWindowOpen && setUnreadMessages(false)
   }
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
@@ -148,13 +130,13 @@ const InstanceChat = (props: Props): any => {
     activeChannel &&
       activeChannel.messages &&
       activeChannel.messages.length > 0 &&
-      !openMessageContainer &&
+      !chatWindowOpen &&
       setUnreadMessages(true)
   }, [activeChannel?.messages])
 
   useEffect(() => {
     if (isMultiline) {
-      ;(messageRef.current as HTMLInputElement).selectionStart = cursorPosition + 1
+      ; (messageRef.current as HTMLInputElement).selectionStart = cursorPosition + 1
     }
   }, [isMultiline])
 
@@ -187,7 +169,7 @@ const InstanceChat = (props: Props): any => {
     <>
       <div
         className={
-          styles['instance-chat-container'] + ' ' + (!openMessageContainer && styles['messageContainerClosed'])
+          styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])
         }
       >
         <div className={styles['list-container']}>
@@ -236,18 +218,15 @@ const InstanceChat = (props: Props): any => {
                   })}
             </CardContent>
           </Card>
-          <Card className={styles[('flex-center', 'chat-view')]}>
-            <CardContent className={styles['chat-box']}>
-              <div className={styles.iconContainer}>
-                <MessageIcon onClick={() => hideShowMessagesContainer()} />
-              </div>
+          <Card className={styles['chat-view']} style={{boxShadow: "none"}}>
+            <CardContent className={styles['chat-box']} style={{boxShadow: "none"}}>
               <TextField
                 className={styles.messageFieldContainer}
                 margin="normal"
                 multiline={isMultiline}
                 fullWidth
                 id="newMessage"
-                label="World Chat..."
+                label={newMessageLabel}
                 name="newMessage"
                 autoFocus
                 value={composingMessage}
@@ -276,36 +255,37 @@ const InstanceChat = (props: Props): any => {
                   }
                 }}
               />
-              <Button
-                variant="contained"
-                color="primary"
-                className={classNames({ [styles.iconContainerSend]: true, sendMessage: true })}
-                onClick={packageMessage}
-              >
-                <Send />
-              </Button>
+              <span className={styles.sendButton}>
+                <SendButton onClick={packageMessage} />
+                </span>
             </CardContent>
           </Card>
         </div>
       </div>
-      {!openMessageContainer && (
-        <div className={styles.iconCallChat}>
-          <Badge
+      <div className={styles.iconCallChat}>
+        <Badge
+          color="primary"
+          variant="dot"
+          invisible={!unreadMessages}
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        >
+          <Fab
+            className={styles[('chatBadge')]}
             color="primary"
-            variant="dot"
-            invisible={!unreadMessages}
-            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+            onClick={() => toggleChatWindow()}
           >
-            <Fab
-              className={styles[('openChat', 'chatBadge')]}
-              color="primary"
-              onClick={() => hideShowMessagesContainer()}
-            >
-              <MessageIcon />
-            </Fab>
-          </Badge>
-        </div>
-      )}
+            {!chatWindowOpen ? (
+
+              <MessageButton />
+            ) : (
+              <div className={styles.iconContainer}>
+                <CloseButton onClick={() => toggleChatWindow()} />
+              </div>
+            )}
+
+          </Fab>
+        </Badge>
+      </div>
     </>
   )
 }

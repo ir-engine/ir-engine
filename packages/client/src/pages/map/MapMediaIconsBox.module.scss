@@ -7,6 +7,15 @@
   justify-content: center;
 
   .iconContainer {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
+
     margin: 0px;
     cursor: pointer;
     position: relative;
@@ -19,18 +28,6 @@
 
     &:hover::before {
       transform: scale(1);
-    }
-  }
-  @media (max-width: 450px) {
-    justify-content: flex-end;
-    padding-right: 50px;
-    .iconContainer {
-      width: 40px;
-      height: 40px;
-      &:before {
-        width: 40px;
-        height: 40px;
-      }
     }
   }
 }
