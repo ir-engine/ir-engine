@@ -5,6 +5,8 @@ import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunc
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
+import { GolfAction } from '../GolfAction'
+import { dispatchOnServer, GolfObjectEntities } from '../GolfSystem'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -16,8 +18,6 @@ const clubPowerMultiplier = 5
 const hitAdvanceFactor = 4
 
 export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
-  if (!isClient) return
-
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   const collider = getComponent(entityBall, ColliderComponent)
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)

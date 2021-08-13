@@ -63,7 +63,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendActions(actions: ActionType[]) {
     if (actions.length === 0) return
     // TODO: should we be checking for existence of `emit` here ??
-    this.instanceSocket.emit(MessageTypes.ActionData.toString(), encode(actions))
+    this.instanceSocket.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 
   /**
@@ -226,8 +226,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         Network.instance.incomingMessageQueueReliable.add(message)
       })
 
-      socket.on(MessageTypes.ActionData.toString(), (message: ArrayBuffer) => {
-        const actions = decode(new Uint8Array(message)) as IncomingActionType[]
+      socket.on(MessageTypes.ActionData.toString(), (message) => {
+        if (!message) return
+        const actions = message as any as IncomingActionType[]
+        // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
         for (const a of actions) a.senderID = socket.id
         // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
         Network.instance.incomingActions.push(...actions)

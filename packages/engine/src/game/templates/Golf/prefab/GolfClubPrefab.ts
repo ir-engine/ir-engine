@@ -42,8 +42,9 @@ import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
-import { getCollision } from '../../../../physics/behaviors/getCollisions'
+import { getCollisions } from '../../../../physics/behaviors/getCollisions'
 import { hitBall } from '../behaviors/hitBall'
+import { isCurrentGolfPlayer } from '../functions/golfFunctions'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -89,7 +90,7 @@ export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComp
 
 export const enableClub = (entityClub: Entity, enable: boolean): void => {
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
-  if (golfClubComponent === undefined) return
+  if (golfClubComponent.canHitBall === enable) return
   golfClubComponent.canHitBall = enable
   setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
 }
@@ -107,11 +108,14 @@ export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): 
 export const updateClub = (entityClub: Entity): void => {
   const ownerNetworkId = getComponent(entityClub, NetworkObjectComponentOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.entity
-
   if (!ownerEntity) return
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   if (!golfClubComponent.raycast) return
+
+  const currentPlayer = isCurrentGolfPlayer(ownerEntity)
+
+  enableClub(entityClub, currentPlayer)
 
   const transformClub = getComponent(entityClub, TransformComponent)
   const collider = getComponent(entityClub, ColliderComponent)
@@ -193,11 +197,6 @@ export const updateClub = (entityClub: Entity): void => {
       z: vector0.z
     },
     rotation: golfClubComponent.headGroup.quaternion
-  }
-
-  const { collisionEntity } = getCollision(entityClub, GolfBallComponent)
-  if (collisionEntity !== null) {
-    hitBall(entityClub, collisionEntity)
   }
 }
 
@@ -352,4 +351,6 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
   for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
     golfClubComponent.lastPositions[i] = new Vector3()
   }
+
+  enableClub(entityClub, false)
 }

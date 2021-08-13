@@ -15,3 +15,9 @@ export const isCurrentGolfPlayer = (entity: Entity) => {
   const currentPlayerId = GolfState.players.value[currentPlayerNumber].id
   return currentPlayerId === getComponent(entity, NetworkObjectComponent).uniqueId
 }
+
+export const getCurrentGolfPlayerEntity = () => {
+  const currentPlayerNumber = GolfState.currentPlayer.value
+  const currentPlayerId = GolfState.players.value[currentPlayerNumber].id
+  return Object.values(Network.instance.networkObjects).find((obj) => obj.uniqueId === currentPlayerId)?.entity
+}
