@@ -62,7 +62,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       }
 
       const pt = plate.clone()
-      pillar.name = 'plate_obj'
+      pt.name = 'plate_obj'
       pt.material = (<any>pt.material).clone()
       object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
