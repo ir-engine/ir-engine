@@ -39,6 +39,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       const plateComponent = getComponent(entity, AvatarEffectComponent)
 
       const pillar = new Object3D()
+      pillar.name = 'pillar_obj'
       object.add(pillar)
 
       const apc = getComponent(entity, AvatarPendingComponent)
@@ -61,6 +62,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       }
 
       const pt = plate.clone()
+      pillar.name = 'plate_obj'
       pt.material = (<any>pt.material).clone()
       object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
@@ -107,21 +109,30 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
     for (const entity of commonQuery(world)) {
       const object = getComponent(entity, Object3DComponent).value
       const opacityMultiplier = getComponent(entity, AvatarEffectComponent).opacityMultiplier
-      var pillar = object.children[2]
-      var plate = object.children[3]
 
-      plate['material'].opacity = opacityMultiplier * (0.7 + 0.5 * Math.sin((Date.now() % 6283) * 5e-3))
-      if (pillar !== undefined && plate !== undefined) {
-        for (var i = 0, n = pillar.children.length; i < n; i++) {
-          var ray = pillar.children[i]
-          ray.position.y += 2 * delta
-          ray.scale.y = lightScale(ray.position.y, ray['geometry'].boundingSphere.radius)
-          ray['material'].opacity = lightOpacity(ray.position.y, ray['geometry'].boundingSphere.radius)
+      let pillar = null
+      let plate = null
 
-          if (ray['material'].opacity < 1e-3) {
-            ray.position.y = plate.position.y
+      const childrens = object.children
+      for (let i = 0; i < childrens.length; i++) {
+        if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+        if (childrens[i].name === 'plate_obj') plate = childrens[i]
+      }
+
+      if (pillar !== null && plate !== null) {
+        plate['material'].opacity = opacityMultiplier * (0.7 + 0.5 * Math.sin((Date.now() % 6283) * 5e-3))
+        if (pillar !== undefined && plate !== undefined) {
+          for (var i = 0, n = pillar.children.length; i < n; i++) {
+            var ray = pillar.children[i]
+            ray.position.y += 2 * delta
+            ray.scale.y = lightScale(ray.position.y, ray['geometry'].boundingSphere.radius)
+            ray['material'].opacity = lightOpacity(ray.position.y, ray['geometry'].boundingSphere.radius)
+
+            if (ray['material'].opacity < 1e-3) {
+              ray.position.y = plate.position.y
+            }
+            ray['material'].opacity *= opacityMultiplier
           }
-          ray['material'].opacity *= opacityMultiplier
         }
       }
     }
@@ -157,19 +168,30 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
               removeComponent(entity, TweenComponent)
 
               const object = getComponent(entity, Object3DComponent).value
-              var pillar = object.children[2]
-              var plate = object.children[3]
+              let pillar = null
+              let plate = null
 
-              pillar.traverse(function (child) {
-                if (child['material']) child['material'].dispose()
-              })
+              const childrens = object.children
+              for (let i = 0; i < childrens.length; i++) {
+                if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+                if (childrens[i].name === 'plate_obj') plate = childrens[i]
+              }
 
-              plate.traverse(function (child) {
-                if (child['material']) child['material'].dispose()
-              })
+              if (pillar !== null) {
+                pillar.traverse(function (child) {
+                  if (child['material']) child['material'].dispose()
+                })
 
-              pillar.parent.remove(pillar)
-              plate.parent.remove(plate)
+                pillar.parent.remove(pillar)
+              }
+
+              if (plate !== null) {
+                plate.traverse(function (child) {
+                  if (child['material']) child['material'].dispose()
+                })
+
+                plate.parent.remove(plate)
+              }
 
               removeComponent(entity, AvatarEffectComponent)
             })
