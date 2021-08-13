@@ -8,6 +8,13 @@ export const GolfAction = {
     }
   },
 
+  playerReady(playerId: string) {
+    return {
+      type: 'puttclub.PLAYER_READY' as const,
+      playerId
+    }
+  },
+
   playerStroke(playerId: string) {
     return {
       type: 'puttclub.PLAYER_STROKE' as const,

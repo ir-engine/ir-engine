@@ -8,7 +8,7 @@ type CollisionHit = {
   collisionEntity: Entity
 }
 
-export const getCollision = (entity: Entity, component: ComponentConstructor<any, any>): CollisionHit => {
+export const getCollisions = (entity: Entity, component: ComponentConstructor<any, any>): CollisionHit => {
   const collider = getComponent(entity, ColliderComponent)
 
   for (const collisionEvent of collider.body.collisionEvents) {

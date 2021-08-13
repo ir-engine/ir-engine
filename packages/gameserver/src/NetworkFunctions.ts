@@ -3,11 +3,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import {
-  ActionType,
-  IncomingActionType,
-  WorldStateInterface
-} from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
@@ -20,6 +16,7 @@ import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPref
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
 import { NetworkObjectComponent } from '../../engine/src/networking/components/NetworkObjectComponent'
 import { decode } from 'msgpackr'
+import { IncomingActionType } from '../../engine/src/networking/interfaces/NetworkTransport'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -371,7 +368,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
 export function handleIncomingActions(socket, message) {
   if (!message) return
-  const actions = decode(new Uint8Array(message)) as IncomingActionType[]
+  const actions = /*decode(new Uint8Array(*/ message /*))*/ as IncomingActionType[]
   for (const a of actions) a.senderID = socket.id
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
   Network.instance.incomingActions.push(...actions)

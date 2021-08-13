@@ -12,14 +12,17 @@ import { NetworkObjectComponent } from '../../../networking/components/NetworkOb
 import { getComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../../avatar/components/AvatarComponent'
 import { initializeGolfBall, spawnBall } from './prefab/GolfBallPrefab'
-import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
+import { enableClub, initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
 import { Entity } from '../../../ecs/classes/Entity'
 import { GameObject } from '../../components/GameObject'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
-import { getGolfPlayerNumber } from './functions/golfFunctions'
+import { getCurrentGolfPlayerEntity, getGolfPlayerNumber, isCurrentGolfPlayer } from './functions/golfFunctions'
+import { hitBall } from './behaviors/hitBall'
+import { GolfBallComponent } from './components/GolfBallComponent'
+import { getCollisions } from '../../../physics/behaviors/getCollisions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -52,9 +55,14 @@ export const GolfState = createState({
 globalThis.GolfState = GolfState
 
 // IMPORTANT: unlike Redux, dispatched actions are always processed asynchronously
-const dispatchOnServer = (x: ActionType) => {
+export const dispatchOnServer = (x: ActionType) => {
   // noop on client
   if (!isClient) Network.instance.outgoingActions.push(x)
+}
+
+export const dispatchOnClient = (x: ActionType) => {
+  // noop on server
+  if (isClient) Network.instance.outgoingActions.push(x)
 }
 
 export const GolfSystem = async (): Promise<System> => {
@@ -74,6 +82,7 @@ export const GolfSystem = async (): Promise<System> => {
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
   function receptor(world: ECSWorld, action: GolfActionType) {
     GolfState.batch((s) => {
+      console.log(action)
       switch (action.type) {
         /**
          * On PLAYER_JOINED
@@ -81,7 +90,7 @@ export const GolfSystem = async (): Promise<System> => {
          * - spawn golf club
          * - spawn golf ball
          */
-        case 'puttclub.PLAYER_JOINED':
+        case 'puttclub.PLAYER_JOINED': {
           s.players.merge([
             {
               id: action.playerId,
@@ -102,22 +111,40 @@ export const GolfSystem = async (): Promise<System> => {
             spawnClub(entity, playerNumber)
           }
 
-          if (s.players.length === 1) {
-            dispatchOnServer(GolfAction.nextTurn())
-          }
           console.log(`player ${action.playerId} joined and added to state`)
           return
+        }
 
         /**
          * on PLAYER_STROKE
          *   - Finish current hole for this player
          *   - players[currentPlayer].scores[currentHole] = player.stroke
          */
-        case 'puttclub.PLAYER_STROKE':
+        case 'puttclub.PLAYER_READY': {
+          if (!isClient) {
+            if (s.players.length === 1) {
+              dispatchOnServer(GolfAction.nextTurn())
+            }
+          }
+          return
+        }
+
+        /**
+         * on PLAYER_STROKE
+         *   - Finish current hole for this player
+         *   - players[currentPlayer].scores[currentHole] = player.stroke
+         */
+        case 'puttclub.PLAYER_STROKE': {
           s.players[s.currentPlayer.value].merge((s) => {
             return { stroke: s.stroke + 1 }
           })
+          const currentPlayerNumber = GolfState.currentPlayer.value
+          const entityClub = GolfObjectEntities.get(`GolfClub-${currentPlayerNumber}`)
+          if (isClient) {
+            enableClub(entityClub, false)
+          }
           return
+        }
 
         /**
          * on NEXT_TURN
@@ -130,15 +157,21 @@ export const GolfSystem = async (): Promise<System> => {
          *   - show new player's ball
          *   - enable new player's club
          */
-        case 'puttclub.NEXT_TURN':
+        case 'puttclub.NEXT_TURN': {
           const player = s.players[s.currentPlayer.value]
           player.scores.merge({
             [s.currentHole.value]: player.stroke.value
           })
           player.stroke.set(0)
+          if (isClient) {
+            const currentPlayerNumber = GolfState.currentPlayer.value
+            const entityClub = GolfObjectEntities.get(`GolfClub-${currentPlayerNumber}`)
+            enableClub(entityClub, true)
+          }
           dispatchOnServer(GolfAction.nextHole())
           console.log(`it is now player ${player.id.value}'s turn`)
           return
+        }
 
         /**
          * on NEXT_HOLE
@@ -257,12 +290,25 @@ export const GolfSystem = async (): Promise<System> => {
         const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
         removeComponent(entity, GolfClubTagComponent)
         initializeGolfClub(entity, parameters)
+        const playerNumber = getGolfPlayerNumber(ownerEntity)
+        dispatchOnClient(GolfAction.playerReady(GolfState.players.value[playerNumber].id))
       }
     }
 
     if (isClient) {
       for (const entity of golfClubQuery(world)) {
         updateClub(entity)
+        const currentPlayerNumber = GolfState.currentPlayer.value
+        const currentPlayerEntity = getCurrentGolfPlayerEntity()
+        const entityClub = GolfObjectEntities.get(`GolfClub-${currentPlayerNumber}`)
+        if (currentPlayerEntity && entityClub) {
+          const { collisionEntity } = getCollisions(entityClub, GolfBallComponent)
+          if (collisionEntity !== null) {
+            const networkObject = getComponent(currentPlayerEntity, NetworkObjectComponent)
+            hitBall(entityClub, collisionEntity)
+            dispatchOnClient(GolfAction.playerStroke(networkObject.uniqueId))
+          }
+        }
       }
     }
 

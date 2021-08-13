@@ -36,6 +36,8 @@ describe('Golf tests', () => {
   // Test player ids
   // Test state stuff like score and current hole
 
+  teleportToBall(bot)
+  hitBall(bot)
 
   teleportToBall(bot)
   hitBall(bot)
