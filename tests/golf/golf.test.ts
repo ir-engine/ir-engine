@@ -2,9 +2,9 @@ import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot'
 import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
-import { teleportToBall } from './actions/teleportToBall'
-import { hitBall } from './actions/hitBall'
-import { resetBall } from './actions/resetBall'
+import { teleportToBall } from './actions/teleportToBallTest'
+import { hitBallTest } from './actions/hitBallTest'
+import { resetBall } from './actions/resetBallTest'
 
 const maxTimeout = 60 * 1000
 const bot = new XREngineBot({ name: 'bot-1', headless: false, autoLog: false })
@@ -37,10 +37,10 @@ describe('Golf tests', () => {
   // Test state stuff like score and current hole
 
   teleportToBall(bot)
-  hitBall(bot)
+  hitBallTest(bot)
 
   teleportToBall(bot)
-  hitBall(bot)
+  hitBallTest(bot)
   // resetBall(bot)
 
 })

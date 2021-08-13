@@ -41,9 +41,6 @@ import { ifVelocity } from '../functions/ifVelocity'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
-import { GolfBallComponent } from '../components/GolfBallComponent'
-import { getCollisions } from '../../../../physics/behaviors/getCollisions'
-import { hitBall } from '../behaviors/hitBall'
 import { isCurrentGolfPlayer } from '../functions/golfFunctions'
 
 const vector0 = new Vector3()

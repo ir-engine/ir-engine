@@ -7,7 +7,7 @@ import { XREngineBot } from '@xrengine/bot/src/bot'
 const maxTimeout = 60 * 1000
 const vector3 = new Vector3()
 
-export const hitBall = (bot: XREngineBot) => {
+export const hitBallTest = (bot: XREngineBot) => {
  
   test('Can hit ball', async () => {
 

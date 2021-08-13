@@ -8,7 +8,7 @@ import { getPositionNextPoint } from '../behaviors/getPositionNextPoint'
 import { Network } from '../../../../networking/classes/Network'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
-import { tweenXRInputSource } from '../../../../bot/functions/xrBotHookFunctions'
+import { tweenXRInputSource, updateController, updateHead } from '../../../../bot/functions/xrBotHookFunctions'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { YourTurn } from '../../../types/GameComponents'
 import { GolfObjectEntities, GolfState } from '../GolfSystem'
@@ -68,12 +68,19 @@ export function swingClub() {
   return new Promise<void>((resolve) => {
     tweenXRInputSource({
       objectName: 'rightController',
-      time: 17,
+      time: 20,
       positionFrom: new Vector3(0.5, 1, 0.04),
       positionTo: new Vector3(-0.5, 1, 0.04),
       quaternionFrom: eulerToQuaternion(-1.54, 0, 0),
       quaternionTo: eulerToQuaternion(-1.54, 0, 0),
-      callback: resolve
+      callback: () => {
+        updateController({
+          objectName: 'rightController',
+          position: new Vector3(0.5, 1, 0.04).toArray(),
+          rotation: eulerToQuaternion(-1.54, 0, 0).toArray()
+        })
+        setTimeout(resolve, 500)
+      }
     })
   })
 }

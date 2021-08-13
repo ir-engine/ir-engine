@@ -1,12 +1,10 @@
 import { Vector3 } from 'three'
 import { isClient } from '../../../../common/functions/isClient'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
-import { GolfAction } from '../GolfAction'
-import { dispatchOnServer, GolfObjectEntities } from '../GolfSystem'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -14,7 +12,7 @@ import { dispatchOnServer, GolfObjectEntities } from '../GolfSystem'
  */
 
 const vector0 = new Vector3()
-const clubPowerMultiplier = 5
+const clubPowerMultiplier = 2
 const hitAdvanceFactor = 4
 
 export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {

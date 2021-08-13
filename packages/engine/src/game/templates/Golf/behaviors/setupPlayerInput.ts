@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from 'three'
+import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 import { teleportPlayer } from '../../../../avatar/functions/teleportPlayer'
 import { LifecycleValue } from '../../../../common/enums/LifecycleValue'
 import { isDev } from '../../../../common/functions/isDev'
@@ -18,6 +18,16 @@ import { isClient } from '../../../../common/functions/isClient'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { GolfObjectEntities, GolfState } from '../GolfSystem'
 import { getGolfPlayerNumber } from '../functions/golfFunctions'
+import { swingClub } from '../functions/golfBotHookFunctions'
+import { initializeBot, rotatePlayer } from '../../../../bot/functions/botHookFunctions'
+import { overrideXR, simulateXR, startXR, updateHead, xrSupported } from '../../../../bot/functions/xrBotHookFunctions'
+import { Engine } from '../../../../ecs/classes/Engine'
+import { loadScript } from '../../../../common/functions/loadScripts'
+import { eulerToQuaternion } from '../../../../common/functions/MathRandomFunctions'
+import { AvatarComponent } from '../../../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../../../avatar/components/AvatarControllerComponent'
+import { angle } from '@turf/turf'
+import { rotateViewVectorXZ } from '../../../../camera/systems/CameraSystem'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -25,6 +35,8 @@ export enum GolfInput {
   TELEPORT = 120,
   TOGGLECLUB = 121
 }
+
+const rotate90onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
 
 export const setupPlayerInput = (entityPlayer: Entity) => {
   const inputs = getComponent(entityPlayer, InputComponent)
@@ -43,7 +55,33 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position
       console.log('teleporting to', position.x, position.y, position.z)
-      teleportPlayer(entity, position, new Quaternion())
+
+      const holeEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
+      const holeTransform = getComponent(holeEntity, TransformComponent)
+
+      // face character towards hole
+      const angle =
+        new Vector3()
+          .copy(holeTransform.position)
+          .setY(0)
+          .normalize()
+          .angleTo(new Vector3().copy(ballTransform.position).setY(0).normalize()) +
+        Math.PI / 2
+      const controller = getComponent(entity, AvatarControllerComponent)
+      const actor = getComponent(entity, AvatarComponent)
+
+      const pos = new Vector3(position.x, position.y, position.z)
+      pos.y += actor.avatarHalfHeight
+      controller.controller.updateTransform({
+        translation: pos
+      })
+      rotateViewVectorXZ(actor.viewVector, angle)
+
+      const transform = getComponent(entity, TransformComponent)
+      const quat = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), angle)
+      transform.rotation.copy(quat)
+
+      controller.controller.velocity.setScalar(0)
     }
   )
 
@@ -69,7 +107,6 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
   // DEBUG STUFF
   if (isDev) {
     const teleportballkey = 130
-    const teleportballOut = 140
 
     inputs.schema.inputMap.set('h', teleportballkey)
     inputs.schema.behaviorMap.set(
@@ -87,6 +124,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       }
     )
 
+    const teleportballOut = 140
     inputs.schema.inputMap.set('b', teleportballOut)
     inputs.schema.behaviorMap.set(
       teleportballOut,
@@ -118,6 +156,31 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         })
         collider.body.setLinearVelocity(new Vector3(), true)
         collider.body.setAngularVelocity(new Vector3(), true)
+      }
+    )
+    if (isClient) {
+      let xrSetup = false
+      const setupBotKey = 141
+      inputs.schema.inputMap.set(';', setupBotKey)
+      inputs.schema.behaviorMap.set(setupBotKey, () => {
+        if (xrSetup) return
+        xrSetup = true
+        simulateXR()
+      })
+    }
+
+    const swingClubKey = 142
+    inputs.schema.inputMap.set('l', swingClubKey)
+    inputs.schema.behaviorMap.set(
+      swingClubKey,
+      (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+        if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+        updateHead({
+          position: [0, 2, 1],
+          rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
+        })
+        // rotatePlayer()
+        swingClub()
       }
     )
   }
