@@ -47,11 +47,11 @@ export const registerComponent = (world, component) => {
   const changedQueries = new Set()
 
   world[$queries].forEach(q => {
-    if (q.notComponents.includes(component)) {
+    if (q.components.includes(component)) {
       queries.add(q)
     } else if (q.changedComponents.includes(component)) {
       changedQueries.add(q)
-    } else if (q.components.includes(component)) {
+    } else if (q.notComponents.includes(component)) {
       notQueries.add(q)
     }
   })

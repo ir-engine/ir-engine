@@ -22,7 +22,7 @@ describe('Golf tests', () => {
     await bot.awaitHookPromise(BotHooks.LocationLoaded)
     await setupXR(bot)
     await bot.runHook(BotHooks.InitializeBot)
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     await bot.runHook(XRBotHooks.OverrideXR)
   }, maxTimeout)
 
@@ -48,7 +48,7 @@ describe('Golf tests', () => {
     await bot.delay(1000)
 
     // wait for turn, then move to ball position
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     await bot.keyPress('KeyK', 200)
     await bot.delay(1000)
 
@@ -87,7 +87,7 @@ describe('Golf tests', () => {
     const angle = new Vector3().copy(teePosition).setY(0).normalize().angleTo(new Vector3().copy(holePosition).setY(0).normalize()) + 90
     await bot.runHook(BotHooks.RotatePlayer, { angle })
 
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     await bot.delay(2000)
     await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
     // ball should be at spawn position
@@ -141,7 +141,7 @@ describe('Golf tests', () => {
   test('Can get Hit ', async () => {
 
 
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     // ball should be at spawn position
     expect(
       vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
@@ -165,7 +165,7 @@ describe('Golf tests', () => {
     await bot.delay(1000)
 
     // wait for turn, then move to ball position
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     await bot.keyPress('KeyK', 200)
     await bot.delay(1000)
     const ballPosition = await bot.runHook(GolfBotHooks.GetBallPosition)
@@ -185,7 +185,7 @@ describe('Golf tests', () => {
   test('Can get Hit ', async () => {
 
 
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     // ball should be at spawn position
     expect(
       vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()

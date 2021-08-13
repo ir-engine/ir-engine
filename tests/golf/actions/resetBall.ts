@@ -1,10 +1,11 @@
 import { Vector3 } from 'three'
 import { GolfBotHooks } from "@xrengine/engine/src/game/templates/Golf/functions/GolfBotHooks"
+import { XREngineBot } from '@xrengine/bot/src/bot'
 
 const maxTimeout = 60 * 1000
 const vector3 = new Vector3()
 
-export const resetBall = (bot) => {
+export const resetBall = (bot: XREngineBot) => {
  
   test('Can reset ball on out of course', async () => {
     const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)

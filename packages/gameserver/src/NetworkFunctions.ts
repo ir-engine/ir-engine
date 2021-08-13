@@ -373,7 +373,7 @@ export function handleIncomingActions(socket, message) {
   if (!message) return
   const actions = decode(new Uint8Array(message)) as IncomingActionType[]
   for (const a of actions) a.senderID = socket.id
-  console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
+  // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
   Network.instance.incomingActions.push(...actions)
 }
 

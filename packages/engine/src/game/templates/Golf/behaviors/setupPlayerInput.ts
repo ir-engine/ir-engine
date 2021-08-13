@@ -17,6 +17,7 @@ import { hideClub } from '../prefab/GolfClubPrefab'
 import { isClient } from '../../../../common/functions/isClient'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { GolfObjectEntities, GolfState } from '../GolfSystem'
+import { getGolfPlayerNumber } from '../functions/golfFunctions'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -25,10 +26,8 @@ export enum GolfInput {
   TOGGLECLUB = 121
 }
 
-export const setupPlayerInput = (entityPlayer: Entity, playerNumber: number) => {
+export const setupPlayerInput = (entityPlayer: Entity) => {
   const inputs = getComponent(entityPlayer, InputComponent)
-
-  if (!inputs) return
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('k', GolfInput.TELEPORT)
@@ -38,6 +37,7 @@ export const setupPlayerInput = (entityPlayer: Entity, playerNumber: number) => 
     GolfInput.TELEPORT,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+      const playerNumber = getGolfPlayerNumber(entity)
       const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
       if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
@@ -55,9 +55,7 @@ export const setupPlayerInput = (entityPlayer: Entity, playerNumber: number) => 
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
 
-      // TODO: check for if it's your turn or not
-      // if (hasComponent(entity, State.YourTurn)) return
-
+      const playerNumber = getGolfPlayerNumber(entity)
       const clubEntity = GolfObjectEntities.get(`GolfClub-${playerNumber}`)
       const golfClubComponent = getComponent(clubEntity, GolfClubComponent)
       golfClubComponent.hidden = !golfClubComponent.hidden
@@ -79,6 +77,7 @@ export const setupPlayerInput = (entityPlayer: Entity, playerNumber: number) => 
       (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
 
+        const playerNumber = getGolfPlayerNumber(entity)
         const currentHole = GolfState.currentHole
         const holeEntity = GolfObjectEntities.get(`GolfHole-${currentHole}`)
         const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
@@ -93,7 +92,8 @@ export const setupPlayerInput = (entityPlayer: Entity, playerNumber: number) => 
       teleportballOut,
       (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-        // const { ownedObjects } = getComponent(entity, GamePlayer)
+
+        const playerNumber = getGolfPlayerNumber(entity)
         const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
         const collider = getComponent(ballEntity, ColliderComponent)
         const velocity = getComponent(ballEntity, VelocityComponent)

@@ -23,7 +23,6 @@ describe('Golf tests', () => {
     await bot.awaitHookPromise(BotHooks.LocationLoaded)
     await setupXR(bot)
     await bot.runHook(BotHooks.InitializeBot)
-    // await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
     await bot.runHook(XRBotHooks.OverrideXR)
   }, maxTimeout)
 
@@ -34,8 +33,12 @@ describe('Golf tests', () => {
 
   testWebXR(bot)
 
+  // Test player ids
+  // Test state stuff like score and current hole
+
+
   teleportToBall(bot)
   hitBall(bot)
-  resetBall(bot)
+  // resetBall(bot)
 
 })

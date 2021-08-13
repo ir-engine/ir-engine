@@ -1,5 +1,5 @@
 import { Engine } from '../../../ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../../ecs/bitecs'
 import { ECSWorld } from '../../../ecs/classes/World'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
@@ -14,12 +14,12 @@ import { AvatarComponent } from '../../../avatar/components/AvatarComponent'
 import { initializeGolfBall, spawnBall } from './prefab/GolfBallPrefab'
 import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
-import { NetworkObjectType } from '../../../networking/interfaces/NetworkObjectList'
 import { Entity } from '../../../ecs/classes/Entity'
 import { GameObject } from '../../components/GameObject'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
+import { getGolfPlayerNumber } from './functions/golfFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -32,6 +32,7 @@ import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
  */
 export const GolfObjectEntities = new Map<string, Entity>()
 
+globalThis.GolfObjectEntities = GolfObjectEntities
 /**
  *
  */
@@ -89,13 +90,17 @@ export const GolfSystem = async (): Promise<System> => {
             }
           ])
 
-          const playerNumber = s.players.findIndex((player) => player.id.value === action.playerId)
-          setupPlayerInput(action.entity, playerNumber)
-
+          // this must happen on the server
           if (!isClient) {
-            if (!action.entity) return console.error(`Entity with id ${action.playerId} could not be found`)
-            spawnBall(action.entity, playerNumber, s.currentHole.value)
-            spawnClub(action.entity, playerNumber)
+            const { entity } = Object.values(Network.instance.networkObjects).find(
+              (obj) => obj.uniqueId === action.playerId
+            )
+
+            console.log(entity)
+            const playerNumber = getGolfPlayerNumber(entity)
+
+            spawnBall(entity, playerNumber, GolfState.currentHole.value)
+            spawnClub(entity, playerNumber)
           }
 
           if (s.players.length === 1) {
@@ -171,6 +176,9 @@ export const GolfSystem = async (): Promise<System> => {
   const playerEnterQuery = enterQuery(playerQuery)
   const playerExitQuery = exitQuery(playerQuery)
 
+  const playerSpawnedQuery = defineQuery([Not(SpawnNetworkObjectComponent), AvatarComponent])
+  const playerSpawnedEnterQuery = enterQuery(playerSpawnedQuery)
+
   const gameObjectQuery = defineQuery([GameObject])
   const gameObjectEnterQuery = enterQuery(gameObjectQuery)
 
@@ -193,7 +201,7 @@ export const GolfSystem = async (): Promise<System> => {
         const { ownerId } = getComponent(entity, NetworkObjectComponent)
 
         // Add a player to player list (start at hole 0, scores at 0 for all holes)
-        dispatchOnServer(GolfAction.playerJoined(entity, ownerId))
+        dispatchOnServer(GolfAction.playerJoined(ownerId))
       }
 
       for (const entity of playerExitQuery(world)) {
@@ -215,6 +223,11 @@ export const GolfSystem = async (): Promise<System> => {
       //   dispatchOnServer(GolfAction.nextTurn())
       //   dispatchOnServer(GolfAction.resetBall())
       // }
+    }
+
+    for (const entity of playerSpawnedEnterQuery(world)) {
+      console.log('===============playerSpawnedEnterQuery', entity)
+      setupPlayerInput(entity)
     }
 
     for (const entity of gameObjectEnterQuery(world)) {

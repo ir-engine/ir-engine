@@ -9,15 +9,17 @@ import { Network } from '../../../../networking/classes/Network'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
 import { tweenXRInputSource } from '../../../../bot/functions/xrBotHookFunctions'
-import { GolfState } from '../GolfGameComponents'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { YourTurn } from '../../../types/GameComponents'
+import { GolfObjectEntities, GolfState } from '../GolfSystem'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
+import { getGolfPlayerNumber, isCurrentGolfPlayer } from './golfFunctions'
 
 export const GolfBotHookFunctions = {
   [GolfBotHooks.GetBallPosition]: getBallPosition,
   [GolfBotHooks.GetHolePosition]: getHolePosition,
   [GolfBotHooks.GetTeePosition]: getTeePosition,
-  [GolfBotHooks.GetIsYourTurn]: getIsYourTurn,
+  [GolfBotHooks.GetIsPlayerTurn]: getIsPlayerTurn,
   [GolfBotHooks.GetIsGoal]: getIsGoal,
   [GolfBotHooks.GetIsBallStopped]: getIsBallStopped,
   [GolfBotHooks.GetIsOutOfCourse]: getIsOutOfCourse,
@@ -42,24 +44,24 @@ function getOwnBall() {
   return ballEntity
 }
 
-export function getIsYourTurn() {
+export function getIsPlayerTurn() {
   if (!Network.instance.localClientEntity) return false
-  return hasComponent(Network.instance.localClientEntity, YourTurn)
+  return isCurrentGolfPlayer(Network.instance.localClientEntity)
 }
 
 export function getIsGoal() {
-  if (!Network.instance.localClientEntity) return false
-  return hasComponent(Network.instance.localClientEntity, GolfState.Goal)
+  // if (!Network.instance.localClientEntity) return false
+  // return hasComponent(Network.instance.localClientEntity, GolfState.Goal)
 }
 
 export function getIsOutOfCourse() {
-  const ballEntity = getOwnBall() as Entity
-  return hasComponent(ballEntity, GolfState.CheckCourse)
+  // const ballEntity = getOwnBall() as Entity
+  // return hasComponent(ballEntity, GolfState.CheckCourse)
 }
 
 export function getIsBallStopped() {
-  const ballEntity = getOwnBall() as Entity
-  return hasComponent(ballEntity, GolfState.BallStopped)
+  // const ballEntity = getOwnBall() as Entity
+  // return hasComponent(ballEntity, GolfState.BallStopped)
 }
 
 export function swingClub() {
@@ -78,27 +80,23 @@ export function swingClub() {
 
 export function getPlayerNumber() {
   if (!Network.instance.localClientEntity) return
-  const { role } = getComponent(Network.instance.localClientEntity, GamePlayer)
-  const playerNumber = Number(role.slice(0, 1))
-  return playerNumber
+  return getGolfPlayerNumber(Network.instance.localClientEntity)
 }
 
 export function getTeePosition() {
-  const position = getPositionNextPoint(Network.instance.localClientEntity, 'GolfTee-')
-  console.log(position)
-  return position
+  const teeEntity = GolfObjectEntities.get(`GolfTee-${GolfState.currentHole.value}`)
+  const teeTransform = getComponent(teeEntity, TransformComponent)
+  return teeTransform.position
 }
 
 export function getHolePosition() {
-  const gameScore = getStorage(Network.instance.localClientEntity, { name: 'GameScore' })
-  const game = getGame(Network.instance.localClientEntity)
-  const currentHoleEntity = gameScore.score
-    ? game.gameObjects['GolfHole'][gameScore.score.goal]
-    : game.gameObjects['GolfHole'][0]
-  return getComponent(currentHoleEntity, TransformComponent)?.position
+  const holeEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
+  const holeTransform = getComponent(holeEntity, TransformComponent)
+  return holeTransform.position
 }
 
 export function getBallPosition() {
-  const ballEntity = getOwnBall() as Entity
-  return getComponent(ballEntity, TransformComponent)?.position
+  const ballEntity = GolfObjectEntities.get(`GolfBall-${GolfState.currentPlayer.value}`)
+  const ballTransform = getComponent(ballEntity, TransformComponent)
+  return ballTransform.position
 }

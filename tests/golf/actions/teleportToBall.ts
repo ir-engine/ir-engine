@@ -1,17 +1,18 @@
 import { Vector3 } from 'three'
 import { GolfBotHooks } from "@xrengine/engine/src/game/templates/Golf/functions/GolfBotHooks"
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
+import { XREngineBot } from '@xrengine/bot/src/bot'
 
 const maxTimeout = 60 * 1000
 const vector3 = new Vector3()
 
-export const teleportToBall = (bot) => {
+export const teleportToBall = (bot: XREngineBot) => {
 
   test('Can teleport to ball', async () => {
     await bot.delay(1000)
 
     // wait for turn, then move to ball position
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     await bot.keyPress('KeyK', 200)
     await bot.delay(1000)
 

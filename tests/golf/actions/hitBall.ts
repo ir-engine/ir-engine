@@ -2,11 +2,12 @@ import { Vector3 } from 'three'
 import { GolfBotHooks } from "@xrengine/engine/src/game/templates/Golf/functions/GolfBotHooks"
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
+import { XREngineBot } from '@xrengine/bot/src/bot'
 
 const maxTimeout = 60 * 1000
 const vector3 = new Vector3()
 
-export const hitBall = (bot) => {
+export const hitBall = (bot: XREngineBot) => {
  
   test('Can hit ball', async () => {
 
@@ -21,9 +22,9 @@ export const hitBall = (bot) => {
     const angle = new Vector3().copy(teePosition).setY(0).normalize().angleTo(new Vector3().copy(holePosition).setY(0).normalize()) + 90
     await bot.runHook(BotHooks.RotatePlayer, { angle })
 
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
     await bot.delay(2000)
-    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+    // await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
     // ball should be at spawn position
     expect(
       vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
@@ -33,7 +34,7 @@ export const hitBall = (bot) => {
     
     await bot.runHook(GolfBotHooks.SwingClub)
     await bot.delay(1000)
-    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+    // await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
     expect(
       vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
     ).toBeGreaterThan(0.5)
