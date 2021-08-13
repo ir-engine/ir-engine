@@ -15,7 +15,6 @@ RUN npm install -g lerna cross-env rimraf --loglevel notice
 COPY package.json .
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
-COPY packages/client-ml/package.json ./packages/client-ml/
 COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/gameserver/package.json ./packages/gameserver/

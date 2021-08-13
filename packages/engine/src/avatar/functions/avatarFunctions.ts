@@ -135,8 +135,8 @@ const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<Ma
 
   lightMesh.geometry.computeBoundingSphere()
   plateMesh.geometry.computeBoundingSphere()
-  lightMesh.name = 'growing_obj'
-  plateMesh.name = 'growing_obj'
+  lightMesh.name = 'light_obj'
+  plateMesh.name = 'plate_obj'
 
   textureLight.encoding = sRGBEncoding
   textureLight.needsUpdate = true

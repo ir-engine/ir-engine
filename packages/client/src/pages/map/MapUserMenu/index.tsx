@@ -4,7 +4,8 @@ import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reduce
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import {
   fetchAvatarList,
-  removeAvatar, updateUserAvatarId,
+  removeAvatar,
+  updateUserAvatarId,
   updateUserSettings,
   uploadAvatarModel
 } from '@xrengine/client-core/src/user/reducers/auth/service'
@@ -15,6 +16,7 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { DownArrow } from '../icons/DownArrow'
+import { Upload } from '../icons/Upload'
 import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
@@ -92,8 +94,8 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const setActiveMenu = (e): void => {
-    const enabled = true;
-    console.log('setActiveMenu called');
+    const enabled = true
+    console.log('setActiveMenu called')
     // const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
     // setCurrentActiveMenu(enabled ? null : menus[identity[1]])
     if (EngineEvents.instance)
@@ -189,24 +191,22 @@ const UserMenu = (props: UserMenuProps): any => {
     <>
       <section className={styles.settingContainer}>
         <div className={styles.iconContainer}>
-          ]
-
           <span
             id={Views.Profile}
             // onClick={ShowProfile}
-            className={"profile"}
+            // className={'profile'}
+            className={styles.profile}
           >
             <DownArrow />
           </span>
-
           <span
             id={Views.Share}
             // onClick={ShowShare}
-            className={"share"}
+            // className={'share'}
+            className={styles.share}
           >
-            <LinkIcon />
+            <Upload />
           </span>
-
         </div>
         {currentActiveMenu ? renderMenuPanel() : null}
       </section>

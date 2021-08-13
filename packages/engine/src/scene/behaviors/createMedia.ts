@@ -54,7 +54,6 @@ export function createAudio(entity, props: AudioProps): void {
   addObject3DComponent(entity, audio, props)
   audio.load()
   addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
-  document.body.appendChild(audio.el)
   if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
@@ -66,7 +65,6 @@ export function createVideo(entity, props: VideoProps): void {
   }
   addObject3DComponent(entity, video, props)
   video.load()
-  document.body.appendChild(video.el)
   if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 

@@ -1,17 +1,17 @@
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import MapUserMenu from './MapUserMenu'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Layout from '../../components/Layout/Layout'
 import World, { EngineCallbacks } from '../../components/World/index'
-import MapMediaIconsBox from './MapMediaIconsBox'
-import InstanceChat from '../../components/InstanceChat'
-import MapInstanceChatStyle from './MapInstanceChat.module.scss'
-import { CloseChat } from './icons/CloseChat'
 import { Chat } from './icons/Chat'
+import { CloseChat } from './icons/CloseChat'
 import { SendMessage } from './icons/SendMessage'
-import { theme } from "./theme"
+// import InstanceChat from '../../components/InstanceChat'
+import InstanceChat from './MapInstanceChat'
+import MapInstanceChatStyle from './MapInstanceChat.module.scss'
+import MapMediaIconsBox from './MapMediaIconsBox'
+import MapUserMenu from './MapUserMenu'
+import { theme } from './theme'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -35,9 +35,16 @@ const LocationPage = (props) => {
         history={props.history}
         engineCallbacks={engineCallbacks}
       >
-        <InstanceChat newMessageLabel={"say something..."} CloseButton={CloseChat} MessageButton={Chat} SendButton={SendMessage} styles={MapInstanceChatStyle} />
+        <InstanceChat
+          newMessageLabel={'say something...'}
+          CloseButton={CloseChat}
+          MessageButton={Chat}
+          SendButton={SendMessage}
+          styles={MapInstanceChatStyle}
+        />
+
         <MapMediaIconsBox />
-        {/* <MapUserMenu /> */}
+        <MapUserMenu />
       </World>
     </Layout>
   )
