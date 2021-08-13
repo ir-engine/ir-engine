@@ -8,7 +8,7 @@
   background-position: center;
   background-size:cover;
   z-index: 5000;
-
+  text-align:center;
   .imageOverlay{
     filter: blur(15px);
     position: absolute;
@@ -23,16 +23,15 @@
     display: block;
     position: fixed;
     top: 20%;
-    width: 50%;
-    left: 25%;
-    right: 25%;
+    width: 550px;
+    left: 50%;
+    margin-left: -225px; /* Half of the width */
     text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    background-image: linear-gradient( 10deg, rgb(153, 138, 218) 0%, rgb(153, 124, 209) 100% );
+    background-color: rgba(255,255,255,.8);
     padding:50px;
     border-radius: 50px;
     .loadingProgressInfo{
+      color:#999;
       width: 100%;
       margin-left: auto;
       margin-right: auto;
