@@ -96,7 +96,6 @@ export const GolfSystem = async (): Promise<System> => {
               (obj) => obj.uniqueId === action.playerId
             )
 
-            console.log(entity)
             const playerNumber = getGolfPlayerNumber(entity)
 
             spawnBall(entity, playerNumber, GolfState.currentHole.value)
@@ -226,7 +225,6 @@ export const GolfSystem = async (): Promise<System> => {
     }
 
     for (const entity of playerSpawnedEnterQuery(world)) {
-      console.log('===============playerSpawnedEnterQuery', entity)
       setupPlayerInput(entity)
     }
 

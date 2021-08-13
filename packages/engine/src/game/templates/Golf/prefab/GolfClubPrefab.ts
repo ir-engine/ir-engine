@@ -41,6 +41,9 @@ import { ifVelocity } from '../functions/ifVelocity'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
+import { GolfBallComponent } from '../components/GolfBallComponent'
+import { getCollision } from '../../../../physics/behaviors/getCollisions'
+import { hitBall } from '../behaviors/hitBall'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -191,11 +194,16 @@ export const updateClub = (entityClub: Entity): void => {
     },
     rotation: golfClubComponent.headGroup.quaternion
   }
+
+  const { collisionEntity } = getCollision(entityClub, GolfBallComponent)
+  if (collisionEntity !== null) {
+    hitBall(entityClub, collisionEntity)
+  }
 }
 
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
-export const onClubColliderWithBall: GameObjectInteractionBehavior = (
+export const onClubCollideWithBall: GameObjectInteractionBehavior = (
   entityClub: Entity,
   hitEvent: ColliderHitEvent,
   entityBall: Entity
@@ -344,6 +352,4 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
   for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
     golfClubComponent.lastPositions[i] = new Vector3()
   }
-  // TODO: register collision events another way
-  // gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall
 }

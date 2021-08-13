@@ -12,15 +12,11 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
  */
 
 const vector0 = new Vector3()
+const clubPowerMultiplier = 5
+const hitAdvanceFactor = 4
 
-export const hitBall = (
-  entityClub: Entity,
-  clubPowerMultiplier: number,
-  hitAdvanceFactor: number,
-  entityBall?: Entity
-): void => {
+export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
   if (!isClient) return
-  if (!hasComponent(entityClub, GolfClubComponent)) return
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   const collider = getComponent(entityBall, ColliderComponent)
