@@ -1,3 +1,4 @@
+import World, { EngineCallbacks } from '../../components/World/index'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
@@ -8,7 +9,6 @@ import InstanceChat from '../../components/InstanceChat'
 import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import RecordingApp from '../../components/Recorder/RecordingApp'
-import World, { EngineCallbacks } from '../../components/World/index'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
