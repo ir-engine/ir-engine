@@ -74,6 +74,7 @@
   "pre-commit": [
     "format-staged"
   ],
+  "pre-push": [],
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
@@ -119,9 +120,9 @@
     "jest-puppeteer": "5.0.4",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
-    "lint-staged": "^11.1.2",
-    "pre-commit": "^1.2.2",
-    "pre-push": "^0.1.1",
+    "lint-staged": "11.1.2",
+    "pre-commit": "1.2.2",
+    "pre-push": "0.1.1",
     "prettier": "2.3.2",
     "puppeteer": "9.1.1",
     "react-router-dom": "5.2.0",

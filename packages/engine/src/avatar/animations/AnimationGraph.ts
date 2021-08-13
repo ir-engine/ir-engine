@@ -110,7 +110,10 @@ export class AnimationGraph {
     if (avatarAnimationComponent.currentState.autoTransitionTo) {
       const transitionEvent = () => {
         this.isTransitionPaused = false
-        this.transitionState(entity, avatarAnimationComponent.currentState.autoTransitionTo, params)
+        // if this callback happens after the avatar disconnects or the avatar is in a transition state, this will break stuff
+        if (typeof avatarAnimationComponent.currentState !== 'undefined') {
+          this.transitionState(entity, avatarAnimationComponent.currentState.autoTransitionTo, params)
+        }
         animationComponent.mixer.removeEventListener('finished', transitionEvent)
       }
       animationComponent.mixer.addEventListener('finished', transitionEvent)
