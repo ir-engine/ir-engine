@@ -168,7 +168,12 @@ const CreateScope = (props: Props) => {
         ...state,
         name: '',
         userId: '',
-        groupId: ''
+        groupId: '',
+        location: '',
+        scene: '',
+        bot: '',
+        globalAvatars: '',
+        static_resource: ''
       })
     }
   }

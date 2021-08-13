@@ -29,8 +29,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1'
     },
     paper: {
-      maxWidth: '80%',
-      minWidth: '40%',
+      width: '60%',
       backgroundColor: '#43484F ',
       color: '#f1f1f1',
       '&::-webkit-scrollbar': {
@@ -96,6 +95,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     spanDange: {
       color: '#FF8C00'
     },
+    spanNone: {
+      color: '#808080'
+    },
     tableCellHeader: {
       background: '#343b41 !important',
       color: '#f1f1f1 !important',
@@ -109,7 +111,39 @@ export const useStyles = makeStyles((theme: Theme) =>
     tableFooter: {
       background: '#343b41 !important',
       color: '#f1f1f1 !important'
+    },
+    paperHeight: {
+      height: '20vh',
+      background: '#111',
+      color: '#f1f1f1',
+      backgroundColor: '#343b41'
+    },
+    center: {
+      margin: '4rem auto 0 auto',
+      textAlign: 'center'
+    },
+    typo:{
+      textTransform: 'capitalize'
+    },
+    margin:{
+      marginTop: '6%'
+    },
+    mb40px: {
+      marginBottom: '40px'
+    },
+    mb10: {
+      marginBottom: '8%'
+    },
+    flex:{
+      display: 'flex',
+      alignContent: 'center',
+      justifyContent: 'center'
+    },
+    alert: {
+      background: '#343b41',
+      color: '#f1f1f1'
     }
+    
   })
 )
 
