@@ -12,6 +12,34 @@ import { CloseChat } from './icons/CloseChat'
 import { Chat } from './icons/Chat'
 import { SendMessage } from './icons/SendMessage'
 import { theme } from "./theme"
+import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+
+
+
+
+
+const engineRendererCanvasId = 'engine-renderer-canvas'
+
+const engineInitializeOptions: InitializeOptions = {
+  publicPath: location.origin,
+  renderer: {
+    canvasId: engineRendererCanvasId
+  },
+  physics: {
+    simulationEnabled: false,
+    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+  },
+  systems: [
+    {
+      type: SystemUpdateType.Fixed,
+      system: CharacterUISystem,
+      after: UISystem
+    }
+  ]
+}
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -33,6 +61,7 @@ const LocationPage = (props) => {
         allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
+        engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
       >
         <InstanceChat newMessageLabel={"say something..."} CloseButton={CloseChat} MessageButton={Chat} SendButton={SendMessage} styles={MapInstanceChatStyle} />
