@@ -2,9 +2,15 @@ import AWS from 'aws-sdk'
 import S3BlobStore from 's3-blob-store'
 import config from '../../appconfig'
 import { StorageProviderInterface } from './storageprovider.interface'
+import {
+  MAX_AVATAR_FILE_SIZE,
+  MIN_AVATAR_FILE_SIZE,
+  PRESIGNED_URL_EXPIRATION_DURATION
+} from '@xrengine/common/src/constants/AvatarConstants'
 
 export class S3Provider implements StorageProviderInterface {
   bucket = config.aws.s3.staticResourceBucket
+  cacheDomain = config.aws.cloudfront.domain
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
@@ -26,6 +32,113 @@ export class S3Provider implements StorageProviderInterface {
     return this.provider
   }
 
+  checkObjectExistence = (key: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      this.provider.getObjectAcl(
+        {
+          Bucket: this.bucket,
+          Key: key
+        },
+        (err, data) => {
+          if (err) {
+            if (err.code === 'NoSuchKey') resolve(null)
+            else {
+              console.error(err)
+              reject(err)
+            }
+          } else {
+            reject(new Error('Pack already exists'))
+          }
+        }
+      )
+    })
+  }
+
+  getObject = async (key: string): Promise<any> => {
+    return new Promise((resolve, reject) =>
+      this.provider.getObject(
+        {
+          Bucket: this.bucket,
+          Key: key
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    )
+  }
+
+  listObjects = async (prefix: string): Promise<any> => {
+    return new Promise((resolve, reject) =>
+      this.provider.listObjectsV2(
+        {
+          Bucket: this.bucket,
+          Prefix: prefix
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    )
+  }
+
+  putObject = async (params: any): Promise<any> => {
+    return new Promise((resolve, reject) =>
+      this.provider.putObject(
+        {
+          ACL: params.ACL,
+          Body: params.Body,
+          Bucket: this.bucket,
+          ContentType: params.ContentType,
+          Key: params.Key
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    )
+  }
+
+  createInvalidation = async (invalidationItems: any[]): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      this.cloudfront.createInvalidation(
+        {
+          DistributionId: config.aws.cloudfront.distributionId,
+          InvalidationBatch: {
+            CallerReference: Date.now().toString(),
+            Paths: {
+              Quantity: invalidationItems.length,
+              Items: invalidationItems
+            }
+          }
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    })
+  }
+
   getStorage = (): S3BlobStore => this.blob
 
   getSignedUrl = async (key: string, expiresAfter: number, conditions): Promise<any> => {
@@ -44,6 +157,30 @@ export class S3Provider implements StorageProviderInterface {
         }
       )
     })
+
+    await new Promise((resolve, reject) => {
+      this.cloudfront.createInvalidation(
+        {
+          DistributionId: config.aws.cloudfront.distributionId,
+          InvalidationBatch: {
+            CallerReference: Date.now().toString(),
+            Paths: {
+              Quantity: 1,
+              Items: [`/${key}`]
+            }
+          }
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    })
+    result.cacheDomain = this.cacheDomain
     return result
   }
 
