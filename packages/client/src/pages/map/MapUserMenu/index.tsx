@@ -4,7 +4,8 @@ import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reduce
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import {
   fetchAvatarList,
-  removeAvatar, updateUserAvatarId,
+  removeAvatar,
+  updateUserAvatarId,
   updateUserSettings,
   uploadAvatarModel
 } from '@xrengine/client-core/src/user/reducers/auth/service'
@@ -92,8 +93,8 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const setActiveMenu = (e): void => {
-    const enabled = true;
-    console.log('setActiveMenu called');
+    const enabled = true
+    console.log('setActiveMenu called')
     // const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
     // setCurrentActiveMenu(enabled ? null : menus[identity[1]])
     if (EngineEvents.instance)
@@ -190,23 +191,20 @@ const UserMenu = (props: UserMenuProps): any => {
       <section className={styles.settingContainer}>
         <div className={styles.iconContainer}>
           ]
-
           <span
             id={Views.Profile}
             // onClick={ShowProfile}
-            className={"profile"}
+            className={'profile'}
           >
             <DownArrow />
           </span>
-
           <span
             id={Views.Share}
             // onClick={ShowShare}
-            className={"share"}
+            className={'share'}
           >
             <LinkIcon />
           </span>
-
         </div>
         {currentActiveMenu ? renderMenuPanel() : null}
       </section>

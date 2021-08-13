@@ -11,7 +11,7 @@ import MapInstanceChatStyle from './MapInstanceChat.module.scss'
 import { CloseChat } from './icons/CloseChat'
 import { Chat } from './icons/Chat'
 import { SendMessage } from './icons/SendMessage'
-import { theme } from "./theme"
+import { theme } from './theme'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -35,7 +35,13 @@ const LocationPage = (props) => {
         history={props.history}
         engineCallbacks={engineCallbacks}
       >
-        <InstanceChat newMessageLabel={"say something..."} CloseButton={CloseChat} MessageButton={Chat} SendButton={SendMessage} styles={MapInstanceChatStyle} />
+        <InstanceChat
+          newMessageLabel={'say something...'}
+          CloseButton={CloseChat}
+          MessageButton={Chat}
+          SendButton={SendMessage}
+          styles={MapInstanceChatStyle}
+        />
         <MapMediaIconsBox />
         {/* <MapUserMenu /> */}
       </World>
