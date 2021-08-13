@@ -16,26 +16,7 @@ import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUI
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-
-const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const engineInitializeOptions: InitializeOptions = {
-  publicPath: location.origin,
-  renderer: {
-    canvasId: engineRendererCanvasId
-  },
-  physics: {
-    simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-  },
-  systems: [
-    {
-      type: SystemUpdateType.Fixed,
-      system: CharacterUISystem,
-      after: UISystem
-    }
-  ]
-}
+import UserMenu from '../../../../client-core/src/user/components/UserMenu'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -57,7 +38,6 @@ const LocationPage = (props) => {
         allowDebug={true}
         locationName={props.match.params.locationName}
         history={props.history}
-        engineInitializeOptions={engineInitializeOptions}
         engineCallbacks={engineCallbacks}
       >
         <InstanceChat
@@ -67,8 +47,9 @@ const LocationPage = (props) => {
           SendButton={SendMessage}
           styles={MapInstanceChatStyle}
         />
+
         <MapMediaIconsBox />
-        {/* <MapUserMenu /> */}
+        <MapUserMenu />
       </World>
     </Layout>
   )
