@@ -6,12 +6,16 @@
 }
 
 .settingContainer {
-    position: fixed;
-    top: 20px;
-    width: 100vw;
-    z-index: 15;
-    display: flex;
-    align-items: center;
+    //  display: flex;
+    //  position: relative;
+    //   top: 20px;
+    //   width: 100vw;
+    //    z-index: 15;
+    //    align-items: center;
+    //   justify-content: center;
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
 
     .materialIconBlock {
         display: flex;
@@ -28,9 +32,21 @@
     }
 
     .iconContainer {
-        display: inline-flex;
-        margin: auto;
-        
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position:relative;
+        top:30px;
+    
+        .profile{
+            position: absolute;
+            left: 50%;
+            cursor: pointer;
+         }
+        .share{
+            margin-left: auto;
+            cursor: pointer;
+        }
         .materialIconBlock {
             padding: 1em;
 
@@ -313,7 +329,7 @@
             justify-content: space-around;
             margin-top: 8px;
 
-            .avatarNameInput {}
+            // .avatarNameInput {}
         }
 
         .iconBlock {
@@ -362,6 +378,9 @@
             width: 330px;
             .avatarHeaderBlock { margin-top: 15px; }
             .controlContainer { margin-bottom: 15px; }
+            .share {
+                align-self: flex-end;
+            }
         }
     }
 }
@@ -1248,7 +1267,7 @@
         justify-content: space-around;
         margin-top: 8px;
 
-        .avatarNameInput {}
+        // .avatarNameInput {}
     }
 
     .iconBlock {
