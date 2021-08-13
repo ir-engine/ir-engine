@@ -14,19 +14,14 @@ import { Network } from '../../../engine/src/networking/classes/Network'
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 
 export const AvatarUISystem = async (): Promise<System> => {
-  const networkUserQuery = defineQuery([
-    Not(LocalInputReceiverComponent),
-    AvatarComponent,
-    TransformComponent,
-    NetworkObjectComponent
-  ])
-  const networkUserAddQuery = enterQuery(networkUserQuery)
-  const networkUserRemoveQuery = exitQuery(networkUserQuery)
+  const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
+  const userEnterQuery = enterQuery(userQuery)
+  const userExitQuery = exitQuery(userQuery)
 
   return defineSystem((world: ECSWorld) => {
-    for (const userEntity of networkUserAddQuery(world)) {
+    for (const userEntity of userEnterQuery(world)) {
+      if (userEntity === Network.instance.localClientEntity) continue
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
-      if (userId === Network.instance.userId) continue
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
       addComponent(ui.entity, TransformComponent, {
@@ -36,7 +31,8 @@ export const AvatarUISystem = async (): Promise<System> => {
       })
     }
 
-    for (const userEntity of networkUserQuery(world)) {
+    for (const userEntity of userQuery(world)) {
+      if (userEntity === Network.instance.localClientEntity) continue
       const ui = AvatarUI.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
@@ -47,7 +43,8 @@ export const AvatarUISystem = async (): Promise<System> => {
       transform.rotation.setFromRotationMatrix(Engine.camera.matrix)
     }
 
-    for (const userEntity of networkUserRemoveQuery(world)) {
+    for (const userEntity of userExitQuery(world)) {
+      if (userEntity === Network.instance.localClientEntity) continue
       removeEntity(AvatarUI.get(userEntity)!.entity)
       AvatarUI.delete(userEntity)
     }
