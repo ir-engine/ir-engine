@@ -1,4 +1,4 @@
-import { SCOPE_FETCHING, SCOPE_ADMIN_RETRIEVED, ADD_SCOPE } from '../../actions'
+import { SCOPE_FETCHING, SCOPE_ADMIN_RETRIEVED, REMOVE_SCOPE, ADD_SCOPE, UPDATE_SCOPE } from '../../actions'
 
 export interface FetchingAction {
   type: string
@@ -14,7 +14,12 @@ export interface ScopeOneAction {
   item: any
 }
 
-export type ScopeAction = ScopeRetrieveAction
+export interface FetchingScopeItemAction {
+  type: string
+  id: string
+}
+
+export type ScopeAction = ScopeRetrieveAction | ScopeOneAction | FetchingScopeItemAction
 
 export function fetchingScope(): FetchingAction {
   return {
@@ -33,5 +38,19 @@ export function addAdminScope(item): ScopeOneAction {
   return {
     type: ADD_SCOPE,
     item
+  }
+}
+
+export function updateAdminScope(result): ScopeAction {
+  return {
+    type: UPDATE_SCOPE,
+    item: result
+  }
+}
+
+export function removeScopeItem(id): FetchingScopeItemAction {
+  return {
+    type: REMOVE_SCOPE,
+    id
   }
 }

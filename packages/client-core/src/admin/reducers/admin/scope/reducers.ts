@@ -4,7 +4,7 @@ import { ScopeAction, ScopeRetrieveAction } from './actions'
 
 export const PAGE_LIMIT = 100
 
-import { ADD_SCOPE, SCOPE_FETCHING, SCOPE_ADMIN_RETRIEVED } from '../../actions'
+import { ADD_SCOPE, SCOPE_FETCHING, SCOPE_ADMIN_RETRIEVED, UPDATE_SCOPE, REMOVE_SCOPE } from '../../actions'
 
 export const initialScopeState = {
   scope: {
@@ -42,6 +42,16 @@ const scopeReducer = (state = immutableState, action: ScopeAction): any => {
       updateMap = new Map(state.get('scope'))
       updateMap.set('updateNeeded', true)
       return state.set('scope', updateMap)
+
+    case UPDATE_SCOPE:
+      let update = new Map(state.get('scope'))
+      update.set('updateNeeded', true)
+      return state.set('scope', update)
+
+      case REMOVE_SCOPE:
+      const dataMap = new Map(state.get('scope'))
+      dataMap.set('updateNeeded', true)
+      return state.set('scope', dataMap)
   }
 
   return state

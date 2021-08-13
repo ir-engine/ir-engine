@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
-import { addAdminScope, fetchingScope, setAdminScope } from './actions'
+import { addAdminScope, fetchingScope, setAdminScope, updateAdminScope, removeScopeItem } from './actions'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 
 export function createScope(scopeItem: any) {
@@ -28,11 +28,39 @@ export function getScopeService(type?: string, limit: Number = 12) {
           $limit: limit
         }
       })
-      console.log(list)
       dispatch(setAdminScope(list))
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
+  }
+}
+
+export function updateScopeService(scopeItem, scopeId){
+  return async (dispatch: Dispatch): Promise<any> => {
+    try{
+      const updatedScope = await client.service('scope').patch(scopeId, {
+        ...scopeItem
+      })
+      dispatch(updateAdminScope(updatedScope))
+    }catch(err){
+      console.error(err)
+      dispatchAlertError(dispatch, err.message)
+    }
+    
+  }
+
+}
+
+export function removeScope(scopeId: string){
+  return async (dispatch: Dispatch) : Promise<any> => {
+    try{
+      await client.service('scope').remove(scopeId)
+      dispatch(removeScopeItem(scopeId))
+    }catch(err){
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
+    }
+
   }
 }

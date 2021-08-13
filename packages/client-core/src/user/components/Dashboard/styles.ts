@@ -90,6 +90,9 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     },
     selected: {
       background: '#15171B !important'
-    }
+    },
+    nested: {
+      paddingLeft: "2rem !important",
+    },
   })
 )
