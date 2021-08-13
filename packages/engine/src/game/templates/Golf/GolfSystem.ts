@@ -4,6 +4,7 @@ import { ECSWorld } from '../../../ecs/classes/World'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
 import { Network } from '../../../networking/classes/Network'
+import { dispatchOnServer, dispatchOnClient } from '../../../networking/functions/dispatch'
 import { createState } from '@hookstate/core'
 import { ActionType } from '../../../networking/interfaces/NetworkTransport'
 import { isClient } from '../../../common/functions/isClient'
@@ -53,17 +54,6 @@ export const GolfState = createState({
 // Note: player numbers are 0-indexed
 
 globalThis.GolfState = GolfState
-
-// IMPORTANT: unlike Redux, dispatched actions are always processed asynchronously
-export const dispatchOnServer = (x: ActionType) => {
-  // noop on client
-  if (!isClient) Network.instance.outgoingActions.push(x)
-}
-
-export const dispatchOnClient = (x: ActionType) => {
-  // noop on server
-  if (isClient) Network.instance.outgoingActions.push(x)
-}
 
 export const GolfSystem = async (): Promise<System> => {
   if (isClient) {
