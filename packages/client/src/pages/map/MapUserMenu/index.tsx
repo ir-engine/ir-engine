@@ -16,7 +16,7 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { DownArrow } from '../icons/DownArrow'
-import { Upload} from '../icons/Upload'
+import { Upload } from '../icons/Upload'
 import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
@@ -205,7 +205,7 @@ const UserMenu = (props: UserMenuProps): any => {
             // className={'share'}
             className={styles.share}
           >
-            <Upload/>
+            <Upload />
           </span>
         </div>
         {currentActiveMenu ? renderMenuPanel() : null}
