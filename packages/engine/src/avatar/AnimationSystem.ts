@@ -32,9 +32,7 @@ export const AnimationSystem = async (): Promise<System> => {
       avatarAnimationComponent.animationGraph = new AvatarAnimationGraph()
       avatarAnimationComponent.currentState = avatarAnimationComponent.animationGraph.states[AvatarStates.IDLE]
       avatarAnimationComponent.prevVelocity = new Vector3()
-      if (avatarAnimationComponent.currentState) {
-        AnimationRenderer.mountCurrentState(entity)
-      }
+      AnimationRenderer.mountCurrentState(entity)
     }
 
     for (const entity of avatarAnimationQuery(world)) {
