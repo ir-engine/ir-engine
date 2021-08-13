@@ -99,7 +99,7 @@ const ViewScope = (props: Props) => {
                   </Grid>
                 </Container>
               </div>
-              <Container className={classes.margin} >
+              <Container className={classes.margin}>
                 <Typography variant="h4" component="h4" className={classes.mb40px}>
                   Scope Type Information
                 </Typography>
@@ -141,7 +141,7 @@ const ViewScope = (props: Props) => {
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                    <Typography variant="h6" component="h6" className={classes.mb10}>
+                      <Typography variant="h6" component="h6" className={classes.mb10}>
                         {adminScope?.scopeType?.bot || <span className={classes.spanNone}>None</span>}
                       </Typography>
                       <Typography variant="h6" component="h6" className={classes.mb10}>

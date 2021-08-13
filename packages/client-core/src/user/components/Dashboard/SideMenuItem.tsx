@@ -63,48 +63,44 @@ const SideMenuItem = ({ location: { pathname } }) => {
         </Link>
 
         <Link to="/admin/locations" className={classes.textLink}>
-        <ListItem style={{ color: 'white' }} button onClick={()=> setOpenLocation(!openLocation)}>
-          <ListItemIcon>
-            <NearMe style={{ color: 'white' }} />
-          </ListItemIcon>
-          <ListItemText primary="Location" />
-          {openLocation ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
-        </Link>
-        <Collapse in={openLocation} timeout="auto" unmountOnExit>
-        <Link to="/admin/locations" className={classes.textLink}>
-          <ListItem
-            classes={{ selected: classes.selected }}
-            selected={'/admin/locations' === pathname}
-            className={classes.nested}
-            style={{ color: 'white' }}
-            button
-          >
+          <ListItem style={{ color: 'white' }} button onClick={() => setOpenLocation(!openLocation)}>
             <ListItemIcon>
               <NearMe style={{ color: 'white' }} />
             </ListItemIcon>
-            <ListItemText primary={t('user:dashboard.locations')} />
+            <ListItemText primary="Location" />
+            {openLocation ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
         </Link>
-        <Link to="/admin/instance" className={classes.textLink}>
-          <ListItem
-            classes={{ selected: classes.selected }}
-            selected={'/admin/instance' === pathname}
-            className={classes.nested}
-            style={{ color: 'white' }}
-            button
-          >
-            <ListItemIcon>
-              <DirectionsRun style={{ color: 'white' }} />
-            </ListItemIcon>
-            <ListItemText primary={t('user:dashboard.instance')} />
-          </ListItem>
-        </Link>
+        <Collapse in={openLocation} timeout="auto" unmountOnExit>
+          <Link to="/admin/locations" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/locations' === pathname}
+              className={classes.nested}
+              style={{ color: 'white' }}
+              button
+            >
+              <ListItemIcon>
+                <NearMe style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={t('user:dashboard.locations')} />
+            </ListItem>
+          </Link>
+          <Link to="/admin/instance" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/instance' === pathname}
+              className={classes.nested}
+              style={{ color: 'white' }}
+              button
+            >
+              <ListItemIcon>
+                <DirectionsRun style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={t('user:dashboard.instance')} />
+            </ListItem>
+          </Link>
         </Collapse>
-
-
-
-
 
         {/* <Link to="/admin/sessions" className={classes.textLink}>
           <ListItem style={{ color: 'white' }} button>

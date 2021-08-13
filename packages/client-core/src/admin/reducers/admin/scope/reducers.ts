@@ -48,7 +48,7 @@ const scopeReducer = (state = immutableState, action: ScopeAction): any => {
       update.set('updateNeeded', true)
       return state.set('scope', update)
 
-      case REMOVE_SCOPE:
+    case REMOVE_SCOPE:
       const dataMap = new Map(state.get('scope'))
       dataMap.set('updateNeeded', true)
       return state.set('scope', dataMap)

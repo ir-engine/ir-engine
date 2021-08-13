@@ -122,10 +122,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       margin: '4rem auto 0 auto',
       textAlign: 'center'
     },
-    typo:{
+    typo: {
       textTransform: 'capitalize'
     },
-    margin:{
+    margin: {
       marginTop: '6%'
     },
     mb40px: {
@@ -134,7 +134,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     mb10: {
       marginBottom: '8%'
     },
-    flex:{
+    flex: {
       display: 'flex',
       alignContent: 'center',
       justifyContent: 'center'
@@ -143,7 +143,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       background: '#343b41',
       color: '#f1f1f1'
     }
-    
   })
 )
 

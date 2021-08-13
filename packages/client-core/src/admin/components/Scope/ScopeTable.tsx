@@ -44,10 +44,9 @@ const ScopeTable = (props: Props) => {
   const user = authState.get('user')
   const adminScopes = adminScopeState.get('scope').get('scope')
   const [adminScope, setAdminScope] = React.useState('')
-  const [open, setOpen] = React.useState(false)  
+  const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
   const [scopeId, setScopeId] = React.useState('')
-
 
   const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -98,9 +97,11 @@ const ScopeTable = (props: Props) => {
       action: (
         <>
           <a href="#h" className={classes.actionStyle}>
-            <span className={classes.spanWhite} onClick={ () => handleViewScope(id) } >View</span>
+            <span className={classes.spanWhite} onClick={() => handleViewScope(id)}>
+              View
+            </span>
           </a>
-          <a href="#h" className={classes.actionStyle} onClick={ () => handleShowWarning(id) } >
+          <a href="#h" className={classes.actionStyle} onClick={() => handleShowWarning(id)}>
             {' '}
             <span className={classes.spanDange}>Delete</span>{' '}
           </a>
@@ -161,7 +162,7 @@ const ScopeTable = (props: Props) => {
         onRowsPerPageChange={handleRowsPerPageChange}
         className={classes.tableFooter}
       />
-       <Dialog
+      <Dialog
         open={showWarning}
         onClose={handleCloseWarning}
         aria-labelledby="alert-dialog-title"

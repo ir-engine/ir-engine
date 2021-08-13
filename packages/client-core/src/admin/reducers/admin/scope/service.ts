@@ -36,31 +36,28 @@ export function getScopeService(type?: string, limit: Number = 12) {
   }
 }
 
-export function updateScopeService(scopeItem, scopeId){
+export function updateScopeService(scopeItem, scopeId) {
   return async (dispatch: Dispatch): Promise<any> => {
-    try{
+    try {
       const updatedScope = await client.service('scope').patch(scopeId, {
         ...scopeItem
       })
       dispatch(updateAdminScope(updatedScope))
-    }catch(err){
+    } catch (err) {
       console.error(err)
       dispatchAlertError(dispatch, err.message)
     }
-    
   }
-
 }
 
-export function removeScope(scopeId: string){
-  return async (dispatch: Dispatch) : Promise<any> => {
-    try{
+export function removeScope(scopeId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
       await client.service('scope').remove(scopeId)
       dispatch(removeScopeItem(scopeId))
-    }catch(err){
+    } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
     }
-
   }
 }

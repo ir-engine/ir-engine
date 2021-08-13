@@ -92,7 +92,7 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       background: '#15171B !important'
     },
     nested: {
-      paddingLeft: "2rem !important",
-    },
+      paddingLeft: '2rem !important'
+    }
   })
 )

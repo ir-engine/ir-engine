@@ -63,12 +63,12 @@ export const updateArMedia =
   (mediaItem, files, id) =>
   async (dispatch: Dispatch): Promise<any> => {
     try {
-    const result = await uploadtFIle(files)
-    const newItem = await client.service('ar-media').patch(id, {
-      ...mediaItem,
-      ...result
-    })
-    dispatch(updateAdminArMedia(newItem))
+      const result = await uploadtFIle(files)
+      const newItem = await client.service('ar-media').patch(id, {
+        ...mediaItem,
+        ...result
+      })
+      dispatch(updateAdminArMedia(newItem))
     } catch (error) {
       console.error(error)
       dispatchAlertError(dispatch, error.message)
