@@ -189,9 +189,7 @@ const ProfileMenu = (props: Props): any => {
 
   return (
     <div className={styles.menuPanel}>
-      <section className={styles.profilePanel}>
-
-      </section>
+      <section className={styles.profilePanel}></section>
       <div className={styles.settingPanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
@@ -322,7 +320,6 @@ const ProfileMenu = (props: Props): any => {
           </>
         )}
       </div>
-
     </div>
   )
 }

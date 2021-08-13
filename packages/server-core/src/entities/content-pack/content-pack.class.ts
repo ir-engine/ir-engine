@@ -399,28 +399,29 @@ export class ContentPack implements ServiceMethods<Data> {
       )
     })
     await Promise.all(uploadPromises)
-    await new Promise((resolve, reject) => {
-      s3.cloudfront.createInvalidation(
-        {
-          DistributionId: config.aws.cloudfront.distributionId,
-          InvalidationBatch: {
-            CallerReference: Date.now().toString(),
-            Paths: {
-              Quantity: invalidationItems.length,
-              Items: invalidationItems
+    if (config.server.storageProvider === 'aws')
+      await new Promise((resolve, reject) => {
+        s3.cloudfront.createInvalidation(
+          {
+            DistributionId: config.aws.cloudfront.distributionId,
+            InvalidationBatch: {
+              CallerReference: Date.now().toString(),
+              Paths: {
+                Quantity: invalidationItems.length,
+                Items: invalidationItems
+              }
+            }
+          },
+          (err, data) => {
+            if (err) {
+              console.error(err)
+              reject(err)
+            } else {
+              resolve(data)
             }
           }
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
+        )
+      })
     return data
   }
 

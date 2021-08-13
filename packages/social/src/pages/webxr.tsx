@@ -45,7 +45,7 @@ class ARButton {
         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
         path.setAttribute('d', 'M 12,12 L 28,28 M 28,12 12,28')
         path.setAttribute('stroke', '#fff')
-        path.setAttribute('stroke-width', '2')
+        path.setAttribute('strokeWidth', '2')
         svg.appendChild(path)
 
         if (sessionInit.optionalFeatures === undefined) {

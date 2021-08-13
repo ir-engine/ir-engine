@@ -1,33 +1,27 @@
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import LinkIcon from '@material-ui/icons/Link'
-import PersonIcon from '@material-ui/icons/Person'
-import FilterHdrIcon from '@material-ui/icons/FilterHdr'
-import SettingsIcon from '@material-ui/icons/Settings'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import AvatarMenu from './menus/AvatarMenu'
-import AvatarSelectMenu from './menus/AvatarSelectMenu'
-import ProfileMenu from './menus/ProfileMenu'
-import ShareMenu from './menus/ShareMenu'
-import LocationMenu from './menus/LocationMenu'
-import CreateLocationMenu from './menus/CreateLocationMenu'
-import styles from './UserMenu.module.scss'
-import { UserMenuProps, Views } from './util'
 import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import {
+  fetchAvatarList,
+  removeAvatar,
   updateUserAvatarId,
   updateUserSettings,
-  uploadAvatarModel,
-  fetchAvatarList,
-  removeAvatar
+  uploadAvatarModel
 } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import React, { useEffect, useState } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
 import { DownArrow } from '../icons/DownArrow'
+import AvatarMenu from './menus/AvatarMenu'
+import AvatarSelectMenu from './menus/AvatarSelectMenu'
+import ProfileMenu from './menus/ProfileMenu'
+import ShareMenu from './menus/ShareMenu'
+import styles from './UserMenu.module.scss'
+import { UserMenuProps, Views } from './util'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -50,24 +44,11 @@ const UserMenu = (props: UserMenuProps): any => {
   const { authState, updateUserAvatarId, alertSuccess, uploadAvatarModel, fetchAvatarList, enableSharing, hideLogin } =
     props
 
-  let menus = [
-    { id: Views.Profile, iconNode: DownArrow },
-    { id: Views.Share, iconNode: LinkIcon }
-    //  { id: Views.Location, iconNode: FilterHdrIcon },
-  ]
-
-  if (enableSharing === false) {
-    const share = menus.find((el) => el.id === Views.Share)
-    menus = menus.filter((el) => el.id !== share.id)
-  }
-
   const menuPanel = {
     [Views.Profile]: ProfileMenu,
     [Views.Share]: ShareMenu,
     [Views.Avatar]: AvatarMenu,
-    [Views.AvatarUpload]: AvatarSelectMenu,
-    [Views.Location]: LocationMenu,
-    [Views.NewLocation]: CreateLocationMenu
+    [Views.AvatarUpload]: AvatarSelectMenu
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
@@ -112,9 +93,10 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const setActiveMenu = (e): void => {
-    const identity = e.currentTarget.id.split('_')
-    const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
-    setCurrentActiveMenu(enabled ? null : menus[identity[1]])
+    const enabled = true
+    console.log('setActiveMenu called')
+    // const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
+    // setCurrentActiveMenu(enabled ? null : menus[identity[1]])
     if (EngineEvents.instance)
       enableInput({
         keyboard: enabled,
@@ -200,36 +182,32 @@ const UserMenu = (props: UserMenuProps): any => {
     }
 
     const Panel = menuPanel[currentActiveMenu.id]
-
     // @ts-ignore
     return <Panel {...args} />
   }
 
   return (
     <>
-      {engineLoaded && (
-        <ClickAwayListener onClickAway={() => changeActiveMenu(null)} mouseEvent="onMouseDown">
-          <section className={styles.settingContainer}>
-            <div className={styles.iconContainer}>
-              {menus.map((menu, index) => {
-                return (
-                  <span
-                    key={index}
-                    id={menu.id + '_' + index}
-                    onClick={setActiveMenu}
-                    className={`${styles.materialIconBlock} ${
-                      currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null
-                    }`}
-                  >
-                    <menu.iconNode className={styles.icon} />
-                  </span>
-                )
-              })}
-            </div>
-            {currentActiveMenu ? renderMenuPanel() : null}
-          </section>
-        </ClickAwayListener>
-      )}
+      <section className={styles.settingContainer}>
+        <div className={styles.iconContainer}>
+          ]
+          <span
+            id={Views.Profile}
+            // onClick={ShowProfile}
+            className={'profile'}
+          >
+            <DownArrow />
+          </span>
+          <span
+            id={Views.Share}
+            // onClick={ShowShare}
+            className={'share'}
+          >
+            <LinkIcon />
+          </span>
+        </div>
+        {currentActiveMenu ? renderMenuPanel() : null}
+      </section>
     </>
   )
 }
