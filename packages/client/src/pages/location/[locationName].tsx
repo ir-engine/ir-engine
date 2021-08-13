@@ -9,6 +9,10 @@ import InstanceChat from '../../components/InstanceChat'
 import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import RecordingApp from '../../components/Recorder/RecordingApp'
+import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { InitializeOptions } from '../../../../engine/src/initializationOptions'
+import { UISystem } from '../../../../engine/src/xrui/systems/UISystem'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -18,6 +22,16 @@ const LocationPage = (props) => {
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
+  }
+
+  const engineInitializeOptions: InitializeOptions = {
+    systems: [
+      {
+        type: SystemUpdateType.Fixed,
+        system: AvatarUISystem,
+        after: UISystem
+      }
+    ]
   }
 
   const engineCallbacks: EngineCallbacks = {
@@ -33,6 +47,7 @@ const LocationPage = (props) => {
         locationName={props.match.params.locationName}
         history={props.history}
         engineCallbacks={engineCallbacks}
+        engineInitializeOptions={engineInitializeOptions}
         showTouchpad
       >
         <InteractableModal />

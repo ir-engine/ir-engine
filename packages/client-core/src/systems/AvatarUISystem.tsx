@@ -4,16 +4,16 @@ import { LocalInputReceiverComponent } from '@xrengine/engine/src/input/componen
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { createCharacterDetailView } from './ui/CharacterDetailView'
+import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Not, defineQuery, enterQuery, defineSystem, System, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
 import { Quaternion, Vector3 } from 'three'
 import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
+import { Network } from '../../../engine/src/networking/classes/Network'
 
-// TODO: This becomes an AoS component post-ecs refactor
-export const CharacterUI = new Map<Entity, ReturnType<typeof createCharacterDetailView>>()
+export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 
-export const CharacterUISystem = async (): Promise<System> => {
+export const AvatarUISystem = async (): Promise<System> => {
   const networkUserQuery = defineQuery([
     Not(LocalInputReceiverComponent),
     AvatarComponent,
@@ -26,8 +26,9 @@ export const CharacterUISystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const userEntity of networkUserAddQuery(world)) {
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
-      const ui = createCharacterDetailView(userId)
-      CharacterUI.set(userEntity, ui)
+      if (userId === Network.instance.userId) continue
+      const ui = createAvatarDetailView(userId)
+      AvatarUI.set(userEntity, ui)
       addComponent(ui.entity, TransformComponent, {
         position: new Vector3(),
         rotation: new Quaternion(),
@@ -36,7 +37,7 @@ export const CharacterUISystem = async (): Promise<System> => {
     }
 
     for (const userEntity of networkUserQuery(world)) {
-      const ui = CharacterUI.get(userEntity)!
+      const ui = AvatarUI.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
       const transform = getComponent(ui.entity, TransformComponent)
@@ -47,8 +48,8 @@ export const CharacterUISystem = async (): Promise<System> => {
     }
 
     for (const userEntity of networkUserRemoveQuery(world)) {
-      removeEntity(CharacterUI.get(userEntity)!.entity)
-      CharacterUI.delete(userEntity)
+      removeEntity(AvatarUI.get(userEntity)!.entity)
+      AvatarUI.delete(userEntity)
     }
 
     return world
