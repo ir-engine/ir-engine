@@ -17,8 +17,6 @@ const getAvatarURL = (avatarName) => {
 }
 
 export const staticResourceSeed = {
-  disabled: !config || !config.db.forceRefresh,
-  delete: config && config.db.forceRefresh,
   randomize: false,
   path: 'static-resource',
   templates: [

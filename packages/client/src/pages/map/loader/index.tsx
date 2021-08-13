@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { GeneralStateList } from '../../reducers/app/actions'
-import { selectAppOnBoardingStep } from '../../reducers/app/selector'
-import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
-import DefaultLoader from './SpacemanLoader'
+import Loader from './Block'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
+import { GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/actions'
+import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { selectCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/selector'
 interface Props {
   objectsToLoad?: number
   onBoardingStep?: number
   currentScene?: any
-  Loader?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -21,7 +20,7 @@ const mapStateToProps = (state: any): any => {
 }
 
 const LoadingScreen = (props: Props) => {
-  const { onBoardingStep, objectsToLoad, currentScene, Loader = DefaultLoader } = props
+  const { onBoardingStep, objectsToLoad, currentScene } = props
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()

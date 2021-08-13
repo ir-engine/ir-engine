@@ -93,7 +93,6 @@ const MediaIconsBox = (props) => {
           onClick={handleMicClick}
         >
           <MicIcon />
-          {/* <img src={Microphone} alt=""></img> */}
         </button>
       ) : null}
     </section>
