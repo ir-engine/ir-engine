@@ -46,7 +46,16 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const EditScope = (props: Props) => {
-  const { onCloseEdit, scopeAdmin, adminGroupState, adminUserState, authState, fetchUsersAsAdmin, getGroupService, updateScope } = props
+  const {
+    onCloseEdit,
+    scopeAdmin,
+    adminGroupState,
+    adminUserState,
+    authState,
+    fetchUsersAsAdmin,
+    getGroupService,
+    updateScope
+  } = props
   const groups = adminGroupState.get('group').get('group')
   const users = adminUserState.get('users').get('users')
   const user = authState.get('user')
@@ -156,7 +165,17 @@ const EditScope = (props: Props) => {
     setState({ ...state, formErrors: temp })
 
     if (formValid(state, state.formErrors)) {
-      updateScope(id, { scopeName: name, userId, groupId, scene, location, globalAvatars, static_resource, editor, bot })
+      updateScope(id, {
+        scopeName: name,
+        userId,
+        groupId,
+        scene,
+        location,
+        globalAvatars,
+        static_resource,
+        editor,
+        bot
+      })
       setState({
         ...state,
         name: '',
