@@ -59,12 +59,12 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   }
 }
 
-export const resetBall = (entityBall: Entity, position: Vector3) => {
+export const resetBall = (entityBall: Entity, position: number[]) => {
   console.log('moving ball to', position)
 
   const collider = getComponent(entityBall, ColliderComponent)
   collider.body.updateTransform({
-    translation: position
+    translation: new Vector3(...position)
   })
   collider.body.setLinearVelocity(new Vector3(), true)
 

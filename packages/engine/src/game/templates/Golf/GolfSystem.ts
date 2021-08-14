@@ -58,7 +58,7 @@ export const GolfState = createState({
     id: string
     scores: Array<number>
     stroke: number
-    lastBallPosition: Vector3
+    lastBallPosition: [number, number, number]
   }>,
   currentPlayer: 0,
   currentHole: 0
@@ -85,8 +85,8 @@ export const GolfSystem = async (): Promise<System> => {
 
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
   function receptor(world: ECSWorld, action: GolfActionType) {
+    console.log('\n\nACTION', action, 'CURRENT STATE', GolfState.attach(Downgraded).value, '\n\n')
     GolfState.batch((s) => {
-      console.log('\n\nACTION', action, 'CURRENT STATE', s, '\n\n')
       switch (action.type) {
         /**
          * on PLAYER_READY
@@ -104,21 +104,10 @@ export const GolfSystem = async (): Promise<System> => {
          * - spawn golf ball
          */
         case 'puttclub.PLAYER_JOINED': {
-          if (s.players.find((p) => p.value.id === action.playerId)) {
-            return // player already joined
-          }
-
-          s.players.merge([
-            {
-              id: action.playerId,
-              scores: [],
-              stroke: 0,
-              lastBallPosition: null
-            }
-          ])
-
           // this must happen on the server
           if (!isClient) {
+            // If the player is rejoining, we must recreate the spawned entities
+
             const { entity } = Object.values(Network.instance.networkObjects).find(
               (obj) => obj.uniqueId === action.playerId
             )
@@ -130,6 +119,20 @@ export const GolfSystem = async (): Promise<System> => {
           }
 
           dispatchFromServer(GolfAction.sendState(s.attach(Downgraded).value))
+
+          if (s.players.find((p) => p.value.id === action.playerId)) {
+            console.log(`player ${action.playerId} rejoined`)
+            return // player already joined
+          }
+
+          s.players.merge([
+            {
+              id: action.playerId,
+              scores: [],
+              stroke: 0,
+              lastBallPosition: null
+            }
+          ])
 
           console.log(`player ${action.playerId} joined and added to state`)
           return
@@ -173,7 +176,7 @@ export const GolfSystem = async (): Promise<System> => {
           const ballTransform = getComponent(entityBall, TransformComponent)
 
           s.players[s.currentPlayer.value].merge((s) => {
-            return { lastBallPosition: ballTransform.position.clone() }
+            return { lastBallPosition: ballTransform.position.toArray() }
           })
 
           setBallState(entityBall, BALL_STATES.STOPPED)
@@ -253,7 +256,7 @@ export const GolfSystem = async (): Promise<System> => {
             const currentHole = GolfState.currentHole.value
             const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
             s.players[s.currentPlayer.value].merge((s) => {
-              return { lastBallPosition: getComponent(teeEntity, TransformComponent).position.clone() }
+              return { lastBallPosition: getComponent(teeEntity, TransformComponent).position.toArray() }
             })
           }
 
@@ -348,9 +351,9 @@ export const GolfSystem = async (): Promise<System> => {
       GolfObjectEntities.set(role, entity)
     }
 
-    if (golfBallQuery(world).length) {
-      const currentPlayerNumber = GolfState.currentPlayer.value
-      const activeBallEntity = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+    const currentPlayerNumber = GolfState.currentPlayer.value
+    const activeBallEntity = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+    if (activeBallEntity) {
       const golfBallComponent = getComponent(activeBallEntity, GolfBallComponent)
       updateBall(activeBallEntity)
 
@@ -380,7 +383,7 @@ export const GolfSystem = async (): Promise<System> => {
       })
       if (ownerEntity) {
         const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-        removeComponent(entity, GolfBallTagComponent)
+        // removeComponent(entity, GolfBallTagComponent)
         initializeGolfBall(entity, parameters)
       }
     }
@@ -392,7 +395,7 @@ export const GolfSystem = async (): Promise<System> => {
       })
       if (ownerEntity) {
         const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-        removeComponent(entity, GolfClubTagComponent)
+        // removeComponent(entity, GolfClubTagComponent)
         initializeGolfClub(entity, parameters)
         const playerNumber = getGolfPlayerNumber(ownerEntity)
         if (isEntityLocalClient(ownerEntity)) {
