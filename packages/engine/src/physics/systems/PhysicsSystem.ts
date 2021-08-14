@@ -16,7 +16,7 @@ import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { ClientAuthoritativeTagComponent } from '../components/ClientAuthoritativeTagComponent'
+import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -40,7 +40,7 @@ export const PhysicsSystem = async (
 
   const clientAuthoritativeQuery = defineQuery([
     NetworkObjectComponent,
-    ClientAuthoritativeTagComponent,
+    ClientAuthoritativeComponent,
     ColliderComponent
   ])
 
@@ -113,7 +113,8 @@ export const PhysicsSystem = async (
         velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       } else if (collider.body.type === BodyType.DYNAMIC) {
-        velocity.velocity.subVectors(transform.position, collider.body.transform.translation)
+        const { linearVelocity } = collider.body.transform
+        velocity.velocity.copy(linearVelocity)
 
         transform.position.set(
           collider.body.transform.translation.x,

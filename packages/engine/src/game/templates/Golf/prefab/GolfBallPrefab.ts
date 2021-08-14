@@ -7,9 +7,9 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
-import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
+import { isEntityLocalClient } from '../../../../networking/functions/isEntityLocalClient'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
-import { ClientAuthoritativeTagComponent } from '../../../../physics/components/ClientAuthoritativeTagComponent'
+import { ClientAuthoritativeComponent } from '../../../../physics/components/ClientAuthoritativeComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
@@ -20,11 +20,58 @@ import { GameObject } from '../../../components/GameObject'
 import { applyHideOrVisibleState } from '../behaviors/hideUnhideBall'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
-import { GolfObjectEntities } from '../GolfSystem'
+import { GolfObjectEntities, GolfState } from '../GolfSystem'
 
 /**
  * @author Josh Field <github.com/HexaField>
  */
+
+export enum BALL_STATES {
+  INACTIVE,
+  WAITING,
+  MOVING,
+  STOPPED
+}
+
+export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
+  const golfBallComponent = getComponent(entityBall, GolfBallComponent)
+  const obj = getComponent(entityBall, Object3DComponent)
+  console.log('setBallState', Object.values(BALL_STATES)[ballState])
+  golfBallComponent.state = ballState
+
+  switch (ballState) {
+    case BALL_STATES.INACTIVE: {
+      // show ball
+      if (isClient) obj.value.visible = false
+      return
+    }
+    case BALL_STATES.WAITING: {
+      // show ball
+      if (isClient) obj.value.visible = true
+      return
+    }
+    case BALL_STATES.MOVING: {
+      return
+    }
+    case BALL_STATES.STOPPED: {
+      return
+    }
+  }
+}
+
+export const resetBall = (entityBall: Entity, position: Vector3) => {
+  console.log('moving ball to', position)
+
+  const collider = getComponent(entityBall, ColliderComponent)
+  collider.body.updateTransform({
+    translation: position
+  })
+  collider.body.setLinearVelocity(new Vector3(), true)
+  collider.body.setAngularVelocity(new Vector3(), true)
+
+  const velocity = getComponent(entityBall, VelocityComponent)
+  velocity.velocity.copy(new Vector3())
+}
 
 export const spawnBall = (entityPlayer: Entity, ownerPlayerNumber: number, playerCurrentHole: number): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
@@ -66,6 +113,7 @@ export const spawnBall = (entityPlayer: Entity, ownerPlayerNumber: number, playe
 
 export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
+  if (!collider) return
   const ballPosition = collider.body.transform.translation
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   golfBallComponent.groundRaycast.origin.copy(ballPosition)
@@ -93,9 +141,6 @@ const golfBallRadius = 0.03
 const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: number) {
-  const ownerNetworkId = getComponent(ballEntity, NetworkObjectComponentOwner).networkId
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].entity
-
   const color = GolfColours[ownerPlayerNumber]
 
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
@@ -107,6 +152,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   ballMesh.scale.copy(transform.scale)
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
+  ballMesh.visible = ownerPlayerNumber === GolfState.currentPlayer.value
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
   // after because break trail
   applyHideOrVisibleState(ballEntity)
@@ -143,19 +189,12 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
   addComponent(ballEntity, GameObject, { role: `GolfBall-${ownerPlayerNumber}` })
-  addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
-  const isOwnedByCurrentClient = isClient && Network.instance.localAvatarNetworkId === ownerNetworkId
 
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
-    AssetLoader.load(
-      {
-        url: Engine.publicPath + '/models/golf/golf_ball.glb'
-      },
-      (group: Group) => {
-        assetLoadCallback(group, ballEntity, ownerPlayerNumber)
-      }
-    )
+    const group = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/golf_ball.glb')
+    console.log(group)
+    assetLoadCallback(group, ballEntity, ownerPlayerNumber)
   }
 
   const shape: ShapeType = {
@@ -177,7 +216,9 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shape],
-      type: isOwnedByCurrentClient ? BodyType.DYNAMIC : BodyType.KINEMATIC,
+      type: isEntityLocalClient(Network.instance.networkObjects[ownerNetworkId].entity)
+        ? BodyType.DYNAMIC
+        : BodyType.KINEMATIC,
       transform: {
         translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
       },
@@ -209,6 +250,6 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
     })
   )
 
-  addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast })
-  addComponent(ballEntity, ClientAuthoritativeTagComponent, {})
+  addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast, state: BALL_STATES.INACTIVE })
+  addComponent(ballEntity, ClientAuthoritativeComponent, { ownerNetworkId })
 }

@@ -88,6 +88,7 @@ export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComp
 export const enableClub = (entityClub: Entity, enable: boolean): void => {
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   if (golfClubComponent.canHitBall === enable) return
+  console.log('enableClub', enable)
   golfClubComponent.canHitBall = enable
   setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
 }
@@ -109,10 +110,6 @@ export const updateClub = (entityClub: Entity): void => {
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   if (!golfClubComponent.raycast) return
-
-  const currentPlayer = isCurrentGolfPlayer(ownerEntity)
-
-  enableClub(entityClub, currentPlayer)
 
   const transformClub = getComponent(entityClub, TransformComponent)
   const collider = getComponent(entityClub, ColliderComponent)

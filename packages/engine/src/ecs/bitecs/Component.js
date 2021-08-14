@@ -26,7 +26,7 @@ export const defineComponent = (schema) => {
 
 export const incrementBitflag = (world) => {
   world[$bitflag] *= 2
-  if (world[$bitflag] >= 2**32) {
+  if (world[$bitflag] >= 2**31) {
     world[$bitflag] = 1
     world[$entityMasks].push(new Uint32Array(world[$size]))
   }

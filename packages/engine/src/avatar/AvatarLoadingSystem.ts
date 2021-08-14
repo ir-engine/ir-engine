@@ -79,7 +79,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
             {
               opacityMultiplier: 1
             },
-            3000
+            100
           )
           .easing(Easing.Exponential.Out)
           .start()
@@ -152,7 +152,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
         const object = getComponent(entity, Object3DComponent).value
         const plateComponent = getComponent(entity, AvatarEffectComponent)
 
-        console.log(object, plateComponent.originMaterials)
+        // console.log(object, plateComponent.originMaterials)
         plateComponent.originMaterials.forEach(({ id, material }) => {
           object.traverse((obj) => {
             if (obj.uuid === id) {

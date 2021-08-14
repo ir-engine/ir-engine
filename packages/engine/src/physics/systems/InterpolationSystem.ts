@@ -19,7 +19,7 @@ import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBeh
 import { VelocityComponent } from '../components/VelocityComponent'
 import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { ClientAuthoritativeTagComponent } from '../components/ClientAuthoritativeTagComponent'
+import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -50,14 +50,14 @@ export const InterpolationSystem = async (): Promise<System> => {
   const networkObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
     Not(LocalInterpolationComponent),
-    Not(ClientAuthoritativeTagComponent),
+    Not(ClientAuthoritativeComponent),
     InterpolationComponent,
     ColliderComponent,
     NetworkObjectComponent
   ])
   const correctionFromServerQuery = defineQuery([
     Not(InterpolationComponent),
-    Not(ClientAuthoritativeTagComponent),
+    Not(ClientAuthoritativeComponent),
     ColliderComponent,
     NetworkObjectComponent
   ])

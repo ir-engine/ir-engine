@@ -1,5 +1,4 @@
 import { Vector3 } from 'three'
-import { isClient } from '../../../../common/functions/isClient'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
@@ -12,15 +11,16 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
  */
 
 const vector0 = new Vector3()
-const clubPowerMultiplier = 2
+const clubPowerMultiplier = 1
 const hitAdvanceFactor = 4
 
 export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
+  console.log('hitBall')
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   const collider = getComponent(entityBall, ColliderComponent)
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  collider.body.setLinearDamping(0.1)
-  collider.body.setAngularDamping(0.1)
+  // collider.body.setLinearDamping(0.1)
+  // collider.body.setAngularDamping(0.1)
   // force is in kg, we need it in grams, so x1000
   const velocityMultiplier = clubPowerMultiplier * 1000
   //golfClubComponent.velocity.set(-0.000016128,0,-0.02352940744240586)
@@ -38,11 +38,9 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-  if (isClient) {
-    vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor)
-  } else {
-    vector0.copy(golfClubComponent.velocityServer).multiplyScalar(hitAdvanceFactor)
-  }
+  console.log(golfClubComponent.velocity)
+
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor)
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
   // lock to XZ plane if we disable chip shots
   if (!golfClubComponent.canDoChipShots) {
@@ -51,11 +49,7 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
 
   // block teleport ball if distance to wall less length of what we want to teleport
   golfBallComponent.wallRaycast.origin.copy(collider.body.transform.translation)
-  if (isClient) {
-    golfBallComponent.wallRaycast.direction.copy(golfClubComponent.velocity).normalize()
-  } else {
-    golfBallComponent.wallRaycast.direction.copy(golfClubComponent.velocityServer).normalize()
-  }
+  golfBallComponent.wallRaycast.direction.copy(golfClubComponent.velocity).normalize()
   const hit = golfBallComponent.wallRaycast.hits[0]
 
   if (!hit || hit.distance * hit.distance > vector0.lengthSq()) {
@@ -69,15 +63,11 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
     })
   }
 
-  if (isClient) {
-    vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier)
-  } else {
-    vector0.copy(golfClubComponent.velocityServer).multiplyScalar(velocityMultiplier)
-  }
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier)
   // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
   if (!golfClubComponent.canDoChipShots) {
     vector0.y = 0
   }
-  console.log('HIT FORCE:', vector0.x, vector0.z)
+  console.log('HIT FORCE:', vector0)
   collider.body.addForce(vector0)
 }

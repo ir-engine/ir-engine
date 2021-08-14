@@ -4,7 +4,7 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { Network } from '../classes/Network'
 import { IncomingActionType } from '../interfaces/NetworkTransport'
 
-export const GlobalActionDispatchSystem = async (): Promise<System> => {
+export const NetworkActionDispatchSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     if (!isClient) {
       // On server:

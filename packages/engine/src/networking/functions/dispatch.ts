@@ -6,7 +6,7 @@ import { ActionType } from '../interfaces/NetworkTransport'
  * Dispatch an action on the server (noop on client)
  * @param action
  */
-export const dispatchOnServer = (action: ActionType) => {
+export const dispatchFromServer = (action: ActionType) => {
   // noop on client
   if (!isClient) Network.instance.outgoingActions.push(action)
 }
@@ -15,7 +15,11 @@ export const dispatchOnServer = (action: ActionType) => {
  * Dispatch an action on the client (noop on server)
  * @param action
  */
-export const dispatchOnClient = (action: ActionType) => {
+export const dispatchFromClient = (action: ActionType) => {
   // noop on server
   if (isClient) Network.instance.outgoingActions.push(action)
+}
+
+export const removeOutgoingAction = (action: ActionType) => {
+  Network.instance.incomingActions.splice(Network.instance.incomingActions.indexOf(action))
 }

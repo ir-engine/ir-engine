@@ -23,8 +23,7 @@ import { ClientActionToServer } from '../../game/templates/DefaultGameStateActio
 import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { ClientAuthoritativeTagComponent } from '../../physics/components/ClientAuthoritativeTagComponent'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export function cancelAllInputs(entity) {
@@ -188,7 +187,12 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
 
       for (const transform of clientInput.transforms) {
         const networkObject = Network.instance.networkObjects[transform.networkId]
-        if (networkObject && hasComponent(networkObject.entity, ClientAuthoritativeTagComponent)) {
+        const clientAuthoritativeComponent = getComponent(networkObject.entity, ClientAuthoritativeComponent)
+        if (
+          networkObject &&
+          clientAuthoritativeComponent &&
+          clientAuthoritativeComponent.ownerNetworkId === clientInput.networkId
+        ) {
           const transformComponent = getComponent(networkObject.entity, TransformComponent)
           if (transformComponent) {
             transformComponent.position.set(transform.x, transform.y, transform.z)

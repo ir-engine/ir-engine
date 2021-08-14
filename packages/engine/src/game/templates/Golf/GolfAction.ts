@@ -1,5 +1,3 @@
-import { Entity } from '../../../ecs/classes/Entity'
-
 export const GolfAction = {
   playerJoined(playerId: string) {
     return {
@@ -18,6 +16,13 @@ export const GolfAction = {
   playerStroke(playerId: string) {
     return {
       type: 'puttclub.PLAYER_STROKE' as const,
+      playerId
+    }
+  },
+
+  ballStopped(playerId: string) {
+    return {
+      type: 'puttclub.BALL_STOPPED' as const,
       playerId
     }
   },

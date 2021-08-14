@@ -115,7 +115,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
 
         const playerNumber = getGolfPlayerNumber(entity)
-        const currentHole = GolfState.currentHole
+        const currentHole = GolfState.currentHole.value
         const holeEntity = GolfObjectEntities.get(`GolfHole-${currentHole}`)
         const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
         const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
