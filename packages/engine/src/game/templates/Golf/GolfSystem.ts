@@ -104,6 +104,10 @@ export const GolfSystem = async (): Promise<System> => {
          * - spawn golf ball
          */
         case 'puttclub.PLAYER_JOINED': {
+          if (s.players.find((p) => p.value.id === action.playerId)) {
+            return // player already joined
+          }
+
           s.players.merge([
             {
               id: action.playerId,
