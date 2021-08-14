@@ -204,11 +204,17 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginBottom: '25px'
     },
     contSize: {
-      marginTop: '3%',
-      width: '373px'
+      marginTop: '4.5%',
+      width: '373px',
+      position: 'relative'
     },
     margin: {
       marginTop: '70px'
+    },
+    pos: {
+      position: 'absolute',
+      top: '-15px',
+      right: '0'
     }
   })
 )

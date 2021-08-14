@@ -1,6 +1,7 @@
 import { Dispatch } from 'redux'
-import { creatorLoggedRetrieved, add_creator, removeCreator } from './actions'
+import { creatorLoggedRetrieved, add_creator, updateAdminCreator, removeCreator } from './actions'
 import { client } from '../../../../../feathers'
+import { dispatchAlertError } from '../../../../../common/reducers/alert/service'
 
 export const fetchCreatorAsAdmin =
   () =>
@@ -30,6 +31,20 @@ export function createCreator() {
     } catch (err) {
       console.log(err)
       // dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function updateCreatorService(creatorId, creator) {
+  console.log(creator)
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const updatedCreator = await client.service('creator').patch(creatorId, { ...creator })
+      console.log(updatedCreator)
+      dispatch(updateAdminCreator(updatedCreator))
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
   }
 }

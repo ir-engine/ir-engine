@@ -3,7 +3,8 @@ import {
   RETRIEVE_CREATOR_AS_ADMIN,
   ADD_CREATOR_AS_ADMIN,
   REMOVE_CREATOR,
-  CREATE_CREATOR_AS_ADMIN
+  CREATE_CREATOR_AS_ADMIN,
+  UPDATE_CREATOR
 } from '../../../actions'
 import { CreatorAction } from './actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
@@ -46,6 +47,11 @@ const creatorReducer = (state = immutableState, action: CreatorAction) => {
       return state.set('creator', updateMap)
 
     case ADD_CREATOR_AS_ADMIN:
+      updateMap = new Map(state.get('creator'))
+      updateMap.set('updateNeeded', true)
+      return state.set('creator', updateMap)
+
+    case UPDATE_CREATOR:
       updateMap = new Map(state.get('creator'))
       updateMap.set('updateNeeded', true)
       return state.set('creator', updateMap)

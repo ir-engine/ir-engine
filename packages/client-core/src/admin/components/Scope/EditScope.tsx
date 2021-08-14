@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import Drawer from '@material-ui/core/Drawer'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Paper from '@material-ui/core/Paper'

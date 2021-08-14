@@ -24,7 +24,7 @@ const ViewCreator = (props: Props) => {
     <React.Fragment>
       <Drawer classes={{ paper: classesx.paper }} anchor="right" open={viewModal} onClose={() => closeViewModal(false)}>
         {editMode ? (
-          <EditCreator onCloseEdit={() => setEditMode(false)} />
+          <EditCreator adminCreator={adminCreator} closeEditModal={() => setEditMode(false)} />
         ) : (
           <React.Fragment>
             <Paper elevation={3} className={classes.paperHeight}>

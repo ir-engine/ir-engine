@@ -6,7 +6,6 @@ import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 export function createScope(scopeItem: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      console.log(scopeItem)
       const newItem = await client.service('scope').create({
         ...scopeItem
       })
@@ -36,7 +35,7 @@ export function getScopeService(type?: string, limit: Number = 12) {
   }
 }
 
-export function updateScopeService(scopeItem, scopeId) {
+export function updateScopeService(scopeId, scopeItem) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const updatedScope = await client.service('scope').patch(scopeId, {

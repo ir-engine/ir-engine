@@ -6,25 +6,18 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { DialogActions } from '@material-ui/core'
-import { formValid } from './validation'
 import { useStyle, useStyles } from './styles'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { createCreator } from '../../../reducers/admin/Social/creator/service'
+import { formValid } from './Validations'
 
 interface Props {
   open: boolean
   handleClose: any
   closeViewModel: any
-  createCreator: any
+  createScene: any
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createCreator: bindActionCreators(createCreator, dispatch)
-})
-
-const CreateCreator = (props: Props) => {
-  const { open, handleClose, closeViewModel, createCreator } = props
+const CreateScene = (props: Props) => {
+  const { open, handleClose, closeViewModel, createScene } = props
   const classes = useStyles()
   const classesx = useStyle()
 
@@ -43,22 +36,23 @@ const CreateCreator = (props: Props) => {
 
   const [error, setError] = React.useState('')
 
+  console.log(state)
   const handleChange = (e) => {
     const { name, value } = e.target
-    let temp = state.formErrors
 
+    let temp = state.formErrors
     switch (name) {
       case 'name':
         temp.name = value.length < 2 ? 'Name is required!' : ''
         break
       case 'username':
-        temp.username = value.length < 2 ? 'Username is required!' : ''
+        temp.name = value.length < 2 ? 'Username is required!' : ''
         break
       case 'email':
-        temp.email = value.length < 2 ? 'Username is required!' : ''
+        temp.name = value.length < 2 ? 'Email is required!' : ''
         break
       case 'twitter':
-        temp.twitter = value.length < 2 ? 'Twitter is required!' : ''
+        temp.name = value.length < 2 ? 'Twitter is required!' : ''
         break
       default:
         break
@@ -71,9 +65,8 @@ const CreateCreator = (props: Props) => {
       name: state.name,
       username: state.username,
       email: state.email,
-      twitter: state.twitter
+      twiter: state.twitter
     }
-
     let temp = state.formErrors
     if (!state.name) {
       temp.name = "Name can't be empty"
@@ -89,7 +82,7 @@ const CreateCreator = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      createCreator(data)
+      createScene(data)
       // closeViewModel(false)
       setState({
         ...state,
@@ -108,14 +101,14 @@ const CreateCreator = (props: Props) => {
       <Drawer classes={{ paper: classesx.paper }} anchor="right" open={open} onClose={handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-            Create New Creator
+            Create New Scene
           </DialogTitle>
           <label>Name</label>
           <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
             <InputBase
               className={classes.input}
               name="name"
-              placeholder="Enter name"
+              placeholder="Enter Name"
               style={{ color: '#fff' }}
               autoComplete="off"
               value={state.name}
@@ -131,7 +124,7 @@ const CreateCreator = (props: Props) => {
               className={classes.input}
               name="username"
               placeholder="Enter username"
-              style={{ color: '#fff' }}
+              style={{ color: '#ffff' }}
               autoComplete="off"
               value={state.username}
               onChange={handleChange}
@@ -145,7 +138,7 @@ const CreateCreator = (props: Props) => {
             <InputBase
               className={classes.input}
               name="email"
-              placeholder="Enter email"
+              placeholder="Enter Email"
               style={{ color: '#fff' }}
               autoComplete="off"
               value={state.email}
@@ -161,7 +154,7 @@ const CreateCreator = (props: Props) => {
               className={classes.input}
               name="twitter"
               placeholder="Enter Twitter"
-              style={{ color: '#fff' }}
+              style={{ color: '#ffff' }}
               autoComplete="off"
               value={state.twitter}
               onChange={handleChange}
@@ -181,4 +174,4 @@ const CreateCreator = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(CreateCreator)
+export default CreateScene

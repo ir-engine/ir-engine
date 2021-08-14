@@ -181,21 +181,23 @@ const EditFeed = (props: Props) => {
         </div>
       ) : (
         <div className={classes.contSize}>
-          <Badge
-            badgeContent={
-              <IconButton
-                onClick={() =>
-                  setState({
-                    ...state,
-                    video: ''
-                  })
-                }
-                className={classes.spanDange}
-              >
-                <ClearIcon style={{ fontWeight: 'bold' }} />
-              </IconButton>
-            }
-          ></Badge>
+          <span className={classes.pos}>
+            <Badge
+              badgeContent={
+                <IconButton
+                  onClick={() =>
+                    setState({
+                      ...state,
+                      video: ''
+                    })
+                  }
+                  className={classes.spanDange}
+                >
+                  <ClearIcon style={{ fontWeight: 'bold' }} />
+                </IconButton>
+              }
+            ></Badge>
+          </span>
           <Player playsInline poster={adminFeed.previewUrl} src={adminFeed.videoUrl} />
         </div>
       )}
