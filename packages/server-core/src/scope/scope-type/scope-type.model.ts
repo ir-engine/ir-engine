@@ -6,41 +6,11 @@ export default (app: Application): any => {
   const ScopeType = sequelizeClient.define(
     'scopeType',
     {
-      scopeName: {
+      type: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
         unique: true
-      },
-      location: {
-        type: DataTypes.ENUM,
-        values: ['read', 'write'],
-        allowNull: false
-      },
-      scene: {
-        type: DataTypes.ENUM,
-        values: ['read', 'write'],
-        allowNull: false
-      },
-      static_resource: {
-        type: DataTypes.ENUM,
-        values: ['read', 'write'],
-        allowNull: false
-      },
-      editor: {
-        type: DataTypes.ENUM,
-        values: ['write'],
-        allowNull: false
-      },
-      bot: {
-        type: DataTypes.ENUM,
-        values: ['read', 'write'],
-        allowNull: false
-      },
-      globalAvatars: {
-        type: DataTypes.ENUM,
-        values: ['read', 'write'],
-        allowNull: false
       }
     },
     {
@@ -52,7 +22,7 @@ export default (app: Application): any => {
     }
   )
   ;(ScopeType as any).associate = (models: any): void => {
-    ;(ScopeType as any).hasMany(models.scope, { foreignKey: 'scopeName' })
+    ;(ScopeType as any).hasMany(models.scope, { foreignKey: 'type' })
   }
 
   return ScopeType

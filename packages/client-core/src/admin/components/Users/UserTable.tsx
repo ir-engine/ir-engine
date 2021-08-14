@@ -47,6 +47,7 @@ const UserTable = (props: Props) => {
     setPage(newPage)
   }
 
+  console.log(adminUsers)
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
