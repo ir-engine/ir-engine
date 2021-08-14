@@ -57,16 +57,20 @@ const LoadingScreen = (props: Props) => {
   }, [objectsToLoad])
 
   if (!showProgressBar) return null
-
   return (
-    <>
-      <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
-        <section className={styles.linearProgressContainer}>
+    <div>
+      <section className={styles.blockbg}>
+        <div className={styles.block}>
           <Loader />
-          <span className={styles.loadingProgressInfo}>{loadingText}</span>
-        </section>
+          <h4 className={styles.title}>{loadingText}</h4>
+        </div>
+
+        <div className={styles.poweredByMappa}>
+          <span>powered by:</span>
+          <h4>MAPPA</h4>
+        </div>
       </section>
-    </>
+    </div>
   )
 }
 export default connect(mapStateToProps)(LoadingScreen)
