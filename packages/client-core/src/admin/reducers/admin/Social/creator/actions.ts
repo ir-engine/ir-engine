@@ -29,12 +29,12 @@ export type CreatorAction =
   | CreatorOneAction
 export interface CreatorRetrievedAction {
   type: string
-  creator: Creator
+  id: string
 }
 
-export interface FetchingCreatorItemAction {
+export interface CreatorOneAction {
   type: string
-  id: string
+  item: any
 }
 
 export function creatorLoggedRetrieved(creator: Creator): CreatorRetrievedAction {

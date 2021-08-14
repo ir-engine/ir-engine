@@ -56,6 +56,11 @@ const creatorReducer = (state = immutableState, action: CreatorAction) => {
       updateMap.set('updateNeeded', true)
       return state.set('creator', updateMap)
 
+    case UPDATE_CREATOR:
+      updateMap = new Map(state.get('creator'))
+      updateMap.set('updateNeeded', true)
+      return state.set('creator', updateMap)
+
     case REMOVE_CREATOR:
       const creatorData = new Map(state.get('creator'))
       creatorData.set('updateNeeded', true)
