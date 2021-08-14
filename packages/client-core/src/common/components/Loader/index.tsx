@@ -3,13 +3,14 @@ import { connect } from 'react-redux'
 import { GeneralStateList } from '../../reducers/app/actions'
 import { selectAppOnBoardingStep } from '../../reducers/app/selector'
 import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
-import Loader from './SquareLoader'
+import DefaultLoader from './SpacemanLoader'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 interface Props {
   objectsToLoad?: number
   onBoardingStep?: number
   currentScene?: any
+  Loader?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -20,7 +21,7 @@ const mapStateToProps = (state: any): any => {
 }
 
 const LoadingScreen = (props: Props) => {
-  const { onBoardingStep, objectsToLoad, currentScene } = props
+  const { onBoardingStep, objectsToLoad, currentScene, Loader = DefaultLoader } = props
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()
@@ -60,9 +61,9 @@ const LoadingScreen = (props: Props) => {
 
   return (
     <>
-      <Loader />
       <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
         <section className={styles.linearProgressContainer}>
+          <Loader />
           <span className={styles.loadingProgressInfo}>{loadingText}</span>
         </section>
       </section>

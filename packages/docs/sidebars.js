@@ -16,14 +16,13 @@ module.exports = {
           collapsed: false,
           items: [
             {
-              // 'client-core':  require('./sidebar/typedoc-client-core.js'),
-              // 'client-ml':  require('./sidebar/typedoc-client-core.js'),
+              'client-core':  require('./sidebar/typedoc-client-core.js'),
               'client':  require('./sidebar/typedoc-client.js'),
-              // 'server': require('./sidebar/typedoc-server.js'),
-              // 'common': require('./sidebar/typedoc-common.js'),
-              // 'engine': require('./sidebar/typedoc-engine.js'),
-              // 'gameserver': require('./sidebar/typedoc-gameserver.js'),
-              // 'server-core': require('./sidebar/typedoc-server-core.js'),
+              'server': require('./sidebar/typedoc-server.js'),
+              'common': require('./sidebar/typedoc-common.js'),
+              'engine': require('./sidebar/typedoc-engine.js'),
+              'gameserver': require('./sidebar/typedoc-gameserver.js'),
+              'server-core': require('./sidebar/typedoc-server-core.js'),
             }
           ],
         },

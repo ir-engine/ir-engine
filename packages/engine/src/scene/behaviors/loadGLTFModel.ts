@@ -56,7 +56,8 @@ export const loadGLTFModel = (
 
               console.log('navMesh', navMesh)
               addComponent(entity, NavMeshComponent, {
-                yukaNavMesh: navMesh
+                yukaNavMesh: navMesh,
+                navTarget: res
               })
               addComponent(entity, DebugNavMeshComponent, null)
             }

@@ -1,4 +1,3 @@
-import { makeStyles, TextField } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
 import Button from '@material-ui/core/Button'
@@ -8,6 +7,7 @@ import Fab from '@material-ui/core/Fab'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
+import TextField from '@material-ui/core/TextField'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import {
@@ -22,8 +22,8 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
+
 import defaultStyles from './InstanceChat.module.scss'
 
 const mapStateToProps = (state: any): any => {
@@ -41,22 +41,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
 })
 
-const useStyles = makeStyles((theme) => ({
-  input: {
-    color: '#000'
-  }
-}))
-
 interface Props {
   authState?: any
-  setBottomDrawerOpen: any
   chatState?: any
   instanceConnectionState?: any
   getInstanceChannel?: any
   createMessage?: any
   styles?: any
-  updateChatTarget?: any
-  updateMessageScrollInit?: any
+  MessageButton?: any
+  CloseButton?: any
+  SendButton?: any
+  newMessageLabel?: string
 }
 
 const InstanceChat = (props: Props): any => {
@@ -66,10 +61,11 @@ const InstanceChat = (props: Props): any => {
     instanceConnectionState,
     getInstanceChannel,
     createMessage,
-    setBottomDrawerOpen,
-    updateChatTarget,
-    updateMessageScrollInit,
-    styles = defaultStyles
+    styles = defaultStyles,
+    MessageButton = MessageIcon,
+    CloseButton = MessageIcon,
+    SendButton = Send,
+    newMessageLabel = 'World Chat...'
   } = props
 
   let activeChannel
@@ -90,10 +86,6 @@ const InstanceChat = (props: Props): any => {
     }
   }, [instanceConnectionState])
 
-  const openBottomDrawer = (e: any): void => {
-    setBottomDrawerOpen(true)
-  }
-
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
     setComposingMessage(message)
@@ -110,31 +102,13 @@ const InstanceChat = (props: Props): any => {
     }
   }
 
-  const setActiveChat = (channel): void => {
-    updateMessageScrollInit(true)
-    const channelType = channel.channelType
-    const target =
-      channelType === 'user'
-        ? channel.user1?.id === user.id
-          ? channel.user2
-          : channel.user2?.id === user.id
-          ? channel.user1
-          : {}
-        : channelType === 'group'
-        ? channel.group
-        : channelType === 'instance'
-        ? channel.instance
-        : channel.party
-    updateChatTarget(channelType, target, channel.id)
-    setComposingMessage('')
-  }
-
-  const [openMessageContainer, setOpenMessageContainer] = React.useState(false)
+  const [chatWindowOpen, setChatWindowOpen] = React.useState(false)
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
-  const hideShowMessagesContainer = () => {
-    setOpenMessageContainer(!openMessageContainer)
-    openMessageContainer && setUnreadMessages(false)
+  const toggleChatWindow = () => {
+    console.log('click')
+    setChatWindowOpen(!chatWindowOpen)
+    chatWindowOpen && setUnreadMessages(false)
   }
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
@@ -156,7 +130,7 @@ const InstanceChat = (props: Props): any => {
     activeChannel &&
       activeChannel.messages &&
       activeChannel.messages.length > 0 &&
-      !openMessageContainer &&
+      !chatWindowOpen &&
       setUnreadMessages(true)
   }, [activeChannel?.messages])
 
@@ -166,7 +140,6 @@ const InstanceChat = (props: Props): any => {
     }
   }, [isMultiline])
 
-  const classes = useStyles()
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
 
@@ -194,11 +167,7 @@ const InstanceChat = (props: Props): any => {
 
   return (
     <>
-      <div
-        className={
-          styles['instance-chat-container'] + ' ' + (!openMessageContainer && styles['messageContainerClosed'])
-        }
-      >
+      <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
         <div className={styles['list-container']}>
           <Card square={true} elevation={0} className={styles['message-wrapper']}>
             <CardContent className={styles['message-container']}>
@@ -245,30 +214,21 @@ const InstanceChat = (props: Props): any => {
                   })}
             </CardContent>
           </Card>
-          <Card className={styles['chat-view']}>
-            <CardContent className={styles['chat-box']}>
-              <div className={styles.iconContainer}>
-                {/* <MessageIcon onClick={() => hideShowMessagesContainer()}  /> */}
-                <span className={styles.mesg} onClick={() => hideShowMessagesContainer()}>
-                  <img src={MessageSvg} alt="message"></img>
-                </span>
-                {/* <span className={styles.chat}onClick={() => hideShowMessagesContainer()} ><SmsIcon fontSize="small"/></span> */}
-              </div>
+          <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
+            <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
               <TextField
                 className={styles.messageFieldContainer}
                 margin="normal"
                 multiline={isMultiline}
                 fullWidth
                 id="newMessage"
-                label="say something..."
+                label={newMessageLabel}
                 name="newMessage"
-                color="secondary"
                 autoFocus
                 value={composingMessage}
                 inputProps={{
                   maxLength: 1000,
-                  'aria-label': 'naked',
-                  className: classes.input
+                  'aria-label': 'naked'
                 }}
                 InputLabelProps={{ shrink: false }}
                 onChange={handleComposingMessageChange}
@@ -291,32 +251,31 @@ const InstanceChat = (props: Props): any => {
                   }
                 }}
               />
-              <Button
-                variant="contained"
-                color="primary"
-                className={classNames({ [styles.iconContainerSend]: true, sendMessage: true })}
-                onClick={packageMessage}
-              >
-                <Send />
-              </Button>
+              <span className={styles.sendButton}>
+                <SendButton onClick={packageMessage} />
+              </span>
             </CardContent>
           </Card>
         </div>
       </div>
-      {!openMessageContainer && (
-        <div className={styles.iconCallChat}>
-          <Badge
-            color="primary"
-            variant="dot"
-            invisible={!unreadMessages}
-            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-          >
-            <Fab className={styles['chatBadge']} color="primary" onClick={() => hideShowMessagesContainer()}>
-              <MessageIcon />
-            </Fab>
-          </Badge>
-        </div>
-      )}
+      <div className={styles.iconCallChat}>
+        <Badge
+          color="primary"
+          variant="dot"
+          invisible={!unreadMessages}
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        >
+          <Fab className={styles['chatBadge']} color="primary" onClick={() => toggleChatWindow()}>
+            {!chatWindowOpen ? (
+              <MessageButton />
+            ) : (
+              <div className={styles.iconContainer}>
+                <CloseButton onClick={() => toggleChatWindow()} />
+              </div>
+            )}
+          </Fab>
+        </Badge>
+      </div>
     </>
   )
 }

@@ -1,5 +1,5 @@
 import { AnimationGraph } from './AnimationGraph'
-import { IdleState, LoopableEmoteState, RunState, WalkState, JumpState } from './AnimationState'
+import { IdleState, LoopableEmoteState, RunState, WalkState, JumpState, EmoteState } from './AnimationState'
 import { AvatarStates } from './Util'
 
 /** Class to hold the animation graph for player entity. Every avatar entity will have their saperate graph. */
@@ -12,6 +12,7 @@ export class AvatarAnimationGraph extends AnimationGraph {
     const walkState = new WalkState()
     const runState = new RunState()
     const loopableEmoteState = new LoopableEmoteState()
+    const emoteState = new EmoteState()
     const jumpState = new JumpState()
 
     // Set the next states
@@ -19,6 +20,8 @@ export class AvatarAnimationGraph extends AnimationGraph {
     runState.nextStates.push(IdleState, WalkState, JumpState)
     loopableEmoteState.nextStates.push(WalkState, RunState, JumpState)
     jumpState.nextStates.push(IdleState, WalkState, RunState)
+    emoteState.nextStates.push(IdleState, WalkState, RunState, JumpState)
+    emoteState.autoTransitionTo = AvatarStates.IDLE
 
     // Add states to the graph
     this.states[AvatarStates.IDLE] = idleState
@@ -26,6 +29,7 @@ export class AvatarAnimationGraph extends AnimationGraph {
     this.states[AvatarStates.RUN] = runState
     this.states[AvatarStates.JUMP] = jumpState
     this.states[AvatarStates.LOOPABLE_EMOTE] = loopableEmoteState
+    this.states[AvatarStates.EMOTE] = emoteState
     this.defaultState = this.states[AvatarStates.IDLE]
   }
 }

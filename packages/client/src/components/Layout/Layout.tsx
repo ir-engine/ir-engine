@@ -1,29 +1,28 @@
-import { ThemeProvider } from '@material-ui/styles'
 import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons'
+import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
-import Me from '../Me'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
 import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { Config } from '@xrengine/client-core/src/helper'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { theme } from '@xrengine/client-core/src/theme'
-import Harmony from '../Harmony'
-import InstanceChat from '../InstanceChat'
-import PartyVideoWindows from '../PartyVideoWindows'
-import { Helmet } from 'react-helmet'
+import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
+import { Helmet } from 'react-helmet'
 import { connect } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
+import Harmony from '../Harmony'
+import Me from '../Me'
+import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
-import { Config } from '@xrengine/client-core/src/helper'
-import { useLocation } from 'react-router-dom'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -53,8 +52,11 @@ interface Props {
   login?: boolean
   pageTitle: string
   children?: any
+  hideVideo?: boolean
+  hideFullscreen?: boolean
   setUserHasInteracted?: any
   onBoardingStep?: number
+  theme?: any
 }
 const mapStateToProps = (state: any): any => {
   return {
@@ -77,7 +79,7 @@ const Layout = (props: Props): any => {
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
-  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
+  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(true)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const [expanded, setExpanded] = useState(true)
@@ -165,7 +167,7 @@ const Layout = (props: Props): any => {
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={props.theme ?? defaultTheme}>
           <section>
             <Helmet>
               <title>
@@ -174,7 +176,7 @@ const Layout = (props: Props): any => {
             </Helmet>
             <header>
               {path === '/login' && <NavMenu login={login} />}
-              {harmonyOpen !== true ? (
+              {!props.hideVideo && harmonyOpen !== true && (
                 <>
                   {expanded ? (
                     <section className={styles.locationUserMenu}>
@@ -191,10 +193,10 @@ const Layout = (props: Props): any => {
                   </button>
                   <UserToast />
                 </>
-              ) : null}
+              )}
             </header>
 
-            {fullScreenActive && harmonyOpen !== true ? (
+            {props.hideFullscreen ? null : fullScreenActive && harmonyOpen !== true ? (
               <button type="button" className={styles.fullScreen} onClick={handle.exit}>
                 <FullscreenExit />
               </button>
@@ -256,14 +258,6 @@ const Layout = (props: Props): any => {
             {/*  </Fragment>*/}
             {/*}*/}
             <footer>
-              {locationState.get('currentLocation')?.get('location')?.id &&
-                authState.get('authUser') != null &&
-                authState.get('isLoggedIn') === true &&
-                user?.instanceId != null &&
-                !leftDrawerOpen &&
-                !rightDrawerOpen &&
-                !topDrawerOpen &&
-                !bottomDrawerOpen && <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
               {user?.userRole !== 'guest' && harmonyOpen === false && (
                 <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
                   <Forum />
