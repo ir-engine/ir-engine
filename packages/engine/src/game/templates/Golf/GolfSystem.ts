@@ -118,24 +118,20 @@ export const GolfSystem = async (): Promise<System> => {
                   lastBallPosition: null
                 }
               ])
+              console.log(`player ${action.playerId} joined`)
             } else {
               console.log(`player ${action.playerId} rejoined`)
             }
 
             dispatchFromServer(GolfAction.sendState(s.attach(Downgraded).value))
 
-            // If the player is rejoining, we must recreate the spawned entities
-
             const { entity } = Object.values(Network.instance.networkObjects).find(
               (obj) => obj.uniqueId === action.playerId
             )
 
-            const playerNumber = getGolfPlayerNumber(entity)
-
-            spawnBall(entity, playerNumber, GolfState.currentHole.value)
-            spawnClub(entity, playerNumber)
-
-            console.log(`player ${action.playerId} joined and added to state`)
+            // const playerNumber = getGolfPlayerNumber(entity)
+            spawnBall(entity, GolfState.currentHole.value)
+            spawnClub(entity)
           }
           return
         }
@@ -384,10 +380,13 @@ export const GolfSystem = async (): Promise<System> => {
       const ownerEntity = playerQuery(world).find((player) => {
         return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
       })
-      if (ownerEntity) {
-        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-        // removeComponent(entity, GolfBallTagComponent)
-        initializeGolfBall(entity, parameters)
+      if (typeof ownerEntity !== 'undefined') {
+        const playerNumber = getGolfPlayerNumber(ownerEntity)
+        if (typeof playerNumber !== 'undefined') {
+          const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+          // removeComponent(entity, GolfBallTagComponent)
+          initializeGolfBall(entity, playerNumber, ownerEntity, parameters)
+        }
       }
     }
 
@@ -396,14 +395,16 @@ export const GolfSystem = async (): Promise<System> => {
       const ownerEntity = playerQuery(world).find((player) => {
         return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
       })
-      if (ownerEntity) {
-        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-        // removeComponent(entity, GolfClubTagComponent)
-        initializeGolfClub(entity, parameters)
+      if (typeof ownerEntity !== 'undefined') {
         const playerNumber = getGolfPlayerNumber(ownerEntity)
-        if (isEntityLocalClient(ownerEntity)) {
-          console.log('i am ready')
-          dispatchFromClient(GolfAction.playerReady(GolfState.players.value[playerNumber].id))
+        if (typeof playerNumber !== 'undefined') {
+          const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+          // removeComponent(entity, GolfClubTagComponent)
+          initializeGolfClub(entity, playerNumber, ownerEntity)
+          if (isEntityLocalClient(ownerEntity)) {
+            console.log('i am ready')
+            dispatchFromClient(GolfAction.playerReady(GolfState.players.value[playerNumber].id))
+          }
         }
       }
     }

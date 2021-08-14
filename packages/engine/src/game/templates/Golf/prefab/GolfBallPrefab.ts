@@ -64,6 +64,7 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   console.log('moving ball to', position)
 
   const collider = getComponent(entityBall, ColliderComponent)
+  if (!collider.body) return
   collider.body.updateTransform({
     translation: new Vector3(...position)
   })
@@ -73,7 +74,7 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   velocity.velocity.copy(new Vector3())
 }
 
-export const spawnBall = (entityPlayer: Entity, ownerPlayerNumber: number, playerCurrentHole: number): void => {
+export const spawnBall = (entityPlayer: Entity, playerCurrentHole: number): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
@@ -84,7 +85,6 @@ export const spawnBall = (entityPlayer: Entity, ownerPlayerNumber: number, playe
 
   const parameters: GolfBallSpawnParameters = {
     spawnPosition: new Vector3().copy(teeTransform.position),
-    ownerPlayerNumber,
     ownerNetworkId: playerNetworkObject.networkId
   }
 
@@ -175,12 +175,16 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
 
 type GolfBallSpawnParameters = {
   spawnPosition: Vector3
-  ownerPlayerNumber: number
   ownerNetworkId: number
 }
 
-export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawnParameters) => {
-  const { ownerPlayerNumber, spawnPosition, ownerNetworkId } = parameters
+export const initializeGolfBall = (
+  ballEntity: Entity,
+  playerNumber: number,
+  ownerEntity: Entity,
+  parameters: GolfBallSpawnParameters
+) => {
+  const { spawnPosition } = parameters
 
   const transform = addComponent(ballEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
@@ -188,12 +192,14 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
     scale: new Vector3().setScalar(golfBallRadius)
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
-  addComponent(ballEntity, GameObject, { role: `GolfBall-${ownerPlayerNumber}` })
+  addComponent(ballEntity, GameObject, { role: `GolfBall-${playerNumber}` })
+
+  const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
 
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
     const group = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/golf_ball.glb')
-    assetLoadCallback(group, ballEntity, ownerPlayerNumber)
+    assetLoadCallback(group, ballEntity, playerNumber)
   }
 
   const shape: ShapeType = {

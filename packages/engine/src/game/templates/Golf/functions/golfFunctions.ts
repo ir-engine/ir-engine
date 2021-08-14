@@ -7,7 +7,9 @@ import { GolfState } from '../GolfSystem'
 export const getGolfPlayerNumber = (entity: Entity) => {
   const uniqueId = getComponent(entity, NetworkObjectComponent)?.uniqueId
   if (!uniqueId) return undefined
-  return GolfState.players.findIndex((player) => player.id.value === uniqueId)
+  const number = GolfState.players.findIndex((player) => player.id.value === uniqueId)
+  if (number < 0) return undefined
+  return number
 }
 
 export const isCurrentGolfPlayer = (entity: Entity) => {

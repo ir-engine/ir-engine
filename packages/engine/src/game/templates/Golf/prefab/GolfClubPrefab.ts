@@ -52,16 +52,13 @@ const eulerX90 = new Euler(Math.PI * 0.5, 0, 0)
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnClub = (entityPlayer: Entity, ownerPlayerNumber: number): void => {
+export const spawnClub = (entityPlayer: Entity): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
 
-  const parameters: GolfClubSpawnParameters = {
-    ownerPlayerNumber,
-    ownerNetworkId: playerNetworkObject.networkId
-  }
+  const parameters: GolfClubSpawnParameters = {}
 
   // this spawns the club on the server
   spawnPrefab(GolfPrefabTypes.Club, playerNetworkObject.ownerId, uuid, networkId, parameters)
@@ -226,13 +223,10 @@ const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, c
 const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
-type GolfClubSpawnParameters = {
-  ownerPlayerNumber: number
-  ownerNetworkId: number
-}
+type GolfClubSpawnParameters = {}
 
-export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawnParameters) => {
-  const { ownerPlayerNumber, ownerNetworkId } = parameters
+export const initializeGolfClub = (entityClub: Entity, playerNumber: number, ownerEntity: Entity) => {
+  const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
 
   const transform = addComponent(entityClub, TransformComponent, {
     position: new Vector3(),
@@ -241,10 +235,10 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
   })
 
   addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
-  addComponent(entityClub, GameObject, { role: `GolfClub-${ownerPlayerNumber}` })
+  addComponent(entityClub, GameObject, { role: `GolfClub-${playerNumber}` })
   addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
-  const color = GolfColours[ownerPlayerNumber]
+  const color = GolfColours[playerNumber]
 
   const raycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
