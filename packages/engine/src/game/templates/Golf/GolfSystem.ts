@@ -105,7 +105,25 @@ export const GolfSystem = async (): Promise<System> => {
          */
         case 'puttclub.PLAYER_JOINED': {
           // this must happen on the server
+
           if (!isClient) {
+            const playerAlreadyExists = s.players.find((p) => p.value.id === action.playerId)
+
+            if (!playerAlreadyExists) {
+              s.players.merge([
+                {
+                  id: action.playerId,
+                  scores: [],
+                  stroke: 0,
+                  lastBallPosition: null
+                }
+              ])
+            } else {
+              console.log(`player ${action.playerId} rejoined`)
+            }
+
+            dispatchFromServer(GolfAction.sendState(s.attach(Downgraded).value))
+
             // If the player is rejoining, we must recreate the spawned entities
 
             const { entity } = Object.values(Network.instance.networkObjects).find(
@@ -116,25 +134,9 @@ export const GolfSystem = async (): Promise<System> => {
 
             spawnBall(entity, playerNumber, GolfState.currentHole.value)
             spawnClub(entity, playerNumber)
+
+            console.log(`player ${action.playerId} joined and added to state`)
           }
-
-          dispatchFromServer(GolfAction.sendState(s.attach(Downgraded).value))
-
-          if (s.players.find((p) => p.value.id === action.playerId)) {
-            console.log(`player ${action.playerId} rejoined`)
-            return // player already joined
-          }
-
-          s.players.merge([
-            {
-              id: action.playerId,
-              scores: [],
-              stroke: 0,
-              lastBallPosition: null
-            }
-          ])
-
-          console.log(`player ${action.playerId} joined and added to state`)
           return
         }
 
@@ -255,8 +257,9 @@ export const GolfSystem = async (): Promise<System> => {
           if (s.players[s.currentPlayer.value].value.lastBallPosition === null) {
             const currentHole = GolfState.currentHole.value
             const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
+            const lastBallPosition = getComponent(teeEntity, TransformComponent).position.toArray()
             s.players[s.currentPlayer.value].merge((s) => {
-              return { lastBallPosition: getComponent(teeEntity, TransformComponent).position.toArray() }
+              return { lastBallPosition }
             })
           }
 

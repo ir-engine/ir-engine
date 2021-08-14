@@ -34,6 +34,7 @@ export enum BALL_STATES {
 }
 
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
+  if (!entityBall) return
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   const obj = getComponent(entityBall, Object3DComponent)
   console.log('setBallState', Object.values(BALL_STATES)[ballState])
