@@ -1,4 +1,4 @@
-import { createState, useState, none } from '@hookstate/core'
+import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { Scene } from '@xrengine/common/src/interfaces/Scene'
 import { SceneActionType } from './SceneAction'
 
@@ -10,7 +10,7 @@ const state = createState({
 
 export const SceneReducer = (_, action: SceneActionType) => {
   Promise.resolve().then(() => SceneReceptor(action))
-  return state
+  return state.attach(Downgraded).value
 }
 
 export const SceneReceptor = (action: SceneActionType): void => {

@@ -1,4 +1,4 @@
-import { createState, useState, none } from '@hookstate/core'
+import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { PublicVideo } from '@xrengine/common/src/interfaces/Video'
 import { VideoActionType } from './VideoAction'
 
@@ -9,7 +9,7 @@ const state = createState({
 
 export const VideoReducer = (_, action: VideoActionType) => {
   Promise.resolve().then(() => VideoReceptor(action))
-  return state
+  return state.attach(Downgraded).value
 }
 
 export const VideoReceptor = (action: VideoActionType): void => {
@@ -25,4 +25,4 @@ export const VideoReceptor = (action: VideoActionType): void => {
 }
 
 export const accessVideoState = () => state
-export const useVideostate = () => useState(state)
+export const useVideoState = () => useState(state)

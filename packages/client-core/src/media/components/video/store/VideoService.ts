@@ -3,7 +3,7 @@ import { client } from '../../../../feathers'
 import { VideoAction, VideoActionType } from './VideoAction'
 import { PublicVideo } from '@xrengine/common/src/interfaces/Video'
 
-export const VedioService = {
+export const VideoService = {
   fetchPublicVideos: (pageOffset = 0) => {
     return (dispatch: Dispatch): any => {
       // loads next pages videos +1

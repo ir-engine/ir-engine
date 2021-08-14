@@ -1,4 +1,4 @@
-import { createState, useState, none } from '@hookstate/core'
+import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserActionType } from './UserAction'
@@ -16,7 +16,7 @@ const state = createState({
 
 export const userReducer = (_, action: UserActionType) => {
   Promise.resolve().then(() => userReceptor(action))
-  return state
+  return state.attach(Downgraded).value
 }
 
 export const userReceptor = (action: UserActionType): void => {
