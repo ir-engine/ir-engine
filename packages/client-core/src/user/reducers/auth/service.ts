@@ -840,7 +840,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       for (let key of Object.keys(Network.instance.networkObjects)) {
         const obj = Network.instance.networkObjects[key]
         if (obj?.ownerId === user.id) {
-          setAvatar(obj.entity.id, user.avatarId, avatarURL)
+          setAvatar(obj.entity, user.avatarId, avatarURL)
           break
         }
       }
@@ -873,7 +873,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     for (let key of Object.keys(Network.instance.networkObjects)) {
       const obj = Network.instance.networkObjects[key]
       if (obj?.ownerId === user.id) {
-        setAvatar(obj.entity.id, user.avatarId, avatarURL)
+        setAvatar(obj.entity, user.avatarId, avatarURL)
         break
       }
     }

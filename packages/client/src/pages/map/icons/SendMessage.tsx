@@ -1,10 +1,10 @@
 import React from 'react'
 
-export const MicOff = () => {
+export const SendMessage = () => {
   return (
     <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g filter="url(#filter0_b)">
-        <rect x="0.842773" y="1.78827" width="32.9067" height="32.9067" rx="16.4534" fill="white" fill-opacity="0.3" />
+        <rect x="0.842773" y="1.78827" width="32.9067" height="32.9067" rx="16.4534" fill="white" fillOpacity="0.3" />
         <rect x="0.842773" y="1.78827" width="32.9067" height="32.9067" rx="16.4534" fill="url(#paint0_linear)" />
       </g>
       <path
@@ -34,8 +34,8 @@ export const MicOff = () => {
           y2="34.695"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#614AD3" />
-          <stop offset="1" stop-color="#614AD3" />
+          <stop stopColor="#614AD3" />
+          <stop offset="1" stopColor="#614AD3" />
         </linearGradient>
       </defs>
     </svg>

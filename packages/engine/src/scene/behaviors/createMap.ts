@@ -4,20 +4,19 @@ import { MapProps } from '../../map/MapProps'
 import { addComponent } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { Entity } from '../../ecs/classes/Entity'
 
-export async function createMap(entity, args: MapProps): Promise<void> {
-  const { mapMesh, navMesh } = await create(Engine.renderer, args)
-  console.log('mapMesh', mapMesh)
-  // TODO remove scene.add and instead use addComponent Object3DComponent to make it raycast-able
-  Engine.scene.add(mapMesh)
-  // addComponent(entity, Object3DComponent, {
-  //   value: mapMesh
-  // })
-  console.log('map added, navmesh?', navMesh)
-  if (navMesh) {
-    addComponent(entity, NavMeshComponent, {
-      yukaNavMesh: navMesh
-    })
+export async function createMap(entity: Entity, args: MapProps): Promise<void> {
+  const { mapMesh, navMesh, groundMesh } = await create(Engine.renderer, args)
+  addComponent(entity, Object3DComponent, {
+    value: mapMesh
+  })
+  addComponent(entity, NavMeshComponent, {
+    yukaNavMesh: navMesh,
+    navTarget: groundMesh
+  })
+  if (args.enableDebug) {
     addComponent(entity, DebugNavMeshComponent, null)
   }
 }

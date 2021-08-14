@@ -15,10 +15,11 @@ export default function makeRenderer(width, height, props = {}) {
     canvas,
     context,
     antialias: true,
-    preserveDrawingBuffer: true
+    preserveDrawingBuffer: true,
+    logarithmicDepthBuffer: true
   }
-  const { safariWebBrowser } = window as any
-  const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options)
+  // const { safariWebBrowser } = window as any
+  const renderer = new WebGLRenderer(options)
   renderer.physicallyCorrectLights = true
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = PCFSoftShadowMap

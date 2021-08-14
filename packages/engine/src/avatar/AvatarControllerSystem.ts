@@ -19,7 +19,12 @@ import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUp
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
 import { ECSWorld } from '../ecs/classes/World'
-
+export class AvatarSettings {
+  static instance: AvatarSettings = new AvatarSettings()
+  walkSpeed = 1.5
+  runSpeed = 5
+  jumpHeight = 4
+}
 export const AvatarControllerSystem = async (): Promise<System> => {
   const vector3 = new Vector3()
   const quat = new Quaternion()

@@ -1,12 +1,53 @@
+.MuiButtonBase-root, MuiFab-root MuiFab-primary {
+  background-color:none;
+}
+.MuiPaper-root {
+  background-color: #FFF;
+}
+#newMessage {
+  margin-left:5px;
+  color: #000;
+}
+
+div, span {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+.MuiInputBase-input{
+  margin-left:5px;
+  color:#000;
+}
+
+#newMessage-label {
+  color:#000!important;
+
+}
+
+.MuiFormLabel-root {
+  color:#000!important;
+}
+
+.sendButton{
+  margin:5px;
+}
+
 .iconCallChat{
+  color: #000;
   display: flex;
   position: absolute;
-  right: 0;
-  bottom: 0;
-  margin: 5px 15px 20px 10px;
+  left: 0;
+  // bottom: 0;
+  bottom: 32px;
+  margin: 20px 20px 20px 20px;
   align-items: center;
-  color: #000;
   z-index: 20;
+
   &:hover {
     cursor: pointer;
   }
@@ -16,10 +57,17 @@
   button {
     height: 48px;
   }
+  .chatBadge{
+    background-color:rgba(0,0,0,0);
+    box-shadow: none;
+    padding:0;
+    margin:0;
+  }
 }
 .instance-chat-container {
+  color: #000!important;
   position: absolute;
-  bottom: 0;
+  bottom: 100px;
   display: flex;
   flex-direction: row;
   right: 0;
@@ -39,13 +87,19 @@
     margin: 0;
     width: 100vw;
   }
+  
+
 
   .chat-box {
     display: flex;
+    background-color: #FFF!important;
     flex-grow: 1;
     align-items: stretch;
     padding: 0px;
+    padding-left:10px;
     align-items: flex-end;
+    color: #000;
+    box-shadow:none;
     .chat-box:last-child {
       padding-bottom: 0px;
     }

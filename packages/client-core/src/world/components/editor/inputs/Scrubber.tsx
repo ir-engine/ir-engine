@@ -30,7 +30,7 @@ const Cursor = (styled as any)(ArrowsAltH).attrs(({ x, y }) => ({
 
   path {
     stroke: white;
-    stroke-width: 20px;
+    strokeWidth: 20px;
     fill: black;
   }
 `
