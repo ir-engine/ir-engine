@@ -11,6 +11,10 @@ export default (app: Application): any => {
         defaultValue: DataTypes.UUIDV1,
         allowNull: false,
         primaryKey: true
+      },
+      scopeName: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
     {
