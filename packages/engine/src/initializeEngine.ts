@@ -40,7 +40,6 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { HighlightSystem } from './renderer/HighlightSystem'
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
-import { OceanSystem } from './scene/systems/OceanSystem'
 import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
 import { TransformSystem } from './transform/systems/TransformSystem'
 import { XRSystem } from './xr/systems/XRSystem'
@@ -184,7 +183,6 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, PositionalAudioSystem)
   registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
-  registerSystem(SystemUpdateType.Fixed, OceanSystem)
   registerSystem(SystemUpdateType.Fixed, GlobalActionDispatchSystem)
 
   // Free systems

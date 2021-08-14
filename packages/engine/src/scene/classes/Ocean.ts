@@ -19,10 +19,7 @@ import {
   TextureLoader
 } from 'three'
 import { TGALoader } from '../../assets/loaders/tga/TGALoader'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/EntityFunctions'
-import { OceanComponent } from '../components/OceanComponent'
+import { Updatable } from '../interfaces/Updatable'
 
 const vertexUniforms = `uniform float time;
 uniform sampler2D distortionMap;
@@ -135,16 +132,7 @@ function loadTexture(src): Promise<Texture> {
   })
 }
 
-export const createOceanObject = (entity, configs): void => {
-  if (!isClient) return
-
-  const mesh = new Ocean()
-  Object.assign(mesh, configs)
-  addComponent(entity, OceanComponent, { mesh: mesh })
-  Engine.scene.add(mesh)
-}
-
-export class Ocean extends Mesh {
+export class Ocean extends Mesh implements Updatable {
   depthMap: WebGLRenderTarget
   shouldResize: boolean
   _shallowWaterColor: Color
