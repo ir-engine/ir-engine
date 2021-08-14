@@ -1,4 +1,13 @@
+import { GolfState } from './GolfSystem'
+
 export const GolfAction = {
+  sendState(state: any) {
+    return {
+      type: 'puttclub.GAME_STATE' as const,
+      state
+    }
+  },
+
   playerJoined(playerId: string) {
     return {
       type: 'puttclub.PLAYER_JOINED' as const,

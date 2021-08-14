@@ -187,6 +187,7 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
 
       for (const transform of clientInput.transforms) {
         const networkObject = Network.instance.networkObjects[transform.networkId]
+        if (!networkObject) continue
         const clientAuthoritativeComponent = getComponent(networkObject.entity, ClientAuthoritativeComponent)
         if (
           networkObject &&

@@ -5,7 +5,7 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
 import { Network } from '../../../networking/classes/Network'
 import { dispatchFromServer, dispatchFromClient } from '../../../networking/functions/dispatch'
-import { createState } from '@hookstate/core'
+import { createState, Downgraded } from '@hookstate/core'
 import { ActionType } from '../../../networking/interfaces/NetworkTransport'
 import { isClient } from '../../../common/functions/isClient'
 import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
@@ -35,6 +35,7 @@ import { VelocityComponent } from '../../../physics/components/VelocityComponent
 import { GolfHoleComponent } from './components/GolfHoleComponent'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { isEntityLocalClient } from '../../../networking/functions/isEntityLocalClient'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -85,8 +86,17 @@ export const GolfSystem = async (): Promise<System> => {
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
   function receptor(world: ECSWorld, action: GolfActionType) {
     GolfState.batch((s) => {
-      console.log(action)
+      console.log('\n\nACTION', action, 'CURRENT STATE', s, '\n\n')
       switch (action.type) {
+        /**
+         * on PLAYER_READY
+         *   -
+         */
+        case 'puttclub.GAME_STATE': {
+          s.merge(action.state)
+          return
+        }
+
         /**
          * On PLAYER_JOINED
          * - Add a player to player list (start at hole 0, scores at 0 for all holes)
@@ -115,6 +125,8 @@ export const GolfSystem = async (): Promise<System> => {
             spawnClub(entity, playerNumber)
           }
 
+          dispatchFromServer(GolfAction.sendState(s.attach(Downgraded).value))
+
           console.log(`player ${action.playerId} joined and added to state`)
           return
         }
@@ -124,12 +136,8 @@ export const GolfSystem = async (): Promise<System> => {
          *   -
          */
         case 'puttclub.PLAYER_READY': {
-          if (s.players.length === 1) {
-            // setTimeout(() => {
-
-            console.log('first player ready, game can start', GolfState.currentPlayer.value)
+          if (action.playerId === s.players.value[s.currentPlayer.value].id) {
             dispatchFromServer(GolfAction.resetBall())
-            // }, 3000)
           }
           return
         }
@@ -167,6 +175,7 @@ export const GolfSystem = async (): Promise<System> => {
           setBallState(entityBall, BALL_STATES.STOPPED)
 
           dispatchFromServer(GolfAction.nextTurn())
+          return
         }
 
         /**
@@ -180,8 +189,8 @@ export const GolfSystem = async (): Promise<System> => {
          *   - show new player's ball
          */
         case 'puttclub.NEXT_TURN': {
-          const currentPlayerNumber = GolfState.currentPlayer.value
-          const player = s.players[s.currentPlayer.value]
+          const currentPlayerNumber = s.currentPlayer.value
+          const player = s.players[currentPlayerNumber]
           const entityHole = GolfObjectEntities.get(`GolfHole-${currentPlayerNumber}`)
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
 
@@ -247,9 +256,10 @@ export const GolfSystem = async (): Promise<System> => {
           const player = s.players[s.currentPlayer.value]
 
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
-          resetBall(entityBall, player.lastBallPosition.value)
-
-          setBallState(GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`), BALL_STATES.WAITING)
+          if (typeof entityBall !== 'undefined') {
+            resetBall(entityBall, player.lastBallPosition.value)
+            setBallState(entityBall, BALL_STATES.WAITING)
+          }
 
           return
         }
@@ -287,19 +297,20 @@ export const GolfSystem = async (): Promise<System> => {
       for (const entity of golfClubQuery(world)) {
         updateClub(entity)
 
+        const currentPlayerEntity = getCurrentGolfPlayerEntity()
+        const networkObject = getComponent(currentPlayerEntity, NetworkObjectComponent)
         const currentPlayerNumber = GolfState.currentPlayer.value
         const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
 
-        const { collisionEntity } = getCollisions(entity, GolfBallComponent)
-        if (collisionEntity !== null && collisionEntity === entityBall) {
-          const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-          console.log(golfBallComponent.state)
-          if (golfBallComponent.state === BALL_STATES.WAITING) {
-            const currentPlayerEntity = getCurrentGolfPlayerEntity()
-            const networkObject = getComponent(currentPlayerEntity, NetworkObjectComponent)
-            hitBall(entity, entityBall)
-            setBallState(entityBall, BALL_STATES.MOVING)
-            dispatchFromClient(GolfAction.playerStroke(networkObject.uniqueId))
+        if (entityBall && getComponent(entityBall, NetworkObjectComponent).ownerId === networkObject.uniqueId) {
+          const { collisionEntity } = getCollisions(entity, GolfBallComponent)
+          if (collisionEntity !== null && collisionEntity === entityBall) {
+            const golfBallComponent = getComponent(entityBall, GolfBallComponent)
+            if (golfBallComponent.state === BALL_STATES.WAITING) {
+              hitBall(entity, entityBall)
+              setBallState(entityBall, BALL_STATES.MOVING)
+              dispatchFromClient(GolfAction.playerStroke(networkObject.uniqueId))
+            }
           }
         }
       }
@@ -380,7 +391,10 @@ export const GolfSystem = async (): Promise<System> => {
         removeComponent(entity, GolfClubTagComponent)
         initializeGolfClub(entity, parameters)
         const playerNumber = getGolfPlayerNumber(ownerEntity)
-        dispatchFromClient(GolfAction.playerReady(GolfState.players.value[playerNumber].id))
+        if (isEntityLocalClient(ownerEntity)) {
+          console.log('i am ready')
+          dispatchFromClient(GolfAction.playerReady(GolfState.players.value[playerNumber].id))
+        }
       }
     }
 

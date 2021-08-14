@@ -20,13 +20,12 @@ import { VelocityComponent } from '../components/VelocityComponent'
 import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
+import { rigidbodyUpdateBehavior } from '../behaviors/rigidbodyUpdateBehavior'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-
-const vec3 = new Vector3()
 
 export const InterpolationSystem = async (): Promise<System> => {
   const localCharacterInterpolationQuery = defineQuery([
@@ -92,30 +91,10 @@ export const InterpolationSystem = async (): Promise<System> => {
       rigidbodyInterpolationBehavior(entity, snapshots, delta)
     }
 
-    // If a networked entity does not have an interpolation component, just copy the data
     for (const entity of correctionFromServerQuery(world)) {
-      const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
-      if (snapshot == null) continue
-      const collider = getComponent(entity, ColliderComponent)
-      const velocity = getComponent(entity, VelocityComponent)
-      // dynamic objects should be interpolated, kinematic objects should not
-      if (velocity && collider.body.type !== BodyType.KINEMATIC) {
-        velocity.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))
-        collider.body.updateTransform({
-          translation: {
-            x: snapshot.x,
-            y: snapshot.y,
-            z: snapshot.z
-          },
-          rotation: {
-            x: snapshot.qX,
-            y: snapshot.qY,
-            z: snapshot.qZ,
-            w: snapshot.qW
-          }
-        })
-      }
+      rigidbodyUpdateBehavior(entity, snapshots, delta)
     }
+
     return world
   })
 }

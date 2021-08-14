@@ -67,7 +67,6 @@ export const resetBall = (entityBall: Entity, position: Vector3) => {
     translation: position
   })
   collider.body.setLinearVelocity(new Vector3(), true)
-  collider.body.setAngularVelocity(new Vector3(), true)
 
   const velocity = getComponent(entityBall, VelocityComponent)
   velocity.velocity.copy(new Vector3())
@@ -193,7 +192,6 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
     const group = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/golf_ball.glb')
-    console.log(group)
     assetLoadCallback(group, ballEntity, ownerPlayerNumber)
   }
 

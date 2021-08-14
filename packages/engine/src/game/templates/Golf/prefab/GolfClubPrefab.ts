@@ -232,7 +232,6 @@ type GolfClubSpawnParameters = {
 }
 
 export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawnParameters) => {
-  console.log(parameters)
   const { ownerPlayerNumber, ownerNetworkId } = parameters
 
   const transform = addComponent(entityClub, TransformComponent, {

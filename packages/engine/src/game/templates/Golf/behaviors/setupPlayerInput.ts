@@ -155,7 +155,6 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
           }
         })
         collider.body.setLinearVelocity(new Vector3(), true)
-        collider.body.setAngularVelocity(new Vector3(), true)
       }
     )
     if (isClient) {
