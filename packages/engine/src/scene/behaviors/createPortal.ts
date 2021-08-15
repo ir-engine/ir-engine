@@ -71,7 +71,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
     PhysXInstance.instance.addBody(portalBody)
 
-    portalBody.userData = entity
+    portalBody.userData = { entity }
 
     addComponent(entity, ColliderComponent, { body: portalBody })
 

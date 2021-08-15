@@ -90,7 +90,7 @@ export const GameManagerSystem = async (): Promise<System> => {
       const collider = getComponent(entity, ColliderComponent)
       const gameObject = getComponent(entity, GameObject)
       for (const collisionEvent of collider.body.collisionEvents) {
-        const otherEntity = collisionEvent.bodyOther.userData as Entity
+        const otherEntity = collisionEvent.bodyOther.userData.entity as Entity
         if (typeof otherEntity === 'undefined') continue
         const otherGameObject = getComponent(otherEntity, GameObject)
         if (!otherGameObject) continue
