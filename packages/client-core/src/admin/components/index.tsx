@@ -26,13 +26,15 @@ import { client } from '../../feathers'
 import { selectAuthState } from '../../user/reducers/auth/selector'
 import { PAGE_LIMIT } from '../reducers/admin/reducers'
 import { selectAdminLocationState } from '../reducers/admin/location/selector'
-import { fetchAdminScenes } from '../reducers/admin/scene/service'
+// import { fetchAdminScenes } from '../reducers/admin/scene/service'
+import { AdminSceneService } from '../reducers/admin/scene/store/AdminSceneService'
 import { fetchUsersAsAdmin } from '../reducers/admin/user/service'
 import { fetchAdminInstances } from '../reducers/admin/instance/service'
 import { selectAdminUserState } from './../reducers/admin/user/selector'
 import { selectAdminInstanceState } from './../reducers/admin/instance/selector'
 import { fetchAdminLocations, fetchLocationTypes } from '../reducers/admin/location/service'
-import { selectAdminSceneState } from './../reducers/admin/scene/selector'
+// import { selectAdminSceneState } from './../reducers/admin/scene/selector'
+import { useAdminSceneState } from '../reducers/admin/scene/store/AdminSceneState'
 import Grid from '@material-ui/core/Grid'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
@@ -151,14 +153,16 @@ const mapStateToProps = (state: any): any => {
     authState: selectAuthState(state),
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
-    adminInstanceState: selectAdminInstanceState(state),
-    adminSceneState: selectAdminSceneState(state)
+    adminInstanceState: selectAdminInstanceState(state)
+    // adminSceneState: selectAdminSceneState(state)
   }
 }
 
+const adminSceneState = useAdminSceneState()
+
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
+  fetchAdminScenes: bindActionCreators(AdminSceneService.fetchAdminScenes, dispatch),
   fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
   fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
   fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)

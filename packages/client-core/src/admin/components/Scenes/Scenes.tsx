@@ -15,11 +15,13 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { PAGE_LIMIT } from '../../reducers/admin/reducers'
-import { fetchAdminScenes } from '../../reducers/admin/scene/service'
+// import { fetchAdminScenes } from '../../reducers/admin/scene/service'
+import { AdminSceneService } from '../../reducers/admin/scene/store/AdminSceneService'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import styles from './Scenes.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+// import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { useAdminSceneState } from '../../reducers/admin/scene/store/AdminSceneState'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -36,22 +38,22 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
-    adminSceneState: selectAdminSceneState(state)
+    authState: selectAuthState(state)
+    // adminSceneState: selectAdminSceneState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
+  fetchAdminScenes: bindActionCreators(AdminSceneService.fetchAdminScenes, dispatch),
   fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
 })
 
 const Scenes = (props: Props) => {
-  const { authState, fetchAdminScenes, adminSceneState } = props
-
+  const { authState, fetchAdminScenes } = props
+  const adminSceneState = useAdminSceneState()
   const user = authState.get('user')
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const adminScenesCount = adminSceneState.get('scenes').get('total')
+  const adminScenes = adminSceneState.scenes.scenes.get()
+  const adminScenesCount = adminSceneState.scenes.total.get()
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -187,7 +189,7 @@ const Scenes = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id != null && (adminSceneState.get('scenes').get('updateNeeded') === true || refetch === true)) {
+    if (user?.id != null && (adminSceneState.scenes.updateNeeded.get() === true || refetch === true)) {
       fetchAdminScenes()
     }
     setRefetch(false)

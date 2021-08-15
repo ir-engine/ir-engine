@@ -4,7 +4,7 @@ import { SceneActionType } from './SceneAction'
 
 const state = createState({
   scenes: [] as Array<Scene>,
-  currentScene: null,
+  currentScene: {} as Scene,
   error: ''
 })
 

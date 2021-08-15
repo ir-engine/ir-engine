@@ -2,30 +2,29 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { GeneralStateList } from '../../reducers/app/actions'
 import { selectAppOnBoardingStep } from '../../reducers/app/selector'
-// import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
 import { useSceneState } from '../../../world/store/SceneState'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
+
 interface Props {
   objectsToLoad?: number
   onBoardingStep?: number
-  // currentScene?: any
+  currentScene?: any
   Loader?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state)
-    // currentScene: selectCurrentScene(state)
   }
 }
 
 const LoadingScreen = (props: Props) => {
   const { onBoardingStep, objectsToLoad, Loader } = props
-  const currentScene = useSceneState()
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()
+  const currentSceneState = useSceneState()
 
   useEffect(() => {
     switch (onBoardingStep) {
@@ -62,7 +61,10 @@ const LoadingScreen = (props: Props) => {
 
   return (
     <>
-      <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
+      <section
+        className={styles.overlay}
+        style={{ backgroundImage: `url(${currentSceneState.currentScene?.thumbnailUrl.get()})` }}
+      >
         <section className={styles.linearProgressContainer}>
           {Loader && <Loader />}
           <span className={styles.loadingProgressInfo}>{loadingText}</span>

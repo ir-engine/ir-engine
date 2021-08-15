@@ -5,7 +5,8 @@ import adminAvatarReducer from './admin/avatar/reducers'
 import adminInstanceReducer from './admin/instance/reducers'
 import adminLocationReducer from './admin/location/reducers'
 import adminPartyReducer from './admin/party/reducers'
-import adminSceneReducer from './admin/scene/reducers'
+// import adminSceneReducer from './admin/scene/reducers'
+import { AdminSceneReducer } from './admin/scene/store/AdminSceneState'
 import adminBotsReducer from './admin/bots/reducers'
 import arMediaReducer from './admin/Social/arMedia/reducers'
 import feedsReducer from './admin/Social/feeds/reducers'
@@ -25,7 +26,7 @@ export default {
   adminInstance: adminInstanceReducer,
   adminLocation: adminLocationReducer,
   adminParty: adminPartyReducer,
-  adminScene: adminSceneReducer,
+  adminScene: AdminSceneReducer,
   adminBots: adminBotsReducer,
   arMedia: arMediaReducer,
   feedsAdmin: feedsReducer,

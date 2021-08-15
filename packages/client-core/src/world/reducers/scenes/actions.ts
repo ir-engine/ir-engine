@@ -1,4 +1,4 @@
-import { SCENES_FETCHED_SUCCESS, SCENES_FETCHED_ERROR, SCENES_RETRIEVED, SET_CURRENT_SCENE } from '../actions'
+// import { SCENES_FETCHED_SUCCESS, SCENES_FETCHED_ERROR, SCENES_RETRIEVED, SET_CURRENT_SCENE } from '../actions'
 
 // export interface PublicScenesState {
 //   scenes: PublicScene[]

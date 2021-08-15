@@ -39,8 +39,9 @@ import { ADMIN_LOADED_USERS } from '@xrengine/client-core/src/admin/reducers/act
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { LoadedUsersAction } from '../../../user/reducers/user/actions'
-import { CollectionsFetchedAction } from '../../../world/reducers/scenes/actions'
+// import { LoadedUsersAction } from '../../../user/reducers/user/actions'
+import { LoadedUsersAction } from '../../../admin/reducers/admin/user/actions'
+import { CollectionsFetchedAction } from '@xrengine/common/src/interfaces/Scene'
 import { LocationsRetrievedAction } from '../../../social/reducers/location/actions'
 
 export const PAGE_LIMIT = 100
