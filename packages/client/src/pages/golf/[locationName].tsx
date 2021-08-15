@@ -5,6 +5,10 @@ import { useTranslation } from 'react-i18next'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import MediaIconsBox from '../../components/MediaIconsBox'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { GolfSystem } from './GolfSystem'
+import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -20,6 +24,16 @@ const LocationPage = (props) => {
     onSuccess: () => {}
   }
 
+  const engineInitializeOptions: InitializeOptions = {
+    systems: [
+      {
+        type: SystemUpdateType.Fixed,
+        system: GolfSystem,
+        after: GameManagerSystem
+      }
+    ]
+  }
+
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
@@ -28,6 +42,7 @@ const LocationPage = (props) => {
         locationName={props.match.params.locationName}
         history={props.history}
         engineCallbacks={engineCallbacks}
+        engineInitializeOptions={engineInitializeOptions}
       >
         <UserMenu />
         <MediaIconsBox />

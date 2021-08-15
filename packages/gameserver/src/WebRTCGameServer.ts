@@ -7,9 +7,9 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { EquippableSystem } from '../../engine/src/interaction/systems/EquippableSystem'
 import { SystemUpdateType } from '../../engine/src/ecs/functions/SystemUpdateType'
+import { GolfSystem } from '@xrengine/client/src/pages/golf/GolfSystem'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 

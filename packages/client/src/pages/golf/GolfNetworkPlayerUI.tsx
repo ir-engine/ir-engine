@@ -1,11 +1,11 @@
 import React from 'react'
+import { Color } from 'three'
 import { createState } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { GolfColours } from '@xrengine/engine/src/game/templates/Golf/GolfGameConstants'
-import { Color } from 'three'
-import { useGolfState } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
+import { GolfColours } from './GolfGameConstants'
+import { useGolfState } from './GolfSystem'
 
 const scratchColor = new Color()
 

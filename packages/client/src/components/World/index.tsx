@@ -26,7 +26,6 @@ import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPl
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
 import { GameManagerSystem } from '../../../../engine/src/game/systems/GameManagerSystem'
-import { GolfSystem } from '../../../../engine/src/game/templates/Golf/GolfSystem'
 import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
@@ -46,14 +45,7 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
     physics: {
       simulationEnabled: false,
       physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-    },
-    systems: [
-      {
-        type: SystemUpdateType.Fixed,
-        system: GolfSystem,
-        after: GameManagerSystem
-      }
-    ]
+    }
   }
 }
 
