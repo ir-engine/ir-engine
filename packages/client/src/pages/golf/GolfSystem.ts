@@ -1,5 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System, pipe } from '@xrengine/engine/src/ecs/bitecs'
 import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
@@ -36,8 +36,9 @@ import { Vector3 } from 'three'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { useState } from '@hookstate/core'
-import { createNetworkPlayerUI } from './GolfNetworkPlayerUI'
+import { createNetworkPlayerUI } from './GolfPlayerUISystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
+import { GolfXRUISystem } from './GolfXRUISystem'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -51,8 +52,6 @@ import { getPlayerNumber } from './functions/golfBotHookFunctions'
 export const GolfObjectEntities = new Map<string, Entity>()
 
 globalThis.GolfObjectEntities = GolfObjectEntities
-
-const GolfNetworkPlayerUI = new Map<Entity, ReturnType<typeof createNetworkPlayerUI>>()
 
 /**
  *
@@ -86,7 +85,7 @@ const getResetBallPosition = (playerNumber: number) => {
 
 globalThis.GolfState = GolfState
 
-export const GolfSystem = async (): Promise<System> => {
+const GolfReceptorSystem = async (): Promise<System> => {
   if (isClient) {
     registerGolfBotHooks()
     // pre-cache the assets we need for this game
@@ -378,31 +377,6 @@ export const GolfSystem = async (): Promise<System> => {
       GolfObjectEntities.set(role, entity)
     }
 
-    // Network Player XRUI
-    if (isClient) {
-      for (const entity of playerEnterQueryResults) {
-        if (entity === Network.instance.localClientEntity) continue
-        const playerUI = createNetworkPlayerUI(getGolfPlayerNumber(entity))
-        GolfNetworkPlayerUI.set(entity, playerUI)
-      }
-      for (const entity of playerQuery(world)) {
-        const ui = GolfNetworkPlayerUI.get(entity)!
-        if (!ui) continue
-        const { avatarHeight } = getComponent(entity, AvatarComponent)
-        const avatarTransform = getComponent(entity, TransformComponent)
-        const uiTransform = getComponent(ui.entity, TransformComponent)
-        uiTransform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(avatarTransform.position) / 3))
-        uiTransform.position.copy(avatarTransform.position)
-        uiTransform.position.y += avatarHeight + 0.3
-        uiTransform.rotation.setFromRotationMatrix(Engine.camera.matrix)
-      }
-      for (const entity of playerExitQuery(world)) {
-        const ui = GolfNetworkPlayerUI.get(entity)
-        removeEntity(ui.entity)
-        GolfNetworkPlayerUI.delete(entity)
-      }
-    }
-
     const currentPlayerNumber = GolfState.currentPlayer.value
     const activeBallEntity = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
     if (activeBallEntity) {
@@ -472,3 +446,5 @@ export const GolfSystem = async (): Promise<System> => {
     return world
   })
 }
+
+export const GolfSystem = pipe(GolfReceptorSystem, GolfXRUISystem)
