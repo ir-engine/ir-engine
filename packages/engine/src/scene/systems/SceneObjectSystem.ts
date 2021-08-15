@@ -9,6 +9,8 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import { UpdatableComponent } from '../components/UpdatableComponent'
+import { Updatable } from '../interfaces/Updatable'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -42,6 +44,8 @@ export const SceneObjectSystem = async (): Promise<System> => {
 
   const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
   const visibleAddQuery = enterQuery(visibleQuery)
+
+  const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
   SceneOptions.instance = new SceneOptions()
 
@@ -117,6 +121,11 @@ export const SceneObjectSystem = async (): Promise<System> => {
       const obj = getComponent(entity, Object3DComponent)
       const visibleComponent = getComponent(entity, VisibleComponent)
       obj.value.visible = visibleComponent.value
+    }
+
+    for (const entity of updatableQuery(world)) {
+      const obj = getComponent(entity, Object3DComponent)
+      ;(obj.value as unknown as Updatable).update(world.delta)
     }
 
     return world

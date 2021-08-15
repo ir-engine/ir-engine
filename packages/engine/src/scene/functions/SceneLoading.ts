@@ -30,11 +30,13 @@ import { setEnvMap } from '../behaviors/setEnvMap'
 import { setFog } from '../behaviors/setFog'
 import { Clouds } from '../classes/Clouds'
 import Image from '../classes/Image'
+import { Ocean } from '../classes/Ocean'
 import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
@@ -252,6 +254,7 @@ export class WorldScene {
       case 'box-collider':
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(
+          entity,
           {
             userData: {
               type: 'box',
@@ -279,6 +282,11 @@ export class WorldScene {
 
       case 'cloud':
         addObject3DComponent(entity, new Clouds(), component.data)
+        break
+
+      case 'ocean':
+        isClient && addObject3DComponent(entity, new Ocean(), component.data)
+        isClient && addComponent(entity, UpdatableComponent, {})
         break
 
       case 'postprocessing':

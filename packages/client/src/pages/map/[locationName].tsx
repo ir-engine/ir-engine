@@ -1,7 +1,7 @@
+import World, { EngineCallbacks } from '../../components/World/index'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Layout from '../../components/Layout/Layout'
-import World, { EngineCallbacks } from '../../components/World/index'
 import { Chat } from './icons/Chat'
 import { CloseChat } from './icons/CloseChat'
 import { SendMessage } from './icons/SendMessage'
@@ -11,6 +11,7 @@ import MapInstanceChatStyle from './MapInstanceChat.module.scss'
 import MapMediaIconsBox from './MapMediaIconsBox'
 import MapUserMenu from './MapUserMenu'
 import { theme } from './theme'
+
 import LoadingScreen from './loader'
 
 const LocationPage = (props) => {
@@ -42,7 +43,6 @@ const LocationPage = (props) => {
           SendButton={SendMessage}
           styles={MapInstanceChatStyle}
         />
-
         <MapMediaIconsBox />
         <MapUserMenu />
       </World>

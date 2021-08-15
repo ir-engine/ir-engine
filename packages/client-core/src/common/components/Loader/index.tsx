@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { GeneralStateList } from '../../reducers/app/actions'
 import { selectAppOnBoardingStep } from '../../reducers/app/selector'
+// import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
 import { useSceneState } from '../../../world/store/SceneState'
+
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 
 interface Props {
   objectsToLoad?: number
   onBoardingStep?: number
-  currentScene?: any
   Loader?: any
 }
 

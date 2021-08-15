@@ -22,6 +22,7 @@ export const createGround = (entity: Entity, args: GroundProps) => {
   addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
   const body = createCollider(
+    entity,
     {
       userData: {
         type: 'ground',
