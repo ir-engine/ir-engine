@@ -1,4 +1,4 @@
-import { Color, Group, MathUtils, Mesh, Quaternion, Vector3, Vector4 } from 'three'
+import { Color, Group, Material, MathUtils, Mesh, MeshBasicMaterial, Quaternion, Vector3, Vector4 } from 'three'
 import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
@@ -19,6 +19,7 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { GameObject } from '../../../components/GameObject'
 import { applyHideOrVisibleState } from '../behaviors/hideUnhideBall'
 import { GolfBallComponent } from '../components/GolfBallComponent'
+import { getOwnerIdPlayerNumber } from '../functions/golfFunctions'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import { GolfObjectEntities, GolfState } from '../GolfSystem'
 
@@ -37,7 +38,11 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   if (!entityBall) return
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   const obj = getComponent(entityBall, Object3DComponent)
-  console.log('setBallState', Object.values(BALL_STATES)[ballState])
+  console.log(
+    'setBallState',
+    getOwnerIdPlayerNumber(getComponent(entityBall, NetworkObjectComponent).ownerId),
+    Object.values(BALL_STATES)[ballState]
+  )
   golfBallComponent.state = ballState
 
   switch (ballState) {
@@ -68,7 +73,7 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   collider.body.updateTransform({
     translation: new Vector3(...position)
   })
-  collider.body.setLinearVelocity(new Vector3(), true)
+  // collider.body.setLinearVelocity(new Vector3(), true)
 
   const velocity = getComponent(entityBall, VelocityComponent)
   velocity.velocity.copy(new Vector3())
@@ -152,13 +157,12 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   ballMesh.scale.copy(transform.scale)
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
-  ballMesh.visible = ownerPlayerNumber === GolfState.currentPlayer.value
+  ballMesh.traverse((obj: Mesh) => {
+    if (obj.material) (obj.material as MeshBasicMaterial).color.setHex(color)
+  })
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
-  // after because break trail
-  applyHideOrVisibleState(ballEntity)
 
   // Add trail effect
-
   const trailHeadGeometry = []
   trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
   const trailObject = new TrailRenderer(false)
@@ -184,6 +188,7 @@ export const initializeGolfBall = (
   ownerEntity: Entity,
   parameters: GolfBallSpawnParameters
 ) => {
+  console.log('initializeGolfBall', ballEntity, playerNumber, ownerEntity, parameters)
   const { spawnPosition } = parameters
 
   const transform = addComponent(ballEntity, TransformComponent, {
@@ -218,12 +223,12 @@ export const initializeGolfBall = (
     }
   }
 
+  const isMyBall = isEntityLocalClient(Network.instance.networkObjects[ownerNetworkId].entity)
+
   const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shape],
-      type: isEntityLocalClient(Network.instance.networkObjects[ownerNetworkId].entity)
-        ? BodyType.DYNAMIC
-        : BodyType.KINEMATIC,
+      type: isMyBall ? BodyType.DYNAMIC : BodyType.KINEMATIC,
       transform: {
         translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
       },
@@ -256,5 +261,7 @@ export const initializeGolfBall = (
   )
 
   addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast, state: BALL_STATES.INACTIVE })
-  addComponent(ballEntity, ClientAuthoritativeComponent, { ownerNetworkId })
+  if (!isClient || isEntityLocalClient(ownerEntity)) {
+    addComponent(ballEntity, ClientAuthoritativeComponent, { ownerNetworkId })
+  }
 }
