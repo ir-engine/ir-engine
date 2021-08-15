@@ -1,7 +1,7 @@
+import World, { EngineCallbacks } from '../../components/World/index'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Layout from '../../components/Layout/Layout'
-import World, { EngineCallbacks } from '../../components/World/index'
 import { Chat } from './icons/Chat'
 import { CloseChat } from './icons/CloseChat'
 import { SendMessage } from './icons/SendMessage'

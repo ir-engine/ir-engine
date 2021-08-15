@@ -8,9 +8,9 @@ import { teleportPlayer } from './teleportPlayer'
 
 export const detectUserInPortal = (entity: Entity): void => {
   const raycastComponent = getComponent(entity, RaycastComponent)
-  if (!raycastComponent?.raycastQuery?.hits[0]?.body?.userData) return
+  if (!raycastComponent?.raycastQuery?.hits[0]?.body?.userData?.entity) return
 
-  const portalEntity = raycastComponent.raycastQuery.hits[0].body.userData
+  const portalEntity = raycastComponent.raycastQuery.hits[0].body.userData.entity
   const portalComponent = getComponent(portalEntity, PortalComponent)
 
   if (!portalComponent) return

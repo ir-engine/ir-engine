@@ -26,6 +26,7 @@ import VolumetricNode from '@xrengine/engine/src/editor/nodes/VolumetricNode'
 import ReflectionProbeNode from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
 import SplineNode from '@xrengine/engine/src/editor/nodes/SplineNode'
 import CloudNode from '@xrengine/engine/src/editor/nodes/CloudNode'
+import OceanNode from '@xrengine/engine/src/editor/nodes/OceanNode'
 import ElementsSource from './assets/sources/ElementsSource'
 import MyAssetsSource from './assets/sources/MyAssetsSource'
 import Editor from './Editor'
@@ -57,6 +58,7 @@ import TriggerVolumeNodeEditor from './properties/TriggerVolumeNodeEditor'
 import VideoNodeEditor from './properties/VideoNodeEditor'
 import VolumetricNodeEditor from './properties/VolumetricNodeEditor'
 import CloudNodeEditor from './properties/CloudNodeEditor'
+import OceanNodeEditor from './properties/OceanNodeEditor'
 import MapNodeEditor from './properties/MapNodeEditor'
 import MapNode from '@xrengine/engine/src/editor/nodes/MapNode'
 
@@ -101,5 +103,6 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(MapNode, MapNodeEditor)
   editor.registerNode(ReflectionProbeNode, ReflectionProbeNodeEditor)
   editor.registerNode(CloudNode, CloudNodeEditor)
+  editor.registerNode(OceanNode, OceanNodeEditor)
   return editor
 }
