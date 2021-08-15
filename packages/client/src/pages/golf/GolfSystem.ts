@@ -70,6 +70,15 @@ export function useGolfState() {
   return useState(GolfState)
 }
 
+const getResetBallPosition = (playerNumber: number) => {
+  if (GolfState.players[playerNumber].value.lastBallPosition === null) {
+    const currentHole = GolfState.currentHole.value
+    const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
+    return getComponent(teeEntity, TransformComponent).position.toArray()
+  }
+  return GolfState.players[playerNumber].value.lastBallPosition
+}
+
 // Note: player numbers are 0-indexed
 
 globalThis.GolfState = GolfState
@@ -147,18 +156,13 @@ export const GolfSystem = async (): Promise<System> => {
          *   -
          */
         case 'puttclub.PLAYER_READY': {
-          //
-          // if(isClient) {
-          //   const currentPlayerEntity = getCurrentGolfPlayerEntity()
-          //   if(isEntityLocalClient(currentPlayerEntity)) {
-          //     const currentPlayerNumber = GolfState.currentPlayer.value
-          //     const activeBallEntity = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
-          //     setBallState(activeBallEntity, BALL_STATES.WAITING)
-          //   }
-          // }
-          // if the player
           if (action.playerId === s.players.value[s.currentPlayer.value].id) {
-            dispatchFromServer(GolfAction.resetBall())
+            dispatchFromServer(
+              GolfAction.resetBall(
+                s.players.value[s.currentPlayer.value].id,
+                getResetBallPosition(s.currentPlayer.value)
+              )
+            )
           }
           return
         }
@@ -195,7 +199,9 @@ export const GolfSystem = async (): Promise<System> => {
 
           setBallState(entityBall, BALL_STATES.STOPPED)
 
-          dispatchFromServer(GolfAction.nextTurn())
+          setTimeout(() => {
+            dispatchFromServer(GolfAction.nextTurn())
+          }, 1000)
           return
         }
 
@@ -233,7 +239,10 @@ export const GolfSystem = async (): Promise<System> => {
             return { currentPlayer: nextPlayerNumber }
           })
 
-          dispatchFromServer(GolfAction.resetBall())
+          const nextBallEntity = GolfObjectEntities.get(`GolfBall-${nextPlayerNumber}`)
+          if (typeof nextBallEntity !== 'undefined') {
+            setBallState(nextBallEntity, BALL_STATES.WAITING)
+          }
 
           console.log(`it is now player ${nextPlayerNumber}'s turn`)
           return
@@ -249,13 +258,19 @@ export const GolfSystem = async (): Promise<System> => {
           holes: for (const [i] of s.holes.entries()) {
             const nextHole = i
             for (const p of s.players) {
+              p.lastBallPosition.merge((p) => {
+                return null
+              })
               if (p.scores[i] === undefined) {
                 s.currentHole.set(nextHole)
                 break holes
               }
             }
           }
-          dispatchFromServer(GolfAction.resetBall())
+          // TODO: update last ball position and dispatch position
+          dispatchFromServer(
+            GolfAction.resetBall(s.players[s.currentPlayer.value].value.id, getResetBallPosition(s.currentPlayer.value))
+          )
           return
         }
 
@@ -265,21 +280,16 @@ export const GolfSystem = async (): Promise<System> => {
          */
         case 'puttclub.RESET_BALL': {
           const currentPlayerNumber = GolfState.currentPlayer.value
-
-          if (s.players[s.currentPlayer.value].value.lastBallPosition === null) {
-            const currentHole = GolfState.currentHole.value
-            const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
-            const lastBallPosition = getComponent(teeEntity, TransformComponent).position.toArray()
-            s.players[s.currentPlayer.value].merge((s) => {
-              return { lastBallPosition }
-            })
-          }
+          const playerNumber = s.players.find((player) => player.id.value === action.playerId)
+          playerNumber.merge((s) => {
+            return { lastBallPosition: action.position }
+          })
 
           const player = s.players[s.currentPlayer.value]
 
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
           if (typeof entityBall !== 'undefined') {
-            resetBall(entityBall, player.lastBallPosition.value)
+            resetBall(entityBall, action.position)
             setBallState(entityBall, BALL_STATES.WAITING)
           }
 
@@ -319,8 +329,7 @@ export const GolfSystem = async (): Promise<System> => {
       for (const entity of golfClubQuery(world)) {
         updateClub(entity)
 
-        const currentPlayerEntity = getCurrentGolfPlayerEntity()
-        const networkObject = getComponent(currentPlayerEntity, NetworkObjectComponent)
+        const networkObject = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
         const currentPlayerNumber = GolfState.currentPlayer.value
         const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
 
@@ -360,7 +369,7 @@ export const GolfSystem = async (): Promise<System> => {
     for (const entity of playerSpawnedEnterQuery(world)) {
       setupPlayerInput(entity)
       if (isClient) {
-        createNetworkPlayerUI(getGolfPlayerNumber(entity))
+        // createNetworkPlayerUI(getGolfPlayerNumber(entity))
       }
     }
 
@@ -380,12 +389,14 @@ export const GolfSystem = async (): Promise<System> => {
         const velMag = velocity.lengthSq()
         if (velMag > 0) console.log(velMag)
         if (velMag < 0.001) {
-          console.log('ball stopped', getComponent(activeBallEntity, TransformComponent).position)
+          const position = getComponent(activeBallEntity, TransformComponent).position
+          console.log('ball stopped')
           setBallState(activeBallEntity, BALL_STATES.STOPPED)
           setTimeout(() => {
-            dispatchFromServer(GolfAction.ballStopped(GolfState.players.value[GolfState.currentPlayer.value].id))
+            dispatchFromServer(
+              GolfAction.ballStopped(GolfState.players.value[currentPlayerNumber].id, position.toArray())
+            )
           }, 1000)
-          // TODO add a ball stopped action to sync
         }
       }
     }
@@ -405,7 +416,6 @@ export const GolfSystem = async (): Promise<System> => {
           const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
           // removeComponent(entity, GolfBallTagComponent)
           initializeGolfBall(entity, playerNumber, ownerEntity, parameters)
-          // if current player is owner entity
           if (GolfState.currentPlayer.value === playerNumber) {
             setBallState(entity, BALL_STATES.WAITING)
           } else {
@@ -423,7 +433,7 @@ export const GolfSystem = async (): Promise<System> => {
       if (typeof ownerEntity !== 'undefined') {
         const playerNumber = getGolfPlayerNumber(ownerEntity)
         if (typeof playerNumber !== 'undefined') {
-          const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+          removeComponent(entity, SpawnNetworkObjectComponent)
           // removeComponent(entity, GolfClubTagComponent)
           initializeGolfClub(entity, playerNumber, ownerEntity)
           if (isEntityLocalClient(ownerEntity)) {

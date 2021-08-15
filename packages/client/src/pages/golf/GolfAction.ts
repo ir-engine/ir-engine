@@ -27,10 +27,11 @@ export const GolfAction = {
     }
   },
 
-  ballStopped(playerId: string) {
+  ballStopped(playerId: string, position: [number, number, number]) {
     return {
       type: 'puttclub.BALL_STOPPED' as const,
-      playerId
+      playerId,
+      position
     }
   },
 
@@ -40,9 +41,11 @@ export const GolfAction = {
     }
   },
 
-  resetBall() {
+  resetBall(playerId: string, position: [number, number, number]) {
     return {
-      type: 'puttclub.RESET_BALL' as const
+      type: 'puttclub.RESET_BALL' as const,
+      playerId,
+      position
     }
   },
 

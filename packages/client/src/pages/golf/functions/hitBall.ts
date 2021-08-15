@@ -11,7 +11,7 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
  */
 
 const vector0 = new Vector3()
-const clubPowerMultiplier = 1
+const clubPowerMultiplier = 3
 const hitAdvanceFactor = 4
 
 export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {

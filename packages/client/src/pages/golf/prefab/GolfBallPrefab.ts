@@ -34,7 +34,6 @@ export enum BALL_STATES {
 }
 
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
-  if (!entityBall) return
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   const obj = getComponent(entityBall, Object3DComponent)
   console.log(
@@ -47,12 +46,12 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   switch (ballState) {
     case BALL_STATES.INACTIVE: {
       // show ball
-      if (isClient) obj.value.visible = false
+      // if (isClient) obj.value.visible = false
       return
     }
     case BALL_STATES.WAITING: {
       // show ball
-      if (isClient) obj.value.visible = true
+      // if (isClient) obj.value.visible = true
       return
     }
     case BALL_STATES.MOVING: {
@@ -146,6 +145,7 @@ const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: number) {
   const color = GolfColours[ownerPlayerNumber]
+  console.log(color)
 
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent)
@@ -157,7 +157,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
   ballMesh.traverse((obj: Mesh) => {
-    if (obj.material) (obj.material as MeshBasicMaterial).color.setHex(color)
+    if (obj.material) (obj.material as MeshBasicMaterial).color.set(color)
   })
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
 
