@@ -447,4 +447,8 @@ const GolfReceptorSystem = async (): Promise<System> => {
   })
 }
 
-export const GolfSystem = pipe(GolfReceptorSystem, GolfXRUISystem)
+export const GolfSystem = async () => {
+  const receptorSystem = await GolfReceptorSystem()
+  const xruiSystem = await GolfXRUISystem()
+  return pipe(receptorSystem, xruiSystem)
+}
