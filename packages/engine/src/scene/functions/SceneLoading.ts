@@ -254,6 +254,7 @@ export class WorldScene {
       case 'box-collider':
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(
+          entity,
           {
             userData: {
               type: 'box',
