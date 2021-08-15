@@ -5,22 +5,21 @@ import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 import { GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
-import { selectCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/selector'
+import { useSceneState } from '@xrengine/client-core/src/world/store/SceneState'
 interface Props {
   objectsToLoad?: number
   onBoardingStep?: number
-  currentScene?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    onBoardingStep: selectAppOnBoardingStep(state),
-    currentScene: selectCurrentScene(state)
+    onBoardingStep: selectAppOnBoardingStep(state)
   }
 }
 
 const LoadingScreen = (props: Props) => {
-  const { onBoardingStep, objectsToLoad, currentScene } = props
+  const { onBoardingStep, objectsToLoad } = props
+  const currentScene = useSceneState()
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()
@@ -57,16 +56,20 @@ const LoadingScreen = (props: Props) => {
   }, [objectsToLoad])
 
   if (!showProgressBar) return null
-
   return (
-    <>
-      <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
-        <section className={styles.linearProgressContainer}>
+    <div>
+      <section className={styles.blockbg}>
+        <div className={styles.block}>
           <Loader />
-          <span className={styles.loadingProgressInfo}>{loadingText}</span>
-        </section>
+          <h4 className={styles.title}>{loadingText}</h4>
+        </div>
+
+        <div className={styles.poweredByMappa}>
+          <span>powered by:</span>
+          <h4>MAPPA</h4>
+        </div>
       </section>
-    </>
+    </div>
   )
 }
 export default connect(mapStateToProps)(LoadingScreen)

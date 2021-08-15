@@ -1,4 +1,3 @@
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Layout from '../../components/Layout/Layout'
@@ -12,6 +11,7 @@ import MapInstanceChatStyle from './MapInstanceChat.module.scss'
 import MapMediaIconsBox from './MapMediaIconsBox'
 import MapUserMenu from './MapUserMenu'
 import { theme } from './theme'
+import LoadingScreen from './loader'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)

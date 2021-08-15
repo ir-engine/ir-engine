@@ -19,7 +19,6 @@ import { fetchAdminVideos } from '../reducers/admin/service'
 
 interface Props {
   auth: any
-  videos: any
   fetchAdminVideos: typeof fetchAdminVideos
 }
 
@@ -28,13 +27,13 @@ const mapStateToProps = (state: any): any => {
     auth: selectAuthState(state)
   }
 }
-const videos = useVideoState()
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminVideos: bindActionCreators(fetchAdminVideos, dispatch)
 })
 
 const AdminConsole = (props: Props): any => {
-  const { fetchAdminVideos, auth, videos } = props
+  const { fetchAdminVideos, auth } = props
+  const VideoState = useVideoState()
   const initialState = {
     name: '',
     url: '',
@@ -102,7 +101,8 @@ const AdminConsole = (props: Props): any => {
           <Container component="main" maxWidth="md">
             <div className={styles.admin}>
               <GridList className={styles.grid} cellHeight={200} cols={2}>
-                {videos.get('videos').map((video) => (
+                {VideoState.videos.map((video: any) => (
+                  // videos.get('videos').map((video) => (
                   <GridListTile className={styles.cell} key={video.id} cols={1}>
                     <img src={video.metadata.thumbnailUrl} alt={video.name} />
                     <GridListTileBar
