@@ -5,8 +5,6 @@ import { NetworkObjectUpdateMap } from '../templates/NetworkObjectUpdates'
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { PrefabType } from '../templates/PrefabType'
-import { applyActionComponent } from '../../game/functions/functionsActions'
-import { applyStateToClient } from '../../game/functions/functionsState'
 import { ClientInputModel } from '../schema/clientInputSchema'
 import { Vault } from '../classes/Vault'
 import { Group, Quaternion, Vector3 } from 'three'
@@ -200,23 +198,6 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           NetworkObjectUpdateMap.get(editObject.type)(editObject)
         }
 
-        // Game Manager Messages, must be after create object functions
-        if (worldState.gameState && worldState.gameState.length > 0) {
-          //console.warn('get state')
-          for (const stateMessage of worldState.gameState) {
-            if (Network.instance.userId === stateMessage.ownerId) {
-              console.log('get message', stateMessage)
-              applyStateToClient(stateMessage)
-            }
-          }
-        }
-        if (worldState.gameStateActions && worldState.gameStateActions.length > 0) {
-          //console.warn('get action')
-          for (const actionMessage of worldState.gameStateActions) {
-            applyActionComponent(actionMessage)
-          }
-        }
-
         // Handle all network objects destroyed this frame
         for (const { networkId } of worldState.destroyObjects) {
           console.log('Destroying ', networkId)
@@ -324,15 +305,6 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
       }
     }
 
-    function getClientGameActions() {
-      let copy = []
-      if (Network.instance.clientGameAction.length > 0) {
-        copy = Network.instance.clientGameAction
-        Network.instance.clientGameAction = []
-      }
-      return copy
-    }
-
     const inputSnapshot = Vault.instance?.get()
     if (inputSnapshot !== undefined) {
       const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
@@ -345,7 +317,6 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
         axes2d: [],
         axes6DOF: [],
         viewVector: Network.instance.clientInputState.viewVector,
-        clientGameAction: getClientGameActions(), // Network.instance.clientGameAction,
         commands: [],
         transforms: []
       }

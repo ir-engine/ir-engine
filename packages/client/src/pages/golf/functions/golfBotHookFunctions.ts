@@ -1,8 +1,6 @@
 import { Vector3 } from 'three'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { GamePlayer } from '@xrengine/engine/src/game/components/GamePlayer'
-import { getGame, getGameFromName } from '@xrengine/engine/src/game/functions/functions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
@@ -19,24 +17,6 @@ export const GolfBotHookFunctions = {
   [GolfBotHooks.GetIsBallStopped]: getIsBallStopped,
   [GolfBotHooks.GetIsOutOfCourse]: getIsOutOfCourse,
   [GolfBotHooks.SwingClub]: swingClub
-}
-
-function getOwnBall() {
-  if (!Network.instance.localClientEntity) return false
-  const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
-  const playerNumber = Number(role.slice(0, 1))
-  if (!gameName) return false
-  const game = getGameFromName(gameName)
-  if (!game) {
-    console.log('Game not found')
-    return false
-  }
-  const ballEntity = game.gameObjects['GolfBall'][playerNumber - 1]
-  if (!ballEntity) {
-    console.log('ball entity not found for player number', playerNumber, role)
-    return
-  }
-  return ballEntity
 }
 
 export function getIsPlayerTurn() {

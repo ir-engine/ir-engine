@@ -13,13 +13,10 @@ import { NetworkClientInputInterface } from '../interfaces/WorldState'
 import { ClientInputModel } from '../schema/clientInputSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { GamePlayer } from '../../game/components/GamePlayer'
-import { applyVelocity, sendSpawnGameObjects, sendState } from '../../game/functions/functionsState'
-import { getGameFromName } from '../../game/functions/functions'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { Group, Vector3 } from 'three'
 import { executeCommands } from '../functions/executeCommands'
-import { ClientActionToServer } from '../../game/templates/DefaultGameStateAction'
 import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
@@ -69,16 +66,6 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
       }
       if (!clientInput) continue
 
-      // TODO: Handle client incoming state actions
-      // Are they host or not?
-      // Validate against host or non/host actions
-      // If action is valid, apply behavior for server
-      // Game state updated = true
-
-      // Outside of for loop, if game state updated is true, flag update world state
-
-      // Add handlers to game state schema, valid requests should get added to the GameStateActions queue on the server
-
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
         // console.error('Network object not found for networkId', clientInput.networkId);
         continue
@@ -91,20 +78,6 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
       const inputClientNetworkId = delegatedInputReceiver ? delegatedInputReceiver.networkId : clientInput.networkId
       const entity = Network.instance.networkObjects[clientInput.networkId].entity
       const entityInputReceiver = Network.instance.networkObjects[inputClientNetworkId].entity
-
-      if (clientInput.clientGameAction.length > 0) {
-        clientInput.clientGameAction.forEach((action) => {
-          const playerComp = getComponent(entity, GamePlayer)
-          if (playerComp === undefined) return
-          if (action.type === ClientActionToServer[0]) {
-            sendState(getGameFromName(playerComp.gameName), playerComp)
-          } else if (action.type === ClientActionToServer[1]) {
-            sendSpawnGameObjects(getGameFromName(playerComp.gameName), action.uuid)
-          } else if (action.type === ClientActionToServer[2]) {
-            applyVelocity(playerComp, action.velocity)
-          }
-        })
-      }
 
       if (clientInput.commands.length > 0) {
         executeCommands(entity, clientInput.commands)

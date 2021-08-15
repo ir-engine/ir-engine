@@ -252,9 +252,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     clientsDisconnected: [],
     createObjects: [],
     destroyObjects: [],
-    editObjects: [],
-    gameState: [],
-    gameStateActions: []
+    editObjects: []
   }
 
   // Get all clients and add to clientsConnected and push to world state frame
@@ -324,9 +322,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     clientsDisconnected: [],
     createObjects: [],
     destroyObjects: [],
-    editObjects: [],
-    gameState: [],
-    gameStateActions: []
+    editObjects: []
   }
 
   // Get all network objects and add to createObjects

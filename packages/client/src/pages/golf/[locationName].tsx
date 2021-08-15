@@ -8,7 +8,7 @@ import MediaIconsBox from '../../components/MediaIconsBox'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { GolfSystem } from './GolfSystem'
-import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
+import { EquippableSystem } from '@xrengine/engine/src/interaction/systems/EquippableSystem'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -29,7 +29,7 @@ const LocationPage = (props) => {
       {
         type: SystemUpdateType.Fixed,
         system: GolfSystem,
-        after: GameManagerSystem
+        after: EquippableSystem
       }
     ]
   }

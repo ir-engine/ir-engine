@@ -359,7 +359,9 @@ export const GolfSystem = async (): Promise<System> => {
 
     for (const entity of playerSpawnedEnterQuery(world)) {
       setupPlayerInput(entity)
-      createNetworkPlayerUI(getGolfPlayerNumber(entity))
+      if (isClient) {
+        createNetworkPlayerUI(getGolfPlayerNumber(entity))
+      }
     }
 
     for (const entity of gameObjectEnterQuery(world)) {
