@@ -204,7 +204,7 @@ const InstanceChat = (props: Props): any => {
                                 <span className={styles.userName} color="primary">
                                   {getMessageUser(message)}
                                 </span>
-                                <p>{message.text}</p>
+                                <p className={styles.message}>{message.text}</p>
                               </span>
                             }
                           />
@@ -227,6 +227,7 @@ const InstanceChat = (props: Props): any => {
                 label={newMessageLabel}
                 name="newMessage"
                 autoFocus
+                autoComplete="off"
                 value={composingMessage}
                 inputProps={{
                   maxLength: 1000,
@@ -268,13 +269,7 @@ const InstanceChat = (props: Props): any => {
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
           <Fab className={styles['chatBadge']} color="primary" onClick={() => toggleChatWindow()}>
-            {!chatWindowOpen ? (
-              <MessageButton />
-            ) : (
-              <div className={styles.iconContainer}>
-                <CloseButton onClick={() => toggleChatWindow()} />
-              </div>
-            )}
+            {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
           </Fab>
         </Badge>
       </div>

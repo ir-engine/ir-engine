@@ -36,7 +36,7 @@ const LocationPage = (props) => {
         engineCallbacks={engineCallbacks}
       >
         <InstanceChat
-          newMessageLabel={'say something...'}
+          newMessageLabel={'Message'}
           CloseButton={CloseChat}
           MessageButton={Chat}
           SendButton={SendMessage}
