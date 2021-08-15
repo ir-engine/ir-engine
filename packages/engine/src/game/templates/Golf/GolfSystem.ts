@@ -36,6 +36,7 @@ import { GolfHoleComponent } from './components/GolfHoleComponent'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { isEntityLocalClient } from '../../../networking/functions/isEntityLocalClient'
+import { useState } from '@hookstate/core'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -63,6 +64,10 @@ export const GolfState = createState({
   currentPlayer: 0,
   currentHole: 0
 })
+
+export function useGolfState() {
+  return useState(GolfState)
+}
 
 // Note: player numbers are 0-indexed
 

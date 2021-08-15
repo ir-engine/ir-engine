@@ -4,7 +4,7 @@ import { Network } from '../../../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { GolfState } from '../GolfSystem'
 
-export const getGolfPlayerNumber = (entity: Entity) => {
+export const getGolfPlayerNumber = (entity: Entity = Network.instance.localClientEntity) => {
   const uniqueId = getComponent(entity, NetworkObjectComponent)?.uniqueId
   if (!uniqueId) return undefined
   const number = GolfState.players.findIndex((player) => player.id.value === uniqueId)
