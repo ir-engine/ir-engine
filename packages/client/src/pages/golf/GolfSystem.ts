@@ -9,7 +9,7 @@ import { createState, Downgraded } from '@hookstate/core'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, removeComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   BALL_STATES,
@@ -51,6 +51,9 @@ import { getPlayerNumber } from './functions/golfBotHookFunctions'
 export const GolfObjectEntities = new Map<string, Entity>()
 
 globalThis.GolfObjectEntities = GolfObjectEntities
+
+const GolfNetworkPlayerUI = new Map<Entity, ReturnType<typeof createNetworkPlayerUI>>()
+
 /**
  *
  */
@@ -368,14 +371,36 @@ export const GolfSystem = async (): Promise<System> => {
 
     for (const entity of playerSpawnedEnterQuery(world)) {
       setupPlayerInput(entity)
-      if (isClient) {
-        // createNetworkPlayerUI(getGolfPlayerNumber(entity))
-      }
     }
 
     for (const entity of gameObjectEnterQuery(world)) {
       const { role } = getComponent(entity, GameObject)
       GolfObjectEntities.set(role, entity)
+    }
+
+    // Network Player XRUI
+    if (isClient) {
+      for (const entity of playerEnterQueryResults) {
+        if (entity === Network.instance.localClientEntity) continue
+        const playerUI = createNetworkPlayerUI(getGolfPlayerNumber(entity))
+        GolfNetworkPlayerUI.set(entity, playerUI)
+      }
+      for (const entity of playerQuery(world)) {
+        const ui = GolfNetworkPlayerUI.get(entity)!
+        if (!ui) continue
+        const { avatarHeight } = getComponent(entity, AvatarComponent)
+        const avatarTransform = getComponent(entity, TransformComponent)
+        const uiTransform = getComponent(ui.entity, TransformComponent)
+        uiTransform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(avatarTransform.position) / 3))
+        uiTransform.position.copy(avatarTransform.position)
+        uiTransform.position.y += avatarHeight + 0.3
+        uiTransform.rotation.setFromRotationMatrix(Engine.camera.matrix)
+      }
+      for (const entity of playerExitQuery(world)) {
+        const ui = GolfNetworkPlayerUI.get(entity)
+        removeEntity(ui.entity)
+        GolfNetworkPlayerUI.delete(entity)
+      }
     }
 
     const currentPlayerNumber = GolfState.currentPlayer.value

@@ -1,16 +1,24 @@
 import React from 'react'
-import { Color } from 'three'
+import { Color, Vector3, Quaternion } from 'three'
 import { createState } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { GolfColours } from './GolfGameConstants'
 import { useGolfState } from './GolfSystem'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 const scratchColor = new Color()
 
 export function createNetworkPlayerUI(playerNumber: number) {
-  return createXRUI(GolfNetworkPlayerView, createAvatarDetailState(playerNumber))
+  const ui = createXRUI(GolfNetworkPlayerView, createAvatarDetailState(playerNumber))
+  addComponent(ui.entity, TransformComponent, {
+    position: new Vector3(),
+    rotation: new Quaternion(),
+    scale: new Vector3(1, 1, 1)
+  })
+  return ui
 }
 
 function createAvatarDetailState(playerNumber: number) {
