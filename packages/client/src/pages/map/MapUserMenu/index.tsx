@@ -15,7 +15,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { DownArrow } from '../icons/DownArrow'
+import DownArrow from '../assets/DownArrow.png'
 import { Upload } from '../icons/Upload'
 import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
@@ -197,7 +197,7 @@ const UserMenu = (props: UserMenuProps): any => {
             // className={'profile'}
             className={styles.profile}
           >
-            <DownArrow />
+            <img src={DownArrow} />
           </span>
           <span
             id={Views.Share}
