@@ -23,3 +23,9 @@ export const getCurrentGolfPlayerEntity = () => {
   const currentPlayerId = GolfState.players.value[currentPlayerNumber].id
   return Object.values(Network.instance.networkObjects).find((obj) => obj.uniqueId === currentPlayerId)?.entity
 }
+
+export const getOwnerIdPlayerNumber = (ownerId: string) => {
+  const number = GolfState.players.findIndex((player) => player.id.value === ownerId)
+  if (number < 0) return undefined
+  return number
+}

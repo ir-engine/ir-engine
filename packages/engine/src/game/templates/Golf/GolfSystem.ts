@@ -146,6 +146,16 @@ export const GolfSystem = async (): Promise<System> => {
          *   -
          */
         case 'puttclub.PLAYER_READY': {
+          //
+          // if(isClient) {
+          //   const currentPlayerEntity = getCurrentGolfPlayerEntity()
+          //   if(isEntityLocalClient(currentPlayerEntity)) {
+          //     const currentPlayerNumber = GolfState.currentPlayer.value
+          //     const activeBallEntity = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+          //     setBallState(activeBallEntity, BALL_STATES.WAITING)
+          //   }
+          // }
+          // if the player
           if (action.playerId === s.players.value[s.currentPlayer.value].id) {
             dispatchFromServer(GolfAction.resetBall())
           }
@@ -391,6 +401,12 @@ export const GolfSystem = async (): Promise<System> => {
           const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
           // removeComponent(entity, GolfBallTagComponent)
           initializeGolfBall(entity, playerNumber, ownerEntity, parameters)
+          // if current player is owner entity
+          if (GolfState.currentPlayer.value === playerNumber) {
+            setBallState(entity, BALL_STATES.WAITING)
+          } else {
+            setBallState(entity, BALL_STATES.INACTIVE)
+          }
         }
       }
     }
