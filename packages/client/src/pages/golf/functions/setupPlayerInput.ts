@@ -16,7 +16,7 @@ import { hideClub } from '../prefab/GolfClubPrefab'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { GolfObjectEntities, GolfState } from '../GolfSystem'
-import { getGolfPlayerNumber } from '../functions/golfFunctions'
+import { getGolfPlayerNumber, isCurrentGolfPlayer } from '../functions/golfFunctions'
 import { swingClub } from '../functions/golfBotHookFunctions'
 import {
   overrideXR,
@@ -120,7 +120,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         teleportballkey,
         (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
+          if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
           const currentHole = GolfState.currentHole.value
           const holeEntity = GolfObjectEntities.get(`GolfHole-${currentHole}`)
@@ -141,7 +141,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         teleportballOut,
         (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
+          if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
           const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
           const collider = getComponent(ballEntity, ColliderComponent)

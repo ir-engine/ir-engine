@@ -69,9 +69,9 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
 
-      if (isEntityLocalClient(entity)) {
-        removeComponent(entity, LocalInputReceiverComponent)
-      }
+      // if (isEntityLocalClient(entity)) {
+      //   removeComponent(entity, LocalInputReceiverComponent)
+      // }
 
       addComponent(entity, TweenComponent, {
         tween: new Tween<any>(plateComponent)
@@ -201,9 +201,9 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
 
               removeComponent(entity, AvatarEffectComponent)
 
-              if (isEntityLocalClient(entity)) {
-                addComponent(entity, LocalInputReceiverComponent, {})
-              }
+              // if (isEntityLocalClient(entity)) {
+              //   addComponent(entity, LocalInputReceiverComponent, {})
+              // }
             })
         })
       }

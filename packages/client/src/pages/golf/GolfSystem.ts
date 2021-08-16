@@ -217,6 +217,7 @@ const GolfReceptorSystem = async (): Promise<System> => {
           const currentHole = GolfState.currentHole.value
           const entityHole = GolfObjectEntities.get(`GolfHole-${currentHole}`)
 
+          // if hole in ball or player has had too many shots, finish their round
           if (
             getComponent(entityBall, GolfBallComponent).state === BALL_STATES.IN_HOLE ||
             currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
@@ -232,8 +233,6 @@ const GolfReceptorSystem = async (): Promise<System> => {
           //   score.length
           // }, [score]) // or something
 
-          // if hole in ball or player has had too many shots, finish their round
-
           const getPlayersYetToFinishRound = () => {
             const currentHole = s.currentHole.value
             const players = []
@@ -246,32 +245,30 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
           // get players who haven't finished yet
           const playersYetToFinishRound = getPlayersYetToFinishRound()
-          console.log('playersYetToFinishRound', playersYetToFinishRound)
 
           let hasWrapped = false
           const nextPlayer = playersYetToFinishRound.find((p, i) => {
             // get player number from index of p in all players
             const playerNumber = s.players.findIndex((player) => player.value.id === p.id)
-            console.log(p, i)
             if (hasWrapped) return true
             if (i >= playersYetToFinishRound.length / 2 - 1) {
               hasWrapped = true
-              console.log('wrapping')
             }
             return playerNumber > currentPlayerNumber
           })
-          console.log('nextPlayer', nextPlayer)
 
           // if we have a next player, increment the current player and change turns
           if (typeof nextPlayer !== 'undefined') {
             const nextPlayerNumber = s.players.findIndex((player) => player.value.id === nextPlayer.id)
-            console.log('nextPlayerNumber', nextPlayerNumber)
-
             s.currentPlayer.set(nextPlayerNumber)
-            const nextBallEntity = GolfObjectEntities.get(`GolfBall-${nextPlayerNumber}`)
-            if (typeof nextBallEntity !== 'undefined') {
-              setBallState(nextBallEntity, BALL_STATES.WAITING)
+
+            // the ball might be in the old hole still
+            if (nextPlayer.stroke === 0) {
+              dispatchFromServer(GolfAction.resetBall(nextPlayer.id, getTeePosition(s.currentHole.value)))
             }
+
+            const nextBallEntity = GolfObjectEntities.get(`GolfBall-${nextPlayerNumber}`)
+            setBallState(nextBallEntity, BALL_STATES.WAITING)
 
             console.log(`it is now player ${nextPlayerNumber}'s turn`)
           } else {
@@ -289,7 +286,7 @@ const GolfReceptorSystem = async (): Promise<System> => {
          *   - dispatch RESET_BALL
          */
         case 'puttclub.NEXT_HOLE': {
-          // Increment hole based on the next one with no scores
+          // TODO Increment hole based on the next one with no scores
           // holes: for (const [i] of s.holes.entries()) {
           //   const nextHole = i
           //   for (const p of s.players) {
@@ -305,11 +302,11 @@ const GolfReceptorSystem = async (): Promise<System> => {
           for (const [i, p] of s.players.entries()) {
             p.stroke.set(0)
             // reset all ball position to the new tee
-            dispatchFromServer(GolfAction.resetBall(p.value.id, getTeePosition(s.currentHole.value)))
           }
 
           // set current player to the first player
           s.currentPlayer.set(0)
+          dispatchFromServer(GolfAction.resetBall(s.players[0].id.value, getTeePosition(s.currentHole.value)))
 
           //
           return
@@ -320,9 +317,10 @@ const GolfReceptorSystem = async (): Promise<System> => {
          * - teleport ball
          */
         case 'puttclub.RESET_BALL': {
-          const currentPlayerNumber = GolfState.currentPlayer.value
-          const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+          const playerNumber = s.players.findIndex((p) => p.value.id === action.playerId)
+          const entityBall = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
           if (typeof entityBall !== 'undefined') {
+            // && getComponent(entityBall, GolfBallComponent).state === BALL_STATES.INACTIVE) {
             resetBall(entityBall, action.position)
             setBallState(entityBall, BALL_STATES.WAITING)
           }

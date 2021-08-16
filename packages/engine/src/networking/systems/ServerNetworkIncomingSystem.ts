@@ -172,7 +172,6 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
           if (transformComponent) {
             transformComponent.position.set(transform.x, transform.y, transform.z)
             transformComponent.rotation.set(transform.qX, transform.qY, transform.qZ, transform.qW)
-            console.log(transformComponent.position)
           }
         }
       }
