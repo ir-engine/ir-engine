@@ -30,12 +30,11 @@ export class WebRTCGameServer {
       physxWorker: () => new Worker(currentPath + '/physx/loadPhysXNode.ts')
     },
     systems: [
-      // TODO: we need to register this here still as this is not currently set up to work in deploy
-      // {
-      //   type: SystemUpdateType.Fixed,
-      //   system: GolfSystem,
-      //   after: EquippableSystem
-      // }
+      {
+        type: SystemUpdateType.Fixed,
+        system: GolfSystem,
+        after: EquippableSystem
+      }
     ]
   }
 
