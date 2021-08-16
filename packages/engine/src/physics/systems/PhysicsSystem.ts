@@ -146,6 +146,9 @@ export const PhysicsSystem = async (
           qZ: collider.body.transform.rotation.z,
           qW: collider.body.transform.rotation.w
         })
+      } else {
+        const transform = getComponent(entity, TransformComponent)
+        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       }
     }
 

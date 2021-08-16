@@ -27,11 +27,12 @@ export const GolfAction = {
     }
   },
 
-  ballStopped(playerId: string, position: [number, number, number]) {
+  ballStopped(playerId: string, position: [number, number, number], inHole: boolean) {
     return {
       type: 'puttclub.BALL_STOPPED' as const,
       playerId,
-      position
+      position,
+      inHole
     }
   },
 

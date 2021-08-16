@@ -79,6 +79,7 @@ const MediaIconsBox = (props) => {
       }
       updateCamAudioState()
     }
+    console.log('Mic Clicked=>' + isCamAudioEnabled)
   }
 
   const MicIcon = isCamAudioEnabled ? MicOn : MicOff

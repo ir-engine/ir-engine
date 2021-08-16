@@ -35,7 +35,7 @@ export class SpawnPoints {
         position: spawnTransform.position
           .clone()
           .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
-        rotation: spawnTransform.rotation.clone()
+        rotation: new Quaternion() //spawnTransform.rotation.clone()
       }
     }
 

@@ -30,6 +30,7 @@ export enum BALL_STATES {
   INACTIVE,
   WAITING,
   MOVING,
+  IN_HOLE,
   STOPPED
 }
 
@@ -44,7 +45,7 @@ interface BallGroupType extends Group {
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   const playerNumber = getOwnerIdPlayerNumber(getComponent(entityBall, NetworkObjectComponent).ownerId)
-  console.log('setBallState', Object.values(BALL_STATES)[ballState])
+  console.log('setBallState', playerNumber, Object.values(BALL_STATES)[ballState])
   golfBallComponent.state = ballState
 
   if (isClient) {
@@ -76,6 +77,9 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
       case BALL_STATES.MOVING: {
         return
       }
+      case BALL_STATES.IN_HOLE: {
+        return
+      }
       case BALL_STATES.STOPPED: {
         return
       }
@@ -84,8 +88,6 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
 }
 
 export const resetBall = (entityBall: Entity, position: number[]) => {
-  console.log('moving ball to', position)
-
   const collider = getComponent(entityBall, ColliderComponent)
   if (collider) {
     collider.body.updateTransform({
@@ -169,7 +171,6 @@ const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: number) {
   const color = GolfColours[ownerPlayerNumber]
-  console.log(color)
 
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent)
@@ -252,21 +253,20 @@ export const initializeGolfBall = (
     }
   }
 
-  const isMyBall = isEntityLocalClient(Network.instance.networkObjects[ownerNetworkId].entity)
+  const isMyBall = isEntityLocalClient(ownerEntity)
 
-  if (isMyBall) {
-    const body = PhysXInstance.instance.addBody(
-      new Body({
-        shapes: [shape],
-        type: BodyType.DYNAMIC,
-        transform: {
-          translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-        },
-        userData: ballEntity
-      })
-    )
-    addComponent(ballEntity, ColliderComponent, { body })
-  }
+  const body = PhysXInstance.instance.addBody(
+    new Body({
+      shapes: [shape],
+      // make static on server and remote player's balls so we can still detect collision with hole
+      type: isMyBall ? BodyType.DYNAMIC : BodyType.STATIC,
+      transform: {
+        translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
+      },
+      userData: ballEntity
+    })
+  )
+  addComponent(ballEntity, ColliderComponent, { body })
 
   // for track ground
   const groundRaycast = PhysXInstance.instance.addRaycastQuery(
@@ -291,7 +291,7 @@ export const initializeGolfBall = (
   )
 
   addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast, state: BALL_STATES.INACTIVE })
-  if (!isClient || isEntityLocalClient(ownerEntity)) {
+  if (!isClient || isMyBall) {
     addComponent(ballEntity, ClientAuthoritativeComponent, { ownerNetworkId })
   }
 }
