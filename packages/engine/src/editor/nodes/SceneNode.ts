@@ -97,6 +97,11 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
     if (json.components) {
+      const mtdata = json.components.find((c) => c.name == 'mtdata')
+      if (mtdata) {
+        const { meta_data } = mtdata.props
+        node.meta_data = meta_data
+      }
       const fog = json.components.find((c) => c.name === 'fog')
       if (fog) {
         const { type, color, density, near, far } = fog.props
@@ -154,6 +159,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   url = null
   metadata = {}
 
+  meta_data = ''
   _fogType = FogType.Disabled
   _fog = new Fog(0xffffff, 0.0025)
   _fogExp2 = new FogExp2(0xffffff, 0.0025)
@@ -404,6 +410,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     super.copy(source, recursive)
     this.url = source.url
     this.metadata = source.metadata
+    this.meta_data = source.meta_data
     this.fogType = source.fogType
 
     this.fogColor.copy(source.fogColor)
@@ -446,6 +453,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         [this.uuid]: {
           name: this.name,
           components: [
+            {
+              name: 'mtdata',
+              props: {
+                meta_data: this.meta_data
+              }
+            },
             {
               name: 'fog',
               props: {
