@@ -1,5 +1,5 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXInstance } from 'three-physx'
@@ -14,9 +14,9 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { ClientAuthoritativeTagComponent } from '../components/ClientAuthoritativeTagComponent'
+import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -24,7 +24,7 @@ import { ClientAuthoritativeTagComponent } from '../components/ClientAuthoritati
  */
 
 export const PhysicsSystem = async (
-  attributes: { worker?: Worker; simulationEnabled?: boolean } = {}
+  attributes: { worker?: () => Worker; simulationEnabled?: boolean } = {}
 ): Promise<System> => {
   const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
@@ -40,13 +40,13 @@ export const PhysicsSystem = async (
 
   const clientAuthoritativeQuery = defineQuery([
     NetworkObjectComponent,
-    ClientAuthoritativeTagComponent,
+    ClientAuthoritativeComponent,
     ColliderComponent
   ])
 
   let simulationEnabled = false
 
-  Engine.physxWorker = attributes.worker
+  Engine.physxWorker = attributes.worker()
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
     if (typeof ev.physics !== 'undefined') {
@@ -108,12 +108,14 @@ export const PhysicsSystem = async (
       const collider = getComponent(entity, ColliderComponent)
       const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
+      if (hasComponent(entity, ClientAuthoritativeComponent)) continue
 
       if (collider.body.type === BodyType.KINEMATIC) {
         velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       } else if (collider.body.type === BodyType.DYNAMIC) {
-        velocity.velocity.subVectors(transform.position, collider.body.transform.translation)
+        const { linearVelocity } = collider.body.transform
+        velocity.velocity.copy(linearVelocity)
 
         transform.position.set(
           collider.body.transform.translation.x,
@@ -144,6 +146,9 @@ export const PhysicsSystem = async (
           qZ: collider.body.transform.rotation.z,
           qW: collider.body.transform.rotation.w
         })
+      } else {
+        const transform = getComponent(entity, TransformComponent)
+        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       }
     }
 

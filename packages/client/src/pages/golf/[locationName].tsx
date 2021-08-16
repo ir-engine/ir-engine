@@ -1,13 +1,14 @@
+import React, { useState } from 'react'
+import World, { EngineCallbacks } from '../../components/World'
+import { useTranslation } from 'react-i18next'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
-import World, { EngineCallbacks } from '../../components/World'
-
-const engineRendererCanvasId = 'engine-renderer-canvas'
+import Layout from '../../components/Layout/Layout'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { GolfSystem } from './GolfSystem'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { EquippableSystem } from '@xrengine/engine/src/interaction/systems/EquippableSystem'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -20,7 +21,17 @@ const LocationPage = (props) => {
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
     onSceneLoaded: () => setLoadingItemCount(0),
-    onSuccess: registerGolfBotHooks
+    onSuccess: () => {}
+  }
+
+  const engineInitializeOptions: InitializeOptions = {
+    systems: [
+      {
+        type: SystemUpdateType.Fixed,
+        system: GolfSystem,
+        after: EquippableSystem
+      }
+    ]
   }
 
   return (
@@ -31,6 +42,7 @@ const LocationPage = (props) => {
         locationName={props.match.params.locationName}
         history={props.history}
         engineCallbacks={engineCallbacks}
+        engineInitializeOptions={engineInitializeOptions}
       >
         <UserMenu />
         <MediaIconsBox />

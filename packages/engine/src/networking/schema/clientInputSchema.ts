@@ -43,14 +43,6 @@ export const viewVectorSchema = new Schema({
   z: float32
 })
 
-export const clientGameAction = new Schema({
-  type: string,
-  game: string,
-  velocity: viewVectorSchema,
-  ownerId: string,
-  uuid: string
-})
-
 export const commandSchema = new Schema({
   type: uint8,
   args: string
@@ -77,7 +69,6 @@ export const inputKeyArraySchema = new Schema({
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
-  clientGameAction: [clientGameAction],
   commands: [commandSchema],
   transforms: [transformSchema]
 })

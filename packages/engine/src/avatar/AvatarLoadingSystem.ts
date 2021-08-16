@@ -69,9 +69,9 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
 
-      if (isEntityLocalClient(entity)) {
-        removeComponent(entity, LocalInputReceiverComponent)
-      }
+      // if (isEntityLocalClient(entity)) {
+      //   removeComponent(entity, LocalInputReceiverComponent)
+      // }
 
       addComponent(entity, TweenComponent, {
         tween: new Tween<any>(plateComponent)
@@ -79,7 +79,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
             {
               opacityMultiplier: 1
             },
-            3000
+            100
           )
           .easing(Easing.Exponential.Out)
           .start()
@@ -152,7 +152,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
         const object = getComponent(entity, Object3DComponent).value
         const plateComponent = getComponent(entity, AvatarEffectComponent)
 
-        console.log(object, plateComponent.originMaterials)
+        // console.log(object, plateComponent.originMaterials)
         plateComponent.originMaterials.forEach(({ id, material }) => {
           object.traverse((obj) => {
             if (obj.uuid === id) {
@@ -201,9 +201,9 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
 
               removeComponent(entity, AvatarEffectComponent)
 
-              if (isEntityLocalClient(entity)) {
-                addComponent(entity, LocalInputReceiverComponent, {})
-              }
+              // if (isEntityLocalClient(entity)) {
+              //   addComponent(entity, LocalInputReceiverComponent, {})
+              // }
             })
         })
       }

@@ -20,16 +20,14 @@ import { World } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { createPipeline, injectSystem, registerSystem } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import { GameManagerSystem } from './game/systems/GameManagerSystem'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { ClientInputSystem } from './input/systems/ClientInputSystem'
 import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
-import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
-import { GlobalActionDispatchSystem } from './networking/systems/GlobalActionDispatchSystem'
+import { NetworkActionDispatchSystem } from './networking/systems/NetworkActionDispatchSystem'
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
@@ -167,7 +165,6 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
@@ -183,7 +180,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, PositionalAudioSystem)
   registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
-  registerSystem(SystemUpdateType.Fixed, GlobalActionDispatchSystem)
+  registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
 
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
@@ -194,7 +191,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
+  // registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
@@ -217,7 +214,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
+  // registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
@@ -229,7 +226,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Network Outgoing Systems
   registerSystem(SystemUpdateType.Fixed, ServerNetworkOutgoingSystem)
-  registerSystem(SystemUpdateType.Fixed, GlobalActionDispatchSystem)
+  registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {

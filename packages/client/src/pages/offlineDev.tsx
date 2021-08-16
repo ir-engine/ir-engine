@@ -52,7 +52,7 @@ const DevPage = () => {
         postProcessing: false
       },
       physics: {
-        physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+        physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
       }
     }
     console.log(initializationOptions)

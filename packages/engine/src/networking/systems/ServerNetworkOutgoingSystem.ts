@@ -96,9 +96,7 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
         Network.instance.worldState.clientsDisconnected.length ||
         Network.instance.worldState.createObjects.length ||
         Network.instance.worldState.editObjects.length ||
-        Network.instance.worldState.destroyObjects.length ||
-        Network.instance.worldState.gameState.length ||
-        Network.instance.worldState.gameStateActions.length
+        Network.instance.worldState.destroyObjects.length
       ) {
         const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState)
         if (!bufferReliable) {
@@ -119,8 +117,7 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
           Network.instance.transport.sendData(bufferUnreliable)
       }
     } catch (e) {
-      console.error(e, Network.instance.worldState.gameState)
-      // console.error(Network.instance.worldState)
+      console.error(Network.instance.worldState)
     }
 
     Network.instance.worldState.clientsConnected = []
@@ -128,8 +125,6 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
     Network.instance.worldState.createObjects = []
     Network.instance.worldState.editObjects = []
     Network.instance.worldState.destroyObjects = []
-    Network.instance.worldState.gameState = []
-    Network.instance.worldState.gameStateActions = []
 
     return world
   })

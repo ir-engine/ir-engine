@@ -52,9 +52,7 @@
 //         ...rotation,
 //         snapShotTime: 0
 //       }
-//     ],
-//     gameState: {},
-//     gameStateActions: []
+//     ]
 //   };
 
 //   // WorldStateInterface

@@ -63,7 +63,7 @@ const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCameraBehavior = (entity: Entity) => {
-  if (!entity) return
+  if (typeof entity === 'undefined') return
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
@@ -194,7 +194,7 @@ export const CameraSystem = async (): Promise<System> => {
 
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
-  addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
+  // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
@@ -249,6 +249,14 @@ export const CameraSystem = async (): Promise<System> => {
     // follow camera component should only ever be on the character
     for (const entity of followCameraQuery(world)) {
       followCameraBehavior(entity)
+    }
+
+    if (typeof Engine.activeCameraEntity !== 'undefined') {
+      const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
+      Engine.camera.position.copy(transform.position)
+      Engine.camera.quaternion.copy(transform.rotation)
+      Engine.camera.scale.copy(transform.scale)
+      Engine.camera.updateMatrixWorld()
     }
 
     return world

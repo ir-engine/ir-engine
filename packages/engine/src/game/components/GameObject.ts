@@ -6,10 +6,10 @@ import { GameObjectInteractionSchema } from '../interfaces/GameObjectPrefab'
  */
 
 export type GameObjectType = {
-  gameName: string
+  // gameName: string
   role: string
-  uuid: string
-  collisionBehaviors: GameObjectInteractionSchema
+  // uuid: string
+  // collisionBehaviors: GameObjectInteractionSchema
 }
 
 export const GameObject = createMappedComponent<GameObjectType>()

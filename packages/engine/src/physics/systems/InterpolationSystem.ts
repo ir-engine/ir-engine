@@ -19,14 +19,14 @@ import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBeh
 import { VelocityComponent } from '../components/VelocityComponent'
 import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { ClientAuthoritativeTagComponent } from '../components/ClientAuthoritativeTagComponent'
+import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
+import { rigidbodyUpdateBehavior } from '../behaviors/rigidbodyUpdateBehavior'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-
-const vec3 = new Vector3()
 
 export const InterpolationSystem = async (): Promise<System> => {
   const localCharacterInterpolationQuery = defineQuery([
@@ -50,15 +50,23 @@ export const InterpolationSystem = async (): Promise<System> => {
   const networkObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
     Not(LocalInterpolationComponent),
-    Not(ClientAuthoritativeTagComponent),
+    Not(ClientAuthoritativeComponent),
     InterpolationComponent,
     ColliderComponent,
     NetworkObjectComponent
   ])
   const correctionFromServerQuery = defineQuery([
     Not(InterpolationComponent),
-    Not(ClientAuthoritativeTagComponent),
+    Not(ClientAuthoritativeComponent),
     ColliderComponent,
+    NetworkObjectComponent
+  ])
+  const transformUpdateFromServerQuery = defineQuery([
+    Not(InterpolationComponent),
+    Not(ClientAuthoritativeComponent),
+    Not(AvatarControllerComponent),
+    Not(ColliderComponent),
+    TransformComponent,
     NetworkObjectComponent
   ])
 
@@ -92,30 +100,18 @@ export const InterpolationSystem = async (): Promise<System> => {
       rigidbodyInterpolationBehavior(entity, snapshots, delta)
     }
 
-    // If a networked entity does not have an interpolation component, just copy the data
     for (const entity of correctionFromServerQuery(world)) {
-      const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
-      if (snapshot == null) continue
-      const collider = getComponent(entity, ColliderComponent)
-      const velocity = getComponent(entity, VelocityComponent)
-      // dynamic objects should be interpolated, kinematic objects should not
-      if (velocity && collider.body.type !== BodyType.KINEMATIC) {
-        velocity.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))
-        collider.body.updateTransform({
-          translation: {
-            x: snapshot.x,
-            y: snapshot.y,
-            z: snapshot.z
-          },
-          rotation: {
-            x: snapshot.qX,
-            y: snapshot.qY,
-            z: snapshot.qZ,
-            w: snapshot.qW
-          }
-        })
-      }
+      rigidbodyUpdateBehavior(entity, snapshots, delta)
     }
+
+    for (const entity of transformUpdateFromServerQuery(world)) {
+      const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
+      if (snapshot == null) return
+      const transform = getComponent(entity, TransformComponent)
+      transform.position.set(snapshot.x, snapshot.y, snapshot.z)
+      transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
+    }
+
     return world
   })
 }
