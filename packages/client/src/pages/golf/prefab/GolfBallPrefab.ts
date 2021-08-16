@@ -43,31 +43,34 @@ interface BallGroupType extends Group {
 
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  console.log(
-    'setBallState',
-    getOwnerIdPlayerNumber(getComponent(entityBall, NetworkObjectComponent).ownerId),
-    Object.values(BALL_STATES)[ballState]
-  )
+  const playerNumber = getOwnerIdPlayerNumber(getComponent(entityBall, NetworkObjectComponent).ownerId)
+  console.log('setBallState', golfBallComponent, Object.values(BALL_STATES)[ballState])
   golfBallComponent.state = ballState
 
   if (isClient) {
     const ballGroup = getComponent(entityBall, Object3DComponent).value as BallGroupType
     switch (ballState) {
       case BALL_STATES.INACTIVE: {
-        // show ball
-        ballGroup.userData.meshObject.quaternion.identity()
+        const collider = getComponent(entityBall, ColliderComponent)
+        collider?.body.updateTransform({
+          rotation: new Quaternion()
+        })
+        // hide ball
+        ballGroup.quaternion.identity()
+        if (GolfState.players.value[playerNumber].stroke === 0) {
+          ballGroup.visible = false
+        }
         ballGroup.userData.trailObject.visible = false
-        ballGroup.userData.meshObject.scale.y = 0.01
-        // obj.value.userData.meshObject.position.y = -(golfBallRadius * 0.5)
-        // if (isClient) ((obj.value as Mesh).material as MeshBasicMaterial).opacity = 0.2
+        ballGroup.userData.meshObject.scale.set(0.5, 0.01, 0.5)
+        ballGroup.userData.meshObject.position.y = -(golfBallRadius * 0.5)
         return
       }
       case BALL_STATES.WAITING: {
-        ballGroup.userData.trailObject.visible = true
-        ballGroup.userData.meshObject.scale.y = 1
-        // obj.value.userData.meshObject.position.y = 0
         // show ball
-        // if (isClient) ((obj.value as Mesh).material as MeshBasicMaterial).opacity = 1
+        ballGroup.visible = true
+        ballGroup.userData.trailObject.visible = true
+        ballGroup.userData.meshObject.scale.setScalar(1)
+        ballGroup.userData.meshObject.position.y = 0
         return
       }
       case BALL_STATES.MOVING: {
@@ -86,7 +89,8 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   const collider = getComponent(entityBall, ColliderComponent)
   if (collider) {
     collider.body.updateTransform({
-      translation: new Vector3(...position)
+      translation: new Vector3(...position),
+      rotation: new Quaternion()
     })
   } else {
     const transform = getComponent(entityBall, TransformComponent)
@@ -135,20 +139,21 @@ export const spawnBall = (entityPlayer: Entity, playerCurrentHole: number): void
 
 export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
-  if (!collider) return
-  const ballPosition = collider.body.transform.translation
-  const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  golfBallComponent.groundRaycast.origin.copy(ballPosition)
+
+  if (collider) {
+    const ballPosition = collider.body.transform.translation
+    const golfBallComponent = getComponent(entityBall, GolfBallComponent)
+    golfBallComponent.groundRaycast.origin.copy(ballPosition)
+  }
 
   if (isClient) {
-    const obj = getComponent(entityBall, Object3DComponent)
-    if (!obj?.value) return
-    const trail = obj.value.userData.trailObject as TrailRenderer
+    const ballGroup = getComponent(entityBall, Object3DComponent).value as BallGroupType
+    const trail = ballGroup.userData.trailObject
 
     const time = Date.now()
-    if (time - obj.value.userData.lastTrailUpdateTime > 10) {
+    if (time - ballGroup.userData.lastTrailUpdateTime > 10) {
       trail.advance()
-      obj.value.userData.lastTrailUpdateTime = time
+      ballGroup.userData.lastTrailUpdateTime = time
     } else {
       trail.updateHead()
     }
@@ -171,14 +176,13 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   const gameObject = getComponent(ballEntity, GameObject)
   const ballMesh = group.children[0].clone(true) as Mesh
   ballMesh.name = 'Ball' + gameObject.uuid
-  ballMesh.position.copy(transform.position)
-  ballMesh.scale.copy(transform.scale)
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
   ballMesh.traverse((obj: Mesh) => {
+    obj.position.set(0, 0, 0)
+    obj.scale.set(1, 1, 1)
     if (obj.material) {
       obj.material = (obj.material as Material).clone()
-      ;(obj.material as MeshBasicMaterial).transparent = true
       ;(obj.material as MeshBasicMaterial).color.set(color)
     }
   })

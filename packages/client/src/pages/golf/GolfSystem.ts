@@ -156,7 +156,7 @@ const GolfReceptorSystem = async (): Promise<System> => {
          *   -
          */
         case 'puttclub.PLAYER_READY': {
-          if (action.playerId === s.players.value[s.currentPlayer.value].id) {
+          if (s.players.value.length && action.playerId === s.players.value[s.currentPlayer.value].id) {
             dispatchFromServer(
               GolfAction.resetBall(
                 s.players.value[s.currentPlayer.value].id,
