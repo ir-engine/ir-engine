@@ -1,5 +1,4 @@
 import Badge from '@material-ui/core/Badge'
-import LinkIcon from '@material-ui/icons/Link'
 import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
@@ -17,7 +16,6 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import DownArrow from '../assets/DownArrow.png'
-import { Upload } from '../icons/Upload'
 import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
@@ -230,49 +228,41 @@ const UserMenu = (props: UserMenuProps): any => {
           >
             <img src={DownArrow} />
           </span>
-          <span
-            id={Views.Share}
-            // onClick={ShowShare}
-            // className={'share'}
-            className={styles.share}
-          >
-            <Upload />
-          </span>
         </div>
         {currentActiveMenu ? renderMenuPanel() : null}
       </section>
       <section className={styles.circleMenu}>
-        {panelState === PanelState.MENU_OPEN
-          ? (
-            <div className={styles.menu}>
-              <div className={styles.menuBackground}>
-                <img src="/static/Oval.png" />
-              </div>
-              <Badge
-                color="primary"
-                variant="dot"
-                invisible={!hasUnreadMessages}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                className={styles.chatBadge}
-              >
-                <button className={styles.iconCallChat} onClick={() => changeActivePanel(ActivePanel.CHAT)}>
-                  <img src="/static/chat.png" />
-                </button>
-              </Badge>
-              <button className={styles.share} onClick={() => changeActivePanel(ActivePanel.SHARE)}>
-                <img src="/static/share.png" />
-              </button>
+        {panelState === PanelState.MENU_OPEN ? (
+          <div className={styles.menu}>
+            <div className={styles.menuBackground}>
+              <img src="/static/Oval.png" />
             </div>
-          ) : panelState === PanelState.PANEL_OPEN
-            ? (
-              <InstanceChat isOpen={activePanel === ActivePanel.CHAT} setUnreadMessages={setUnreadMessages} />
-            ) : null}
+            <Badge
+              color="primary"
+              variant="dot"
+              invisible={!hasUnreadMessages}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              className={styles.chatBadge}
+            >
+              <button className={styles.iconCallChat} onClick={() => changeActivePanel(ActivePanel.CHAT)}>
+                <img src="/static/chat.png" />
+              </button>
+            </Badge>
+            <button className={styles.share} onClick={() => changeActivePanel(ActivePanel.SHARE)}>
+              <img src="/static/share.png" />
+            </button>
+          </div>
+        ) : panelState === PanelState.PANEL_OPEN ? (
+          <InstanceChat isOpen={activePanel === ActivePanel.CHAT} setUnreadMessages={setUnreadMessages} />
+        ) : null}
 
-          <button className={styles.menuBtn} onClick={togglePanelStatus}>
-            {panelState === PanelState.CLOSE
-              ? <img src="/static/Plus.png" />
-              : <img src="/static/Plus.png" className={styles.open} />}
-          </button>
+        <button className={styles.menuBtn} onClick={togglePanelStatus}>
+          {panelState === PanelState.CLOSE ? (
+            <img src="/static/Plus.png" />
+          ) : (
+            <img src="/static/Plus.png" className={styles.open} />
+          )}
+        </button>
       </section>
     </>
   )

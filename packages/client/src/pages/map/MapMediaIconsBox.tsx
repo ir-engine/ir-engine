@@ -80,7 +80,7 @@ const MediaIconsBox = (props) => {
     console.log('Mic Clicked=>' + isCamAudioEnabled)
   }
 
-  const MicIcon = isCamAudioEnabled ? "/static/Microphone-on.png" : "/static/Microphone.png"
+  const MicIcon = isCamAudioEnabled ? '/static/Microphone-on.png' : '/static/Microphone.png'
 
   return (
     <section className={styles.drawerBox}>

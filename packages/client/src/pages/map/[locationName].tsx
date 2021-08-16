@@ -29,7 +29,6 @@ const LocationPage = (props) => {
         history={props.history}
         engineCallbacks={engineCallbacks}
       >
-
         <MapMediaIconsBox />
         <MapUserMenu />
       </World>

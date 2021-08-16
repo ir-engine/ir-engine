@@ -104,11 +104,7 @@ const InstanceChat = (props: Props): any => {
   }
 
   useEffect(() => {
-    activeChannel &&
-      activeChannel.messages &&
-      activeChannel.messages.length > 0 &&
-      !isOpen &&
-      setUnreadMessages(true)
+    activeChannel && activeChannel.messages && activeChannel.messages.length > 0 && !isOpen && setUnreadMessages(true)
   }, [activeChannel?.messages])
 
   useEffect(() => {
