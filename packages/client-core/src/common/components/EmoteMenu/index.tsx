@@ -20,13 +20,11 @@ type MenuItemType = {
 type EmoteMenuPropsType = {
   styles?: any
   radius?: number
-  thickness?: number
 }
 
 type EmoteMenuStateType = {
   items: MenuItemType[]
   menuRadius: number
-  menuThickness: number
   menuItemWidth: number
   isOpen: boolean
 }
@@ -38,14 +36,14 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   menuItemWidth: number
   menuItemRadius: number
   effectiveRadius: number
-  menuPadding: number
+  menuPadding: number = 20
+  menuThickness: number = 100
   styles: any
   constructor(props) {
     super(props)
     this.styles = props.styles ?? defaultStyles
     this.state = {
       menuRadius: this.calculateMenuRadius(),
-      menuThickness: props.thickness || DEFAULT_MENU_THICKNESS,
       items: [
         {
           body: <img src="/static/Dance1.svg" alt="Dance 1" />,
@@ -137,8 +135,8 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   calculateOtherValues = (): void => {
-    this.menuPadding = this.state.menuRadius > 170 ? 20 : 40
-    this.menuItemWidth = this.state.menuThickness - this.menuPadding
+    this.menuThickness = this.state.menuRadius > 190 ? 100 : 80
+    this.menuItemWidth = this.menuThickness - this.menuPadding
     this.menuItemRadius = this.menuItemWidth / 2
     this.effectiveRadius = this.state.menuRadius - this.menuItemRadius - this.menuPadding / 2
   }
@@ -162,7 +160,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
               style={{
                 width: this.state.menuRadius * 2,
                 height: this.state.menuRadius * 2,
-                borderWidth: this.state.menuThickness
+                borderWidth: this.menuThickness
               }}
             >
               <div

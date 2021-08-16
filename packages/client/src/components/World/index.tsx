@@ -42,9 +42,7 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
     },
     physics: {
       simulationEnabled: false,
-      physxWorker: () => {
-        return new Worker('/scripts/loadPhysXClassic.js')
-      }
+      physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
     }
   }
 }

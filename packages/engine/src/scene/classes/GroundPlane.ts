@@ -3,8 +3,6 @@ export default class GroundPlane extends Object3D {
   static _geometry = new CircleBufferGeometry(4000, 32)
   _receiveShadow: boolean
   mesh: Mesh
-  add: any
-  remove: any
   constructor() {
     super()
     this._receiveShadow = true

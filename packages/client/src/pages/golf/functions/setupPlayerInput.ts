@@ -64,12 +64,20 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
 
       const holeEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
       const holeTransform = getComponent(holeEntity, TransformComponent)
-
-      const ballPosCopy = new Vector3().copy(ballTransform.position).setY(0)
-      const holePosCopy = new Vector3().copy(holeTransform.position).setY(0)
-
+      // its do ball - hole
+      let pos1 = new Vector3().copy(ballTransform.position).setY(0)
+      let pos2 = new Vector3().copy(holeTransform.position).setY(0)
+      // its do hole - ball
+      if (position.z < holeTransform.position.z) {
+        pos1 = new Vector3().copy(holeTransform.position).setY(0)
+        pos2 = new Vector3().copy(ballTransform.position).setY(0)
+      }
       // face character towards hole
-      const angle = new Vector3(0, 0, -1).angleTo(holePosCopy.sub(ballPosCopy).normalize()) + Math.PI / 2
+      let angle = new Vector3(-1, 0, 0).angleTo(pos1.sub(pos2).normalize())
+      // with out it direction right but club invert side
+      if (position.z < holeTransform.position.z) {
+        angle += Math.PI
+      }
 
       const controller = getComponent(entity, AvatarControllerComponent)
       const actor = getComponent(entity, AvatarComponent)

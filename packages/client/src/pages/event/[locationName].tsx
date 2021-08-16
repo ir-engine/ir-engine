@@ -31,7 +31,7 @@ const engineInitializeOptions: InitializeOptions = {
   },
   physics: {
     simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+    physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
   },
   systems: [
     {

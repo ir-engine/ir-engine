@@ -159,7 +159,7 @@ export const teleportToLocation = async (
   Network.instance.transport.close()
 
   await teleportToScene(portalComponent, async () => {
-    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
+    await processLocationChange()
 
     onTeleport()
     Store.store.dispatch(getLocationByName(portalComponent.location))

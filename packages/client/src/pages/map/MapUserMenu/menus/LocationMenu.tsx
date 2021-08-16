@@ -13,7 +13,7 @@ import TextField from '@material-ui/core/TextField'
 import TablePagination from '@material-ui/core/TablePagination'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import { client } from '@xrengine/client-core/src/feathers'
-import styles from '../UserMenu.module.scss'
+import styles from '../MapUserMenu.module.scss'
 
 const LocationMenu = ({ changeActiveLocation }) => {
   const [page, setPage] = useState(0)

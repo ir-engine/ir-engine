@@ -6,16 +6,12 @@
 }
 
 .settingContainer {
-    //  display: flex;
-    //  position: relative;
-    //   top: 20px;
-    //   width: 100vw;
-    //    z-index: 15;
-    //    align-items: center;
-    //   justify-content: center;
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
+    position: fixed;
+    top: 20px;
+    width: 100vw;
+    z-index: 15;
+    display: flex;
+    align-items: center;
 
     .materialIconBlock {
         display: flex;
@@ -32,21 +28,9 @@
     }
 
     .iconContainer {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position:relative;
-        top:30px;
-    
-        .profile{
-            position: absolute;
-            //left: 50%;
-            cursor: pointer;
-         }
-        .share{
-            margin-left: auto;
-            cursor: pointer;
-        }
+        display: inline-flex;
+        margin: auto;
+        
         .materialIconBlock {
             padding: 1em;
 
@@ -329,7 +313,7 @@
             justify-content: space-around;
             margin-top: 8px;
 
-            // .avatarNameInput {}
+            .avatarNameInput {}
         }
 
         .iconBlock {
@@ -378,9 +362,80 @@
             width: 330px;
             .avatarHeaderBlock { margin-top: 15px; }
             .controlContainer { margin-bottom: 15px; }
-            .share {
-                align-self: flex-end;
+        }
+    }
+}
+
+.circleMenu {
+    position: fixed;
+    bottom: 20px;
+    z-index: 15;
+    left: 50%;
+    margin-left: -25px;
+
+    .menuBtn {
+        background: transparent;
+        border: none;
+        position: relative;
+
+        width: 50px;
+        height: 50px;
+
+        background: url('/static/bg.png');
+        box-shadow: inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 0px -12px 12px #6E6FF9, inset 0px 12px 22px rgba(255, 255, 255, 0.5);
+        filter: drop-shadow(0px 4px 6px rgba(167, 168, 255, 0.780048)) drop-shadow(0px 2px 12px rgba(101, 109, 117, 0.164855));
+        border-radius: 32.4px;
+        background-size: cover;
+        background-position: -20px;
+
+        &:hover { cursor: pointer; }
+
+        img { width: 100%; transition: all 0.2s ease-out; }
+        .open { transform: rotate(-45deg); }
+    }
+
+    .menu {
+        position: absolute;
+        top: -255px;
+        left: -144px;
+
+        .menuBackground {
+            width: 336px;
+            height: auto;
+        }
+
+        .share {
+            background: #E88AF1;
+            box-shadow: 0px 3px 6px rgba(182, 58, 196, 0.21), 0px 2px 11px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 2px -11px 4px #E16DF1, inset 0px 5px 5px rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 35px;
+            left: 65px;
+
+            &:hover { cursor: pointer; }
+        }
+
+        .chatBadge {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 35px;
+            right: 65px;
+            z-index: 20;
+
+            .iconCallChat{
+              background: #01CD3B;
+              box-shadow: 0px 5px 6px rgba(31, 208, 83, 0.21427), 0px 2px 11px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 2px -11px 11px #54E97E, inset 2px 11px 21px rgba(255, 255, 255, 0.5);
+              border-radius: 25px;
+              border: none;
+
+              &:hover { cursor: pointer; }
             }
+
+            :global(.MuiBadge-dot) { top: 7px; right: 7px; }
         }
     }
 }
@@ -1267,7 +1322,7 @@
         justify-content: space-around;
         margin-top: 8px;
 
-        // .avatarNameInput {}
+        .avatarNameInput {}
     }
 
     .iconBlock {

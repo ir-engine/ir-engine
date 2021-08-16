@@ -21,7 +21,6 @@ export default class Volumetric extends AudioSource {
   _mesh: Mesh
   _projection: string
   hls: any
-  add: any
   constructor(audioListener) {
     super(audioListener, 'volumetric')
     // @ts-ignore
