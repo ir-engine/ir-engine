@@ -1,27 +1,6 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "module": "esnext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "declaration": true,
-    "noImplicitAny": false,
-    "target": "ESNext",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "allowJs": false,
-    "noImplicitThis": false,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "types": ["node", "jest"],
-    "typeRoots": [
-      "node_modules/@types",
-    ],
-    "jsx": "react"
+    "outDir": "./lib"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["src/**/*.d.ts", "node_modules", "dist", "tsconfig.json", "**/tests", "**/*.test.js"]
 }

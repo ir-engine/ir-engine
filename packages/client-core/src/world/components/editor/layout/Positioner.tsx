@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, Children, cloneElement } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
+import React, { useState, useRef, useEffect, Children, cloneElement } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const Position = {
@@ -15,11 +15,11 @@ const Position = {
   BOTTOM_RIGHT: 'bottom-right',
   LEFT: 'left',
   RIGHT: 'right'
-};
+}
 
 /**
  * Function to create a Rect.
- * 
+ *
  * @author Robert Long
  * @param {Object} dimensions
  * @param {Number} dimensions.width
@@ -30,8 +30,8 @@ const Position = {
  * @return {Object} Rect { width, height, left, top, right, bottom }
  */
 const makeRect = ({ width, height }, { left, top }) => {
-  const ceiledLeft = Math.ceil(left);
-  const ceiledTop = Math.ceil(top);
+  const ceiledLeft = Math.ceil(left)
+  const ceiledTop = Math.ceil(top)
   return {
     width,
     height,
@@ -39,116 +39,116 @@ const makeRect = ({ width, height }, { left, top }) => {
     top: ceiledTop,
     right: ceiledLeft + width,
     bottom: ceiledTop + height
-  };
-};
+  }
+}
 
 /**
  * Function to flip a position upside down.
- * 
+ *
  * @param {Position} position
  * @return {Position} flipped position
  */
-const flipHorizontal = position => {
+const flipHorizontal = (position) => {
   switch (position) {
     case Position.TOP_LEFT:
-      return Position.BOTTOM_LEFT;
+      return Position.BOTTOM_LEFT
     case Position.TOP:
     default:
-      return Position.BOTTOM;
+      return Position.BOTTOM
     case Position.TOP_RIGHT:
-      return Position.BOTTOM_RIGHT;
+      return Position.BOTTOM_RIGHT
     case Position.BOTTOM_LEFT:
-      return Position.TOP_LEFT;
+      return Position.TOP_LEFT
     case Position.BOTTOM:
-      return Position.TOP;
+      return Position.TOP
     case Position.BOTTOM_RIGHT:
-      return Position.TOP_RIGHT;
+      return Position.TOP_RIGHT
   }
-};
+}
 
 /**
  * Function that returns if position is aligned on top.
- * 
+ *
  * @param {Position} position
  * @return {Boolean}
  */
-const isAlignedOnTop = position => {
+const isAlignedOnTop = (position) => {
   switch (position) {
     case Position.TOP_LEFT:
     case Position.TOP:
     case Position.TOP_RIGHT:
-      return true;
+      return true
     default:
-      return false;
+      return false
   }
-};
+}
 
 /**
  * Function that returns if position is aligned left or right.
- * 
+ *
  * @param {Position} position
  * @return {Boolean}
  */
-const isAlignedHorizontal = position => {
+const isAlignedHorizontal = (position) => {
   switch (position) {
     case Position.LEFT:
     case Position.RIGHT:
-      return true;
+      return true
     default:
-      return false;
+      return false
   }
-};
+}
 
 /**
  * Function that returns if a rect fits on bottom.
- * 
+ *
  * @param {Rect} rect
  * @param {Object} viewport
  * @param {Number} viewportOffset
  * @return {Boolean}
  */
 const getFitsOnBottom = (rect, viewport, viewportOffset) => {
-  return rect.bottom < viewport.height - viewportOffset;
-};
+  return rect.bottom < viewport.height - viewportOffset
+}
 
 /**
  * Function that returns if a rect fits on top.
- * 
+ *
  * @param {Rect} rect
  * @param {Number} viewportOffset
  * @return {Boolean}
  */
 const getFitsOnTop = (rect, viewportOffset) => {
-  return rect.top > viewportOffset;
-};
+  return rect.top > viewportOffset
+}
 
 /**
  * Function that returns if a rect fits on right.
- * 
+ *
  * @param {Rect} rect
  * @param {Object} viewport
  * @param {Number} viewportOffset
  * @return {Boolean}
  */
 const getFitsOnRight = (rect, viewport, viewportOffset) => {
-  return rect.right < viewport.width - viewportOffset;
-};
+  return rect.right < viewport.width - viewportOffset
+}
 
 /**
  * Function that returns if a rect fits on left.
- * 
+ *
  * @param {Rect} rect
  * @param {Number} viewportOffset
  * @return {Boolean}
  */
 const getFitsOnLeft = (rect, viewportOffset) => {
-  return rect.left > viewportOffset;
-};
+  return rect.left > viewportOffset
+}
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin
  * Function that returns the CSS `tranform-origin` property.
- * 
+ *
  * @param {Rect} rect
  * @param {Position} position
  * @param {Object} dimensions — the dimensions of the positioner.
@@ -156,32 +156,32 @@ const getFitsOnLeft = (rect, viewportOffset) => {
  * @return {String} transform origin
  */
 const getTransformOrigin = ({ rect, position, dimensions, targetCenter }) => {
-  const centerY = Math.round(targetCenter - rect.top);
+  const centerY = Math.round(targetCenter - rect.top)
 
   if (position === Position.LEFT) {
     /* Syntax: x-offset | y-offset */
-    return `${dimensions.width}px ${centerY}px`;
+    return `${dimensions.width}px ${centerY}px`
   }
 
   if (position === Position.RIGHT) {
     /* Syntax: x-offset | y-offset */
-    return `0px ${centerY}px`;
+    return `0px ${centerY}px`
   }
 
-  const centerX = Math.round(targetCenter - rect.left);
+  const centerX = Math.round(targetCenter - rect.left)
 
   if (isAlignedOnTop(position)) {
     /* Syntax: x-offset | y-offset */
-    return `${centerX}px ${dimensions.height}px `;
+    return `${centerX}px ${dimensions.height}px `
   }
 
   /* Syntax: x-offset | y-offset */
-  return `${centerX}px 0px `;
-};
+  return `${centerX}px 0px `
+}
 
 /**
  * Function that takes in numbers and position and gives the final coords.
- * 
+ *
  * @param {Position} position — the position the positioner should be on.
  * @param {Object} dimensions — the dimensions of the positioner.
  * @param {Rect} targetRect — the rect of the target.
@@ -190,15 +190,8 @@ const getTransformOrigin = ({ rect, position, dimensions, targetCenter }) => {
  * @param {Object} viewportOffset - offset from the viewport.
  * @return {Object} - { rect: Rect, position: Position }
  */
-function getPosition({
-  position,
-  dimensions,
-  targetRect,
-  targetOffset,
-  viewport,
-  viewportOffset = 8
-}) {
-  const isHorizontal = isAlignedHorizontal(position);
+function getPosition({ position, dimensions, targetRect, targetOffset, viewport, viewportOffset = 8 }) {
+  const isHorizontal = isAlignedHorizontal(position)
 
   // Handle left and right positions
   if (isHorizontal) {
@@ -207,31 +200,31 @@ function getPosition({
       dimensions,
       targetRect,
       targetOffset
-    });
+    })
 
     const rightRect = getRect({
       position: Position.RIGHT,
       dimensions,
       targetRect,
       targetOffset
-    });
+    })
 
-    const fitsOnLeft = getFitsOnLeft(leftRect, viewportOffset);
-    const fitsOnRight = getFitsOnRight(rightRect, viewport, viewportOffset);
+    const fitsOnLeft = getFitsOnLeft(leftRect, viewportOffset)
+    const fitsOnRight = getFitsOnRight(rightRect, viewport, viewportOffset)
 
     if (position === Position.LEFT) {
       if (fitsOnLeft) {
         return {
           position,
           rect: leftRect
-        };
+        }
       }
 
       if (fitsOnRight) {
         return {
           position: Position.RIGHT,
           rect: rightRect
-        };
+        }
       }
     }
 
@@ -240,39 +233,37 @@ function getPosition({
         return {
           position,
           rect: rightRect
-        };
+        }
       }
 
       if (fitsOnLeft) {
         return {
           position: Position.LEFT,
           rect: leftRect
-        };
+        }
       }
     }
 
     // Default to using the position with the most space
-    const spaceRight = Math.abs(
-      viewport.width - viewportOffset - rightRect.right
-    );
-    const spaceLeft = Math.abs(leftRect.left - viewportOffset);
+    const spaceRight = Math.abs(viewport.width - viewportOffset - rightRect.right)
+    const spaceLeft = Math.abs(leftRect.left - viewportOffset)
 
     if (spaceRight < spaceLeft) {
       return {
         position: Position.RIGHT,
         rect: rightRect
-      };
+      }
     }
 
     return {
       position: Position.LEFT,
       rect: leftRect
-    };
+    }
   }
 
-  const positionIsAlignedOnTop = isAlignedOnTop(position);
-  let topRect;
-  let bottomRect;
+  const positionIsAlignedOnTop = isAlignedOnTop(position)
+  let topRect
+  let bottomRect
 
   if (positionIsAlignedOnTop) {
     topRect = getRect({
@@ -280,49 +271,45 @@ function getPosition({
       dimensions,
       targetRect,
       targetOffset
-    });
+    })
     bottomRect = getRect({
       position: flipHorizontal(position),
       dimensions,
       targetRect,
       targetOffset
-    });
+    })
   } else {
     topRect = getRect({
       position: flipHorizontal(position),
       dimensions,
       targetRect,
       targetOffset
-    });
+    })
     bottomRect = getRect({
       position,
       dimensions,
       targetRect,
       targetOffset
-    });
+    })
   }
 
-  const topRectFitsOnTop = getFitsOnTop(topRect, viewportOffset);
+  const topRectFitsOnTop = getFitsOnTop(topRect, viewportOffset)
 
-  const bottomRectFitsOnBottom = getFitsOnBottom(
-    bottomRect,
-    viewport,
-    viewportOffset
-  );
+  const bottomRectFitsOnBottom = getFitsOnBottom(bottomRect, viewport, viewportOffset)
 
   if (positionIsAlignedOnTop) {
     if (topRectFitsOnTop) {
       return {
         position,
         rect: topRect
-      };
+      }
     }
 
     if (bottomRectFitsOnBottom) {
       return {
         position: flipHorizontal(position),
         rect: bottomRect
-      };
+      }
     }
   }
 
@@ -331,40 +318,38 @@ function getPosition({
       return {
         position,
         rect: bottomRect
-      };
+      }
     }
 
     if (topRectFitsOnTop) {
       return {
         position: flipHorizontal(position),
         rect: topRect
-      };
+      }
     }
   }
 
   // Default to most spacious if there is no fit.
-  const spaceBottom = Math.abs(
-    viewport.height - viewportOffset - bottomRect.bottom
-  );
+  const spaceBottom = Math.abs(viewport.height - viewportOffset - bottomRect.bottom)
 
-  const spaceTop = Math.abs(topRect.top - viewportOffset);
+  const spaceTop = Math.abs(topRect.top - viewportOffset)
 
   if (spaceBottom < spaceTop) {
     return {
       position: positionIsAlignedOnTop ? flipHorizontal(position) : position,
       rect: bottomRect
-    };
+    }
   }
 
   return {
     position: positionIsAlignedOnTop ? position : flipHorizontal(position),
     rect: topRect
-  };
+  }
 }
 
 /**
  * Function that takes in numbers and position and gives the final coords.
- * 
+ *
  * @param {Position} position
  * @param {Number} targetOffset - offset from the target.
  * @param {Object} dimensions — the dimensions of the positioner.
@@ -372,60 +357,59 @@ function getPosition({
  * @return {Rect} - Rect { width, height, left, top, right, bottom }
  */
 function getRect({ position, targetOffset, dimensions, targetRect }) {
-  const leftRect = targetRect.left + targetRect.width / 2 - dimensions.width / 2;
-  const alignedTopY = targetRect.top - dimensions.height - targetOffset;
-  const alignedBottomY = targetRect.bottom + targetOffset;
-  const alignedRightX = targetRect.right - dimensions.width;
-  const alignedLeftRightY =
-    targetRect.top + targetRect.height / 2 - dimensions.height / 2;
+  const leftRect = targetRect.left + targetRect.width / 2 - dimensions.width / 2
+  const alignedTopY = targetRect.top - dimensions.height - targetOffset
+  const alignedBottomY = targetRect.bottom + targetOffset
+  const alignedRightX = targetRect.right - dimensions.width
+  const alignedLeftRightY = targetRect.top + targetRect.height / 2 - dimensions.height / 2
 
   switch (position) {
     case Position.LEFT:
       return makeRect(dimensions, {
         left: targetRect.left - dimensions.width - targetOffset,
         top: alignedLeftRightY
-      });
+      })
     case Position.RIGHT:
       return makeRect(dimensions, {
         left: targetRect.right + targetOffset,
         top: alignedLeftRightY
-      });
+      })
     case Position.TOP:
       return makeRect(dimensions, {
         left: leftRect,
         top: alignedTopY
-      });
+      })
     case Position.TOP_LEFT:
       return makeRect(dimensions, {
         left: targetRect.left,
         top: alignedTopY
-      });
+      })
     case Position.TOP_RIGHT:
       return makeRect(dimensions, {
         left: alignedRightX,
         top: alignedTopY
-      });
+      })
     default:
     case Position.BOTTOM:
       return makeRect(dimensions, {
         left: leftRect,
         top: alignedBottomY
-      });
+      })
     case Position.BOTTOM_LEFT:
       return makeRect(dimensions, {
         left: targetRect.left,
         top: alignedBottomY
-      });
+      })
     case Position.BOTTOM_RIGHT:
       return makeRect(dimensions, {
         left: alignedRightX,
         top: alignedBottomY
-      });
+      })
   }
 }
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const PositionerContainer = (styled as any).div.attrs(({ transform, transformOrigin, opacity }) => ({
@@ -438,72 +422,76 @@ const PositionerContainer = (styled as any).div.attrs(({ transform, transformOri
   position: fixed;
   top: 0;
   left: 0;
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
- * @param {any} children 
- * @param {any} position 
- * @param {any} padding 
- * @param {any} getTargetRef 
- * @param {any} rest  
- * @returns 
+ * @param {any} children
+ * @param {any} position
+ * @param {any} padding
+ * @param {any} getTargetRef
+ * @param {any} rest
+ * @returns
  */
 export function Positioner({ children, position, padding, getTargetRef, ...rest }) {
-  const positionerContainerRef = useRef();
+  const positionerContainerRef = useRef()
 
   const [transformProps, setTransformProps] = useState({
     finalPosition: position,
-    transform: "translate(0px,0px)",
-    transformOrigin: "initial",
+    transform: 'translate(0px,0px)',
+    transformOrigin: 'initial',
     opacity: 0
-  });
+  })
 
   useEffect(() => {
     const onReposition = () => {
       /* @ts-ignore */
-      const positionerContainerRect = positionerContainerRef.current.getBoundingClientRect();
-      const targetRect = getTargetRef().current.getBoundingClientRect();
-      const viewportHeight = document.documentElement.clientHeight;
-      const viewportWidth = document.documentElement.clientWidth;
+      const positionerContainerRect = positionerContainerRef.current.getBoundingClientRect()
+      const targetRect = getTargetRef().current.getBoundingClientRect()
+      const viewportHeight = document.documentElement.clientHeight
+      const viewportWidth = document.documentElement.clientWidth
 
       // @ts-ignore
-      const { rect, position: finalPosition, transformOrigin } = getPosition({
+      const {
+        rect,
+        position: finalPosition,
+        transformOrigin
+      } = getPosition({
         position,
         targetRect,
         targetOffset: padding,
         dimensions: { width: positionerContainerRect.width, height: positionerContainerRect.height },
         viewport: { width: viewportWidth, height: viewportHeight },
         viewportOffset: padding
-      });
+      })
 
       setTransformProps({
         finalPosition,
         transformOrigin,
         transform: `translate(${rect.left}px, ${rect.top}px)`,
         opacity: 1
-      });
-    };
+      })
+    }
 
-    onReposition();
+    onReposition()
 
-    window.addEventListener("resize", onReposition);
+    window.addEventListener('resize', onReposition)
 
     return () => {
-      window.removeEventListener("resize", onReposition);
-    };
-  }, [position, padding, getTargetRef, setTransformProps]);
+      window.removeEventListener('resize', onReposition)
+    }
+  }, [position, padding, getTargetRef, setTransformProps])
 
-  const childrenWithProps = Children.map(children, child =>
+  const childrenWithProps = Children.map(children, (child) =>
     cloneElement(child, { position: transformProps.finalPosition })
-  );
+  )
 
   return (
     <PositionerContainer {...rest} {...transformProps} ref={positionerContainerRef}>
       {childrenWithProps}
     </PositionerContainer>
-  );
+  )
 }
 
 Positioner.propTypes = {
@@ -511,10 +499,10 @@ Positioner.propTypes = {
   position: PropTypes.string,
   padding: PropTypes.number,
   getTargetRef: PropTypes.func
-};
+}
 
 Positioner.defaultProps = {
   padding: 8,
-  position: "bottom"
-};
-export default Positioner;
+  position: 'bottom'
+}
+export default Positioner

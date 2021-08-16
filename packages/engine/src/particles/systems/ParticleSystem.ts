@@ -1,41 +1,21 @@
-import { ParticleEmitterComponent } from "../components/ParticleEmitter";
-import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
-import { applyTransform } from "../functions/particleHelpers";
-import { System, SystemAttributes } from "../../ecs/classes/System";
-import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { ParticleEmitterComponent } from '../components/ParticleEmitter'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { applyTransform } from '../functions/particleHelpers'
+import { ECSWorld } from '../../ecs/classes/World'
+import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
 
-/** System class for particle system. */
-export class ParticleSystem extends System {
-  /** Constructs the system. */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes);
-  }
-  updateType = SystemUpdateType.Fixed;
+export const ParticleSystem = async (): Promise<System> => {
+  const emitterQuery = defineQuery([ParticleEmitterComponent])
 
-  /** Executes the system. */
-  execute(deltaTime, time): void {
-    for (const entity of this.queryResults.emitters.added) {
-      const emitter = getMutableComponent(entity, ParticleEmitterComponent);
-      this.clearEventQueues();
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
+    for (const entity of emitterQuery(world)) {
+      const emitter = getComponent(entity, ParticleEmitterComponent)
+      applyTransform(entity, emitter)
+      emitter.particleEmitterMesh?.update(delta)
     }
 
-    this.queryResults.emitters.all?.forEach(entity => {
-      const emitter = getMutableComponent(entity, ParticleEmitterComponent);
-      applyTransform(entity, emitter);
-      emitter.particleEmitterMesh?.update(deltaTime);
-    });
-
-    for (const entity of this.queryResults.emitters.removed) {
-    }
-  }
+    return world
+  })
 }
-
-ParticleSystem.queries = {
-  emitters: {
-    components: [ParticleEmitterComponent],
-    listen: {
-      added: true,
-      removed: true,
-    }
-  },
-};

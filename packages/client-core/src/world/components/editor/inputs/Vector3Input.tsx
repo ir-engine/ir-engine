@@ -1,13 +1,13 @@
 // @ts-nocheck
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import NumericInput from "./NumericInput";
-import Scrubber from "./Scrubber";
-import { Vector3 } from "three";
-import styled from "styled-components";
-import { Link } from "@styled-icons/fa-solid/Link";
-import { Unlink } from "@styled-icons/fa-solid/Unlink";
-import Hidden from "../layout/Hidden";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import NumericInput from './NumericInput'
+import Scrubber from './Scrubber'
+import { Vector3 } from 'three'
+import styled from 'styled-components'
+import { Link } from '@styled-icons/fa-solid/Link'
+import { Unlink } from '@styled-icons/fa-solid/Unlink'
+import Hidden from '../layout/Hidden'
 
 export const Vector3InputContainer = (styled as any).div`
   display: flex;
@@ -15,14 +15,14 @@ export const Vector3InputContainer = (styled as any).div`
   flex: 1 1 auto;
   width: 70%;
   justify-content: flex-start;
-`;
+`
 
 export const Vector3Scrubber = (styled as any)(Scrubber)`
   display: flex;
   align-items: center;
   padding: 0 8px;
-  color: ${props => props.theme.text2};
-`;
+  color: ${(props) => props.theme.text2};
+`
 
 const UniformButtonContainer = (styled as any).div`
   display: flex;
@@ -33,88 +33,93 @@ const UniformButtonContainer = (styled as any).div`
   }
 
   label {
-    color: ${props => props.theme.text2};
+    color: ${(props) => props.theme.text2};
   }
 
   label:hover {
-    color: ${props => props.theme.blueHover};
+    color: ${(props) => props.theme.blueHover};
   }
-`;
+`
 
-let uniqueId = 0;
+let uniqueId = 0
 
 /**
- * 
+ *
  * @author Robert Long
  */
 export class Vector3Input extends Component {
   static propTypes = {
     uniformScaling: PropTypes.bool,
+    hideLabels: PropTypes.bool,
     value: PropTypes.object,
     onChange: PropTypes.func,
     smallStep: PropTypes.number,
     mediumStep: PropTypes.number,
-    largeStep: PropTypes.number,
-  };
+    largeStep: PropTypes.number
+  }
 
   static defaultProps = {
     value: new Vector3(),
+    hideLabels: false,
     onChange: () => {}
-  };
+  }
 
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.id = uniqueId++;
+    this.id = uniqueId++
 
-    this.newValue = new Vector3();
+    this.newValue = new Vector3()
 
     this.state = {
-      uniformEnabled: props.uniformScaling
-    };
+      uniformEnabled: props.uniformScaling,
+      hideLabels: props.hideLabels ?? false
+    }
   }
 
   state: {
-    uniformEnabled: any;
+    uniformEnabled: any
+    hideLabels: boolean
   }
-  id: number;
-  newValue: Vector3;
+  id: number
+  newValue: Vector3
+  hideLabels: boolean
 
   onToggleUniform = () => {
-    this.setState({ uniformEnabled: !this.state.uniformEnabled });
-  };
+    this.setState({ uniformEnabled: !this.state.uniformEnabled })
+  }
 
   onChange = (field, fieldValue) => {
-    const value = (this.props as any).value;
+    const value = (this.props as any).value
 
     if (this.state.uniformEnabled) {
-      this.newValue.set(fieldValue, fieldValue, fieldValue);
+      this.newValue.set(fieldValue, fieldValue, fieldValue)
     } else {
-      const x = value ? value.x : 0;
-      const y = value ? value.y : 0;
-      const z = value ? value.z : 0;
+      const x = value ? value.x : 0
+      const y = value ? value.y : 0
+      const z = value ? value.z : 0
 
-      this.newValue.x = field === "x" ? fieldValue : x;
-      this.newValue.y = field === "y" ? fieldValue : y;
-      this.newValue.z = field === "z" ? fieldValue : z;
+      this.newValue.x = field === 'x' ? fieldValue : x
+      this.newValue.y = field === 'y' ? fieldValue : y
+      this.newValue.z = field === 'z' ? fieldValue : z
     }
 
-    (this.props as any).onChange(this.newValue);
-  };
+    ;(this.props as any).onChange(this.newValue)
+  }
 
-  onChangeX = x => this.onChange("x", x);
+  onChangeX = (x) => this.onChange('x', x)
 
-  onChangeY = y => this.onChange("y", y);
+  onChangeY = (y) => this.onChange('y', y)
 
-  onChangeZ = z => this.onChange("z", z);
+  onChangeZ = (z) => this.onChange('z', z)
 
   render() {
-    const { uniformScaling, value, onChange, ...rest } = this.props as any;
-    const { uniformEnabled } = this.state as any;
-    const vx = value ? value.x : 0;
-    const vy = value ? value.y : 0;
-    const vz = value ? value.z : 0;
-    const checkboxId = "uniform-button-" + this.id;
+    const { uniformScaling, hideLabels, value, onChange, ...rest } = this.props as any
+    const { uniformEnabled } = this.state as any
+    const vx = value ? value.x : 0
+    const vy = value ? value.y : 0
+    const vz = value ? value.z : 0
+    const checkboxId = 'uniform-button-' + this.id
 
     return (
       <Vector3InputContainer>
@@ -133,19 +138,19 @@ export class Vector3Input extends Component {
           </UniformButtonContainer>
         )}
         <Vector3Scrubber {...rest} tag="div" value={vx} onChange={this.onChangeX}>
-          X:
+          {!hideLabels && <div>X:</div>}
         </Vector3Scrubber>
         <NumericInput {...rest} value={vx} onChange={this.onChangeX} />
         <Vector3Scrubber {...rest} tag="div" value={vy} onChange={this.onChangeY}>
-          Y:
+          {!hideLabels && <div>Y:</div>}
         </Vector3Scrubber>
         <NumericInput {...rest} value={vy} onChange={this.onChangeY} />
         <Vector3Scrubber {...rest} tag="div" value={vz} onChange={this.onChangeZ}>
-          Z:
+          {!hideLabels && <div>Z:</div>}
         </Vector3Scrubber>
         <NumericInput {...rest} value={vz} onChange={this.onChangeZ} />
       </Vector3InputContainer>
-    );
+    )
   }
 }
-export default Vector3Input;
+export default Vector3Input

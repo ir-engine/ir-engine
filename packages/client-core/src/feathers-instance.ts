@@ -1,14 +1,14 @@
-let client;
+let client
 
 // @feathersjs/client is exposed as the `feathers` global.
 export const getClient = (): any => {
-  return client;
-};
+  return client
+}
 
 export const setClient = (instanceClient: any): any => {
-  client = instanceClient;
-};
+  client = instanceClient
+}
 
 export const deleteClient = (): any => {
-  client = null;
-};
+  client = null
+}

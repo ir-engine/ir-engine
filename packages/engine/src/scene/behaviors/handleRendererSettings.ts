@@ -1,10 +1,12 @@
-import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, sRGBEncoding, TextureEncoding, ToneMapping } from 'three'
+import { DirectionalLight, LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
 import { Engine } from '../../ecs/classes/Engine'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 
 export type RenderSettingsProps = {
+  LODs: Vector3
   overrideRendererSettings: boolean
   csm: boolean
   toneMapping: ToneMapping
@@ -12,53 +14,56 @@ export type RenderSettingsProps = {
   shadowMapType: ShadowMapType
 }
 
-const enableCSM = (enable: boolean) => {
+export const configureCSM = (directionalLights: DirectionalLight[], remove?: boolean): void => {
+  if (!isClient || !Engine.renderer.shadowMap.enabled) return
 
-  if(enable) {
-    if(WebGLRendererSystem.instance.csm) return;
-    const csm = new CSM({
-      cascades: 4,
-      lightIntensity: 1,
-      shadowMapSize: 1024,
-      maxFar: 100,
-      camera: Engine.camera,
-      parent: Engine.scene
-    })
-    csm.fade = true
-    WebGLRendererSystem.instance.csm = csm
-  } else { 
-    if(!WebGLRendererSystem.instance.csm) return;
-    WebGLRendererSystem.instance.csm.remove()
-    WebGLRendererSystem.instance.csm.dispose()
-    WebGLRendererSystem.instance.csm = undefined
+  if (remove || !directionalLights.length) {
+    if (!Engine.csm) return
+
+    Engine.csm.remove()
+    Engine.csm.dispose()
+    Engine.csm = undefined
+
+    return
   }
 
+  if (Engine.isHMD || Engine.csm) return
+
+  const csm = new CSM({
+    camera: Engine.camera,
+    parent: Engine.scene,
+    lights: directionalLights
+  })
+
+  csm.fade = true
+  Engine.csm = csm
 }
 
-export const handleRendererSettings = (args?: RenderSettingsProps): void => {
-  if(!isClient) return
-  if(args) {
+export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolean): void => {
+  if (!isClient) return
 
-    Engine.renderer.toneMapping = args.toneMapping
-    Engine.renderer.toneMappingExposure = args.toneMappingExposure
+  if (reset) {
+    Engine.renderer.shadowMap.enabled = true
+    Engine.renderer.shadowMap.type = PCFSoftShadowMap
+    Engine.renderer.shadowMap.needsUpdate = true
 
-    if(typeof args.shadowMapType === 'undefined') {
-      Engine.renderer.shadowMap.enabled = false;
-    } else {
-      Engine.renderer.shadowMap.enabled = true;
-      Engine.renderer.shadowMap.type = args.shadowMapType;
-      Engine.renderer.shadowMap.needsUpdate = true;
-    }
-    
-    enableCSM(!Engine.isHMD && args.csm)
-  } else {
-    Engine.renderer.shadowMap.enabled = true;
-    Engine.renderer.shadowMap.type = PCFSoftShadowMap;
-    Engine.renderer.shadowMap.needsUpdate = true;
-    
     Engine.renderer.toneMapping = LinearToneMapping
     Engine.renderer.toneMappingExposure = 0.8
-    
-    enableCSM(!Engine.isHMD && true)
+
+    AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
+    return
+  }
+
+  Engine.renderer.toneMapping = args.toneMapping
+  Engine.renderer.toneMappingExposure = args.toneMappingExposure
+
+  if (args.LODs) AssetLoader.LOD_DISTANCES = { '0': args.LODs.x, '1': args.LODs.y, '2': args.LODs.y }
+
+  if (typeof args.shadowMapType === 'undefined') {
+    Engine.renderer.shadowMap.enabled = false
+  } else {
+    Engine.renderer.shadowMap.enabled = true
+    Engine.renderer.shadowMap.type = args.shadowMapType
+    Engine.renderer.shadowMap.needsUpdate = true
   }
 }

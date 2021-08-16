@@ -1,19 +1,18 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Dialog from "./Dialog";
-import { Trans, useTranslation } from "react-i18next";
-
+import React from 'react'
+import PropTypes from 'prop-types'
+import Dialog from './Dialog'
+import { Trans, useTranslation } from 'react-i18next'
 
 /**
  * SupportDialog used to render content for support.
- * 
+ *
  * @author Robert Long
  * @param       {function} onCancel
  * @param       {any} props
  * @constructor
  */
 export function SupportDialog({ onCancel, ...props }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   //returning view for SupportDialog
   return (
@@ -21,12 +20,12 @@ export function SupportDialog({ onCancel, ...props }) {
       <div>
         <p>{t('editor:dialog.support.header')}</p>
         <p>
-          <Trans t={t} values={{ mail: "support@xrengine.dev" }} i18nKey="editor:dialog.support.msg">
+          <Trans t={t} values={{ mail: 'support@xrengine.dev' }} i18nKey="editor:dialog.support.msg">
             You can file a&nbsp;
             <a href="https://github.com/XRFoundation/XREngine/issues/new" target="_blank" rel="noopener noreferrer">
               GitHub Issue
-            </a>&nbsp;
-            or e-mail us for support at <a href="mailto:support@xrengine.dev">support@xrengine.dev</a>
+            </a>
+            &nbsp; or e-mail us for support at <a href="mailto:support@xrengine.dev">support@xrengine.dev</a>
           </Trans>
         </p>
         <p>
@@ -39,16 +38,16 @@ export function SupportDialog({ onCancel, ...props }) {
         </p>
       </div>
     </Dialog>
-  );
+  )
 }
 
 /**
  * declairing propTypes for SupportDialog.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
 SupportDialog.propTypes = {
   onCancel: PropTypes.func
-};
-export default SupportDialog;
+}
+export default SupportDialog

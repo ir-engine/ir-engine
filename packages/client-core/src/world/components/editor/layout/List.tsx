@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
+import React from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
 
 /**
  * @author Robert Long
@@ -14,43 +14,43 @@ export const ListItem = (styled as any).li`
   min-height: 24px;
   padding: 0 4px;
   align-items: center;
-  color: ${props => props.theme.text};
+  color: ${(props) => props.theme.text};
 
-  background-color: ${props => (props.selected ? props.theme.selected : props.theme.panel2)};
+  background-color: ${(props) => (props.selected ? props.theme.selected : props.theme.panel2)};
 
   :nth-child(odd) {
-    background-color: ${props => (props.selected ? props.theme.selected : props.theme.panel)};
+    background-color: ${(props) => (props.selected ? props.theme.selected : props.theme.panel)};
   }
 
   :hover,
   :focus {
-    background-color: ${props => (props.selected ? props.theme.blueHover : props.theme.hover)};
-    color: ${props => props.theme.text};
+    background-color: ${(props) => (props.selected ? props.theme.blueHover : props.theme.hover)};
+    color: ${(props) => props.theme.text};
   }
 
   :active {
-    background-color: ${props => props.theme.bluePressed};
-    color: ${props => props.theme.text};
+    background-color: ${(props) => props.theme.bluePressed};
+    color: ${(props) => props.theme.text};
   }
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const ListItemIcon = (styled as any).div`
   width: 12px;
   height: 12px;
   margin-right: 4px;
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
- * @param {any} iconComponent 
+ * @param {any} iconComponent
  * @param {any} children
  * @param {any} rest
- * @returns 
+ * @returns
  */
 export function IconListItem({ iconComponent, children, ...rest }) {
   return (
@@ -58,15 +58,15 @@ export function IconListItem({ iconComponent, children, ...rest }) {
       <ListItemIcon as={iconComponent} />
       {children}
     </ListItem>
-  );
+  )
 }
 
 IconListItem.propTypes = {
   iconComponent: PropTypes.object.isRequired,
   children: PropTypes.node
-};
+}
 
 export const List = (styled as any).ul`
   height: 100%;
   overflow-y: auto;
-`;
+`

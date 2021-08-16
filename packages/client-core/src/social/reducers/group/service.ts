@@ -1,8 +1,8 @@
-import { Config } from '../../../helper';
-import { Dispatch } from 'redux';
-import { dispatchAlertError } from '../../../common/reducers/alert/service';
-import { client } from '../../../feathers';
-import Store from '../../../store';
+import { Config } from '../../../helper'
+import { Dispatch } from 'redux'
+import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { client } from '../../../feathers'
+import Store from '../../../store'
 import {
   createdGroup,
   createdGroupUser,
@@ -14,27 +14,27 @@ import {
   patchedGroupUser,
   removedGroup,
   removedGroupUser
-} from './actions';
-import {addedChannelLayerUser, removedChannelLayerUser} from "../../../user/reducers/user/actions";
+} from './actions'
+import { UserAction } from '../../../user/store/UserAction'
 
-const store = Store.store;
+const store = Store.store
 
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    dispatch(fetchingGroups());
+    dispatch(fetchingGroups())
     try {
       const groupResults = await client.service('group').find({
         query: {
           $limit: limit != null ? limit : getState().get('groups').get('groups').get('limit'),
-          $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip'),
+          $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip')
         }
-      });
-      dispatch(loadedGroups(groupResults));
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      })
+      dispatch(loadedGroups(groupResults))
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function createGroup(values: any) {
@@ -43,119 +43,134 @@ export function createGroup(values: any) {
       await client.service('group').create({
         name: values.name,
         description: values.description
-      });
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      })
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function patchGroup(values: any) {
   return async (dispatch: Dispatch): Promise<any> => {
-    const patch = {};
+    const patch = {}
     if (values.name != null) {
-      (patch as any).name = values.name;
+      ;(patch as any).name = values.name
     }
     if (values.description != null) {
-      (patch as any).description = values.description;
+      ;(patch as any).description = values.description
     }
     try {
-      await client.service('group').patch(values.id, patch);
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      await client.service('group').patch(values.id, patch)
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function removeGroup(groupId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const channelResult = await client.service('channel').find({
+      const channelResult = (await client.service('channel').find({
         query: {
           groupId: groupId
         }
-      }) as any;
+      })) as any
       if (channelResult.total > 0) {
-        await client.service('channel').remove(channelResult.data[0].id);
+        await client.service('channel').remove(channelResult.data[0].id)
       }
-      await client.service('group').remove(groupId);
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      await client.service('group').remove(groupId)
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function removeGroupUser(groupUserId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('group-user').remove(groupUserId);
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      await client.service('group-user').remove(groupUserId)
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function getInvitableGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    dispatch(fetchingInvitableGroups());
+    dispatch(fetchingInvitableGroups())
     try {
       const groupResults = await client.service('group').find({
         query: {
           invitable: true,
           $limit: limit != null ? limit : getState().get('groups').get('groups').get('limit'),
-          $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip'),
+          $skip: skip != null ? skip : getState().get('groups').get('groups').get('skip')
         }
-      });
-      dispatch(loadedInvitableGroups(groupResults));
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
-      dispatch(loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }));
+      })
+      dispatch(loadedInvitableGroups(groupResults))
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
+      dispatch(loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
     }
-  };
+  }
 }
-if(!Config.publicRuntimeConfig.offlineMode) {
+if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('group-user').on('created', (params) => {
-    const newGroupUser = params.groupUser;
-    const selfUser = (store.getState() as any).get('auth').get('user');
-    store.dispatch(createdGroupUser(newGroupUser));
-    if (newGroupUser.user.channelInstanceId != null && newGroupUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(newGroupUser.user));
-    if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(newGroupUser.user));
-  });
+    const newGroupUser = params.groupUser
+    const selfUser = (store.getState() as any).get('auth').get('user')
+    store.dispatch(createdGroupUser(newGroupUser))
+    if (
+      newGroupUser.user.channelInstanceId != null &&
+      newGroupUser.user.channelInstanceId === selfUser.channelInstanceId
+    )
+      store.dispatch(UserAction.addedChannelLayerUser(newGroupUser.user))
+    if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
+      store.dispatch(UserAction.removedChannelLayerUser(newGroupUser.user))
+  })
 
   client.service('group-user').on('patched', (params) => {
-    const updatedGroupUser = params.groupUser;
-    const selfUser = (store.getState() as any).get('auth').get('user');
-    store.dispatch(patchedGroupUser(updatedGroupUser));
-    if (updatedGroupUser.user.channelInstanceId != null && updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(updatedGroupUser.user));
-    if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(updatedGroupUser.user));
-  });
+    const updatedGroupUser = params.groupUser
+    const selfUser = (store.getState() as any).get('auth').get('user')
+    store.dispatch(patchedGroupUser(updatedGroupUser))
+    if (
+      updatedGroupUser.user.channelInstanceId != null &&
+      updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId
+    )
+      store.dispatch(UserAction.addedChannelLayerUser(updatedGroupUser.user))
+    if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
+      store.dispatch(UserAction.removedChannelLayerUser(updatedGroupUser.user))
+  })
 
   client.service('group-user').on('removed', (params) => {
-    const deletedGroupUser = params.groupUser;
-    const selfUser = (store.getState() as any).get('auth').get('user');
-    store.dispatch(removedGroupUser(deletedGroupUser, params.self));
-    if (deletedGroupUser.user.channelInstanceId != null && deletedGroupUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(deletedGroupUser.user));
-    if (deletedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(deletedGroupUser.user));
-  });
+    const deletedGroupUser = params.groupUser
+    const selfUser = (store.getState() as any).get('auth').get('user')
+    store.dispatch(removedGroupUser(deletedGroupUser, params.self))
+    if (
+      deletedGroupUser.user.channelInstanceId != null &&
+      deletedGroupUser.user.channelInstanceId === selfUser.channelInstanceId
+    )
+      store.dispatch(UserAction.addedChannelLayerUser(deletedGroupUser.user))
+    if (deletedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
+      store.dispatch(UserAction.removedChannelLayerUser(deletedGroupUser.user))
+  })
 
   client.service('group').on('created', (params) => {
-    store.dispatch(createdGroup(params.group));
-  });
+    store.dispatch(createdGroup(params.group))
+  })
 
   client.service('group').on('patched', (params) => {
-    store.dispatch(patchedGroup(params.group));
-  });
+    store.dispatch(patchedGroup(params.group))
+  })
 
   client.service('group').on('removed', (params) => {
-    store.dispatch(removedGroup(params.group));
-  });
+    store.dispatch(removedGroup(params.group))
+  })
 
   client.service('group').on('refresh', (params) => {
-    store.dispatch(createdGroup(params.group));
-  });
+    store.dispatch(createdGroup(params.group))
+  })
 }

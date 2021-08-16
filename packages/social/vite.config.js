@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite-xrengine';
+import { defineConfig, loadEnv } from 'vite';
 import config from "config";
 
 const replaceEnvs = (obj, env) => {
@@ -38,7 +38,10 @@ export default defineConfig(() => {
 
     return {
         plugins: [],
-        server: {
+        server: { 
+            // hmr: {
+            //     port: 443
+            // },
             https: {
                 key: fs.readFileSync('../../certs/key.pem'),
                 cert: fs.readFileSync('../../certs/cert.pem')
@@ -46,7 +49,6 @@ export default defineConfig(() => {
         },
         resolve: {
             alias: {
-                '@material-ui/icons': '@material-ui/icons/esm',
                 "socket.io-client": "socket.io-client/dist/socket.io.js",
                 "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
             }

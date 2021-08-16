@@ -1,21 +1,17 @@
-import { Dispatch } from 'redux';
-import { client } from '../../../feathers';
-import {
-  createdContentPack,
-  patchedContentPack,
-  loadedContentPacks,
-} from './actions';
+import { Dispatch } from 'redux'
+import { client } from '../../../feathers'
+import { createdContentPack, patchedContentPack, loadedContentPacks } from './actions'
 
-export function uploadAvatars (data: any) {
+export function uploadAvatars(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     data.each(async (data) => {
       const existingFiles = await client.service('static-resource').find({
         query: {
-          name: data.name,
+          name: data.name
         }
-      });
-      const existingThumbnail = existingFiles.data.find(file => file.staticResourceType === 'user-thumbnail');
-      const existingModel = existingFiles.data.find(file => file.staticResourceType === 'avatar');
+      })
+      const existingThumbnail = existingFiles.data.find((file) => file.staticResourceType === 'user-thumbnail')
+      const existingModel = existingFiles.data.find((file) => file.staticResourceType === 'avatar')
 
       if (existingThumbnail == null) {
         await client.service('static-resource').create({
@@ -23,13 +19,13 @@ export function uploadAvatars (data: any) {
           url: data.thumbnail,
           staticResourceType: 'user-thumbnail',
           key: `avatars/${data.name}.png`
-        });
+        })
       } else {
         await client.service('static-resource').patch(existingThumbnail.id, {
           name: data.name,
           url: data.thumbnail,
           key: `avatars/${data.name}.png`
-        });
+        })
       }
 
       if (existingModel == null) {
@@ -38,58 +34,56 @@ export function uploadAvatars (data: any) {
           url: data.glb,
           staticResourceType: 'avatar',
           key: `avatars/${data.name}.png`
-        });
+        })
       } else {
         await client.service('static-resource').patch(existingThumbnail.id, {
           name: data.name,
           url: data.glb,
           key: `avatars/${data.name}.png`
-        });
+        })
       }
-    });
-  };
+    })
+  }
 }
 
 export function fetchContentPacks() {
   return async (dispatch: Dispatch, getState: any) => {
-    const packs = await client.service('content-pack').find({});
-    dispatch(loadedContentPacks(packs));
-  };
+    const packs = await client.service('content-pack').find({})
+    dispatch(loadedContentPacks(packs))
+  }
 }
 
 export function createContentPack(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
-    const result = await client.service('content-pack').create({
-      scene: data.scene,
-      contentPack: data.contentPack
-    });
-    dispatch(createdContentPack());
-  };
+    await client.service('content-pack').create(data)
+    dispatch(createdContentPack())
+  }
 }
 
-export function addSceneToContentPack(data: any) {
+export function addScenesToContentPack(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
-    const result = await client.service('content-pack').patch(null, {
-      scene: data.scene,
-      contentPack: data.contentPack
-    });
-    console.log('addScene result:');
-    console.log(result);
-    dispatch(patchedContentPack());
-  };
+    await client.service('content-pack').patch(null, data)
+    dispatch(patchedContentPack())
+  }
+}
+
+export function addAvatarsToContentPack(data: any) {
+  return async (dispatch: Dispatch) => {
+    const result = await client.service('content-pack').patch(null, data)
+    dispatch(patchedContentPack())
+  }
 }
 
 export function downloadContentPack(url: string) {
   return async (dispatch: Dispatch, getState: any) => {
     await client.service('content-pack').update(null, {
       manifestUrl: url
-    });
-  };
+    })
+  }
 }
 
-export function uploadScenes (data: any) {
+export function uploadScenes(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
-    data.each(async (data) => {
-    });
-  };
+    data.each(async (data) => {})
+  }
 }

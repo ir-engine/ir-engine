@@ -1,35 +1,35 @@
-import React, { useCallback } from "react";
-import PropTypes from "prop-types";
-import Portal from "./Portal";
-import Positioner from "./Positioner";
-import useHover from "../hooks/useHover";
-import styled from "styled-components";
+import React, { useCallback } from 'react'
+import PropTypes from 'prop-types'
+import Portal from './Portal'
+import Positioner from './Positioner'
+import useHover from '../hooks/useHover'
+import styled from 'styled-components'
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const StyledTooltip = (styled as any).div`
   display: inherit;
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
- * @param {any} children  
- * @param {any} padding 
- * @param {any} position 
- * @param {any} renderContent 
- * @param {any} disabled 
- * @param {any} rest 
- * @returns 
+ * @param {any} children
+ * @param {any} padding
+ * @param {any} position
+ * @param {any} renderContent
+ * @param {any} disabled
+ * @param {any} rest
+ * @returns
  */
 export function Tooltip({ children, padding, position, renderContent, disabled, ...rest }) {
-  const [hoverRef, isHovered] = useHover();
+  const [hoverRef, isHovered] = useHover()
 
   const getTargetRef = useCallback(() => {
-    return hoverRef;
-  }, [hoverRef]);
+    return hoverRef
+  }, [hoverRef])
 
   return (
     <StyledTooltip ref={hoverRef} {...rest}>
@@ -42,7 +42,7 @@ export function Tooltip({ children, padding, position, renderContent, disabled, 
         </Portal>
       )}
     </StyledTooltip>
-  );
+  )
 }
 
 Tooltip.propTypes = {
@@ -51,10 +51,10 @@ Tooltip.propTypes = {
   padding: PropTypes.number,
   position: PropTypes.string,
   renderContent: PropTypes.func.isRequired
-};
+}
 
 /**
- * 
+ *
  * @author Robert Long
  */
 export const TooltipContainer = (styled as any).div`
@@ -71,19 +71,19 @@ export const TooltipContainer = (styled as any).div`
   text-align: center;
   white-space: pre-wrap;
 }
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
- * @param {any} info 
+ * @param {any} info
  * @param {any} children
  * @param {any} rest
- * @returns 
+ * @returns
  */
 export function InfoTooltip({ info, children, ...rest }) {
   if (!info) {
-    return <div {...rest}>{children}</div>;
+    return <div {...rest}>{children}</div>
   }
 
   return (
@@ -91,11 +91,11 @@ export function InfoTooltip({ info, children, ...rest }) {
     <Tooltip {...rest} renderContent={() => <TooltipContainer>{info}</TooltipContainer>}>
       {children}
     </Tooltip>
-  );
+  )
 }
 
 InfoTooltip.propTypes = {
   children: PropTypes.node,
   info: PropTypes.string
-};
-export default Tooltip;
+}
+export default Tooltip

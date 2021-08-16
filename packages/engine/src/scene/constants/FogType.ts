@@ -1,5 +1,5 @@
 export const FogType = {
-  Disabled: "disabled",
-  Linear: "linear",
-  Exponential: "exponential"
-};
+  Disabled: 'disabled',
+  Linear: 'linear',
+  Exponential: 'exponential'
+}

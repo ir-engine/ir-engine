@@ -2,7 +2,7 @@
   "packages": [
     "packages/*"
   ],
-  "version": "0.3.25",
+  "version": "0.3.32",
   "npmClient": "npm",
   "useWorkspaces": true,
   "hoist": true,

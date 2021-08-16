@@ -1,14 +1,14 @@
 @font-face{
     font-family: "SFProText-Semibold";
-    src : url("assets/fonts/FontsFree-Net-SFProText-Semibold-1.ttf");
+    src : url("/assets/fonts/FontsFree-Net-SFProText-Semibold-1.ttf");
   }
   @font-face{
     font-family: "SFProText-Regular";
-    src : url("assets/fonts/FontsFree-Net-SFProText-Regular-1.ttf");
+    src : url("/assets/fonts/FontsFree-Net-SFProText-Regular-1.ttf");
   }
   @font-face{
     font-family: "SFProText-Heavy";
-    src : url("assets/fonts/FontsFree-Net-SFProText-Heavy.ttf");
+    src : url("/assets/fonts/FontsFree-Net-SFProText-Heavy.ttf");
   }
 body{
   font-size: 13px;
@@ -20,6 +20,15 @@ body{
   height: 100vh;
   display: flex;
   flex-direction: column;
+}
+.isIos{
+	padding-top: 2rem;
+	height: 100vh;
+	width: 100vh;
+	background: rgb(255,255,255);
+}
+.hideContentOnRecord{
+	background: transparent !important;
 }
 .hideContent{
   nav{

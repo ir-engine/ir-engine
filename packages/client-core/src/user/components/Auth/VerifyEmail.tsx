@@ -1,27 +1,26 @@
-import React, { useEffect } from 'react';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
-import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
-import { verifyEmail } from '../../reducers/auth/service';
-// @ts-ignore
-import styles from './Auth.module.scss';
-import { useTranslation } from "react-i18next";
+import React, { useEffect } from 'react'
+import Box from '@material-ui/core/Box'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
+import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
+import { verifyEmail } from '../../reducers/auth/service'
+import styles from './Auth.module.scss'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
-  auth: any;
-  type: string;
-  token: string;
-  verifyEmail: typeof verifyEmail;
+  auth: any
+  type: string
+  token: string
+  verifyEmail: typeof verifyEmail
 }
 
 export const VerifyEmail = (props: Props): any => {
-  const { verifyEmail, token } = props;
-  const { t } = useTranslation();
+  const { verifyEmail, token } = props
+  const { t } = useTranslation()
 
   useEffect(() => {
-    verifyEmail(token);
-  }, []);
+    verifyEmail(token)
+  }, [])
 
   return (
     <EmptyLayout>
@@ -39,5 +38,5 @@ export const VerifyEmail = (props: Props): any => {
         </div>
       </Container>
     </EmptyLayout>
-  );
-};
+  )
+}

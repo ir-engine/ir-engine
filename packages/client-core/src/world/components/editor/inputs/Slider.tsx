@@ -1,7 +1,7 @@
 // @ts-nocheck
-import React from "react";
-import RCSlider from "rc-slider/es/Slider";
-import { createGlobalStyle } from "styled-components";
+import React from 'react'
+import RCSlider from 'rc-slider/es/Slider'
+import { createGlobalStyle } from 'styled-components'
 
 /**
  * @author Robert Long
@@ -19,7 +19,7 @@ const SliderGlobalStyles = createGlobalStyle`
   .rc-slider-track {
     position: absolute;
     height: 2px;
-    background-color: ${props => props.theme.blue};
+    background-color: ${(props) => props.theme.blue};
     border-radius: 2px;
   }
 
@@ -27,7 +27,7 @@ const SliderGlobalStyles = createGlobalStyle`
     position: absolute;
     width: calc(100% + 16px);
     height: 2px;
-    background-color: ${props => props.theme.border};
+    background-color: ${(props) => props.theme.border};
     border-radius: 2px;
   }
 
@@ -38,34 +38,34 @@ const SliderGlobalStyles = createGlobalStyle`
     height: 12px;
     cursor: pointer;
     border-radius: 50%;
-    border: solid 2px ${props => props.theme.white};
-    background-color: ${props => props.theme.border};
+    border: solid 2px ${(props) => props.theme.white};
+    background-color: ${(props) => props.theme.border};
     touch-action: pan-x;
     outline: none;
 
       &:hover {
-        border: solid 2px ${props => props.theme.blue};
-        background-color: ${props => props.theme.white};
+        border: solid 2px ${(props) => props.theme.blue};
+        background-color: ${(props) => props.theme.white};
       }
 
       &:active {
-        border:  2px solid ${props => props.theme.blue};
-        background-color: ${props => props.theme.white};
+        border:  2px solid ${(props) => props.theme.blue};
+        background-color: ${(props) => props.theme.white};
       }
     }
 
   .rc-slider-disabled {
-    background-color: ${props => props.theme.panel2};
+    background-color: ${(props) => props.theme.panel2};
     border-radius: 2px;
 
     .rc-slider-track {
-      background-color: ${props => props.theme.panel2};
+      background-color: ${(props) => props.theme.panel2};
     }
 
     .rc-slider-handle, .rc-slider-dot {
-      border-color: ${props => props.theme.panel2};
+      border-color: ${(props) => props.theme.panel2};
       box-shadow: none;
-      background-color: ${props => props.theme.toolbar};
+      background-color: ${(props) => props.theme.toolbar};
       cursor: not-allowed;
     }
 
@@ -73,12 +73,12 @@ const SliderGlobalStyles = createGlobalStyle`
       cursor: not-allowed!important;
     }
   }
-`;
+`
 /**
- * 
+ *
  * @author Robert Long
- * @param props 
- * @returns 
+ * @param props
+ * @returns
  */
 export default function Slider(props) {
   return (
@@ -86,5 +86,5 @@ export default function Slider(props) {
       <RCSlider {...props} />
       <SliderGlobalStyles />
     </>
-  );
+  )
 }

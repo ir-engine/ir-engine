@@ -1,27 +1,23 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 export default {
-    definitions: {
-        'location-admin': {
-            type: 'object',
-            properties: {
-
-            }
-        },
-        'location-admin_list': {
-            type: 'array',
-            items: { $ref: '#/definitions/location-admin'}
-        }
+  definitions: {
+    'location-admin': {
+      type: 'object',
+      properties: {}
     },
-    securities: ['create', 'update', 'patch', 'remove'],
-    operations: {
-      find: {
-        security: [
-          { bearer: [] }
-        ]
-      }
-    } 
-};
+    'location-admin_list': {
+      type: 'array',
+      items: { $ref: '#/definitions/location-admin' }
+    }
+  },
+  securities: ['create', 'update', 'patch', 'remove'],
+  operations: {
+    find: {
+      security: [{ bearer: [] }]
+    }
+  }
+}

@@ -1,9 +1,9 @@
-import React from "react";
-import { ActivityIcon } from "./icons/ActivityIcon";
-import { CommentIcon } from "./icons/CommentIcon";
-import { DMIcon } from "./icons/DMIcon";
-import { SaveIcon } from "./icons/SaveIcon";
-import { Clickable } from "./Clickable";
+import React from 'react'
+import { ActivityIcon } from './icons/ActivityIcon'
+import { CommentIcon } from './icons/CommentIcon'
+import { DMIcon } from './icons/DMIcon'
+import { SaveIcon } from './icons/SaveIcon'
+import { Clickable } from './Clickable'
 
 export function FeedItemButtons({ ...props }) {
   return (
@@ -21,5 +21,5 @@ export function FeedItemButtons({ ...props }) {
         <SaveIcon height={24} width={24} />
       </Clickable>
     </div>
-  );
+  )
 }

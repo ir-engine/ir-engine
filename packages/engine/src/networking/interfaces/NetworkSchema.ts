@@ -1,17 +1,13 @@
-import { NetworkPrefab } from './NetworkPrefab';
+import { ComponentConstructor } from '../../ecs/functions/EntityFunctions'
 
 /** Interface for Network schema. */
 export interface NetworkSchema {
   /** Transporter of the message. */
-  transport: any;
+  transport: any
   /** List of supported message types. */
   messageTypes: {
-    [key: string]: any;
-  };
-  /** Default prefab for the client. */
-  defaultClientPrefab: number;
+    [key: string]: any
+  }
   /** Prefabs for the schema. */
-  prefabs: {
-    [key: string]: NetworkPrefab;
-  };
+  prefabs: Map<number, ComponentConstructor<any, any>>
 }

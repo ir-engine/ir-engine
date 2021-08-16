@@ -1,34 +1,35 @@
-import { client } from '@xrengine/client-core/src/feathers';
-import Store from "@xrengine/client-core/src/store";
-import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
-import { Network } from "@xrengine/engine/src/networking/classes/Network";
-import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
-import { Config } from '@xrengine/client-core/src/helper';
-import { Dispatch } from 'redux';
-import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
-import { triggerUpdateConsumers } from '../mediastream/service';
+import { client } from '@xrengine/client-core/src/feathers'
+import Store from '@xrengine/client-core/src/store'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { Config } from '@xrengine/client-core/src/helper'
+import { Dispatch } from 'redux'
+import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
+import { triggerUpdateConsumers } from '../mediastream/service'
 import {
   instanceServerConnected,
-  instanceServerConnecting, instanceServerDisconnected,
+  instanceServerConnecting,
+  instanceServerDisconnected,
   instanceServerProvisioned,
   instanceServerProvisioning
-} from './actions';
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
+} from './actions'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
-const store = Store.store;
+const store = Store.store
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    dispatch(instanceServerProvisioning());
-    const token = getState().get('auth').get('authUser').accessToken;
+    dispatch(instanceServerProvisioning())
+    const token = getState().get('auth').get('authUser').accessToken
     if (instanceId != null) {
       const instance = await client.service('instance').find({
         query: {
           id: instanceId
         }
-      });
+      })
       if (instance.total === 0) {
-        instanceId = null;
+        instanceId = null
       }
     }
     const provisionResult = await client.service('instance-provision').find({
@@ -38,68 +39,82 @@ export function provisionInstanceServer(locationId?: string, instanceId?: string
         sceneId: sceneId,
         token: token
       }
-    });
+    })
     if (provisionResult.ipAddress != null && provisionResult.port != null) {
-      dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId));
+      dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId))
     } else {
       EngineEvents.instance.dispatchEvent({
         type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
-      });
+      })
     }
-  };
+  }
 }
 
 export function connectToInstanceServer(channelType: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(instanceServerConnecting());
-      const authState = getState().get('auth');
-      const user = authState.get('user');
-      const token = authState.get('authUser').accessToken;
-      const instanceConnectionState = getState().get('instanceConnection');
-      const instance = instanceConnectionState.get('instance');
-      const locationId = instanceConnectionState.get('locationId');
-      const locationState = getState().get('locations');
-      const currentLocation = locationState.get('currentLocation').get('location');
-      const sceneId = currentLocation.sceneId;
-      const videoActive = MediaStreamSystem !== null && MediaStreamSystem !== undefined && (MediaStreamSystem.instance?.camVideoProducer != null || MediaStreamSystem.instance?.camAudioProducer != null);
-      // TODO: Disconnected 
+      dispatch(instanceServerConnecting())
+      const authState = getState().get('auth')
+      const user = authState.get('user')
+      const token = authState.get('authUser').accessToken
+      const instanceConnectionState = getState().get('instanceConnection')
+      const instance = instanceConnectionState.get('instance')
+      const locationId = instanceConnectionState.get('locationId')
+      const locationState = getState().get('locations')
+      const currentLocation = locationState.get('currentLocation').get('location')
+      const sceneId = currentLocation.sceneId
+      const videoActive =
+        MediaStreams !== null &&
+        MediaStreams !== undefined &&
+        (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
+      // TODO: Disconnected
       if (Network.instance !== undefined && Network.instance !== null) {
-        await endVideoChat({ endConsumers: true });
-        await leave(true);
+        await endVideoChat({ endConsumers: true })
+        await leave(true)
       }
-      try{
-        await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), channelType === 'instance', {
-          locationId: locationId,
-          token: token,
-          user: user,
-          sceneId: sceneId,
-          startVideo: videoActive,
-          channelType: channelType,
-          channelId: channelId,
-          videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
-        });
-      } catch (error){
-        console.error("Network transport could not initialize, transport is: ", Network.instance.transport);
+      try {
+        await Network.instance.transport.initialize(
+          instance.get('ipAddress'),
+          instance.get('port'),
+          channelType === 'instance',
+          {
+            locationId: locationId,
+            token: token,
+            user: user,
+            sceneId: sceneId,
+            startVideo: videoActive,
+            channelType: channelType,
+            channelId: channelId,
+            videoEnabled:
+              currentLocation?.locationSettings?.videoEnabled === true ||
+              !(
+                currentLocation?.locationSettings?.locationType === 'showroom' &&
+                user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) == null
+              )
+          }
+        )
+      } catch (error) {
+        console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
       }
-      
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers);
 
-      dispatch(instanceServerConnected());
+      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
+
+      dispatch(instanceServerConnected())
     } catch (err) {
-      console.log(err);
+      console.log(err)
     }
-  };
+  }
 }
 
 export function resetInstanceServer() {
   return async (dispatch: Dispatch): Promise<any> => {
-    dispatch(instanceServerDisconnected());
-  };
+    dispatch(instanceServerDisconnected())
+  }
 }
 
-if(!Config.publicRuntimeConfig.offlineMode) {
+if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('instance-provision').on('created', (params) => {
-    if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
-  });
+    if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId))
+  })
 }

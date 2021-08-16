@@ -1,44 +1,41 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Provider, useDispatch } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
-import { Helmet } from "react-helmet";
-import { ThemeProvider } from "styled-components";
-import { configureStore } from '@xrengine/client-core/src/store';
-import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics';
-import Api from "@xrengine/client-core/src/world/components/editor/Api";
-import { ApiContext } from '@xrengine/client-core/src/world/components/editor/contexts/ApiContext';
-import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle';
-import theme from "@xrengine/social/theme";
-import { Config } from '@xrengine/client-core/src/helper';
-import { detectDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/service';
-import { restoreState } from '@xrengine/client-core/src/persisted.store';
-import RouterComp from '../router';
-import reducers from '../reducers';
-import './styles.scss';
+import React, { useCallback, useEffect, useState } from 'react'
+import { Provider, useDispatch } from 'react-redux'
+import { BrowserRouter } from 'react-router-dom'
+import { Helmet } from 'react-helmet'
+import { ThemeProvider } from 'styled-components'
+import { configureStore } from '@xrengine/client-core/src/store'
+import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
+import Api from '@xrengine/client-core/src/world/components/editor/Api'
+import { ApiContext } from '@xrengine/client-core/src/world/components/editor/contexts/ApiContext'
+import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle'
+import theme from '@xrengine/social/theme'
+import { Config } from '@xrengine/client-core/src/helper'
+import { restoreState } from '@xrengine/client-core/src/persisted.store'
+import RouterComp from '../router'
+import reducers from '../reducers'
+import './styles.scss'
 
 const App = (): any => {
-  const dispatch = useDispatch();
-  const [api, setApi] = useState<Api>();
+  const dispatch = useDispatch()
+  const [api, setApi] = useState<Api>()
 
   const initApp = useCallback(() => {
-    if(process.env && process.env.NODE_CONFIG){
-      (window as any).env = process.env.NODE_CONFIG;
+    if (process.env && process.env.NODE_CONFIG) {
+      ;(window as any).env = process.env.NODE_CONFIG
     } else {
-      (window as any).env = "";
+      ;(window as any).env = ''
     }
 
-    dispatch(restoreState());
+    dispatch(restoreState())
 
-    initGA();
+    initGA()
 
-    logPageView();
+    logPageView()
 
-    detectDeviceType()(dispatch);
+    setApi(new Api())
+  }, [])
 
-    setApi(new Api());
-  }, []);
-
-  useEffect(initApp, []);
+  useEffect(initApp, [])
 
   return (
     <>
@@ -57,8 +54,8 @@ const App = (): any => {
         </ApiContext.Provider>
       </ThemeProvider>
     </>
-  );
-};
+  )
+}
 
 const StoreProvider = () => {
   return (
@@ -67,7 +64,7 @@ const StoreProvider = () => {
         <App />
       </BrowserRouter>
     </Provider>
-  );
-};
+  )
+}
 
-export default StoreProvider;
+export default StoreProvider

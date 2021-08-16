@@ -1,17 +1,40 @@
-import EditorNodeMixin from "./EditorNodeMixin";
-import { Sky } from "../../scene/classes/Sky";
-import { Color, CubeTexture, CubeTextureLoader, EquirectangularReflectionMapping, sRGBEncoding, Texture, TextureLoader } from "three";
+import EditorNodeMixin from './EditorNodeMixin'
+import { Sky } from '../../scene/classes/Sky'
+import { Color, CubeTextureLoader, Mesh, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
+
+export type SkyBoxShaderProps = {
+  turbidity: number
+  rayleigh: number
+  luminance: number
+  mieCoefficient: number
+  mieDirectionalG: number
+  inclination: number
+  azimuth: number
+  distance: number
+}
+
+export enum SkyTypeEnum {
+  'color',
+  'cubemap',
+  'equirectangular',
+  'skybox'
+}
+
+export type SceneBackgroundProps = {
+  backgroundColor: string
+  equirectangularPath: string
+  cubemapPath: string
+  backgroundType: SkyTypeEnum
+  skyboxProps: SkyBoxShaderProps
+}
+
 export default class SkyboxNode extends EditorNodeMixin(Sky) {
-  static legacyComponentName = "skybox"
+  static legacyComponentName = 'skybox'
   static disableTransform = true
   static ignoreRaycast = true
-  static nodeName = "Skybox"
+  static nodeName = 'Skybox'
 
-  skyType: 'equirectangular' | 'cubemap' | 'skybox' = 'skybox'
-  texturePath: string
-  backgroundPath: string
-  backgroundColor: string
-  backgroundType: 'color' | 'texture' | 'envmap' = 'envmap'
+  static handleEnvironmentMap = false
 
   turbidity = 10
   rayleigh = 2
@@ -22,170 +45,137 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   azimuth = 0
   distance = 1
 
+  backgroundType = SkyTypeEnum.skybox
+  equirectangularPath = '/hdr/city.jpg'
+  cubemapPath = '/cubemap/'
+  backgroundColor = '#000000'
+
+  constructor(editor) {
+    super(editor)
+  }
+
   static canAddNode(editor) {
-    return editor.scene.findNodeByType(SkyboxNode) === null;
+    return editor.scene.findNodeByType(SkyboxNode) === null
   }
+
+  async serialize(projectID) {
+    const skybox: SceneBackgroundProps = {
+      backgroundColor: this.backgroundColor,
+      equirectangularPath: this.equirectangularPath,
+      cubemapPath: this.cubemapPath,
+      backgroundType: this.backgroundType,
+      skyboxProps: {
+        turbidity: this.turbidity,
+        rayleigh: this.rayleigh,
+        luminance: this.luminance,
+        mieCoefficient: this.mieCoefficient,
+        mieDirectionalG: this.mieDirectionalG,
+        inclination: this.inclination,
+        azimuth: this.azimuth,
+        distance: this.distance
+      }
+    }
+
+    return await super.serialize(projectID, { skybox })
+  }
+
   static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json) as SkyboxNode;
-    const skybox = json.components.find(c => c.name === "skybox");
-
-    switch (skybox.props.skytype) {
-      case "cubemap": case "equirectangular":
-        node.texturePath = skybox.props.texture;
-        break;
-      default:
-        if(typeof skybox.props.skybox?.turbidity !=='undefined') {
-          node.turbidity = skybox.props.skybox.turbidity;
-          node.rayleigh = skybox.props.skybox.rayleigh;
-          node.luminance = skybox.props.skybox.luminance;
-          node.mieCoefficient = skybox.props.skybox.mieCoefficient;
-          node.mieDirectionalG = skybox.props.skybox.mieDirectionalG;
-          node.inclination = skybox.props.skybox.inclination;
-          node.azimuth = skybox.props.skybox.azimuth;
-          node.distance = skybox.props.skybox.distance;
-        }
-    }
-    node.skyType = skybox.props.skytype;
-
-    const background = json.components.find(c => c.name === "background");
-    if(background) {
-      node.backgroundColor = background.props.backgroundColor;  
-      node.backgroundPath = background.props.background
-      node.backgroundType = background.props.backgroundType ?? 'envmap';
+    const node = (await super.deserialize(editor, json)) as SkyboxNode
+    const skybox = json.components.find((c) => c.name === 'skybox')
+    const prop = skybox.props as SceneBackgroundProps
+    if (prop.skyboxProps) {
+      node.backgroundColor = prop.backgroundColor
+      node.equirectangularPath = prop.equirectangularPath
+      node.cubemapPath = prop.cubemapPath
+      node.backgroundType = prop.backgroundType
+      node.turbidity = prop.skyboxProps.turbidity
+      node.turbidity = prop.skyboxProps.turbidity
+      node.rayleigh = prop.skyboxProps.rayleigh
+      node.luminance = prop.skyboxProps.luminance
+      node.mieCoefficient = prop.skyboxProps.mieCoefficient
+      node.mieDirectionalG = prop.skyboxProps.mieDirectionalG
+      node.inclination = prop.skyboxProps.inclination
+      node.azimuth = prop.skyboxProps.azimuth
+      node.distance = prop.skyboxProps.distance
     }
 
-    return node;
-  }
-
-  onRendererChanged() {
-    this.updateBackground();
-    this.updateEnvironmentMap();
-  }
-
-  onAdd() {
-    if (typeof this.skyType === 'undefined') {
-      this.skyType = 'skybox';
-    }
-    this.updateBackground();
-    this.updateEnvironmentMap();
+    return node
   }
 
   onChange() {
-    switch (this.skyType) {
-      case "equirectangular":
-      case "cubemap":
-        this.sky.visible = false;
-        break;
-      default:
-        this.sky.visible = true;
-        const renderer = this.editor.renderer.renderer;
-        const envMap = this.generateEnvironmentMap(renderer);
-        return envMap;
-    }
-    this.updateBackground();
-    this.updateEnvironmentMap();
+    this.setUpBackground(this.backgroundType)
   }
 
   onRemove() {
-    this.editor.scene.updateEnvironmentMap(null);
     this.editor.scene.background = new Color('black')
   }
 
-  getTexture() {
-    const texture = new TextureLoader().load(this.backgroundPath as any);
-    texture.encoding = sRGBEncoding;
-    texture.needsUpdate = true;
-    return texture;
-  }
-
-  getEnvMap() {
-    switch (this.skyType) {
-      case "equirectangular":
-        const texture = new TextureLoader().load(this.texturePath);
-        texture.encoding = sRGBEncoding;
-        texture.mapping = EquirectangularReflectionMapping;
-        texture.needsUpdate = true;
-        return texture;
-      case "cubemap":
-        const textureBox = new CubeTextureLoader()
-          .setPath(this.texturePath)
-          .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']);
-        return textureBox;
-      case "skybox":
-      default:
-        const renderer = this.editor.renderer.renderer;
-        const envMap = this.generateEnvironmentMap(renderer);
-        return envMap;
-    }
-  }
-
-  updateEnvironmentMap() {
-    this.editor.scene.updateEnvironmentMap(this.getEnvMap());
-  }
-
-  updateBackground() {
-    switch (this.backgroundType) {
-      case 'color':
-        this.editor.scene.background = new Color(this.backgroundColor)
-        break;
-
-      case 'texture':
-        this.editor.scene.background = this.getTexture();
-        break;
-
-      case 'envmap':
-        this.editor.scene.background = this.getEnvMap();
-        break;
-    }
-  }
-
-  serialize() {
-    const skybox: any = {};
-
-    switch (this.skyType) {
-      case "cubemap":
-      case "equirectangular":
-        skybox.texture = this.texturePath;
-        break;
-      default:
-        skybox.skybox = {
-          turbidity: this.turbidity,
-          rayleigh: this.rayleigh,
-          luminance: this.luminance,
-          mieCoefficient: this.mieCoefficient,
-          mieDirectionalG: this.mieDirectionalG,
-          inclination: this.inclination,
-          azimuth: this.azimuth,
-          distance: this.distance
-        }
-    }
-    skybox.skytype = this.skyType
-    const background = {
-      backgroundColor: this.backgroundColor,
-      backgroundPath: this.backgroundPath,
-      backgroundType: this.backgroundType
-    }
-
-    return super.serialize({ background, skybox });
-  }
-
   prepareForExport() {
-    super.prepareForExport();
-    this.addGLTFComponent("background", {
+    super.prepareForExport()
+    const skybox: SceneBackgroundProps = {
       backgroundColor: this.backgroundColor,
-      backgroundPath: this.backgroundPath,
-      backgroundType: this.backgroundType
-    });
-    this.addGLTFComponent("skybox", {
-      turbidity: this.turbidity,
-      rayleigh: this.rayleigh,
-      luminance: this.luminance,
-      mieCoefficient: this.mieCoefficient,
-      mieDirectionalG: this.mieDirectionalG,
-      inclination: this.inclination,
-      azimuth: this.azimuth,
-      distance: this.distance
-    });
-    this.replaceObject();
+      equirectangularPath: this.equirectangularPath,
+      cubemapPath: this.cubemapPath,
+      backgroundType: this.backgroundType,
+      skyboxProps: {
+        turbidity: this.turbidity,
+        rayleigh: this.rayleigh,
+        luminance: this.luminance,
+        mieCoefficient: this.mieCoefficient,
+        mieDirectionalG: this.mieDirectionalG,
+        inclination: this.inclination,
+        azimuth: this.azimuth,
+        distance: this.distance
+      }
+    }
+    this.addGLTFComponent('skybox', skybox)
+    this.replaceObject()
+  }
+
+  setUpBackground(type: SkyTypeEnum) {
+    if (this.editor.scene.background?.dispose) this.editor.scene.background.dispose()
+    ;(this.sky as Mesh).visible = false
+
+    switch (type) {
+      case SkyTypeEnum.color:
+        this.editor.scene.background = new Color(this.backgroundColor)
+        break
+
+      case SkyTypeEnum.cubemap:
+        const negx = 'negx.jpg'
+        const negy = 'negy.jpg'
+        const negz = 'negz.jpg'
+        const posx = 'posx.jpg'
+        const posy = 'posy.jpg'
+        const posz = 'posz.jpg'
+        const renderer = this.editor.renderer.renderer
+        new CubeTextureLoader().setPath(this.cubemapPath).load(
+          [posx, negx, posy, negy, posz, negz],
+          (texture) => {
+            texture.encoding = sRGBEncoding
+            this.editor.scene.background = texture
+          },
+          (res) => {
+            console.log(res)
+          },
+          (erro) => {
+            console.warn('Skybox texture could not be found!', erro)
+          }
+        )
+        break
+
+      case SkyTypeEnum.equirectangular:
+        new TextureLoader().load(this.equirectangularPath, (texture) => {
+          texture.encoding = sRGBEncoding
+          this.editor.scene.background = new PMREMGenerator(this.editor.renderer.renderer).fromEquirectangular(
+            texture
+          ).texture
+        })
+        break
+      default:
+        ;(this.sky as Mesh).visible = true
+        this.editor.scene.background = this.generateSkybox(this.editor.renderer.renderer)
+        break
+    }
   }
 }

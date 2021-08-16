@@ -1,6 +1,5 @@
 
 .overlay{
-  background-color: rgb(187, 187, 187);
   top: 0;
   left: 0;
   height: 100vh;
@@ -9,7 +8,7 @@
   background-position: center;
   background-size:cover;
   z-index: 5000;
-
+  text-align:center;
   .imageOverlay{
     filter: blur(15px);
     position: absolute;
@@ -23,25 +22,21 @@
   .linearProgressContainer{
     display: block;
     position: fixed;
-    bottom: 20%;
-    // top: 25%;
-    width: 60%;
-    left: 20%; 
-    @media (max-width: 768px) {
-      width: 80%;
-      left: 10%; 
-    }  
+    bottom: 0px;
+    height:70px;
+    width: 100%;
     text-align: center;
-    margin-left: auto;
-    margin-right: auto;
+    background-color: rgba(0,0,0,.8);
+    padding:25px;
     .loadingProgressInfo{
+      color:#999;
+      width: 100%;
       margin-left: auto;
       margin-right: auto;
       text-align: center;
-      font-size: 2em;
+      font-size: 1.5em;
       // font-size: 0.7em;
-      text-transform: uppercase;
-      margin-top: 30px;
+      //text-transform: uppercase;
     }
   }
 }

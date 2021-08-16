@@ -1,217 +1,165 @@
-import { Not } from '../../ecs/functions/ComponentFunctions';
-import { Engine } from '../../ecs/classes/Engine';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { System, SystemAttributes } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
-import { Network } from '../../networking/classes/Network';
-import { Vault } from '../../networking/classes/Vault';
-import { NetworkObject } from '../../networking/components/NetworkObject';
-import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ColliderComponent } from '../components/ColliderComponent';
-import { InterpolationComponent } from "../components/InterpolationComponent";
-import { isClient } from '../../common/functions/isClient';
-import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
-import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
-import { Vector3 } from 'three';
-import { SnapshotData } from '../../networking/types/SnapshotDataTypes';
-import { characterCorrectionBehavior } from '../../character/behaviors/characterCorrectionBehavior';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
-import { characterInterpolationBehavior } from '../../character/behaviors/characterInterpolationBehavior';
-import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior';
-import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent';
-import { experementalRigidbodyCorrectionBehavior } from '../behaviors/experementalRigidbodyCorrectionBehavior';
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
-import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior';
-
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ColliderComponent } from '../components/ColliderComponent'
+import { BodyType, PhysXInstance } from 'three-physx'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { Network } from '../../networking/classes/Network'
+import { Engine } from '../../ecs/classes/Engine'
+import { VelocityComponent } from '../components/VelocityComponent'
+import { RaycastComponent } from '../components/RaycastComponent'
+import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetworkObjectComponent'
+import { RigidBodyTagComponent } from '../components/RigidBodyTagComponent'
+import { Quaternion, Vector3 } from 'three'
+import { InterpolationComponent } from '../components/InterpolationComponent'
+import { isClient } from '../../common/functions/isClient'
+import { PrefabType } from '../../networking/templates/PrefabType'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
+import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
 
-const vec3 = new Vector3();
+export const PhysicsSystem = async (
+  attributes: { worker?: () => Worker; simulationEnabled?: boolean } = {}
+): Promise<System> => {
+  const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
+  const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
 
+  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const colliderRemoveQuery = exitQuery(colliderQuery)
 
-export class PhysicsSystem extends System {
-  static EVENTS = {
-    PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
-  };
-  static instance: PhysicsSystem;
-  updateType = SystemUpdateType.Fixed;
+  const raycastQuery = defineQuery([RaycastComponent])
+  const raycastRemoveQuery = exitQuery(raycastQuery)
 
-  physicsWorldConfig: PhysXConfig;
-  worker: Worker;
+  const networkObjectQuery = defineQuery([NetworkObjectComponent])
+  const networkObjectRemoveQuery = exitQuery(networkObjectQuery)
 
-  simulationEnabled: boolean;
+  const clientAuthoritativeQuery = defineQuery([
+    NetworkObjectComponent,
+    ClientAuthoritativeComponent,
+    ColliderComponent
+  ])
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes);
-    PhysicsSystem.instance = this;
-    this.physicsWorldConfig = Object.assign({}, attributes.physicsWorldConfig);
-    this.worker = attributes.worker;
+  let simulationEnabled = false
 
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      if(typeof ev.physics !== 'undefined') {
-        this.simulationEnabled = ev.physics;
+  Engine.physxWorker = attributes.worker()
+
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+    if (typeof ev.physics !== 'undefined') {
+      simulationEnabled = ev.physics
+    }
+  })
+
+  if (!PhysXInstance.instance) {
+    PhysXInstance.instance = new PhysXInstance()
+  }
+
+  simulationEnabled = attributes.simulationEnabled ?? true
+
+  await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
+  Engine.workers.push(Engine.physxWorker)
+
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
+    for (const entity of spawnNetworkObjectAddQuery(world)) {
+      const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+
+      addComponent(entity, TransformComponent, {
+        position: new Vector3().copy(parameters.position),
+        rotation: new Quaternion().copy(parameters.rotation),
+        scale: new Vector3(1, 1, 1)
+      })
+
+      // TODO: figure out how we are going to spawn the body
+
+      if (isClient) {
+        addComponent(entity, InterpolationComponent, {})
+      } else {
+        Network.instance.worldState.createObjects.push({
+          networkId: networkId,
+          ownerId: uniqueId,
+          prefabType: PrefabType.RigidBody,
+          uniqueId,
+          parameters: parameters
+        })
       }
-    });
-
-    if (!PhysXInstance.instance) {
-      PhysXInstance.instance = new PhysXInstance();
     }
 
-    this.simulationEnabled = attributes.simulationEnabled ?? true;
-  }
-
-  async initialize() {
-    super.initialize();
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
-  }
-
-  reset(): void {
-    // TODO: PhysXInstance.instance.reset();
-  }
-
-  dispose(): void {
-    super.dispose();
-    this.reset();
-    PhysXInstance.instance.dispose();
-    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
-  }
-
-  execute(delta: number): void {
-    this.queryResults.collider.removed?.forEach(entity => {
-      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
+    for (const entity of colliderRemoveQuery(world)) {
+      const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent) {
-        this.removeBody(colliderComponent.body);
+        PhysXInstance.instance.removeBody(colliderComponent.body)
       }
-    });
+    }
 
-    this.queryResults.collider.all?.forEach(entity => {
-      const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-      const transform = getComponent(entity, TransformComponent);
+    for (const entity of raycastRemoveQuery(world)) {
+      const raycastComponent = getComponent(entity, RaycastComponent, true)
+      if (raycastComponent) {
+        PhysXInstance.instance.removeRaycastQuery(raycastComponent.raycastQuery)
+      }
+    }
+
+    for (const entity of colliderQuery(world)) {
+      const collider = getComponent(entity, ColliderComponent)
+      const velocity = getComponent(entity, VelocityComponent)
+      const transform = getComponent(entity, TransformComponent)
+      if (hasComponent(entity, ClientAuthoritativeComponent)) continue
+
       if (collider.body.type === BodyType.KINEMATIC) {
-        collider.velocity.subVectors(collider.body.transform.translation, transform.position)
-        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
-      } else if(collider.body.type === BodyType.DYNAMIC){
-        if(!isClient) { // this for the copy what intepolation calc velocity
-          collider.velocity.subVectors(transform.position, collider.body.transform.translation);
-        }
+        velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
+        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
+      } else if (collider.body.type === BodyType.DYNAMIC) {
+        const { linearVelocity } = collider.body.transform
+        velocity.velocity.copy(linearVelocity)
 
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
           collider.body.transform.translation.z
-        );
+        )
 
-        collider.position.copy(transform.position)
         transform.rotation.set(
           collider.body.transform.rotation.x,
           collider.body.transform.rotation.y,
           collider.body.transform.rotation.z,
           collider.body.transform.rotation.w
-        );
-        collider.quaternion.copy(transform.rotation)
+        )
       }
-    });
-
-    if (isClient) {
-      if (!Network.instance?.snapshot) return;
-
-      const snapshots: SnapshotData = {
-        interpolation: calculateInterpolation('x y z quat velocity'),
-        correction: Vault.instance?.get(Network.instance.snapshot.timeCorrection, true),
-        new: []
-      };
-      // Create new snapshot position for next frame server correction
-      Vault.instance.add(createSnapshot(snapshots.new));
-
-      this.queryResults.localCharacterInterpolation.all?.forEach(entity => {
-        characterCorrectionBehavior(entity, snapshots, delta);
-      });
-
-      this.queryResults.networkClientInterpolation.all?.forEach(entity => {
-        characterInterpolationBehavior(entity, snapshots, delta);
-      });
-
-      this.queryResults.networkObjectInterpolation.all?.forEach(entity => {
-        rigidbodyInterpolationBehavior(entity, snapshots, delta);
-      });
-
-      this.queryResults.localObjectInterpolation.all?.forEach(entity => {
-        rigidbodyCorrectionBehavior(entity, snapshots, delta);
-        // experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
-      });
-
-      // If a networked entity does not have an interpolation component, just copy the data
-      this.queryResults.correctionFromServer.all?.forEach(entity => {
-        const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
-        if (snapshot == null) return;
-        const collider = getMutableComponent(entity, ColliderComponent)
-        // dynamic objects should be interpolated, kinematic objects should not
-        if (collider && collider.body.type !== BodyType.KINEMATIC) {
-         collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z));
-          collider.body.updateTransform({
-            translation: {
-              x: snapshot.x,
-              y: snapshot.y,
-              z: snapshot.z,
-            },
-            rotation: {
-              x: snapshot.qX,
-              y: snapshot.qY,
-              z: snapshot.qZ,
-              w: snapshot.qW,
-            }
-          });
-        }
-      });
     }
 
-    if(this.enabled)
-    PhysXInstance.instance.update();
-  }
+    for (const entity of clientAuthoritativeQuery(world)) {
+      const networkObject = getComponent(entity, NetworkObjectComponent)
+      const collider = getComponent(entity, ColliderComponent)
+      if (isClient) {
+        Network.instance.clientInputState.transforms.push({
+          networkId: networkObject.networkId,
+          x: collider.body.transform.translation.x,
+          y: collider.body.transform.translation.y,
+          z: collider.body.transform.translation.z,
+          qX: collider.body.transform.rotation.x,
+          qY: collider.body.transform.rotation.y,
+          qZ: collider.body.transform.rotation.z,
+          qW: collider.body.transform.rotation.w
+        })
+      } else {
+        const transform = getComponent(entity, TransformComponent)
+        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
+      }
+    }
 
-  get gravity() {
-    return { x: 0, y: -9.81, z: 0 };
-  }
+    // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
+    for (const entity of networkObjectRemoveQuery(world)) {
+      const networkObject = getComponent(entity, NetworkObjectComponent, true)
+      delete Network.instance.networkObjects[networkObject.networkId]
+      console.log('removed prefab with id', networkObject.networkId)
+    }
 
-  set gravity(value: { x: number, y: number, z: number }) {
-    // todo
-  }
-
-  addRaycastQuery(query) { return PhysXInstance.instance.addRaycastQuery(query); }
-  removeRaycastQuery(query) { return PhysXInstance.instance.removeRaycastQuery(query); }
-  addBody(args) { return PhysXInstance.instance.addBody(args); }
-  removeBody(body) { return PhysXInstance.instance.removeBody(body); }
-  createController(options) { return PhysXInstance.instance.createController(options); }
-  removeController(id) { return PhysXInstance.instance.removeController(id); }
+    PhysXInstance.instance.update()
+    return world
+  })
 }
-
-PhysicsSystem.queries = {
-  localCharacterInterpolation: {
-    components: [LocalInputReceiver, ControllerColliderComponent, InterpolationComponent, NetworkObject],
-  },
-  networkClientInterpolation: {
-    components: [Not(LocalInputReceiver), ControllerColliderComponent, InterpolationComponent, NetworkObject],
-  },
-  localObjectInterpolation: {
-    components: [Not(CharacterComponent), LocalInterpolationComponent, InterpolationComponent, NetworkObject],
-  },
-  networkObjectInterpolation: {
-    components: [Not(CharacterComponent), Not(LocalInterpolationComponent), InterpolationComponent, NetworkObject],
-  },
-  correctionFromServer: {
-    components: [Not(InterpolationComponent), NetworkObject],
-  },
-  collider: {
-    components: [ColliderComponent, TransformComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-};

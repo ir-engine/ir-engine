@@ -4,6 +4,8 @@
 #### [Join our Discord](https://discord.gg/Tb4MT4TTjH)  
 [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH)  
 
+![Sponsorhip](https://opencollective.com/xrengine/tiers/badge.svg)
+
 [![Build Status](https://travis-ci.org/xrengine/xrengine.svg?branch=dev)](https://travis-ci.org/xrengine/xrengine)  
 
 ## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
@@ -11,7 +13,6 @@
 ## Popular features
 - Player rigs to support 2D, 3D and XR interaction
 - High-performance ECS engine
-- Full-featured world editor
 - Fully networked player controller, physics, vehicles and particles
 - Fully data-oriented design
 - Chat, groups, parties and friends
@@ -25,10 +26,6 @@
 - Built end-to-end in Typescript
 - Free, open source, MIT-licensed
 
-## Demos:
-
-https://xrengine.io
-
 # Getting Started
 
 Getting up and running requires only a few steps. 
@@ -38,6 +35,19 @@ IF ON WINDOWS, go to Native Windows Preinstall below
 For on OSX / Linux / WSL2 for Windows:
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
+
+## Easy Setup
+
+```
+cd path/to/xrengine
+npm install
+npm run dev
+```
+This will automatically setup (if necessary) and run redis/mariadb docker containers, and XRengine client/server/game-server instances. That's it!
+
+## Advanced Setup
+
+If you want to setup XREngine docker instances, client, server, and/or game-server manually, follow these directions.
 
 #### 1.  Install your dependencies 
 ```
@@ -133,7 +143,7 @@ The default username is 'server', the default password is 'password', the defaul
    
 #### 8. Open two/three separate tabs and start the API server, gameserverand client
    In /packages/server, run ```npm run dev``` which will launch the api server, game server and file server.
-   If you are not using gameservers, you can instead run ```npm run dev-api-server``` the api server.
+   If you are not using gameservers, you can instead run ```npm run dev-api-server``` in the api server.
    In the final tab, go to /packages/client and run ```npm run dev```.
    
 #### 9. In a browser, navigate to https://127.0.0.1:3000/location/test
@@ -290,7 +300,7 @@ Create a user at `/login`
 
 Method 1: 
 
-1. Run `npm run scripts/make-user-admin.js [USER ID]` 
+1. Run `node scripts/make-user-admin.js --id=[USER ID]` 
 2. TODO: Improve with email/phone ID support
 
 Method 2: 
@@ -311,7 +321,7 @@ Test user Admin privliges by going to `/admin`
 
 # Deployment
 
-[AWS EKS Deployment](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/EKS-setup.md)
+[AWS EKS Deployment](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/AWS-setup.md)
 
 [Managing Kubernets](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
 
@@ -320,8 +330,15 @@ Test user Admin privliges by going to `/admin`
 [Cloudformation Scripts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/xrengine-cloudformation)
 
 ## Testing
+### Integration Tests
 
-Simply run `npm run test` and all your tests in the `test/` directory will be run.
+Simply run `npm run test` and all the tests in the `tests/` directory will be run.
+This will launch the whole xrengine development environment, so any existing processes (including the database + utils, client & servers) should be stopped.
+
+## Unit Tests
+
+The engine and server packages have tests. These can be ran individually by navigating to the package and running `npm run test`.
+Individual files can be tested via `npx jest ./tests/file.test.js`.
 
 ## Linting
 

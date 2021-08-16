@@ -16,7 +16,7 @@ import {
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../../src/character/components/CharacterComponent";
+import { CharacterComponent } from "../../src/avatar/components/CharacterComponent";
 import { ServerNetworkIncomingSystem } from "../../src/networking/systems/ServerNetworkIncomingSystem";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
@@ -24,7 +24,7 @@ import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { Entity } from "../../src/ecs/classes/Entity";
 import { Server } from "../../src/networking/components/Server";
 import * as handleInputOnServerModule from "../../src/networking/functions/handleInputOnServer";
-import * as setLocalMovementDirectionModule from "../../src/character/behaviors/setLocalMovementDirection";
+import * as setLocalMovementDirectionModule from "../../src/avatar/behaviors/setLocalMovementDirection";
 import { System } from "../../src/ecs/classes/System";
 import { now } from "../../src/common/functions/now";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
@@ -93,14 +93,14 @@ beforeAll(() => {
 
   registerSystem(PhysicsSystem);
   // pretend player has floor
-  PhysicsSystem.instance.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
+  PhysXInstance.instance.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
     rayResult.body = new Body({mass:0});
     rayResult.hasHit = true;
     rayResult.hitPointWorld.set(0,0,0);
     rayResult.hitNormalWorld.set(0,1,0);
     return true;
   });
-  // physicsWorldRaycastClosest = jest.spyOn(PhysicsSystem.instance, 'raycastClosest');
+  // physicsWorldRaycastClosest = jest.spyOn(PhysXInstance.instance, 'raycastClosest');
 
   registerSystem(StateSystem);
 });

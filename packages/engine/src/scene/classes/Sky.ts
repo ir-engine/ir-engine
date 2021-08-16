@@ -3,7 +3,9 @@ import {
   BoxBufferGeometry,
   CubeCamera,
   CubeTexture,
+  DepthModes,
   Mesh,
+  NeverDepth,
   Object3D,
   Scene,
   ShaderMaterial,
@@ -12,9 +14,9 @@ import {
   Vector3,
   WebGLCubeRenderTarget,
   WebGLRenderer
-} from "three";
-import { PMREMGenerator } from "three";
-import { PMREMCubeUVPacker } from "./PMREMCubeUVPacker";
+} from 'three'
+import { PMREMGenerator } from 'three'
+import { PMREMCubeUVPacker } from './PMREMCubeUVPacker'
 /**
  * @author zz85 / https://github.com/zz85
  *
@@ -87,7 +89,7 @@ void main() {
   vBetaM = totalMie( turbidity ) * mieCoefficient;
   #include <fog_vertex>
 }
-`;
+`
 const fragmentShader = `
 #include <common>
 #include <fog_pars_fragment>
@@ -167,7 +169,7 @@ void main() {
   gl_FragColor = vec4( retColor, 1.0 );
   #include <fog_fragment>
 }
-`;
+`
 export class Sky extends Object3D {
   static shader = {
     uniforms: UniformsUtils.merge([
@@ -183,134 +185,135 @@ export class Sky extends Object3D {
     ]),
     vertexShader,
     fragmentShader
-  };
-  static geometry = new BoxBufferGeometry(1, 1, 1);
-  skyScene: Scene;
-  cubeCamera: CubeCamera;
-  sky: Mesh;
-  _inclination: number;
-  _azimuth: number;
-  _distance: number;
+  }
+  static geometry = new BoxBufferGeometry(1000, 1000, 1000)
+  skyScene: Scene
+  cubeCamera: CubeCamera
+  sky: Mesh
+  _inclination: number
+  _azimuth: number
+  _distance: number
   static material: ShaderMaterial
   constructor() {
-    super();
+    super()
     Sky.material = new ShaderMaterial({
       fragmentShader: Sky.shader.fragmentShader,
       vertexShader: Sky.shader.vertexShader,
       uniforms: UniformsUtils.clone(Sky.shader.uniforms),
       side: BackSide,
       fog: true
-    });
-    this.skyScene = new Scene();
-    this.cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512));
-    this.skyScene.add(this.cubeCamera);
-    this.sky = new Mesh(Sky.geometry, Sky.material);
-    this.sky.name = "Sky";
-    (this as any).add(this.sky);
-    this._inclination = 0;
-    this._azimuth = 0.15;
-    this._distance = 8000;
-    this.updateSunPosition();
+    })
+    Sky.material.depthWrite = false
+    this.skyScene = new Scene()
+    this.cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512))
+    this.skyScene.add(this.cubeCamera)
+    this.sky = new Mesh(Sky.geometry, Sky.material)
+    this.sky.name = 'Sky'
+    ;(this as any).add(this.sky)
+    this._inclination = 0
+    this._azimuth = 0.15
+    this._distance = 8000
+    this.updateSunPosition()
   }
   get turbidity() {
-    return (this.sky.material as ShaderMaterial).uniforms.turbidity.value;
+    return (this.sky.material as ShaderMaterial).uniforms.turbidity.value
   }
   set turbidity(value) {
-    (this.sky.material as ShaderMaterial).uniforms.turbidity.value = value;
+    ;(this.sky.material as ShaderMaterial).uniforms.turbidity.value = value
   }
   get rayleigh() {
-    return (this.sky.material as ShaderMaterial).uniforms.rayleigh.value;
+    return (this.sky.material as ShaderMaterial).uniforms.rayleigh.value
   }
   set rayleigh(value) {
-    (this.sky.material as ShaderMaterial).uniforms.rayleigh.value = value;
+    ;(this.sky.material as ShaderMaterial).uniforms.rayleigh.value = value
   }
   get luminance() {
-    return (this.sky.material as ShaderMaterial).uniforms.luminance.value;
+    return (this.sky.material as ShaderMaterial).uniforms.luminance.value
   }
   set luminance(value) {
-    (this.sky.material as ShaderMaterial).uniforms.luminance.value = value;
+    ;(this.sky.material as ShaderMaterial).uniforms.luminance.value = value
   }
   get mieCoefficient() {
-    return (this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value;
+    return (this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value
   }
   set mieCoefficient(value) {
-    (this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value = value;
+    ;(this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value = value
   }
   get mieDirectionalG() {
-    return (this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value;
+    return (this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value
   }
   set mieDirectionalG(value) {
-    (this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value = value;
+    ;(this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value = value
   }
   get inclination() {
-    return this._inclination;
+    return this._inclination
   }
   set inclination(value) {
-    this._inclination = value;
-    this.updateSunPosition();
+    this._inclination = value
+    this.updateSunPosition()
   }
   get azimuth() {
-    return this._azimuth;
+    return this._azimuth
   }
   set azimuth(value) {
-    this._azimuth = value;
-    this.updateSunPosition();
+    this._azimuth = value
+    this.updateSunPosition()
   }
   get distance() {
-    return this._distance;
+    return this._distance
   }
   set distance(value) {
-    this._distance = value;
-    this.updateSunPosition();
+    this._distance = value
+    this.updateSunPosition()
   }
   updateSunPosition() {
-    const theta = Math.PI * (this._inclination - 0.5);
-    const phi = 2 * Math.PI * (this._azimuth - 0.5);
-    const distance = this._distance;
-    const x = distance * Math.cos(phi);
-    const y = distance * Math.sin(phi) * Math.sin(theta);
-    const z = distance * Math.sin(phi) * Math.cos(theta);
-    (this.sky.material as ShaderMaterial).uniforms.sunPosition.value.set(x, y, z).normalize();
-    this.sky.scale.set(distance, distance, distance);
+    const theta = Math.PI * (this._inclination - 0.5)
+    const phi = 2 * Math.PI * (this._azimuth - 0.5)
+    const distance = this._distance
+    const x = distance * Math.cos(phi)
+    const y = distance * Math.sin(phi) * Math.sin(theta)
+    const z = distance * Math.sin(phi) * Math.cos(theta)
+    ;(this.sky.material as ShaderMaterial).uniforms.sunPosition.value.set(x, y, z).normalize()
+    this.sky.scale.set(distance, distance, distance)
   }
-  generateEnvironmentMap(renderer: WebGLRenderer) {
-    this.skyScene.add(this.sky);
-    this.cubeCamera.update(renderer, this.skyScene);
-    (this as any).add(this.sky);
+  generateSkybox(renderer: WebGLRenderer) {
+    this.skyScene.add(this.sky)
+    this.cubeCamera.update(renderer, this.skyScene)
+    ;(this as any).add(this.sky)
     // const pmremGenerator = new PMREMGenerator(
     //   this.cubeCamera.renderTarget.texture as any
     // );
-    const pmremGenerator = new PMREMGenerator(renderer);
-    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture);
+    const pmremGenerator = new PMREMGenerator(renderer)
+    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture)
     // pmremGenerator.update(renderer);
     // const pmremCubeUVPacker = new PMREMCubeUVPacker((pmremGenerator as any).cubeLods);
-    const pmremCubeUVPacker = new PMREMCubeUVPacker([texture]);
-    const UVPackertexture = pmremCubeUVPacker.CubeUVRenderTarget.texture;
-    pmremCubeUVPacker.update(renderer);
-    pmremGenerator.dispose();
-    pmremCubeUVPacker.dispose();
-    return UVPackertexture;
+    const pmremCubeUVPacker = new PMREMCubeUVPacker([texture])
+    const UVPackertexture = pmremCubeUVPacker.CubeUVRenderTarget.texture
+    pmremCubeUVPacker.update(renderer)
+    pmremGenerator.dispose()
+    pmremCubeUVPacker.dispose()
+    return UVPackertexture
     // return texture
   }
   copy(source, recursive = true) {
     if (recursive) {
-      (this as any).remove(this.sky);
+      ;(this as any).remove(this.sky)
     }
-    super.copy(source, recursive);
+    super.copy(source, recursive)
     if (recursive) {
-      const skyIndex = source.children.indexOf(source.sky);
+      const skyIndex = source.children.indexOf(source.sky)
       if (skyIndex !== -1) {
-        (this.sky as any) = (this as any).children[skyIndex];
+        ;(this.sky as any) = (this as any).children[skyIndex]
       }
     }
-    this.turbidity = source.turbidity;
-    this.rayleigh = source.rayleigh;
-    this.luminance = source.luminance;
-    this.mieCoefficient = source.mieCoefficient;
-    this.mieDirectionalG = source.mieDirectionalG;
-    this.inclination = source.inclination;
-    this.azimuth = source.azimuth;
-    this.distance = source.distance;
-    return this;
+    this.turbidity = source.turbidity
+    this.rayleigh = source.rayleigh
+    this.luminance = source.luminance
+    this.mieCoefficient = source.mieCoefficient
+    this.mieDirectionalG = source.mieDirectionalG
+    this.inclination = source.inclination
+    this.azimuth = source.azimuth
+    this.distance = source.distance
+    return this
   }
 }

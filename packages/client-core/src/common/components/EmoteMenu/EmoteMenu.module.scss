@@ -1,4 +1,4 @@
-.emoteMenu {
+.emoteMenuSidebar {
     position: fixed;
     top: 0;
     right: 10px;
@@ -20,7 +20,7 @@
         display: none;  /* Safari and Chrome */
     }
 
-    .jumpContainer { margin-top: 20px; }
+    .jumpContainer { display: none; margin-top: 20px; }
 
     .menuItem {
         background: rgba(0, 0, 0, 0.2);
@@ -37,23 +37,59 @@
         justify-content: center;
         align-items: center;
         min-width: 0;
+        transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
 
-        &::before {
-            content: " ";
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            display: block;
-            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-            background: #5f5ff1;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            border-radius: 50%;
-            transform: scale(0);
+        &:hover { transform: scale(1.2); }
+        > svg { height: 50%; width: 50%; }
+
+        @media screen and (max-height: 475px) {
+            height: 40px;
+            width: 40px;
+        }
+    }
+}
+
+.emoteMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease-out;
+
+    .itemContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        border: solid 100px rgba(0, 0, 0, 0.8);
+
+        .menuItemBlock {
+            position: relative;
         }
 
-        &:hover::before { transform: scale(1); }
-        > svg { height: 50%; width: 50%; }
+        .menuItem {
+            border-radius: 50%;
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            margin: 0;
+            padding: 0;
+            min-width: 0;
+
+            &:hover { transform: scale(1.2); }
+            img {
+                display: block;
+                width: 100%;
+            }
+        }
     }
+}
+
+.hideMenu {
+    transform: scale(0);
 }

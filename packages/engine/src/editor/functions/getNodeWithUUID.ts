@@ -1,10 +1,10 @@
 export default function getNodeWithUUID(object, uuid) {
-  let node = null;
+  let node = null
   // TODO: Don't traverse the whole tree. Return early if found.
-  object.traverse(child => {
+  object.traverse((child) => {
     if (!node && child.isNode && child.uuid === uuid) {
-      node = child;
+      node = child
     }
-  });
-  return node;
+  })
+  return node
 }

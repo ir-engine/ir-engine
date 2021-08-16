@@ -1,7 +1,7 @@
-import styled from "styled-components";
+import styled from 'styled-components'
 
 /**
- * 
+ *
  *  @author Robert Long
  */
 const Well = (styled as any).div`
@@ -11,8 +11,8 @@ const Well = (styled as any).div`
   border-radius: 6px;
   padding: 4px;
   margin: 8px;
-`;
+`
 
-Well.displayName = "Well";
+Well.displayName = 'Well'
 
-export default Well;
+export default Well

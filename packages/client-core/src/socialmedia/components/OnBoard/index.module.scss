@@ -1,4 +1,8 @@
-
+.isIos{
+	button{
+		top: 37pt !important;
+	}
+}
 .onboarding{
   position: fixed;
   width: 100%;
@@ -9,6 +13,8 @@
   flex-direction: column;
   text-align: center;
   overflow: scroll;
+  background: rgb(255,255,255);
+  background-color: rgb(255,255,255);
   h3{
     font-size: 28pt;
     letter-spacing: 0.36pt;

@@ -1,29 +1,11 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2019",
-    "lib": ["es2019", "DOM", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
-    "module": "esnext",
-    "strict": false,
-    "declaration": true,
-    "noImplicitAny": false,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "moduleResolution":"node",
-    "typeRoots": ["packages/common/types", "./node_modules/@types"],
-    "sourceMap": true,
-    "experimentalDecorators": true
+    "outDir": "./lib"
   },
   "exclude": [
     "node_modules",
     "../../node_modules/k8s/*",
     "types.d.ts"
   ],
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ]
 }

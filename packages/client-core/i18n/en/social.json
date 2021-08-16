@@ -63,7 +63,7 @@
         "dashboard": "Dashboard",
         "users": "Users",
         "feeds": "Feeds",
-        "arMedia": "Ar Media",
+        "arMedia": "Video Media",
         "editor": "Editor"
     },
     "featured":{
@@ -120,7 +120,7 @@
         "activity": "Activity"
     },
     "onBoarding": {
-        "welcome": "Welcome to ARC!",
+        "welcome": "Welcome!",
         "description": "Biggest collection of 370+ layouts for iOS prototyping.",
         "next": "Next",
         "discover": "Discover articles,",
@@ -132,7 +132,7 @@
         "meet": "Meet up with friends"
     },
     "shareForm": {
-        "arcMedia": "Arc Media",
+        "arcMedia": "Share",
         "videoCreated": "I Created This Video",
         "shareWithBuddies": "Share with buddies",
         "shareVideo": "Share Video",
@@ -147,8 +147,8 @@
         "flames": " flames"
     },
     "splash": {
-        "screen": "ARC Splash Screen",
-        "logo": "ARC Logo"
+        "screen": "Splash Screen",
+        "logo": "Logo"
     },
     "story": {
         "profilePic": "{{user}}'s profile pic"

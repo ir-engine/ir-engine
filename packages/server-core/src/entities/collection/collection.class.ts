@@ -1,19 +1,19 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../../declarations';
-import { Params } from '@feathersjs/feathers';
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Application } from '../../../declarations'
+import { Params } from '@feathersjs/feathers'
 
 export class Collection extends Service {
-  app: Application;
+  app: Application
   docs: any
 
-  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options);
-    this.app = app;
+  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+    super(options)
+    this.app = app
   }
   /**
    * A method which find collection
-   * 
-   * @param params of query which contains userId 
+   *
+   * @param params of query which contains userId
    * @returns {@Object} of collection
    * @author Vyacheslav Solovjov
    */
@@ -26,8 +26,8 @@ export class Collection extends Service {
       {
         isPublic: true
       }
-    ];
-    delete params.query.userId;
-    return super.find(params);
+    ]
+    delete params.query.userId
+    return super.find(params)
   }
 }

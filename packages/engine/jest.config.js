@@ -1,13 +1,11 @@
-export default {
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs'],
-    //testEnvironment: 'jest-environment-node',
-    testEnvironment: './tests/custom-env.cjs',
-    transform: {
-      ".(ts|tsx)": "ts-jest"
-    },
-    testMatch: [
-      '<rootDir>/tests/**/*.test.(t|j)s(x)?',
-      //'<rootDir>/src/**/*.(t|j)s(x)?',// check all sources for syntax errors
-    ],
-    // snapshotSerializers: ["three-snapshot-serializer"],
-  }
+module.exports = {
+  preset: 'ts-jest',
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json'],
+  testEnvironment: 'jsdom',
+  transform: {
+    '^.+\\.(ts|tsx)?$': 'ts-jest'
+  },
+  setupFilesAfterEnv: [
+      './tests/setup.js'
+  ]
+};

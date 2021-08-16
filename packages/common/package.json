@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/common",
-  "version": "0.3.25",
-  "main": "index.ts",
+  "version": "0.3.32",
+  "main": "dist/common.umd.js",
   "module": "dist/common.es.js",
   "publishConfig": {
     "access": "public"
@@ -9,7 +9,7 @@
   "description": "Shared types for other XREngine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": "http://github.com/XRFoundation/XREngine",
@@ -17,12 +17,12 @@
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "13.0.0",
-    "@rollup/plugin-replace": "2.4.2",
-    "ctix": "0.3.1",
+    "@rollup/plugin-node-resolve": "13.0.4",
+    "@rollup/plugin-replace": "3.0.0",
+    "cross-env": "7.0.3",
     "lodash.camelcase": "4.3.0",
     "rimraf": "3.0.2",
-    "rollup": "2.52.4",
+    "rollup": "2.56.2",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "3.0.0",

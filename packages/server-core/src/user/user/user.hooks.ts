@@ -1,14 +1,14 @@
-import * as authentication from '@feathersjs/authentication';
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations';
-import { HookContext } from '@feathersjs/feathers';
-import logger from '../../logger';
-import getFreeInviteCode from "../../util/get-free-invite-code";
+import * as authentication from '@feathersjs/authentication'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import { HookContext } from '@feathersjs/feathers'
+import logger from '../../logger'
+import getFreeInviteCode from '../../util/get-free-invite-code'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 /**
- * This module used to declare and identify database relation 
- * which will be used later in user service 
+ * This module used to declare and identify database relation
+ * which will be used later in user service
  */
 
 export default {
@@ -90,30 +90,34 @@ export default {
     find: [
       async (context: HookContext): Promise<HookContext> => {
         try {
-          const { app, result } = context;
+          const { app, result } = context
 
           result.data.forEach(async (item) => {
             if (item.subscriptions && item.subscriptions.length > 0) {
-              await Promise.all(item.subscriptions.map(async (subscription: any) => {
-                subscription.dataValues.subscriptionType = await context.app.service('subscription-type').get(subscription.plan);
-              }));
+              await Promise.all(
+                item.subscriptions.map(async (subscription: any) => {
+                  subscription.dataValues.subscriptionType = await context.app
+                    .service('subscription-type')
+                    .get(subscription.plan)
+                })
+              )
             }
 
-            const userAvatarResult = await app.service('static-resource').find({
-              query: {
-                staticResourceType: 'user-thumbnail',
-                userId: item.id
-              }
-            });
-
-            if (userAvatarResult.total > 0 && item.dataValues) {
-              item.dataValues.avatarUrl = userAvatarResult.data[0].url;
-            }
-          });
-          return context;
+            // const userAvatarResult = await app.service('static-resource').find({
+            //   query: {
+            //     staticResourceType: 'user-thumbnail',
+            //     userId: item.id
+            //   }
+            // });
+            //
+            // if (userAvatarResult.total > 0 && item.dataValues) {
+            //   item.dataValues.avatarUrl = userAvatarResult.data[0].url;
+            // }
+          })
+          return context
         } catch (err) {
-          logger.error('USER AFTER FIND ERROR');
-          logger.error(err);
+          logger.error('USER AFTER FIND ERROR')
+          logger.error(err)
         }
       }
     ],
@@ -121,27 +125,31 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         try {
           if (context.result.subscriptions && context.result.subscriptions.length > 0) {
-            await Promise.all(context.result.subscriptions.map(async (subscription: any) => {
-              subscription.dataValues.subscriptionType = await context.app.service('subscription-type').get(subscription.plan);
-            }));
+            await Promise.all(
+              context.result.subscriptions.map(async (subscription: any) => {
+                subscription.dataValues.subscriptionType = await context.app
+                  .service('subscription-type')
+                  .get(subscription.plan)
+              })
+            )
           }
 
-          const { id, app, result } = context;
+          // const { id, app, result } = context;
+          //
+          // const userAvatarResult = await app.service('static-resource').find({
+          //   query: {
+          //     staticResourceType: 'user-thumbnail',
+          //     userId: id
+          //   }
+          // });
+          // if (userAvatarResult.total > 0) {
+          //   result.dataValues.avatarUrl = userAvatarResult.data[0].url;
+          // }
 
-          const userAvatarResult = await app.service('static-resource').find({
-            query: {
-              staticResourceType: 'user-thumbnail',
-              userId: id
-            }
-          });
-          if (userAvatarResult.total > 0) {
-            result.dataValues.avatarUrl = userAvatarResult.data[0].url;
-          }
-
-          return context;
+          return context
         } catch (err) {
-          logger.error('USER AFTER GET ERROR');
-          logger.error(err);
+          logger.error('USER AFTER GET ERROR')
+          logger.error(err)
         }
       }
     ],
@@ -150,43 +158,44 @@ export default {
         try {
           await context.app.service('user-settings').create({
             userId: context.result.id
-          });
-          const app = context.app;
-          let result = context.result;
-          if (Array.isArray(result)) result = result[0];
+          })
+          const app = context.app
+          let result = context.result
+          if (Array.isArray(result)) result = result[0]
           if (result?.userRole !== 'guest' && result?.inviteCode == null) {
-            const code = await getFreeInviteCode(app);
-            
+            const code = await getFreeInviteCode(app)
+
             await app.service('user').patch(result.id, {
               inviteCode: code
-            });
+            })
           }
-          return context;
+          return context
         } catch (err) {
-          logger.error('USER AFTER CREATE ERROR');
-          logger.error(err);
+          logger.error('USER AFTER CREATE ERROR')
+          logger.error(err)
         }
-
       }
     ],
     update: [],
-    patch: [async (context: HookContext): Promise<HookContext> => {
-      try {
-        const app = context.app;
-        let result = context.result;
-        if (Array.isArray(result)) result = result[0];
-        if (result?.userRole !== 'guest' && result?.inviteCode == null) {
-          const code = await getFreeInviteCode(app);
-          await app.service('user').patch(result.id, {
-            inviteCode: code
-          });
+    patch: [
+      async (context: HookContext): Promise<HookContext> => {
+        try {
+          const app = context.app
+          let result = context.result
+          if (Array.isArray(result)) result = result[0]
+          if (result?.userRole !== 'guest' && result?.inviteCode == null) {
+            const code = await getFreeInviteCode(app)
+            await app.service('user').patch(result.id, {
+              inviteCode: code
+            })
+          }
+        } catch (err) {
+          logger.error('USER AFTER PATCH ERROR')
+          logger.error(err)
         }
-      } catch (err) {
-        logger.error('USER AFTER PATCH ERROR');
-        logger.error(err);
+        return context
       }
-      return context;
-    }],
+    ],
     remove: []
   },
 
@@ -199,4 +208,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

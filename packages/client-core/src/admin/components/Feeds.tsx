@@ -1,42 +1,39 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import {Button, Typography} from '@material-ui/core';
-import Modal from '@material-ui/core/Modal';
-import { FormControl, InputLabel, Input, FormHelperText } from '@material-ui/core';
+import React, { useState, useEffect } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import Paper from '@material-ui/core/Paper'
+import { Button, Typography } from '@material-ui/core'
+import Modal from '@material-ui/core/Modal'
+import { FormControl, InputLabel, Input, FormHelperText } from '@material-ui/core'
 
 // const thefeeds = '';
 // conts Feeds = '';
 
-
-
-interface Props{
-  create?: any,
-  getTheFeeds?: any,
-  createTheFeeds?: any,
-  createTheFeedsNew?: any,
-  deleteTheFeed?: any,
-  update?: any,
-  tipsFeeds?: any,
+interface Props {
+  create?: any
+  getTheFeeds?: any
+  createTheFeeds?: any
+  createTheFeedsNew?: any
+  deleteTheFeed?: any
+  update?: any
+  tipsFeeds?: any
   list?: any
 }
 
-
-const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
-  var rows = list.map( i => createData(i.title, i.id, i.videoUrl, i.description, i.videoId));
+const TheFeedsConsole = ({ create, list, deleteTheFeed, update }: Props) => {
+  var rows = list.map((i) => createData(i.title, i.id, i.videoUrl, i.description, i.videoId))
 
   const useStyles = makeStyles({
     table: {
-      minWidth: 650,
+      minWidth: 650
     },
     form: {
       display: 'Flex',
@@ -48,51 +45,56 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
       padding: '60px',
       background: '#fff'
     }
-  });
+  })
   function createData(title: string, id: string, videoUrl: string, description: string, videoId: string) {
-    return { title, id, videoUrl, description, videoId };
+    return { title, id, videoUrl, description, videoId }
   }
 
-  const classes = useStyles();
+  const classes = useStyles()
 
+  const [open, setOpen] = React.useState(false)
 
-  const [open, setOpen] = React.useState(false);
-
-
-  const [actiontitle, setTitle] = useState(null);
-  const [actionId, setId] = useState(null);
-  const [actionVideo, setVideo] = useState(null);
-  const [actionDescription, setDescription] = useState(null);
-
+  const [actiontitle, setTitle] = useState(null)
+  const [actionId, setId] = useState(null)
+  const [actionVideo, setVideo] = useState(null)
+  const [actionDescription, setDescription] = useState(null)
 
   const handleOpen = (title, id, videoUrl, description) => {
-    setOpen(true);
-    if(title) setTitle(title);
-    if(id) setId(id);
-    if(videoUrl) setVideo(videoUrl);
-    if(description) setDescription(description);
-  };
+    setOpen(true)
+    if (title) setTitle(title)
+    if (id) setId(id)
+    if (videoUrl) setVideo(videoUrl)
+    if (description) setDescription(description)
+  }
   const handleClose = () => {
-    setOpen(false);
-  };
-  const handleSubmit = (e:any) =>{
-    e.preventDefault();
-    if(actionId !== '' && actionId !== null){
-      update({ id: actionId, title: actiontitle, video: actionVideo, description: actionDescription });
-    }else{
-      create({ title: actiontitle, description: actionDescription, video: actionVideo });
+    setOpen(false)
+  }
+  const handleSubmit = (e: any) => {
+    e.preventDefault()
+    if (actionId !== '' && actionId !== null) {
+      update({ id: actionId, title: actiontitle, video: actionVideo, description: actionDescription })
+    } else {
+      create({ title: actiontitle, description: actionDescription, video: actionVideo })
     }
-    setOpen(false);
-    setTitle('');
-    setId('');
-    setVideo('');
-    setDescription('');
-  };
+    setOpen(false)
+    setTitle('')
+    setId('')
+    setVideo('')
+    setDescription('')
+  }
 
   return (
     <div>
-      <Typography variant="h2" color="primary">ARC TheFeeds List </Typography>
-      <Button onClick={()=>{handleOpen('', '', '', '');}}  variant="outlined" color="secondary" >
+      <Typography variant="h1" color="primary">
+        Social Feeds List
+      </Typography>
+      <Button
+        onClick={() => {
+          handleOpen('', '', '', '')
+        }}
+        variant="outlined"
+        color="secondary"
+      >
         Create
       </Button>
 
@@ -106,26 +108,26 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
               <TableCell align="right">Description</TableCell>
             </TableRow>
           </TableHead>
-          {rows && rows.length > 0 && <TableBody>
-            {rows.reverse().map((row) => (
-              <TableRow key={row.title}>
-                <TableCell component="th" scope="row">{row.title}</TableCell>
-                <TableCell align="right">{row.id}</TableCell>
-                <TableCell align="right">{row.videoUrl}</TableCell>
-                <TableCell align="right">{row.description}</TableCell>
-                <TableCell align="right">
-                  <Button onClick={() => handleOpen(row.title, row.id, row.videoId, row.description)}>
-                    Edit
-                  </Button>
-                </TableCell>
-                <TableCell align="right">
-                  <Button onClick={() => deleteTheFeed(row.id)}>
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>}
+          {rows && rows.length > 0 && (
+            <TableBody>
+              {rows.reverse().map((row) => (
+                <TableRow key={row.title}>
+                  <TableCell component="th" scope="row">
+                    {row.title}
+                  </TableCell>
+                  <TableCell align="right">{row.id}</TableCell>
+                  <TableCell align="right">{row.videoUrl}</TableCell>
+                  <TableCell align="right">{row.description}</TableCell>
+                  <TableCell align="right">
+                    <Button onClick={() => handleOpen(row.title, row.id, row.videoId, row.description)}>Edit</Button>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button onClick={() => deleteTheFeed(row.id)}>Delete</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          )}
         </Table>
       </TableContainer>
       <Modal
@@ -135,33 +137,31 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
         aria-describedby="simple-modal-description"
       >
         <div>
-          <form
-            className={classes.form}
-            noValidate
-            onSubmit={(e) => handleSubmit(e)}
-          >
+          <form className={classes.form} noValidate onSubmit={(e) => handleSubmit(e)}>
             <FormControl>
               <InputLabel htmlFor="thefeeds-title">Title</InputLabel>
-              <Input value={actiontitle ? actiontitle : ""}
-                     onChange={(e)=>setTitle(e.target.value)}
-                     id="thefeeds-title" type='text'
-                     aria-describedby="my-helper-text" />
+              <Input
+                value={actiontitle ? actiontitle : ''}
+                onChange={(e) => setTitle(e.target.value)}
+                id="thefeeds-title"
+                type="text"
+                aria-describedby="my-helper-text"
+              />
               <FormHelperText id="my-helper-text">Tip&Trick Title.</FormHelperText>
             </FormControl>
             <input
-              value={actionId ? actionId : ""}
-              onChange={(e)=>setId(e.target.value)}
+              value={actionId ? actionId : ''}
+              onChange={(e) => setId(e.target.value)}
               id="thefeeds-id"
               type="number"
               hidden
             />
-            <Button
-              variant="contained"
-              component="label"
-            >
+            <Button variant="contained" component="label">
               Upload File
               <input
-                onChange={(e)=>{setVideo(e.target.files[0]);}}
+                onChange={(e) => {
+                  setVideo(e.target.files[0])
+                }}
                 id="thefeeds-video"
                 type="file"
                 hidden
@@ -170,32 +170,26 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
 
             <FormControl>
               <InputLabel htmlFor="thefeeds-description">Description</InputLabel>
-              <Input value={actionDescription ? actionDescription : ""}
-                     onChange={(e)=>setDescription(e.target.value)}
-                     id="thefeeds-description"
-                     type='text' aria-describedby="my-helper-text" />
+              <Input
+                value={actionDescription ? actionDescription : ''}
+                onChange={(e) => setDescription(e.target.value)}
+                id="thefeeds-description"
+                type="text"
+                aria-describedby="my-helper-text"
+              />
               <FormHelperText id="my-helper-text">Tip&Trick short description.</FormHelperText>
             </FormControl>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-            >
+            <Button variant="contained" color="primary" type="submit">
               Save
             </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={()=>handleClose()}
-            >
+            <Button variant="contained" color="secondary" onClick={() => handleClose()}>
               Close
             </Button>
           </form>
         </div>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-
-export default TheFeedsConsole;
+export default TheFeedsConsole

@@ -1,7 +1,7 @@
-import { createSelector } from 'reselect';
+import { createSelector } from 'reselect'
 
 const selectState = (state: any): any => {
-  return state.get('adminInstance');
-};
+  return state.get('adminInstance')
+}
 
-export const selectAdminInstanceState = createSelector([selectState], (adminInstance) => adminInstance);
+export const selectAdminInstanceState = createSelector([selectState], (adminInstance) => adminInstance)

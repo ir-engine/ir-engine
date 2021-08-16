@@ -4,15 +4,18 @@ const config: CapacitorConfig = {
   appId: 'com.xrengine.social',
   appName: 'com.xrengine.social',
   webDir: 'www',
+  loggingBehavior: 'none',
   plugins: {
     SplashScreen: {
       launchShowDuration: 0,
     },
   },
+  ios: {
+    "limitsNavigationsToAppBoundDomains": true
+  },
   server: {
-    hostname: "dev.arcmedia.us",
-    androidScheme: "https",
-    iosScheme: "https"
+    "url": "https://dev.arcmedia.us",
+    "allowNavigation": ["*.arcmedia.us"]
   }
 };
 

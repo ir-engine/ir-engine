@@ -1,32 +1,29 @@
-import AdminConsole from '@xrengine/client-core/src/admin/components';
-import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
+import AdminConsole from '@xrengine/client-core/src/admin/components/Location'
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import React, { useEffect } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
 
 interface Props {
-  doLoginAuto?: any;
+  doLoginAuto?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-  };
-};
+  return {}
+}
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-});
+})
 
 function locations(props: Props) {
-  const { doLoginAuto } = props;
+  const { doLoginAuto } = props
 
   useEffect(() => {
-    doLoginAuto(true);
-  }, []);
+    doLoginAuto(true)
+  }, [])
 
-  return (
-    <AdminConsole />
-  );
+  return <AdminConsole />
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(locations);
+export default connect(mapStateToProps, mapDispatchToProps)(locations)

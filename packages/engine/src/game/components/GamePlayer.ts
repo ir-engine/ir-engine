@@ -1,16 +1,19 @@
-import { Component } from "../../ecs/classes/Component";
-import { Types } from "../../ecs/types/Types";
+import { Entity } from '../../ecs/classes/Entity'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-export class GamePlayer extends Component<GamePlayer> {
+
+type OwnedObjects = {
+  [role: string]: Entity
+}
+
+export type GamePlayerType = {
   gameName: string
   role: string
   uuid: string
+  ownedObjects: OwnedObjects
 }
 
-GamePlayer._schema = {
-  gameName: { type: Types.String, default: null },
-  role: { type: Types.String, default: null },
-  uuid: { type: Types.String, default: null }
-};
+export const GamePlayer = createMappedComponent<GamePlayerType>()

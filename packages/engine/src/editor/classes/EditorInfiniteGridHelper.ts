@@ -1,13 +1,5 @@
-import {
-  Mesh,
-  Color,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  DoubleSide,
-  Plane,
-  Vector3
-} from "three";
-import { addIsHelperFlag } from "../functions/addIsHelperFlag";
+import { Mesh, Color, PlaneBufferGeometry, ShaderMaterial, DoubleSide, Plane, Vector3 } from 'three'
+import { addIsHelperFlag } from '../functions/addIsHelperFlag'
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
@@ -28,7 +20,7 @@ void main() {
 
       gl_Position.z -= 0.01;
 }
-`;
+`
 const fragmentShader = `
 varying vec3 worldPosition;
 
@@ -57,17 +49,17 @@ void main() {
 
   if ( gl_FragColor.a <= 0.0 ) discard;
 }
-`;
+`
 export default class EditorInfiniteGridHelper extends Mesh {
-  plane: Plane;
-  intersectionPointWorld: Vector3;
-  intersection: any;
+  plane: Plane
+  intersectionPointWorld: Vector3
+  intersection: any
   constructor(size1?, size2?, color?, distance?) {
-    color = color || new Color("white");
-    size1 = size1 || 1;
-    size2 = size2 || 10;
-    distance = distance || 8000;
-    const geometry = new PlaneBufferGeometry(2, 2, 1, 1);
+    color = color || new Color('white')
+    size1 = size1 || 1
+    size2 = size2 || 10
+    distance = distance || 8000
+    const geometry = new PlaneBufferGeometry(2, 2, 1, 1)
     const material = new ShaderMaterial({
       side: DoubleSide,
       uniforms: {
@@ -90,36 +82,34 @@ export default class EditorInfiniteGridHelper extends Mesh {
       extensions: {
         derivatives: true
       }
-    });
-    super(geometry, material);
-    this.visible = true;
-    this.name = "EditorInfiniteGridHelper";
-    this.layers.set(1);
-    addIsHelperFlag(this);
-    this.frustumCulled = false;
-    this.plane = new Plane(this.up);
-    this.intersectionPointWorld = new Vector3();
+    })
+    super(geometry, material)
+    this.visible = true
+    this.name = 'EditorInfiniteGridHelper'
+    this.layers.set(1)
+    addIsHelperFlag(this)
+    this.frustumCulled = false
+    this.plane = new Plane(this.up)
+    this.intersectionPointWorld = new Vector3()
     this.intersection = {
       distance: 0,
       point: this.intersectionPointWorld,
       object: this
-    };
+    }
   }
   setSize(size) {
-    (this.material as any).uniforms.uSize1.value = size;
-    (this.material as any).uniforms.uSize2.value = size * 10;
+    ;(this.material as any).uniforms.uSize1.value = size
+    ;(this.material as any).uniforms.uSize2.value = size * 10
   }
   raycast(raycaster, intersects) {
-    const point = new Vector3();
-    const intersection = raycaster.ray.intersectPlane(this.plane, point);
-    if (intersection === null) return null;
-    this.intersectionPointWorld.copy(point);
-    this.intersectionPointWorld.applyMatrix4(this.matrixWorld);
-    const distance = raycaster.ray.origin.distanceTo(
-      this.intersectionPointWorld
-    );
-    if (distance < raycaster.near || distance > raycaster.far) return null;
-    this.intersection.distance = distance;
-    intersects.push(this.intersection);
+    const point = new Vector3()
+    const intersection = raycaster.ray.intersectPlane(this.plane, point)
+    if (intersection === null) return null
+    this.intersectionPointWorld.copy(point)
+    this.intersectionPointWorld.applyMatrix4(this.matrixWorld)
+    const distance = raycaster.ray.origin.distanceTo(this.intersectionPointWorld)
+    if (distance < raycaster.near || distance > raycaster.far) return null
+    this.intersection.distance = distance
+    intersects.push(this.intersection)
   }
 }

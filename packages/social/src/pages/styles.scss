@@ -1,3 +1,8 @@
+body{
+  overflow: hidden;
+  margin: 0px;
+}
+
 @mixin flex-collapse {
   display: flex;
   flex-direction: column;
@@ -119,10 +124,7 @@
   color: black;
   text-align: center;
 }
-body{
-  overflow: hidden;
-  margin: 0px;
-}
+
 
 .menuDrawerOpened{  
   [class*=InstanceChat_instance-chat-container]{

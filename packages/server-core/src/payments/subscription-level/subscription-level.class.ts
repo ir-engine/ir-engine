@@ -1,14 +1,14 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../../declarations';
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Application } from '../../../declarations'
 
 /**
- * A class for Subscription Level   service 
- * 
+ * A class for Subscription Level   service
+ *
  * @author Vyacheslav Solovjov
  */
 export class SubscriptionLevel extends Service {
   public docs: any
-  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options);
+  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+    super(options)
   }
 }

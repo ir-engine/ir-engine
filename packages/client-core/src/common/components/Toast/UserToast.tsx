@@ -1,37 +1,31 @@
-import React from "react";
-import { connect } from 'react-redux';
-import { selectUserState } from '../../../user/reducers/user/selector';
-import Toast from './Toast';
-// @ts-ignore
-import styles from "./toast.module.scss";
-import { useTranslation } from 'react-i18next';
+import React from 'react'
+import Toast from './Toast'
+import styles from './toast.module.scss'
+import { useTranslation } from 'react-i18next'
+import { accessUserState } from '../../../user/store/UserState'
+import { useState } from '@hookstate/core'
 
-type Props = {
-  user?: any;
+const UserToast = () => {
+  const toastMessages = useState(accessUserState().toastMessages).value
+  const { t } = useTranslation()
+  const msgs = toastMessages
+    ? Array.from(toastMessages).map((m) => {
+        if (m.userAdded)
+          return (
+            <span>
+              <span className={styles.userAdded}>{m.user.name}</span> {t('common:toast.joined')}
+            </span>
+          )
+        else if (m.userRemoved)
+          return (
+            <span>
+              <span className={styles.userRemoved}>{m.user.name}</span> {t('common:toast.left')}
+            </span>
+          )
+      })
+    : []
+
+  return <Toast messages={msgs} customClass={styles.userToastContainer} />
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    user: selectUserState(state),
-  };
-};
-
-const UserToast = (props: Props) => {
-  const messages = props.user?.get('toastMessages');
-	const { t } = useTranslation();
-  const msgs = messages
-    ? Array.from(messages).map((m: any) => {
-      if (m.args.userAdded) return <span><span className={styles.userAdded}>{m.user.name}</span> {t('common:toast.joined')}</span>;
-      else if (m.args.userRemoved) return <span><span className={styles.userRemoved}>{m.user.name}</span> {t('common:toast.left')}</span>;
-    }) : [];
-
-
-  return (
-    <Toast
-      messages={msgs}
-      customClass={styles.userToastContainer}
-    />
-  );
-};
-
-export default connect(mapStateToProps)(UserToast);
+export default UserToast

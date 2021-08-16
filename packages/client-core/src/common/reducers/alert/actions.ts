@@ -1,26 +1,26 @@
-import { SHOW_NOTIFICATION } from "../../../user/reducers/actions";
+import { SHOW_NOTIFICATION } from '../../../user/reducers/actions'
 
 export type AlertType = 'error' | 'success' | 'warning' | 'none'
 export interface AlertState {
-    message: string;
-    type: AlertType;
+  message: string
+  type: AlertType
 }
 export interface AlertAction {
-    type: string;
-    alertType: AlertType;
-    message: string;
+  type: string
+  alertType: AlertType
+  message: string
 }
-export function showAlert (type: AlertType, message: string): AlertAction {
+export function showAlert(type: AlertType, message: string): AlertAction {
   return {
     type: SHOW_NOTIFICATION,
     alertType: type,
     message
-  };
+  }
 }
-export function hideAlert (): AlertAction {
+export function hideAlert(): AlertAction {
   return {
     type: SHOW_NOTIFICATION,
     alertType: 'none',
     message: ''
-  };
+  }
 }
