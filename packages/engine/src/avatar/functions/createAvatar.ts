@@ -109,7 +109,7 @@ export const createAvatar = (
             options: { halfHeight: capsuleHeight / 2, radius: avatarRadius },
             config: {
               collisionLayer: CollisionGroups.Avatars,
-              collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+              collisionMask: DefaultCollisionMask
             }
           }
         ],
@@ -140,7 +140,7 @@ export const createAvatarController = (entity: Entity) => {
     new Controller({
       isCapsule: true,
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
+      collisionMask: DefaultCollisionMask,
       height: capsuleHeight,
       contactOffset: 0.01,
       stepOffset: 0.25,

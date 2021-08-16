@@ -33,9 +33,16 @@ export enum BALL_STATES {
   STOPPED
 }
 
+interface BallGroupType extends Group {
+  userData: {
+    meshObject: Mesh
+    trailObject: TrailRenderer
+    lastTrailUpdateTime: number
+  }
+}
+
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  const obj = getComponent(entityBall, Object3DComponent)
   console.log(
     'setBallState',
     getOwnerIdPlayerNumber(getComponent(entityBall, NetworkObjectComponent).ownerId),
@@ -43,22 +50,32 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   )
   golfBallComponent.state = ballState
 
-  switch (ballState) {
-    case BALL_STATES.INACTIVE: {
-      // show ball
-      // if (isClient) obj.value.visible = false
-      return
-    }
-    case BALL_STATES.WAITING: {
-      // show ball
-      // if (isClient) obj.value.visible = true
-      return
-    }
-    case BALL_STATES.MOVING: {
-      return
-    }
-    case BALL_STATES.STOPPED: {
-      return
+  if (isClient) {
+    const ballGroup = getComponent(entityBall, Object3DComponent).value as BallGroupType
+    switch (ballState) {
+      case BALL_STATES.INACTIVE: {
+        // show ball
+        ballGroup.userData.meshObject.quaternion.identity()
+        ballGroup.userData.trailObject.visible = false
+        ballGroup.userData.meshObject.scale.y = 0.01
+        // obj.value.userData.meshObject.position.y = -(golfBallRadius * 0.5)
+        // if (isClient) ((obj.value as Mesh).material as MeshBasicMaterial).opacity = 0.2
+        return
+      }
+      case BALL_STATES.WAITING: {
+        ballGroup.userData.trailObject.visible = true
+        ballGroup.userData.meshObject.scale.y = 1
+        // obj.value.userData.meshObject.position.y = 0
+        // show ball
+        // if (isClient) ((obj.value as Mesh).material as MeshBasicMaterial).opacity = 1
+        return
+      }
+      case BALL_STATES.MOVING: {
+        return
+      }
+      case BALL_STATES.STOPPED: {
+        return
+      }
     }
   }
 }
@@ -67,12 +84,14 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   console.log('moving ball to', position)
 
   const collider = getComponent(entityBall, ColliderComponent)
-  if (!collider.body) return
-  collider.body.updateTransform({
-    translation: new Vector3(...position)
-  })
-  // collider.body.setLinearVelocity(new Vector3(), true)
-
+  if (collider) {
+    collider.body.updateTransform({
+      translation: new Vector3(...position)
+    })
+  } else {
+    const transform = getComponent(entityBall, TransformComponent)
+    transform.position.fromArray(position)
+  }
   const velocity = getComponent(entityBall, VelocityComponent)
   velocity.velocity.copy(new Vector3())
 }
@@ -157,9 +176,16 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
   ballMesh.traverse((obj: Mesh) => {
-    if (obj.material) (obj.material as MeshBasicMaterial).color.set(color)
+    if (obj.material) {
+      obj.material = (obj.material as Material).clone()
+      ;(obj.material as MeshBasicMaterial).transparent = true
+      ;(obj.material as MeshBasicMaterial).color.set(color)
+    }
   })
-  addComponent(ballEntity, Object3DComponent, { value: ballMesh })
+  const ballGroup = new Group() as BallGroupType
+  ballGroup.add(ballMesh)
+  addComponent(ballEntity, Object3DComponent, { value: ballGroup })
+  ballGroup.userData.meshObject = ballMesh
 
   // Add trail effect
   const trailHeadGeometry = []
@@ -170,10 +196,10 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   trailMaterial.uniforms.headColor.value = colorVec4
   trailMaterial.uniforms.tailColor.value = colorVec4
   const trailLength = 50
-  trailObject.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, ballMesh)
+  trailObject.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, ballGroup)
   Engine.scene.add(trailObject)
-  ballMesh.userData.trailObject = trailObject
-  ballMesh.userData.lastTrailUpdateTime = Date.now()
+  ballGroup.userData.trailObject = trailObject
+  ballGroup.userData.lastTrailUpdateTime = Date.now()
 }
 
 type GolfBallSpawnParameters = {
@@ -224,18 +250,19 @@ export const initializeGolfBall = (
 
   const isMyBall = isEntityLocalClient(Network.instance.networkObjects[ownerNetworkId].entity)
 
-  const body = PhysXInstance.instance.addBody(
-    new Body({
-      shapes: [shape],
-      type: isMyBall ? BodyType.DYNAMIC : BodyType.KINEMATIC,
-      transform: {
-        translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-      },
-      userData: ballEntity
-    })
-  )
-
-  addComponent(ballEntity, ColliderComponent, { body })
+  if (isMyBall) {
+    const body = PhysXInstance.instance.addBody(
+      new Body({
+        shapes: [shape],
+        type: BodyType.DYNAMIC,
+        transform: {
+          translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
+        },
+        userData: ballEntity
+      })
+    )
+    addComponent(ballEntity, ColliderComponent, { body })
+  }
 
   // for track ground
   const groundRaycast = PhysXInstance.instance.addRaycastQuery(

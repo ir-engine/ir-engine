@@ -62,7 +62,6 @@ export const GolfState = createState({
     id: string
     scores: Array<number>
     stroke: number
-    lastBallPosition: [number, number, number]
   }>,
   currentPlayer: 0,
   currentHole: 0
@@ -73,12 +72,12 @@ export function useGolfState() {
 }
 
 const getResetBallPosition = (playerNumber: number) => {
-  if (GolfState.players[playerNumber].value.lastBallPosition === null) {
-    const currentHole = GolfState.currentHole.value
-    const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
-    return getComponent(teeEntity, TransformComponent).position.toArray()
-  }
-  return GolfState.players[playerNumber].value.lastBallPosition
+  // if (GolfState.players[playerNumber].value.lastBallPosition === null) {
+  const currentHole = GolfState.currentHole.value
+  const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
+  return getComponent(teeEntity, TransformComponent).position.toArray()
+  // }
+  // return GolfState.players[playerNumber].value.lastBallPosition
 }
 
 // Note: player numbers are 0-indexed
@@ -131,8 +130,7 @@ const GolfReceptorSystem = async (): Promise<System> => {
                 {
                   id: action.playerId,
                   scores: [],
-                  stroke: 0,
-                  lastBallPosition: null
+                  stroke: 0
                 }
               ])
               console.log(`player ${action.playerId} joined`)
@@ -193,11 +191,11 @@ const GolfReceptorSystem = async (): Promise<System> => {
           const currentPlayerNumber = GolfState.currentPlayer.value
 
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
-          const ballTransform = getComponent(entityBall, TransformComponent)
+          // const ballTransform = getComponent(entityBall, TransformComponent)
 
-          s.players[s.currentPlayer.value].merge((s) => {
-            return { lastBallPosition: ballTransform.position.toArray() }
-          })
+          // s.players[s.currentPlayer.value].merge((s) => {
+          //   return { lastBallPosition: ballTransform.position.toArray() }
+          // })
 
           setBallState(entityBall, BALL_STATES.STOPPED)
 
@@ -260,9 +258,9 @@ const GolfReceptorSystem = async (): Promise<System> => {
           holes: for (const [i] of s.holes.entries()) {
             const nextHole = i
             for (const p of s.players) {
-              p.lastBallPosition.merge((p) => {
-                return null
-              })
+              // p.lastBallPosition.merge((p) => {
+              //   return null
+              // })
               if (p.scores[i] === undefined) {
                 s.currentHole.set(nextHole)
                 break holes
@@ -282,12 +280,12 @@ const GolfReceptorSystem = async (): Promise<System> => {
          */
         case 'puttclub.RESET_BALL': {
           const currentPlayerNumber = GolfState.currentPlayer.value
-          const playerNumber = s.players.find((player) => player.id.value === action.playerId)
-          playerNumber.merge((s) => {
-            return { lastBallPosition: action.position }
-          })
+          // const playerNumber = s.players.find((player) => player.id.value === action.playerId)
+          // playerNumber.merge((s) => {
+          //   return { lastBallPosition: action.position }
+          // })
 
-          const player = s.players[s.currentPlayer.value]
+          // const player = s.players[s.currentPlayer.value]
 
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
           if (typeof entityBall !== 'undefined') {
@@ -329,20 +327,29 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
     if (isClient) {
       for (const entity of golfClubQuery(world)) {
-        updateClub(entity)
+        const { ownerId } = getComponent(entity, NetworkObjectComponent)
+        const ownerEntity = playerQuery(world).find((player) => {
+          return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
+        })
+        // we only need to detect hits for our own club
+        if (typeof ownerEntity !== 'undefined' && isEntityLocalClient(ownerEntity)) {
+          updateClub(entity)
 
-        const networkObject = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
-        const currentPlayerNumber = GolfState.currentPlayer.value
-        const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+          if (getCurrentGolfPlayerEntity() === ownerEntity) {
+            const { uniqueId } = getComponent(ownerEntity, NetworkObjectComponent)
+            const currentPlayerNumber = GolfState.currentPlayer.value
+            const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
 
-        if (entityBall && getComponent(entityBall, NetworkObjectComponent).ownerId === networkObject.uniqueId) {
-          const { collisionEntity } = getCollisions(entity, GolfBallComponent)
-          if (collisionEntity !== null && collisionEntity === entityBall) {
-            const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-            if (golfBallComponent.state === BALL_STATES.WAITING) {
-              hitBall(entity, entityBall)
-              setBallState(entityBall, BALL_STATES.MOVING)
-              dispatchFromClient(GolfAction.playerStroke(networkObject.uniqueId))
+            if (entityBall && getComponent(entityBall, NetworkObjectComponent).ownerId === uniqueId) {
+              const { collisionEntity } = getCollisions(entity, GolfBallComponent)
+              if (collisionEntity !== null && collisionEntity === entityBall) {
+                const golfBallComponent = getComponent(entityBall, GolfBallComponent)
+                if (golfBallComponent.state === BALL_STATES.WAITING) {
+                  hitBall(entity, entityBall)
+                  setBallState(entityBall, BALL_STATES.MOVING)
+                  dispatchFromClient(GolfAction.playerStroke(uniqueId))
+                }
+              }
             }
           }
         }

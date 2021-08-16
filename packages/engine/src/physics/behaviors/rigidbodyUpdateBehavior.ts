@@ -5,6 +5,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { findInterpolationSnapshot } from './findInterpolationSnapshot'
@@ -26,22 +27,23 @@ export const rigidbodyUpdateBehavior = (entity: Entity, snapshots: SnapshotData,
   if (snapshot == null) return
 
   const collider = getComponent(entity, ColliderComponent)
-  const velocity = getComponent(entity, VelocityComponent)
-  // dynamic objects should be interpolated, kinematic objects should not
-  if (velocity) {
-    velocity.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))
+  const transform = getComponent(entity, TransformComponent)
+  if (collider.body.type === BodyType.KINEMATIC) {
+    transform.position.set(snapshot.x, snapshot.y, snapshot.z)
+    transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
+  } else {
+    collider.body.updateTransform({
+      translation: {
+        x: snapshot.x,
+        y: snapshot.y,
+        z: snapshot.z
+      },
+      rotation: {
+        x: snapshot.qX,
+        y: snapshot.qY,
+        z: snapshot.qZ,
+        w: snapshot.qW
+      }
+    })
   }
-  collider.body.updateTransform({
-    translation: {
-      x: snapshot.x,
-      y: snapshot.y,
-      z: snapshot.z
-    },
-    rotation: {
-      x: snapshot.qX,
-      y: snapshot.qY,
-      z: snapshot.qZ,
-      w: snapshot.qW
-    }
-  })
 }

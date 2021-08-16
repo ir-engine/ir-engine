@@ -41,6 +41,9 @@ import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/com
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowComponent'
+import { isClient } from '../../../../../engine/src/common/functions/isClient'
+import { isEntityLocalClient } from '../../../../../engine/src/networking/functions/isEntityLocalClient'
+import { ClientAuthoritativeComponent } from '../../../../../engine/src/physics/components/ClientAuthoritativeComponent'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -112,6 +115,11 @@ export const updateClub = (entityClub: Entity): void => {
 
   const handTransform = getHandTransform(ownerEntity)
   const { position, rotation } = handTransform
+
+  collider.body.updateTransform({
+    translation: position,
+    rotation
+  })
 
   transformClub.position.copy(position)
   transformClub.rotation.copy(rotation)
@@ -264,27 +272,29 @@ export const initializeGolfClub = (entityClub: Entity, playerNumber: number, own
   })
   addComponent(entityClub, Object3DComponent, { value: meshGroup })
 
-  const shapeHead: ShapeType = {
-    shape: SHAPES.Box,
-    options: { boxExtents: clubColliderSize },
-    config: {
-      isTrigger: true,
-      collisionLayer: GolfCollisionGroups.Club,
-      collisionMask: GolfCollisionGroups.Ball
-    }
-  }
-
-  const body = PhysXInstance.instance.addBody(
-    new Body({
-      shapes: [shapeHead],
-      type: BodyType.KINEMATIC,
-      transform: {
-        translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
+  // since hitting balls are client authored, we only need the club collider on the local client
+  if (isEntityLocalClient(ownerEntity)) {
+    const shapeHead: ShapeType = {
+      shape: SHAPES.Box,
+      options: { boxExtents: clubColliderSize },
+      config: {
+        isTrigger: true,
+        collisionLayer: GolfCollisionGroups.Club,
+        collisionMask: GolfCollisionGroups.Ball
       }
-    })
-  )
-
-  addComponent(entityClub, ColliderComponent, { body })
+    }
+    const body = PhysXInstance.instance.addBody(
+      new Body({
+        shapes: [shapeHead],
+        type: BodyType.STATIC,
+        transform: {
+          translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
+        }
+      })
+    )
+    addComponent(entityClub, ColliderComponent, { body })
+    addComponent(entityClub, ClientAuthoritativeComponent, { ownerNetworkId })
+  }
 
   const velocity = new Vector3()
   addComponent(entityClub, DebugArrowComponent, {

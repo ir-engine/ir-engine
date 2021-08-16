@@ -24,7 +24,7 @@ import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeC
  */
 
 export const PhysicsSystem = async (
-  attributes: { worker?: Worker; simulationEnabled?: boolean } = {}
+  attributes: { worker?: () => Worker; simulationEnabled?: boolean } = {}
 ): Promise<System> => {
   const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
@@ -46,7 +46,7 @@ export const PhysicsSystem = async (
 
   let simulationEnabled = false
 
-  Engine.physxWorker = attributes.worker
+  Engine.physxWorker = attributes.worker()
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
     if (typeof ev.physics !== 'undefined') {

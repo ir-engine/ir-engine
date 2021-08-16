@@ -21,6 +21,7 @@ import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { rigidbodyUpdateBehavior } from '../behaviors/rigidbodyUpdateBehavior'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -60,6 +61,14 @@ export const InterpolationSystem = async (): Promise<System> => {
     ColliderComponent,
     NetworkObjectComponent
   ])
+  const transformUpdateFromServerQuery = defineQuery([
+    Not(InterpolationComponent),
+    Not(ClientAuthoritativeComponent),
+    Not(AvatarControllerComponent),
+    Not(ColliderComponent),
+    TransformComponent,
+    NetworkObjectComponent
+  ])
 
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
@@ -93,6 +102,14 @@ export const InterpolationSystem = async (): Promise<System> => {
 
     for (const entity of correctionFromServerQuery(world)) {
       rigidbodyUpdateBehavior(entity, snapshots, delta)
+    }
+
+    for (const entity of transformUpdateFromServerQuery(world)) {
+      const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
+      if (snapshot == null) return
+      const transform = getComponent(entity, TransformComponent)
+      transform.position.set(snapshot.x, snapshot.y, snapshot.z)
+      transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
     }
 
     return world

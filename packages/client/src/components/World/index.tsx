@@ -24,8 +24,6 @@ import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
-import { GameManagerSystem } from '../../../../engine/src/game/systems/GameManagerSystem'
 import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
@@ -44,7 +42,9 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
     },
     physics: {
       simulationEnabled: false,
-      physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+      physxWorker: () => {
+        return new Worker('/scripts/loadPhysXClassic.js')
+      }
     }
   }
 }
