@@ -239,7 +239,7 @@ const InstanceChat = (props: Props): any => {
                 }}
               />
               <button className={styles.sendButton} onClick={packageMessage}>
-                <img src="/static/send.png" />
+                <img src="/static/Send.png" />
               </button>
             </CardContent>
           </Card>

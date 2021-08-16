@@ -245,11 +245,11 @@ const UserMenu = (props: UserMenuProps): any => {
               className={styles.chatBadge}
             >
               <button className={styles.iconCallChat} onClick={() => changeActivePanel(ActivePanel.CHAT)}>
-                <img src="/static/chat.png" />
+                <img src="/static/Chat.png" />
               </button>
             </Badge>
             <button className={styles.share} onClick={() => changeActivePanel(ActivePanel.SHARE)}>
-              <img src="/static/share.png" />
+              <img src="/static/Share.png" />
             </button>
           </div>
         ) : panelState === PanelState.PANEL_OPEN ? (
