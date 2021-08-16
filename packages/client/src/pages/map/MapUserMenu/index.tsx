@@ -1,3 +1,4 @@
+import Badge from '@material-ui/core/Badge'
 import LinkIcon from '@material-ui/icons/Link'
 import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
@@ -21,8 +22,21 @@ import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ShareMenu from './menus/ShareMenu'
-import styles from './UserMenu.module.scss'
+import InstanceChat from '../MapInstanceChat'
+import styles from './MapUserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
+
+enum PanelState {
+  CLOSE,
+  MENU_OPEN,
+  PANEL_OPEN
+}
+
+enum ActivePanel {
+  NONE,
+  SHARE,
+  CHAT
+}
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -53,6 +67,9 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
+  const [panelState, setPanelState] = useState(PanelState.CLOSE)
+  const [activePanel, setActivePanel] = useState(ActivePanel.NONE)
+  const [hasUnreadMessages, setUnreadMessages] = useState(false)
 
   const selfUser = authState.get('user') || {}
   const avatarList = authState.get('avatarList') || []
@@ -187,6 +204,20 @@ const UserMenu = (props: UserMenuProps): any => {
     return <Panel {...args} />
   }
 
+  const changeActivePanel = (panel: ActivePanel) => {
+    setActivePanel(panel)
+    setPanelState(panel === ActivePanel.NONE ? PanelState.CLOSE : PanelState.PANEL_OPEN)
+  }
+
+  const togglePanelStatus = () => {
+    if (panelState === PanelState.MENU_OPEN || panelState === PanelState.PANEL_OPEN) {
+      setPanelState(PanelState.CLOSE)
+      setActivePanel(ActivePanel.NONE)
+    } else {
+      setPanelState(PanelState.MENU_OPEN)
+    }
+  }
+
   return (
     <>
       <section className={styles.settingContainer}>
@@ -209,6 +240,39 @@ const UserMenu = (props: UserMenuProps): any => {
           </span>
         </div>
         {currentActiveMenu ? renderMenuPanel() : null}
+      </section>
+      <section className={styles.circleMenu}>
+        {panelState === PanelState.MENU_OPEN
+          ? (
+            <div className={styles.menu}>
+              <div className={styles.menuBackground}>
+                <img src="/static/Oval.png" />
+              </div>
+              <Badge
+                color="primary"
+                variant="dot"
+                invisible={!hasUnreadMessages}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                className={styles.chatBadge}
+              >
+                <button className={styles.iconCallChat} onClick={() => changeActivePanel(ActivePanel.CHAT)}>
+                  <img src="/static/chat.png" />
+                </button>
+              </Badge>
+              <button className={styles.share} onClick={() => changeActivePanel(ActivePanel.SHARE)}>
+                <img src="/static/share.png" />
+              </button>
+            </div>
+          ) : panelState === PanelState.PANEL_OPEN
+            ? (
+              <InstanceChat isOpen={activePanel === ActivePanel.CHAT} setUnreadMessages={setUnreadMessages} />
+            ) : null}
+
+          <button className={styles.menuBtn} onClick={togglePanelStatus}>
+            {panelState === PanelState.CLOSE
+              ? <img src="/static/Plus.png" />
+              : <img src="/static/Plus.png" className={styles.open} />}
+          </button>
       </section>
     </>
   )

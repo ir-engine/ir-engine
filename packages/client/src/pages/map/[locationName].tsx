@@ -2,12 +2,6 @@ import World, { EngineCallbacks } from '../../components/World/index'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Layout from '../../components/Layout/Layout'
-import { Chat } from './icons/Chat'
-import { CloseChat } from './icons/CloseChat'
-import { SendMessage } from './icons/SendMessage'
-// import InstanceChat from '../../components/InstanceChat'
-import InstanceChat from './MapInstanceChat'
-import MapInstanceChatStyle from './MapInstanceChat.module.scss'
 import MapMediaIconsBox from './MapMediaIconsBox'
 import MapUserMenu from './MapUserMenu'
 import { theme } from './theme'
@@ -35,13 +29,7 @@ const LocationPage = (props) => {
         history={props.history}
         engineCallbacks={engineCallbacks}
       >
-        <InstanceChat
-          newMessageLabel={'say something...'}
-          CloseButton={CloseChat}
-          MessageButton={Chat}
-          SendButton={SendMessage}
-          styles={MapInstanceChatStyle}
-        />
+
         <MapMediaIconsBox />
         <MapUserMenu />
       </World>
