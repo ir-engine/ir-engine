@@ -7,28 +7,25 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
+import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
 import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
-import { GameManagerSystem } from '../../../../engine/src/game/systems/GameManagerSystem'
-import { GolfSystem } from '../../../../engine/src/game/templates/Golf/GolfSystem'
-import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -46,14 +43,7 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
     physics: {
       simulationEnabled: false,
       physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-    },
-    systems: [
-      {
-        type: SystemUpdateType.Fixed,
-        system: GolfSystem,
-        after: GameManagerSystem
-      }
-    ]
+    }
   }
 }
 

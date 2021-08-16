@@ -6,6 +6,7 @@ import { ColliderTypes } from '../types/PhysicsTypes'
 import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3'
 import { Engine } from '../../ecs/classes/Engine'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { Entity } from '../../ecs/classes/Entity'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -32,6 +33,7 @@ type ColliderData = {
 }
 
 export function createCollider(
+  entity: Entity,
   mesh: Mesh | any,
   pos = new Vector3(),
   rot = new Quaternion(),
@@ -151,6 +153,9 @@ export function createCollider(
       // scale: { x: scale.x, y: scale.y, z: scale.z }, // this actually does nothing, physx doesn't have a scale param apparently...
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 }
+    },
+    userData: {
+      entity
     }
   })
 

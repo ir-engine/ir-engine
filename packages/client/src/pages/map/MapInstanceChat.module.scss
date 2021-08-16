@@ -34,7 +34,10 @@ div, span {
 }
 
 .sendButton{
-  margin:5px;
+  margin:3px;
+  img{
+    width:45px;
+  }
 }
 
 .iconCallChat{
@@ -52,7 +55,8 @@ div, span {
     cursor: pointer;
   }
   svg{
-    margin: 0 5px 0 0 ;
+    margin: 0 0px 0 0 ;
+    width:54px;
   }
   button {
     height: 48px;
@@ -88,7 +92,9 @@ div, span {
     width: 100vw;
   }
   
-
+  .chat-view {
+    border-radius: 50px;
+  }
 
   .chat-box {
     display: flex;
@@ -96,7 +102,7 @@ div, span {
     flex-grow: 1;
     align-items: stretch;
     padding: 0px;
-    padding-left:10px;
+    padding-left:20px;
     align-items: flex-end;
     color: #000;
     box-shadow:none;
@@ -178,6 +184,10 @@ div, span {
   .message {
     .userName{
       font-weight: bold;
+      color: #5D5D5D;
+    }
+    .message{
+      color: #5D5D5D;
     }
     &.self {
       & > div {
@@ -203,9 +213,9 @@ div, span {
 :global(.MuiPaper-root).message-wrapper{
     display: flex;
     flex-direction: column;
-    height: 30vh;   
+    //height: 30vh;   
     background-color: transparent;
-    margin-left: -55px;
+    //margin-left: -55px;
     @media (max-width: 768px) {
       margin-left: 0;
     }
@@ -219,6 +229,27 @@ div, span {
     .first-message-placeholder {
       font-size: 2em;
       margin: auto;
+    }
+    .message-sender-avatar{
+      margin: 0 10px 0 10px;
+      min-width: auto;
+    }
+    .message-left{
+      justify-content: flex-start;
+      text-align: start;
+    }
+
+    .message-left-text{
+      border-radius: 10px 10px 10px 0px;
+    }
+
+    .message-right{
+      justify-content: flex-end;
+      text-align: end;
+    }
+
+    .message-right-text{
+      border-radius: 10px 10px 0px 10px;
     }
   }
 }

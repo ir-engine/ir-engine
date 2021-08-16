@@ -112,7 +112,7 @@ export const createCollidersFromModel = (entity: Entity, asset: any) => {
       transform.scale
     )
     // console.log('IS NAN', mesh.scale)
-    createCollider(mesh, position, quaternion, scale)
+    createCollider(entity, mesh, position, quaternion, scale)
     mesh.removeFromParent()
   })
 }

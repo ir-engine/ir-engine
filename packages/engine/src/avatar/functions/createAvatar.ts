@@ -120,6 +120,9 @@ export const createAvatar = (
             y: transform.position.y + avatarHalfHeight,
             z: transform.position.z
           }
+        },
+        userData: {
+          entity
         }
       })
     )
@@ -150,6 +153,9 @@ export const createAvatarController = (entity: Entity) => {
       },
       material: {
         dynamicFriction: 0.1
+      },
+      userData: {
+        entity
       }
     })
   )
