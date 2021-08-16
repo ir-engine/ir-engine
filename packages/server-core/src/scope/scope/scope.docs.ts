@@ -3,10 +3,6 @@ export default {
     scope: {
       type: 'object',
       properties: {
-        scopeName: {
-          type: 'string',
-          description: ''
-        },
         type: {
           type: 'string',
           description: ''

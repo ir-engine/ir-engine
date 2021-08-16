@@ -36,7 +36,6 @@ const CreateScene = (props: Props) => {
 
   const [error, setError] = React.useState('')
 
-  console.log(state)
   const handleChange = (e) => {
     const { name, value } = e.target
 

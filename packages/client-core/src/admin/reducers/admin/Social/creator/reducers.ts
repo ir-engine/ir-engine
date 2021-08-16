@@ -47,9 +47,9 @@ const creatorReducer = (state = immutableState, action: CreatorAction) => {
       return state.set('creator', updateMap)
 
     case ADD_CREATOR_AS_ADMIN:
-      updateMap = new Map(state.get('creator'))
-      updateMap.set('updateNeeded', true)
-      return state.set('creator', updateMap)
+      const addCreator = new Map(state.get('creator'))
+      addCreator.set('updateNeeded', true)
+      return state.set('creator', addCreator)
 
     case UPDATE_CREATOR:
       updateMap = new Map(state.get('creator'))

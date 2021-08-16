@@ -1,4 +1,3 @@
-import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
 
 export default {
