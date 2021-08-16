@@ -22,6 +22,7 @@ import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
 
 export function cancelAllInputs(entity) {
   getComponent(entity, InputComponent)?.data.forEach((value) => {
@@ -171,6 +172,7 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
           if (transformComponent) {
             transformComponent.position.set(transform.x, transform.y, transform.z)
             transformComponent.rotation.set(transform.qX, transform.qY, transform.qZ, transform.qW)
+            console.log(transformComponent.position)
           }
         }
       }

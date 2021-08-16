@@ -29,6 +29,11 @@ import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRan
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
 import { rotateViewVectorXZ } from '@xrengine/engine/src/camera/systems/CameraSystem'
+import { BALL_STATES, setBallState } from '../prefab/GolfBallPrefab'
+import { dispatchFromClient } from '../../../../../engine/src/networking/functions/dispatch'
+import { GolfAction } from '../GolfAction'
+import { Network } from '../../../../../engine/src/networking/classes/Network'
+import { NetworkObjectComponent } from '../../../../../engine/src/networking/components/NetworkObjectComponent'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -107,58 +112,66 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
 
   // DEBUG STUFF
   if (isDev) {
-    const teleportballkey = 130
-
-    inputs.schema.inputMap.set('h', teleportballkey)
-    inputs.schema.behaviorMap.set(
-      teleportballkey,
-      (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
-        if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
-        const playerNumber = getGolfPlayerNumber(entity)
-        const currentHole = GolfState.currentHole.value
-        const holeEntity = GolfObjectEntities.get(`GolfHole-${currentHole}`)
-        const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
-        const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
-        position.y += 0.5
-        teleportObject(ballEntity, position)
-      }
-    )
-
-    const teleportballOut = 140
-    inputs.schema.inputMap.set('b', teleportballOut)
-    inputs.schema.behaviorMap.set(
-      teleportballOut,
-      (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
-        if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
-        const playerNumber = getGolfPlayerNumber(entity)
-        const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
-        const collider = getComponent(ballEntity, ColliderComponent)
-        const velocity = getComponent(ballEntity, VelocityComponent)
-        velocity.velocity.set(0, 0, 0)
-        collider.body.updateTransform({
-          translation: {
-            x: 2,
-            y: 1,
-            z: -4
-          },
-          rotation: {
-            x: 0,
-            y: 0,
-            z: 0,
-            w: 1
-          },
-          linearVelocity: {
-            x: 0,
-            y: 0,
-            z: 0
-          }
-        })
-        collider.body.setLinearVelocity(new Vector3(), true)
-      }
-    )
     if (isClient) {
+      const teleportballkey = 130
+
+      inputs.schema.inputMap.set('h', teleportballkey)
+      inputs.schema.behaviorMap.set(
+        teleportballkey,
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+          if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+
+          const playerNumber = getGolfPlayerNumber(entity)
+          const currentHole = GolfState.currentHole.value
+          const holeEntity = GolfObjectEntities.get(`GolfHole-${currentHole}`)
+          const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+          const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
+          position.y += 0.1
+          teleportObject(ballEntity, position)
+
+          const { uniqueId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
+          setBallState(ballEntity, BALL_STATES.MOVING)
+          dispatchFromClient(GolfAction.playerStroke(uniqueId))
+        }
+      )
+
+      const teleportballOut = 140
+      inputs.schema.inputMap.set('b', teleportballOut)
+      inputs.schema.behaviorMap.set(
+        teleportballOut,
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+          if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+
+          const playerNumber = getGolfPlayerNumber(entity)
+          const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+          const collider = getComponent(ballEntity, ColliderComponent)
+          const velocity = getComponent(ballEntity, VelocityComponent)
+          velocity.velocity.set(0, 0, 0)
+          collider.body.updateTransform({
+            translation: {
+              x: 2,
+              y: 1,
+              z: -4
+            },
+            rotation: {
+              x: 0,
+              y: 0,
+              z: 0,
+              w: 1
+            },
+            linearVelocity: {
+              x: 0,
+              y: 0,
+              z: 0
+            }
+          })
+          collider.body.setLinearVelocity(new Vector3(), true)
+
+          const { uniqueId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
+          setBallState(ballEntity, BALL_STATES.MOVING)
+          dispatchFromClient(GolfAction.playerStroke(uniqueId))
+        }
+      )
       let xrSetup = false
       const setupBotKey = 141
       inputs.schema.inputMap.set(';', setupBotKey)

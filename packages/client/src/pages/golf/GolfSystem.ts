@@ -9,7 +9,12 @@ import { createState, Downgraded } from '@hookstate/core'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { getComponent, removeComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  getComponent,
+  removeComponent,
+  removeEntity
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   BALL_STATES,
@@ -39,6 +44,8 @@ import { useState } from '@hookstate/core'
 import { createNetworkPlayerUI } from './GolfPlayerUISystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { GolfXRUISystem } from './GolfXRUISystem'
+import { GolfTeeComponent } from './components/GolfTeeComponent'
+import { ColliderComponent } from '../../../../engine/src/physics/components/ColliderComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -71,13 +78,9 @@ export function useGolfState() {
   return useState(GolfState)
 }
 
-const getResetBallPosition = (playerNumber: number) => {
-  // if (GolfState.players[playerNumber].value.lastBallPosition === null) {
-  const currentHole = GolfState.currentHole.value
+const getTeePosition = (currentHole: number) => {
   const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
   return getComponent(teeEntity, TransformComponent).position.toArray()
-  // }
-  // return GolfState.players[playerNumber].value.lastBallPosition
 }
 
 // Note: player numbers are 0-indexed
@@ -104,10 +107,6 @@ const GolfReceptorSystem = async (): Promise<System> => {
     console.log('\n\nACTION', action, 'CURRENT STATE', GolfState.attach(Downgraded).value, '\n\n')
     GolfState.batch((s) => {
       switch (action.type) {
-        /**
-         * on PLAYER_READY
-         *   -
-         */
         case 'puttclub.GAME_STATE': {
           s.merge(action.state)
           return
@@ -153,15 +152,12 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
         /**
          * on PLAYER_READY
-         *   -
+         *   - IF player is current player, reset their ball position to the current tee
          */
         case 'puttclub.PLAYER_READY': {
           if (s.players.value.length && action.playerId === s.players.value[s.currentPlayer.value].id) {
             dispatchFromServer(
-              GolfAction.resetBall(
-                s.players.value[s.currentPlayer.value].id,
-                getResetBallPosition(s.currentPlayer.value)
-              )
+              GolfAction.resetBall(s.players.value[s.currentPlayer.value].id, getTeePosition(s.currentHole.value))
             )
           }
           return
@@ -189,15 +185,11 @@ const GolfReceptorSystem = async (): Promise<System> => {
          */
         case 'puttclub.BALL_STOPPED': {
           const currentPlayerNumber = GolfState.currentPlayer.value
-
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
-          // const ballTransform = getComponent(entityBall, TransformComponent)
-
-          // s.players[s.currentPlayer.value].merge((s) => {
-          //   return { lastBallPosition: ballTransform.position.toArray() }
-          // })
-
-          setBallState(entityBall, BALL_STATES.STOPPED)
+          setBallState(entityBall, action.inHole ? BALL_STATES.IN_HOLE : BALL_STATES.STOPPED)
+          if (isClient) {
+            resetBall(entityBall, action.position)
+          }
 
           setTimeout(() => {
             dispatchFromServer(GolfAction.nextTurn())
@@ -207,44 +199,86 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
         /**
          * on NEXT_TURN
-         *   - IF ball in hole
+         *   - next player is first of reduce(players => ball not in hole)
+         *   - IF all balls in hole
          *     - Finish current hole for this player
          *     - players[currentPlayer].scores[currentHole] = player.stroke
-         *     - dispatch NEXT_HOLE
-         *   - increment currentPlayer
-         *   - hide old player's ball
-         *   - show new player's ball
+         *     - IF all players have finished the current hole
+         *       - dispatch NEXT_HOLE
+         *   - ELSE
+         *     - increment currentPlayer
+         *     - hide old player's ball
+         *     - show new player's ball
          */
         case 'puttclub.NEXT_TURN': {
           const currentPlayerNumber = s.currentPlayer.value
-          const player = s.players[currentPlayerNumber]
-          const entityHole = GolfObjectEntities.get(`GolfHole-${currentPlayerNumber}`)
+          const currentPlayer = s.players[currentPlayerNumber]
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+          const currentHole = GolfState.currentHole.value
+          const entityHole = GolfObjectEntities.get(`GolfHole-${currentHole}`)
 
-          if (getCollisions(entityHole, GolfBallComponent).collisionEntity) {
-            player.scores.merge({
-              [s.currentHole.value]: player.stroke.value
-            })
-            player.stroke.set(0)
-            dispatchFromServer(GolfAction.nextHole())
+          if (
+            getComponent(entityBall, GolfBallComponent).state === BALL_STATES.IN_HOLE ||
+            currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
+          ) {
+            console.log('=== PLAYER FINISHED HOLE')
+            currentPlayer.scores.set([...currentPlayer.scores.value, currentPlayer.stroke.value])
           }
-          // TODO: get player with fewest number of holes completed
-          // const currentHole = players.reduce(score.length) // or something
 
           setBallState(entityBall, BALL_STATES.INACTIVE)
 
-          // get player with fewest number of strokes on that hole
-          const nextPlayerNumber = s.currentPlayer.value === s.players.value.length - 1 ? 0 : s.currentPlayer.value + 1
-          s.merge(() => {
-            return { currentPlayer: nextPlayerNumber }
-          })
+          // TODO: get player with fewest number of holes completed
+          // const currentHole = s.players.reduce(() => {
+          //   score.length
+          // }, [score]) // or something
 
-          const nextBallEntity = GolfObjectEntities.get(`GolfBall-${nextPlayerNumber}`)
-          if (typeof nextBallEntity !== 'undefined') {
-            setBallState(nextBallEntity, BALL_STATES.WAITING)
+          // if hole in ball or player has had too many shots, finish their round
+
+          const getPlayersYetToFinishRound = () => {
+            const currentHole = s.currentHole.value
+            const players = []
+            for (const p of s.players.value) {
+              // if player has finished less holes than the current hole index
+              if (p.scores.length <= currentHole) players.push(p)
+            }
+            return players.concat(players) // concat so it wraps to players prior to the current player
           }
 
-          console.log(`it is now player ${nextPlayerNumber}'s turn`)
+          // get players who haven't finished yet
+          const playersYetToFinishRound = getPlayersYetToFinishRound()
+          console.log('playersYetToFinishRound', playersYetToFinishRound)
+
+          let hasWrapped = false
+          const nextPlayer = playersYetToFinishRound.find((p, i) => {
+            // get player number from index of p in all players
+            const playerNumber = s.players.findIndex((player) => player.value.id === p.id)
+            console.log(p, i)
+            if (hasWrapped) return true
+            if (i >= playersYetToFinishRound.length / 2 - 1) {
+              hasWrapped = true
+              console.log('wrapping')
+            }
+            return playerNumber > currentPlayerNumber
+          })
+          console.log('nextPlayer', nextPlayer)
+
+          // if we have a next player, increment the current player and change turns
+          if (typeof nextPlayer !== 'undefined') {
+            const nextPlayerNumber = s.players.findIndex((player) => player.value.id === nextPlayer.id)
+            console.log('nextPlayerNumber', nextPlayerNumber)
+
+            s.currentPlayer.set(nextPlayerNumber)
+            const nextBallEntity = GolfObjectEntities.get(`GolfBall-${nextPlayerNumber}`)
+            if (typeof nextBallEntity !== 'undefined') {
+              setBallState(nextBallEntity, BALL_STATES.WAITING)
+            }
+
+            console.log(`it is now player ${nextPlayerNumber}'s turn`)
+          } else {
+            // if not, the round has finished
+            dispatchFromServer(GolfAction.nextHole())
+          }
+
           return
         }
 
@@ -255,22 +289,29 @@ const GolfReceptorSystem = async (): Promise<System> => {
          *   - dispatch RESET_BALL
          */
         case 'puttclub.NEXT_HOLE': {
-          holes: for (const [i] of s.holes.entries()) {
-            const nextHole = i
-            for (const p of s.players) {
-              // p.lastBallPosition.merge((p) => {
-              //   return null
-              // })
-              if (p.scores[i] === undefined) {
-                s.currentHole.set(nextHole)
-                break holes
-              }
-            }
+          // Increment hole based on the next one with no scores
+          // holes: for (const [i] of s.holes.entries()) {
+          //   const nextHole = i
+          //   for (const p of s.players) {
+          //     if (p.scores[i] === undefined) {
+          //       s.currentHole.set(nextHole)
+          //       console.log('incremented hole')
+          //       break holes
+          //     }
+          //   }
+          // }
+          s.currentHole.set(s.currentHole.value + 1)
+          // Set all player strokes to 0
+          for (const [i, p] of s.players.entries()) {
+            p.stroke.set(0)
+            // reset all ball position to the new tee
+            dispatchFromServer(GolfAction.resetBall(p.value.id, getTeePosition(s.currentHole.value)))
           }
-          // TODO: update last ball position and dispatch position
-          dispatchFromServer(
-            GolfAction.resetBall(s.players[s.currentPlayer.value].value.id, getResetBallPosition(s.currentPlayer.value))
-          )
+
+          // set current player to the first player
+          s.currentPlayer.set(0)
+
+          //
           return
         }
 
@@ -280,13 +321,6 @@ const GolfReceptorSystem = async (): Promise<System> => {
          */
         case 'puttclub.RESET_BALL': {
           const currentPlayerNumber = GolfState.currentPlayer.value
-          // const playerNumber = s.players.find((player) => player.id.value === action.playerId)
-          // playerNumber.merge((s) => {
-          //   return { lastBallPosition: action.position }
-          // })
-
-          // const player = s.players[s.currentPlayer.value]
-
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
           if (typeof entityBall !== 'undefined') {
             resetBall(entityBall, action.position)
@@ -378,6 +412,8 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
     for (const entity of gameObjectEnterQuery(world)) {
       const { role } = getComponent(entity, GameObject)
+      if (role.includes('GolfHole')) addComponent(entity, GolfHoleComponent, {})
+      if (role.includes('GolfTee')) addComponent(entity, GolfTeeComponent, {})
       GolfObjectEntities.set(role, entity)
     }
 
@@ -392,12 +428,18 @@ const GolfReceptorSystem = async (): Promise<System> => {
         const velMag = velocity.lengthSq()
         if (velMag > 0) console.log(velMag)
         if (velMag < 0.001) {
-          const position = getComponent(activeBallEntity, TransformComponent).position
-          console.log('ball stopped')
           setBallState(activeBallEntity, BALL_STATES.STOPPED)
           setTimeout(() => {
+            const activeHoleEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
+            const position = getComponent(activeBallEntity, TransformComponent).position
+            const { collisionEvent } = getCollisions(activeBallEntity, GolfHoleComponent)
+            const dist = position.distanceToSquared(getComponent(activeHoleEntity, TransformComponent).position)
+            // ball-hole collision not being detected, not sure why, use dist for now
+            const inHole = dist < 0.01 //collisionEvent !== null
+            console.log('ball stopped', inHole, dist, collisionEvent)
+
             dispatchFromServer(
-              GolfAction.ballStopped(GolfState.players.value[currentPlayerNumber].id, position.toArray())
+              GolfAction.ballStopped(GolfState.players.value[currentPlayerNumber].id, position.toArray(), inHole)
             )
           }, 1000)
         }
@@ -453,9 +495,9 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
 export const GolfSystem = async () => {
   const receptorSystem = await GolfReceptorSystem()
-  if (isClient) {
-    const xruiSystem = await GolfXRUISystem()
-    return pipe(receptorSystem, xruiSystem)
-  }
+  // if (isClient) {
+  //   const xruiSystem = await GolfXRUISystem()
+  //   return pipe(receptorSystem, xruiSystem)
+  // }
   return receptorSystem
 }

@@ -14,13 +14,13 @@ export const getGolfPlayerNumber = (entity: Entity = Network.instance.localClien
 
 export const isCurrentGolfPlayer = (entity: Entity) => {
   const currentPlayerNumber = GolfState.currentPlayer.value
-  const currentPlayerId = GolfState.players.value[currentPlayerNumber].id
+  const currentPlayerId = GolfState.players[currentPlayerNumber].id.value
   return currentPlayerId === getComponent(entity, NetworkObjectComponent).uniqueId
 }
 
 export const getCurrentGolfPlayerEntity = () => {
   const currentPlayerNumber = GolfState.currentPlayer.value
-  const currentPlayerId = GolfState.players.value[currentPlayerNumber].id
+  const currentPlayerId = GolfState.players[currentPlayerNumber].id.value
   return Object.values(Network.instance.networkObjects).find((obj) => obj.uniqueId === currentPlayerId)?.entity
 }
 
