@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import World, { EngineCallbacks } from '../../components/World'
-import Layout from '../../components/Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import MediaIconsBox from '../../components/MediaIconsBox'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import Layout from '../../components/Layout/Layout'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { GolfSystem } from './GolfSystem'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { EquippableSystem } from '@xrengine/engine/src/interaction/systems/EquippableSystem'
 
 const LocationPage = (props) => {
