@@ -6,7 +6,6 @@ export default class PhysicalDirectionalLight extends DirectionalLight {
     super()
     this.position.set(0, 0, 0)
     this.target.position.set(0, 0, 1)
-    console.log(this, this.add)
     this.add(this.target)
     this.castShadow = true
     this.shadowMapResolution = createShadowMapResolutionProxy(this)
