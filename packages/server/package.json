@@ -75,7 +75,7 @@
     "@xrengine/server-core": "^0.3.32",
     "aws-sdk": "2.968.0",
     "bent": "7.3.12",
-    "chargebee": "2.6.6",
+    "chargebee": "2.7.0",
     "comlink": "4.3.1",
     "compression": "1.7.4",
     "concurrently": "6.2.1",
