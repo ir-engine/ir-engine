@@ -1,13 +1,12 @@
 import { DirectionalLight, Object3D } from 'three'
 import createShadowMapResolutionProxy from '../../editor/functions/createShadowMapResolutionProxy'
 export default class PhysicalDirectionalLight extends DirectionalLight {
-  add: any
-  remove: any
   shadowMapResolution: number
   constructor() {
     super()
     this.position.set(0, 0, 0)
     this.target.position.set(0, 0, 1)
+    console.log(this, this.add)
     this.add(this.target)
     this.castShadow = true
     this.shadowMapResolution = createShadowMapResolutionProxy(this)
