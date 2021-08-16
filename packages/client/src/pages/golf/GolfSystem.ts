@@ -303,9 +303,6 @@ const GolfReceptorSystem = async (): Promise<System> => {
   const playerEnterQuery = enterQuery(playerQuery)
   const playerExitQuery = exitQuery(playerQuery)
 
-  const playerSpawnedQuery = defineQuery([Not(SpawnNetworkObjectComponent), AvatarComponent])
-  const playerSpawnedEnterQuery = enterQuery(playerSpawnedQuery)
-
   const gameObjectQuery = defineQuery([GameObject])
   const gameObjectEnterQuery = enterQuery(gameObjectQuery)
 
@@ -375,7 +372,7 @@ const GolfReceptorSystem = async (): Promise<System> => {
       // }
     }
 
-    for (const entity of playerSpawnedEnterQuery(world)) {
+    for (const entity of playerEnterQueryResults) {
       setupPlayerInput(entity)
     }
 
@@ -456,6 +453,9 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
 export const GolfSystem = async () => {
   const receptorSystem = await GolfReceptorSystem()
-  const xruiSystem = await GolfXRUISystem()
-  return pipe(receptorSystem, xruiSystem)
+  if (isClient) {
+    const xruiSystem = await GolfXRUISystem()
+    return pipe(receptorSystem, xruiSystem)
+  }
+  return receptorSystem
 }

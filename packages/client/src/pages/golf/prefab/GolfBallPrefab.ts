@@ -44,7 +44,7 @@ interface BallGroupType extends Group {
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   const playerNumber = getOwnerIdPlayerNumber(getComponent(entityBall, NetworkObjectComponent).ownerId)
-  console.log('setBallState', golfBallComponent, Object.values(BALL_STATES)[ballState])
+  console.log('setBallState', Object.values(BALL_STATES)[ballState])
   golfBallComponent.state = ballState
 
   if (isClient) {
