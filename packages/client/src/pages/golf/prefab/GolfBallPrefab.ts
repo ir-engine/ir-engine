@@ -142,11 +142,9 @@ export const spawnBall = (entityPlayer: Entity, playerCurrentHole: number): void
 export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
 
-  if (collider) {
-    const ballPosition = collider.body.transform.translation
-    const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-    golfBallComponent.groundRaycast.origin.copy(ballPosition)
-  }
+  const ballPosition = collider.body.transform.translation
+  const golfBallComponent = getComponent(entityBall, GolfBallComponent)
+  golfBallComponent.groundRaycast.origin.copy(ballPosition)
 
   if (isClient) {
     const ballGroup = getComponent(entityBall, Object3DComponent).value as BallGroupType

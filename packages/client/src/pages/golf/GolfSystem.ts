@@ -188,7 +188,9 @@ const GolfReceptorSystem = async (): Promise<System> => {
           const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
           setBallState(entityBall, action.inHole ? BALL_STATES.IN_HOLE : BALL_STATES.STOPPED)
           if (isClient) {
-            resetBall(entityBall, action.position)
+            const teePosition = getTeePosition(s.currentHole.value)
+            const position = action.outOfBounds ? teePosition : action.position
+            resetBall(entityBall, position)
           }
 
           setTimeout(() => {
@@ -397,11 +399,6 @@ const GolfReceptorSystem = async (): Promise<System> => {
         // if a player disconnects and it's their turn, change turns to the next player
         if (currentPlayer.id === ownerId) dispatchFromServer(GolfAction.nextTurn())
       }
-
-      // if (ballOutOfBounds()) {
-      //   dispatchOnServer(GolfAction.nextTurn())
-      //   dispatchOnServer(GolfAction.resetBall())
-      // }
     }
 
     for (const entity of playerEnterQueryResults) {
@@ -428,16 +425,22 @@ const GolfReceptorSystem = async (): Promise<System> => {
         if (velMag < 0.001) {
           setBallState(activeBallEntity, BALL_STATES.STOPPED)
           setTimeout(() => {
+            const outOfBounds = !golfBallComponent.groundRaycast.hits.length
             const activeHoleEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
             const position = getComponent(activeBallEntity, TransformComponent).position
             const { collisionEvent } = getCollisions(activeBallEntity, GolfHoleComponent)
             const dist = position.distanceToSquared(getComponent(activeHoleEntity, TransformComponent).position)
             // ball-hole collision not being detected, not sure why, use dist for now
             const inHole = dist < 0.01 //collisionEvent !== null
-            console.log('ball stopped', inHole, dist, collisionEvent)
+            console.log('ball stopped', outOfBounds, inHole, dist, collisionEvent)
 
             dispatchFromServer(
-              GolfAction.ballStopped(GolfState.players.value[currentPlayerNumber].id, position.toArray(), inHole)
+              GolfAction.ballStopped(
+                GolfState.players.value[currentPlayerNumber].id,
+                position.toArray(),
+                inHole,
+                outOfBounds
+              )
             )
           }, 1000)
         }
