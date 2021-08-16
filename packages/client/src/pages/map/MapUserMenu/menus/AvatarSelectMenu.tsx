@@ -7,7 +7,7 @@ import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { Views } from '../util'
 import { withTranslation } from 'react-i18next'
-import styles from '../UserMenu.module.scss'
+import styles from '../MapUserMenu.module.scss'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,

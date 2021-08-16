@@ -1,10 +1,11 @@
 .drawerBox {
-  display: flex;
   position: fixed;
-  bottom: 50px;
+  right: 10px;
+  top: 50%;
   z-index: 10;
-  width: 100%;
-  justify-content: center;
+  width: 50px;
+  height: 50px;
+  margin-top: -25px;
 
   .iconContainer {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -20,11 +21,19 @@
     cursor: pointer;
     position: relative;
     border: none;
-    background-color: rgba(0,0,0,0);
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    background: #FF6D74;
+    box-shadow: 0px 4px 6px #C87377, 0px 2px 12px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 0px -12px 12px #FF6D74, inset 0px 12px 22px rgba(255, 255, 255, 0.5);
+    border-radius: 25px;
+
+    &.on {
+      background: #01CD3B;
+      box-shadow: 0px 5px 6px rgba(31, 208, 83, 0.21427), 0px 2px 11px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 2px -11px 11px #54E97E, inset 2px 11px 21px rgba(255, 255, 255, 0.5);
+      border-radius: 25px;
+    }
 
     &:hover::before {
       transform: scale(1);
