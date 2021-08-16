@@ -4,11 +4,28 @@ import { ScopeAction, ScopeRetrieveAction } from './actions'
 
 export const PAGE_LIMIT = 100
 
-import { ADD_SCOPE, SCOPE_FETCHING, SCOPE_ADMIN_RETRIEVED, UPDATE_SCOPE, REMOVE_SCOPE } from '../../actions'
+import {
+  ADD_SCOPE,
+  SCOPE_TYPE_RETRIEVED,
+  SCOPE_FETCHING,
+  SCOPE_ADMIN_RETRIEVED,
+  UPDATE_SCOPE,
+  REMOVE_SCOPE
+} from '../../actions'
 
 export const initialScopeState = {
   scope: {
     scope: [],
+    skip: 0,
+    limit: PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: new Date()
+  },
+  scopeType: {
+    scopeType: [],
     skip: 0,
     limit: PAGE_LIMIT,
     total: 0,
@@ -52,6 +69,17 @@ const scopeReducer = (state = immutableState, action: ScopeAction): any => {
       const dataMap = new Map(state.get('scope'))
       dataMap.set('updateNeeded', true)
       return state.set('scope', dataMap)
+    case SCOPE_TYPE_RETRIEVED:
+      const type = (action as ScopeRetrieveAction).list
+      updateMap = new Map(state.get('scopeType'))
+      updateMap.set('scopeType', type.data)
+      updateMap.set('skip', (type as any).skip)
+      updateMap.set('limit', (type as any).limit)
+      updateMap.set('retrieving', false)
+      updateMap.set('fetched', true)
+      updateMap.set('updateNeeded', false)
+      updateMap.set('lastFetched', new Date())
+      return state.set('scopeType', updateMap)
   }
 
   return state

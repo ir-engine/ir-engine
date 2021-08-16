@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
-import { addAdminScope, fetchingScope, setAdminScope, updateAdminScope, removeScopeItem } from './actions'
+import { addAdminScope, fetchingScope, getScopeType, setAdminScope, updateAdminScope, removeScopeItem } from './actions'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 
 export function createScope(scopeItem: any) {
@@ -54,6 +54,23 @@ export function removeScope(scopeId: string) {
     try {
       await client.service('scope').remove(scopeId)
       dispatch(removeScopeItem(scopeId))
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function getScopeTypeService(type?: string, limit: Number = 12) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('scope-type').find({
+        query: {
+          action: type,
+          $limit: limit
+        }
+      })
+      dispatch(getScopeType(result))
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)

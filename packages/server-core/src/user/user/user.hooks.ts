@@ -159,6 +159,10 @@ export default {
           await context.app.service('user-settings').create({
             userId: context.result.id
           })
+          await context.app.service('scope').create({
+            type: context.arguments[0]?.scopeType,
+            userId: context.result.id
+          })
           const app = context.app
           let result = context.result
           if (Array.isArray(result)) result = result[0]

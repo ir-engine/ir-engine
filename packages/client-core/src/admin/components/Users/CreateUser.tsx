@@ -22,6 +22,8 @@ import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
+import { getScopeTypeService } from '../../reducers/admin/scope/service'
+import { selectScopeState } from '../../reducers/admin/scope/selector'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -38,19 +40,23 @@ interface Props {
   closeViewModel: any
   adminUserState?: any
   fetchStaticResource?: any
+  getScopeTypeService?: any
+  adminScopeState?: any
 }
 const mapStateToProps = (state: any): any => {
   return {
     adminState: selectAdminState(state),
     authState: selectAuthState(state),
-    adminUserState: selectAdminUserState(state)
+    adminUserState: selectAdminUserState(state),
+    adminScopeState: selectScopeState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createUserAction: bindActionCreators(createUserAction, dispatch),
   fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
+  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
 })
 
 const CreateUser = (props: Props) => {
@@ -62,7 +68,9 @@ const CreateUser = (props: Props) => {
     fetchUserRole,
     adminUserState,
     fetchStaticResource,
-    createUserAction
+    createUserAction,
+    getScopeTypeService,
+    adminScopeState
   } = props
 
   const classes = useStyles()
@@ -72,6 +80,7 @@ const CreateUser = (props: Props) => {
     name: '',
     avatar: '',
     userRole: '',
+    scopeType: '',
     formErrors: {
       name: '',
       avatar: '',
@@ -86,6 +95,7 @@ const CreateUser = (props: Props) => {
   const userRoleData = userRole ? userRole.get('userRole') : []
   const staticResource = adminUserState.get('staticResource')
   const staticResourceData = staticResource.get('staticResource')
+  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -95,6 +105,9 @@ const CreateUser = (props: Props) => {
     if (role === true && user.id) fetchData()
     if (user.id && staticResource.get('updateNeeded')) {
       fetchStaticResource()
+    }
+    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
+      getScopeTypeService()
     }
   }, [adminUserState, user])
 
@@ -136,7 +149,8 @@ const CreateUser = (props: Props) => {
     const data = {
       name: state.name,
       avatarId: state.avatar,
-      userRole: state.userRole
+      userRole: state.userRole,
+      scopeType: state.scopeType
     }
     let temp = state.formErrors
     if (!state.name) {
@@ -239,7 +253,6 @@ const CreateUser = (props: Props) => {
               </Select>
             </FormControl>
           </Paper>
-
           <DialogContentText className={classes.marginBottm}>
             {' '}
             <span className={classes.select}>Don't see user role? </span>{' '}
@@ -247,6 +260,33 @@ const CreateUser = (props: Props) => {
               Create One
             </a>{' '}
           </DialogContentText>
+
+          <label>Grant access</label>
+          <Paper component="div" className={classes.createInput}>
+            <FormControl fullWidth>
+              <Select
+                labelId="demo-controlled-open-select-label"
+                id="demo-controlled-open-select"
+                value={state.scopeType}
+                fullWidth
+                displayEmpty
+                onChange={handleChange}
+                className={classes.select}
+                name="scopeType"
+                MenuProps={{ classes: { paper: classesx.selectPaper } }}
+              >
+                <MenuItem value="" disabled>
+                  <em>Select access</em>
+                </MenuItem>
+                {adminScopes.map((el) => (
+                  <MenuItem value={el.type} key={el.type}>
+                    {el.type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Paper>
+
           <DialogActions>
             <Button className={classesx.saveBtn} onClick={handleSubmit}>
               Submit

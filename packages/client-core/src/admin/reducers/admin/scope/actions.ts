@@ -1,4 +1,11 @@
-import { SCOPE_FETCHING, SCOPE_ADMIN_RETRIEVED, REMOVE_SCOPE, ADD_SCOPE, UPDATE_SCOPE } from '../../actions'
+import {
+  SCOPE_FETCHING,
+  SCOPE_ADMIN_RETRIEVED,
+  REMOVE_SCOPE,
+  ADD_SCOPE,
+  UPDATE_SCOPE,
+  SCOPE_TYPE_RETRIEVED
+} from '../../actions'
 
 export interface FetchingAction {
   type: string
@@ -54,3 +61,8 @@ export function removeScopeItem(id): FetchingScopeItemAction {
     id
   }
 }
+
+export const getScopeType = (item: any[]): ScopeRetrieveAction => ({
+  type: SCOPE_TYPE_RETRIEVED,
+  list: item
+})
