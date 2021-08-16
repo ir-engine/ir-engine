@@ -106,8 +106,6 @@ export default class OceanNode extends EditorNodeMixin(Ocean) {
       this.helper = this.children[helperIndex]
     }
 
-    this.src = source._canonicalUrl
-
     return this
   }
 

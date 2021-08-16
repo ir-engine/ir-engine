@@ -8,9 +8,12 @@ import {
   RawShaderMaterial,
   UniformsUtils,
   Vector2,
-  Color
+  Color,
+  Texture,
+  TextureLoader
 } from 'three'
 import SimplexNoise from 'simplex-noise'
+import { TGALoader } from '../../assets/loaders/tga/TGALoader'
 
 const vertexShader = `
 precision highp float;
@@ -40,14 +43,13 @@ precision highp float;
 uniform sampler2D map;
 
 uniform vec3 fogColor;
-uniform float fogNear;
-uniform float fogFar;
+uniform vec2 fogRange;
 
 varying vec2 vUV;
 
 void main() {
   float depth = gl_FragCoord.z / gl_FragCoord.w;
-  float fogFactor = smoothstep( fogNear, fogFar, depth );
+  float fogFactor = smoothstep( fogRange.x, fogRange.y, depth );
 
   gl_FragColor = texture2D(map,  vUV);
   gl_FragColor.w *= pow( gl_FragCoord.z, 20.0 );
@@ -55,15 +57,24 @@ void main() {
 }
 `
 
+function loadTexture(src): Promise<Texture> {
+  const loader = src.endsWith('tga') ? new TGALoader() : new TextureLoader()
+  return new Promise((resolve, reject) => {
+    loader.load(src, resolve, null, (error) => reject(error))
+  })
+}
+
 export class Clouds extends Mesh {
-  worldScale: Vector3
-  dimensions: Vector3 // Number of particles (x,y,z)
-  noiseZoom: Vector3
-  noiseOffset: Vector3
-  spriteScaleRange: Vector2
-  fogRange: Vector2
-  fogColor: Color
-  noise: SimplexNoise
+  private _worldScale: Vector3
+  private _texture: string
+  private _dimensions: Vector3 // Number of particles (x,y,z)
+  private _noiseZoom: Vector3
+  private _noiseOffset: Vector3
+  private _spriteScaleRange: Vector2
+  private _fogRange: Vector2
+  private _fogColor: Color
+  _noise: SimplexNoise
+  needsUpdate: boolean
 
   constructor() {
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
@@ -75,9 +86,8 @@ export class Clouds extends Mesh {
       uniforms: UniformsUtils.merge([
         {
           map: { type: 't', value: null },
-          fogColor: { type: 'c', value: null },
-          fogNear: { type: 'f', value: null },
-          fogFar: { type: 'f', value: null }
+          fogColor: { value: null },
+          fogRange: { value: null }
         }
       ]),
       vertexShader,
@@ -89,23 +99,21 @@ export class Clouds extends Mesh {
     super(geometry, material)
 
     this.frustumCulled = false
-    this.noise = new SimplexNoise('seed')
+    this._noise = new SimplexNoise('seed')
 
-    this.worldScale = new Vector3()
-    this.dimensions = new Vector3()
-    this.noiseZoom = new Vector3()
-    this.noiseOffset = new Vector3()
-    this.spriteScaleRange = new Vector2()
-    this.fogColor = new Color()
-    this.fogRange = new Vector2()
+    this._worldScale = new Vector3()
+    this._dimensions = new Vector3()
+    this._noiseZoom = new Vector3()
+    this._noiseOffset = new Vector3()
+    this._spriteScaleRange = new Vector2()
+    this._fogColor = new Color()
+    this._fogRange = new Vector2()
+
+    this.updateParticles()
   }
 
-  getNoise3D(x, y, z) {
-    return (this.noise.noise3D(x, y, z) + 1) * 0.5
-  }
-
-  setTexture(texture) {
-    ;(this.material as any).uniforms.map.value = texture
+  private getNoise3D(x: number, y: number, z: number) {
+    return (this._noise.noise3D(x, y, z) + 1) * 0.5
   }
 
   updateParticles() {
@@ -163,11 +171,15 @@ export class Clouds extends Mesh {
     geometry.setAttribute('particleAngle', new InstancedBufferAttribute(new Float32Array(zRotationArray), 1))
     this.geometry = geometry
     ;(this.material as any).uniforms.fogColor.value = this.fogColor
-    ;(this.material as any).uniforms.fogNear.value = this.fogRange.x
-    ;(this.material as any).uniforms.fogFar.value = this.fogRange.y
+    ;(this.material as any).uniforms.fogRange.value = this.fogRange
   }
 
-  update(dt: number) {}
+  update(dt: number) {
+    if (this.needsUpdate) {
+      this.needsUpdate = false
+      this.updateParticles()
+    }
+  }
 
   copy(source: this, recursive = true) {
     super.copy(source, recursive)
@@ -186,5 +198,81 @@ export class Clouds extends Mesh {
     this.fogRange.copy(source.fogRange)
 
     return this
+  }
+
+  get texture(): string {
+    return this._texture
+  }
+
+  set texture(path: string) {
+    this._texture = path
+
+    loadTexture(path)
+      .then((texture) => {
+        ;(this.material as any).uniforms.map.value = texture
+      })
+      .catch(console.error)
+  }
+
+  public get worldScale(): Vector3 {
+    return this._worldScale
+  }
+
+  public set worldScale(value: Vector3) {
+    this._worldScale.copy(value)
+    this.needsUpdate = true
+  }
+
+  public get dimensions(): Vector3 {
+    return this._dimensions
+  }
+
+  public set dimensions(value: Vector3) {
+    this._dimensions.copy(value)
+    this.needsUpdate = true
+  }
+
+  public get noiseZoom(): Vector3 {
+    return this._noiseZoom
+  }
+
+  public set noiseZoom(value: Vector3) {
+    this._noiseZoom.copy(value)
+    this.needsUpdate = true
+  }
+
+  public get noiseOffset(): Vector3 {
+    return this._noiseOffset
+  }
+
+  public set noiseOffset(value: Vector3) {
+    this._noiseOffset.copy(value)
+    this.needsUpdate = true
+  }
+
+  public get spriteScaleRange(): Vector2 {
+    return this._spriteScaleRange
+  }
+
+  public set spriteScaleRange(value: Vector2) {
+    this._spriteScaleRange.copy(value)
+    this.needsUpdate = true
+  }
+
+  public get fogRange(): Vector2 {
+    return this._fogRange
+  }
+
+  public set fogRange(value: Vector2) {
+    this._fogRange.copy(value)
+  }
+
+  public get fogColor(): Color {
+    return this._fogColor
+  }
+
+  public set fogColor(value: Color) {
+    if (typeof value === 'string') this._fogColor.set(value)
+    else this._fogColor.copy(value)
   }
 }
