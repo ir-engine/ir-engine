@@ -38,11 +38,7 @@ declare interface Element {
   setAttribute(qualifiedName: string, value: Object): void
 }
 
-declare type CbFunction = (this: {
-  el: HTMLElement
-  [key: string]: any
-}) => void
-
+declare type CbFunction = (this: { el: HTMLElement; [key: string]: any }) => void
 
 declare module '*.glb!text' {
   const value: string
@@ -59,8 +55,7 @@ declare module '*.vert!text' {
   export default value
 }
 
-
 declare module '*!text' {
-  var _: string;
-  export default  _;
+  var _: string
+  export default _
 }
