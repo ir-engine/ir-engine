@@ -4,7 +4,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../components/NameComponent'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
@@ -41,6 +41,7 @@ import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -242,6 +243,7 @@ export class WorldScene {
 
       case 'box-collider':
         const boxColliderProps: BoxColliderProps = component.data
+        const transform = getComponent(entity, TransformComponent)
         createCollider(
           entity,
           {
@@ -250,9 +252,9 @@ export class WorldScene {
               ...boxColliderProps
             }
           },
-          boxColliderProps.position,
-          boxColliderProps.quaternion,
-          boxColliderProps.scale
+          transform.position,
+          transform.rotation,
+          transform.scale.clone().multiplyScalar(0.5)
         )
         break
 

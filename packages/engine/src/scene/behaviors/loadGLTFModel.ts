@@ -1,10 +1,10 @@
-import { AnimationMixer, BufferGeometry, Object3D } from 'three'
+import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { applyTransformToMesh, createCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
@@ -15,6 +15,8 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { delay } from '../../common/functions/delay'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
+import { NameComponent } from '../components/NameComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const loadGLTFModel = (
   sceneLoader: WorldScene,
@@ -105,6 +107,53 @@ export const loadGLTFModel = (
               child.matrixAutoUpdate = false
             })
           }
+
+          // model entity & component loader
+          res.traverse((mesh: Mesh) => {
+            if (typeof mesh.userData.entity !== 'undefined') {
+              console.log('entity on gltf?')
+
+              const e = createEntity()
+              addComponent(e, NameComponent, { name: mesh.userData.entity })
+              mesh.removeFromParent()
+              applyTransformToMesh(entity, mesh)
+              addComponent(entity, TransformComponent, {
+                position: mesh.position.clone(),
+                rotation: mesh.quaternion.clone(),
+                scale: mesh.scale.clone()
+              })
+              addComponent(e, Object3DComponent, { value: mesh })
+
+              const components = {}
+              const data = Object.entries(mesh.userData)
+
+              // find all components
+              for (const [key, value] of data) {
+                const parts = key.split('-')
+                if (parts.length === 2 && parts[0] === 'component') {
+                  components[value] = {}
+                }
+              }
+
+              // find all component data tags
+              for (const [key, value] of data) {
+                const parts = key.split('-')
+                if (parts.length > 2 && components[`${parts[0]}-${parts[1]}`]) {
+                  if (typeof components[value] !== 'undefined') {
+                    components[value][parts.slice(2).join('')] = value
+                  }
+                }
+              }
+              for (const [key, value] of Object.entries(components)) {
+                const component = {
+                  name: key,
+                  data: value,
+                  sceneEntityId: MathUtils.generateUUID()
+                } as SceneDataComponent
+                sceneLoader.loadComponent(e, component, sceneProperty)
+              }
+            }
+          })
 
           sceneLoader._onModelLoaded()
           resolve()

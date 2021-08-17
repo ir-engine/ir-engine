@@ -1,5 +1,10 @@
 import { Object3D, BoxBufferGeometry, Material, Mesh, BoxHelper } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
+
+/**
+ * @todo add collisionLayer and collisionMask properties
+ */
+
 export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'box-collider'
   static nodeName = 'Box Collider'
@@ -57,20 +62,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     const components = {
       'box-collider': {
         type: 'box',
-        isTrigger: this.isTrigger,
-        mass: 0,
-        position: this.position,
-        quaternion: {
-          x: this.quaternion.x,
-          y: this.quaternion.y,
-          z: this.quaternion.z,
-          w: this.quaternion.w
-        },
-        scale: {
-          x: this.scale.x / 2,
-          y: this.scale.y / 2,
-          z: this.scale.z / 2
-        }
+        isTrigger: this.isTrigger
       }
     } as any
 
@@ -89,14 +81,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     this.addGLTFComponent('box-collider', {
       // TODO: Remove exporting these properties. They are already included in the transform props.
       type: 'box',
-      isTrigger: this.isTrigger,
-      position: this.position,
-      rotation: {
-        x: this.rotation.x,
-        y: this.rotation.y,
-        z: this.rotation.z
-      },
-      scale: this.scale
+      isTrigger: this.isTrigger
     })
     if (this.target != undefined) {
       this.addGLTFComponent('game-object', {
