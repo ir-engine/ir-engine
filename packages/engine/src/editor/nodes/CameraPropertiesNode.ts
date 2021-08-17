@@ -30,12 +30,9 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
     node.minCameraDistance = minCameraDistance
     node.maxCameraDistance = maxCameraDistance
     node.cameraMode = cameraMode
-    node.cameraModeDefault = cameraModeDefault,
-    node.startCameraDistance = startCameraDistance
+    ;(node.cameraModeDefault = cameraModeDefault), (node.startCameraDistance = startCameraDistance)
     node.startInFreeLook = startInFreeLook
-    node.minPhi = minPhi,
-    node.maxPhi = maxPhi,
-    node.startPhi = startPhi
+    ;(node.minPhi = minPhi), (node.maxPhi = maxPhi), (node.startPhi = startPhi)
     return node
   }
   constructor(editor) {

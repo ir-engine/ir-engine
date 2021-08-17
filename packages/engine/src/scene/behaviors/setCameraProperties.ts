@@ -1,6 +1,6 @@
 import { OrthographicCamera, PerspectiveCamera } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { ProjectionType } from '../../camera/types/ProjectionType
+import { ProjectionType } from '../../camera/types/ProjectionType'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
@@ -13,12 +13,12 @@ type SetCameraProps = {
   cameraFarClip?: number
   minCameraDistance?: number
   maxCameraDistance?: number
-  startCameraDistance?: number,
-  cameraMode: CameraMode,
-  cameraModeDefault: CameraMode,
-  startInFreeLook: boolean,
-  minPhi: number,
-  maxPhi: number,
+  startCameraDistance?: number
+  cameraMode: CameraMode
+  cameraModeDefault: CameraMode
+  startInFreeLook: boolean
+  minPhi: number
+  maxPhi: number
   startPhi: number
 }
 

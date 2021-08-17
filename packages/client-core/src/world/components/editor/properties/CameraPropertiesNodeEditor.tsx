@@ -103,7 +103,10 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
     <NodeEditor {...props} description={'Properties that will affect the player camera'}>
       {/* @ts-ignore */}
       <InputGroup name="Start In Free Look" label={'Start In Free Look'}>
-        <BooleanInput value={(node as any).startInFreeLook} onChange={(value) => onChangePayload('startInFreeLook', value)} />
+        <BooleanInput
+          value={(node as any).startInFreeLook}
+          onChange={(value) => onChangePayload('startInFreeLook', value)}
+        />
       </InputGroup>
       {/* @ts-ignore */}
       <InputGroup name="Projection Type" label={'Projection Type'}>
@@ -206,20 +209,20 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         default={5}
         value={(node as any).maxCameraDistance ?? 50}
       />
-    {/* @ts-ignore */}
-          <NumericInputGroup
-          name="startCameraDistance"
-          label={'Start Camera Distance'}
-          onChange={(value) => onChangePayload('startCameraDistance', value)}
-          min={0.001}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          default={5}
-          value={(node as any).startCameraDistance ?? 10}
-        />
+      {/* @ts-ignore */}
+      <NumericInputGroup
+        name="startCameraDistance"
+        label={'Start Camera Distance'}
+        onChange={(value) => onChangePayload('startCameraDistance', value)}
+        min={0.001}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        default={5}
+        value={(node as any).startCameraDistance ?? 10}
+      />
 
-              {/* @ts-ignore */}
+      {/* @ts-ignore */}
       <NumericInputGroup
         name="minPhi"
         label={'Min Phi'}
@@ -244,19 +247,19 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         default={5}
         value={(node as any).maxPhi ?? 150}
       />
-    {/* @ts-ignore */}
-          <NumericInputGroup
-          name="startPhi"
-          label={'Start Phi'}
-          onChange={(value) => onChangePayload('startPhi', value)}
-          min={0.001}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          default={5}
-          value={(node as any).startPhi ?? 10}
-        />
-      </NodeEditor>
+      {/* @ts-ignore */}
+      <NumericInputGroup
+        name="startPhi"
+        label={'Start Phi'}
+        onChange={(value) => onChangePayload('startPhi', value)}
+        min={0.001}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        default={5}
+        value={(node as any).startPhi ?? 10}
+      />
+    </NodeEditor>
   )
 }
 
