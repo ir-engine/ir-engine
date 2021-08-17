@@ -32,9 +32,10 @@ export const usingThumbstick = () => {
 
 export const handleTouchMove = (event: TouchEvent): void => {
   if (!Engine.mouseInputEnabled) {
+	console.log('!Engine.mouseInputEnabled')
     return
   }
-
+  //console.log('handleTouchMove')
   const normalizedPosition = normalizeMouseCoordinates(
     event.touches[0].clientX,
     event.touches[0].clientY,
@@ -43,7 +44,7 @@ export const handleTouchMove = (event: TouchEvent): void => {
   )
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y]
 
-  if (event.touches.length == 1) {
+  if (event.touches.length >= 1) {
     const mappedPositionInput = TouchInputs.Touch1Position
     const hasData = Engine.inputState.has(mappedPositionInput)
 
@@ -63,13 +64,16 @@ export const handleTouchMove = (event: TouchEvent): void => {
     }
 
     prevTouchPosition = touchPosition
-
+	console.log('handleTouchMove =1')
     Engine.inputState.set(mappedMovementInput, {
       type: InputType.TWODIM,
       value: touchMovement,
       lifecycleState: Engine.inputState.has(mappedMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
     })
-  } else if (event.touches.length >= 2) {
+  }
+  /*
+  else if (event.touches.length >= 2) {
+	  console.log('handleTouchMove >=2')
     const normalizedPosition2 = normalizeMouseCoordinates(
       event.touches[1].clientX,
       event.touches[1].clientY,
@@ -91,9 +95,9 @@ export const handleTouchMove = (event: TouchEvent): void => {
     })
 
     const scaleMappedInputKey = TouchInputs.Scale
-
+	
     const usingStick = usingThumbstick()
-
+	
     if (usingStick) {
       if (Engine.inputState.has(scaleMappedInputKey)) {
         const oldValue = Engine.inputState.get(scaleMappedInputKey).value as number
@@ -103,18 +107,21 @@ export const handleTouchMove = (event: TouchEvent): void => {
           lifecycleState: LifecycleValue.ENDED
         })
       }
+	  console.log('using stick')
       return
     }
-
+	
     const lastTouchcontrollerPositionLeftArray = Engine.prevInputState.get(TouchInputs.Touch1Position)?.value
     const lastTouchPosition2Array = Engine.prevInputState.get(TouchInputs.Touch2Position)?.value
     if (event.type === 'touchstart' || !lastTouchcontrollerPositionLeftArray || !lastTouchPosition2Array) {
       // skip if it's just start of gesture or there are no previous data yet
+	  console.log('handleTouchMove >=3')
       return
     }
 
     if (!Engine.inputState.has(TouchInputs.Touch1Position) || !Engine.inputState.has(TouchInputs.Touch2Position)) {
       console.warn('handleTouchScale requires POINTER1_POSITION and POINTER2_POSITION to be set and updated.')
+	  console.log('handleTouchMove >=4')
       return
     }
     const currentTouchcontrollerPositionLeft = new Vector2().fromArray(
@@ -133,20 +140,31 @@ export const handleTouchMove = (event: TouchEvent): void => {
     const touchScaleValue = (lastDistance - currentDistance) * 0.01
     const signVal = Math.sign(touchScaleValue)
     if (!Engine.inputState.has(scaleMappedInputKey)) {
+		console.log('!Engine.inputState.has(scaleMappedInputKey)')
       Engine.inputState.set(scaleMappedInputKey, {
         type: InputType.ONEDIM,
         value: signVal,
         lifecycleState: LifecycleValue.STARTED
       })
     } else {
+		console.log('Engine.inputState.has(scaleMappedInputKey)')
       const oldValue = Engine.inputState.get(scaleMappedInputKey).value as number
-      Engine.inputState.set(scaleMappedInputKey, {
+      
+	  Engine.inputState.set(scaleMappedInputKey, {
         type: InputType.ONEDIM,
         value: oldValue + signVal,
         lifecycleState: LifecycleValue.CHANGED
       })
+	  
+	  const mappedMovementInput = TouchInputs.Touch1Movement
+      Engine.inputState.set(mappedMovementInput, {
+        type: InputType.TWODIM,
+        value: oldValue + signVal,
+        lifecycleState: Engine.inputState.has(mappedMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+      })	  
     }
   }
+  */
 }
 
 /**

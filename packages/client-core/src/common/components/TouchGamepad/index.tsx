@@ -6,6 +6,13 @@ import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
+import {
+  handleTouch,
+  handleTouchDirectionalPad,
+  handleTouchGamepadButton,
+  handleTouchMove,
+} from '@xrengine/engine/src/input/schema/ClientInputSchema'
+import { addClientInputListeners, removeClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
 
 export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   const leftContainer = useRef<HTMLDivElement>()
@@ -52,15 +59,24 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
       size: size,
       dynamicPage: true
     })
-    const targetElement = stickLeft[0].ui.el
-    targetElement.addEventListener('touchstart', (ev) => {
-      enableInput({ mouse: false })
-    })
-    targetElement.addEventListener('touchend', (ev) => {
-      enableInput({ mouse: true })
-    })
-
+ 
+	const canvasElement = (document.getElementById('engine-renderer-canvas') as HTMLCanvasElement)
     stickLeft.on('move', (e, data) => {
+	
+	  if (canvasElement.addEventListener) {  // all browsers except IE before version 9
+		addClientInputListeners(canvasElement)
+      }
+      else {
+		if (canvasElement.attachEvent) {   // IE before version 9
+			canvasElement.attachEvent ("touchstart", function (e) {
+			  handleTouch(e)
+			  handleTouchMove(e)
+			})
+		    canvasElement.attachEvent('touchend', handleTouch)
+		    canvasElement.attachEvent('touchcancel', handleTouch)
+		    canvasElement.attachEvent('touchmove', handleTouchMove)
+		}
+      }	  
       const event = new CustomEvent('touchstickmove', {
         detail: {
           stick: GamepadAxis.Left,
@@ -68,6 +84,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
         }
       })
       document.dispatchEvent(event)
+	  
     })
 
     stickLeft.on('end', (e, data) => {

@@ -24,8 +24,19 @@ import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
+import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
+import { GameManagerSystem } from '../../../../engine/src/game/systems/GameManagerSystem'
+import { GolfSystem } from '../../../../engine/src/game/templates/Golf/GolfSystem'
+import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { ClientInputSystem, enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
+import {
+  handleTouch,
+  handleTouchDirectionalPad,
+  handleTouchGamepadButton,
+  handleTouchMove,
+} from '@xrengine/engine/src/input/schema/ClientInputSchema'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -42,8 +53,15 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
     },
     physics: {
       simulationEnabled: false,
-      physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
-    }
+      physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+    },
+    systems: [
+      {
+        type: SystemUpdateType.Fixed,
+        system: GolfSystem,
+        after: GameManagerSystem
+      }
+    ]
   }
 }
 
@@ -154,7 +172,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = props.locationState.get('currentLocation').get('location')
-
+	//console.log(currentLocation);
     if (currentLocation.id) {
       if (
         !isUserBanned &&
@@ -186,6 +204,9 @@ export const EnginePage = (props: Props) => {
   }, [props.locationState])
 
   useEffect(() => {
+	  //console.log('zzzzzzz')
+	  //props.showTouchpad = false
+	  console.log(props)
     if (
       props.instanceConnectionState.get('instanceProvisioned') &&
       props.instanceConnectionState.get('updateNeeded') &&
@@ -252,12 +273,13 @@ export const EnginePage = (props: Props) => {
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
+
     if (slugifiedName === portalComponent.location) {
-      // teleportPlayer(
-      //   Network.instance.localClientEntity,
-      //   portalComponent.remoteSpawnPosition,
-      //   portalComponent.remoteSpawnRotation
-      // )
+      teleportPlayer(
+        Network.instance.localClientEntity,
+        portalComponent.remoteSpawnPosition,
+        portalComponent.remoteSpawnRotation
+      )
       return
     }
 
@@ -279,11 +301,16 @@ export const EnginePage = (props: Props) => {
       setIsInXR(false)
     })
   }
+  
+  const handleTouchStartEvent = (e: TouchEvent) => {
+      handleTouch(e)
+      handleTouchMove(e)
+  };    
 
   if (isUserBanned) return <div className="banned">You have been banned from this location</div>
 
   if (isInXR) return <></>
-
+  
   return (
     <>
       {!isValidLocation && (
@@ -304,14 +331,17 @@ export const EnginePage = (props: Props) => {
       {props.allowDebug && <NetworkDebug reinit={reinit} />}
 
       {props.children}
+      <div
+	    onTouchStart={handleTouchStartEvent}
+	  >
+		  <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
-      <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
-
-      {props.showTouchpad && isTouchAvailable ? (
-        <Suspense fallback={<></>}>
-          <TouchGamepad layout="default" />
-        </Suspense>
-      ) : null}
+		  {props.showTouchpad && isTouchAvailable ? (
+			<Suspense fallback={<></>}>
+			  <TouchGamepad layout="default" />
+			</Suspense>
+		  ) : null}
+	  </div>
 
       <GameServerWarnings
         isTeleporting={isTeleporting}
