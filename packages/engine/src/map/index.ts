@@ -75,21 +75,30 @@ export const updateMap = async function (
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
+  const buildingMesh = createBuildings(vectorTiles, center, renderer)
+  const groundMesh = createGround(rasterTiles as any, center[1])
+  const roadsMesh = createRoads(vectorTiles, center, renderer)
 
-  group.add(createBuildings(vectorTiles, center, renderer))
+  setGroundScaleAndPosition(groundMesh, buildingMesh)
 
-  group.add(createRoads(vectorTiles, center, renderer))
+  group.add(buildingMesh)
 
-  group.add(createGround(rasterTiles as any, center[1]))
+  group.add(roadsMesh)
+
+  group.add(groundMesh)
+
+  const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
   group.position.multiplyScalar(args.scale.x)
   group.scale.multiplyScalar(args.scale.x)
+  group.position.set(position.x, 0, position.z)
   group.name = 'MapObject'
-  group.position.set(-position.x, 0, -position.z)
-  console.log(group.position)
   centerCoord = Object.assign(center)
+  centerTile = Object.assign(getCenterTile(center))
+
   Engine.scene.add(group)
-  return group
+
+  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
 }
 
 export function getStartCoords(props: MapProps): Promise<Position> {

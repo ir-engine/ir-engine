@@ -44,6 +44,7 @@ import { XRSystem } from './xr/systems/XRSystem'
 import { FontManager } from './xrui/classes/FontManager'
 import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
+import { MapUpdateSystem } from './map/MapUpdateSystem'
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
@@ -170,7 +171,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
   })
-  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, ParticleSystem)
