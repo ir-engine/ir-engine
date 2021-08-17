@@ -23,9 +23,6 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
 export async function updateMap(entity: Entity, args: MapProps, longtitude, latitude, position): Promise<void> {
   const remObj = Engine.scene.getObjectByName('MapObject')
-  console.log(remObj)
-  console.log(getComponent(entity, Object3DComponent).value)
-
   const { mapMesh, navMesh, groundMesh } = await update(Engine.renderer, args, longtitude, latitude, position)
   remObj.removeFromParent()
   Engine.scene.add(mapMesh)
