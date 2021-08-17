@@ -30,7 +30,19 @@
     .iconContainer {
         display: inline-flex;
         margin: auto;
-        
+
+        .profile {
+            background: #8D7CF6;
+            box-shadow: 0px 4px 6px rgba(167, 168, 255, 0.780048), 0px 2px 12px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 0px -12px 12px #6E6FF9, inset 0px 12px 22px rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+
+            img { margin-bottom: -7px; }
+        }
+
         .materialIconBlock {
             padding: 1em;
 
@@ -436,6 +448,77 @@
             }
 
             :global(.MuiBadge-dot) { top: 7px; right: 7px; }
+        }
+
+        .wave {
+            background: #90D6FE;
+            box-shadow: 0px 4px 6px rgba(127, 204, 247, 0.759124), 0px 2px 12px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 0px -12px 12px #4AD2FF, inset 0px 12px 22px rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            margin-left: -25px;
+
+            &:hover { cursor: pointer; }
+        }
+
+        .dance1 {
+            background: #8D7CF6;
+            box-shadow: 0px 4px 6px rgba(167, 168, 255, 0.780048), 0px 2px 12px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 0px -12px 12px #6E6FF9, inset 0px 12px 22px rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 65px;
+            left: 65px;
+
+            &:hover { cursor: pointer; }
+        }
+
+        .dance2 {
+            background: #6680E4;
+            box-shadow: 0px 3px 6px rgba(75, 87, 218, 0.5), 0px 6px 11px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 2px -2px 7px #4341D3, inset 0px 2px 5px rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 110px;
+            left: 35px;
+
+            &:hover { cursor: pointer; }
+        }
+
+        .dance3 {
+            background: #8D7CF6;
+            box-shadow: 0px 4px 6px rgba(167, 168, 255, 0.780048), 0px 2px 12px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 0px -12px 12px #6E6FF9, inset 0px 12px 22px rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 65px;
+            right: 65px;
+
+            &:hover { cursor: pointer; }
+        }
+
+        .dance4 {
+            background: #6680E4;
+            box-shadow: 0px 3px 6px rgba(75, 87, 218, 0.5), 0px 6px 11px rgba(101, 109, 117, 0.164855), inset 0px -2px 2px rgba(255, 255, 255, 0.691625), inset 2px -2px 7px #4341D3, inset 0px 2px 5px rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 110px;
+            right: 35px;
+
+            &:hover { cursor: pointer; }
         }
     }
 }
