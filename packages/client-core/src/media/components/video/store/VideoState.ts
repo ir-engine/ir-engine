@@ -8,7 +8,7 @@ const state = createState({
 })
 
 export const VideoReducer = (_, action: VideoActionType) => {
-  Promise.resolve().then(() => VideoReceptor(action))
+  Promise.resolve().then(() => VideoReceptor(action)).catch(err => console.log(err))
   return state.attach(Downgraded).value
 }
 
