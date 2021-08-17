@@ -2,19 +2,10 @@
 
 import { Color } from 'three'
 import { PhysXInstance } from 'three-physx'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
-import { now } from '../../common/functions/now'
-import { Network } from '../../networking/classes/Network'
-import { Vault } from '../../networking/classes/Vault'
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
-import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
-import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from './EntityFunctions'
-import { SystemUpdateType } from './SystemUpdateType'
+import { hasComponent, removeAllComponents, removeEntity } from './EntityFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {}

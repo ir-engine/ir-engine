@@ -287,7 +287,6 @@ export class WorldScene {
         if (isClient) {
           EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
             setCameraProperties(Network.instance.localClientEntity, component.data)
-            switchCameraMode(Network.instance.localClientEntity, component.data, true)
           })
         }
         break
