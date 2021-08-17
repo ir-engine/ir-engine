@@ -231,6 +231,9 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
+
+  const world = new World()
+
   Engine.initOptions = options
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
@@ -278,7 +281,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     }
   }
 
-  const world = World.defaultWorld
   world.pipelines = { fixedPipeline, freePipeline, networkPipeline }
 
   // TODO: support multiple worlds
