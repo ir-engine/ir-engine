@@ -88,14 +88,14 @@ export default {
           }
         })
         if (!foundItem) {
-          context.arguments[1]?.scopeType.forEach(async (el) => {
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
             await context.app.service('scope').create({
               type: el.type,
               userId: context.arguments[0]
             })
           })
         } else {
-          context.arguments[1]?.scopeType.forEach(async (el) => {
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
             await context.app.service('scope').Model.update(
               {
                 type: el.type
@@ -188,7 +188,7 @@ export default {
           await context.app.service('user-settings').create({
             userId: context.result.id
           })
-          context.arguments[0]?.scopeType.forEach((el) => {
+          context.arguments[0]?.scopeType?.forEach((el) => {
             context.app.service('scope').create({
               type: el.type,
               userId: context.result.id

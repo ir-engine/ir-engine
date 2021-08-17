@@ -24,14 +24,14 @@ export default {
           }
         })
         if (!foundItem) {
-          context.arguments[1]?.scopeType.forEach(async (el) => {
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
             await context.app.service('scope').create({
               type: el.type,
               groupId: context.arguments[0]
             })
           })
         } else {
-          context.arguments[1]?.scopeType.forEach(async (el) => {
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
             await context.app.service('scope').Model.update(
               {
                 type: el.type
@@ -58,7 +58,7 @@ export default {
       createGroupOwner(),
       async (context: HookContext): Promise<HookContext> => {
         try {
-          context.arguments[0]?.scopeType.forEach(async (el) => {
+          context.arguments[0]?.scopeType?.forEach(async (el) => {
             await context.app.service('scope').create({
               type: el.type,
               groupId: context.result.id
