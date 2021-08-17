@@ -1,7 +1,7 @@
 import { Camera } from '@styled-icons/fa-solid'
 import React, { useState } from 'react'
 import { withTranslation } from 'react-i18next'
-import { CameraModes } from '../../../../../../engine/src/camera/types/CameraModes'
+import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
@@ -30,46 +30,46 @@ interface Props {
 const cameraModeSelect = [
   {
     label: 'First Person',
-    value: CameraModes.FirstPerson
+    value: CameraMode.FirstPerson
   },
   {
     label: 'Shoulder Cam',
-    value: CameraModes.ShoulderCam
+    value: CameraMode.ShoulderCam
   },
   {
     label: 'Third Person',
-    value: CameraModes.ThirdPerson
+    value: CameraMode.ThirdPerson
   },
   {
     label: 'Top Down',
-    value: CameraModes.TopDown
+    value: CameraMode.TopDown
   },
   {
     label: 'Strategic',
-    value: CameraModes.Strategic
+    value: CameraMode.Strategic
   },
   {
     label: 'Dynamic',
-    value: CameraModes.Dynamic
+    value: CameraMode.Dynamic
   }
 ]
 
 const defaultCameraModeSelect = [
   {
     label: 'First Person',
-    value: CameraModes.FirstPerson
+    value: CameraMode.FirstPerson
   },
   {
     label: 'Shoulder Cam',
-    value: CameraModes.ShoulderCam
+    value: CameraMode.ShoulderCam
   },
   {
     label: 'Third Person',
-    value: CameraModes.ThirdPerson
+    value: CameraMode.ThirdPerson
   },
   {
     label: 'Top Down',
-    value: CameraModes.TopDown
+    value: CameraMode.TopDown
   }
 ]
 
@@ -129,7 +129,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         />
       </InputGroup>
 
-      {cameraMode == CameraModes.Dynamic && (
+      {cameraMode == CameraMode.Dynamic && (
         /* @ts-ignore */
         <InputGroup name="Default Camera Mode" label={'Default Camera Mode'}>
           {/* @ts-ignore */}
