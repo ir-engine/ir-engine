@@ -3,7 +3,7 @@ import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/re
 import Store from '@xrengine/client-core/src/store'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { client } from '@xrengine/client-core/src/feathers'
-import { SceneAction } from '../../../../client-core/src/world/store/SceneAction'
+import { SceneAction } from '@xrengine/client-core/src/world/store/SceneAction'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'

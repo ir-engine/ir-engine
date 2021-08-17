@@ -9,7 +9,9 @@ const state = createState({
 })
 
 export const SceneReducer = (_, action: SceneActionType) => {
-  Promise.resolve().then(() => SceneReceptor(action)).catch(err => console.log(err))
+  Promise.resolve()
+    .then(() => SceneReceptor(action))
+    .catch((err) => console.log(err))
   return state.attach(Downgraded).value
 }
 

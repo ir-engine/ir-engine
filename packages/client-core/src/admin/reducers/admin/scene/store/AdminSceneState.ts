@@ -27,7 +27,9 @@ const state = createState({
 })
 
 export const AdminSceneReducer = (_, action: SceneActionType) => {
-  Promise.resolve().then(() => AdminSceneReceptor(action)).catch(err => console.log(err))
+  Promise.resolve()
+    .then(() => AdminSceneReceptor(action))
+    .catch((err) => console.log(err))
   return state.attach(Downgraded).value
 }
 
