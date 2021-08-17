@@ -38,6 +38,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
           updateMap(
             entity,
             {
+              name: 'Map',
               scale: new Vector3(1, 1, 1)
             },
             longtitude,
@@ -45,11 +46,11 @@ export const MapUpdateSystem = async (): Promise<System> => {
             position
           )
 
-          remObj.removeFromParent()
           updateStatus = true
         }
       } else {
-        console.log('updated')
+        // console.log('updated')
+        // console.log(moveTile[0])
       }
     }
     return world

@@ -90,8 +90,6 @@ export const update = async function (renderer: THREE.WebGLRenderer, args: MapPr
   centerCoord = Object.assign(center)
   centerTile = Object.assign(getCenterTile(center))
 
-  Engine.scene.add(group)
-
   return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
 }
 
