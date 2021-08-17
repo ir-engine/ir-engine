@@ -36,6 +36,7 @@ export const InterpolationSystem = async (): Promise<System> => {
   ])
   const networkClientInterpolationQuery = defineQuery([
     Not(AvatarControllerComponent),
+    ColliderComponent,
     AvatarComponent,
     InterpolationComponent,
     NetworkObjectComponent

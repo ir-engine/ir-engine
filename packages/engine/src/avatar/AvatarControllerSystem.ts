@@ -53,7 +53,10 @@ export const AvatarControllerSystem = async (): Promise<System> => {
     for (const entity of avatarControllerRemovedQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent, true)
 
-      PhysXInstance.instance.removeController(controller.controller)
+      // may get cleaned up already, eg. portals
+      if (controller?.controller) {
+        PhysXInstance.instance.removeController(controller.controller)
+      }
 
       const avatar = getComponent(entity, AvatarComponent)
       if (avatar) {
@@ -67,8 +70,6 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
-
-      detectUserInPortal(entity)
 
       const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -109,6 +110,8 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0) // || controller.controller.collisions.down)
 
       avatarMoveBehavior(entity, delta)
+
+      detectUserInPortal(entity)
     }
 
     for (const entity of raycastQuery(world)) {

@@ -159,7 +159,7 @@ export const PhysicsSystem = async (
       console.log('removed prefab with id', networkObject.networkId)
     }
 
-    PhysXInstance.instance.update()
+    if (simulationEnabled) PhysXInstance.instance?.update()
     return world
   })
 }

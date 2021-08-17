@@ -5,7 +5,6 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 export type AvatarControllerComponentType = {
   controller: Controller
-  frustumCamera: PerspectiveCamera
   movementEnabled: boolean
   isJumping: boolean
   isWalking: boolean
