@@ -211,11 +211,19 @@ export const handleTouch = (event: TouchEvent): void => {
     } else {
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
-        value: BinaryValue.ON,
+        value: BinaryValue.OFF,
         lifecycleState: LifecycleValue.ENDED
       })
     }
   } else {
+    if (Engine.inputState.has(TouchInputs.Touch)) {
+      Engine.inputState.set(TouchInputs.Touch, {
+        type: InputType.BUTTON,
+        value: BinaryValue.OFF,
+        lifecycleState: LifecycleValue.ENDED
+      })
+    }
+
     const doubleTapInput = TouchInputs.DoubleTouch
     if (Engine.inputState.has(doubleTapInput)) {
       Engine.inputState.set(doubleTapInput, {

@@ -369,7 +369,7 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity): void => {
 }
 
 export const clickNavMesh: InputBehaviorType = (actorEntity, inputKey, inputValue): void => {
-  if (inputValue.lifecycleState !== LifecycleValue.STARTED) {
+  if (inputValue.lifecycleState !== LifecycleValue.ENDED) {
     return
   }
   const input = getComponent(actorEntity, InputComponent)
