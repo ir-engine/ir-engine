@@ -7,9 +7,6 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { EquippableSystem } from '../../engine/src/interaction/systems/EquippableSystem'
-import { SystemUpdateType } from '../../engine/src/ecs/functions/SystemUpdateType'
-import { GolfSystem } from '@xrengine/client/src/pages/golf/GolfSystem'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 
@@ -29,14 +26,7 @@ export class WebRTCGameServer {
     physics: {
       physxWorker: () => new Worker(currentPath + '/physx/loadPhysXNode.ts')
     },
-    systems: [
-      // TODO: we need to register this here still as this is not currently set up to work in deploy
-      // {
-      //   type: SystemUpdateType.Fixed,
-      //   system: GolfSystem,
-      //   after: EquippableSystem
-      // }
-    ]
+    systems: []
   }
 
   initialize(app: any) {

@@ -253,11 +253,11 @@ export const EnginePage = (props: Props) => {
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
     if (slugifiedName === portalComponent.location) {
-      teleportPlayer(
-        Network.instance.localClientEntity,
-        portalComponent.remoteSpawnPosition,
-        portalComponent.remoteSpawnRotation
-      )
+      // teleportPlayer(
+      //   Network.instance.localClientEntity,
+      //   portalComponent.remoteSpawnPosition,
+      //   portalComponent.remoteSpawnRotation
+      // )
       return
     }
 
