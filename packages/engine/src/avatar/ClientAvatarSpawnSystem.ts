@@ -1,6 +1,6 @@
 import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { CameraModes } from '../camera/types/CameraModes'
+import { CameraMode } from '../camera/types/CameraMode'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
@@ -33,8 +33,8 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       if (isLocalPlayer) {
         addComponent(entity, LocalInputReceiverComponent, {})
         addComponent(entity, FollowCameraComponent, {
-          mode: CameraModes.ThirdPerson,
-          distance: 3,
+          mode: CameraMode.ThirdPerson,
+          distance: 5,
           minDistance: 2,
           maxDistance: 7,
           theta: 0,

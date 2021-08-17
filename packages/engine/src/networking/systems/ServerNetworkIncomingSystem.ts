@@ -12,7 +12,6 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkClientInputInterface } from '../interfaces/WorldState'
 import { ClientInputModel } from '../schema/clientInputSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
-import { GamePlayer } from '../../game/components/GamePlayer'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { Group, Vector3 } from 'three'
@@ -22,7 +21,6 @@ import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
 
 export function cancelAllInputs(entity) {
   getComponent(entity, InputComponent)?.data.forEach((value) => {

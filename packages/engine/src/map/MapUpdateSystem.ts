@@ -30,12 +30,9 @@ export const MapUpdateSystem = async (): Promise<System> => {
       if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
         console.log('in center')
       } else {
-        // alert('Need to update')
-        //UPdate Map
         updateMap(
           Engine.renderer,
           {
-            isGlobal: true,
             scale: new Vector3(1, 1, 1)
           },
           longtitude,

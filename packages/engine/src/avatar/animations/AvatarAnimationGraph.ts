@@ -18,7 +18,7 @@ export class AvatarAnimationGraph extends AnimationGraph {
     // Set the next states
     walkState.nextStates.push(IdleState, RunState, JumpState)
     runState.nextStates.push(IdleState, WalkState, JumpState)
-    loopableEmoteState.nextStates.push(WalkState, RunState, JumpState)
+    loopableEmoteState.nextStates.push(WalkState, RunState, JumpState, EmoteState)
     jumpState.nextStates.push(IdleState, WalkState, RunState)
     emoteState.nextStates.push(IdleState, WalkState, RunState, JumpState)
     emoteState.autoTransitionTo = AvatarStates.IDLE

@@ -19,7 +19,6 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
     const {
-      isGlobal,
       name,
       useTimeOfDay,
       useDirectionalShadows,
@@ -30,7 +29,6 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       showRasterTiles,
       enableDebug
     } = json.components.find((c) => c.name === 'map').props
-    node.isGlobal = isGlobal
     node.useTimeOfDay = useTimeOfDay
     node.useDirectionalShadows = useDirectionalShadows
     node.useDeviceGeolocation = useDeviceGeolocation
@@ -110,7 +108,6 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     return {
       name: this.name,
       scale: this.scale,
-      isGlobal: this.isGlobal,
       useTimeOfDay: this.useTimeOfDay,
       useDirectionalShadows: this.useDirectionalShadows,
       useDeviceGeolocation: this.useDeviceGeolocation,
