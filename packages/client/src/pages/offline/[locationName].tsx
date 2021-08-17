@@ -4,7 +4,7 @@ import Layout from '../../components/Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
-import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
+import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
@@ -22,13 +22,13 @@ const engineInitializeOptions: InitializeOptions = {
   },
   physics: {
     simulationEnabled: false,
-    physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+    physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
   },
   systems: [
     {
       type: SystemUpdateType.Fixed,
       system: AvatarUISystem,
-      after: UISystem
+      after: XRUISystem
     }
   ]
 }

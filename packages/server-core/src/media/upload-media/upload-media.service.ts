@@ -36,7 +36,8 @@ export default (app: Application): void => {
         req.feathers.mimeType = req.feathers.file.mimetype
         req.feathers.storageProvider = provider
         req.feathers.thumbnail = (req as any).files.thumbnail ? (req as any).files.thumbnail[0] : null
-        req.feathers.uploadPath = req.feathers.body.fileId
+        req.feathers.uploadPath = req.feathers.body.uploadPath ?? req.feathers.body.fileId
+        if (req.feathers.body.name) req.feathers.id = req.feathers.body.name
       }
       next()
     },

@@ -1,9 +1,8 @@
 import { Vector3 } from 'three'
 
 export interface MapProps {
-  scale?: Vector3
-  isGlobal?: boolean
   name?: string
+  scale?: Vector3
   style?: any
   useTimeOfDay?: number
   useDirectionalShadows?: boolean
