@@ -15,7 +15,9 @@ const state = createState({
 })
 
 export const userReducer = (_, action: UserActionType) => {
-  Promise.resolve().then(() => userReceptor(action))
+  Promise.resolve()
+    .then(() => userReceptor(action))
+    .catch((err) => console.log(err))
   return state.attach(Downgraded).value
 }
 

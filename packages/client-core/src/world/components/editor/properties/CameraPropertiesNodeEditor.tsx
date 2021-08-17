@@ -156,7 +156,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={(node as any).fov ?? 50}
+        value={(node as any).fov}
       />
 
       {/* @ts-ignore */}
@@ -169,7 +169,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={0.1}
-        value={(node as any).cameraNearClip ?? 0.1}
+        value={(node as any).cameraNearClip}
       />
 
       {/* @ts-ignore */}
@@ -182,7 +182,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={100}
-        value={(node as any).cameraFarClip ?? 100}
+        value={(node as any).cameraFarClip}
       />
       {/* @ts-ignore */}
       <NumericInputGroup
@@ -194,7 +194,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={20}
-        value={(node as any).minCameraDistance ?? 1}
+        value={(node as any).minCameraDistance}
       />
 
       {/* @ts-ignore */}
@@ -207,7 +207,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={(node as any).maxCameraDistance ?? 50}
+        value={(node as any).maxCameraDistance}
       />
       {/* @ts-ignore */}
       <NumericInputGroup
@@ -219,7 +219,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={(node as any).startCameraDistance ?? 10}
+        value={(node as any).startCameraDistance}
       />
 
       {/* @ts-ignore */}
@@ -232,7 +232,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={20}
-        value={(node as any).minPhi ?? 1}
+        value={(node as any).minPhi}
       />
 
       {/* @ts-ignore */}
@@ -245,7 +245,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={(node as any).maxPhi ?? 150}
+        value={(node as any).maxPhi}
       />
       {/* @ts-ignore */}
       <NumericInputGroup
@@ -257,7 +257,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         mediumStep={0.01}
         largeStep={0.1}
         default={5}
-        value={(node as any).startPhi ?? 10}
+        value={(node as any).startPhi}
       />
     </NodeEditor>
   )

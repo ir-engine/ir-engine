@@ -12,20 +12,19 @@ import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Admin.module.scss'
 import VideoModal from './VideoModal'
 import { useHistory } from 'react-router-dom'
-import { selectVideoState } from '../../media/components/video/selector'
+// import { selectVideoState } from '../../media/components/video/selector'
+import { useVideoState } from '../../media/components/video/store/VideoState'
 import { selectAuthState } from '../../user/reducers/auth/selector'
 import { fetchAdminVideos } from '../reducers/admin/service'
 
 interface Props {
   auth: any
-  videos: any
   fetchAdminVideos: typeof fetchAdminVideos
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    auth: selectAuthState(state),
-    videos: selectVideoState(state)
+    auth: selectAuthState(state)
   }
 }
 
@@ -34,7 +33,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const AdminConsole = (props: Props): any => {
-  const { fetchAdminVideos, auth, videos } = props
+  const { fetchAdminVideos, auth } = props
+  const VideoState = useVideoState()
   const initialState = {
     name: '',
     url: '',
@@ -102,7 +102,7 @@ const AdminConsole = (props: Props): any => {
           <Container component="main" maxWidth="md">
             <div className={styles.admin}>
               <GridList className={styles.grid} cellHeight={200} cols={2}>
-                {videos.get('videos').map((video) => (
+                {VideoState.videos.map((video: any) => (
                   <GridListTile className={styles.cell} key={video.id} cols={1}>
                     <img src={video.metadata.thumbnailUrl} alt={video.name} />
                     <GridListTileBar
