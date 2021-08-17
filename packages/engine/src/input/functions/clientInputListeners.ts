@@ -1,4 +1,4 @@
-import { handleGamepadConnected, handleGamepadDisconnected } from '../functions/GamepadInputBehaviors'
+import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   handleContextMenu,

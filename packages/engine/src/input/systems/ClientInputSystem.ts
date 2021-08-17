@@ -8,7 +8,7 @@ import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 import { Engine } from '../../ecs/classes/Engine'
 import { processInput } from '../functions/processInput'
-import { handleGamepads } from '../functions/GamepadInputBehaviors'
+import { handleGamepads } from '../functions/GamepadInput'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
