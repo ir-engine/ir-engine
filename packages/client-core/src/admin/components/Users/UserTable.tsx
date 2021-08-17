@@ -121,7 +121,7 @@ const UserTable = (props: Props) => {
     ) : (
       <span className={classes.spanNone}>None</span>
     )
-    const ins = el.party.id ? el.party.instance : null
+    const ins = el.party?.id ? el.party.instance : null
     const inst = ins ? (
       ins.ipAddress || <span className={classes.spanNone}>None</span>
     ) : (

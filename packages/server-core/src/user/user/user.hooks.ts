@@ -34,6 +34,9 @@ export default {
           },
           {
             model: 'instance'
+          },
+          {
+            model: 'scope'
           }
         ]
       })
@@ -55,6 +58,9 @@ export default {
           },
           {
             model: 'user-settings'
+          },
+          {
+            model: 'scope'
           }
         ]
       })
@@ -78,6 +84,9 @@ export default {
           },
           {
             model: 'user-settings'
+          },
+          {
+            model: 'scope'
           }
         ]
       }),
