@@ -26,6 +26,8 @@ import VolumetricNode from '@xrengine/engine/src/editor/nodes/VolumetricNode'
 import ReflectionProbeNode from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
 import SplineNode from '@xrengine/engine/src/editor/nodes/SplineNode'
 import CloudNode from '@xrengine/engine/src/editor/nodes/CloudNode'
+import MapNode from '@xrengine/engine/src/editor/nodes/MapNode'
+import MetadataNode from '@xrengine/engine/src/editor/nodes/MetadataNode'
 import ElementsSource from './assets/sources/ElementsSource'
 import MyAssetsSource from './assets/sources/MyAssetsSource'
 import Editor from './Editor'
@@ -58,7 +60,7 @@ import VideoNodeEditor from './properties/VideoNodeEditor'
 import VolumetricNodeEditor from './properties/VolumetricNodeEditor'
 import CloudNodeEditor from './properties/CloudNodeEditor'
 import MapNodeEditor from './properties/MapNodeEditor'
-import MapNode from '@xrengine/engine/src/editor/nodes/MapNode'
+import MetadataNodeEditor from './properties/MetadataNodeEditor'
 
 /**
  * createEditor used to create editor object and register nodes available to create scene.
@@ -85,6 +87,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(SkyboxNode, SkyboxNodeEditor)
   editor.registerNode(FloorPlanNode, FloorPlanNodeEditor)
   editor.registerNode(ImageNode, ImageNodeEditor)
+  editor.registerNode(MetadataNode, MetadataNodeEditor)
   editor.registerNode(VideoNode, VideoNodeEditor)
   editor.registerNode(VolumetricNode, VolumetricNodeEditor)
   editor.registerNode(AudioNode, AudioNodeEditor)
