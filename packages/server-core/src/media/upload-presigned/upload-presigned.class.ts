@@ -3,6 +3,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import S3Provider from '../storageprovider/s3.storage'
+import StorageProvider from '../storageprovider/storageprovider'
 import {
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
@@ -10,7 +11,7 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import config from '../../appconfig'
 
-const s3: any = new S3Provider()
+const storageProvider: any = new StorageProvider()
 
 interface Data {}
 
@@ -39,12 +40,13 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async get(id: Id, params?: Params): Promise<Data> {
+    let url
     const key = this.getKeyForFilename(
       params['identity-provider'].userId,
       params.query.fileName,
       params.query.isPublicAvatar
     )
-    const url = await this.s3.getSignedUrl(
+    url = await storageProvider.getSignedUrl(
       key,
       PRESIGNED_URL_EXPIRATION_DURATION || 3600, // Expiration duration in Seconds
       [
@@ -52,30 +54,6 @@ export class UploadPresigned implements ServiceMethods<Data> {
         ['content-length-range', MIN_AVATAR_FILE_SIZE, MAX_AVATAR_FILE_SIZE] // Max size 15 MB
       ]
     )
-    url.cloudfrontDomain = config.aws.cloudfront.domain
-    if (config.server.storageProvider === 'aws')
-      await new Promise((resolve, reject) => {
-        s3.cloudfront.createInvalidation(
-          {
-            DistributionId: config.aws.cloudfront.distributionId,
-            InvalidationBatch: {
-              CallerReference: Date.now().toString(),
-              Paths: {
-                Quantity: 1,
-                Items: [`/${key}`]
-              }
-            }
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
-            }
-          }
-        )
-      })
     return url
   }
 

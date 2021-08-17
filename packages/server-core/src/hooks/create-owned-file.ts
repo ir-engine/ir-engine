@@ -23,6 +23,7 @@ export default () => {
         key: (data.uri || data.url).replace(`https://${domain}/`, '')
       })
     } else {
+      const reqArgs = context.arguments.find((arg) => arg.body != null)
       const resourceData = {
         id: body.fileId,
         name: data.name || body.name,
@@ -50,7 +51,9 @@ export default () => {
         ...resourceData,
         mimeType: resourceData.content_type
       }
-      savedFile = await context.app.service('static-resource').create(modifiedResourceData)
+      savedFile = reqArgs?.body?.skipStaticResource
+        ? { id: '1234', mimeType: 'nothing', url: 'https://blank.com' }
+        : await context.app.service('static-resource').create(modifiedResourceData)
     }
     context.result = {
       // This is to fulfill the editor response, as editor is expecting the below object
