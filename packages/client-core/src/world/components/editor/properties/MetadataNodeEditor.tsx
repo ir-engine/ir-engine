@@ -1,7 +1,6 @@
-import React, { Component } from 'react'
-import { Link } from '@styled-icons/fa-solid/Link'
+import React from 'react'
+import { Analytics } from '@styled-icons/material/Analytics'
 import NodeEditor from './NodeEditor'
-import Editor from '../Editor'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import { withTranslation } from 'react-i18next'
@@ -14,7 +13,7 @@ export function MetadataNodeEditor(props: { editor?: any; node?: any; t: any }) 
         editor.setPropertySelected('_data', value)
     }
 
-    const description = 'Custom Metadata Node'
+    const description = "Metadata Node for the Digital Being"
 
     return (
         <NodeEditor {...props} description={description}>
@@ -27,5 +26,6 @@ export function MetadataNodeEditor(props: { editor?: any; node?: any; t: any }) 
     )
 }
 
-MetadataNodeEditor.iconComponent = Link 
+MetadataNodeEditor.iconComponent = Analytics 
+MetadataNodeEditor.description = "Metadata Node for the Digital Being"
 export default withTranslation()(MetadataNodeEditor)
