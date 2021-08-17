@@ -100,6 +100,12 @@ export const useStyles = makeStyles((theme: Theme) =>
     tableFooter: {
       background: '#343b41 !important',
       color: '#f1f1f1 !important'
+    },
+    selector: {
+      width: '100%'
+    },
+    select: {
+      color: '#f1f1f1 !important'
     }
   })
 )
@@ -110,5 +116,9 @@ export const useStyle = makeStyles({
   },
   container: {
     maxHeight: '80vh'
+  },
+  selectPaper: {
+    background: '#343b41',
+    color: '#f1f1f1'
   }
 })

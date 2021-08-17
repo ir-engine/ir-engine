@@ -22,6 +22,8 @@ import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
+import Autocomplete from '@material-ui/lab/Autocomplete'
+import TextField from '@material-ui/core/TextField'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 
@@ -80,13 +82,15 @@ const CreateUser = (props: Props) => {
     name: '',
     avatar: '',
     userRole: '',
-    scopeType: '',
+    scopeType: [],
     formErrors: {
       name: '',
       avatar: '',
-      userRole: ''
+      userRole: '',
+      scopeType: ''
     }
   })
+
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
 
@@ -139,6 +143,7 @@ const CreateUser = (props: Props) => {
       case 'userRole':
         temp.userRole = value.length < 2 ? 'User role is required!' : ''
         break
+
       default:
         break
     }
@@ -162,6 +167,9 @@ const CreateUser = (props: Props) => {
     if (!state.userRole) {
       temp.userRole = "User role can't be empty"
     }
+    if (!state.scopeType.length) {
+      temp.scopeType = "Scope type can't be empty"
+    }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
       createUserAction(data)
@@ -170,7 +178,8 @@ const CreateUser = (props: Props) => {
         ...state,
         name: '',
         avatar: '',
-        userRole: ''
+        userRole: '',
+        scopeType: []
       })
     } else {
       setError('Please fill all required field')
@@ -262,29 +271,22 @@ const CreateUser = (props: Props) => {
           </DialogContentText>
 
           <label>Grant access</label>
-          <Paper component="div" className={classes.createInput}>
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.scopeType}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={classes.select}
-                name="scopeType"
-                MenuProps={{ classes: { paper: classesx.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>Select access</em>
-                </MenuItem>
-                {adminScopes.map((el) => (
-                  <MenuItem value={el.type} key={el.type}>
-                    {el.type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <Paper
+            component="div"
+            className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+          >
+            <Autocomplete
+              onChange={(event, value) =>
+                setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+              }
+              multiple
+              className={classes.selector}
+              classes={{ paper: classesx.selectPaper, inputRoot: classes.select }}
+              id="tags-standard"
+              options={adminScopes}
+              getOptionLabel={(option) => option.type}
+              renderInput={(params) => <TextField {...params} placeholder="Select access" />}
+            />
           </Paper>
 
           <DialogActions>

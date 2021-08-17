@@ -114,6 +114,14 @@ export const useStyle = makeStyles({
     backgroundColor: '#43484F',
     color: '#f1f1f1'
   },
+  sceneInfo: {
+    marginTop: '5%',
+    color: '#f1f1f1',
+    backgroundColor: '#43484F'
+  },
+  sceneRoot: {
+    flexGrow: 1
+  },
   paperDialog: {
     background: 'rgb(58, 65, 73) !important',
     color: '#f1f1f1'

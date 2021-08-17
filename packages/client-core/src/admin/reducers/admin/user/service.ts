@@ -41,6 +41,7 @@ export function fetchUsersAsAdmin(offset: string) {
 }
 
 export function createUser(user: any) {
+  console.log('user:', user)
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const result = await client.service('user').create(user)

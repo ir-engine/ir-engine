@@ -103,8 +103,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       border: '1px solid red',
       padding: '2px 4px',
       display: 'flex',
-      alignItems: 'center',
-      //width: "45vw",
+      alignItems: 'center #343b41',
       marginTop: '10px',
       marginBottom: '15px',
       background: '#343b41',
@@ -112,6 +111,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     select: {
       color: '#f1f1f1 !important'
+    },
+    selector: {
+      width: '100%'
     }
   })
 )

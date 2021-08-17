@@ -14,14 +14,22 @@ import './PlayerStyles.css'
 import { useStyles, useStyle } from './styles'
 import { formValid } from './validation'
 import { Save } from '@material-ui/icons'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { updateFeed } from '../../../reducers/admin/Social/feeds/service'
 
 interface Props {
   adminFeed: any
   closeEdit: () => void
+  updateFeed?: any
 }
 
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  updateFeed: bindActionCreators(updateFeed, dispatch)
+})
+
 const EditFeed = (props: Props) => {
-  const { closeEdit, adminFeed } = props
+  const { closeEdit, adminFeed, updateFeed } = props
   const [state, setState] = React.useState({
     title: adminFeed.title,
     description: adminFeed.description,
@@ -34,9 +42,9 @@ const EditFeed = (props: Props) => {
       preview: ''
     }
   })
+
   const classes = useStyles()
   const classex = useStyle()
-  console.log(adminFeed)
 
   const handleChange = (e) => {
     const { name } = e.target
@@ -80,6 +88,7 @@ const EditFeed = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
+      updateFeed(adminFeed.id, { preview, video }, { title, description })
       closeEdit()
     }
   }
@@ -227,4 +236,4 @@ const EditFeed = (props: Props) => {
   )
 }
 
-export default EditFeed
+export default connect(null, mapDispatchToProps)(EditFeed)

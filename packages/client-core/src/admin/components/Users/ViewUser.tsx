@@ -30,6 +30,8 @@ import Snackbar from '@material-ui/core/Snackbar'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
+import { selectScopeState } from '../../reducers/admin/scope/selector'
+import { getScopeTypeService } from '../../reducers/admin/scope/service'
 
 interface Props {
   openView: boolean
@@ -43,12 +45,15 @@ interface Props {
   fetchSingleUserAdmin?: any
   adminUserState?: any
   fetchStaticResource?: any
+  adminScopeState?: any
+  getScopeTypeService?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
-    adminUserState: selectAdminUserState(state)
+    adminUserState: selectAdminUserState(state),
+    adminScopeState: selectScopeState(state)
   }
 }
 
@@ -57,7 +62,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   patchUser: bindActionCreators(patchUser, dispatch),
   updateUserRole: bindActionCreators(updateUserRole, dispatch),
   fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
+  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
 })
 
 const Alert = (props) => {
@@ -77,7 +83,9 @@ const ViewUser = (props: Props) => {
     updateUserRole,
     fetchSingleUserAdmin,
     adminUserState,
-    fetchStaticResource
+    fetchStaticResource,
+    adminScopeState,
+    getScopeTypeService
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
@@ -86,9 +94,11 @@ const ViewUser = (props: Props) => {
   const [state, setState] = React.useState({
     name: '',
     avatar: '',
+    scopeType: [],
     formErrors: {
       name: '',
-      avatar: ''
+      avatar: '',
+      scopeType: ''
     }
   })
   const [error, setError] = React.useState('')
@@ -100,6 +110,7 @@ const ViewUser = (props: Props) => {
   const singleUserData = adminUserState.get('singleUser').get('singleUser')
   const staticResource = adminUserState.get('staticResource')
   const staticResourceData = staticResource.get('staticResource')
+  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
   const handleClick = () => {
     setOpenDialog(true)
@@ -119,6 +130,9 @@ const ViewUser = (props: Props) => {
     }
     if (user.id && staticResource.get('updateNeeded')) {
       fetchStaticResource()
+    }
+    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
+      getScopeTypeService()
     }
   }, [adminUserState, user, refetch])
 
@@ -167,7 +181,8 @@ const ViewUser = (props: Props) => {
   const handleSubmit = () => {
     const data = {
       name: state.name,
-      avatarId: state.avatar
+      avatarId: state.avatar,
+      scopeType: state.scopeType
     }
 
     let temp = state.formErrors
@@ -177,13 +192,17 @@ const ViewUser = (props: Props) => {
     if (!state.avatar) {
       temp.avatar = "Avatar can't be empty"
     }
+    if (!state.scopeType) {
+      temp.scopeType = "Scope type can't be empty"
+    }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
       patchUser(userAdmin.id, data)
       setState({
         ...state,
         name: '',
-        avatar: ''
+        avatar: '',
+        scopeType: []
       })
       setEditMode(false)
       closeViewModel(false)
@@ -209,7 +228,8 @@ const ViewUser = (props: Props) => {
       formErrors: {
         ...state.formErrors,
         name: '',
-        avatar: ''
+        avatar: '',
+        scopeType: ''
       }
     })
   }
@@ -336,6 +356,20 @@ const ViewUser = (props: Props) => {
                     ))}
                   </Select>
                 </FormControl>
+              </Paper>
+
+              <label>Grant access</label>
+              <Paper component="div" className={classes.createInput}>
+                <Autocomplete
+                  onChange={(event, value) => setState({ ...state, scopeType: value })}
+                  multiple
+                  className={classes.selector}
+                  classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
+                  id="tags-standard"
+                  options={adminScopes}
+                  getOptionLabel={(option) => option.type}
+                  renderInput={(params) => <TextField {...params} placeholder="Select access" />}
+                />
               </Paper>
             </div>
           ) : (

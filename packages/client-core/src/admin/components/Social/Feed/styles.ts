@@ -173,7 +173,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     image: {
       height: '18rem',
-      width: '100%'
+      width: '100%',
+      borderRadius: '5px'
     },
     containerMargin: {
       marginTop: '.7rem'

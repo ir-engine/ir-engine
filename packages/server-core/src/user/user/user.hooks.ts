@@ -80,7 +80,36 @@ export default {
             model: 'user-settings'
           }
         ]
-      })
+      }),
+      async (context: HookContext): Promise<HookContext> => {
+        const foundItem = await context.app.service('scope').Model.findOne({
+          where: {
+            userId: context.arguments[0]
+          }
+        })
+        if (!foundItem) {
+          context.arguments[1]?.scopeType.forEach(async (el) => {
+            await context.app.service('scope').create({
+              type: el.type,
+              userId: context.arguments[0]
+            })
+          })
+        } else {
+          context.arguments[1]?.scopeType.forEach(async (el) => {
+            await context.app.service('scope').Model.update(
+              {
+                type: el.type
+              },
+              {
+                where: {
+                  userId: context.arguments[0]
+                }
+              }
+            )
+          })
+        }
+        return context
+      }
     ],
     remove: []
   },
@@ -159,9 +188,11 @@ export default {
           await context.app.service('user-settings').create({
             userId: context.result.id
           })
-          await context.app.service('scope').create({
-            type: context.arguments[0]?.scopeType,
-            userId: context.result.id
+          context.arguments[0]?.scopeType.forEach((el) => {
+            context.app.service('scope').create({
+              type: el.type,
+              userId: context.result.id
+            })
           })
           const app = context.app
           let result = context.result

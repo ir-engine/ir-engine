@@ -247,20 +247,6 @@ const SideMenuItem = ({ location: { pathname } }) => {
           {open ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
-          <Link to="/admin/scope" className={classes.textLink}>
-            <ListItem
-              classes={{ selected: classes.selected }}
-              className={classes.nested}
-              selected={'/admin/scope' === pathname}
-              style={{ color: 'white' }}
-              button
-            >
-              <ListItemIcon>
-                <VpnKey style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary={'Scope'} />
-            </ListItem>
-          </Link>
           <Link to="/admin/bots" className={classes.textLink}>
             <ListItem
               classes={{ selected: classes.selected }}
