@@ -5,7 +5,6 @@ import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
-import { InteractorComponent } from '../interaction/components/InteractorComponent'
 import { Network } from '../networking/classes/Network'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { CollisionGroups } from '../physics/enums/CollisionGroups'
@@ -45,10 +44,6 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
           raycastQuery: null,
           rayHasHit: false,
           collisionMask: CollisionGroups.Default
-        })
-        addComponent(entity, InteractorComponent, {
-          focusedInteractive: null,
-          subFocusedArray: []
         })
         addComponent(entity, PersistTagComponent, {})
 

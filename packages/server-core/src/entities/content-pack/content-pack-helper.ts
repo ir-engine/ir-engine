@@ -1,10 +1,11 @@
-import S3Provider from '../../media/storageprovider/s3.storage'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import axios from 'axios'
 import mimeType from 'mime-types'
+import StorageProvider from '../../media/storageprovider/storageprovider'
+import { Agent } from 'https'
 
-const s3: any = new S3Provider()
+const storageProvider = new StorageProvider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/
 const avatarRegex = /avatars\/([a-zA-Z0-9_-]+).([a-zA-Z0-9_-]+)/
@@ -32,6 +33,15 @@ const getContentType = (url: string) => {
   return 'octet-stream'
 }
 
+export function getAxiosConfig(responseType?: string): axios.AxiosRequestConfig {
+  const axiosConfig = {
+    responseType: responseType === 'json' ? 'json' : 'arraybuffer'
+  }
+
+  if (config.server.mode === 'local') axiosConfig.httpsAgent = new Agent({ rejectUnauthorized: false })
+  return axiosConfig
+}
+
 export function assembleScene(scene: any, contentPack: string): any {
   const uploadPromises = []
   const worldFile = {
@@ -54,40 +64,12 @@ export function assembleScene(scene: any, contentPack: string): any {
               value = regexExec[2] as string
               component.props[key] = `/assets${value}`
               if (value[0] === '/') value = value.slice(1)
-              const file = (await new Promise((resolve, reject) => {
-                s3.provider.getObject(
-                  {
-                    Bucket: s3.bucket,
-                    Key: value
-                  },
-                  (err, data) => {
-                    if (err) {
-                      console.error(err)
-                      reject(err)
-                    } else {
-                      resolve(data)
-                    }
-                  }
-                )
-              })) as any
-              await new Promise((resolve, reject) => {
-                s3.provider.putObject(
-                  {
-                    ACL: 'public-read',
-                    Body: file.Body,
-                    Bucket: s3.bucket,
-                    ContentType: file.ContentType,
-                    Key: getAssetKey(value as string, contentPack)
-                  },
-                  (err, data) => {
-                    if (err) {
-                      console.error(err)
-                      reject(err)
-                    } else {
-                      resolve(data)
-                    }
-                  }
-                )
+              const file = await storageProvider.getObject(value)
+              await storageProvider.putObject({
+                ACL: 'public-read',
+                Body: file.Body,
+                ContentType: file.ContentType,
+                Key: getAssetKey(value as string, contentPack)
               })
 
               resolve(null)
@@ -158,30 +140,17 @@ export async function populateScene(
     type: 'project'
   })
   if (thumbnailUrl != null) {
-    const thumbnailResult = await axios.get(thumbnailUrl, { responseType: 'arraybuffer' })
+    const thumbnailResult = await axios.get(thumbnailUrl, getAxiosConfig())
     const thumbnailKey = getThumbnailKey(thumbnailUrl)
-    await new Promise((resolve, reject) => {
-      s3.provider.putObject(
-        {
-          ACL: 'public-read',
-          Body: thumbnailResult.data,
-          Bucket: s3.bucket,
-          ContentType: 'jpeg',
-          Key: thumbnailKey
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
+    await storageProvider.putObject({
+      ACL: 'public-read',
+      Body: thumbnailResult.data,
+      ContentType: 'jpeg',
+      Key: thumbnailKey
     })
     await app.service('static-resource').create({
       sid: collection.sid,
-      url: `https://${config.aws.cloudfront.domain}/${thumbnailKey}`,
+      url: `https://${storageProvider.provider.cacheDomain}/${thumbnailKey}`,
       mimeType: 'image/jpeg'
     })
     const newStaticResource = await app.service('static-resource').find({
@@ -211,27 +180,12 @@ export async function populateScene(
           component.props[key] = rootPackUrl + value
           // Insert Download/S3 upload
           const contentType = getContentType(component.props[key])
-          const downloadResult = await axios.get(component.props[key], {
-            responseType: contentType === 'json' ? 'json' : 'arraybuffer'
-          })
-          await new Promise((resolve, reject) => {
-            s3.provider.putObject(
-              {
-                ACL: 'public-read',
-                Body: downloadResult.data,
-                Bucket: s3.bucket,
-                ContentType: contentType,
-                Key: getAssetS3Key(value as string)
-              },
-              (err, data) => {
-                if (err) {
-                  console.error(err)
-                  reject(err)
-                } else {
-                  resolve(data)
-                }
-              }
-            )
+          const downloadResult = await axios.get(component.props[key], getAxiosConfig('json'))
+          await storageProvider.putObject({
+            ACL: 'public-read',
+            Body: downloadResult.data,
+            ContentType: contentType,
+            Key: getAssetS3Key(value as string)
           })
         }
       }
@@ -247,26 +201,13 @@ export async function populateScene(
 
 export async function populateAvatar(avatar: any, app: Application): Promise<any> {
   const avatarPromise = new Promise(async (resolve) => {
-    const avatarResult = await axios.get(avatar.avatar, { responseType: 'arraybuffer' })
+    const avatarResult = await axios.get(avatar.avatar, getAxiosConfig())
     const avatarKey = getAvatarLinkKey(avatar.avatar)
-    await new Promise((resolve, reject) => {
-      s3.provider.putObject(
-        {
-          ACL: 'public-read',
-          Body: avatarResult.data,
-          Bucket: s3.bucket,
-          ContentType: mimeType.lookup(avatarKey),
-          Key: avatarKey
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
+    await storageProvider.putObject({
+      ACL: 'public-read',
+      Body: avatarResult.data,
+      ContentType: mimeType.lookup(avatarKey),
+      Key: avatarKey
     })
     const existingAvatarResult = await (app.service('static-resource') as any).Model.findOne({
       where: {
@@ -277,33 +218,20 @@ export async function populateAvatar(avatar: any, app: Application): Promise<any
     if (existingAvatarResult != null) await app.service('static-resource').remove(existingAvatarResult.id)
     await app.service('static-resource').create({
       name: avatar.name,
-      url: `https://${config.aws.cloudfront.domain}/${avatarKey}`,
+      url: `https://${storageProvider.provider.cacheDomain}/${avatarKey}`,
       key: avatarKey,
       staticResourceType: 'avatar'
     })
     resolve(true)
   })
   const thumbnailPromise = new Promise(async (resolve) => {
-    const thumbnailResult = await axios.get(avatar.thumbnail, { responseType: 'arraybuffer' })
+    const thumbnailResult = await axios.get(avatar.thumbnail, getAxiosConfig())
     const thumbnailKey = getAvatarLinkKey(avatar.thumbnail)
-    await new Promise((resolve, reject) => {
-      s3.provider.putObject(
-        {
-          ACL: 'public-read',
-          Body: thumbnailResult.data,
-          Bucket: s3.bucket,
-          ContentType: mimeType.lookup(thumbnailKey),
-          Key: thumbnailKey
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
+    await storageProvider.putObject({
+      ACL: 'public-read',
+      Body: thumbnailResult.data,
+      ContentType: mimeType.lookup(thumbnailKey),
+      Key: thumbnailKey
     })
     const existingThumbnailResult = await (app.service('static-resource') as any).Model.findOne({
       where: {
@@ -314,7 +242,7 @@ export async function populateAvatar(avatar: any, app: Application): Promise<any
     if (existingThumbnailResult != null) await app.service('static-resource').remove(existingThumbnailResult.id)
     await app.service('static-resource').create({
       name: avatar.name,
-      url: `https://${config.aws.cloudfront.domain}/${thumbnailKey}`,
+      url: `https://${storageProvider.provider.cacheDomain}/${thumbnailKey}`,
       key: thumbnailKey,
       staticResourceType: 'user-thumbnail'
     })
@@ -335,50 +263,34 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
     thumbnail.url = new URL(thumbnail.url, protocol + domain).href
   }
   const avatarUploadPromise = new Promise(async (resolve, reject) => {
-    const avatarResult = await axios.get(avatar.url, { responseType: 'arraybuffer' })
-    await new Promise((resolve, reject) => {
-      s3.provider.putObject(
-        {
-          ACL: 'public-read',
-          Body: avatarResult.data,
-          Bucket: s3.bucket,
-          ContentType: mimeType.lookup(avatar.url),
-          Key: getAvatarKey(contentPack, avatar.key)
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
-    resolve(true)
+    try {
+      const avatarResult = await axios.get(avatar.url, getAxiosConfig())
+      await storageProvider.putObject({
+        ACL: 'public-read',
+        Body: avatarResult.data,
+        ContentType: mimeType.lookup(avatar.url),
+        Key: getAvatarKey(contentPack, avatar.key)
+      })
+      resolve(true)
+    } catch (err) {
+      console.error(err)
+      reject(err)
+    }
   })
   const avatarThumbnailUploadPromise = new Promise(async (resolve, reject) => {
-    const avatarThumbnailResult = await axios.get(thumbnail.url, { responseType: 'arraybuffer' })
-    await new Promise((resolve, reject) => {
-      s3.provider.putObject(
-        {
-          ACL: 'public-read',
-          Body: avatarThumbnailResult.data,
-          Bucket: s3.bucket,
-          ContentType: mimeType.lookup(thumbnail.url),
-          Key: getAvatarThumbnailKey(contentPack, thumbnail.key)
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
-    resolve(true)
+    try {
+      const avatarThumbnailResult = await axios.get(thumbnail.url, getAxiosConfig())
+      await storageProvider.putObject({
+        ACL: 'public-read',
+        Body: avatarThumbnailResult.data,
+        ContentType: mimeType.lookup(thumbnail.url),
+        Key: getAvatarThumbnailKey(contentPack, thumbnail.key)
+      })
+      resolve(true)
+    } catch (err) {
+      console.error(err)
+      reject(err)
+    }
   })
   return Promise.all([avatarUploadPromise, avatarThumbnailUploadPromise])
 }
