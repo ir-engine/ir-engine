@@ -23,10 +23,6 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
     editor.setPropertySelected('startLongitude', payload)
   }
 
-  const onChangeIsGlobal = (payload) => {
-    editor.setPropertySelected('isGlobal', payload)
-  }
-
   const onChangeUseGeolocation = (payload) => {
     editor.setPropertySelected('useDeviceGeolocation', payload)
   }
@@ -45,14 +41,6 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
 
   return (
     <NodeEditor {...props} description={description}>
-      {/* @ts-ignore */}
-      <InputGroup
-        name="Is Global?"
-        label={t('editor:properties.map.lbl-isGlobal')}
-        info={t('editor:properties.map.info-isGlobal')}
-      >
-        <BooleanInput value={node.isGlobal} onChange={onChangeIsGlobal} />
-      </InputGroup>
       {/* @ts-ignore */}
       <InputGroup
         name="Start at device's geolocation?"
