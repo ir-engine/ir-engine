@@ -16,11 +16,11 @@ import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGro
 import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { GameObject } from '@xrengine/engine/src/game/components/GameObject'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { getOwnerIdPlayerNumber } from '../functions/golfFunctions'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import { GolfObjectEntities, GolfState } from '../GolfSystem'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -172,9 +172,9 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
 
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent)
-  const gameObject = getComponent(ballEntity, GameObject)
+  const nameComponent = getComponent(ballEntity, NameComponent)
   const ballMesh = group.children[0].clone(true) as Mesh
-  ballMesh.name = 'Ball' + gameObject.uuid
+  ballMesh.name = 'Ball' + nameComponent.uuid
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
   ballMesh.traverse((obj: Mesh) => {
@@ -225,7 +225,7 @@ export const initializeGolfBall = (
     scale: new Vector3().setScalar(golfBallRadius)
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
-  addComponent(ballEntity, GameObject, { role: `GolfBall-${playerNumber}` })
+  addComponent(ballEntity, NameComponent, { name: `GolfBall-${playerNumber}` })
 
   const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
 

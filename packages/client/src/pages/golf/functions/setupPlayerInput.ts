@@ -57,6 +57,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
       const playerNumber = getGolfPlayerNumber(entity)
       const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+      console.log('k', playerNumber, ballEntity)
       if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position

@@ -27,7 +27,6 @@ import {
 import { enableClub, initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { SpawnNetworkObjectComponent } from '@xrengine/engine/src/scene/components/SpawnNetworkObjectComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { GameObject } from '@xrengine/engine/src/game/components/GameObject'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { setupPlayerInput } from './functions/setupPlayerInput'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
@@ -44,7 +43,7 @@ import { useState } from '@hookstate/core'
 import { createNetworkPlayerUI } from './GolfPlayerUISystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
-import { ColliderComponent } from '../../../../engine/src/physics/components/ColliderComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -336,8 +335,8 @@ export const GolfSystem = async (): Promise<System> => {
   const playerEnterQuery = enterQuery(playerQuery)
   const playerExitQuery = exitQuery(playerQuery)
 
-  const gameObjectQuery = defineQuery([GameObject])
-  const gameObjectEnterQuery = enterQuery(gameObjectQuery)
+  const namedComponentQuery = defineQuery([NameComponent])
+  const namedComponentEnterQuery = enterQuery(namedComponentQuery)
 
   const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
   const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
@@ -404,11 +403,20 @@ export const GolfSystem = async (): Promise<System> => {
       setupPlayerInput(entity)
     }
 
-    for (const entity of gameObjectEnterQuery(world)) {
-      const { role } = getComponent(entity, GameObject)
-      if (role.includes('GolfHole')) addComponent(entity, GolfHoleComponent, {})
-      if (role.includes('GolfTee')) addComponent(entity, GolfTeeComponent, {})
-      GolfObjectEntities.set(role, entity)
+    for (const entity of namedComponentEnterQuery(world)) {
+      const { name } = getComponent(entity, NameComponent)
+      console.log(name)
+      if (name.includes('GolfHole')) {
+        addComponent(entity, GolfHoleComponent, {})
+        GolfObjectEntities.set(name, entity)
+      }
+      if (name.includes('GolfTee')) {
+        addComponent(entity, GolfTeeComponent, {})
+        GolfObjectEntities.set(name, entity)
+      }
+      if (name.includes('GolfBall') || name.includes('GolfClub')) {
+        GolfObjectEntities.set(name, entity)
+      }
     }
 
     const currentPlayerNumber = GolfState.currentPlayer.value

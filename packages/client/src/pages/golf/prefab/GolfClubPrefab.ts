@@ -14,36 +14,21 @@ import {
   Vector3,
   Quaternion
 } from 'three'
-import {
-  Body,
-  BodyType,
-  ColliderHitEvent,
-  PhysXInstance,
-  RaycastQuery,
-  SceneQueryType,
-  SHAPES,
-  ShapeType
-} from 'three-physx'
+import { Body, BodyType, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES, ShapeType } from 'three-physx'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import {
-  hasComponent,
-  addComponent,
-  getComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
-import { GameObject } from '@xrengine/engine/src/game/components/GameObject'
 import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowComponent'
-import { isClient } from '../../../../../engine/src/common/functions/isClient'
-import { isEntityLocalClient } from '../../../../../engine/src/networking/functions/isEntityLocalClient'
-import { ClientAuthoritativeComponent } from '../../../../../engine/src/physics/components/ClientAuthoritativeComponent'
+import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
+import { ClientAuthoritativeComponent } from '@xrengine/engine/src/physics/components/ClientAuthoritativeComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -219,7 +204,7 @@ export const initializeGolfClub = (entityClub: Entity, playerNumber: number, own
   })
 
   addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
-  addComponent(entityClub, GameObject, { role: `GolfClub-${playerNumber}` })
+  addComponent(entityClub, NameComponent, { name: `GolfClub-${playerNumber}` })
   addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   const color = GolfColours[playerNumber].clone()
