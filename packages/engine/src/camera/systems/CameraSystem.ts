@@ -62,7 +62,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
-const followCameraBehavior = (entity: Entity) => {
+const followCamera = (entity: Entity) => {
   if (typeof entity === 'undefined') return
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
@@ -182,7 +182,7 @@ export const resetFollowCamera = () => {
   const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const desiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent)
   if (transform && desiredTransform) {
-    followCameraBehavior(Engine.activeCameraFollowTarget)
+    followCamera(Engine.activeCameraFollowTarget)
     transform.position.copy(desiredTransform.position)
     transform.rotation.copy(desiredTransform.rotation)
   }
@@ -248,7 +248,7 @@ export const CameraSystem = async (): Promise<System> => {
 
     // follow camera component should only ever be on the character
     for (const entity of followCameraQuery(world)) {
-      followCameraBehavior(entity)
+      followCamera(entity)
     }
 
     if (typeof Engine.activeCameraEntity !== 'undefined') {

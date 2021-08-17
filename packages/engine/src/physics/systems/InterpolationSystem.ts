@@ -6,21 +6,21 @@ import { calculateInterpolation, createSnapshot } from '../../networking/functio
 import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { BodyType } from 'three-physx'
-import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot'
+import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
 import { Vector3 } from 'three'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
-import { characterCorrectionBehavior } from '../../avatar/behaviors/avatarCorrectionBehavior'
+import { avatarCorrection } from '../../avatar/functions/avatarCorrection'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { avatarInterpolationBehavior } from '../../avatar/behaviors/avatarInterpolationBehavior'
-import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior'
+import { interpolateAvatar } from '../../avatar/functions/interpolateAvatar'
+import { interpolateRigidBody } from '../functions/interpolateRigidBody'
 import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior'
+import { correctRigidBody } from '../function../functions/correctRigidBody
 import { VelocityComponent } from '../components/VelocityComponent'
 import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
-import { rigidbodyUpdateBehavior } from '../behaviors/rigidbodyUpdateBehavior'
+import { updateRigidBody } from '../functions/updateRigidBody'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
@@ -86,23 +86,23 @@ export const InterpolationSystem = async (): Promise<System> => {
     Vault.instance.add(createSnapshot(snapshots.new))
 
     for (const entity of localCharacterInterpolationQuery(world)) {
-      characterCorrectionBehavior(entity, snapshots, delta)
+      avatarCorrection(entity, snapshots, delta)
     }
 
     for (const entity of networkClientInterpolationQuery(world)) {
-      avatarInterpolationBehavior(entity, snapshots, delta)
+      interpolateAvatar(entity, snapshots, delta)
     }
 
     for (const entity of localObjectInterpolationQuery(world)) {
-      rigidbodyCorrectionBehavior(entity, snapshots, delta)
+      correctRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of networkObjectInterpolationQuery(world)) {
-      rigidbodyInterpolationBehavior(entity, snapshots, delta)
+      interpolateRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of correctionFromServerQuery(world)) {
-      rigidbodyUpdateBehavior(entity, snapshots, delta)
+      updateRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of transformUpdateFromServerQuery(world)) {
