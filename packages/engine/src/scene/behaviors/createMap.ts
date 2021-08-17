@@ -1,7 +1,7 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { create } from '../../map'
+import { create, update } from '../../map'
 import { MapProps } from '../../map/MapProps'
-import { addComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -19,4 +19,20 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   if (args.enableDebug) {
     addComponent(entity, DebugNavMeshComponent, null)
   }
+}
+
+export async function updateMap(entity: Entity, args: MapProps, longtitude, latitude, position): Promise<void> {
+  const { mapMesh, navMesh, groundMesh } = await update(Engine.renderer, args, longtitude, latitude, position)
+  // addComponent(entity, Object3DComponent, {
+  //   value: mapMesh
+  // })
+  // const gg = getComponent(entity , Object3DComponent)
+  // console.log(gg)
+  // addComponent(entity, NavMeshComponent, {
+  //   yukaNavMesh: navMesh,
+  //   navTarget: groundMesh
+  // })
+  // if (args.enableDebug) {
+  //   addComponent(entity, DebugNavMeshComponent, null)
+  // }
 }

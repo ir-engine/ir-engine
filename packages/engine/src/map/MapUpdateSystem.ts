@@ -1,14 +1,14 @@
 import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { Vector3 } from 'three'
-import { getCoord, getTile, updateMap } from '.'
-import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { getCoord, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'
-import { awaitEngaged, Engine } from '../ecs/classes/Engine'
+import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
 import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { updateMap } from '../scene/behaviors/createMap'
 
 export const MapUpdateSystem = async (): Promise<System> => {
   const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
@@ -36,7 +36,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
         } else {
           const remObj = Engine.scene.getObjectByName('MapObject')
           updateMap(
-            Engine.renderer,
+            entity,
             {
               scale: new Vector3(1, 1, 1)
             },

@@ -62,13 +62,7 @@ const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position
   return builder.build()
 }
 
-export const updateMap = async function (
-  renderer: THREE.WebGLRenderer,
-  args: MapProps,
-  longtitude,
-  latitude,
-  position
-) {
+export const update = async function (renderer: THREE.WebGLRenderer, args: MapProps, longtitude, latitude, position) {
   console.log('addmap called with args:', args)
   const center = [longtitude, latitude]
   const vectorTiles = await fetchVectorTiles(center)
