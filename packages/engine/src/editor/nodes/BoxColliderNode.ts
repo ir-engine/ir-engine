@@ -8,6 +8,14 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
+
+    const gameObject = json.components.find((c) => c.name === 'game-object')
+
+    if (gameObject) {
+      node.target = gameObject.props.target
+      node.role = gameObject.props.role
+    }
+
     const boxCollider = json.components.find((c) => c.name === 'box-collider')
 
     if (boxCollider) {
@@ -65,6 +73,14 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         }
       }
     } as any
+
+    if (this.target != undefined) {
+      components['game-object'] = {
+        gameName: this.editor.nodes.find((node) => node.uuid === this.target).name,
+        role: this.role,
+        target: this.target
+      }
+    }
     return await super.serialize(projectID, components)
   }
   prepareForExport() {
@@ -82,5 +98,12 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
       },
       scale: this.scale
     })
+    if (this.target != undefined) {
+      this.addGLTFComponent('game-object', {
+        gameName: this.editor.nodes.find((node) => node.uuid === this.target).name,
+        role: this.role,
+        target: this.target
+      })
+    }
   }
 }
