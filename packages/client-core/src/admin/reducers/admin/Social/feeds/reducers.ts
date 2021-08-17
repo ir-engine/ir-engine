@@ -51,9 +51,9 @@ const feedsReducer = (state = immutableState, action: any): any => {
       return state.set('feeds', updateMap)
 
     case UPDATE_ADMIN_FEED:
-      updateMap = new Map(state.get('feeds'))
-      updateMap.set('updateNeeded', true)
-      return state.set('feeds', updateMap)
+      const feeds = new Map(state.get('feeds'))
+      feeds.set('updateNeeded', true)
+      return state.set('feeds', feeds)
 
     case REMOVE_FEED:
       const feedData = new Map(state.get('feeds'))
