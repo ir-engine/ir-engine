@@ -24,10 +24,7 @@ import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
-import { GameManagerSystem } from '../../../../engine/src/game/systems/GameManagerSystem'
-import { GolfSystem } from '../../../../engine/src/game/templates/Golf/GolfSystem'
-import { NetworkSchema } from '../../../../engine/src/networking/interfaces/NetworkSchema'
+import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -45,15 +42,8 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
     },
     physics: {
       simulationEnabled: false,
-      physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-    },
-    systems: [
-      {
-        type: SystemUpdateType.Fixed,
-        system: GolfSystem,
-        after: GameManagerSystem
-      }
-    ]
+      physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
+    }
   }
 }
 
@@ -263,11 +253,11 @@ export const EnginePage = (props: Props) => {
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
     if (slugifiedName === portalComponent.location) {
-      teleportPlayer(
-        Network.instance.localClientEntity,
-        portalComponent.remoteSpawnPosition,
-        portalComponent.remoteSpawnRotation
-      )
+      // teleportPlayer(
+      //   Network.instance.localClientEntity,
+      //   portalComponent.remoteSpawnPosition,
+      //   portalComponent.remoteSpawnRotation
+      // )
       return
     }
 

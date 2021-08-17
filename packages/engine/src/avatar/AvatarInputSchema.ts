@@ -1,30 +1,26 @@
+import { Mesh, Quaternion, Vector2, Vector3 } from 'three'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { CameraMode } from '../camera/types/CameraMode'
+import { LifecycleValue } from '../common/enums/LifecycleValue'
+import { ParityValue } from '../common/enums/ParityValue'
+import { NumericalType } from '../common/types/NumericalTypes'
 import { Entity } from '../ecs/classes/Entity'
 import { addComponent, getComponent } from '../ecs/functions/EntityFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
-import { Camera, Material, Mesh, Quaternion, Vector3, Vector2, PerspectiveCamera } from 'three'
-import { SkinnedMesh } from 'three/src/objects/SkinnedMesh'
-import { CameraModes } from '../camera/types/CameraModes'
-import { LifecycleValue } from '../common/enums/LifecycleValue'
-import { GamepadAxis, XRAxes } from '../input/enums/InputEnums'
-import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from '../input/enums/InputEnums'
+import { CameraInput, GamepadAxis, GamepadButtons, MouseInput, TouchInputs, XRAxes } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
+import { InputValue } from '../input/interfaces/InputValue'
 import { InputAlias } from '../input/types/InputAlias'
+import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
+import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { AvatarComponent } from './components/AvatarComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
-import { ParityValue } from '../common/enums/ParityValue'
-import { InputValue } from '../input/interfaces/InputValue'
-import { NumericalType } from '../common/types/NumericalTypes'
-import { InteractedComponent } from '../interaction/components/InteractedComponent'
-import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
-import { switchCameraMode } from './functions/switchCameraMode'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarSettings } from './AvatarControllerSystem'
+import { switchCameraMode } from './functions/switchCameraMode'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -68,18 +64,18 @@ const cycleCameraMode = (
   const cameraFollow = getComponent(entity, FollowCameraComponent)
 
   switch (cameraFollow?.mode) {
-    case CameraModes.FirstPerson:
-      switchCameraMode(entity, { cameraMode: CameraModes.ShoulderCam })
+    case CameraMode.FirstPerson:
+      switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
       break
-    case CameraModes.ShoulderCam:
-      switchCameraMode(entity, { cameraMode: CameraModes.ThirdPerson })
+    case CameraMode.ShoulderCam:
+      switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
       cameraFollow.distance = cameraFollow.minDistance + 1
       break
-    case CameraModes.ThirdPerson:
-      switchCameraMode(entity, { cameraMode: CameraModes.TopDown })
+    case CameraMode.ThirdPerson:
+      switchCameraMode(entity, { cameraMode: CameraMode.TopDown })
       break
-    case CameraModes.TopDown:
-      switchCameraMode(entity, { cameraMode: CameraModes.FirstPerson })
+    case CameraMode.TopDown:
+      switchCameraMode(entity, { cameraMode: CameraMode.FirstPerson })
       break
     default:
       break
@@ -97,7 +93,7 @@ const fixedCameraBehindAvatar: InputBehaviorType = (
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
   const follower = getComponent(entity, FollowCameraComponent)
-  if (follower && follower.mode !== CameraModes.FirstPerson) {
+  if (follower && follower.mode !== CameraMode.FirstPerson) {
     follower.locked = !follower.locked
   }
 }
@@ -133,52 +129,52 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   }
 
   const cameraFollow = getComponent(entity, FollowCameraComponent)
-  if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Strategic) return //console.warn("cameraFollow is undefined")
+  if (cameraFollow === undefined || cameraFollow.mode === CameraMode.Strategic) return //console.warn("cameraFollow is undefined")
 
   const inputPrevValue = (inputComponent.prevData.get(inputKey)?.value as number) ?? 0
   const value = inputValue.value as number
 
   const scrollDelta =
     Math.min(1, Math.max(-1, value - inputPrevValue)) * (inputValue.inputAction === TouchInputs.Scale ? 0.25 : 1)
-  if (cameraFollow.mode !== CameraModes.ThirdPerson && scrollDelta === lastScrollDelta) {
+  if (cameraFollow.mode !== CameraMode.ThirdPerson && scrollDelta === lastScrollDelta) {
     return
   }
   lastScrollDelta = scrollDelta
 
   switch (cameraFollow.mode) {
-    case CameraModes.FirstPerson:
+    case CameraMode.FirstPerson:
       if (scrollDelta > 0) {
-        switchCameraMode(entity, { cameraMode: CameraModes.ShoulderCam })
+        switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
       }
       break
-    case CameraModes.ShoulderCam:
+    case CameraMode.ShoulderCam:
       if (scrollDelta > 0) {
-        switchCameraMode(entity, { cameraMode: CameraModes.ThirdPerson })
+        switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
         cameraFollow.distance = cameraFollow.minDistance + 1
       }
       if (scrollDelta < 0) {
-        switchCameraMode(entity, { cameraMode: CameraModes.FirstPerson })
+        switchCameraMode(entity, { cameraMode: CameraMode.FirstPerson })
       }
       break
     default:
-    case CameraModes.ThirdPerson:
+    case CameraMode.ThirdPerson:
       const newDistance = cameraFollow.distance + scrollDelta
       cameraFollow.distance = Math.max(cameraFollow.minDistance, Math.min(cameraFollow.maxDistance, newDistance))
 
       if (cameraFollow.distance >= cameraFollow.maxDistance) {
         if (scrollDelta > 0) {
-          switchCameraMode(entity, { cameraMode: CameraModes.TopDown })
+          switchCameraMode(entity, { cameraMode: CameraMode.TopDown })
         }
       } else if (cameraFollow.distance <= cameraFollow.minDistance) {
         if (scrollDelta < 0) {
-          switchCameraMode(entity, { cameraMode: CameraModes.ShoulderCam })
+          switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
         }
       }
 
       break
-    case CameraModes.TopDown:
+    case CameraMode.TopDown:
       if (scrollDelta < 0) {
-        switchCameraMode(entity, { cameraMode: CameraModes.ThirdPerson })
+        switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
       }
       break
   }

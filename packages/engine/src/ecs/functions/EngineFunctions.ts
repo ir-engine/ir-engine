@@ -105,7 +105,13 @@ export async function reset(): Promise<void> {}
   Engine.canvas = null
 }*/
 
-export const processLocationChange = async (newPhysicsWorker: Worker): Promise<void> => {
+export const executeSystemBeforeReset = (world: World) => {
+  Object.values(world.pipelines).forEach((pipeline) => {
+    pipeline(world.ecsWorld)
+  })
+}
+
+export const processLocationChange = async (): Promise<void> => {
   const entitiesToRemove = []
   const removedEntities = []
   const sceneObjectsToRemove = []
@@ -118,7 +124,7 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
     }
   })
 
-  // executeSystemBeforeReset()
+  executeSystemBeforeReset(World.defaultWorld)
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -136,17 +142,15 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
     removeEntity(entity)
   })
 
-  // executeSystemBeforeReset()
+  executeSystemBeforeReset(World.defaultWorld)
 
-  await resetPhysics(newPhysicsWorker)
+  await resetPhysics()
 }
 
-export const resetPhysics = async (newPhysicsWorker: Worker): Promise<void> => {
+export const resetPhysics = async (): Promise<void> => {
   Engine.physxWorker.terminate()
-  Engine.enabled = false
   Engine.workers.splice(Engine.workers.indexOf(Engine.physxWorker), 1)
   PhysXInstance.instance.dispose()
   PhysXInstance.instance = new PhysXInstance()
-  await PhysXInstance.instance.initPhysX(newPhysicsWorker, Engine.initOptions.physics.settings)
-  Engine.enabled = true
+  await PhysXInstance.instance.initPhysX(Engine.initOptions.physics.physxWorker(), Engine.initOptions.physics.settings)
 }

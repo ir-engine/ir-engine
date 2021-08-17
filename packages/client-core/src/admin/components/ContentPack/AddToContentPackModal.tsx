@@ -88,14 +88,21 @@ const AddToContentPackModal = (props: Props): any => {
 
   const addCurrentScenesToContentPack = async () => {
     try {
-      setProcessing(true)
-      await addScenesToContentPack({
-        scenes: scenes,
-        contentPack: contentPackName
-      })
-      setProcessing(false)
-      window.location.href = '/admin/content-packs'
-      closeModal()
+      if (contentPackName !== '') {
+        setProcessing(true)
+        await addScenesToContentPack({
+          scenes: scenes,
+          contentPack: contentPackName
+        })
+        setProcessing(false)
+        window.location.href = '/admin/content-packs'
+        closeModal()
+      } else
+        throw new Error(
+          createOrPatch === 'patch'
+            ? 'Must select an existing content pack'
+            : 'Must enter a name for a new content pack'
+        )
     } catch (err) {
       setProcessing(false)
       showError(err.message)
@@ -105,13 +112,15 @@ const AddToContentPackModal = (props: Props): any => {
   const addCurrentAvatarsToContentPack = async () => {
     try {
       setProcessing(true)
-      await addAvatarsToContentPack({
-        avatars: avatars,
-        contentPack: contentPackName
-      })
-      setProcessing(false)
-      window.location.href = '/admin/content-packs'
-      closeModal()
+      if (contentPackName !== '') {
+        await addAvatarsToContentPack({
+          avatars: avatars,
+          contentPack: contentPackName
+        })
+        setProcessing(false)
+        window.location.href = '/admin/content-packs'
+        closeModal()
+      } else throw new Error('Existing content pack must be selected')
     } catch (err) {
       setProcessing(false)
       showError(err.message)
@@ -121,19 +130,21 @@ const AddToContentPackModal = (props: Props): any => {
   const createNewContentPack = async () => {
     try {
       setProcessing(true)
-      if (scenes != null)
-        await createContentPack({
-          scenes: scenes,
-          contentPack: newContentPackName
-        })
-      else if (avatars != null)
-        await createContentPack({
-          avatars: avatars,
-          contentPack: newContentPackName
-        })
-      setProcessing(false)
-      window.location.href = '/admin/content-packs'
-      closeModal()
+      if (newContentPackName !== '') {
+        if (scenes != null)
+          await createContentPack({
+            scenes: scenes,
+            contentPack: newContentPackName
+          })
+        else if (avatars != null)
+          await createContentPack({
+            avatars: avatars,
+            contentPack: newContentPackName
+          })
+        setProcessing(false)
+        window.location.href = '/admin/content-packs'
+        closeModal()
+      } else throw new Error('New content pack name required')
     } catch (err) {
       setProcessing(false)
       showError(err.message)
@@ -175,8 +186,16 @@ const AddToContentPackModal = (props: Props): any => {
           >
             <div className={styles['modal-header']}>
               <div />
-              {scenes && <div className={styles['title']}>Adding {scenes.length} Scenes</div>}
-              {avatars && <div className={styles['title']}>Adding {avatars.length} Avatars</div>}
+              {scenes && (
+                <div className={styles['title']}>
+                  Adding {scenes.length} {scenes.length === 1 ? 'Scene' : 'Scenes'}
+                </div>
+              )}
+              {avatars && (
+                <div className={styles['title']}>
+                  Adding {avatars.length} {avatars.length === 1 ? 'Avatar' : 'Avatars'}
+                </div>
+              )}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>

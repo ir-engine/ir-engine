@@ -16,19 +16,23 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
       startCameraDistance,
       minCameraDistance,
       cameraMode,
-      cameraModeDefault
+      cameraModeDefault,
+      startInFreeLook,
+      minPhi,
+      maxPhi,
+      startPhi
     } = json.components.find((c) => c.name === CameraPropertiesNode.legacyComponentName).props
     node.name = name
-    node.fov = fov ?? 50
-    node.cameraNearClip = cameraNearClip ?? 0.1
-    node.cameraFarClip = cameraFarClip ?? 100
+    node.fov = fov
+    node.cameraNearClip = cameraNearClip
+    node.cameraFarClip = cameraFarClip
     node.projectionType = projectionType
-    node.minCameraDistance = minCameraDistance ?? 6
-    node.maxCameraDistance = maxCameraDistance ?? 20
-    node.startCameraDistance = startCameraDistance ?? 12
-
+    node.minCameraDistance = minCameraDistance
+    node.maxCameraDistance = maxCameraDistance
     node.cameraMode = cameraMode
-    node.cameraModeDefault = cameraModeDefault
+    ;(node.cameraModeDefault = cameraModeDefault), (node.startCameraDistance = startCameraDistance)
+    node.startInFreeLook = startInFreeLook
+    ;(node.minPhi = minPhi), (node.maxPhi = maxPhi), (node.startPhi = startPhi)
     return node
   }
   constructor(editor) {
@@ -50,7 +54,11 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
         maxCameraDistance: this.maxCameraDistance,
         startCameraDistance: this.startCameraDistance,
         cameraMode: this.cameraMode,
-        cameraModeDefault: this.cameraModeDefault
+        cameraModeDefault: this.cameraModeDefault,
+        startInFreeLook: this.startInFreeLook,
+        minPhi: this.minPhi,
+        maxPhi: this.maxPhi,
+        startPhi: this.startPhi
       }
     } as any
     return await super.serialize(projectID, components)

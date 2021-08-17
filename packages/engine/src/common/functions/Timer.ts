@@ -50,16 +50,21 @@ export function Timer(
   let prevTimerRuns = 0
   let updateInterval
 
+  const fixedRunner = callbacks.fixedUpdate ? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null
+  const networkRunner = callbacks.fixedUpdate ? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null
+
   function xrAnimationLoop(time, xrFrame) {
     Engine.xrFrame = xrFrame
     if (lastAnimTime !== null) {
       frameDelta = (time - lastAnimTime) / 1000
       accumulated = accumulated + frameDelta
       if (callbacks.networkUpdate) {
-        callbacks.networkUpdate(frameDelta, accumulated)
+        networkRunner.run(frameDelta)
+        // callbacks.networkUpdate(frameDelta, accumulated)
       }
       if (callbacks.fixedUpdate) {
-        callbacks.fixedUpdate(frameDelta, accumulated)
+        fixedRunner.run(frameDelta)
+        // callbacks.fixedUpdate(frameDelta, accumulated)
       }
       if (callbacks.update) {
         callbacks.update(frameDelta, accumulated)
@@ -78,9 +83,6 @@ export function Timer(
     start()
   })
 
-  const fixedRunner = callbacks.fixedUpdate ? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null
-  const networkRunner = callbacks.fixedUpdate ? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null
-
   function onUpdate(time) {
     timerRuns += 1
     const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time
@@ -92,20 +94,20 @@ export function Timer(
 
     if (fixedRunner) {
       tpsSubMeasureStart('fixed')
-      callbacks.fixedUpdate(delta, time)
+      // callbacks.fixedUpdate(delta, time)
 
       // accumulator doesn't like setInterval on client, disable for now
-      // fixedRunner.run(delta);
+      fixedRunner.run(delta)
 
       tpsSubMeasureEnd('fixed')
     }
 
     if (networkRunner) {
       tpsSubMeasureStart('net')
-      callbacks.networkUpdate(delta, time)
+      // callbacks.networkUpdate(delta, time)
 
       // accumulator doesn't like setInterval on client, disable for now
-      // networkRunner.run(delta);
+      networkRunner.run(delta)
 
       tpsSubMeasureEnd('net')
     }
@@ -317,7 +319,7 @@ export class FixedStepsRunner {
     let updatesLimitReached = updatesCount > this.updatesLimit
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       this.callback(this.accumulator)
-      console.log(this.accumulator)
+      // console.log(this.accumulator)
 
       this.accumulator -= this.timestep
       ++updatesCount

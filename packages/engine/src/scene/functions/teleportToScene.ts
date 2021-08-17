@@ -15,6 +15,7 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
 import { PhysXInstance } from 'three-physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
@@ -28,6 +29,7 @@ export const teleportToScene = async (
     getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
   )
   removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
+  removeComponent(Network.instance.localClientEntity, LocalInputReceiverComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
@@ -100,6 +102,7 @@ export const teleportToScene = async (
   rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
   createAvatarController(Network.instance.localClientEntity)
+  addComponent(Network.instance.localClientEntity, LocalInputReceiverComponent, {})
 
   const fadeOut = hyperspaceEffect.fadeOut(delta)
 

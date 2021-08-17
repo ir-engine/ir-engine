@@ -63,7 +63,7 @@ const Project = (props: Props) => {
     type: EngineSystemPresets.EDITOR,
     publicPath: location.origin,
     physics: {
-      physxWorker: new Worker('/scripts/loadPhysXClassic.js')
+      physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
     }
   }
 

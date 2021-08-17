@@ -5,7 +5,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
-import { GameObject } from '../../game/components/GameObject'
+import { NameComponent } from '../components/NameComponent'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
@@ -14,7 +14,6 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
-import { createGame } from '../behaviors/createGame'
 import { createGround } from '../behaviors/createGround'
 import { createMap } from '../behaviors/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
@@ -30,16 +29,19 @@ import { setEnvMap } from '../behaviors/setEnvMap'
 import { setFog } from '../behaviors/setFog'
 import { Clouds } from '../classes/Clouds'
 import Image from '../classes/Image'
+import { Ocean } from '../classes/Ocean'
 import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+
 export enum SCENE_ASSET_TYPES {
   ENVMAP
 }
@@ -72,6 +74,8 @@ export class WorldScene {
     Object.keys(scene.entities).forEach((key) => {
       const sceneEntity = scene.entities[key]
       const entity = createEntity()
+
+      addComponent(entity, NameComponent, { name: sceneEntity.name })
 
       sceneEntity.components.forEach((component) => {
         component.data.sceneEntityId = sceneEntity.entityId
@@ -113,19 +117,6 @@ export class WorldScene {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     switch (name) {
-      case 'game':
-        createGame(entity, component.data)
-        break
-
-      case 'game-object':
-        addComponent(entity, GameObject, {
-          gameName: component.data.gameName,
-          role: component.data.role,
-          uuid: component.data.sceneEntityId,
-          collisionBehaviors: {}
-        })
-        break
-
       case 'ambient-light':
         addObject3DComponent(entity, new AmbientLight(), component.data)
         break
@@ -252,6 +243,7 @@ export class WorldScene {
       case 'box-collider':
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(
+          entity,
           {
             userData: {
               type: 'box',
@@ -277,8 +269,14 @@ export class WorldScene {
         createParticleEmitterObject(entity, component.data)
         break
 
-      case 'cloud':
-        addObject3DComponent(entity, new Clouds(), component.data)
+      case 'clouds':
+        isClient && addObject3DComponent(entity, new Clouds(), component.data)
+        isClient && addComponent(entity, UpdatableComponent, {})
+        break
+
+      case 'ocean':
+        isClient && addObject3DComponent(entity, new Ocean(), component.data)
+        isClient && addComponent(entity, UpdatableComponent, {})
         break
 
       case 'postprocessing':
@@ -319,7 +317,12 @@ export class WorldScene {
         break
 
       /* deprecated */
+      case 'game':
       case 'mesh-collider':
+        break
+
+      case 'mdata':
+        console.log('[SceneLoading]: Scene metadata not implemented')
         break
 
       default:

@@ -1,8 +1,6 @@
 import { PointLight, Object3D } from 'three'
 import createShadowMapResolutionProxy from '../../editor/functions/createShadowMapResolutionProxy'
 export default class PhysicalPointLight extends PointLight {
-  remove: any
-  add: any
   shadowMapResolution: any
   constructor() {
     super()

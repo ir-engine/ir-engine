@@ -8,7 +8,6 @@ export default class EditorDirectionalLightHelper extends Object3D {
   lightPlane: Line<BufferGeometry, LineBasicMaterial>
   targetLine: Line<BufferGeometry, LineBasicMaterial>
   name: string
-  add: any
   constructor(light, size?, color?) {
     super()
     this.name = 'EditorDirectionalLightHelper'
