@@ -3,14 +3,16 @@ import {
   setAppLoaded,
   setAppOnBoardingStep
 } from '@xrengine/client-core/src/common/reducers/app/actions'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import Store from '@xrengine/client-core/src/store'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import React, { useEffect, useState } from 'react'
+import { InitializeOptions } from '../../../engine/src/initializationOptions'
+import { Network } from '../../../engine/src/networking/classes/Network'
 
 const canvasStyle = {
   zIndex: 0,

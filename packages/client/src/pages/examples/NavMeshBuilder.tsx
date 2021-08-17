@@ -1,7 +1,5 @@
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   createEntity,
@@ -15,11 +13,6 @@ import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpace
 import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
 import { createConvexRegionHelper } from '@xrengine/engine/src/navigation/NavMeshHelper'
 import { PathPlanner } from '@xrengine/engine/src/navigation/PathPlanner'
-import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
-import { fetchVectorTiles } from '@xrengine/engine/src/map/MapBoxClient'
-import { NavMeshBuilder } from '@xrengine/engine/src/map/NavMeshBuilder'
-import { MultiPolygon, Polygon, Position } from 'geojson'
-import pc from 'polygon-clipping'
 import React, { useEffect } from 'react'
 import {
   AmbientLight,
@@ -35,7 +28,15 @@ import {
   Scene,
   WebGLRenderer
 } from 'three'
-import { CellSpacePartitioning, EntityManager, FollowPathBehavior, Time } from 'yuka'
+import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
+import { defineQuery, defineSystem, System, Types } from '@xrengine/engine/src/ecs/bitecs'
+import { AnimationClip, AnimationMixer } from 'three'
+import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
+import { NavMeshBuilder } from '../../../../engine/src/map/NavMeshBuilder'
+import { fetchVectorTiles } from '../../../../engine/src/map/MapBoxClient'
+import { Position, Polygon, MultiPolygon } from 'geojson'
+import pc from 'polygon-clipping'
+import { computeBoundingBox } from '../../../../engine/src/map/GeoJSONFns'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner

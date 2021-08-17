@@ -9,7 +9,7 @@ import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Downgraded } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import Store from '@xrengine/client-core/src/store'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { World } from '../../../../engine/src/ecs/classes/World'
 
 export const NetworkDebug = ({ reinit }) => {
   const [isShowing, setShowing] = useState(false)
