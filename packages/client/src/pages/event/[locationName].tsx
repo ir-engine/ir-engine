@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
-import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
+import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
@@ -37,7 +37,7 @@ const engineInitializeOptions: InitializeOptions = {
     {
       type: SystemUpdateType.Fixed,
       system: AvatarUISystem,
-      after: UISystem
+      after: XRUISystem
     }
   ]
 }
