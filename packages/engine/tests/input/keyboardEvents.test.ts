@@ -3,7 +3,7 @@ import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity, removeEntity } from "../../src/ecs/functions/EntityFunctions";
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
-import { handleKey } from "../../src/input/behaviors/handleKey";
+import { handleKey } from "../../src/input/functions/handleKey";
 import { Input } from "../../src/input/components/Input";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";

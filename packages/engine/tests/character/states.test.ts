@@ -30,7 +30,7 @@ const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initi
 const dummyObject = new Object3D();
 const dummyMixer = new AnimationMixer(dummyObject);
 const mockedAnimActions = new Map<string, AnimationAction>();
-jest.mock("../../../src/character/behaviors/setActorAnimation", () => {
+jest.mock("../../../src/character/functions/setActorAnimation", () => {
   return {
     __esModule: true,
     // default: jest.fn(() => 42),

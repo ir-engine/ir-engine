@@ -24,7 +24,7 @@ import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { Entity } from "../../src/ecs/classes/Entity";
 import { Server } from "../../src/networking/components/Server";
 import * as handleInputOnServerModule from "../../src/networking/functions/handleInputOnServer";
-import * as setLocalMovementDirectionModule from "../../src/avatar/behaviors/setLocalMovementDirection";
+import * as setLocalMovementDirectionModule from "../../src/avatar/functions/setLocalMovementDirection";
 import { System } from "../../src/ecs/classes/System";
 import { now } from "../../src/common/functions/now";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";

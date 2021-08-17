@@ -9,9 +9,9 @@ import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { MouseInput } from "../../src/input/enums/InputEnums";
-import { handleMouseMovement } from "../../src/input/behaviors/handleMouseMovement";
-import { handleMouseButton } from "../../src/input/behaviors/handleMouseButton";
-import { handleMouseWheel } from "../../src/input/behaviors/handleMouseWheel";
+import { handleMouseMovement } from "../../src/input/functions/handleMouseMovement";
+import { handleMouseButton } from "../../src/input/functions/handleMouseButton";
+import { handleMouseWheel } from "../../src/input/functions/handleMouseWheel";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 
 let addListenerMock:jest.SpyInstance;

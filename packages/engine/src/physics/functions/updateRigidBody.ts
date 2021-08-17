@@ -22,7 +22,7 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
 
 const vec3 = new Vector3()
 
-export const rigidbodyUpdateBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
+export const updateRigidBody = (entity: Entity, snapshots: SnapshotData, delta): void => {
   const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
   if (snapshot == null) return
 

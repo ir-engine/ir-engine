@@ -102,7 +102,6 @@ export async function reset(): Promise<void> {}
   // Engine.enabled = false;
   Engine.inputState.clear()
   Engine.prevInputState.clear()
-  Engine.canvas = null
 }*/
 
 export const executeSystemBeforeReset = (world: World) => {
