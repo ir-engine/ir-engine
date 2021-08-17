@@ -594,6 +594,7 @@ export function uploadAvatar(data: any) {
 
 export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean) {
   return async (dispatch: Dispatch, getState: any) => {
+    const token = getState().get('auth').get('authUser').accessToken
     const name = avatarName ? avatarName : model.name.substring(0, model.name.lastIndexOf('.'))
     const [modelURL, thumbnailURL] = await Promise.all([
       client.service('upload-presigned').get('', {
@@ -613,16 +614,35 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
     const modelData = new FormData()
     Object.keys(modelURL.fields).forEach((key) => modelData.append(key, modelURL.fields[key]))
     modelData.append('acl', 'public-read')
-    modelData.append('file', model)
+    modelData.append(modelURL.local ? 'media' : 'file', model)
+    if (modelURL.local) {
+      modelData.append('uploadPath', 'avatars')
+      modelData.append('id', `${name}.glb`)
+      modelData.append('skipStaticResource', 'true')
+    }
 
+    console.log('modelData', modelData)
     // Upload Model file to S3
-    return axios
-      .post(modelURL.url, modelData)
+    const modelOperation =
+      modelURL.local === true
+        ? axios.post(`${Config.publicRuntimeConfig.apiServer}/media`, modelData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: 'Bearer ' + token
+            }
+          })
+        : axios.post(modelURL.url, modelData)
+    return modelOperation
       .then(async (res) => {
         const thumbnailData = new FormData()
         Object.keys(thumbnailURL.fields).forEach((key) => thumbnailData.append(key, thumbnailURL.fields[key]))
         thumbnailData.append('acl', 'public-read')
-        thumbnailData.append('file', thumbnail)
+        thumbnailData.append(thumbnailURL.local === true ? 'media' : 'file', thumbnail)
+        if (thumbnailURL.local) {
+          thumbnailData.append('uploadPath', 'avatars')
+          thumbnailData.append('name', `${name}.png`)
+          thumbnailData.append('skipStaticResource', 'true')
+        }
 
         const modelCloudfrontURL = `https://${modelURL.cloudfrontDomain}/${modelURL.fields.Key}`
         const thumbnailCloudfrontURL = `https://${thumbnailURL.cloudfrontDomain}/${thumbnailURL.fields.Key}`
@@ -642,8 +662,16 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
           }
         })
         // Upload Thumbnail file to S3
-        axios
-          .post(thumbnailURL.url, thumbnailData)
+        const thumbnailOperation =
+          thumbnailURL.local === true
+            ? axios.post(`${Config.publicRuntimeConfig.apiServer}/media`, thumbnailData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  Authorization: 'Bearer ' + token
+                }
+              })
+            : axios.post(thumbnailURL.url, thumbnailData)
+        await thumbnailOperation
           .then((res) => {
             // Save URLs to backend
             Promise.all([

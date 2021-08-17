@@ -14,15 +14,19 @@ export default (): Hook => {
 
     if (!context.data.id && _.has(context, 'params.uploadPath')) {
       const uploadPath = _.get(context, 'params.uploadPath')
+      const id = _.get(context, 'params.id')
       if (context.params.file.originalname === 'blob') {
         const fileExtenstion = String(extension(context.params.file.mimetype))
         context.data.id = uploadPath
           ? `${uploadPath as string}.${fileExtenstion}`
           : `${context.params.file.originalname as string}.${fileExtenstion}`
       } else {
-        context.data.id = uploadPath
-          ? path.join(uploadPath, context.params.file.originalname)
-          : context.params.file.originalname
+        context.data.id =
+          uploadPath && id
+            ? path.join(uploadPath, id)
+            : uploadPath
+            ? path.join(uploadPath, context.params.file.originalname)
+            : context.params.file.originalname
       }
     }
 
