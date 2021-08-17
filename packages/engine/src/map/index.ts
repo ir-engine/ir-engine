@@ -1,4 +1,4 @@
-import { Position, Polygon, MultiPolygon } from 'geojson'
+import { Position, Polygon, MultiPolygon, Feature, Geometry } from 'geojson'
 import * as THREE from 'three'
 import { Group } from 'three'
 import { NavMesh } from 'yuka'
@@ -7,7 +7,7 @@ import { fetchRasterTiles, fetchVectorTiles, getCenterTile } from './MapBoxClien
 import { MapProps } from './MapProps'
 import { createBuildings, createGround, createRoads, llToScene, setGroundScaleAndPosition } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
-import { TileFeaturesByLayer } from './types'
+import { ILayerName, TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
 import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 import { METERS_PER_DEGREE_LL } from './constants'
@@ -45,21 +45,45 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
 }
 
-const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
+function generateNavMesh(tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
   const builder = new NavMeshBuilder()
-  const gBuildings = tiles
-    .reduce((acc, tiles) => acc.concat(tiles.building), [])
-    .map((feature) => {
-      return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
-    })
-
-  const gGround = computeBoundingBox(gBuildings)
-  let gBuildingNegativeSpace = [gGround.coordinates]
-  gBuildings.forEach((gPositiveSpace) => {
-    gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
-  })
-  builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
+  generateNavMeshGeometries(tiles, center, scale).forEach((g) => builder.addGeometry(g))
   return builder.build()
+}
+
+function generateNavMeshGeometries(
+  tiles: TileFeaturesByLayer[],
+  center: Position,
+  scale: number
+): (Polygon | MultiPolygon)[] {
+  const buildingCount = tiles.reduce((count, tile) => count + tile.building.length, 0)
+  const roadCount = tiles.reduce((count, tile) => count + tile.road.length, 0)
+
+  let geometries: (Polygon | MultiPolygon)[]
+  if (buildingCount > 100 && roadCount > 1) {
+    geometries = collectGeometriesByLayer(tiles, 'road')
+  } else {
+    geometries = [computeNegativeInBoundingBox(collectGeometriesByLayer(tiles, 'building'))]
+  }
+
+  return geometries.map((g) => {
+    return scaleAndTranslate(g, center, scale)
+  })
+}
+
+// TODO add target param
+function collectGeometriesByLayer(tiles: TileFeaturesByLayer[], layerName: ILayerName): (Polygon | MultiPolygon)[] {
+  return tiles.reduce((acc, tiles) => acc.concat(tiles[layerName]), []).map((f) => f.geometry)
+}
+
+const computeNegativeInBoundingBox = function (geometries: (Polygon | MultiPolygon)[]): MultiPolygon {
+  const gBbox = computeBoundingBox(geometries)
+  let gNegative = [gBbox.coordinates]
+  geometries.forEach((gPositive) => {
+    // TODO use apply
+    gNegative = pc.difference(gNegative as any, gPositive.coordinates as any)
+  })
+  return { type: 'MultiPolygon', coordinates: gNegative }
 }
 
 export const updateMap = async function (
