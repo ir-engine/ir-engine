@@ -108,7 +108,8 @@ export const spawnBall = (entityPlayer: Entity, playerCurrentHole: number): void
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
 
-  const teeEntity = GolfObjectEntities.get(`GolfTee-${playerCurrentHole}`)
+  console.log('spawn ball for ' + playerCurrentHole, GolfObjectEntities)
+  const teeEntity = GolfObjectEntities.get(`golftee-${playerCurrentHole}`)
   const teeTransform = getComponent(teeEntity, TransformComponent)
 
   const parameters: GolfBallSpawnParameters = {

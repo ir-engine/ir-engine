@@ -33,7 +33,7 @@ import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
 import { getCurrentGolfPlayerEntity, getGolfPlayerNumber, isCurrentGolfPlayer } from './functions/golfFunctions'
 import { hitBall } from './functions/hitBall'
 import { GolfBallComponent } from './components/GolfBallComponent'
-import { getCollisions } from '@xrengine/engine/src/physics/behaviors/getCollisions'
+import { getCollisions } from '@xrengine/engine/src/physics/functions/getCollisions'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
 import { Vector3 } from 'three'
@@ -77,7 +77,7 @@ export function useGolfState() {
 }
 
 const getTeePosition = (currentHole: number) => {
-  const teeEntity = GolfObjectEntities.get(`GolfTee-${currentHole}`)
+  const teeEntity = GolfObjectEntities.get(`golftee-${currentHole}`)
   return getComponent(teeEntity, TransformComponent).position.toArray()
 }
 
@@ -171,7 +171,7 @@ export const GolfSystem = async (): Promise<System> => {
             return { stroke: s.stroke + 1 }
           })
           const currentPlayerNumber = GolfState.currentPlayer.value
-          const activeBallEntity = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+          const activeBallEntity = GolfObjectEntities.get(`golfball-${currentPlayerNumber}`)
           setBallState(activeBallEntity, BALL_STATES.MOVING)
           return
         }
@@ -183,7 +183,7 @@ export const GolfSystem = async (): Promise<System> => {
          */
         case 'puttclub.BALL_STOPPED': {
           const currentPlayerNumber = GolfState.currentPlayer.value
-          const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+          const entityBall = GolfObjectEntities.get(`golfball-${currentPlayerNumber}`)
           setBallState(entityBall, action.inHole ? BALL_STATES.IN_HOLE : BALL_STATES.STOPPED)
           if (isClient) {
             const teePosition = getTeePosition(s.currentHole.value)
@@ -213,7 +213,7 @@ export const GolfSystem = async (): Promise<System> => {
         case 'puttclub.NEXT_TURN': {
           const currentPlayerNumber = s.currentPlayer.value
           const currentPlayer = s.players[currentPlayerNumber]
-          const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+          const entityBall = GolfObjectEntities.get(`golfball-${currentPlayerNumber}`)
           const currentHole = GolfState.currentHole.value
           const entityHole = GolfObjectEntities.get(`GolfHole-${currentHole}`)
 
@@ -267,7 +267,7 @@ export const GolfSystem = async (): Promise<System> => {
               dispatchFromServer(GolfAction.resetBall(nextPlayer.id, getTeePosition(s.currentHole.value)))
             }
 
-            const nextBallEntity = GolfObjectEntities.get(`GolfBall-${nextPlayerNumber}`)
+            const nextBallEntity = GolfObjectEntities.get(`golfball-${nextPlayerNumber}`)
             setBallState(nextBallEntity, BALL_STATES.WAITING)
 
             console.log(`it is now player ${nextPlayerNumber}'s turn`)
@@ -318,7 +318,7 @@ export const GolfSystem = async (): Promise<System> => {
          */
         case 'puttclub.RESET_BALL': {
           const playerNumber = s.players.findIndex((p) => p.value.id === action.playerId)
-          const entityBall = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+          const entityBall = GolfObjectEntities.get(`golfball-${playerNumber}`)
           if (typeof entityBall !== 'undefined') {
             // && getComponent(entityBall, GolfBallComponent).state === BALL_STATES.INACTIVE) {
             resetBall(entityBall, action.position)
@@ -367,7 +367,7 @@ export const GolfSystem = async (): Promise<System> => {
           if (getCurrentGolfPlayerEntity() === ownerEntity) {
             const { uniqueId } = getComponent(ownerEntity, NetworkObjectComponent)
             const currentPlayerNumber = GolfState.currentPlayer.value
-            const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+            const entityBall = GolfObjectEntities.get(`golfball-${currentPlayerNumber}`)
 
             if (entityBall && getComponent(entityBall, NetworkObjectComponent).ownerId === uniqueId) {
               const { collisionEntity } = getCollisions(entity, GolfBallComponent)
@@ -406,21 +406,21 @@ export const GolfSystem = async (): Promise<System> => {
     for (const entity of namedComponentEnterQuery(world)) {
       const { name } = getComponent(entity, NameComponent)
       console.log(name)
-      if (name.includes('GolfHole')) {
+      if (name.includes('golfhole')) {
         addComponent(entity, GolfHoleComponent, {})
         GolfObjectEntities.set(name, entity)
       }
-      if (name.includes('GolfTee')) {
+      if (name.includes('golftee')) {
         addComponent(entity, GolfTeeComponent, {})
         GolfObjectEntities.set(name, entity)
       }
-      if (name.includes('GolfBall') || name.includes('GolfClub')) {
+      if (name.includes('golfhole') || name.includes('golfclub')) {
         GolfObjectEntities.set(name, entity)
       }
     }
 
     const currentPlayerNumber = GolfState.currentPlayer.value
-    const activeBallEntity = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
+    const activeBallEntity = GolfObjectEntities.get(`golfball-${currentPlayerNumber}`)
     if (activeBallEntity) {
       const golfBallComponent = getComponent(activeBallEntity, GolfBallComponent)
       updateBall(activeBallEntity)
