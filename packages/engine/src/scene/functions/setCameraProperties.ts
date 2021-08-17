@@ -26,8 +26,6 @@ type Props = {
 
 export const setCameraProperties = (entity: Entity, data: Props): void => {
   const cameraFollow = getComponent(entity, FollowCameraComponent)
-  console.log("Args is")
-  console.log(data)
   if (data.projectionType === ProjectionType.Orthographic) {
     Engine.camera = new OrthographicCamera(
       data.fov / -2,

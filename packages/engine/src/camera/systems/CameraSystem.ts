@@ -162,8 +162,6 @@ const followCamera = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-    console.log(cameraTransform.position, cameraTransform.rotation);
-
   if (followCamera.mode === CameraMode.FirstPerson || Engine.portCamera) {
     cameraTransform.position.copy(cameraDesiredTransform.position)
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
