@@ -42,7 +42,7 @@ import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
 import { TransformSystem } from './transform/systems/TransformSystem'
 import { XRSystem } from './xr/systems/XRSystem'
 import { FontManager } from './xrui/classes/FontManager'
-import { UISystem } from './xrui/systems/UISystem'
+import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -156,7 +156,6 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, UISystem)
   registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AnimationSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
@@ -185,6 +184,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
+  registerSystem(SystemUpdateType.Free, XRUISystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
 }

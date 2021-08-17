@@ -12,7 +12,7 @@ import RecordingApp from '../../components/Recorder/RecordingApp'
 import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { InitializeOptions } from '../../../../engine/src/initializationOptions'
-import { UISystem } from '../../../../engine/src/xrui/systems/UISystem'
+import { XRUISystem } from '../../../../engine/src/xrui/systems/XRUISystem'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -27,9 +27,9 @@ const LocationPage = (props) => {
   const engineInitializeOptions: InitializeOptions = {
     systems: [
       {
-        type: SystemUpdateType.Fixed,
+        type: SystemUpdateType.Free,
         system: AvatarUISystem,
-        after: UISystem
+        after: XRUISystem
       }
     ]
   }

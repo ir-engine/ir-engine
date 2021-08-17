@@ -43,7 +43,6 @@ import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/i
 import { useState } from '@hookstate/core'
 import { createNetworkPlayerUI } from './GolfPlayerUISystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
-import { GolfXRUISystem } from './GolfXRUISystem'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { ColliderComponent } from '../../../../engine/src/physics/components/ColliderComponent'
 
@@ -87,7 +86,7 @@ const getTeePosition = (currentHole: number) => {
 
 globalThis.GolfState = GolfState
 
-const GolfReceptorSystem = async (): Promise<System> => {
+export const GolfSystem = async (): Promise<System> => {
   if (isClient) {
     registerGolfBotHooks()
     // pre-cache the assets we need for this game
@@ -492,13 +491,4 @@ const GolfReceptorSystem = async (): Promise<System> => {
 
     return world
   })
-}
-
-export const GolfSystem = async () => {
-  const receptorSystem = await GolfReceptorSystem()
-  // if (isClient) {
-  //   const xruiSystem = await GolfXRUISystem()
-  //   return pipe(receptorSystem, xruiSystem)
-  // }
-  return receptorSystem
 }
