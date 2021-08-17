@@ -20,7 +20,8 @@ import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
 import { useTranslation } from 'react-i18next'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+// import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { useAdminSceneState } from '../../reducers/admin/scene/store/AdminSceneState'
 import { createLocation as createLocationAction } from '../../reducers/admin/location/service'
 import { formValid } from '../Users/validation'
 import { selectAlertState } from '../../../common/reducers/alert/selector'
@@ -42,7 +43,7 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     adminLocationState: selectAdminLocationState(state),
-    adminSceneState: selectAdminSceneState(state),
+    // adminSceneState: selectAdminSceneState(state),
     adminAlert: selectAlertState(state)
   }
 }
@@ -52,8 +53,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const CreateLocation = (props: Props) => {
-  const { open, handleClose, adminLocationState, adminSceneState, createLocationAction, closeViewModel, adminAlert } =
-    props
+  const { open, handleClose, adminLocationState, createLocationAction, closeViewModel, adminAlert } = props
+  const adminSceneState = useAdminSceneState()
   const classesx = useStyle()
   const classes = useStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
@@ -78,7 +79,7 @@ const CreateLocation = (props: Props) => {
   const { t } = useTranslation()
   const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
   const location = adminLocationState.get('locations')
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
+  const adminScenes = adminSceneState.scenes.scenes.get()
   const errorType = adminAlert.get('type')
   const errorMessage = adminAlert.get('message')
 
