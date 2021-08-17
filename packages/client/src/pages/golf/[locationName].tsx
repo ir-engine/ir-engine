@@ -9,6 +9,8 @@ import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdat
 import { GolfSystem } from './GolfSystem'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { EquippableSystem } from '@xrengine/engine/src/interaction/systems/EquippableSystem'
+import { GolfXRUISystem } from './GolfXRUISystem'
+import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -30,6 +32,11 @@ const LocationPage = (props) => {
         type: SystemUpdateType.Fixed,
         system: GolfSystem,
         after: EquippableSystem
+      },
+      {
+        type: SystemUpdateType.Free,
+        system: GolfXRUISystem,
+        after: XRUISystem
       }
     ]
   }

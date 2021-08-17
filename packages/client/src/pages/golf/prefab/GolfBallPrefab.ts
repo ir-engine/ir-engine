@@ -182,7 +182,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
     obj.scale.set(1, 1, 1)
     if (obj.material) {
       obj.material = (obj.material as Material).clone()
-      ;(obj.material as MeshBasicMaterial).color.set(color)
+      ;(obj.material as MeshBasicMaterial).color.copy(color)
     }
   })
   const ballGroup = new Group() as BallGroupType

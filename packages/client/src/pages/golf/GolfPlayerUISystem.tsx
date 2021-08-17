@@ -45,14 +45,14 @@ const GolfNetworkPlayerView = () => {
   const playerNumber = detailState.playerNumber.value
   const playerColor = GolfColours[playerNumber]
   const playerState = golfState.players[playerNumber]
-  const user = userState.layerUsers.find((user) => user.id.value === playerState.id.value)
+  const user = playerState ? userState.layerUsers.find((user) => user.id.value === playerState.id.value) : null
   const isPlayersTurn = golfState.currentPlayer.value === playerNumber
   return user ? (
     <div
       style={{
         fontSize: '60px',
         backgroundColor: '#000000dd',
-        color: scratchColor.setHex(playerColor).getStyle(),
+        color: playerColor.getStyle(),
         fontFamily: "'Roboto', sans-serif",
         border: `${isPlayersTurn ? 20 : 10}px solid white`,
         borderRadius: '50px',
