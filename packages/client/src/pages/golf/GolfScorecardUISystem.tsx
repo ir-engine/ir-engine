@@ -18,11 +18,11 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 export function createScorecardUI() {
   const ui = createXRUI(GolfScorecardView, GolfState)
 
-  addComponent(ui.entity, TransformComponent, {
-    position: new Vector3(),
-    rotation: new Quaternion(),
-    scale: new Vector3(1, 1, 1)
-  })
+  // addComponent(ui.entity, TransformComponent, {
+  //   position: new Vector3(),
+  //   rotation: new Quaternion(),
+  //   scale: new Vector3(1, 1, 1)
+  // })
 
   return ui
 }
@@ -75,35 +75,98 @@ const GolfScores = () => {
   )
 }
 
+const GolfLabelsView = () => {
+  return (
+    <div
+      id="labels"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        padding: '15px 0px 15px 10px',
+        position: 'static',
+        width: 'fit-content',
+        height: 'fit-content'
+      }}
+    >
+      <div
+        style={{
+          position: 'static',
+          height: '40px',
+          fontFamily: 'Racing Sans One',
+          fontStyle: 'normal',
+          fontWeight: 'normal',
+          fontSize: '30px',
+          lineHeight: '38px',
+          textAlign: 'right',
+          color: '#FFFFFF'
+        }}
+      >
+        Hole
+      </div>
+      <div
+        style={{
+          position: 'static',
+          height: '40px',
+          fontFamily: 'Racing Sans One',
+          fontStyle: 'normal',
+          fontWeight: 'normal',
+          fontSize: '15px',
+          lineHeight: '19px',
+          textAlign: 'right',
+          color: '#FFFFFF'
+        }}
+      >
+        Par
+      </div>
+    </div>
+  )
+}
+
 const GolfScorecardView = () => {
   return (
-    <div id="scorecard">
-      <GolfHoles></GolfHoles>
-      <GolfPar></GolfPar>
-      <GolfScores></GolfScores>
-    </div>
+    <>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
+      <div
+        id="scorecard"
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          padding: '64px 63px',
+          position: 'relative',
+          width: '773px',
+          height: '438px',
+          background: ' rgba(0, 0, 0, 0.51)',
+          border: '10px solid #FFFFFF',
+          boxSizing: 'border-box',
+          boxShadow: '0px 4px 80px rgba(0, 0, 0, 0.57)',
+          borderRadius: '60px'
+        }}
+      ></div>
+    </>
   )
 }
 
 export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
-  const mat = new Matrix4()
-
   return defineSystem((world) => {
-    return world
+    // return world
 
-    const uiRoot = getComponent(ui.entity, XRUIComponent)
-    if (!uiRoot) return world
+    const uiComponent = getComponent(ui.entity, XRUIComponent)
+    if (!uiComponent) return world
 
     const cameraMatrix = Engine.camera.matrix
-    const uiTransform = getComponent(ui.entity, TransformComponent)
+    // const uiTransform = getComponent(ui.entity, TransformComponent)
 
-    uiTransform.position.set(0, 0, -1)
-    uiTransform.rotation.set(0, 0, 0, 1)
-    uiTransform.scale.setScalar(1)
-    mat.compose(uiTransform.position, uiTransform.rotation, uiTransform.scale).premultiply(cameraMatrix)
-    mat.decompose(uiTransform.position, uiTransform.rotation, uiTransform.scale)
+    const layer = uiComponent.layer
+    layer.position.set(0, 0, -1)
+    layer.quaternion.set(0, 0, 0, 1)
+    layer.scale.setScalar(1)
+    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(cameraMatrix)
+    layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
 
     // uiTransform.rotation.copy(cameraTransform.rotation)
     // uiTransform.position.copy(cameraTransform.position)
