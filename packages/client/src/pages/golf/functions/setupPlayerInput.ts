@@ -30,10 +30,10 @@ import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarCo
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
 import { rotateViewVectorXZ } from '@xrengine/engine/src/camera/systems/CameraSystem'
 import { BALL_STATES, setBallState } from '../prefab/GolfBallPrefab'
-import { dispatchFromClient } from '../../../../../engine/src/networking/functions/dispatch'
+import { dispatchFromClient } from '@xrengine/engine/src/networking/functions/dispatch'
 import { GolfAction } from '../GolfAction'
-import { Network } from '../../../../../engine/src/networking/classes/Network'
-import { NetworkObjectComponent } from '../../../../../engine/src/networking/components/NetworkObjectComponent'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 

@@ -32,11 +32,11 @@ import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader
 import { defineQuery, defineSystem, System, Types } from '@xrengine/engine/src/ecs/bitecs'
 import { AnimationClip, AnimationMixer } from 'three'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
-import { NavMeshBuilder } from '../../../../engine/src/map/NavMeshBuilder'
-import { fetchVectorTiles } from '../../../../engine/src/map/MapBoxClient'
+import { NavMeshBuilder } from '@xrengine/engine/src/map/NavMeshBuilder'
+import { fetchVectorTiles } from '@xrengine/engine/src/map/MapBoxClient'
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import pc from 'polygon-clipping'
-import { computeBoundingBox } from '../../../../engine/src/map/GeoJSONFns'
+import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner
