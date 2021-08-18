@@ -41,13 +41,7 @@ import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { Component, getEntityComponents } from '../../ecs/bitecs'
-import { World } from '../../ecs/classes/World'
-import { getObjectComponent } from '../../assets/loaders/gltf/ComponentData'
-import { isBot } from '../../common/functions/isBot'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Component } from 'react'
-import { Component } from '../../../../server-core/src/entities/component/component.class'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -86,7 +80,7 @@ export class WorldScene {
 
       sceneEntity.components.forEach((component) => {
         component.data.sceneEntityId = sceneEntity.entityId
-        this.loadComponent(entity, component, sceneProperty, sceneEntity.components[0])
+        this.loadComponent(entity, component, sceneProperty)
       })
     })
 
@@ -94,7 +88,7 @@ export class WorldScene {
       .then(() => {
         WorldScene.isLoading = false
         Engine.sceneLoaded = true
-        
+
         configureCSM(sceneProperty.directionalLights, !sceneProperty.isCSMEnabled)
 
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
@@ -120,28 +114,30 @@ export class WorldScene {
     })
   }
 
-  loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType, transform: SceneDataComponent): void => {
+  loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
-    //console.log(name)
     switch (name) {
       case 'mtdata':
-        if (isClient && isBot(window) === "true") {
-           const { meta_data } = component.data
-           console.log('scene_metadata|' + meta_data)
-         }
+        if (isClient && Engine.isBot) {
+          const { meta_data } = component.data
+          console.log('scene_metadata|' + meta_data)
+        }
         break
 
-        case '_metadata':
+      case '_metadata':
+        {
           addObject3DComponent(entity, new Object3D(), component.data)
           addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
-          
-          if (isClient && isBot(window) === "true") {
-            const { _data} = component.data
-            const { x, y, z } = transform.data["position"]
+          const transform = getComponent(entity, TransformComponent)
+
+          if (isClient && Engine.isBot) {
+            const { _data } = component.data
+            const { x, y, z } = transform.data['position']
             console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
           }
-          break;
+        }
+        break
 
       case 'ambient-light':
         addObject3DComponent(entity, new AmbientLight(), component.data)
@@ -266,7 +262,7 @@ export class WorldScene {
         })
         break
 
-      case 'box-collider':
+      case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
         const transform = getComponent(entity, TransformComponent)
         createCollider(
@@ -282,6 +278,7 @@ export class WorldScene {
           transform.scale.clone().multiplyScalar(0.5)
         )
         break
+      }
 
       case 'trigger-volume':
         createTriggerVolume(entity, component.data)

@@ -30,7 +30,7 @@ import {
   handleTouch,
   handleTouchDirectionalPad,
   handleTouchGamepadButton,
-  handleTouchMove,
+  handleTouchMove
 } from '@xrengine/engine/src/input/schema/ClientInputSchema'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -316,7 +316,7 @@ export const EnginePage = (props: Props) => {
 
       {props.children}
 
-      <div onTouchStart={handleTouchStartEvent} >
+      <div onTouchStart={handleTouchStartEvent}>
         <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
         {props.showTouchpad && isTouchAvailable ? (

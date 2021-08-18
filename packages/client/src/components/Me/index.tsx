@@ -22,22 +22,22 @@ const Me = () => {
 
   return (
     <>
-          <PartyParticipantWindow
-            containerProportions={{
-              height: 135,
-              width: 240
-            }}
-            peerId={'me_cam'}
-          />
-          {(MediaStreams.instance?.screenVideoProducer || MediaStreams.instance?.screenAudioProducer) && (
-            <PartyParticipantWindow
-              containerProportions={{
-                height: 135,
-                width: 240
-              }}
-              peerId={'me_screen'}
-            />
-          )}
+      <PartyParticipantWindow
+        containerProportions={{
+          height: 135,
+          width: 240
+        }}
+        peerId={'me_cam'}
+      />
+      {(MediaStreams.instance?.screenVideoProducer || MediaStreams.instance?.screenAudioProducer) && (
+        <PartyParticipantWindow
+          containerProportions={{
+            height: 135,
+            width: 240
+          }}
+          peerId={'me_screen'}
+        />
+      )}
     </>
   )
 }
