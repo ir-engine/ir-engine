@@ -1,11 +1,10 @@
 import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { CameraModes } from '../camera/types/CameraModes'
+import { CameraMode } from '../camera/types/CameraMode'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
-import { InteractorComponent } from '../interaction/components/InteractorComponent'
 import { Network } from '../networking/classes/Network'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { CollisionGroups } from '../physics/enums/CollisionGroups'
@@ -34,8 +33,8 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       if (isLocalPlayer) {
         addComponent(entity, LocalInputReceiverComponent, {})
         addComponent(entity, FollowCameraComponent, {
-          mode: CameraModes.ThirdPerson,
-          distance: 3,
+          mode: CameraMode.ThirdPerson,
+          distance: 5,
           minDistance: 2,
           maxDistance: 7,
           theta: 0,
@@ -45,10 +44,6 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
           raycastQuery: null,
           rayHasHit: false,
           collisionMask: CollisionGroups.Default
-        })
-        addComponent(entity, InteractorComponent, {
-          focusedInteractive: null,
-          subFocusedArray: []
         })
         addComponent(entity, PersistTagComponent, {})
 

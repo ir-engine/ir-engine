@@ -1,11 +1,11 @@
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RaycastQuery } from 'three-physx'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
-import { CameraModes } from '../types/CameraModes'
+import { CameraMode } from '../types/CameraMode'
 
 export type FollowCameraComponentType = {
   /** * **Default** value is ```'thirdPerson'```. */
-  mode: string
+  mode: CameraMode
   /** * **Default** value is 3. */
   distance: number
   /** * **Default** value is 2. */
@@ -16,6 +16,10 @@ export type FollowCameraComponentType = {
   theta: number
   /** Rotation around Z axis */
   phi: number
+  /** * **Default** value is 0. */
+  minPhi: number
+  /** * **Default** value is 85. */
+  maxPhi: number
   /** Whether looking over left or right shoulder */
   shoulderSide: boolean
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
@@ -28,12 +32,14 @@ export type FollowCameraComponentType = {
 }
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
-  mode: CameraModes.ThirdPerson,
+  mode: CameraMode.ThirdPerson,
   distance: 3,
   minDistance: 2,
   maxDistance: 7,
   theta: 0,
   phi: 0,
+  minPhi: 0,
+  maxPhi: 85,
   shoulderSide: true,
   locked: true,
   raycastQuery: null,

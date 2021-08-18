@@ -71,8 +71,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   public sendActions = (actions: ActionType[]): any => {
     if (actions.length === 0) return
-    const buffer = encode(actions)
-    if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.ActionData.toString(), buffer)
+    if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 
   public sendReliableData = (message: any): any => {

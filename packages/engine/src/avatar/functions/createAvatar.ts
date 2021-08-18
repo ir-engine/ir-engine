@@ -20,6 +20,7 @@ import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
+import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 
 const avatarRadius = 0.25
 const capsuleHeight = 1.3
@@ -159,16 +160,21 @@ export const createAvatarController = (entity: Entity) => {
       }
     })
   )
-  const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
+
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   frustumCamera.position.setY(avatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 
   value.add(frustumCamera)
+  addComponent(entity, InteractorComponent, {
+    focusedInteractive: null,
+    frustumCamera,
+    subFocusedArray: []
+  })
 
+  const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   addComponent(entity, AvatarControllerComponent, {
     controller,
-    frustumCamera,
     movementEnabled: true,
     isJumping: false,
     isWalking: false,

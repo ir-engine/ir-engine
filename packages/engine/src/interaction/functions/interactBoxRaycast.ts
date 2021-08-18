@@ -42,14 +42,16 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
   const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
+  if (!controller) return
+
   if (!raycastList.length) {
     return
   }
 
-  controller.frustumCamera.updateMatrixWorld()
-  controller.frustumCamera.matrixWorldInverse.copy(controller.frustumCamera.matrixWorld).invert()
+  interacts.frustumCamera.updateMatrixWorld()
+  interacts.frustumCamera.matrixWorldInverse.copy(interacts.frustumCamera.matrixWorld).invert()
 
-  mat4.multiplyMatrices(projectionMatrix, controller.frustumCamera.matrixWorldInverse)
+  mat4.multiplyMatrices(projectionMatrix, interacts.frustumCamera.matrixWorldInverse)
   frustum.setFromProjectionMatrix(mat4)
 
   const subFocusedArray = raycastList

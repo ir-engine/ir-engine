@@ -1,13 +1,13 @@
 // === SETUP WEBXR === //
 
 import { Quaternion, Vector3 } from 'three'
+import { loadScript } from '../../common/functions/loadScripts'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { Network } from '../../networking/classes/Network'
-import { XRSystem } from '../../xr/systems/XRSystem'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
@@ -230,21 +230,21 @@ export function tweenXRInputSource(args: InputSourceTweenProps) {
 /**
  * @param {object} args
  * @param {array} args.position
- * @param {array} args.quaternion
+ * @param {array} args.rotation
  */
-export function updateHead(args) {
-  headPosition.fromArray(args.position)
-  headRotation.fromArray(args.rotation)
+export function updateHead(args: { position?: number[]; rotation?: number[] }) {
+  args.position && headPosition.fromArray(args.position)
+  args.rotation && headRotation.fromArray(args.rotation)
 }
 
 /**
  * @param {object} args
  * @param {array} args.position
- * @param {array} args.quaternion
+ * @param {array} args.rotation
  * @param {string} args.objectName
  * @returns {function}
  */
-export function updateController(args) {
+export function updateController(args: { objectName: string; position: number[]; rotation: number[] }) {
   if (args.objectName === 'leftController') {
     leftControllerPosition.fromArray(args.position)
     leftControllerRotation.fromArray(args.rotation)
@@ -252,4 +252,12 @@ export function updateController(args) {
     rightControllerPosition.fromArray(args.position)
     rightControllerRotation.fromArray(args.rotation)
   }
+}
+
+export async function simulateXR() {
+  await loadScript(Engine.publicPath + '/scripts/webxr-polyfill.js')
+  await overrideXR()
+  await xrSupported()
+  Engine.isBot = true
+  await startXR()
 }

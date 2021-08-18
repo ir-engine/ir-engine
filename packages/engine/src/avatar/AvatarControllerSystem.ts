@@ -1,26 +1,24 @@
 import { Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
+import { Engine } from '../ecs/classes/Engine'
+import { ECSWorld } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
-import { avatarMoveBehavior } from './behaviors/avatarMoveBehavior'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { InterpolationComponent } from '../physics/components/InterpolationComponent'
+import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
+import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
+import { RaycastComponent } from '../physics/components/RaycastComponent'
+import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { Engine } from '../ecs/classes/Engine'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
+import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInTrigger } from './functions/detectUserInTrigger'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { RaycastComponent } from '../physics/components/RaycastComponent'
-import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
 import { teleportPlayer } from './functions/teleportPlayer'
-import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
-import { ECSWorld } from '../ecs/classes/World'
 import { TriggerVolumeComponent } from '../scene/components/TriggerVolumeComponent'
-import { PortalComponent } from '../scene/components/PortalComponent'
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
@@ -33,15 +31,8 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const quat2 = new Quaternion()
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
-  const characterOnServerQuery = defineQuery([
-    Not(LocalInputReceiverComponent),
-    Not(InterpolationComponent),
-    AvatarComponent,
-    AvatarControllerComponent
-  ])
-  const characterOnServerRemovedQuery = exitQuery(characterOnServerQuery)
-
   const controllerQuery = defineQuery([AvatarControllerComponent])
+  const avatarControllerRemovedQuery = exitQuery(controllerQuery)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
 
@@ -59,24 +50,19 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
-    // for (const entity of characterOnServerRemovedQuery(world)) {
-    //   console.log('removed character')
-    //   console.log(
-    //     hasComponent(entity, LocalInputReceiverComponent),
-    //     hasComponent(entity, InterpolationComponent),
-    //     hasComponent(entity, AvatarComponent),
-    //     hasComponent(entity, AvatarControllerComponent),
+    for (const entity of avatarControllerRemovedQuery(world)) {
+      const controller = getComponent(entity, AvatarControllerComponent, true)
 
-    //     )
-    //   const controller = getComponent(entity, AvatarControllerComponent, true)
+      // may get cleaned up already, eg. portals
+      if (controller?.controller) {
+        PhysXInstance.instance.removeController(controller.controller)
+      }
 
-    //   PhysXInstance.instance.removeController(controller.controller)
-
-    //   const avatar = getComponent(entity, AvatarComponent)
-    //   if (avatar) {
-    //     avatar.isGrounded = false
-    //   }
-    // }
+      const avatar = getComponent(entity, AvatarComponent)
+      if (avatar) {
+        avatar.isGrounded = false
+      }
+    }
 
     for (const entity of controllerQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent)
@@ -111,8 +97,6 @@ export const AvatarControllerSystem = async (): Promise<System> => {
         //   console.log("portal")
         // }
       })
-
-      detectUserInTrigger(entity)
 
       const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -152,7 +136,9 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0) // || controller.controller.collisions.down)
 
-      avatarMoveBehavior(entity, delta)
+      moveAvatar(entity, delta)
+
+      detectUserInPortal(entity)
     }
 
     for (const entity of raycastQuery(world)) {

@@ -4,8 +4,8 @@ import { makeCollidersInvisible } from '../../physics/behaviors/parseModelCollid
 import Model from '../../scene/classes/Model'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
-import { setStaticMode, StaticModes } from '../functions/StaticMode'
-import EditorNodeMixin from './EditorNodeMixin'
+import { makeCollidersInvisible } from '../../physics/functions/parseModelColliders'
+import { AnimationManager } from '../../avatar/AnimationManager'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'

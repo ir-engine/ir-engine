@@ -2,16 +2,13 @@ import World, { EngineCallbacks } from '../../components/World/index'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Layout from '../../components/Layout/Layout'
-import { Chat } from './icons/Chat'
-import { CloseChat } from './icons/CloseChat'
-import { SendMessage } from './icons/SendMessage'
-// import InstanceChat from '../../components/InstanceChat'
-import InstanceChat from './MapInstanceChat'
-import MapInstanceChatStyle from './MapInstanceChat.module.scss'
 import MapMediaIconsBox from './MapMediaIconsBox'
 import MapUserMenu from './MapUserMenu'
 import { theme } from './theme'
 import LoadingScreen from './loader'
+import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
+import { TouchInputs } from '@xrengine/engine/src/input/enums/InputEnums'
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -23,7 +20,8 @@ const LocationPage = (props) => {
 
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
-    onSceneLoaded: () => setLoadingItemCount(0)
+    onSceneLoaded: () => setLoadingItemCount(0),
+    onEngineInitialized: () => AvatarInputSchema.inputMap.set(TouchInputs.Touch, BaseInput.PRIMARY)
   }
 
   return (
@@ -35,13 +33,6 @@ const LocationPage = (props) => {
         history={props.history}
         engineCallbacks={engineCallbacks}
       >
-        <InstanceChat
-          newMessageLabel={'say something...'}
-          CloseButton={CloseChat}
-          MessageButton={Chat}
-          SendButton={SendMessage}
-          styles={MapInstanceChatStyle}
-        />
         <MapMediaIconsBox />
         <MapUserMenu />
       </World>

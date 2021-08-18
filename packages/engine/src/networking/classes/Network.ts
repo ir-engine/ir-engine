@@ -7,7 +7,6 @@ import { NetworkTransport, IncomingActionType, ActionType } from '../interfaces/
 import { AvatarProps, NetworkClientInputInterface, WorldStateInterface } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
-import { ClientGameActionMessage } from '../../game/types/GameMessage'
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -56,11 +55,9 @@ export class Network {
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
   /** Incoming actions */
-  incomingActions = [] as IncomingActionType[]
+  incomingActions = [] as ActionType[]
   /** Outgoing actions */
   outgoingActions = [] as ActionType[]
-
-  clientGameAction: ClientGameActionMessage[] = []
 
   /** Game mode mapping schema */
   loadedGames: Entity[] = [] // its for network
@@ -107,9 +104,7 @@ export class Network {
     clientsDisconnected: [],
     createObjects: [],
     editObjects: [],
-    destroyObjects: [],
-    gameState: [],
-    gameStateActions: []
+    destroyObjects: []
   }
 
   clientInputState: NetworkClientInputInterface = {
@@ -124,7 +119,6 @@ export class Network {
       z: 0
     },
     snapShotTime: 0,
-    clientGameAction: [],
     commands: [],
     transforms: []
   }
