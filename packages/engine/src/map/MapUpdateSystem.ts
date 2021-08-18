@@ -14,14 +14,10 @@ export const MapUpdateSystem = async (): Promise<System> => {
   const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
   const moveAddQuery = enterQuery(moveQuery)
   let updateStatus = false
-  let startAvatarPositionX
-  let startAvatarPositionZ
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of moveAddQuery(world)) {
       const position = getComponent(entity, Object3DComponent).value.position
-      startAvatarPositionX = position.x
-      startAvatarPositionZ = position.z
     }
 
     for (const entity of moveQuery(world)) {
@@ -32,10 +28,8 @@ export const MapUpdateSystem = async (): Promise<System> => {
       const startLat = centrCoord[1]
       const scaleArg = getScaleArg()
 
-      const longtitude = (position.x - startAvatarPositionX) / scaleArg / 111134.861111 + startLong
-      console.log(longtitude)
-      const latitude =
-        (-position.z - startAvatarPositionZ) / scaleArg / (Math.cos((startLat * PI) / 180) * 111321.377778) + startLat
+      const longtitude = (position.x / 111134.861111) * scaleArg + startLong
+      const latitude = -position.z / (Math.cos((startLat * PI) / 180) * 111321.377778 * scaleArg) + startLat
 
       //get Current Tile
       const startTile = getTile()
@@ -45,11 +39,9 @@ export const MapUpdateSystem = async (): Promise<System> => {
         if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
           console.log('in center')
         } else {
-          const remObj = Engine.scene.getObjectByName('MapObject')
           updateMap(
-            entity,
             {
-              scale: new Vector3(1, 1, 1)
+              scale: new Vector3(scaleArg, scaleArg, scaleArg)
             },
             longtitude,
             latitude,
