@@ -64,20 +64,21 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
       enableInput({ mouse: true })
     })
 
-    const canvasElement = EngineRenderer.instance.canvas
     stickLeft.on('move', (e, data) => {
+      const canvasElement = EngineRenderer.instance?.canvas
+      if(!canvasElement) return
       if (canvasElement.addEventListener) {
         addClientInputListeners(canvasElement)
       }
       else {
-      if (canvasElement.attachEvent) {
-        canvasElement.attachEvent ("touchstart", function (e) {
+      if ((canvasElement as any).attachEvent) {
+        (canvasElement as any).attachEvent ("touchstart", function (e) {
           handleTouch(e)
           handleTouchMove(e)
         })
-        canvasElement.attachEvent('touchend', handleTouch)
-        canvasElement.attachEvent('touchcancel', handleTouch)
-        canvasElement.attachEvent('touchmove', handleTouchMove)
+        (canvasElement as any).attachEvent('touchend', handleTouch)
+        .attachEvent('touchcancel', handleTouch)
+        .attachEvent('touchmove', handleTouchMove)
 		}
       }
 
