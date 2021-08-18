@@ -1,6 +1,6 @@
 import type { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot'
+import { findInterpolationSnapshot } from '../../physics/functions/findInterpolationSnapshot'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import type { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
@@ -15,7 +15,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
  * @param {number} delta the delta of this frame
  */
 
-export const avatarInterpolationBehavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
+export const interpolateAvatar = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
   if (!interpolation || isNaN(interpolation.vX)) return
