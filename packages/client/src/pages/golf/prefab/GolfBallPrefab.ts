@@ -19,8 +19,9 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { getOwnerIdPlayerNumber } from '../functions/golfFunctions'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
-import { GolfObjectEntities, GolfState } from '../GolfSystem'
+import { getTee, GolfState } from '../GolfSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { ECSWorld } from '../../../../../engine/src/ecs/classes/World'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -102,14 +103,13 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   velocity.velocity.copy(new Vector3())
 }
 
-export const spawnBall = (entityPlayer: Entity, playerCurrentHole: number): void => {
+export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHole: number): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
 
-  console.log('spawn ball for ' + playerCurrentHole, GolfObjectEntities)
-  const teeEntity = GolfObjectEntities.get(`golftee-${playerCurrentHole}`)
+  const teeEntity = getTee(world, playerCurrentHole)
   const teeTransform = getComponent(teeEntity, TransformComponent)
 
   const parameters: GolfBallSpawnParameters = {

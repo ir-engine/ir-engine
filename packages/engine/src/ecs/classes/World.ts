@@ -24,6 +24,7 @@ export class World {
   entities: Entity[]
   portalEntities: Entity[]
   pipelines: EnginePipelines
+  namedEntities: Map<string, Entity>
 
   constructor() {
     if (typeof World.defaultWorld === 'undefined') {
@@ -35,5 +36,6 @@ export class World {
     this.entities = []
     this.ecsWorld.world = this
     this.portalEntities = []
+    this.namedEntities = new Map()
   }
 }
