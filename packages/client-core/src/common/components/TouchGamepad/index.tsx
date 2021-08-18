@@ -1,18 +1,15 @@
 import { TouchApp } from '@styled-icons/material/TouchApp'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
-import { ClientInputSystem, enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { addClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
+import {
+  handleTouch, handleTouchMove
+} from '@xrengine/engine/src/input/schema/ClientInputSchema'
+import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
-import {
-  handleTouch,
-  handleTouchDirectionalPad,
-  handleTouchGamepadButton,
-  handleTouchMove,
-} from '@xrengine/engine/src/input/schema/ClientInputSchema'
-import { addClientInputListeners, removeClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
 
 export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   const leftContainer = useRef<HTMLDivElement>()
