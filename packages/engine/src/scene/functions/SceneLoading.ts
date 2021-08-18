@@ -46,6 +46,8 @@ import { World } from '../../ecs/classes/World'
 import { getObjectComponent } from '../../assets/loaders/gltf/ComponentData'
 import { isBot } from '../../common/functions/isBot'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Component } from 'react'
+import { Component } from '../../../../server-core/src/entities/component/component.class'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -124,7 +126,7 @@ export class WorldScene {
     //console.log(name)
     switch (name) {
       case 'mtdata':
-        if (!isClient || isBot(window) === "true") {
+        if (isClient && isBot(window) === "true") {
            const { meta_data } = component.data
            console.log('scene_metadata|' + meta_data)
          }
@@ -134,7 +136,7 @@ export class WorldScene {
           addObject3DComponent(entity, new Object3D(), component.data)
           addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
           
-          if (!isClient || isBot(window) === "true") {
+          if (isClient && isBot(window) === "true") {
             const { _data} = component.data
             const { x, y, z } = transform.data["position"]
             console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
