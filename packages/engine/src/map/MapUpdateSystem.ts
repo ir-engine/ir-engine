@@ -1,6 +1,6 @@
 import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { Vector3 } from 'three'
-import { getCoord, getTile } from '.'
+import { getCoord, getScaleArg, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
@@ -30,10 +30,12 @@ export const MapUpdateSystem = async (): Promise<System> => {
       //Calculate new move coords
       const startLong = centrCoord[0]
       const startLat = centrCoord[1]
+      const scaleArg = getScaleArg()
 
-      const longtitude = (position.x - startAvatarPositionX) / 111134.861111 + startLong
+      const longtitude = (position.x - startAvatarPositionX) / scaleArg / 111134.861111 + startLong
+      console.log(longtitude)
       const latitude =
-        (-position.z - startAvatarPositionZ) / (Math.cos((startLat * PI) / 180) * 111321.377778) + startLat
+        (-position.z - startAvatarPositionZ) / scaleArg / (Math.cos((startLat * PI) / 180) * 111321.377778) + startLat
 
       //get Current Tile
       const startTile = getTile()

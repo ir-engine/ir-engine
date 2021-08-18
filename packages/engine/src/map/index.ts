@@ -14,6 +14,7 @@ import { METERS_PER_DEGREE_LL } from './constants'
 
 let centerCoord = {}
 let centerTile = {}
+let scaleArg
 
 export const create = async function (renderer: THREE.WebGLRenderer, args: MapProps) {
   console.log('addmap called with args:', args)
@@ -41,6 +42,7 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   group.name = 'MapObject'
   centerCoord = Object.assign(center)
   centerTile = Object.assign(getCenterTile(center))
+  scaleArg = args.scale.x
 
   return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
 }
@@ -110,4 +112,8 @@ export const getCoord = () => {
 
 export const getTile = () => {
   return centerTile
+}
+
+export const getScaleArg = () => {
+  return scaleArg
 }
