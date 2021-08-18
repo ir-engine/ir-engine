@@ -1,6 +1,7 @@
+import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
 import { Euler, Quaternion } from 'three'
-import { System } from '../../ecs/classes/System'
-import { getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { ECSWorld } from '../../ecs/classes/World'
+import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
 import { DesiredTransformComponent } from '../components/DesiredTransformComponent'
@@ -9,18 +10,24 @@ import { TransformComponent } from '../components/TransformComponent'
 import { TransformParentComponent } from '../components/TransformParentComponent'
 import { TweenComponent } from '../components/TweenComponent'
 
-const MAX_IGNORED_DISTANCE = 0.001
-const MAX_IGNORED_ANGLE = 0.001
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
-const quat = new Quaternion()
 
-export class TransformSystem extends System {
-  execute(delta: number, time: number) {
-    for (const entity of this.queryResults.parent.all) {
-      const parentTransform = getMutableComponent(entity, TransformComponent)
+export const TransformSystem = async (): Promise<System> => {
+  const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
+  const childQuery = defineQuery([TransformChildComponent, TransformComponent])
+  const copyTransformQuery = defineQuery([CopyTransformComponent])
+  const desiredTransformQuery = defineQuery([DesiredTransformComponent])
+  const tweenQuery = defineQuery([TweenComponent])
+  const obj3dQuery = defineQuery([TransformComponent, Object3DComponent])
+
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
+    for (const entity of parentQuery(world)) {
+      const parentTransform = getComponent(entity, TransformComponent)
       const parentingComponent = getComponent(entity, TransformParentComponent)
       for (const child of parentingComponent.children) {
         if (!hasComponent(child, Object3DComponent)) {
@@ -28,7 +35,7 @@ export class TransformSystem extends System {
         }
         const {
           value: { position: childPosition, quaternion: childQuaternion }
-        } = getMutableComponent(child, Object3DComponent)
+        } = getComponent(child, Object3DComponent)
         const childTransformComponent = getComponent(child, TransformComponent)
         // reset to "local"
         if (childTransformComponent) {
@@ -44,10 +51,10 @@ export class TransformSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.child.all) {
+    for (const entity of childQuery(world)) {
       const childComponent = getComponent(entity, TransformChildComponent)
       const parent = childComponent.parent
-      const parentTransform = getMutableComponent(parent, TransformComponent)
+      const parentTransform = getComponent(parent, TransformComponent)
       const childTransformComponent = getComponent(entity, TransformComponent)
       if (childTransformComponent && parentTransform) {
         childTransformComponent.position.setScalar(0).add(parentTransform.position).add(childComponent.offsetPosition)
@@ -58,9 +65,9 @@ export class TransformSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.copyTransform.all) {
-      const inputEntity = getMutableComponent(entity, CopyTransformComponent)?.input
-      const outputTransform = getMutableComponent(entity, TransformComponent)
+    for (const entity of copyTransformQuery(world)) {
+      const inputEntity = getComponent(entity, CopyTransformComponent)?.input
+      const outputTransform = getComponent(entity, TransformComponent)
       const inputTransform = getComponent(inputEntity, TransformComponent)
 
       if (!inputTransform || !outputTransform) {
@@ -74,70 +81,42 @@ export class TransformSystem extends System {
       removeComponent(entity, CopyTransformComponent)
     }
 
-    for (const entity of this.queryResults.desiredTransforms.all) {
-      const transform = getComponent(entity, TransformComponent)
+    for (const entity of desiredTransformQuery(world)) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
 
-      const positionIsSame = desiredTransform.position === null || transform.position.equals(desiredTransform.position)
-      const rotationIsSame = desiredTransform.rotation === null || transform.rotation.equals(desiredTransform.rotation)
+      const mutableTransform = getComponent(entity, TransformComponent)
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
 
-      if (positionIsSame && rotationIsSame) {
-        continue
-      }
+      // store rotation before interpolation
+      euler1YXZ.setFromQuaternion(mutableTransform.rotation)
+      // lerp to desired rotation
 
-      if (!positionIsSame) {
-        const mutableTransform = getMutableComponent(entity, TransformComponent)
-        if (transform.position.distanceTo(desiredTransform.position) <= MAX_IGNORED_DISTANCE) {
-          // position is too near, no need to move closer - just copy it
-          mutableTransform.position.copy(desiredTransform.position)
-        } else {
-          // move to desired position
-          // TODO: move to desired position
-          // TODO: store alpha in DesiredTransformComponent ?
-          // TODO: use speed instead of lerp?
-          mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
-        }
+      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+      euler2YXZ.setFromQuaternion(mutableTransform.rotation)
+      // use axis locks - yes this is correct, the axis order is weird because quaternions
+      if (desiredTransform.lockRotationAxis[0]) {
+        euler2YXZ.x = euler1YXZ.x
       }
-
-      if (!rotationIsSame) {
-        const mutableTransform = getMutableComponent(entity, TransformComponent)
-        if (transform.rotation.angleTo(desiredTransform.rotation) <= MAX_IGNORED_ANGLE) {
-          // value is close enough, just copy it
-          mutableTransform.rotation.copy(desiredTransform.rotation)
-        } else {
-          // store rotation before interpolation
-          euler1YXZ.setFromQuaternion(mutableTransform.rotation)
-          // lerp to desired rotation
-          // TODO: lerp to desired rotation
-          // TODO: store alpha in DesiredTransformComponent ?
-          mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
-          euler2YXZ.setFromQuaternion(mutableTransform.rotation)
-          // use axis locks - yes this is correct, the axis order is weird because quaternions
-          if (desiredTransform.lockRotationAxis[0]) {
-            euler2YXZ.x = euler1YXZ.x
-          }
-          if (desiredTransform.lockRotationAxis[2]) {
-            euler2YXZ.y = euler1YXZ.y
-          }
-          if (desiredTransform.lockRotationAxis[1]) {
-            euler2YXZ.z = euler1YXZ.z
-          }
-          mutableTransform.rotation.setFromEuler(euler2YXZ)
-        }
+      if (desiredTransform.lockRotationAxis[2]) {
+        euler2YXZ.y = euler1YXZ.y
       }
+      if (desiredTransform.lockRotationAxis[1]) {
+        euler2YXZ.z = euler1YXZ.z
+      }
+      mutableTransform.rotation.setFromEuler(euler2YXZ)
     }
 
-    for (const entity of this.queryResults.tweens.all) {
+    for (const entity of tweenQuery(world)) {
       const tween = getComponent(entity, TweenComponent)
       tween.tween.update()
     }
 
-    for (const entity of this.queryResults.obj3d.all) {
-      const transform = getMutableComponent(entity, TransformComponent)
-      const object3DComponent = getMutableComponent(entity, Object3DComponent)
+    for (const entity of obj3dQuery(world)) {
+      const transform = getComponent(entity, TransformComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent)
 
       if (!object3DComponent.value) {
-        console.warn('object3D component on entity', entity.id, ' is undefined')
+        console.warn('object3D component on entity', entity, ' is undefined')
         continue
       }
 
@@ -146,30 +125,6 @@ export class TransformSystem extends System {
       object3DComponent.value.scale.copy(transform.scale)
       object3DComponent.value.updateMatrixWorld()
     }
-  }
-}
-
-TransformSystem.queries = {
-  parent: {
-    components: [TransformParentComponent, TransformComponent]
-  },
-  child: {
-    components: [TransformChildComponent, TransformComponent]
-  },
-  obj3d: {
-    components: [TransformComponent, Object3DComponent]
-  },
-  desiredTransforms: {
-    components: [DesiredTransformComponent]
-  },
-  copyTransform: {
-    components: [CopyTransformComponent]
-  },
-  tweens: {
-    components: [TweenComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+    return world
+  })
 }

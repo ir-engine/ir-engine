@@ -1,23 +1,21 @@
-import { Mic, MicOff, Videocam, VideocamOff } from '@material-ui/icons'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { changeFaceTrackingState, updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
+import { updateCamAudioState } from '../../reducers/mediastream/service'
 import {
   configureMediaTransports,
   createCamAudioProducer,
-  createCamVideoProducer,
   endVideoChat,
   leave,
   pauseProducer,
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
-// @ts-ignore
+import MicOff from './assets/MicOff.png'
+import MicOn from './assets/MicOn.png'
 import styles from './MapMediaIconsBox.module.scss'
 
 const mapStateToProps = (state: any): any => {
@@ -29,32 +27,36 @@ const mapStateToProps = (state: any): any => {
   }
 }
 
-const mapDispatchToProps = (dispatch): any => ({
-  changeFaceTrackingState: bindActionCreators(changeFaceTrackingState, dispatch)
-})
+const mapDispatchToProps = (dispatch): any => ({})
 
 const MediaIconsBox = (props) => {
   const { authState, locationState, mediastream } = props
+  const [hasAudioDevice, setHasAudioDevice] = useState(false)
 
   const user = authState.get('user')
   const currentLocation = locationState.get('currentLocation').get('location')
 
-  const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false
   const instanceMediaChatEnabled = currentLocation.locationSettings
     ? currentLocation.locationSettings.instanceMediaChatEnabled
     : false
 
-  const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
+
+  useEffect(() => {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        devices.forEach((device) => {
+          if (device.kind === 'audioinput') setHasAudioDevice(true)
+        })
+      })
+      .catch((err) => console.log('could not get media devices', err))
+  }, [])
 
   const onEngineLoaded = () => {
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
   }
   document.addEventListener('ENGINE_LOADED', onEngineLoaded)
-
-  const checkMediaStream = async (partyId: string): Promise<boolean> => {
-    return await configureMediaTransports(partyId)
-  }
 
   const checkEndVideoChat = async () => {
     if (
@@ -67,7 +69,7 @@ const MediaIconsBox = (props) => {
   }
   const handleMicClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await checkMediaStream(partyId)) {
+    if (await configureMediaTransports(['audio'], partyId)) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
@@ -77,49 +79,22 @@ const MediaIconsBox = (props) => {
       }
       updateCamAudioState()
     }
+    console.log('Mic Clicked=>' + isCamAudioEnabled)
   }
 
-  const handleCamClick = async () => {
-    const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await checkMediaStream(partyId)) {
-      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(partyId)
-      else {
-        const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
-        else await resumeProducer(MediaStreams.instance?.camVideoProducer)
-        checkEndVideoChat()
-      }
-
-      updateCamVideoState()
-    }
-  }
-
-  const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff
-  const MicIcon = isCamAudioEnabled ? Mic : MicOff
+  const MicIcon = isCamAudioEnabled ? MicOn : MicOff
 
   return (
     <section className={styles.drawerBox}>
-      {instanceMediaChatEnabled ? (
+      {instanceMediaChatEnabled && hasAudioDevice ? (
         <button
           type="button"
           id="UserAudio"
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={handleMicClick}
         >
-          <MicIcon />
+          <img src={MicIcon} />
         </button>
-      ) : null}
-      {videoEnabled ? (
-        <>
-          <button
-            type="button"
-            id="UserVideo"
-            className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
-            onClick={handleCamClick}
-          >
-            <VideocamIcon />
-          </button>
-        </>
       ) : null}
     </section>
   )

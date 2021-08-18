@@ -1,10 +1,10 @@
-import { Object3D } from 'three'
+import { Object3D, PositionalAudio } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Interactable } from '../../interaction/components/Interactable'
-import VolumetricComponent from '../components/VolumetricComponent'
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { InteractableComponent } from '../../interaction/components/InteractableComponent'
+import { VolumetricComponent } from '../components/VolumetricComponent'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
 import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
@@ -44,28 +44,28 @@ export interface VideoProps extends AudioProps {
   projection?: 'flat' | '360-equirectangular'
 }
 
-export function createMediaServer(entity, args: { interactable: boolean }): void {
-  addObject3DComponent(entity, new Object3D(), args)
-  if (args.interactable) addComponent(entity, Interactable)
+export function createMediaServer(entity, props: { interactable: boolean }): void {
+  addObject3DComponent(entity, new Object3D(), props)
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
-export function createAudio(entity, args: AudioProps): void {
+export function createAudio(entity, props: AudioProps): void {
   const audio = new AudioSource(Engine.audioListener)
-  addObject3DComponent(entity, audio, args)
+  addObject3DComponent(entity, audio, props)
   audio.load()
-  addComponent(entity, PositionalAudioComponent)
-  if (args.interactable) addComponent(entity, Interactable)
+  addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
-export function createVideo(entity, args: VideoProps): void {
-  const video = new Video(Engine.audioListener, args.elementId)
-  if (args.synchronize) {
-    video.startTime = args.synchronize
-    video.isSynced = args.synchronize > 0
+export function createVideo(entity, props: VideoProps): void {
+  const video = new Video(Engine.audioListener, props.elementId)
+  if (props.synchronize) {
+    video.startTime = props.synchronize
+    video.isSynced = props.synchronize > 0
   }
-  addObject3DComponent(entity, video, args)
+  addObject3DComponent(entity, video, props)
   video.load()
-  if (args.interactable) addComponent(entity, Interactable)
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
 interface VolumetricProps {
@@ -75,9 +75,7 @@ interface VolumetricProps {
   interactable: boolean
 }
 
-export const createVolumetric = (entity, args: VolumetricProps) => {
-  addComponent(entity, VolumetricComponent)
-  const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
+export const createVolumetric = (entity, props: VolumetricProps) => {
   const container = new Object3D()
 
   // const worker = new PlayerWorker();
@@ -85,15 +83,19 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
     scene: container,
     renderer: Engine.renderer,
     // worker: worker,
-    manifestFilePath: args.src.replace('.drcs', '.manifest'),
-    meshFilePath: args.src,
-    videoFilePath: args.src.replace('.drcs', '.mp4'),
-    loop: args.loop,
-    autoplay: args.autoPlay,
+    manifestFilePath: props.src.replace('.drcs', '.manifest'),
+    meshFilePath: props.src,
+    videoFilePath: props.src.replace('.drcs', '.mp4'),
+    loop: props.loop,
+    autoplay: props.autoPlay,
     scale: 1,
     frameRate: 25
   })
-  volumetricComponent.player = DracosisSequence
-  addObject3DComponent(entity, container, args)
-  if (args.interactable) addComponent(entity, Interactable)
+
+  addComponent(entity, VolumetricComponent, {
+    player: DracosisSequence
+  })
+
+  addObject3DComponent(entity, container, props)
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }

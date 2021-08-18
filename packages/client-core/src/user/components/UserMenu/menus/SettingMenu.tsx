@@ -4,7 +4,6 @@ import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -28,9 +27,9 @@ const SettingMenu = (props: any): JSX.Element => {
               value={props.setting?.audio == null ? 100 : props.setting?.audio}
               onChange={(_, value) => {
                 props.setUserSettings({ audio: value })
-                const videoElements = document.getElementsByTagName('video')
-                for (let i = 0; i < videoElements.length; i++) {
-                  videoElements[i].volume = (value as number) / 100
+                const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
+                for (let i = 0; i < mediaElements.length; i++) {
+                  mediaElements[i].volume = (value as number) / 100
                 }
               }}
               className={styles.slider}

@@ -1,12 +1,13 @@
 import { Vector3, Matrix4, Quaternion } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -18,21 +19,23 @@ const mat4 = new Matrix4()
 const newVelocity = new Vector3()
 const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
+const multiplier = 1 / 60
 
 export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
-  const avatar = getMutableComponent(entity, AvatarComponent)
-  const velocity = getMutableComponent(entity, VelocityComponent)
-  const transform = getMutableComponent(entity, TransformComponent)
-  const controller = getMutableComponent(entity, AvatarControllerComponent)
+  const avatar = getComponent(entity, AvatarComponent)
+  const velocity = getComponent(entity, VelocityComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
 
   if (!controller.movementEnabled) return
 
   if (avatar.isGrounded) {
-    vec3.copy(controller.localMovementDirection).multiplyScalar(deltaTime)
+    vec3.copy(controller.localMovementDirection).multiplyScalar(multiplier)
     controller.velocitySimulator.target.copy(vec3)
     controller.velocitySimulator.simulate(deltaTime)
 
-    newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(controller.moveSpeed)
+    const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+    newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
     velocity.velocity.copy(newVelocity)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -45,7 +48,7 @@ export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
       newVelocity.applyQuaternion(transform.rotation)
     }
 
-    const raycast = getMutableComponent(entity, RaycastComponent)
+    const raycast = getComponent(entity, RaycastComponent)
     const closestHit = raycast.raycastQuery.hits[0]
 
     if (closestHit) {
@@ -65,7 +68,7 @@ export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
     }
 
     if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
-      controller.controller.velocity.y = controller.jumpHeight * deltaTime
+      controller.controller.velocity.y = AvatarSettings.instance.jumpHeight * multiplier
       controller.isJumping = true
     }
 

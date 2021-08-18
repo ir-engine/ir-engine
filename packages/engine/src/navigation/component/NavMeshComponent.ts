@@ -1,15 +1,14 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { Object3D } from 'three'
 import { NavMesh } from 'yuka'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /**
  * @author xiani_zp <github.com/xiani>
  */
 
-export class NavMeshComponent extends Component<NavMeshComponent> {
-  public yukaNavMesh: NavMesh
-
-  static _schema = {
-    yukaNavMesh: { type: Types.Ref, default: null }
-  }
+export type NavMeshComponentType = {
+  yukaNavMesh: NavMesh
+  navTarget: Object3D
 }
+
+export const NavMeshComponent = createMappedComponent<NavMeshComponentType>()

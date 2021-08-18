@@ -4,7 +4,7 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { applyTransformToMesh, createCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
@@ -14,6 +14,7 @@ import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { delay } from '../../common/functions/delay'
+import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 
 export const loadGLTFModel = (
   sceneLoader: WorldScene,
@@ -55,20 +56,24 @@ export const loadGLTFModel = (
 
               console.log('navMesh', navMesh)
               addComponent(entity, NavMeshComponent, {
-                yukaNavMesh: navMesh
+                yukaNavMesh: navMesh,
+                navTarget: res
               })
+              addComponent(entity, DebugNavMeshComponent, null)
             }
           }
 
           // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
           if (res.animations) {
             // We only have to update the mixer time for this animations on each frame
-            addComponent(entity, AnimationComponent)
-            const animationComponent = getMutableComponent(entity, AnimationComponent)
-            animationComponent.animations = res.animations
-            const object3d = getMutableComponent(entity, Object3DComponent)
+            const object3d = getComponent(entity, Object3DComponent)
+            const mixer = new AnimationMixer(object3d.value)
 
-            animationComponent.mixer = new AnimationMixer(object3d.value)
+            addComponent(entity, AnimationComponent, {
+              mixer,
+              animationSpeed: 1,
+              animations: res.animations
+            })
           }
 
           if (component.data.textureOverride) {

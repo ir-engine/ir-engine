@@ -18,7 +18,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import LeftDrawer from '../../components/Drawer/Left'
 import RightDrawer from '../../components/Drawer/Right'
 import InstanceChat from '../../components/InstanceChat'
-// @ts-ignore
 import styles from './Layout.module.scss'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle

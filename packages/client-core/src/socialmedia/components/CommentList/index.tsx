@@ -10,7 +10,6 @@ import { getFeedComments } from '../../reducers/feedComment/service'
 
 import CommentCard from '../CommentCard'
 
-// @ts-ignore
 import styles from './CommentList.module.scss'
 
 const mapStateToProps = (state: any): any => {

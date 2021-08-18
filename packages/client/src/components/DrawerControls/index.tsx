@@ -11,7 +11,6 @@ import { updateMessageScrollInit } from '@xrengine/client-core/src/social/reduce
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 // @ts-ignore
-// @ts-ignore
 import styles from './DrawerControls.module.scss'
 
 const mapStateToProps = (state: any): any => {

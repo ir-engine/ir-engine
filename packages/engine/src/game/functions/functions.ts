@@ -1,46 +1,39 @@
 import { isClient } from '../../common/functions/isClient'
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
 import { Network } from '../../networking/classes/Network'
-import { ActiveGames, GameManagerSystem } from '../../game/systems/GameManagerSystem'
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  removeEntity
-} from '../../ecs/functions/EntityFunctions'
+import { ActiveGames } from '../../game/systems/GameManagerSystem'
+import { getComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
 
-import { Game } from '../components/Game'
+import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
 export const isOwnedLocalPlayer = (entity: Entity): boolean => {
-  if (!hasComponent(entity, NetworkObject)) return false
-  const localPlayerOwnerId = Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.ownerId
-  const objectOwnerId = getComponent(entity, NetworkObject).ownerId
+  if (!hasComponent(entity, NetworkObjectComponent)) return false
+  const localPlayerOwnerId = Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId
+  const objectOwnerId = getComponent(entity, NetworkObjectComponent).ownerId
   return localPlayerOwnerId === objectOwnerId
 }
 
 export const getGameEntityFromName = (name: string): Entity => {
   if (name === undefined) return
-  return ActiveGames.instance.gameEntities.find((entity) => getComponent(entity, Game).name === name)
+  return ActiveGames.instance.gameEntities.find((entity) => getComponent(entity, GameComponent).name === name)
 }
 
-export const getGameFromName = (name: string): Game => {
+export const getGameFromName = (name: string) => {
   if (name === undefined) return
   return ActiveGames.instance.currentGames.get(name)
 }
 
-export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity =>
+export const getEntityFromRoleUuid = (game, role: string, uuid: string): Entity =>
   (game.gameObjects[role] || game.gamePlayers[role]).find((entity) => getUuid(entity) === uuid)
 
-export const getEntityArrFromRole = (game: Game, role: string): Array<Entity> =>
+export const getEntityArrFromRole = (game, role: string): Array<Entity> =>
   game.gameObjects[role] || game.gamePlayers[role]
 
 export const getRole = (entity: Entity) => {
@@ -52,13 +45,13 @@ export const getRole = (entity: Entity) => {
 }
 export const setRole = (entity: Entity, newGameRole: string) => {
   return hasComponent(entity, GameObject)
-    ? (getMutableComponent(entity, GameObject).role = newGameRole)
+    ? (getComponent(entity, GameObject).role = newGameRole)
     : hasComponent(entity, GamePlayer)
-    ? (getMutableComponent(entity, GamePlayer).role = newGameRole)
+    ? (getComponent(entity, GamePlayer).role = newGameRole)
     : undefined
 }
 
-export const getGame = (entity: Entity): Game => {
+export const getGame = (entity: Entity) => {
   const name = hasComponent(entity, GameObject)
     ? getComponent(entity, GameObject).gameName
     : hasComponent(entity, GamePlayer)
@@ -85,10 +78,6 @@ export const getTargetEntitys = (entity: Entity, entityTarget: Entity, args: any
   }
 }
 
-export const getTargetEntity = (entity: Entity, entityTarget: Entity, args: any): Entity => {
-  return args?.on === 'target' ? entityTarget : entity
-}
-
 export const checkRolesNames = (entity: Entity, str: string) => {
   const game = getGame(entity)
   return Object.keys(game.gameObjects)
@@ -106,9 +95,9 @@ export const removeSpawnedObjects = (entity: Entity, playerComponent, game) => {
       if (networkObject.ownerId !== userUuId) return
       if (networkObject.uniqueId === userUuId) return
       // If it does, tell clients to destroy it
-      Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId })
+      Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })
       // get network object
-      const entityObject = Network.instance.networkObjects[key].component.entity
+      const entityObject = Network.instance.networkObjects[key].entity
       // Remove the entity and all of it's components
       removeEntity(entityObject)
       // Remove network object from list

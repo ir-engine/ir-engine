@@ -1,5 +1,4 @@
 import React from 'react'
-// @ts-ignore
 import styles from './SquareLoader.module.scss'
 
 const Loader = (): any => {

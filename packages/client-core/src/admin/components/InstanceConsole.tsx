@@ -13,7 +13,6 @@ import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-// @ts-ignore
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 // import CreateInstance from './Instance/CreateInstance'

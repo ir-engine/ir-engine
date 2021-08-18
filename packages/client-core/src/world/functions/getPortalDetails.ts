@@ -1,7 +1,12 @@
-import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  getAllComponentsOfType,
+  getAllEntitiesWithComponent,
+  getComponent
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { findProjectionScreen, setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { DoubleSide, EquirectangularRefractionMapping, MeshLambertMaterial, TextureLoader } from 'three'
+import { Entity } from '../../../../engine/src/ecs/classes/Entity'
 
 export const getPortalDetails = async (configs) => {
   const token = localStorage.getItem((configs as any).FEATHERS_STORE_KEY)
@@ -13,10 +18,12 @@ export const getPortalDetails = async (configs) => {
     }
   }
 
-  const portals = getAllMutableComponentOfType(PortalComponent)
+  // @TODO make a global ref to all portals instead of getting all components
+  const entities = getAllEntitiesWithComponent(PortalComponent)
 
   await Promise.all(
-    portals.map(async (portal: PortalComponent): Promise<void> => {
+    entities.map(async (entity: Entity): Promise<void> => {
+      const portal = getComponent(entity, PortalComponent)
       return fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)
         .then((res) => {
           try {
@@ -41,7 +48,7 @@ export const getPortalDetails = async (configs) => {
 
                     const portalMaterial = new MeshLambertMaterial({ envMap: texture, side: DoubleSide })
 
-                    const screen = findProjectionScreen(portal.entity)
+                    const screen = findProjectionScreen(entity)
                     screen.material = portalMaterial
 
                     texture.dispose()

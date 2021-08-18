@@ -22,7 +22,6 @@ yarn-error.log*
 docs/**/**
 docs-client/
 docs-client-core/
-docs-client-ml/
 docs-client-common/
 docs-client-engine/
 docs-client-gameserver/

@@ -71,7 +71,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
     PhysXInstance.instance.addBody(body)
 
-    body.userData = entity
+    body.userData = { entity }
 
     addComponent(entity, ColliderComponent, { body })
 
@@ -118,12 +118,16 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     displayText,
     spawnPosition,
     spawnRotation,
-    spawnEuler
+    spawnEuler,
+    isPlayerInPortal: false,
+    remoteSpawnPosition: new Vector3(),
+    remoteSpawnRotation: new Quaternion(),
+    remoteSpawnEuler: new Euler()
   })
 }
 
 export const setRemoteLocationDetail = (
-  portal: PortalComponent,
+  portal: ReturnType<typeof PortalComponent.get>,
   spawnPosition: Vector3,
   spawnRotation: Euler
 ): void => {

@@ -3,14 +3,6 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { Config } from '@xrengine/client-core/src/helper'
 import ProtectedRoute from './protected'
 import homePage from '../pages/index'
-import LOADER from '../pages/map/loader/Loading'
-import Microphone from '../pages/map/microphone/Mic'
-import Usermsg from '../pages/map/user/UserMessage'
-import Chatmicon from '../pages/map/chatmicon/MicOn'
-import Chatmicoff from '../pages/map/chatmicoff/Chat'
-import Joinparty from '../pages/map/blockparty/JoinParty'
-import Profileedit from '../pages/map/profileedit/ProfileEdit'
-import Profileediting from '../pages/map/profileediting/ProfileEditing'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
 if (typeof globalThis.process === 'undefined') {
@@ -54,14 +46,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
       >
         <Switch>
           <Route path="/" component={homePage} exact />
-          <Route path="/loading" component={LOADER} />
-          <Route path="/microphone" component={Microphone} />
-          <Route path="/usermessage" component={Usermsg} />
-          <Route path="/micon" component={Chatmicon} />
-          <Route path="/micoff" component={Chatmicoff} />
-          <Route path="/joinparty" component={Joinparty} />
-          <Route path="/profileedit" component={Profileedit} />
-          <Route path="/profileediting" component={Profileediting} />
           <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
 
           {/* Admin Routes*/}
@@ -70,9 +54,12 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           {/* Dev Routes */}
           <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
           <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
-          <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
-          <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
+          {/* <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} /> */}
           <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
+          <Route
+            path="/examples/navmeshbuilder"
+            component={React.lazy(() => import('../pages/examples/NavMeshBuilder'))}
+          />
           <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
 
           {/* Auth Routes */}
@@ -93,10 +80,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/mappa/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Route path="/map/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
-          <Route
-            path="/blondtron/:locationName"
-            component={React.lazy(() => import('../pages/event/[locationName]'))}
-          />
+
           <Route path="/event/:locationName" component={React.lazy(() => import('../pages/event/[locationName]'))} />
           <Route
             path="/offline/:locationName"

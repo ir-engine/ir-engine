@@ -21,27 +21,20 @@ import {
 import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
-import {
-  calcMetersPerPixelLatitudinal,
-  calcMetersPerPixelLongitudinal,
-  NUMBER_OF_TILES_PER_DIMENSION,
-  RASTER_TILE_SIZE_HDPI
-} from './MapBoxClient'
+import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
+import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
+import { METERS_PER_DEGREE_LL } from './constants'
 
 // TODO free resources used by canvases, bitmaps etc
 
-const ENABLE_DEBUG = false
-
-const METERS_PER_DEGREE_LL = 111139
-
-function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
+export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
 }
 
-function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry {
+function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
   const shape = new Shape()
   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
 
@@ -91,7 +84,7 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
     height = styles.height || 4
   }
 
-  let threejsGeometry: BufferGeometry | null
+  let threejsGeometry: BufferGeometry | null = null
 
   if (styles.extrude === 'flat') {
     threejsGeometry = new ShapeGeometry(shape)
@@ -112,7 +105,9 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
     })
   }
 
-  threejsGeometry.rotateX(-Math.PI / 2)
+  if (threejsGeometry) {
+    threejsGeometry.rotateX(-Math.PI / 2)
+  }
 
   if (styles.color && styles.color.builtin_function === 'purple_haze') {
     const light = new Color(0xa0c0a0)
@@ -128,8 +123,8 @@ function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: P
   const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
 
   // the current method of merging produces strange results with flat geometries
-  if (styles.extrude !== 'flat') {
-    return [mergeBufferGeometries(geometries.map((g) => toIndexed(g)))]
+  if (styles.extrude !== 'flat' && geometries.length > 1) {
+    return [mergeBufferGeometries(geometries.filter((g) => g).map((g) => toIndexed(g)))]
   } else {
     return geometries
   }
@@ -210,7 +205,6 @@ function getBuildingColor(feature: Feature) {
 const geometrySize = new Vector3()
 function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color, shadow: Color) {
   const normals = geometry.attributes.normal
-  const positions = geometry.attributes.position
   const topColor = baseColor.clone().multiply(light)
   const bottomColor = baseColor.clone().multiply(shadow)
 
@@ -248,12 +242,12 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildObjects3D(
+export function buildMeshes(
   layerName: ILayerName,
   features: Feature[],
   llCenter: Position,
   renderer: WebGLRenderer
-): Object3D[] {
+): Mesh[] {
   const geometries = buildGeometries(layerName, features, llCenter)
 
   const texture = new CanvasTexture(generateTextureCanvas())
@@ -308,11 +302,10 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   })
 }
 
-export function createGround(rasterTiles: ImageBitmap[], latitude: number): Object3D {
+export function createGround(rasterTiles: ImageBitmap[], latitude: number): Mesh {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
-  const width = sizeInPx * calcMetersPerPixelLongitudinal(latitude)
-  const height = sizeInPx * calcMetersPerPixelLatitudinal(latitude)
-  const geometry = new PlaneGeometry(width, height)
+  // Will be scaled according to building mesh
+  const geometry = new PlaneGeometry(1, 1)
   const texture = rasterTiles.length > 0 ? new CanvasTexture(generateRasterTileCanvas(rasterTiles)) : null
 
   const material = getOrCreateMaterial(
@@ -332,7 +325,7 @@ export function createGround(rasterTiles: ImageBitmap[], latitude: number): Obje
   mesh.renderOrder = -1
 
   // rotate to face up
-  mesh.rotateX(-Math.PI / 2)
+  mesh.geometry.rotateX(-Math.PI / 2)
 
   // TODO why do the vector tiles and the raster tiles not line up?
   mesh.position.x -= 80
@@ -341,25 +334,39 @@ export function createGround(rasterTiles: ImageBitmap[], latitude: number): Obje
   return mesh
 }
 
-export function createBuildings(
-  vectorTiles: TileFeaturesByLayer[],
-  llCenter: Position,
-  renderer: WebGLRenderer
-): Object3D {
+export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Mesh {
   const features = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
-  const objects3d = buildObjects3D('building', features, llCenter, renderer)
+  const meshes = buildMeshes('building', features, llCenter, renderer)
 
-  return objects3d[0]
+  return meshes[0]
 }
 
 export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   const group = new Group()
   const features = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
-  const objects3d = buildObjects3D('road', features, llCenter, renderer)
+  const objects3d = buildMeshes('road', features, llCenter, renderer)
 
   objects3d.forEach((o) => {
     group.add(o)
   })
 
   return group
+}
+
+/** Workaround for until we get the Web Mercator projection math right so that the ground and building meshes line up */
+export function setGroundScaleAndPosition(groundMesh: Mesh, buildingMesh: Mesh) {
+  const scaleX = getRelativeSizesOfGeometries(groundMesh.geometry, buildingMesh.geometry, 'x')
+  const scaleZ = getRelativeSizesOfGeometries(groundMesh.geometry, buildingMesh.geometry, 'z')
+  groundMesh.scale.x = scaleX
+  groundMesh.scale.z = scaleZ
+  buildingMesh.geometry.boundingBox.getCenter(groundMesh.position)
+  groundMesh.position.y = 0
+}
+
+export function safelySetGroundScaleAndPosition(ground: Object3D | undefined, building: Object3D | undefined) {
+  if (ground?.type === 'Mesh' && building?.type === 'Mesh') {
+    setGroundScaleAndPosition(ground as Mesh, building as Mesh)
+  } else {
+    console.warn('safelySetGroundScaleAndPosition: both ground and building mush be Meshes!')
+  }
 }

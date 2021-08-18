@@ -5,13 +5,13 @@ import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame, getGameFromName } from '../../../functions/functions'
 import { getStorage } from '../../../functions/functionsStorage'
 import { getPositionNextPoint } from '../behaviors/getPositionNextPoint'
-import { YourTurn } from '../../gameDefault/components/YourTurnTagComponent'
 import { Network } from '../../../../networking/classes/Network'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
 import { tweenXRInputSource } from '../../../../bot/functions/xrBotHookFunctions'
 import { GolfState } from '../GolfGameComponents'
 import { Entity } from '../../../../ecs/classes/Entity'
+import { YourTurn } from '../../../types/GameComponents'
 
 export const GolfBotHookFunctions = {
   [GolfBotHooks.GetBallPosition]: getBallPosition,
@@ -84,7 +84,7 @@ export function getPlayerNumber() {
 }
 
 export function getTeePosition() {
-  const { position } = getPositionNextPoint(Network.instance.localClientEntity, { positionCopyFromRole: 'GolfTee-' })
+  const position = getPositionNextPoint(Network.instance.localClientEntity, 'GolfTee-')
   console.log(position)
   return position
 }

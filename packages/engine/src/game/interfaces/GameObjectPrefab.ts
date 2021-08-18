@@ -3,16 +3,11 @@ import type { Entity } from '../../ecs/classes/Entity'
 import type { GameObject } from '../components/GameObject'
 
 export interface GameObjectPrefab {
-  create: () => GameObject
+  create: () => ReturnType<typeof GameObject.get>
   destroy: () => void
 }
 
-export type GameObjectInteractionBehavior = (
-  entity: Entity,
-  delta: number,
-  args: { hitEvent: ColliderHitEvent },
-  entityOther: Entity
-) => any
+export type GameObjectInteractionBehavior = (entity: Entity, hitEvent: ColliderHitEvent, entityOther: Entity) => any
 
 export interface GameObjectInteractionSchema {
   [x: string]: GameObjectInteractionBehavior

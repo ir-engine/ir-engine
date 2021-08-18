@@ -7,8 +7,9 @@ export interface MapProps {
   style?: any
   useTimeOfDay?: number
   useDirectionalShadows?: boolean
-  useStartCoordinates?: boolean
+  useDeviceGeolocation?: boolean
   startLatitude?: string
   startLongitude?: string
   showRasterTiles?: boolean
+  enableDebug?: boolean
 }

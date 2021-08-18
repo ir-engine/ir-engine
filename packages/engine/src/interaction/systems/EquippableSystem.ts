@@ -1,7 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
-import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippedStateUpdateSchema } from '../enums/EquippedEnums'
@@ -11,21 +10,32 @@ import { sendClientObjectUpdate } from '../../networking/functions/sendClientObj
 import { BodyType } from 'three-physx'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { ECSWorld } from '../../ecs/classes/World'
 
 /**
  * @author Josh Field <github.com/HexaField>
  */
 
-export class EquippableSystem extends System {
-  execute(delta: number, time: number): void {
-    for (const entity of this.queryResults.equippable.added) {
+export const EquippableSystem = async (): Promise<System> => {
+  const networkUserQuery = defineQuery([Not(LocalInputReceiverComponent), AvatarComponent, TransformComponent])
+  const networkUserAddQuery = enterQuery(networkUserQuery)
+
+  const equippableQuery = defineQuery([EquipperComponent])
+  const equippableAddQuery = enterQuery(equippableQuery)
+  const equippableRemoveQuery = exitQuery(equippableQuery)
+
+  return defineSystem((world: ECSWorld) => {
+    for (const entity of equippableAddQuery(world)) {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       // all equippables must have a collider to grab by in VR
       const collider = getComponent(equippedEntity, ColliderComponent)
       if (collider) collider.body.type = BodyType.KINEMATIC
       // send equip to clients
       if (!isClient) {
-        const networkObject = getComponent(equippedEntity, NetworkObject)
+        const networkObject = getComponent(equippedEntity, NetworkObjectComponent)
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
           BinaryValue.TRUE,
           networkObject.networkId
@@ -33,7 +43,7 @@ export class EquippableSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.equippable.all) {
+    for (const entity of equippableQuery(world)) {
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
       const handTransform = getHandTransform(entity)
@@ -41,8 +51,8 @@ export class EquippableSystem extends System {
       equippableTransform.position.copy(position)
       equippableTransform.rotation.copy(rotation)
       if (!isClient) {
-        for (const userEntity of this.queryResults.network_user.added) {
-          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
+        for (const userEntity of networkUserAddQuery(world)) {
+          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
             BinaryValue.TRUE,
             networkObject.networkId
@@ -51,7 +61,7 @@ export class EquippableSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.equippable.removed) {
+    for (const entity of equippableRemoveQuery(world)) {
       const equipperComponent = getComponent(entity, EquipperComponent, true)
       const equippedEntity = equipperComponent.equippedEntity
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
@@ -70,15 +80,7 @@ export class EquippableSystem extends System {
         ] as EquippedStateUpdateSchema)
       }
     }
-  }
 
-  static queries: any = {
-    equippable: {
-      components: [EquipperComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    }
-  }
+    return world
+  })
 }

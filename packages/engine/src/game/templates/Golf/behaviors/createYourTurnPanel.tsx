@@ -7,7 +7,7 @@ import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunc
 import { TransformChildComponent } from '../../../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 export const Panel = styled.div`
   background: #ffffff55;
@@ -25,7 +25,16 @@ export const YourTurnPanel = () => {
 export async function createYourTurnPanel(player: Entity) {
   if (player === Network.instance.localClientEntity) {
     const ui = createXRUI(YourTurnPanel, {})
-    addComponent(ui.entity, TransformComponent)
-    addComponent(ui.entity, TransformChildComponent, { parent: player, offsetPosition: new Vector3(0, 0, 1) })
+    addComponent(ui.entity, TransformComponent, {})
+    addComponent(
+      ui.entity,
+      TransformChildComponent,
+      {
+        parent: player,
+        offsetPosition: new Vector3(0, 0, 1),
+        offsetQuaternion: new Quaternion()
+      },
+      null
+    )
   }
 }

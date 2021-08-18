@@ -1,24 +1,27 @@
+import { Quaternion } from 'three'
+import { XRInputSourceComponent } from '../../../avatar/components/XRInputSourceComponent'
+import { teleportPlayer } from '../../../avatar/functions/teleportPlayer'
 import { isClient } from '../../../common/functions/isClient'
-import { System } from '../../../ecs/classes/System'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../networking/classes/Network'
-import { NetworkObject } from '../../../networking/components/NetworkObject'
-import { NetworkObjectOwner } from '../../../networking/components/NetworkObjectOwner'
+import { NetworkObjectComponent } from '../../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponentOwner } from '../../../networking/components/NetworkObjectComponentOwner'
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
 import { getGame, getUuid } from '../../functions/functions'
 import { addStateComponent, removeStateComponent, sendVelocity } from '../../functions/functionsState'
 import { getStorage, setStorage } from '../../functions/functionsStorage'
 import { Action, State } from '../../types/GameComponents'
-import { ifGetOut } from '../gameDefault/checkers/ifGetOut'
-import { ifOwned } from '../gameDefault/checkers/ifOwned'
-import { ifVelocity } from './functions/ifVelocity'
+import { ifGetOut } from '../../functions/ifGetOut'
+import { ifOwned } from '../../functions/ifOwned'
+import { GolfGameMode } from '../GolfGameMode'
 import { addHole } from './behaviors/addHole'
 import { addRole } from './behaviors/addRole'
 import { addTurn } from './behaviors/addTurn'
 import { createYourTurnPanel } from './behaviors/createYourTurnPanel'
 import { saveGoalScore } from './behaviors/displayScore'
 import { getPositionNextPoint } from './behaviors/getPositionNextPoint'
+import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
 import { hitBall } from './behaviors/hitBall'
 import { nextTurn } from './behaviors/nextTurn'
 import { saveScore } from './behaviors/saveScore'
@@ -29,46 +32,116 @@ import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
-import { initializeGolfBall, spawnBall, updateBall } from './prefab/GolfBallPrefab'
-import { initializeGolfClub, spawnClub, updateClub, hideClub, enableClub } from './prefab/GolfClubPrefab'
 import { ifOutCourse } from './functions/ifOutCourse'
-import { XRInputSourceComponent } from '../../../avatar/components/XRInputSourceComponent'
-import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
+import { ifVelocity } from './functions/ifVelocity'
 import { GolfState } from './GolfGameComponents'
-import { Quaternion } from 'three'
-import { teleportPlayer } from '../../../avatar/functions/teleportPlayer'
+import { initializeGolfBall, spawnBall, updateBall } from './prefab/GolfBallPrefab'
+import { enableClub, initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
 import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
 import { Engine } from '../../../ecs/classes/Engine'
-import { GolfGameMode } from '../GolfGameMode'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../../ecs/bitecs'
+import { ECSWorld } from '../../../ecs/classes/World'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
 
-export class GolfSystem extends System {
-  /**
-   * Executes the system. Called each frame by default from the Engine.
-   * @param delta Time since last frame.
-   */
-  constructor() {
-    super()
-    Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
-
-    // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
-    Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
-      Network.instance.schema.prefabs.set(Number(prefabType), prefab)
-    })
+export const GolfSystem = async (): Promise<System> => {
+  if (isClient) {
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
+    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
   }
+  Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
 
-  execute(delta: number, time: number): void {
-    // DO ALL STATE LOGIC HERE (all queries)
+  // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
+  Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
+    Network.instance.schema.prefabs.set(Number(prefabType), prefab)
+  })
 
-    for (const entity of this.queryResults.spawnGolfBall.all) {
-      const { ownerId } = getComponent(entity, NetworkObject)
-      const ownerEntity = this.queryResults.player.all.find((player) => {
-        return getComponent(player, NetworkObject).uniqueId === ownerId
+  const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
+
+  const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
+
+  const playerQuery = defineQuery([GamePlayer])
+  const playerAddQuery = enterQuery(playerQuery)
+
+  const playerVRQuery = defineQuery([GamePlayer, XRInputSourceComponent])
+  const playerVRAddQuery = enterQuery(playerVRQuery)
+  const playerVRRemoveQuery = exitQuery(playerVRQuery)
+
+  const gameObjectQuery = defineQuery([GameObject])
+  const gameObjectAddQuery = enterQuery(gameObjectQuery)
+
+  const golfClubQuery = defineQuery([GolfClubComponent])
+  const golfClubAddQuery = enterQuery(golfClubQuery)
+
+  const golfBallQuery = defineQuery([GolfBallComponent])
+  const golfBallAddQuery = enterQuery(golfBallQuery)
+
+  const golfHoleQuery = defineQuery([GolfHoleComponent])
+  const golfHoleAddQuery = enterQuery(golfHoleQuery)
+
+  const ballHitQuery = defineQuery([GolfBallComponent, Action.GameObjectCollisionTag])
+  const ballHitAddQuery = enterQuery(ballHitQuery)
+
+  const ballMovingQuery = defineQuery([GolfBallComponent, GolfState.BallMoving])
+
+  const ballAlmostStoppedQuery = defineQuery([GolfBallComponent, GolfState.AlmostStopped])
+  const ballAlmostStoppedAddQuery = enterQuery(ballAlmostStoppedQuery)
+
+  const ballStoppedQuery = defineQuery([GolfBallComponent, GolfState.BallStopped])
+
+  const checkCourseQuery = defineQuery([GolfBallComponent, GolfState.CheckCourse, GolfState.BallStopped])
+  const checkCourseAddQuery = enterQuery(checkCourseQuery)
+
+  const ballHiddenQuery = defineQuery([GolfBallComponent, GolfState.BallHidden])
+  const ballHiddenAddQuery = enterQuery(ballHiddenQuery)
+
+  const ballVisibleQuery = defineQuery([GolfBallComponent, GolfState.BallVisible])
+  const ballVisibleAddQuery = enterQuery(ballVisibleQuery)
+
+  const correctBallPositionQuery = defineQuery([GolfBallComponent, GolfState.CorrectBallPosition])
+  const correctBallPositionAddQuery = enterQuery(correctBallPositionQuery)
+
+  const hitQuery = defineQuery([GolfClubComponent, GolfState.Hit])
+  const hitAddQuery = enterQuery(hitQuery)
+  const hitRemoveQuery = exitQuery(hitQuery)
+
+  const clubHitQuery = defineQuery([GolfClubComponent, Action.GameObjectCollisionTag])
+  const clubHitAddQuery = enterQuery(clubHitQuery)
+
+  const activeClubQuery = defineQuery([GolfClubComponent, State.Active])
+  const activeClubAddQuery = enterQuery(activeClubQuery)
+
+  const inctiveClubQuery = defineQuery([GolfClubComponent, State.Inactive])
+  const inctiveClubAddQuery = enterQuery(inctiveClubQuery)
+
+  const waitingQuery = defineQuery([GamePlayer, State.Waiting])
+  const waitingAddQuery = enterQuery(waitingQuery)
+
+  const yourTurnQuery = defineQuery([GamePlayer, State.YourTurn])
+  const yourTurnAddQuery = enterQuery(yourTurnQuery)
+
+  const waitTurnQuery = defineQuery([GamePlayer, State.WaitTurn])
+  const waitTurnAddQuery = enterQuery(waitTurnQuery)
+
+  const holeHitQuery = defineQuery([GolfHoleComponent, Action.GameObjectCollisionTag])
+  const holeHitAddQuery = enterQuery(holeHitQuery)
+
+  const goalQuery = defineQuery([GamePlayer, GolfState.Goal])
+  const goalAddQuery = enterQuery(goalQuery)
+
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
+    for (const entity of spawnGolfBallQuery(world)) {
+      const { ownerId } = getComponent(entity, NetworkObjectComponent)
+      const ownerEntity = playerQuery(world).find((player) => {
+        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
       })
       if (ownerEntity) {
         const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
@@ -77,10 +150,10 @@ export class GolfSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.spawnGolfClub.all) {
-      const { ownerId } = getComponent(entity, NetworkObject)
-      const ownerEntity = this.queryResults.player.all.find((player) => {
-        return getComponent(player, NetworkObject).uniqueId === ownerId
+    for (const entity of spawnGolfClubQuery(world)) {
+      const { ownerId } = getComponent(entity, NetworkObjectComponent)
+      const ownerEntity = playerQuery(world).find((player) => {
+        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
       })
       if (ownerEntity) {
         const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
@@ -89,7 +162,7 @@ export class GolfSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.player.all) {
+    for (const entity of playerQuery(world)) {
       if (!hasComponent(entity, State.Active)) continue
 
       const game = getGame(entity)
@@ -98,7 +171,7 @@ export class GolfSystem extends System {
 
       if (!playerComponent.ownedObjects['GolfClub']) {
         const club = game.gameObjects['GolfClub'].find(
-          (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
+          (entity) => getComponent(entity, NetworkObjectComponent)?.ownerId === ownerId
         )
         if (club) {
           console.log('club')
@@ -109,7 +182,7 @@ export class GolfSystem extends System {
 
       if (!playerComponent.ownedObjects['GolfBall']) {
         const ball = game.gameObjects['GolfBall'].find(
-          (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
+          (entity) => getComponent(entity, NetworkObjectComponent)?.ownerId === ownerId
         )
         if (ball) {
           console.log('ball')
@@ -126,8 +199,8 @@ export class GolfSystem extends System {
     /////////////////// TURN STUFF ///////////////////////////
     ///////////////////////////////////////////////////////////
     // NEXT TURN
-    for (const entity of this.queryResults.waiting.all) {
-      if (this.queryResults.waiting.added.some((addedEntity) => addedEntity.id === entity.id)) continue
+    for (const entity of waitingQuery(world)) {
+      if (waitingAddQuery(world).some((addedEntity) => addedEntity === entity)) continue
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       if (!ballEntity) continue
@@ -137,8 +210,8 @@ export class GolfSystem extends System {
     }
 
     // ADD WAITING
-    for (const entity of this.queryResults.yourTurn.all) {
-      if (this.queryResults.yourTurn.added.some((addedEntity) => addedEntity.id === entity.id)) continue
+    for (const entity of yourTurnQuery(world)) {
+      if (yourTurnAddQuery(world).some((addedEntity) => addedEntity === entity)) continue
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       if (!ballEntity) continue
@@ -153,25 +226,25 @@ export class GolfSystem extends System {
     /////////////////// BALL STUFF ///////////////////////////
     ///////////////////////////////////////////////////////////
 
-    for (const entity of this.queryResults.correctBallPosition.added) {
+    for (const entity of correctBallPositionAddQuery(world)) {
       updateColliderPosition(entity)
       removeComponent(entity, GolfState.CorrectBallPosition)
     }
 
-    for (const entity of this.queryResults.golfBall.all) {
+    for (const entity of golfBallQuery(world)) {
       if (!hasComponent(entity, State.SpawnedObject)) continue
-      updateBall(entity, {}, delta)
+      updateBall(entity)
     }
 
     // CHECK If Ball drop out of GameArea
-    for (const entity of this.queryResults.ballMoving.all) {
+    for (const entity of ballMovingQuery(world)) {
       if (ifGetOut(entity, { area: 'GameArea' })) {
-        teleportObject(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
+        teleportObject(entity, getPositionNextPoint(entity, 'GolfTee-'))
       }
     }
 
     // SWITCH STATE on ball start stopping
-    for (const entity of this.queryResults.ballMoving.all) {
+    for (const entity of ballMovingQuery(world)) {
       if (ifVelocity(entity, { less: 0.001 })) {
         removeStateComponent(entity, GolfState.BallMoving)
         addStateComponent(entity, GolfState.AlmostStopped)
@@ -179,14 +252,14 @@ export class GolfSystem extends System {
     }
 
     // Remove velocity for full stopped ball
-    for (const entity of this.queryResults.ballAlmostStopped.added) {
+    for (const entity of ballAlmostStoppedAddQuery(world)) {
       removeVelocity(entity)
     }
 
     // SWITCH STATE from middle of moviong to stop or still moving
-    for (const entity of this.queryResults.ballAlmostStopped.all) {
+    for (const entity of ballAlmostStoppedQuery(world)) {
       // This line not allow run this code if State was added in this frame.
-      // if (for(const entity of this.queryResults.ballAlmostStopped.added.some(addedEntity => addedEntity.id === entity.id)) continue;
+      // if (for(const entity of ballAlmostStoppedAddQuery(world).some(addedEntity => addedEntity.id === entity.id)) continue;
       if (ifVelocity(entity, { more: 0.001 })) {
         removeStateComponent(entity, GolfState.AlmostStopped)
         addStateComponent(entity, GolfState.BallMoving)
@@ -197,15 +270,15 @@ export class GolfSystem extends System {
     }
 
     // CHECK If Ball drop out of course
-    for (const entity of this.queryResults.checkCourse.added) {
+    for (const entity of checkCourseAddQuery(world)) {
       if (ifOutCourse(entity)) {
         removeComponent(entity, GolfState.CheckCourse)
-        teleportObject(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
+        teleportObject(entity, getPositionNextPoint(entity, 'GolfTee-'))
       }
     }
 
     // SWITCH STATE on ball if he start moving
-    for (const entity of this.queryResults.ballStopped.all) {
+    for (const entity of ballStoppedQuery(world)) {
       if (ifVelocity(entity, { more: 0.001 })) {
         removeStateComponent(entity, GolfState.BallStopped)
         addStateComponent(entity, GolfState.BallMoving)
@@ -216,10 +289,10 @@ export class GolfSystem extends System {
     //////////////////////// HOLE ////////////////////////////
     //////////////////////////////////////////////////////////
 
-    for (const holeEntity of this.queryResults.holeHit.added) {
-      for (const ballEntity of this.queryResults.ballHit.all) {
+    for (const holeEntity of holeHitAddQuery(world)) {
+      for (const ballEntity of ballHitQuery(world)) {
         const entityPlayer =
-          Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
+          Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.entity
         const gameScore = getStorage(entityPlayer, { name: 'GameScore' })
         const game = getGame(entityPlayer)
         const currentHoleEntity = gameScore.score
@@ -234,8 +307,7 @@ export class GolfSystem extends System {
         }
 
         if (isClient) {
-          const entityYourPlayer =
-            Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.component.entity
+          const entityYourPlayer = Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
           if (!hasComponent(entityYourPlayer, GolfState.Goal) && !hasComponent(entityYourPlayer, State.YourTurn)) {
             // this case when other player hit ball but you still waiting yours ball to stop
             // but you need waite because you use interpolation correction bevavior, other player not and server not
@@ -251,11 +323,11 @@ export class GolfSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.goal.added) {
+    for (const entity of goalAddQuery(world)) {
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
-      teleportPlayer(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }), new Quaternion())
-      teleportObject(ballEntity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
+      teleportPlayer(entity, getPositionNextPoint(entity, 'GolfTee-'), new Quaternion())
+      teleportObject(ballEntity, getPositionNextPoint(entity, 'GolfTee-'))
       removeStateComponent(entity, GolfState.Goal)
     }
 
@@ -263,24 +335,23 @@ export class GolfSystem extends System {
     /////////////////////// CLUB //////////////////////////////
     ///////////////////////////////////////////////////////////
 
-    for (const clubEntity of this.queryResults.clubHit.added) {
-      for (const ballEntity of this.queryResults.ballHit.added) {
+    for (const clubEntity of clubHitAddQuery(world)) {
+      for (const ballEntity of ballHitAddQuery(world)) {
         if (hasComponent(ballEntity, GolfState.BallStopped) && hasComponent(ballEntity, State.Active)) {
           addStateComponent(clubEntity, GolfState.Hit)
-          sendVelocity(clubEntity)
+          // sendVelocity(clubEntity)
         } else if (isClient) {
           // this case when other player hit ball but you still waiting yours ball to stop
           // but you need waite because you use interpolation correction bevavior, other player not and server not
           if (
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId !=
-            Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId].ownerId
+            Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId].ownerId
           ) {
-            const entityYourPlayer =
-              Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.component.entity
+            const entityYourPlayer = Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
             removeStateComponent(entityYourPlayer, State.Waiting)
             addStateComponent(entityYourPlayer, State.WaitTurn)
             const entityPlayer =
-              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
+              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.entity
             addStateComponent(entityPlayer, State.YourTurn)
             addStateComponent(clubEntity, GolfState.Hit)
           }
@@ -288,28 +359,29 @@ export class GolfSystem extends System {
       }
     }
 
-    for (const clubEntity of this.queryResults.hit.added) {
-      const ballEntity = this.queryResults.golfBall.all.find((e) => ifOwned(clubEntity, null, e))
-      hitBall(clubEntity, { clubPowerMultiplier: 5, hitAdvanceFactor: 4 }, delta, ballEntity)
+    for (const clubEntity of hitAddQuery(world)) {
+      const ballEntity = golfBallQuery(world).find((e) => ifOwned(clubEntity, e))
+      hitBall(clubEntity, 5, 4, ballEntity)
+
       removeStateComponent(clubEntity, GolfState.Hit)
       // its needed to revome action if action added from network, in normal case thay remmoving in place where thay adding
       removeComponent(clubEntity, Action.GameObjectCollisionTag)
       removeComponent(ballEntity, Action.GameObjectCollisionTag)
     }
 
-    for (const clubEntity of this.queryResults.hit.removed) {
+    for (const clubEntity of hitRemoveQuery(world)) {
       const playerEntity =
-        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectOwner).networkId]?.component.entity
-      const ballEntity = this.queryResults.golfBall.all.find((e) => ifOwned(clubEntity, null, e))
+        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectComponentOwner).networkId]?.entity
+      const ballEntity = golfBallQuery(world).find((e) => ifOwned(clubEntity, e))
       saveScore(playerEntity)
       addStateComponent(playerEntity, GolfState.AlreadyHit)
       if (!hasComponent(ballEntity, GolfState.CheckCourse)) {
         addStateComponent(ballEntity, GolfState.CheckCourse)
       }
     }
-    for (const entity of this.queryResults.golfClub.all) {
+    for (const entity of golfClubQuery(world)) {
       if (!hasComponent(entity, State.SpawnedObject)) continue
-      updateClub(entity, null, delta)
+      updateClub(entity)
     }
     ///////////////////////////////////////////////////////////
     ////////////////////    Turn reuired quary     ////////////
@@ -319,7 +391,7 @@ export class GolfSystem extends System {
 
     //
     // do ball Active on next Turn
-    for (const entity of this.queryResults.yourTurn.added) {
+    for (const entity of yourTurnAddQuery(world)) {
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       removeStateComponent(ballEntity, State.Inactive)
@@ -327,7 +399,7 @@ export class GolfSystem extends System {
     }
 
     // give Ball Inactive State for player cant hit Ball again in one game turn
-    for (const entity of this.queryResults.waiting.added) {
+    for (const entity of waitingAddQuery(world)) {
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       removeStateComponent(ballEntity, State.Active)
@@ -335,7 +407,7 @@ export class GolfSystem extends System {
     }
 
     // UnHide Ball on YourTurn
-    for (const entity of this.queryResults.yourTurn.added) {
+    for (const entity of yourTurnAddQuery(world)) {
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       removeStateComponent(ballEntity, GolfState.BallHidden)
@@ -343,46 +415,48 @@ export class GolfSystem extends System {
     }
 
     // Hide Ball on not YourTurn
-    for (const entity of this.queryResults.waitTurn.added) {
+    for (const entity of waitTurnAddQuery(world)) {
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       removeStateComponent(ballEntity, GolfState.BallVisible)
       addStateComponent(ballEntity, GolfState.BallHidden)
     }
 
-    for (const entity of this.queryResults.ballHidden.added) {
+    for (const entity of ballHiddenAddQuery(world)) {
       if (isClient) {
         hideBall(entity)
       }
     }
 
-    for (const entity of this.queryResults.ballVisible.added) {
+    for (const entity of ballVisibleAddQuery(world)) {
       if (isClient) {
         unhideBall(entity)
       }
     }
 
-    for (const entity of this.queryResults.yourTurn.added) {
+    for (const entity of yourTurnAddQuery(world)) {
       const playerComponent = getComponent(entity, GamePlayer)
       const entityClub = playerComponent.ownedObjects['GolfClub']
       removeStateComponent(entityClub, State.Inactive)
       addStateComponent(entityClub, State.Active)
     }
 
-    for (const entity of this.queryResults.waitTurn.added) {
+    for (const entity of waitTurnAddQuery(world)) {
       const playerComponent = getComponent(entity, GamePlayer)
       const entityClub = playerComponent.ownedObjects['GolfClub']
       removeStateComponent(entityClub, State.Active)
       addStateComponent(entityClub, State.Inactive)
     }
 
-    for (const entity of this.queryResults.activeClub.added) {
+    for (const entity of activeClubAddQuery(world)) {
+      console.log('enable club')
       if (isClient) {
         enableClub(entity, true)
       }
     }
 
-    for (const entity of this.queryResults.inctiveClub.added) {
+    for (const entity of inctiveClubAddQuery(world)) {
+      console.log('disable club')
       if (isClient) {
         enableClub(entity, false)
       }
@@ -392,267 +466,62 @@ export class GolfSystem extends System {
     //////////////////////////////////////////    ////////////
     ///////////////////////////////////////////////////////////
 
-    for (const entity of this.queryResults.player.added) {
+    for (const entity of playerAddQuery(world)) {
       // set up client side stuff
       setupPlayerInput(entity)
-      createYourTurnPanel(entity)
+      // createYourTurnPanel(entity) // TODO
       isClient && setupPlayerAvatar(entity)
 
       // set up game logic
       addRole(entity)
-      addStateComponent(entity, State.WaitTurn)
       addStateComponent(entity, State.Active)
+      addStateComponent(entity, State.WaitTurn)
 
       setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 } })
 
       if (!isClient) {
         spawnClub(entity)
-        spawnBall(entity, { positionCopyFromRole: 'GolfTee-0', offsetY: 0.3 })
+        spawnBall(entity, 'GolfTee-0', 0.3)
       }
     }
 
-    for (const entity of this.queryResults.gameObject.added) {
+    for (const entity of gameObjectAddQuery(world)) {
       const gameObject = getComponent(entity, GameObject)
       const role = gameObject.role.split('-')[0]
       switch (role) {
         case 'GolfTee':
-          addComponent(entity, GolfTeeComponent)
+          addComponent(entity, GolfTeeComponent, {})
           break
         case 'GolfHole':
-          addComponent(entity, GolfHoleComponent)
+          addComponent(entity, GolfHoleComponent, {})
           break
       }
     }
 
-    for (const entity of this.queryResults.golfClub.added) {
+    for (const entity of golfClubAddQuery(world)) {
       addStateComponent(entity, State.Inactive)
     }
 
-    for (const entity of this.queryResults.golfBall.added) {
+    for (const entity of golfBallAddQuery(world)) {
       addStateComponent(entity, State.Active)
       addStateComponent(entity, GolfState.AlmostStopped)
       addStateComponent(entity, GolfState.BallHidden)
     }
 
-    for (const entity of this.queryResults.golfHole.added) {
+    for (const entity of golfHoleAddQuery(world)) {
       addHole(entity)
     }
 
     if (isClient) {
-      for (const entity of this.queryResults.playerVR.added) {
+      for (const entity of playerVRAddQuery(world)) {
         setupPlayerAvatarVR(entity)
       }
 
-      for (const entity of this.queryResults.playerVR.removed) {
+      for (const entity of playerVRRemoveQuery(world)) {
         setupPlayerAvatarNotInVR(entity)
       }
     }
-  }
 
-  static queries = {
-    spawnGolfBall: {
-      components: [SpawnNetworkObjectComponent, GolfBallTagComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    spawnGolfClub: {
-      components: [SpawnNetworkObjectComponent, GolfClubTagComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    player: {
-      components: [GamePlayer],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    playerVR: {
-      components: [GamePlayer, XRInputSourceComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    gameObject: {
-      components: [GameObject],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    golfClub: {
-      components: [GolfClubComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    golfBall: {
-      components: [GolfBallComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    golfHole: {
-      components: [GolfHoleComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    golfTee: {
-      components: [GolfTeeComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    //
-    // Ball States
-    //
-
-    ballHit: {
-      components: [GolfBallComponent, Action.GameObjectCollisionTag],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-
-    ballMoving: {
-      components: [GolfBallComponent, GolfState.BallMoving],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    ballAlmostStopped: {
-      components: [GolfBallComponent, GolfState.AlmostStopped],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    ballStopped: {
-      components: [GolfBallComponent, GolfState.BallStopped],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    checkCourse: {
-      components: [GolfBallComponent, GolfState.CheckCourse, GolfState.BallStopped],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    ballHidden: {
-      components: [GolfBallComponent, GolfState.BallHidden],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    ballVisible: {
-      components: [GolfBallComponent, GolfState.BallVisible],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    correctBallPosition: {
-      components: [GolfBallComponent, GolfState.CorrectBallPosition],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-
-    //
-    // Club States
-    //
-    hit: {
-      components: [GolfClubComponent, GolfState.Hit],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    clubHit: {
-      components: [GolfClubComponent, Action.GameObjectCollisionTag],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    activeClub: {
-      components: [GolfClubComponent, State.Active],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    inctiveClub: {
-      components: [GolfClubComponent, State.Inactive],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    //
-    // Turn States
-    //
-    waiting: {
-      components: [GamePlayer, State.Waiting],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    yourTurn: {
-      components: [GamePlayer, State.YourTurn],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    waitTurn: {
-      components: [GamePlayer, State.WaitTurn],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    //
-    // Hole States
-    //
-    holeHit: {
-      components: [GolfHoleComponent, Action.GameObjectCollisionTag],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    goal: {
-      components: [GamePlayer, GolfState.Goal],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    hitBallOnThisTurn: {
-      components: [GamePlayer, GolfState.AlreadyHit],
-      listen: {
-        added: true,
-        removed: true
-      }
-    }
-  }
+    return world
+  })
 }

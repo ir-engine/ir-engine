@@ -1,20 +1,25 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import {
+  ActionType,
+  IncomingActionType,
+  WorldStateInterface
+} from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { Quaternion, Vector3 } from 'three'
-import { checkIfIdHavePrepair } from '@xrengine/engine/src/networking/functions/initializeNetworkObject'
+import { getNewNetworkId } from '@xrengine/engine/src/networking/functions/getNewNetworkId'
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
+import { NetworkObjectComponent } from '../../engine/src/networking/components/NetworkObjectComponent'
+import { decode } from 'msgpackr'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -173,12 +178,12 @@ export async function validateNetworkObjects(): Promise<void> {
       // Remove all objects for disconnecting user
       networkObjectsClientOwns.forEach((obj) => {
         // Get the entity attached to the NetworkObjectComponent and remove it
-        console.log('Removing entity ', (obj.component.entity as Entity).id, ' for user ', userId)
-        const removeMessage = { networkId: obj.component.networkId }
+        console.log('Removing entity ', obj.entity, ' for user ', userId)
+        const removeMessage = { networkId: obj.networkId }
         Network.instance.worldState.destroyObjects.push(removeMessage)
-        removeEntity(obj.component.entity)
+        removeEntity(obj.entity)
         delete Network.instance.networkObjects[obj.id]
-        console.log('Removed entity ', (obj.component.entity as Entity).id, ' for user ', userId)
+        console.log('Removed entity ', obj.entity, ' for user ', userId)
       })
 
       if (Network.instance.clients[userId]) delete Network.instance.clients[userId]
@@ -194,14 +199,14 @@ export async function validateNetworkObjects(): Promise<void> {
     )
       return
 
-    logger.info('Culling ownerless object: ', networkObject.component.networkId, 'owned by ', networkObject.ownerId)
+    logger.info('Culling ownerless object: ', key, 'owned by ', networkObject.ownerId)
 
     // If it does, tell clients to destroy it
-    const removeMessage = { networkId: networkObject.component.networkId }
+    const removeMessage = { networkId: Number(key) }
     Network.instance.worldState.destroyObjects.push(removeMessage)
 
     // get network object
-    const entity = networkObject.component.entity
+    const entity = networkObject.entity
 
     // Remove the entity and all of it's components
     removeEntity(entity)
@@ -286,17 +291,15 @@ function disconnectClientIfConnected(socket, userId: string): void {
     if (networkObject.ownerId !== userId) return
 
     // If it does, tell clients to destroy it
-    console.log('destroyObjects.push({ networkId: networkObject.component.networkId', networkObject.component.networkId)
-    if (typeof networkObject.component.networkId === 'number') {
-      Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId })
+    if (typeof getComponent(networkObject.entity, NetworkObjectComponent).networkId === 'number') {
+      Network.instance.worldState.destroyObjects.push({ networkId: networkObject.networkId })
     } else {
-      console.error('networkObject.component.networkId is invalid', networkObject)
-      logger.error('networkObject.component.networkId is invalid')
+      logger.error('networkId is invalid')
       logger.error(networkObject)
     }
 
     // get network object
-    const entity = Network.instance.networkObjects[key].component.entity
+    const entity = Network.instance.networkObjects[key].entity
 
     // Remove the entity and all of it's components
     removeEntity(entity)
@@ -340,7 +343,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     })
   })
 
-  const networkId = checkIfIdHavePrepair(userId)
+  const networkId = getNewNetworkId(userId)
   spawnPrefab(PrefabType.Player, userId, userId, networkId, spawnPos)
 
   await new Promise<void>((resolve) => {
@@ -364,6 +367,14 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     worldState: WorldStateModel.toBuffer(worldState),
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
+}
+
+export function handleIncomingActions(socket, message) {
+  if (!message) return
+  const actions = decode(message) as IncomingActionType[]
+  for (const a of actions) a.senderID = socket.id
+  console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
+  Network.instance.incomingActions.push(...actions)
 }
 
 export async function handleIncomingMessage(socket, message): Promise<any> {
@@ -392,18 +403,13 @@ export async function handleDisconnect(socket): Promise<any> {
       // Validate that the object belonged to disconnecting user
       if (networkObject.ownerId !== userId) return
 
-      logger.info(
-        'Culling object:',
-        networkObject.component.networkId,
-        'owned by disconnecting client',
-        networkObject.ownerId
-      )
+      logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.ownerId)
 
       // If it does, tell clients to destroy it
-      Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId })
+      Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })
 
       // get network object
-      const entity = Network.instance.networkObjects[key].component.entity
+      const entity = Network.instance.networkObjects[key].entity
 
       // Remove the entity and all of it's components
       removeEntity(entity)

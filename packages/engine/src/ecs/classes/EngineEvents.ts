@@ -1,9 +1,8 @@
-import type { MessageQueue } from '../../worker/MessageQueue'
-
 /**
  *
  * @author Josh Field <github.com/HexaField>
  */
+
 const EVENTS = {
   // TODO: add doc formatting to these
 
@@ -23,7 +22,22 @@ const EVENTS = {
   // MISC
   USER_ENGAGE: 'CORE_USER_ENGAGE', // { }
   WINDOW_FOCUS: 'CORE_WINDOW_FOCUS', //  { focused: boolean }
-  ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA' // TODO: to pipe offscreen entity data to UI
+  ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // TODO: to pipe offscreen entity data to UI
+
+  OBJECT_HOVER: 'INTERACTIVE_SYSTEM_OBJECT_HOVER',
+  OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION',
+
+  PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
+
+  XR_START: 'WEBXR_RENDERER_SYSTEM_XR_START',
+  XR_SESSION: 'WEBXR_RENDERER_SYSTEM_XR_SESSION',
+  XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END',
+
+  CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
+  CONNECTION_LOST: 'CORE_CONNECTION_LOST',
+
+  START_SUSPENDED_CONTEXTS: 'POSITIONAL_AUDIO_START_SUSPENDED_CONTEXTS',
+  SUSPEND_POSITIONAL_AUDIO: 'POSITIONAL_AUDIO_SUSPEND_POSITIONAL_AUDIO'
 }
 
 /**
@@ -87,86 +101,4 @@ export class EngineEvents {
       }
     }
   }
-}
-
-/**
- *
- * @author Josh Field <github.com/HexaField>
- */
-const ENGINE_EVENTS_PROXY = {
-  EVENT: 'ENGINE_EVENTS_PROXY_EVENT',
-  EVENT_ADD: 'ENGINE_EVENTS_PROXY_EVENT_ADD',
-  EVENT_ONCE: 'ENGINE_EVENTS_PROXY_EVENT_ONCE',
-  EVENT_REMOVE: 'ENGINE_EVENTS_PROXY_EVENT_REMOVE',
-  EVENT_REMOVE_ALL: 'ENGINE_EVENTS_PROXY_EVENT_REMOVE_ALL'
-}
-
-/**
- *
- * @author Josh Field <github.com/HexaField>
- */
-export const proxyEngineEvents = (messageQueue: MessageQueue) => {
-  const listener = (event: any) => {
-    messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT, { event })
-  }
-  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_ADD, (ev: any) => {
-    const { type } = ev.detail
-    EngineEvents.instance.addEventListener(type, listener, true)
-  })
-  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_ONCE, (ev: any) => {
-    const { type } = ev.detail
-    EngineEvents.instance.once(type, listener, true)
-  })
-  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE, (ev: any) => {
-    const { type } = ev.detail
-    EngineEvents.instance.removeEventListener(type, listener, true)
-  })
-  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, (ev: any) => {
-    const { type, deleteEvent } = ev.detail
-    EngineEvents.instance.removeAllListenersForEvent(type, deleteEvent, true)
-  })
-  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT, (ev: any) => {
-    const { event } = ev.detail
-    EngineEvents.instance.dispatchEvent(event, true)
-  })
-
-  const _addEventListener = EngineEvents.instance.addEventListener
-  EngineEvents.instance.addEventListener = function (type: string, listener: any, fromSelf?: boolean) {
-    if (!fromSelf) {
-      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ADD, { type })
-    }
-    _addEventListener(type, listener)
-  }.bind(EngineEvents.instance)
-
-  const _once = EngineEvents.instance.once
-  EngineEvents.instance.once = function (type: string, listener: any, fromSelf?: boolean) {
-    if (!fromSelf) {
-      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ONCE, { type })
-    }
-    _once(type, listener)
-  }.bind(EngineEvents.instance)
-
-  const _removeEventListener = EngineEvents.instance.removeEventListener
-  EngineEvents.instance.removeEventListener = function (type: string, listener: any, fromSelf?: boolean) {
-    if (!fromSelf) {
-      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE, { type })
-    }
-    _removeEventListener(type, listener)
-  }.bind(EngineEvents.instance)
-
-  const _removeAllListenersForEvent = EngineEvents.instance.removeAllListenersForEvent
-  EngineEvents.instance.removeAllListenersForEvent = function (type: string, deleteEvent: boolean, fromSelf?: boolean) {
-    if (!fromSelf) {
-      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, { type, deleteEvent })
-    }
-    _removeAllListenersForEvent(type, deleteEvent)
-  }.bind(EngineEvents.instance)
-
-  const _dispatchEvent = EngineEvents.instance.dispatchEvent
-  EngineEvents.instance.dispatchEvent = function (event: any, fromSelf?: boolean, transferable?: Transferable[]) {
-    if (!fromSelf) {
-      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT, { event }, transferable)
-    }
-    _dispatchEvent(event)
-  }.bind(EngineEvents.instance)
 }

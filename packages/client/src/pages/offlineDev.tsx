@@ -62,16 +62,12 @@ const DevPage = () => {
 
     addUIEvents()
 
-    const loadScene = new Promise<void>((resolve) => {
-      WorldScene.load(sceneData as any, () => {
-        store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-        setAppLoaded(true)
-        resolve()
-      })
-    })
+    const loadScene = WorldScene.load(sceneData as any)
+    store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+    setAppLoaded(true)
 
     const getWorldState = new Promise<void>((resolve) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: testUserId })
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: testUserId })
       Network.instance.incomingMessageQueueReliable.add(testWorldState)
       resolve()
     })
@@ -82,10 +78,10 @@ const DevPage = () => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
       setIsInXR(true)
     })
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
       setIsInXR(false)
     })
   }

@@ -1,23 +1,15 @@
-import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
-import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState'
 import { getGame, getGameFromName } from '../../../../game/functions/functions'
-import { State } from '../../../types/GameComponents'
+import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState'
 import { GamePlayer } from '../../../components/GamePlayer'
+import { State } from '../../../types/GameComponents'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const nextTurn: Behavior = (
-  entity: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
-): void => {
+export const nextTurn = (entity: Entity): void => {
   const game = getGame(entity) ?? getGameFromName(getComponent(entity, GamePlayer, true).gameName)
   const arrPlayersInGame = Object.keys(game.gamePlayers).filter(
     (role) => game.gamePlayers[role].length && role != 'newPlayer'

@@ -2,11 +2,10 @@
  * @author HydraFire <github.com/HydraFire>
  */
 
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
@@ -23,10 +22,10 @@ import { AvatarComponent } from '../components/AvatarComponent'
 
 const vec3 = new Vector3()
 
-export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
+export const characterCorrectionBehavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const avatar = getComponent(entity, AvatarComponent)
-  const networkId = getComponent(entity, NetworkObject).networkId
+  const networkId = getComponent(entity, NetworkObjectComponent).networkId
 
   snapshots.new.push({
     networkId,

@@ -21,7 +21,6 @@ import { selectAppState } from '../../../common/reducers/app/selector'
 import { client } from '../../../feathers'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAdminState } from '../../reducers/admin/selector'
-// @ts-ignore
 import styles from '../Admin.module.scss'
 interface Props {
   open: boolean

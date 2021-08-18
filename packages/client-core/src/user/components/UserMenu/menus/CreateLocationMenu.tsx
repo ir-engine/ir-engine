@@ -16,7 +16,6 @@ import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import { client } from '../../../../feathers'
 import { showAlert } from '../../../../common/reducers/alert/actions'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 

@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Mic, MicOff, Videocam, VideocamOff } from '@material-ui/icons'
 import FaceIcon from '@material-ui/icons/Face'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
-// @ts-ignore
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import {
@@ -47,6 +46,8 @@ const mapDispatchToProps = (dispatch): any => ({
 const MediaIconsBox = (props) => {
   const { authState, locationState, mediastream, changeFaceTrackingState } = props
   const [xrSupported, setXRSupported] = useState(false)
+  const [hasAudioDevice, setHasAudioDevice] = useState(false)
+  const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const user = authState.get('user')
   const currentLocation = locationState.get('currentLocation').get('location')
@@ -60,19 +61,27 @@ const MediaIconsBox = (props) => {
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
 
+  useEffect(() => {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        devices.forEach((device) => {
+          if (device.kind === 'audioinput') setHasAudioDevice(true)
+          if (device.kind === 'videoinput') setHasVideoDevice(true)
+        })
+      })
+      .catch((err) => console.log('could not get media devices', err))
+  }, [])
+
   const onEngineLoaded = () => {
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported))
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
   }
   document.addEventListener('ENGINE_LOADED', onEngineLoaded)
 
-  const checkMediaStream = async (partyId: string): Promise<boolean> => {
-    return await configureMediaTransports(partyId)
-  }
-
   const handleFaceClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await checkMediaStream(partyId)) {
+    if (await configureMediaTransports(['video', 'audio'], partyId)) {
       changeFaceTrackingState(!isFaceTrackingEnabled)
       if (!isFaceTrackingEnabled) {
         startFaceTracking()
@@ -95,7 +104,7 @@ const MediaIconsBox = (props) => {
   }
   const handleMicClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await checkMediaStream(partyId)) {
+    if (await configureMediaTransports(['audio'], partyId)) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
@@ -109,7 +118,7 @@ const MediaIconsBox = (props) => {
 
   const handleCamClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await checkMediaStream(partyId)) {
+    if (await configureMediaTransports(['video'], partyId)) {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(partyId)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
@@ -122,7 +131,7 @@ const MediaIconsBox = (props) => {
     }
   }
 
-  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START })
+  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
 
   const xrEnabled = Engine.xrSupported === true
   const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff
@@ -130,7 +139,7 @@ const MediaIconsBox = (props) => {
 
   return (
     <section className={styles.drawerBox}>
-      {instanceMediaChatEnabled ? (
+      {instanceMediaChatEnabled && hasAudioDevice ? (
         <button
           type="button"
           id="UserAudio"
@@ -140,7 +149,7 @@ const MediaIconsBox = (props) => {
           <MicIcon />
         </button>
       ) : null}
-      {videoEnabled ? (
+      {videoEnabled && hasVideoDevice ? (
         <>
           <button
             type="button"

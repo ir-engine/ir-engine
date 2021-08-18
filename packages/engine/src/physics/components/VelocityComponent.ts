@@ -1,14 +1,12 @@
 import { Vector3 } from 'three'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export class VelocityComponent extends Component<VelocityComponent> {
+export type VelocityComponentType = {
   velocity: Vector3
-  static _schema = {
-    velocity: { type: Types.Vector3Type, default: new Vector3() }
-  }
 }
+
+export const VelocityComponent = createMappedComponent<VelocityComponentType>()

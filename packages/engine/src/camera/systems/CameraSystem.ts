@@ -1,12 +1,10 @@
-import { Matrix4, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
 import {
   addComponent,
   createEntity,
   getComponent,
-  getMutableComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
@@ -18,13 +16,15 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraModes } from '../types/CameraModes'
 import { Entity } from '../../ecs/classes/Entity'
 import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
-import { Input } from '../../input/components/Input'
+import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TouchInputs } from '../../input/enums/InputEnums'
 import { InputValue } from '../../input/interfaces/InputValue'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -51,7 +51,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   // newTheta - theta ==> To rotate Right on mouse drage Right -> Left
   const dif = oldAngle - angle
 
-  if (Math.abs(dif) % Math.PI > 0.001) {
+  if (Math.abs(dif) % Math.PI > 0.0001) {
     viewVector.setX(Math.sin(oldAngle - dif))
     viewVector.setZ(Math.cos(oldAngle - dif))
   }
@@ -59,30 +59,29 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-const getPositionRate = () => (window?.innerWidth <= 768 ? 3.5 : 2)
+const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCameraBehavior = (entity: Entity) => {
   if (!entity) return
 
-  const cameraDesiredTransform = getMutableComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
+  const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
   if (!cameraDesiredTransform && !Engine.portCamera) return
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
 
-  const avatar = getMutableComponent(entity, AvatarComponent)
-  const avatarTransform = getMutableComponent(entity, TransformComponent)
+  const avatar = getComponent(entity, AvatarComponent)
+  const avatarTransform = getComponent(entity, TransformComponent)
 
-  const followCamera = getMutableComponent(entity, FollowCameraComponent)
+  const followCamera = getComponent(entity, FollowCameraComponent)
 
-  const inputComponent = getComponent(entity, Input)
+  const inputComponent = getComponent(entity, InputComponent)
 
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-
   let inputValue =
     inputComponent.data.get(inputAxes) ||
     ({
@@ -131,7 +130,7 @@ const followCameraBehavior = (entity: Entity) => {
   vec3.add(avatarTransform.position)
 
   // Raycast for camera
-  const cameraTransform = getMutableComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const raycastDirection = new Vector3().subVectors(cameraTransform.position, vec3).normalize()
   followCamera.raycastQuery.origin.copy(vec3)
   followCamera.raycastQuery.direction.copy(raycastDirection)
@@ -183,41 +182,37 @@ export const resetFollowCamera = () => {
   const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const desiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent)
   if (transform && desiredTransform) {
-    followCameraBehavior(getMutableComponent(Engine.activeCameraEntity, CameraComponent).followTarget)
+    followCameraBehavior(Engine.activeCameraFollowTarget)
     transform.position.copy(desiredTransform.position)
     transform.rotation.copy(desiredTransform.rotation)
   }
 }
+export const CameraSystem = async (): Promise<System> => {
+  const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
+  const followCameraAddQuery = enterQuery(followCameraQuery)
+  const followCameraRemoveQuery = exitQuery(followCameraQuery)
 
-/** System class which provides methods for Camera system. */
-export class CameraSystem extends System {
-  /** Constructs camera system. */
-  constructor() {
-    super()
-    const cameraEntity = createEntity()
-    addComponent(cameraEntity, CameraComponent)
-    addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
-    addComponent(cameraEntity, TransformComponent)
-    addComponent(cameraEntity, PersistTagComponent)
-    Engine.activeCameraEntity = cameraEntity
+  const cameraEntity = createEntity()
+  addComponent(cameraEntity, CameraComponent, {})
+  addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
+  addComponent(cameraEntity, TransformComponent, {
+    position: new Vector3(),
+    rotation: new Quaternion(),
+    scale: new Vector3(1, 1, 1)
+  })
+  addComponent(cameraEntity, PersistTagComponent, {})
+  Engine.activeCameraEntity = cameraEntity
 
-    // If we lose focus on the window, and regain it, copy our desired transform to avoid strange transform behavior and clipping
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.WINDOW_FOCUS, ({ focused }) => {
-      if (focused) {
-        resetFollowCamera()
-      }
-    })
-  }
+  // If we lose focus on the window, and regain it, copy our desired transform to avoid strange transform behavior and clipping
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.WINDOW_FOCUS, ({ focused }) => {
+    if (focused) {
+      resetFollowCamera()
+    }
+  })
 
-  /**
-   * Execute the camera system for different events of queries.\
-   * Called each frame by default.
-   *
-   * @param delta time since last frame.
-   */
-  execute(delta: number): void {
-    for (const entity of this.queryResults.followCameraComponent.added) {
-      const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
+  return defineSystem((world: ECSWorld) => {
+    for (const entity of followCameraAddQuery(world)) {
+      const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
           type: SceneQueryType.Closest,
@@ -227,12 +222,13 @@ export class CameraSystem extends System {
           collisionMask: cameraFollow.collisionMask
         })
       )
-      const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
-      activeCameraComponent.followTarget = entity
+      Engine.activeCameraFollowTarget = entity
       if (hasComponent(Engine.activeCameraEntity, DesiredTransformComponent)) {
         removeComponent(Engine.activeCameraEntity, DesiredTransformComponent)
       }
       addComponent(Engine.activeCameraEntity, DesiredTransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
         lockRotationAxis: [false, true, false],
         rotationRate: getRotationRate(),
         positionRate: getPositionRate()
@@ -240,32 +236,21 @@ export class CameraSystem extends System {
       resetFollowCamera()
     }
 
-    for (const entity of this.queryResults.followCameraComponent.removed) {
+    for (const entity of followCameraRemoveQuery(world)) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
       if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
-      const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
+      const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
       if (activeCameraComponent) {
-        activeCameraComponent.followTarget = null
-        removeComponent(Engine.activeCameraEntity, DesiredTransformComponent) as DesiredTransformComponent
+        Engine.activeCameraFollowTarget = null
+        removeComponent(Engine.activeCameraEntity, DesiredTransformComponent)
       }
     }
 
     // follow camera component should only ever be on the character
-    for (const entity of this.queryResults.followCameraComponent.all) {
+    for (const entity of followCameraQuery(world)) {
       followCameraBehavior(entity)
     }
-  }
-}
 
-/**
- * Queries must have components attribute which defines the list of components
- */
-CameraSystem.queries = {
-  followCameraComponent: {
-    components: [FollowCameraComponent, TransformComponent, AvatarComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+    return world
+  })
 }

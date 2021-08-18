@@ -1,10 +1,8 @@
 import { Vector3 } from 'three'
 import { isClient } from '../../../../common/functions/isClient'
-import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { sendVelocity } from '../../../functions/functionsState'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 
@@ -15,23 +13,22 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
 
 const vector0 = new Vector3()
 
-export const hitBall: Behavior = (
+export const hitBall = (
   entityClub: Entity,
-  args?: any,
-  delta?: number,
-  entityBall?: Entity,
-  time?: number,
-  checks?: any
+  clubPowerMultiplier: number,
+  hitAdvanceFactor: number,
+  entityBall?: Entity
 ): void => {
+  if (!isClient) return
   if (!hasComponent(entityClub, GolfClubComponent)) return
 
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-  const collider = getMutableComponent(entityBall, ColliderComponent)
-  const golfBallComponent = getMutableComponent(entityBall, GolfBallComponent)
+  const golfClubComponent = getComponent(entityClub, GolfClubComponent)
+  const collider = getComponent(entityBall, ColliderComponent)
+  const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   collider.body.setLinearDamping(0.1)
   collider.body.setAngularDamping(0.1)
   // force is in kg, we need it in grams, so x1000
-  const velocityMultiplier = args.clubPowerMultiplier * 1000
+  const velocityMultiplier = clubPowerMultiplier * 1000
   //golfClubComponent.velocity.set(-0.000016128,0,-0.02352940744240586)
   // TODO: fix this - use normal and velocity magnitude to determine hits
   /*
@@ -48,9 +45,9 @@ export const hitBall: Behavior = (
 */
 
   if (isClient) {
-    vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor)
+    vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor)
   } else {
-    vector0.copy(golfClubComponent.velocityServer).multiplyScalar(args.hitAdvanceFactor)
+    vector0.copy(golfClubComponent.velocityServer).multiplyScalar(hitAdvanceFactor)
   }
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
   // lock to XZ plane if we disable chip shots

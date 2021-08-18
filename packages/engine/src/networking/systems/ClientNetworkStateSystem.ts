@@ -1,11 +1,5 @@
-import { NetworkObject } from '../components/NetworkObject'
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeEntity
-} from '../../ecs/functions/EntityFunctions'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { addComponent, getComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectUpdateMap } from '../templates/NetworkObjectUpdates'
 import { Network } from '../classes/Network'
@@ -13,18 +7,16 @@ import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFu
 import { PrefabType } from '../templates/PrefabType'
 import { applyActionComponent } from '../../game/functions/functionsActions'
 import { applyStateToClient } from '../../game/functions/functionsState'
-import { System } from '../../ecs/classes/System'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ClientInputModel } from '../schema/clientInputSchema'
 import { Vault } from '../classes/Vault'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { Quaternion, Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { spawnPrefab } from '../functions/spawnPrefab'
+import { defineSystem, System } from '../../ecs/bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 /**
  * Apply State received over the network to the client.
@@ -56,12 +48,12 @@ function syncNetworkObjectsTest(createObjects) {
     Object.keys(Network.instance.networkObjects)
       .map(Number)
       .forEach((key) => {
-        if (Network.instance.networkObjects[key].component == null) {
+        if (Network.instance.networkObjects[key].entity == null) {
           console.warn('TRY RESTART SERVER, MAYBE ON SERVER DONT CREATE THIS LOCATION')
         }
         if (
-          Network.instance.networkObjects[key].component.uniqueId === objectToCreate.uniqueId &&
-          Network.instance.networkObjects[key].component.ownerId === objectToCreate.ownerId
+          Network.instance.networkObjects[key].uniqueId === objectToCreate.uniqueId &&
+          Network.instance.networkObjects[key].ownerId === objectToCreate.ownerId
         ) {
           console.warn(
             '*createObjects* Correctiong networkObjects as a server id: ' +
@@ -73,10 +65,10 @@ function syncNetworkObjectsTest(createObjects) {
           const tempMistake = Network.instance.networkObjects[objectToCreate.networkId]
           Network.instance.networkObjects[key] = tempMistake
           Network.instance.networkObjects[objectToCreate.networkId] = tempCorrect
-          getMutableComponent(Network.instance.networkObjects[key].component.entity, NetworkObject).networkId = key
-          getMutableComponent(
-            Network.instance.networkObjects[objectToCreate.networkId].component.entity,
-            NetworkObject
+          getComponent(Network.instance.networkObjects[key].entity, NetworkObjectComponent).networkId = key
+          getComponent(
+            Network.instance.networkObjects[objectToCreate.networkId].entity,
+            NetworkObjectComponent
           ).networkId = objectToCreate.networkId
         }
       })
@@ -97,7 +89,7 @@ function syncPhysicsObjects(objectToCreate) {
           Network.instance.networkObjects[key] = undefined
           const newId = Network.getNetworkId()
           Network.instance.networkObjects[newId] = tempCorrect
-          getMutableComponent(Network.instance.networkObjects[newId].component.entity, NetworkObject).networkId = newId
+          getComponent(Network.instance.networkObjects[newId].entity, NetworkObjectComponent).networkId = newId
         }
       })
   }
@@ -108,25 +100,8 @@ const vector3_1 = new Vector3()
 const quat = new Quaternion()
 const forwardVector = new Vector3(0, 0, 1)
 
-/** System class for network system of client. */
-export class ClientNetworkStateSystem extends System {
-  static EVENTS = {
-    CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
-    CONNECTION_LOST: 'CORE_CONNECTION_LOST'
-  }
-
-  dispose() {
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.CONNECT_TO_WORLD)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.JOINED_WORLD)
-  }
-
-  /**
-   * Executes the system.
-   * Call logic based on whether system is on the server or on the client.
-   *
-   * @param delta Time since last frame.
-   */
-  execute = (delta: number): void => {
+export const ClientNetworkStateSystem = async (): Promise<System> => {
+  return defineSystem((world: ECSWorld) => {
     // Client logic
     const reliableQueue = Network.instance.incomingMessageQueueReliable
     // For each message, handle and process
@@ -166,8 +141,7 @@ export class ClientNetworkStateSystem extends System {
 
           const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined
           const isSameUniqueId =
-            isIdFull &&
-            Network.instance.networkObjects[objectToCreate.networkId].component.uniqueId === objectToCreate.uniqueId
+            isIdFull && Network.instance.networkObjects[objectToCreate.networkId].uniqueId === objectToCreate.uniqueId
 
           const entityExistsInAnotherId = searchSameInAnotherId(objectToCreate)
 
@@ -192,7 +166,10 @@ export class ClientNetworkStateSystem extends System {
             delete Network.instance.networkObjects[entityExistsInAnotherId]
 
             // change network component id
-            Network.instance.networkObjects[objectToCreate.networkId].component.networkId = objectToCreate.networkId
+            getComponent(
+              Network.instance.networkObjects[objectToCreate.networkId].entity,
+              NetworkObjectComponent
+            ).networkId = objectToCreate.networkId
 
             // if it's the local avatar
             if (objectToCreate.networkId === Network.instance.localAvatarNetworkId) {
@@ -252,7 +229,7 @@ export class ClientNetworkStateSystem extends System {
             console.warn('Can not remove owner...')
             continue
           }
-          const entity = Network.instance.networkObjects[networkId].component.entity
+          const entity = Network.instance.networkObjects[networkId].entity
           // Remove the entity and all of it's components
           removeEntity(entity)
           // Remove network object from list
@@ -287,17 +264,13 @@ export class ClientNetworkStateSystem extends System {
           for (const transform of transformState.transforms) {
             const networkObject = Network.instance.networkObjects[transform.networkId]
             // for character entities, we are sending the view vector, so we have to apply it and retrieve the rotation
-            if (
-              networkObject &&
-              networkObject.component &&
-              hasComponent(networkObject.component.entity, AvatarComponent)
-            ) {
+            if (networkObject && hasComponent(networkObject.entity, AvatarComponent)) {
               vector3_0.set(transform.qX, transform.qY, transform.qZ)
               vector3_1.copy(vector3_0).setY(0).normalize()
               quat.setFromUnitVectors(forwardVector, applyVectorMatrixXZ(vector3_1, forwardVector).setY(0))
               // we don't want to override our own avatar
-              if (networkObject.component.entity !== Network.instance.localClientEntity) {
-                const avatar = getMutableComponent(networkObject.component.entity, AvatarComponent)
+              if (networkObject.entity !== Network.instance.localClientEntity) {
+                const avatar = getComponent(networkObject.entity, AvatarComponent)
                 avatar.viewVector.copy(vector3_0)
               }
               // put the transform rotation on the transform to deal with later
@@ -324,11 +297,18 @@ export class ClientNetworkStateSystem extends System {
 
         for (const ikTransform of transformState.ikTransforms) {
           if (!Network.instance.networkObjects[ikTransform.networkId]) continue
-          const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity
+          const entity = Network.instance.networkObjects[ikTransform.networkId].entity
           // ignore our own transform
           if (entity === Network.instance.localClientEntity) continue
           if (!hasComponent(entity, XRInputSourceComponent)) {
-            addComponent(entity, XRInputSourceComponent)
+            addComponent(entity, XRInputSourceComponent, {
+              controllerLeft: new Group(),
+              controllerRight: new Group(),
+              controllerGripLeft: new Group(),
+              controllerGripRight: new Group(),
+              controllerGroup: new Group(),
+              head: new Group()
+            })
           }
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
           const { hmd, left, right } = ikTransform
@@ -366,11 +346,11 @@ export class ClientNetworkStateSystem extends System {
         axes6DOF: [],
         viewVector: Network.instance.clientInputState.viewVector,
         clientGameAction: getClientGameActions(), // Network.instance.clientGameAction,
-        commands: []
+        commands: [],
+        transforms: []
       }
     }
-  }
 
-  /** Queries for the system. */
-  static queries: any = {}
+    return world
+  })
 }

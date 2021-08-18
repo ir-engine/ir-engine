@@ -1,8 +1,7 @@
 import { Group, Vector3 } from 'three'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export class AvatarComponent extends Component<AvatarComponent> {
+export type AvatarComponentType = {
   /**
    * @property {Group} modelContainer is a group that holds the model such that the animations & IK can move seperate from the transform & collider
    * It's center is at the center of the collider, except with y sitting at the bottom of the collider, flush with the ground
@@ -12,8 +11,8 @@ export class AvatarComponent extends Component<AvatarComponent> {
   avatarId: string
   thumbnailURL: string
   avatarURL: string
-  avatarHeight = 1.8
-  avatarHalfHeight = 1.8 / 2
+  avatarHeight: number
+  avatarHalfHeight: number
 
   /**
    * The direction this client is looking.
@@ -24,10 +23,6 @@ export class AvatarComponent extends Component<AvatarComponent> {
    * On the server and other clients this controls TransformComponent.rotation
    */
   viewVector: Vector3
-
-  static _schema = {
-    avatarId: { type: Types.String, default: null },
-    thumbnailURL: { type: Types.String, default: null },
-    avatarURL: { type: Types.String, default: null }
-  }
 }
+
+export const AvatarComponent = createMappedComponent<AvatarComponentType>()

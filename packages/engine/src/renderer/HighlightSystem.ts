@@ -1,17 +1,19 @@
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { System } from '../ecs/classes/System'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { HighlightComponent } from './components/HighlightComponent'
 import { Engine } from '../ecs/classes/Engine'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
+import { ECSWorld } from '../ecs/classes/World'
 
-/** System Class for Highlight system.\
- * This system will highlight the entity with {@link effects/components/HighlightComponent.HighlightComponent | Highlight} Component attached.
- */
-export class HighlightSystem extends System {
-  /** Executes the system. */
-  execute(deltaTime, time): void {
+export const HighlightSystem = async (): Promise<System> => {
+  const highlightsQuery = defineQuery([Object3DComponent, HighlightComponent])
+  const highlightsAddQuery = enterQuery(highlightsQuery)
+  const highlightsRemoveQuery = exitQuery(highlightsQuery)
+
+  return defineSystem((world: ECSWorld) => {
     if (!Engine.effectComposer.OutlineEffect) return
-    for (const entity of this.queryResults.highlights.added) {
+
+    for (const entity of highlightsAddQuery(world)) {
       const highlightedObject = getComponent(entity, Object3DComponent)
       const compHL = getComponent(entity, HighlightComponent)
       if (!compHL) continue
@@ -23,7 +25,8 @@ export class HighlightSystem extends System {
         }
       })
     }
-    for (const entity of this.queryResults.highlights.removed) {
+
+    for (const entity of highlightsRemoveQuery(world)) {
       const highlightedObject = getComponent(entity, Object3DComponent, true)
       highlightedObject?.value?.traverse((obj) => {
         if (obj !== undefined) {
@@ -31,15 +34,7 @@ export class HighlightSystem extends System {
         }
       })
     }
-  }
-}
 
-HighlightSystem.queries = {
-  highlights: {
-    components: [Object3DComponent, HighlightComponent],
-    listen: {
-      removed: true,
-      added: true
-    }
-  }
+    return world
+  })
 }

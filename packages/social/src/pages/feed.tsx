@@ -6,7 +6,6 @@ import Feed from '@xrengine/client-core/src/socialmedia/components/Feed'
 import { useLocation } from 'react-router-dom'
 import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
 
-// @ts-ignore
 import styles from './index.module.scss'
 
 export default function FeedPage() {

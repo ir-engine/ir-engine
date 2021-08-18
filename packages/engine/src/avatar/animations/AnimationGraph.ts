@@ -1,13 +1,16 @@
 import { Vector2 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Commands } from '../../networking/enums/Commands'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AnimationRenderer } from './AnimationRenderer'
 import { AnimationState } from './AnimationState'
 import { AnimationType, WeightsParameterType, AvatarStates, MovementType } from './Util'
@@ -107,7 +110,10 @@ export class AnimationGraph {
     if (avatarAnimationComponent.currentState.autoTransitionTo) {
       const transitionEvent = () => {
         this.isTransitionPaused = false
-        this.transitionState(entity, avatarAnimationComponent.currentState.autoTransitionTo, params)
+        // if this callback happens after the avatar disconnects or the avatar is in a transition state, this will break stuff
+        if (typeof avatarAnimationComponent.currentState !== 'undefined') {
+          this.transitionState(entity, avatarAnimationComponent.currentState.autoTransitionTo, params)
+        }
         animationComponent.mixer.removeEventListener('finished', transitionEvent)
       }
       animationComponent.mixer.addEventListener('finished', transitionEvent)
@@ -160,7 +166,10 @@ export class AnimationGraph {
       vector2.set(movement.velocity.x, movement.velocity.z).multiplyScalar(1 / delta)
       const speedSqr = vector2.lengthSq()
       if (speedSqr > this.EPSILON) {
-        newStateName = speedSqr < 3 ? AvatarStates.WALK : AvatarStates.RUN
+        newStateName =
+          speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
+            ? AvatarStates.WALK
+            : AvatarStates.RUN
       } else {
         newStateName = AvatarStates.IDLE
       }
@@ -189,10 +198,7 @@ export class AnimationGraph {
   updateNetwork = (entity: Entity, newStateName: string, params: WeightsParameterType): void => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     // Send change animation commnad over network for the local client entity
-    if (
-      Network.instance.localClientEntity?.id === avatarAnimationComponent.entity.id &&
-      avatarAnimationComponent.currentState.type === AnimationType.STATIC
-    ) {
+    if (isEntityLocalClient(entity) && avatarAnimationComponent.currentState.type === AnimationType.STATIC) {
       Network.instance.clientInputState.commands.push({
         type: Commands.CHANGE_ANIMATION_STATE,
         args: convertObjToBufferSupportedString({
@@ -210,7 +216,7 @@ export class AnimationGraph {
    * @param {WeightsParameterType} params Parameters to be passed onver network
    */
   static forceUpdateAnimationState = (entity: Entity, newStateName: string, params: WeightsParameterType) => {
-    const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     const animationState = avatarAnimationComponent.animationGraph.states[newStateName]
 
