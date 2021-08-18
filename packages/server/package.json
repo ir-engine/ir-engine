@@ -5,6 +5,7 @@
   "private": true,
   "homepage": "",
   "main": "dist/index.js",
+  "type": "module",
   "keywords": [
     "metaverse",
     "three.js",

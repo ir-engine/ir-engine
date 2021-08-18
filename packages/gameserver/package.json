@@ -124,7 +124,7 @@
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
-    "ts-node": "10.2.0",
+    "cpy": "^8.1.2",
     "no-master-commits": "1.1.1",
     "semantic-release": "17.4.5",
     "semantic-release-monorepo": "7.0.5",

@@ -3,11 +3,12 @@ import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import path from 'path'
 import url from 'url'
+import fs from 'fs'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
 if (globalThis.process?.env.NODE_ENV === 'development') {
-  var fs = require('fs')
+  // var fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
     var fromEnvPath = appRootPath.path + '/.env.local.default'
     var toEnvPath = appRootPath.path + '/.env.local'

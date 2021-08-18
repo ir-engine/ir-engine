@@ -13,7 +13,7 @@ export const Types: {
   ui32: 'ui32'
   f32: 'f32'
   f64: 'f64'
-}
+} = {}
 
 export type TypedArray =
   | Uint8Array
@@ -118,5 +118,5 @@ export function defineDeserializer(target: IWorld | Component[] | IComponentProp
 
 export function pipe(...fns: ((...args: any[]) => any)[]): (...input: any[]) => any
 
-export const parentArray: Symbol
+export const parentArray: Symbol = {}
 // }
