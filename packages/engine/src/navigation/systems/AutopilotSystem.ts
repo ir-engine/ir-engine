@@ -202,16 +202,13 @@ export const AutopilotSystem = async (): Promise<System> => {
       }
     }
 
-    const removedAutopilots = removedAutopilotsQuery(world)
-    if (removedAutopilots.length) {
-      for (const entity of removedAutopilots) {
-        // send one relaxed gamepad state to stop movement
-        Engine.inputState.set(stick, {
-          type: InputType.TWODIM,
-          value: [0, 0],
-          lifecycleState: LifecycleValue.CHANGED
-        })
-      }
+    if (removedAutopilotsQuery(world).length) {
+      // send one relaxed gamepad state to stop movement
+      Engine.inputState.set(stick, {
+        type: InputType.TWODIM,
+        value: [0, 0],
+        lifecycleState: LifecycleValue.CHANGED
+      })
     }
 
     return world
