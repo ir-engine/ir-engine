@@ -31,7 +31,7 @@ const LottieLoader = () => {
     const pathIndex = randomNumber(0, Loaders.length, Math.random)
     const path = Loaders[parseInt(pathIndex)]
 
-    import('./' + path + '.json').then(res => {
+    import('./' + path + '.json').then((res) => {
       setAnimation(res)
     })
   }, [])
@@ -39,7 +39,7 @@ const LottieLoader = () => {
   return (
     <div className={styles.loaderContainer}>
       <div className={styles.backdrop}></div>
-      <Lottie options={{...defaultOptions, animationData: animation}} height={200} width={200} />
+      <Lottie options={{ ...defaultOptions, animationData: animation }} height={200} width={200} />
     </div>
   )
 }

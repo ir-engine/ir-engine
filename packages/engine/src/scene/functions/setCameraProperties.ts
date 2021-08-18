@@ -26,7 +26,7 @@ type Props = {
 
 export const setCameraProperties = (entity: Entity, data: Props): void => {
   const cameraFollow = getComponent(entity, FollowCameraComponent)
-  console.log("data")
+  console.log('data')
 
   console.log(data)
   if (data.projectionType === ProjectionType.Orthographic) {
@@ -41,7 +41,7 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
   } else if ((Engine.camera as PerspectiveCamera).fov) {
     ;(Engine.camera as PerspectiveCamera).fov = data.fov ?? 50
   }
-  
+
   Engine.camera.near = data.cameraNearClip
   Engine.camera.far = data.cameraFarClip
   cameraFollow.distance = data.startCameraDistance
@@ -53,5 +53,4 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
   cameraFollow.locked = !data.startInFreeLook
   Engine.camera.updateProjectionMatrix()
   switchCameraMode(Network.instance.localClientEntity, data, true)
-
 }
