@@ -24,9 +24,9 @@ const tapLength = 200 // 100ms between doubletaps
 export const usingThumbstick = () => {
   return Boolean(
     Engine.inputState.get(GamepadAxis.Left)?.value[0] ||
-    Engine.inputState.get(GamepadAxis.Left)?.value[1] ||
-    Engine.inputState.get(GamepadAxis.Right)?.value[0] ||
-    Engine.inputState.get(GamepadAxis.Right)?.value[1]
+      Engine.inputState.get(GamepadAxis.Left)?.value[1] ||
+      Engine.inputState.get(GamepadAxis.Right)?.value[0] ||
+      Engine.inputState.get(GamepadAxis.Right)?.value[1]
   )
 }
 
@@ -168,8 +168,7 @@ export const handleTouch = (event: TouchEvent): void => {
           Engine.inputState.set(doubleTapInput, {
             type: InputType.BUTTON,
             value: BinaryValue.ON,
-            lifecycleState: Engine.inputState.has(doubleTapInput) ?
-              LifecycleValue.CONTINUED : LifecycleValue.STARTED
+            lifecycleState: Engine.inputState.has(doubleTapInput) ? LifecycleValue.CONTINUED : LifecycleValue.STARTED
           })
         } else if (Engine.inputState.has(doubleTapInput)) {
           Engine.inputState.set(doubleTapInput, {
