@@ -1,8 +1,8 @@
 import { isClient } from "./isClient"
 
 export function isBot(window : Window)  {
-  if (!isClient)
-  return false
+    if (!isClient)
+      return false
   
     const query = window.location.search
     const params = new URLSearchParams(query)
