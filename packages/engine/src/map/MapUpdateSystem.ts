@@ -58,7 +58,6 @@ export const MapUpdateSystem = async (): Promise<System> => {
       } else {
         if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
           updateStatus = false
-          console.log('sssssss')
         }
         console.log('Updating')
       }
