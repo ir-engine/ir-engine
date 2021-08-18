@@ -12,19 +12,28 @@ import { updateMap } from '../scene/behaviors/createMap'
 
 export const MapUpdateSystem = async (): Promise<System> => {
   const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
+  const moveAddQuery = enterQuery(moveQuery)
   let updateStatus = false
+  let startAvatarPositionX
+  let startAvatarPositionZ
 
   return defineSystem((world: ECSWorld) => {
+    for (const entity of moveAddQuery(world)) {
+      const position = getComponent(entity, Object3DComponent).value.position
+      startAvatarPositionX = position.x
+      startAvatarPositionZ = position.z
+    }
+
     for (const entity of moveQuery(world)) {
       const position = getComponent(entity, Object3DComponent).value.position
       const centrCoord = getCoord()
-
       //Calculate new move coords
       const startLong = centrCoord[0]
       const startLat = centrCoord[1]
 
-      const longtitude = position.x / 111134.861111 + startLong
-      const latitude = -position.z / (Math.cos((startLat * PI) / 180) * 111321.377778) + startLat
+      const longtitude = (position.x - startAvatarPositionX) / 111134.861111 + startLong
+      const latitude =
+        (-position.z - startAvatarPositionZ) / (Math.cos((startLat * PI) / 180) * 111321.377778) + startLat
 
       //get Current Tile
       const startTile = getTile()
@@ -38,19 +47,20 @@ export const MapUpdateSystem = async (): Promise<System> => {
           updateMap(
             entity,
             {
-              name: 'Map',
               scale: new Vector3(1, 1, 1)
             },
             longtitude,
             latitude,
             position
           )
-
           updateStatus = true
         }
       } else {
-        // console.log('updated')
-        // console.log(moveTile[0])
+        if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
+          updateStatus = false
+          console.log('sssssss')
+        }
+        console.log('Updating')
       }
     }
     return world
