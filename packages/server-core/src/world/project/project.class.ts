@@ -200,7 +200,7 @@ export class Project implements ServiceMethods<Data> {
       }
 
       const entites = sceneEntitiesArray.map((entity: any) => {
-        entity.name = entity.name.toLowerCase()
+        entity.name = entity.name
         entity.collectionId = project.id
         return entity
       })
@@ -210,11 +210,11 @@ export class Project implements ServiceMethods<Data> {
       savedEntities.forEach((savedEntity: any, index: number) => {
         const entity = sceneEntitiesArray[index]
         entity.components.forEach((component: any) => {
-          componetTypeSet.add(component.name.toLowerCase())
+          componetTypeSet.add(component.name)
           components.push({
             data: component.props,
             entityId: savedEntity.id,
-            type: component.name.toLowerCase(),
+            type: component.name,
             userId: loggedInUser.userId,
             collection: project.id
           })

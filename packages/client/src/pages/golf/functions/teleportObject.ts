@@ -2,7 +2,7 @@ import { Vector3 } from 'three'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { findInterpolationSnapshot } from '@xrengine/engine/src/physics/behaviors/findInterpolationSnapshot'
+import { findInterpolationSnapshot } from '@xrengine/engine/src/physics/functions/findInterpolationSnapshot'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 /**
