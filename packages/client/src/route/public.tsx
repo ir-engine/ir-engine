@@ -81,6 +81,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/map/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
 
+          <Route path="/golf/:locationName" component={React.lazy(() => import('../pages/golf/[locationName]'))} />
           <Route path="/event/:locationName" component={React.lazy(() => import('../pages/event/[locationName]'))} />
           <Route
             path="/offline/:locationName"

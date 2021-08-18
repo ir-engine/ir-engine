@@ -21,7 +21,7 @@ const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
 const multiplier = 1 / 60
 
-export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
+export const moveAvatar = (entity: Entity, deltaTime): void => {
   const avatar = getComponent(entity, AvatarComponent)
   const velocity = getComponent(entity, VelocityComponent)
   const transform = getComponent(entity, TransformComponent)

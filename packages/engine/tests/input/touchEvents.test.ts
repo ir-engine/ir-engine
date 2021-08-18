@@ -7,14 +7,14 @@ import { AvatarInputSchema } from "../../src/avatar/AvatarInputSchema";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";
 import { TouchInputs } from "../../src/input/enums/InputEnums";
-import { handleTouch } from "../../src/input/behaviors/handleTouch";
-import { handleTouchMove } from "../../src/input/behaviors/handleTouchMove";
+import { handleTouch } from "../../src/input/functions/handleTouch";
+import { handleTouchMove } from "../../src/input/functions/handleTouchMove";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { Vector2 } from "three";
-// import { handleTouchScale } from "../../src/input/behaviors/handleTouchScale";
+// import { handleTouchScale } from "../../src/input/functions/handleTouchScale";
 
 function normalizeMouseCoordinatesV2(vector:Vector2, elementWidth: number, elementHeight: number): Vector2 {
   const n = normalizeMouseCoordinates(vector.x, vector.y, elementWidth, elementHeight);
