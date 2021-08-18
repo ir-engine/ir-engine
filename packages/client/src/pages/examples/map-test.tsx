@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react'
-import { Scene, WebGLRenderer, Color, DirectionalLight, PerspectiveCamera, HemisphereLight, Object3D } from 'three'
+import { Scene, WebGLRenderer, Color, DirectionalLight, PerspectiveCamera, HemisphereLight } from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import { create } from '@xrengine/engine/src/map'
 import MapNode from '../../../../engine/src/editor/nodes/MapNode'
-import EventEmitter from 'eventemitter3'
 import MapNodeEditor from '../../../../client-core/src/world/components/editor/properties/MapNodeEditor'
 import { createState, useState } from '@hookstate/core'
 
@@ -11,14 +9,11 @@ const globalState = createState(0)
 
 const scene = new Scene()
 
-class EditorMock extends EventEmitter {
+class EditorMock {
   renderer: {
     renderer: WebGLRenderer
   }
   object = new MapNode(this)
-  constructor() {
-    super()
-  }
   setPropertySelected(propertyName: string, value: any) {
     this.object[propertyName] = value
     this.object.onChange(propertyName)
