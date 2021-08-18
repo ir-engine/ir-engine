@@ -8,7 +8,7 @@ import { getComponent } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
 import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
-import { updateMap } from '../scene/behaviors/createMap'
+import { updateMap } from '../scene/functions/createMap'
 
 export const MapUpdateSystem = async (): Promise<System> => {
   const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
