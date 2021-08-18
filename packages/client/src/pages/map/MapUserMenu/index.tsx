@@ -25,6 +25,10 @@ import { UserMenuProps, Views } from './util'
 import { AvatarAnimations, AvatarStates, WeightsParameterType } from '@xrengine/engine/src/avatar/animations/Util'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
+import { stopAutopilot } from '@xrengine/engine/src/navigation/functions/stopAutopilot'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AutoPilotComponent } from '@xrengine/engine/src/navigation/component/AutoPilotComponent'
 
 enum PanelState {
   CLOSE,
@@ -220,8 +224,39 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const runAnimation = (animationName: string, params: WeightsParameterType) => {
     const entity = Network.instance.localClientEntity
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-    AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
+    if (
+      !avatarAnimationComponent.animationGraph.validateTransition(
+        avatarAnimationComponent.currentState,
+        avatarAnimationComponent.animationGraph.states[animationName]
+      )
+    ) {
+      console.warn(
+        'immediate transition to [%s] is not available from current state [%s]',
+        animationName,
+        avatarAnimationComponent.currentState.name
+      )
+    }
+
+    if (!hasComponent(entity, AutoPilotComponent)) {
+      AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
+    } else {
+      stopAutopilot(entity)
+      let interval
+      interval = setInterval(() => {
+        // wait for valid state (like IDLE)
+        if (
+          avatarAnimationComponent.animationGraph.validateTransition(
+            avatarAnimationComponent.currentState,
+            avatarAnimationComponent.animationGraph.states[animationName]
+          )
+        ) {
+          clearInterval(interval)
+          AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
+        }
+      }, 50)
+    }
 
     togglePanelStatus()
   }
