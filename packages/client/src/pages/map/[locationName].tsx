@@ -12,10 +12,11 @@ import MapMediaIconsBox from './MapMediaIconsBox'
 import MapUserMenu from './MapUserMenu'
 import { theme } from './theme'
 import LoadingScreen from './loader'
-
+import UserProfile from './UserProfile'
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()
+  const [showUserProfile, setShowUserProfile] = useState(true)
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -28,6 +29,7 @@ const LocationPage = (props) => {
 
   return (
     <Layout theme={theme} hideVideo={true} hideFullscreen={true} pageTitle={t('location.locationName.pageTitle')}>
+      <UserProfile isUserProfileShowing={showUserProfile} showHideProfile={setShowUserProfile} />
       <LoadingScreen objectsToLoad={loadingItemCount} />
       <World
         allowDebug={true}
@@ -43,7 +45,7 @@ const LocationPage = (props) => {
           styles={MapInstanceChatStyle}
         />
         <MapMediaIconsBox />
-        <MapUserMenu />
+        <MapUserMenu showHideProfile={setShowUserProfile} />
       </World>
     </Layout>
   )

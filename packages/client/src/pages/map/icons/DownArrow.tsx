@@ -1,28 +1,32 @@
 import React from 'react'
 
-export const Chat = () => {
+export const DownArrow = () => {
   return (
-    <svg width="75" height="74" viewBox="0 0 75 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g filter="url(#filter0_d)">
-        <g filter="url(#filter1_ddiii)">
-          <rect x="11" y="9" width="52.8" height="51.84" rx="25.92" fill="#01CD3B" />
-        </g>
-        <g filter="url(#filter2_dii)">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M32.4793 42.2712L27.3999 43.4002L28.5289 38.3208C27.7854 36.9302 27.3975 35.3771 27.3999 33.8002C27.3999 28.4981 31.6978 24.2002 36.9999 24.2002C42.302 24.2002 46.5999 28.4981 46.5999 33.8002C46.5999 39.1023 42.302 43.4002 36.9999 43.4002C35.423 43.4026 33.8699 43.0147 32.4793 42.2712Z"
-            fill="url(#paint0_linear)"
-          />
-        </g>
+    <svg width="77" height="77" viewBox="0 0 77 77" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g filter="url(#arrow_down_filter0_ddiii)">
+        <rect
+          x="64.7998"
+          y="62.8008"
+          width="52.8"
+          height="52.8"
+          rx="26.4"
+          transform="rotate(-180 64.7998 62.8008)"
+          fill="#8D7CF6"
+        />
+      </g>
+      <g filter="url(#arrow_down_filter1_dii)">
+        <path
+          d="M39.0678 38.0563C38.6746 38.4637 38.022 38.4637 37.6288 38.0563L31.5602 31.7689C31.1671 31.3615 30.5144 31.3615 30.1212 31.7689L29.3664 32.5509C28.9925 32.9384 28.9925 33.5524 29.3664 33.9398L37.6288 42.5002C38.022 42.9076 38.6746 42.9076 39.0678 42.5002L47.3302 33.9398C47.7042 33.5524 47.7042 32.9384 47.3302 32.5509L46.5754 31.7689C46.1822 31.3615 45.5296 31.3615 45.1364 31.7689L39.0678 38.0563Z"
+          fill="url(#paint0_linear)"
+        />
       </g>
       <defs>
         <filter
-          id="filter0_d"
-          x="9"
-          y="9"
-          width="56.8"
-          height="55.84"
+          id="arrow_down_filter0_ddiii"
+          x="-0.000244141"
+          y="-1.99902"
+          width="76.8"
+          height="78.8"
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
@@ -34,29 +38,7 @@ export const Chat = () => {
             result="hardAlpha"
           />
           <feOffset dy="2" />
-          <feGaussianBlur stdDeviation="1" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0.179101 0 0 0 0 0.656278 0 0 0 0 0.415552 0 0 0 0.414363 0" />
-          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
-          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
-        </filter>
-        <filter
-          id="filter1_ddiii"
-          x="0"
-          y="-2"
-          width="74.8"
-          height="75.84"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset dy="2" />
-          <feGaussianBlur stdDeviation="0" />
+          <feGaussianBlur stdDeviation="6" />
           <feColorMatrix type="matrix" values="0 0 0 0 0.396126 0 0 0 0 0.42655 0 0 0 0 0.456975 0 0 0 0.164855 0" />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feColorMatrix
@@ -65,9 +47,9 @@ export const Chat = () => {
             values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
             result="hardAlpha"
           />
-          <feOffset dy="2" />
-          <feGaussianBlur stdDeviation="0" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0.121569 0 0 0 0 0.815686 0 0 0 0 0.32549 0 0 0 0.21427 0" />
+          <feOffset dy="4" />
+          <feGaussianBlur stdDeviation="3" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.654902 0 0 0 0 0.658824 0 0 0 0 1 0 0 0 0.780048 0" />
           <feBlend mode="normal" in2="effect1_dropShadow" result="effect2_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow" result="shape" />
           <feColorMatrix
@@ -76,8 +58,8 @@ export const Chat = () => {
             values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
             result="hardAlpha"
           />
-          <feOffset dx="2" dy="11" />
-          <feGaussianBlur stdDeviation="10.5" />
+          <feOffset dy="12" />
+          <feGaussianBlur stdDeviation="11" />
           <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
           <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0" />
           <feBlend mode="normal" in2="shape" result="effect3_innerShadow" />
@@ -87,10 +69,10 @@ export const Chat = () => {
             values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
             result="hardAlpha"
           />
-          <feOffset dx="2" dy="-11" />
-          <feGaussianBlur stdDeviation="5.5" />
+          <feOffset dy="-12" />
+          <feGaussianBlur stdDeviation="6" />
           <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0.330365 0 0 0 0 0.912166 0 0 0 0 0.493877 0 0 0 1 0" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.432564 0 0 0 0 0.436588 0 0 0 0 0.975798 0 0 0 1 0" />
           <feBlend mode="normal" in2="effect3_innerShadow" result="effect4_innerShadow" />
           <feColorMatrix
             in="SourceAlpha"
@@ -105,11 +87,11 @@ export const Chat = () => {
           <feBlend mode="normal" in2="effect4_innerShadow" result="effect5_innerShadow" />
         </filter>
         <filter
-          id="filter2_dii"
-          x="22.3999"
-          y="21.2002"
-          width="29.2"
-          height="29.2"
+          id="arrow_down_filter1_dii"
+          x="23.0859"
+          y="28.4629"
+          width="30.5247"
+          height="23.3423"
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
@@ -120,9 +102,9 @@ export const Chat = () => {
             values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
             result="hardAlpha"
           />
-          <feOffset dy="2" />
-          <feGaussianBlur stdDeviation="2.5" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0.117393 0 0 0 0 0.639153 0 0 0 0 0.26562 0 0 0 0.552174 0" />
+          <feOffset dy="3" />
+          <feGaussianBlur stdDeviation="3" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.281824 0 0 0 0 0.360673 0 0 0 0 0.786458 0 0 0 1 0" />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
           <feColorMatrix
@@ -134,7 +116,7 @@ export const Chat = () => {
           <feOffset dy="-2" />
           <feGaussianBlur stdDeviation="1" />
           <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-          <feColorMatrix type="matrix" values="0 0 0 0 0.219608 0 0 0 0 0.87451 0 0 0 0 0.403922 0 0 0 0.281988 0" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.333333 0 0 0 0 0.380392 0 0 0 0 0.858824 0 0 0 0.382594 0" />
           <feBlend mode="normal" in2="shape" result="effect2_innerShadow" />
           <feColorMatrix
             in="SourceAlpha"
@@ -150,10 +132,10 @@ export const Chat = () => {
         </filter>
         <linearGradient
           id="paint0_linear"
-          x1="27.3999"
-          y1="24.2002"
-          x2="27.3999"
-          y2="43.4002"
+          x1="48.0005"
+          y1="31.0234"
+          x2="48.0005"
+          y2="43.2457"
           gradientUnits="userSpaceOnUse"
         >
           <stop stopColor="#FDFDFF" />

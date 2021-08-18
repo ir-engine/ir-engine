@@ -26,6 +26,7 @@ const LoadingScreen = (props: Props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
+    console.log(onBoardingStep)
     switch (onBoardingStep) {
       case GeneralStateList.START_STATE:
         setLoadingText(t('common:loader.connecting'))
