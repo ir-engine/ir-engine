@@ -118,6 +118,27 @@ export class WorldScene {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     switch (name) {
+      case 'mtdata':
+        if (isClient && Engine.isBot) {
+          const { meta_data } = component.data
+          console.log('scene_metadata|' + meta_data)
+        }
+        break
+
+      case '_metadata':
+        {
+          addObject3DComponent(entity, new Object3D(), component.data)
+          addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
+          const transform = getComponent(entity, TransformComponent)
+
+          if (isClient && Engine.isBot) {
+            const { _data } = component.data
+            const { x, y, z } = transform.data['position']
+            console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
+          }
+        }
+        break
+
       case 'ambient-light':
         addObject3DComponent(entity, new AmbientLight(), component.data)
         break
@@ -241,7 +262,7 @@ export class WorldScene {
         })
         break
 
-      case 'box-collider':
+      case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
         const transform = getComponent(entity, TransformComponent)
         createCollider(
@@ -257,6 +278,7 @@ export class WorldScene {
           transform.scale.clone().multiplyScalar(0.5)
         )
         break
+      }
 
       case 'trigger-volume':
         createTriggerVolume(entity, component.data)

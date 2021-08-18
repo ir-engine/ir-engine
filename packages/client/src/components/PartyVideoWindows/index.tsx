@@ -70,13 +70,9 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
 
   return (
     <>
-      <div className={styles.expandMenu}>
-        Nearby
-        <button type="button" className={expanded ? styles.expanded : ''} onClick={toggleExpanded}>
-          <ChevronRight />
-        </button>
-      </div>
-      {expanded && displayedUsers.map((user) => <PartyParticipantWindow peerId={user.id} key={user.id} />)}
+      {displayedUsers.map((user) => (
+        <PartyParticipantWindow peerId={user.id} key={user.id} />
+      ))}
     </>
   )
 }

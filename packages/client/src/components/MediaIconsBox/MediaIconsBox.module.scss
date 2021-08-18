@@ -41,8 +41,7 @@
         > svg { height: 50%; width: 50%; }
     }
     @media (max-width: 450px) {
-        justify-content: flex-end;
-        padding-right: 50px;
+        justify-content: flex-middle;
         .iconContainer {
             width: 40px;
             height: 40px;

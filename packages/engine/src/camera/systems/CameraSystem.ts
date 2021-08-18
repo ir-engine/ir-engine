@@ -25,6 +25,7 @@ import { TouchInputs } from '../../input/enums/InputEnums'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -63,11 +64,11 @@ const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCamera = (entity: Entity) => {
-  if (typeof entity === 'undefined') return console.log("undefined")
+  if (typeof entity === 'undefined') return console.log('undefined')
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform && !Engine.portCamera) return console.log("!cameraDesiredTransform && !Engine.portCamera")
+  if (!cameraDesiredTransform && !Engine.portCamera) return console.log('!cameraDesiredTransform && !Engine.portCamera')
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
@@ -102,18 +103,21 @@ const followCamera = (entity: Entity) => {
     followCamera.theta %= 360
 
     followCamera.phi -= inputValue.value[1] * (inputValue.inputAction === TouchInputs.Touch1Movement ? 100 : 60)
-    followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+    followCamera.phi = Math.min(followCamera.maxPhi ?? 85, Math.max(followCamera.minPhi ?? 0.5, followCamera.phi))
   }
 
   if (followCamera.mode === CameraMode.FirstPerson) {
     camDist = 0.01
     theta = followCamera.theta
     vec3.set(0, avatar.avatarHeight, 0)
-  } else if (followCamera.mode === CameraMode.Strategic) {
-    vec3.set(0, avatar.avatarHeight * 2, -3)
-    theta = 180
-    phi = 150
-  } else {
+  }
+  // RTS camera needs to be reconsidered a bit
+  // else if (followCamera.mode === CameraMode.Strategic) {
+  //   vec3.set(0, avatar.avatarHeight * 2, -3)
+  //   theta = 180
+  //   phi = 150
+  // }
+  else {
     if (followCamera.mode === CameraMode.ShoulderCam) {
       camDist = followCamera.minDistance
     } else if (followCamera.mode === CameraMode.TopDown) {
@@ -212,7 +216,7 @@ export const CameraSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of followCameraAddQuery(world)) {
-      console.log("      const cameraFollow = getComponent(entity, FollowCameraComponent)      ")
+      console.log('      const cameraFollow = getComponent(entity, FollowCameraComponent)      ')
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
