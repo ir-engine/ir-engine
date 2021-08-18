@@ -125,6 +125,12 @@ export const AutopilotSystem = async (): Promise<System> => {
       const stick = GamepadAxis.Left
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
+        if (!autopilot.path.current()) {
+          console.warn('autopilot.path is invalid or empty')
+          removeComponent(entity, AutoPilotComponent)
+          continue
+        }
+
         const { position: actorPosition } = getComponent(entity, TransformComponent)
         const targetFlatPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
         const targetFlatDistance = targetFlatPosition.distanceTo(actorPosition.clone().setY(0))
