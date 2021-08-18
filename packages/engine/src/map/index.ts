@@ -30,7 +30,7 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
-  group.add(buildingMesh)
+  // group.add(buildingMesh)
 
   group.add(roadsMesh)
 
@@ -65,13 +65,17 @@ function generateNavMeshGeometries(
   if (buildingCount > 100 && roadCount > 1) {
     let gBufferedRoadCoords = []
     collectGeometriesByLayer(tiles, 'road').forEach((g) => {
-      try {
-        gBufferedRoadCoords = pc.union(
-          gBufferedRoadCoords,
-          buffer(g, 2, { units: 'meters' }).geometry.coordinates as any
-        )
-      } catch {}
-    }, [])
+      const gBuffered = buffer(g, 2, { units: 'meters' })
+      gBufferedRoadCoords = gBufferedRoadCoords.concat(
+        gBuffered.geometry.type === 'MultiPolygon' ? gBuffered.geometry.coordinates : [gBuffered.geometry.coordinates]
+      )
+      // try {
+      //   gBufferedRoadCoords = pc.union(
+      //     gBufferedRoadCoords,
+      //     buffer(g, 2, { units: 'meters' }).geometry.coordinates as any
+      //   )
+      // } catch {}
+    })
     geometries = [
       {
         type: 'MultiPolygon',
@@ -89,7 +93,7 @@ function generateNavMeshGeometries(
 
 // TODO add target param
 function collectGeometriesByLayer(tiles: TileFeaturesByLayer[], layerName: ILayerName): (Polygon | MultiPolygon)[] {
-  return tiles.reduce((acc, tiles) => acc.concat(tiles[layerName]), []).map((f) => f.geometry)
+  return tiles.reduce((acc, tiles) => acc.concat(tiles[layerName]), []).map((f) => f.geometry) //.slice(0, 10)
 }
 
 const computeNegativeInBoundingBox = function (geometries: (Polygon | MultiPolygon)[]): MultiPolygon {
