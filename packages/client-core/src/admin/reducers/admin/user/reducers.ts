@@ -76,16 +76,8 @@ const adminReducer = (state = immutableState, action: any): any => {
     case ADMIN_LOADED_USERS:
       result = (action as LoadedUsersAction).users
       updateMap = new Map(state.get('users'))
-      let combinedUsers = state.get('users').get('users')
-      ;(result as any).data.forEach((item) => {
-        const match = combinedUsers.find((user) => user.id === item.id)
-        if (match == null) {
-          combinedUsers = combinedUsers.concat(item)
-        } else {
-          combinedUsers = combinedUsers.map((user) => (user.id === item.id ? item : user))
-        }
-      })
-      updateMap.set('users', combinedUsers)
+
+      updateMap.set('users', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)

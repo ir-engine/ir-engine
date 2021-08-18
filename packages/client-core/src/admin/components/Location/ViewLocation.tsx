@@ -90,8 +90,8 @@ const ViewLocation = (props: Props) => {
         type: locationAdmin.location_setting.locationType,
         videoEnabled: locationAdmin.location_setting.videoEnabled,
         globalMediaEnabled: locationAdmin.location_setting.instanceMediaChatEnabled,
-        isLobby: locationAdmin.isFeatured,
-        isFeatured: locationAdmin.isLobby
+        isLobby: locationAdmin.isLobby,
+        isFeatured: locationAdmin.isFeatured
       })
     }
   }, [locationAdmin])

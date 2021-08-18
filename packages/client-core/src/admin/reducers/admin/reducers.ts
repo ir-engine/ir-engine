@@ -173,16 +173,7 @@ const adminReducer = (state = immutableState, action: any): any => {
     case ADMIN_LOADED_USERS:
       result = (action as LoadedUsersAction).users
       updateMap = new Map(state.get('users'))
-      let combinedUsers = state.get('users').get('users')
-      ;(result as any).data.forEach((item) => {
-        const match = combinedUsers.find((user) => user.id === item.id)
-        if (match == null) {
-          combinedUsers = combinedUsers.concat(item)
-        } else {
-          combinedUsers = combinedUsers.map((user) => (user.id === item.id ? item : user))
-        }
-      })
-      updateMap.set('users', combinedUsers)
+      updateMap.set('users', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)
@@ -195,16 +186,7 @@ const adminReducer = (state = immutableState, action: any): any => {
     case INSTANCES_RETRIEVED:
       result = (action as InstancesRetrievedResponse).instances
       updateMap = new Map(state.get('instances'))
-      let combinedInstances = state.get('instances').get('instances')
-      ;(result as any).data.forEach((item) => {
-        const match = combinedInstances.find((instance) => instance.id === item.id)
-        if (match == null) {
-          combinedInstances = combinedInstances.concat(item)
-        } else {
-          combinedInstances = combinedInstances.map((instance) => (instance.id === item.id ? item : instance))
-        }
-      })
-      updateMap.set('instances', combinedInstances)
+      updateMap.set('instances', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)
