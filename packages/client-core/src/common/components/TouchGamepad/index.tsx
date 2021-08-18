@@ -6,6 +6,13 @@ import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
+import {
+  handleTouch,
+  handleTouchDirectionalPad,
+  handleTouchGamepadButton,
+  handleTouchMove,
+} from '@xrengine/engine/src/input/schema/ClientInputSchema'
+import { addClientInputListeners, removeClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
 
 export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   const leftContainer = useRef<HTMLDivElement>()
@@ -60,7 +67,23 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
       enableInput({ mouse: true })
     })
 
+    const canvasElement = EngineRenderer.instance.canvas
     stickLeft.on('move', (e, data) => {
+      if (canvasElement.addEventListener) {
+        addClientInputListeners(canvasElement)
+      }
+      else {
+      if (canvasElement.attachEvent) {
+        canvasElement.attachEvent ("touchstart", function (e) {
+          handleTouch(e)
+          handleTouchMove(e)
+        })
+        canvasElement.attachEvent('touchend', handleTouch)
+        canvasElement.attachEvent('touchcancel', handleTouch)
+        canvasElement.attachEvent('touchmove', handleTouchMove)
+		}
+      }
+
       const event = new CustomEvent('touchstickmove', {
         detail: {
           stick: GamepadAxis.Left,

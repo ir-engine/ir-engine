@@ -43,7 +43,7 @@ export const handleTouchMove = (event: TouchEvent): void => {
   )
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y]
 
-  if (event.touches.length == 1) {
+  if (event.touches.length >= 1) {
     const mappedPositionInput = TouchInputs.Touch1Position
     const hasData = Engine.inputState.has(mappedPositionInput)
 
