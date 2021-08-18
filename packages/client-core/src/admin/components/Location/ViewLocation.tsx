@@ -18,8 +18,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
-// import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
-import { useAdminSceneState } from '../../reducers/admin/scene/store/AdminSceneState'
+import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { connect } from 'react-redux'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { formValid } from '../Users/validation'
@@ -39,7 +38,7 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    // adminSceneState: selectAdminSceneState(state),
+    adminSceneState: selectAdminSceneState(state),
     adminLocationState: selectAdminLocationState(state)
   }
 }
@@ -53,8 +52,7 @@ const Alert = (props) => {
 }
 
 const ViewLocation = (props: Props) => {
-  const { openView, closeViewModel, adminLocationState, patchLocation, locationAdmin } = props
-  const adminSceneState = useAdminSceneState()
+  const { openView, closeViewModel, adminSceneState, adminLocationState, patchLocation, locationAdmin } = props
   const classex = useStyle()
   const classes = useStyles()
   const [editMode, setEditMode] = React.useState(false)
@@ -78,7 +76,7 @@ const ViewLocation = (props: Props) => {
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const { t } = useTranslation()
-  const adminScenes = adminSceneState.scenes.scenes.get()
+  const adminScenes = adminSceneState.get('scenes').get('scenes')
   const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
 
   React.useEffect(() => {

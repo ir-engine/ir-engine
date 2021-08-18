@@ -26,9 +26,7 @@ import axios from 'axios'
 import { Config } from '../../../helper'
 import { client } from '../../../feathers'
 import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service'
-// import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions'
-import { VideoAction } from '../../../media/components/video/store/VideoAction'
-import { PublicVideo } from '@xrengine/common/src/interfaces/Video'
+import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions'
 import {
   locationsRetrieved,
   locationCreated,
@@ -37,8 +35,7 @@ import {
 } from '../../../social/reducers/location/actions'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'
-// import { collectionsFetched } from '../../../world/reducers/scenes/actions'
-import { SceneAction } from '../../../world/store/SceneAction'
+import { collectionsFetched } from '../../../world/reducers/scenes/actions'
 
 const store = Store.store
 
@@ -100,9 +97,9 @@ export function fetchAdminVideos() {
           video.metadata = JSON.parse(video.metadata)
         }
         const videos = res.data as PublicVideo[]
-        return dispatch(VideoAction.videosFetchedSuccess(videos))
+        return dispatch(videosFetchedSuccess(videos))
       })
-      .catch(() => dispatch(VideoAction.videosFetchedError('Failed to fetch videos')))
+      .catch(() => dispatch(videosFetchedError('Failed to fetch videos')))
   }
 }
 
@@ -247,7 +244,7 @@ export function fetchAdminScenes() {
         }
       }
     })
-    dispatch(SceneAction.collectionsFetched(scenes))
+    dispatch(collectionsFetched(scenes))
   }
 }
 

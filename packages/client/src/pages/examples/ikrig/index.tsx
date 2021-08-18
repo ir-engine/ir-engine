@@ -25,10 +25,10 @@ import {
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import Debug from '../../../components/Debug'
-import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
-import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
+import { defineQuery, defineSystem, System } from '../../../../../engine/src/ecs/bitecs'
+import { ECSWorld, World } from '../../../../../engine/src/ecs/classes/World'
+import { Timer } from '../../../../../engine/src/common/functions/Timer'
+import { setReference } from '../../../../../engine/src/ikrig/functions/RigFunctions'
 
 const AnimationSystem = async (): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])

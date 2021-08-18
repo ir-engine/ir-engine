@@ -33,6 +33,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",
+    "golf": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run golf\" \"npm run serve-local-files\"",
     "mappa": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run mappa\" \"npm run serve-local-files\"",
     "dev-windows": "concurrently -i \"cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"npm run serve-local-files\"",
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
@@ -72,7 +73,7 @@
     "@feathersjs/socketio-client": "5.0.0-pre.9",
     "@feathersjs/transport-commons": "5.0.0-pre.9",
     "@xrengine/server-core": "^0.3.32",
-    "aws-sdk": "2.969.0",
+    "aws-sdk": "2.970.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "comlink": "4.3.1",

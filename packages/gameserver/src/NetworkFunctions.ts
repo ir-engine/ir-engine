@@ -14,9 +14,9 @@ import { getNewNetworkId } from '@xrengine/engine/src/networking/functions/getNe
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
-import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
+import { NetworkObjectComponent } from '../../engine/src/networking/components/NetworkObjectComponent'
 import { decode } from 'msgpackr'
-import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { IncomingActionType } from '../../engine/src/networking/interfaces/NetworkTransport'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
