@@ -318,7 +318,6 @@ export class WorldScene {
         break
 
       /* deprecated */
-      case 'game':
       case 'mesh-collider':
         break
 

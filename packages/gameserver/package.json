@@ -34,6 +34,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
+    "golf": "cross-env NODE_ENV=production ts-eager src/golf.ts",
     "mappa": "cross-env NODE_ENV=production ts-eager src/mappa.ts",
     "dev": "nodemon -r ts-eager/register src/index.ts",
     "dev-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
