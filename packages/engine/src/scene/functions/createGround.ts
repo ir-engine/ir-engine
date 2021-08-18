@@ -1,7 +1,7 @@
 import { CircleBufferGeometry, Color, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/EntityFunctions'
-import { createCollider } from '../../physics/behaviors/createCollider'
+import { createCollider } from '../../physics/functions/createCollider'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { addObject3DComponent } from './addObject3DComponent'

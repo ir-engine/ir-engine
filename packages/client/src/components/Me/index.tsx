@@ -20,18 +20,8 @@ const Me = () => {
     }
   }) as any)
 
-  const toggleExpanded = () => setExpanded(!expanded)
-
   return (
     <>
-      <div className={styles.expandMenu}>
-        You
-        <button type="button" className={expanded ? styles.expanded : ''} onClick={toggleExpanded}>
-          <ChevronRight />
-        </button>
-      </div>
-      {expanded ? (
-        <>
           <PartyParticipantWindow
             containerProportions={{
               height: 135,
@@ -48,8 +38,6 @@ const Me = () => {
               peerId={'me_screen'}
             />
           )}
-        </>
-      ) : null}
     </>
   )
 }

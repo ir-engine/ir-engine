@@ -326,7 +326,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 }
 
 export const shutdownEngine = async () => {
-  if (Engine.initOptions.type === EngineSystemPresets.CLIENT) {
+  if (Engine.initOptions?.type === EngineSystemPresets.CLIENT) {
     removeClientInputListeners()
   }
 

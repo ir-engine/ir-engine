@@ -6,6 +6,9 @@ import MapMediaIconsBox from './MapMediaIconsBox'
 import MapUserMenu from './MapUserMenu'
 import { theme } from './theme'
 import LoadingScreen from './loader'
+import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
+import { TouchInputs } from '@xrengine/engine/src/input/enums/InputEnums'
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -17,7 +20,8 @@ const LocationPage = (props) => {
 
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
-    onSceneLoaded: () => setLoadingItemCount(0)
+    onSceneLoaded: () => setLoadingItemCount(0),
+    onEngineInitialized: () => AvatarInputSchema.inputMap.set(TouchInputs.Touch, BaseInput.PRIMARY)
   }
 
   return (
