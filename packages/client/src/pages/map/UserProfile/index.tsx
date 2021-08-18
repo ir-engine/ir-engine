@@ -25,6 +25,7 @@ interface Props {
   currentScene?: any
   showUserProfile?: any
   authState?: any
+  fetchAvatars: any
   isUserProfileShowing: any
   showHideProfile: any
 }
