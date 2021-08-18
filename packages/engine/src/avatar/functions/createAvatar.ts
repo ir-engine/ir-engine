@@ -95,7 +95,7 @@ export const createAvatar = (
       origin: new Vector3(0, avatarHalfHeight, 0),
       direction: new Vector3(0, -1, 0),
       maxDistance: avatarHalfHeight + 0.05,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Portal
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Portal | CollisionGroups.Trigger
     })
   )
   addComponent(entity, RaycastComponent, { raycastQuery })

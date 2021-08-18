@@ -4,16 +4,19 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { TriggerVolumeComponent } from '../../scene/components/TriggerVolumeComponent'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { teleportPlayer } from './teleportPlayer'
 
 export const detectUserInTrigger = (entity: Entity): void => {
   const raycastComponent = getComponent(entity, RaycastComponent)
   if (!raycastComponent?.raycastQuery?.hits[0]?.body?.userData?.entity) return
 
-  const triggerEntity = raycastComponent.raycastQuery.hits[0].body.userData
+  const triggerEntity = raycastComponent.raycastQuery.hits[0].body.userData.entity
 
   const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
 
+  // Raycast is not working at the moment
+  // Moved this logic to avatar controller system collision events
   if (triggerComponent) {
     if (!triggerComponent.active) {
       triggerComponent.active = true
@@ -35,6 +38,9 @@ export const detectUserInTrigger = (entity: Entity): void => {
   const portalComponent = getComponent(portalEntity, PortalComponent)
 
   if (!portalComponent) return
+
+  debugger
+  console.log(raycastComponent)
 
   if (isClient) {
     EngineEvents.instance.dispatchEvent({

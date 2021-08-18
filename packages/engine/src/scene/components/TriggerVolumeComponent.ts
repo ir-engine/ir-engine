@@ -1,18 +1,11 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export class TriggerVolumeComponent extends Component<TriggerVolumeComponent> {
+export type TriggerVolumeComponentType = {
   ref: any
   target: any
   onTriggerEnter: any
   onTriggerExit: any
-  active: boolean = false
-  static _schema = {
-    ref: { type: Types.Ref, default: null },
-    target: { type: Types.Ref, default: null },
-    onTriggerEnter: { type: Types.Ref, default: null },
-    onTriggerExit: { type: Types.Ref, default: null },
-    active: { type: Types.Boolean, default: false }
-
-  }
+  active: boolean
 }
+
+export const TriggerVolumeComponent = createMappedComponent<TriggerVolumeComponentType>()

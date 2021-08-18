@@ -19,6 +19,8 @@ import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUp
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
 import { ECSWorld } from '../ecs/classes/World'
+import { TriggerVolumeComponent } from '../scene/components/TriggerVolumeComponent'
+import { PortalComponent } from '../scene/components/PortalComponent'
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
@@ -81,7 +83,34 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       const raycastComponent = getComponent(entity, RaycastComponent)
 
       // iterate on all collisions since the last update
-      controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
+      controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {
+        let entity = event.body.userData.entity
+        let triggerComponent = getComponent(entity, TriggerVolumeComponent)
+        if (triggerComponent) {
+          if (!triggerComponent.active) {
+            triggerComponent.active = true
+            triggerComponent.onTriggerEnter()
+            console.log('********* TRIGGER ACTIVATED')
+            const interval = setInterval(() => {
+              if (
+                triggerComponent.active &&
+                raycastComponent.raycastQuery.hits[0]?.body.userData !== triggerComponent
+              ) {
+                triggerComponent.active = false
+                triggerComponent.onTriggerExit()
+                console.log('********* TRIGGER DEACTIVATED')
+                clearInterval(interval)
+              }
+            }, 100)
+          }
+        }
+
+        // let portalComponent = getComponent(entity, PortalComponent)
+        // if (portalComponent)
+        // {
+        //   console.log("portal")
+        // }
+      })
 
       detectUserInTrigger(entity)
 
