@@ -11,6 +11,8 @@ import { ILayerName, TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
 import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 import { METERS_PER_DEGREE_LL } from './constants'
+import { buffer } from '@turf/turf'
+import { Geom } from 'polygon-clipping'
 
 let centerCoord = {}
 let centerTile = {}
@@ -61,7 +63,21 @@ function generateNavMeshGeometries(
 
   let geometries: (Polygon | MultiPolygon)[]
   if (buildingCount > 100 && roadCount > 1) {
-    geometries = collectGeometriesByLayer(tiles, 'road')
+    let gBufferedRoadCoords = []
+    collectGeometriesByLayer(tiles, 'road').forEach((g) => {
+      try {
+        gBufferedRoadCoords = pc.union(
+          gBufferedRoadCoords,
+          buffer(g, 2, { units: 'meters' }).geometry.coordinates as any
+        )
+      } catch {}
+    }, [])
+    geometries = [
+      {
+        type: 'MultiPolygon',
+        coordinates: gBufferedRoadCoords as any
+      }
+    ]
   } else {
     geometries = [computeNegativeInBoundingBox(collectGeometriesByLayer(tiles, 'building'))]
   }

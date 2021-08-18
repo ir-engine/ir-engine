@@ -126,7 +126,8 @@ export const AutopilotSystem = async (): Promise<System> => {
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
         const { position: actorPosition } = getComponent(entity, TransformComponent)
-        const targetFlatPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
+        const currentPoint = autopilot.path.current() ?? actorPosition
+        const targetFlatPosition = new Vector3(currentPoint.x, 0, currentPoint.z)
         const targetFlatDistance = targetFlatPosition.distanceTo(actorPosition.clone().setY(0))
         if (targetFlatDistance < ARRIVED_DISTANCE) {
           if (autopilot.path.finished()) {
