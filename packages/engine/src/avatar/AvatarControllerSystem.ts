@@ -1,24 +1,23 @@
 import { Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
+import { Engine } from '../ecs/classes/Engine'
+import { ECSWorld } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
-import { avatarMoveBehavior } from './behaviors/avatarMoveBehavior'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { InterpolationComponent } from '../physics/components/InterpolationComponent'
+import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
+import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
+import { RaycastComponent } from '../physics/components/RaycastComponent'
+import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { Engine } from '../ecs/classes/Engine'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
+import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { RaycastComponent } from '../physics/components/RaycastComponent'
-import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
 import { teleportPlayer } from './functions/teleportPlayer'
-import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
-import { ECSWorld } from '../ecs/classes/World'
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
@@ -109,7 +108,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0) // || controller.controller.collisions.down)
 
-      avatarMoveBehavior(entity, delta)
+      moveAvatar(entity, delta)
 
       detectUserInPortal(entity)
     }

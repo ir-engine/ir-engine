@@ -23,7 +23,7 @@ import {
   startLipsyncTracking,
   stopFaceTracking,
   stopLipsyncTracking
-} from '@xrengine/engine/src/input/behaviors/WebcamInputBehaviors'
+} from '@xrengine/engine/src/input/functions/WebcamInput'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'

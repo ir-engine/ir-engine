@@ -1,5 +1,5 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { findProjectionScreen, setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
+import { findProjectionScreen, setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { DoubleSide, EquirectangularRefractionMapping, MeshLambertMaterial, TextureLoader } from 'three'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'

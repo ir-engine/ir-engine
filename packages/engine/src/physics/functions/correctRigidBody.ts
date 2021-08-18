@@ -16,7 +16,7 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
 
 const offsetMaxDistanceSq = 1
 
-export const rigidbodyCorrectionBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
+export const correctRigidBody = (entity: Entity, snapshots: SnapshotData, delta): void => {
   const networkId = getComponent(entity, NetworkObjectComponent).networkId
   const collider = getComponent(entity, ColliderComponent)
 

@@ -5,8 +5,10 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
+import { Network } from '../../networking/classes/Network'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 
-type SetCameraProps = {
+type Props = {
   projectionType?: ProjectionType
   fov?: number
   cameraNearClip?: number
@@ -22,30 +24,33 @@ type SetCameraProps = {
   startPhi: number
 }
 
-export const setCameraProperties = (entity: Entity, args: SetCameraProps): void => {
+export const setCameraProperties = (entity: Entity, data: Props): void => {
   const cameraFollow = getComponent(entity, FollowCameraComponent)
-  if (args.projectionType === ProjectionType.Orthographic) {
+  console.log('data')
+
+  console.log(data)
+  if (data.projectionType === ProjectionType.Orthographic) {
     Engine.camera = new OrthographicCamera(
-      args.fov / -2,
-      args.fov / 2,
-      args.fov / 2,
-      args.fov / -2,
-      args.cameraNearClip,
-      args.cameraFarClip
+      data.fov / -2,
+      data.fov / 2,
+      data.fov / 2,
+      data.fov / -2,
+      data.cameraNearClip,
+      data.cameraFarClip
     )
   } else if ((Engine.camera as PerspectiveCamera).fov) {
-    ;(Engine.camera as PerspectiveCamera).fov = args.fov
+    ;(Engine.camera as PerspectiveCamera).fov = data.fov ?? 50
   }
 
-  Engine.camera.near = args.cameraNearClip
-  Engine.camera.far = args.cameraFarClip
-  cameraFollow.distance = args.startCameraDistance
-  cameraFollow.minDistance = args.minCameraDistance
-  cameraFollow.maxDistance = args.maxCameraDistance
-  cameraFollow.distance = args.startCameraDistance
-  cameraFollow.phi = args.startPhi
-  cameraFollow.minPhi = args.minPhi
-  cameraFollow.maxPhi = args.maxPhi
-  cameraFollow.locked = !args.startInFreeLook
+  Engine.camera.near = data.cameraNearClip
+  Engine.camera.far = data.cameraFarClip
+  cameraFollow.distance = data.startCameraDistance
+  cameraFollow.minDistance = data.minCameraDistance
+  cameraFollow.maxDistance = data.maxCameraDistance
+  // // cameraFollow.phi = data.startPhi
+  // // cameraFollow.minPhi = data.minPhi
+  // // cameraFollow.maxPhi = data.maxPhi
+  cameraFollow.locked = !data.startInFreeLook
   Engine.camera.updateProjectionMatrix()
+  switchCameraMode(Network.instance.localClientEntity, data, true)
 }

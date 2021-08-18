@@ -34,7 +34,7 @@
     "socket.io": "4.1.3"
   },
   "dependencies": {
-    "@capacitor/core": "3.1.2",
+    "@capacitor/core": "3.2.0",
     "@feathersjs/client": "5.0.0-pre.9",
     "@hookstate/core": "3.0.8",
     "@material-ui/core": "4.12.3",
@@ -44,6 +44,7 @@
     "@styled-icons/boxicons-regular": "10.37.0",
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
+    "@styled-icons/boxicons-solid": "10.37.0",
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.12",
