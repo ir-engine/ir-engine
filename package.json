@@ -126,7 +126,7 @@
     "prettier": "2.3.2",
     "puppeteer": "9.1.1",
     "react-router-dom": "5.2.0",
-    "supertest": "6.1.5",
+    "supertest": "6.1.6",
     "yuka": "0.7.6"
   }
 }
