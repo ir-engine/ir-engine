@@ -1,44 +1,33 @@
-import React, { useEffect, useRef } from 'react'
-import { Scene, WebGLRenderer, Color, DirectionalLight, PerspectiveCamera, HemisphereLight, Vector3 } from 'three'
+import React, { useEffect } from 'react'
+import { Scene, WebGLRenderer, Color, DirectionalLight, PerspectiveCamera, HemisphereLight, Object3D } from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { create } from '@xrengine/engine/src/map'
+import MapNode from '../../../../engine/src/editor/nodes/MapNode'
+import EventEmitter from 'eventemitter3'
+import MapNodeEditor from '../../../../client-core/src/world/components/editor/properties/MapNodeEditor'
+import { createState, useState } from '@hookstate/core'
 
-let scene = new Scene()
+const globalState = createState(0)
 
-async function init(): Promise<any> {
-  scene.background = new Color('black')
+const scene = new Scene()
 
-  let renderer = new WebGLRenderer({ canvas: document.getElementById(engineRendererCanvasId) as HTMLCanvasElement })
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setPixelRatio(window.devicePixelRatio)
-
-  scene.add(new HemisphereLight())
-  scene.add(new DirectionalLight())
-
-  let camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
-  camera.position.set(1, 2, 5)
-
-  let controls = new OrbitControls(camera, renderer.domElement)
-  controls.minDistance = 1
-  controls.maxDistance = 2000
-  controls.target.set(0, 0, 0)
-  controls.object.position.set(0, 2000, 0)
-
-  const map = await create(renderer, {
-    scale: new Vector3(1, 1, 1)
-  })
-
-  scene.add(map.mapMesh)
-
-  const animate = () => {
-    requestAnimationFrame(animate)
-
-    controls.update()
-    renderer.render(scene, camera)
+class EditorMock extends EventEmitter {
+  renderer: {
+    renderer: WebGLRenderer
   }
-  requestAnimationFrame(animate)
+  object = new MapNode(this)
+  constructor() {
+    super()
+  }
+  setPropertySelected(propertyName: string, value: any) {
+    this.object[propertyName] = value
+    this.object.onChange(propertyName)
+    globalState.set((version) => version + 1)
+  }
 }
 
+const editor = new EditorMock()
+const mapNode = editor.object
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const canvasStyle = {
@@ -50,15 +39,53 @@ const canvasStyle = {
   userSelect: 'none'
 } as React.CSSProperties
 
+async function init(): Promise<any> {
+  scene.background = new Color('black')
+
+  const renderer = new WebGLRenderer({ canvas: document.getElementById(engineRendererCanvasId) as HTMLCanvasElement })
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setPixelRatio(window.devicePixelRatio)
+
+  editor.renderer = {
+    renderer
+  }
+
+  scene.add(new HemisphereLight())
+  scene.add(new DirectionalLight())
+  scene.add(mapNode as any)
+
+  let camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
+  camera.position.set(1, 2, 5)
+
+  let controls = new OrbitControls(camera, renderer.domElement)
+  controls.minDistance = 1
+  controls.maxDistance = 2000
+  controls.target.set(0, 0, 0)
+  controls.object.position.set(0, 2000, 0)
+
+  mapNode.onChange()
+
+  const animate = () => {
+    requestAnimationFrame(animate)
+
+    controls.update()
+    renderer.render(scene, camera)
+  }
+  requestAnimationFrame(animate)
+}
+
 const Page = () => {
   useEffect(() => {
     init()
   }, [])
+
+  const state = useState(globalState)
+
   return (
     <>
-      <div>
-        <canvas id={engineRendererCanvasId} style={canvasStyle} />
-      </div>
+      <p>version {state.get()}</p>
+      <MapNodeEditor editor={editor} node={mapNode} />
+      <canvas id={engineRendererCanvasId} style={canvasStyle} />
     </>
   )
 }
