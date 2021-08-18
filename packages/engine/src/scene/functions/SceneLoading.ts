@@ -202,7 +202,7 @@ export class WorldScene {
         break
 
       case 'map':
-        if (isClient) createMap(entity, component.data)
+        if (isClient) this.loaders.push(createMap(entity, component.data))
         break
 
       case 'audio':
