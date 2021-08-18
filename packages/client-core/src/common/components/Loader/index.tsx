@@ -3,9 +3,10 @@ import { connect } from 'react-redux'
 import { GeneralStateList } from '../../reducers/app/actions'
 import { selectAppOnBoardingStep } from '../../reducers/app/selector'
 import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
-import DefaultLoader from './SpacemanLoader'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
+import LottieLoader from './LottieLoader'
+
 interface Props {
   objectsToLoad?: number
   onBoardingStep?: number
@@ -21,7 +22,7 @@ const mapStateToProps = (state: any): any => {
 }
 
 const LoadingScreen = (props: Props) => {
-  const { onBoardingStep, objectsToLoad, currentScene, Loader = DefaultLoader } = props
+  const { onBoardingStep, objectsToLoad, currentScene, Loader } = props
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()
@@ -57,13 +58,12 @@ const LoadingScreen = (props: Props) => {
     }
   }, [objectsToLoad])
 
-  if (!showProgressBar) return null
-
   return (
     <>
-      <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
+      <section className={styles.overlay}>
+        <div className={styles.imageOverlay}></div>
+        {Loader ? <Loader /> : <LottieLoader />}
         <section className={styles.linearProgressContainer}>
-          <Loader />
           <span className={styles.loadingProgressInfo}>{loadingText}</span>
         </section>
       </section>
