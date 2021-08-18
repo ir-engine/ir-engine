@@ -35,7 +35,7 @@ export class SpawnPoints {
         position: spawnTransform.position
           .clone()
           .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
-        rotation: spawnTransform.rotation.clone()
+        rotation: new Quaternion() //spawnTransform.rotation.clone()
       }
     }
 
@@ -73,7 +73,6 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
     }
 
     for (const entity of spawnPlayerAddQuery(world)) {
-      console.log('SPAWNED PLAYER ON SERVER', entity)
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
       createAvatar(entity, parameters)
 
@@ -86,8 +85,6 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
         uniqueId,
         parameters: { position: transform.position, rotation: transform.rotation }
       })
-
-      console.log(JSON.stringify({ position: transform.position, rotation: transform.rotation }))
 
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_USER_LOADED, networkId, uniqueId })
     }

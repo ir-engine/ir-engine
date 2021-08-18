@@ -14,7 +14,7 @@ import { TwitterIcon } from '@xrengine/client-core/src/common/components/Icons/T
 import { getAvatarURLFromNetwork, Views } from '../util'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/client-core/src/helper'
 import * as polyfill from 'credential-handler-polyfill'
-import styles from '../UserMenu.module.scss'
+import styles from '../MapUserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { selectAuthState } from '../../../../../../client-core/src/user/reducers/auth/selector'
 import {

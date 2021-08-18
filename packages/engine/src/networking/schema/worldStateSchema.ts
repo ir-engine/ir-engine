@@ -15,20 +15,6 @@ const stateSchema = new Schema({
   storage: [storageSchema]
 })
 
-const gameStateUpdateSchema = new Schema({
-  game: string,
-  ownerId: string,
-  state: [stateSchema]
-})
-
-const gameStateActionSchema = new Schema({
-  game: string,
-  role: string,
-  component: string,
-  uuid: string,
-  componentArgs: string
-})
-
 /** Schema for input. */
 const clientConnectedSchema = new Schema({
   userId: string,
@@ -68,9 +54,7 @@ const worldStateSchema = new Schema({
   clientsDisconnected: [clientDisconnectedSchema],
   createObjects: [createNetworkObjectSchema],
   editObjects: [editNetworkObjectSchema],
-  destroyObjects: [destroyNetworkObjectSchema],
-  gameState: [gameStateUpdateSchema],
-  gameStateActions: [gameStateActionSchema]
+  destroyObjects: [destroyNetworkObjectSchema]
 })
 
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
@@ -91,9 +75,7 @@ export class WorldStateModel {
       clientsDisconnected: worldState.clientsDisconnected,
       createObjects: worldState.createObjects,
       editObjects: worldState.editObjects,
-      destroyObjects: worldState.destroyObjects,
-      gameState: worldState.gameState,
-      gameStateActions: worldState.gameStateActions
+      destroyObjects: worldState.destroyObjects
     }
     return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state
   }

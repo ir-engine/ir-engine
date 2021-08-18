@@ -4,7 +4,7 @@ import BoxColliderNode from '@xrengine/engine/src/editor/nodes/BoxColliderNode'
 import PortalNode from '@xrengine/engine/src/editor/nodes/PortalNode'
 import DirectionalLightNode from '@xrengine/engine/src/editor/nodes/DirectionalLightNode'
 import FloorPlanNode from '@xrengine/engine/src/editor/nodes/FloorPlanNode'
-import GameNode from '@xrengine/engine/src/editor/nodes/GameNode'
+import SystemNode from '@xrengine/engine/src/editor/nodes/SystemNode'
 import GroundPlaneNode from '@xrengine/engine/src/editor/nodes/GroundPlaneNode'
 import GroupNode from '@xrengine/engine/src/editor/nodes/GroupNode'
 import HemisphereLightNode from '@xrengine/engine/src/editor/nodes/HemisphereLightNode'
@@ -25,7 +25,10 @@ import VideoNode from '@xrengine/engine/src/editor/nodes/VideoNode'
 import VolumetricNode from '@xrengine/engine/src/editor/nodes/VolumetricNode'
 import ReflectionProbeNode from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
 import SplineNode from '@xrengine/engine/src/editor/nodes/SplineNode'
-import CloudNode from '@xrengine/engine/src/editor/nodes/CloudNode'
+import MapNode from '@xrengine/engine/src/editor/nodes/MapNode'
+import MetadataNode from '@xrengine/engine/src/editor/nodes/MetadataNode'
+import CloudsNode from '@xrengine/engine/src/editor/nodes/CloudsNode'
+import OceanNode from '@xrengine/engine/src/editor/nodes/OceanNode'
 import ElementsSource from './assets/sources/ElementsSource'
 import MyAssetsSource from './assets/sources/MyAssetsSource'
 import Editor from './Editor'
@@ -35,7 +38,7 @@ import BoxColliderNodeEditor from './properties/BoxColliderNodeEditor'
 import PortalNodeEditor from './properties/PortalNodeEditor'
 import DirectionalLightNodeEditor from './properties/DirectionalLightNodeEditor'
 import FloorPlanNodeEditor from './properties/FloorPlanNodeEditor'
-import GameNodeEditor from './properties/GameNodeEditor'
+import SystemNodeEditor from './properties/SystemNodeEditor'
 import GroundPlaneNodeEditor from './properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from './properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from './properties/HemisphereLightNodeEditor'
@@ -56,9 +59,10 @@ import SpotLightNodeEditor from './properties/SpotLightNodeEditor'
 import TriggerVolumeNodeEditor from './properties/TriggerVolumeNodeEditor'
 import VideoNodeEditor from './properties/VideoNodeEditor'
 import VolumetricNodeEditor from './properties/VolumetricNodeEditor'
-import CloudNodeEditor from './properties/CloudNodeEditor'
+import CloudsNodeEditor from './properties/CloudsNodeEditor'
+import OceanNodeEditor from './properties/OceanNodeEditor'
 import MapNodeEditor from './properties/MapNodeEditor'
-import MapNode from '@xrengine/engine/src/editor/nodes/MapNode'
+import MetadataNodeEditor from './properties/MetadataNodeEditor'
 
 /**
  * createEditor used to create editor object and register nodes available to create scene.
@@ -85,6 +89,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(SkyboxNode, SkyboxNodeEditor)
   editor.registerNode(FloorPlanNode, FloorPlanNodeEditor)
   editor.registerNode(ImageNode, ImageNodeEditor)
+  editor.registerNode(MetadataNode, MetadataNodeEditor)
   editor.registerNode(VideoNode, VideoNodeEditor)
   editor.registerNode(VolumetricNode, VolumetricNodeEditor)
   editor.registerNode(AudioNode, AudioNodeEditor)
@@ -97,9 +102,10 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(SplineNode, SplineNodeEditor)
   editor.registerSource(new ElementsSource(editor))
   editor.registerSource(new MyAssetsSource(editor))
-  editor.registerNode(GameNode, GameNodeEditor)
+  editor.registerNode(SystemNode, SystemNodeEditor)
   editor.registerNode(MapNode, MapNodeEditor)
   editor.registerNode(ReflectionProbeNode, ReflectionProbeNodeEditor)
-  editor.registerNode(CloudNode, CloudNodeEditor)
+  editor.registerNode(CloudsNode, CloudsNodeEditor)
+  editor.registerNode(OceanNode, OceanNodeEditor)
   return editor
 }

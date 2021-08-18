@@ -1,6 +1,6 @@
 import { Material, SkinnedMesh } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { CameraModes } from '../../camera/types/CameraModes'
+import { CameraMode } from '../../camera/types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -23,14 +23,14 @@ const setVisible = (entity: Entity, visible: boolean): void => {
 }
 
 type SwitchCameraModeProps = {
-  cameraMode: string // TODO
+  cameraMode: CameraMode // TODO
   pointerLock?: boolean
 }
 
 let changeTimeout = undefined
 export const switchCameraMode = (
   entity: Entity,
-  args: SwitchCameraModeProps = { pointerLock: false, cameraMode: CameraModes.ThirdPerson },
+  args: SwitchCameraModeProps = { pointerLock: false, cameraMode: CameraMode.ThirdPerson },
   force = false
 ): void => {
   if (!force) {
@@ -45,7 +45,7 @@ export const switchCameraMode = (
   cameraFollow.mode = args.cameraMode
 
   switch (args.cameraMode) {
-    case CameraModes.FirstPerson:
+    case CameraMode.FirstPerson:
       {
         cameraFollow.phi = 0
         cameraFollow.locked = true
@@ -53,24 +53,24 @@ export const switchCameraMode = (
       }
       break
 
-    case CameraModes.ShoulderCam:
+    case CameraMode.ShoulderCam:
       {
         setVisible(entity, true)
       }
       break
     default:
-    case CameraModes.ThirdPerson:
+    case CameraMode.ThirdPerson:
       {
         setVisible(entity, true)
       }
       break
 
-    case CameraModes.TopDown:
+    case CameraMode.TopDown:
       {
         setVisible(entity, true)
       }
       break
-    case CameraModes.Strategic:
+    case CameraMode.Strategic:
       {
         setVisible(entity, true)
       }

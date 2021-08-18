@@ -49,11 +49,13 @@ export class AnimationGraph {
    * @param newStateName New state to which transition is going to take place
    * @returns Whether the transition is valid or not
    */
-  validateTransition = (currentState: AnimationState, newStateName: AnimationState): boolean => {
+  validateTransition = (currentState: AnimationState, newState: AnimationState): boolean => {
+    if (!newState) return false
+
     if (currentState.nextStates.length === 0) return true
 
     for (let i = 0; i < currentState.nextStates.length; i++) {
-      if (newStateName.constructor.name === currentState.nextStates[i].name) return true
+      if (newState.constructor.name === currentState.nextStates[i].name) return true
     }
 
     return false
@@ -111,7 +113,7 @@ export class AnimationGraph {
       const transitionEvent = () => {
         this.isTransitionPaused = false
         // if this callback happens after the avatar disconnects or the avatar is in a transition state, this will break stuff
-        if (typeof avatarAnimationComponent.currentState !== 'undefined') {
+        if (avatarAnimationComponent.currentState) {
           this.transitionState(entity, avatarAnimationComponent.currentState.autoTransitionTo, params)
         }
         animationComponent.mixer.removeEventListener('finished', transitionEvent)

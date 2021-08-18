@@ -5,7 +5,6 @@ export default class EditorSpotLightHelper extends Object3D {
   color: any
   outerCone: LineSegments
   innerCone: LineSegments
-  add: any
   constructor(light, color?) {
     super()
     this.name = 'EditorSpotLightHelper'

@@ -19,6 +19,7 @@ import {
   VSMShadowMap
 } from 'three'
 import BooleanInput from '../inputs/BooleanInput'
+import StringInput from '../inputs/StringInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -156,6 +157,7 @@ export function SceneNodeEditor(props) {
   SceneNodeEditor.description = t('editor:properties.scene.description')
   //creating functions to handle the changes in property of node
   // const onChangeBackground = useSetPropertySelected(editor, "background");
+  const onChangeMetaData = useSetPropertySelected(editor, 'meta_data')
   const onChangeFogType = useSetPropertySelected(editor, 'fogType')
   const onChangeFogColor = useSetPropertySelected(editor, 'fogColor')
   const onChangeFogNearDistance = useSetPropertySelected(editor, 'fogNearDistance')
@@ -205,6 +207,11 @@ export function SceneNodeEditor(props) {
       {/* <ColorInput value={node.background} onChange={onChangeBackground} /> */}
       {/* </InputGroup> */}
 
+      {/* @ts-ignore */}
+      <InputGroup name="Metadata" label="Metadata">
+        {/* @ts-ignore */}
+        <StringInput value={node.meta_data} onChange={onChangeMetaData} />
+      </InputGroup>
       {/* @ts-ignore */}
       <InputGroup name="Envmap Source" label="Envmap Source">
         {/* @ts-ignore */}

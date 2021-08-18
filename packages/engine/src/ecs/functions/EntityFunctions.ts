@@ -119,6 +119,10 @@ export const getComponent = <T extends any, S extends ISchema>(
   getRemoved = false,
   world = World.defaultWorld.ecsWorld
 ): T & SoAProxy<S> => {
+  if (typeof entity === 'undefined') {
+    console.warn('[getComponent]: entity is undefined')
+    return
+  }
   if (getRemoved) return world._removedComponents.get(entity) ?? component.get(entity)
   return component.get(entity)
 }
@@ -129,6 +133,10 @@ export const addComponent = <T extends any, S extends ISchema>(
   args: T,
   world = World.defaultWorld.ecsWorld
 ) => {
+  if (typeof entity === 'undefined') {
+    console.warn('[addComponent]: entity is undefined')
+    return
+  }
   // console.log('addComponent', component.name, entity)
   _addComponent(world, component, entity)
   // console.log('hasComponent', component.name, entity, _hasComponent(world, component, entity))
@@ -146,6 +154,10 @@ export const hasComponent = <T extends any, S extends ISchema>(
   component: MappedComponent<T, S>,
   world = World.defaultWorld.ecsWorld
 ) => {
+  if (typeof entity === 'undefined') {
+    console.warn('[hasComponent]: entity is undefined')
+    return
+  }
   return typeof component.get(entity) !== 'undefined'
   // return _hasComponent(world, component, entity)
 }
@@ -155,6 +167,10 @@ export const removeComponent = <T extends any, S extends ISchema>(
   component: MappedComponent<T, S>,
   world = World.defaultWorld.ecsWorld
 ) => {
+  if (typeof entity === 'undefined') {
+    console.warn('[removeComponent]: entity is undefined')
+    return
+  }
   // console.log('removeComponent', entity, component.name)
   const componentRef = component.get(entity)
   world._removedComponents.set(entity, componentRef)

@@ -16,7 +16,7 @@ import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import { client } from '@xrengine/client-core/src/feathers'
 import { showAlert } from '@xrengine/client-core/src/common/reducers/alert/actions'
-import styles from '../UserMenu.module.scss'
+import styles from '../MapUserMenu.module.scss'
 import { Views } from '../util'
 
 const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }) => {

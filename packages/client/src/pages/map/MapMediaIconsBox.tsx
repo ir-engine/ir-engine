@@ -14,8 +14,6 @@ import {
   pauseProducer,
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
-import { MicOff } from './icons/MicOff'
-import { MicOn } from './icons/MicOn'
 import styles from './MapMediaIconsBox.module.scss'
 
 const mapStateToProps = (state: any): any => {
@@ -79,9 +77,10 @@ const MediaIconsBox = (props) => {
       }
       updateCamAudioState()
     }
+    console.log('Mic Clicked=>' + isCamAudioEnabled)
   }
 
-  const MicIcon = isCamAudioEnabled ? MicOn : MicOff
+  const MicIcon = isCamAudioEnabled ? '/static/Microphone-on.png' : '/static/Microphone.png'
 
   return (
     <section className={styles.drawerBox}>
@@ -92,7 +91,7 @@ const MediaIconsBox = (props) => {
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={handleMicClick}
         >
-          <MicIcon />
+          <img src={MicIcon} />
         </button>
       ) : null}
     </section>

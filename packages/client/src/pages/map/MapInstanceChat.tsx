@@ -1,14 +1,10 @@
 import Avatar from '@material-ui/core/Avatar'
-import Badge from '@material-ui/core/Badge'
-import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
-import Fab from '@material-ui/core/Fab'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
-import { Message as MessageIcon, Send } from '@material-ui/icons'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import {
   createMessage,
@@ -22,11 +18,8 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-// import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
-
-// import defaultStyles from './InstanceChat.module.scss'
-import defaultStyles from './MapInstanceChat.module.scss'
+import styles from './MapInstanceChat.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -49,11 +42,9 @@ interface Props {
   instanceConnectionState?: any
   getInstanceChannel?: any
   createMessage?: any
-  styles?: any
-  MessageButton?: any
-  CloseButton?: any
-  SendButton?: any
   newMessageLabel?: string
+  isOpen: boolean
+  setUnreadMessages: (hasUnreadMessages: boolean) => void
 }
 
 const InstanceChat = (props: Props): any => {
@@ -63,11 +54,9 @@ const InstanceChat = (props: Props): any => {
     instanceConnectionState,
     getInstanceChannel,
     createMessage,
-    styles = defaultStyles,
-    MessageButton = MessageIcon,
-    CloseButton = MessageIcon,
-    SendButton = Send,
-    newMessageLabel = 'World Chat...'
+    newMessageLabel = 'Say something...',
+    isOpen,
+    setUnreadMessages
   } = props
 
   let activeChannel
@@ -76,7 +65,6 @@ const InstanceChat = (props: Props): any => {
   const channelState = chatState.get('channels')
   const channels = channelState.get('channels')
   const [composingMessage, setComposingMessage] = useState('')
-  const [unreadMessages, setUnreadMessages] = useState(false)
   const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance')
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
@@ -104,36 +92,19 @@ const InstanceChat = (props: Props): any => {
     }
   }
 
-  const [chatWindowOpen, setChatWindowOpen] = React.useState(false)
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
-  const toggleChatWindow = () => {
-    console.log('click')
-    setChatWindowOpen(!chatWindowOpen)
-    chatWindowOpen && setUnreadMessages(false)
-  }
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth
   })
 
   const getMessageUser = (message): string => {
-    let returned = message.sender?.name
-    if (message.senderId === user.id) returned += ' (you)'
-    //returned += ': '
-    return returned
-  }
-
-  const isMessageSentBySelf = (message): boolean => {
-    return message.senderId === user.id
+    return message.sender?.name + ': '
   }
 
   useEffect(() => {
-    activeChannel &&
-      activeChannel.messages &&
-      activeChannel.messages.length > 0 &&
-      !chatWindowOpen &&
-      setUnreadMessages(true)
+    activeChannel && activeChannel.messages && activeChannel.messages.length > 0 && !isOpen && setUnreadMessages(true)
   }, [activeChannel?.messages])
 
   useEffect(() => {
@@ -169,7 +140,7 @@ const InstanceChat = (props: Props): any => {
 
   return (
     <>
-      <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
+      <div className={styles['instance-chat-container'] + ' ' + (!isOpen && styles['messageContainerClosed'])}>
         <div className={styles['list-container']}>
           <Card square={true} elevation={0} className={styles['message-wrapper']}>
             <CardContent className={styles['message-container']}>
@@ -182,37 +153,50 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    return (
-                      <ListItem
-                        className={classNames({
-                          [styles.message]: true,
-                          [styles.self]: isMessageSentBySelf(message),
-                          [styles.other]: !isMessageSentBySelf(message)
-                        })}
-                        disableGutters={true}
-                        key={message.id}
-                      >
-                        <div className={styles[isMessageSentBySelf(message) ? 'message-right' : 'message-left']}>
-                          {!isMessageSentBySelf(message) && getAvatar(message)}
-
-                          <ListItemText
-                            className={
-                              styles[isMessageSentBySelf(message) ? 'message-right-text' : 'message-left-text']
-                            }
-                            primary={
-                              <span>
-                                <span className={styles.userName} color="primary">
-                                  {getMessageUser(message)}
+                    console.debug(message.senderId, user.id)
+                    if (message.senderId === user.id) {
+                      return (
+                        <ListItem
+                          className={classNames({ [styles.message]: true, [styles.self]: true })}
+                          disableGutters={true}
+                          key={message.id}
+                        >
+                          <div className={styles['message-self']}>
+                            <ListItemText
+                              className={styles['message-self-text']}
+                              primary={
+                                <span>
+                                  <span className={styles.message}>{message.text}</span>
                                 </span>
-                                <p>{message.text}</p>
-                              </span>
-                            }
-                          />
-
-                          {isMessageSentBySelf(message) && getAvatar(message)}
-                        </div>
-                      </ListItem>
-                    )
+                              }
+                            />
+                            {getAvatar(message)}
+                          </div>
+                        </ListItem>
+                      )
+                    } else {
+                      return (
+                        <ListItem
+                          className={classNames({ [styles.message]: true, [styles.other]: true })}
+                          disableGutters={true}
+                          key={message.id}
+                        >
+                          {console.debug('Hello')}
+                          <div className={styles['message-other']}>
+                            {getAvatar(message)}
+                            <ListItemText
+                              className={styles['message-other-text']}
+                              primary={
+                                <span>
+                                  <span className={styles.userName}>{getMessageUser(message)}</span>
+                                  <span className={styles.message}>{message.text}</span>
+                                </span>
+                              }
+                            />
+                          </div>
+                        </ListItem>
+                      )
+                    }
                   })}
             </CardContent>
           </Card>
@@ -227,6 +211,7 @@ const InstanceChat = (props: Props): any => {
                 label={newMessageLabel}
                 name="newMessage"
                 autoFocus
+                autoComplete="off"
                 value={composingMessage}
                 inputProps={{
                   maxLength: 1000,
@@ -253,30 +238,12 @@ const InstanceChat = (props: Props): any => {
                   }
                 }}
               />
-              <span className={styles.sendButton}>
-                <SendButton onClick={packageMessage} />
-              </span>
+              <button className={styles.sendButton} onClick={packageMessage}>
+                <img src="/static/Send.png" />
+              </button>
             </CardContent>
           </Card>
         </div>
-      </div>
-      <div className={styles.iconCallChat}>
-        <Badge
-          color="primary"
-          variant="dot"
-          invisible={!unreadMessages}
-          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        >
-          <Fab className={styles['chatBadge']} color="primary" onClick={() => toggleChatWindow()}>
-            {!chatWindowOpen ? (
-              <MessageButton />
-            ) : (
-              <div className={styles.iconContainer}>
-                <CloseButton onClick={() => toggleChatWindow()} />
-              </div>
-            )}
-          </Fab>
-        </Badge>
       </div>
     </>
   )
