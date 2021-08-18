@@ -13,7 +13,7 @@ import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
-import { PhysXInstance } from 'three-physx'
+import PhysX from 'three-physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 
@@ -25,7 +25,7 @@ export const teleportToScene = async (
   Engine.hasJoinedWorld = false
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  PhysXInstance.instance.removeController(
+  PhysX.PhysXInstance.instance.removeController(
     getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
   )
   removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)

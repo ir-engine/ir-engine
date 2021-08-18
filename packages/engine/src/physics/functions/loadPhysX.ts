@@ -1,4 +1,4 @@
-import { receiveWorker } from 'three-physx'
+import PhysX from 'three-physx'
 import PHYSX from './physx.release.esm.js'
 PHYSX({
   locateFile(path) {
@@ -7,4 +7,4 @@ PHYSX({
     }
     return path
   }
-}).then(receiveWorker)
+}).then(PhysX.receiveWorker)

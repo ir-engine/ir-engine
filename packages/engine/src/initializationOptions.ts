@@ -2,7 +2,7 @@ import { AvatarInputSchema } from './avatar/AvatarInputSchema'
 import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
-import { PhysXConfig } from 'three-physx'
+import PhysX from 'three-physx'
 import { SystemInitializeType } from './ecs/functions/SystemFunctions'
 
 export enum EngineSystemPresets {
@@ -28,7 +28,7 @@ export type InitializeOptions = {
   publicPath?: string
   physics?: {
     simulationEnabled?: boolean
-    settings?: PhysXConfig
+    settings?: PhysX.PhysXConfig
     physxWorker?: () => Worker
   }
   systems?: SystemInitializeType<any>[]

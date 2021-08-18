@@ -1,14 +1,14 @@
-import { ColliderHitEvent } from 'three-physx'
+import PhysX from 'three-physx'
 import { Entity } from '../../ecs/classes/Entity'
-import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { MappedComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../components/ColliderComponent'
 
 type CollisionHit = {
-  collisionEvent: ColliderHitEvent
+  collisionEvent: PhysX.ColliderHitEvent
   collisionEntity: Entity
 }
 
-export const getCollisions = (entity: Entity, component: ComponentConstructor<any, any>): CollisionHit => {
+export const getCollisions = (entity: Entity, component: MappedComponent<any, any>): CollisionHit => {
   const collider = getComponent(entity, ColliderComponent)
 
   if (collider) {

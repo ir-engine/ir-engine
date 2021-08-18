@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import { ControllerHitEvent, PhysXInstance } from 'three-physx'
+import PhysX from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
 import { Engine } from '../ecs/classes/Engine'
@@ -54,7 +54,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       // may get cleaned up already, eg. portals
       if (controller?.controller) {
-        PhysXInstance.instance.removeController(controller.controller)
+        PhysX.PhysXInstance.instance.removeController(controller.controller)
       }
 
       const avatar = getComponent(entity, AvatarComponent)
@@ -68,7 +68,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       const raycastComponent = getComponent(entity, RaycastComponent)
 
       // iterate on all collisions since the last update
-      controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
+      controller.controller.controllerCollisionEvents?.forEach((event: PhysX.ControllerHitEvent) => {})
 
       const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)

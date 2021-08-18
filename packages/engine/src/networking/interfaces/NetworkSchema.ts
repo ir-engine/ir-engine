@@ -1,4 +1,4 @@
-import { ComponentConstructor } from '../../ecs/functions/EntityFunctions'
+import { MappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /** Interface for Network schema. */
 export interface NetworkSchema {
@@ -9,5 +9,5 @@ export interface NetworkSchema {
     [key: string]: any
   }
   /** Prefabs for the schema. */
-  prefabs: Map<number, ComponentConstructor<any, any>>
+  prefabs: Map<number, MappedComponent<any, any>>
 }

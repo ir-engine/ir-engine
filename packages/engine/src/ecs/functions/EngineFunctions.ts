@@ -1,7 +1,7 @@
 /** Functions to provide engine level functionalities. */
 
 import { Color } from 'three'
-import { PhysXInstance } from 'three-physx'
+import PhysX from 'three-physx'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
@@ -140,7 +140,10 @@ export const processLocationChange = async (): Promise<void> => {
 export const resetPhysics = async (): Promise<void> => {
   Engine.physxWorker.terminate()
   Engine.workers.splice(Engine.workers.indexOf(Engine.physxWorker), 1)
-  PhysXInstance.instance.dispose()
-  PhysXInstance.instance = new PhysXInstance()
-  await PhysXInstance.instance.initPhysX(Engine.initOptions.physics.physxWorker(), Engine.initOptions.physics.settings)
+  PhysX.PhysXInstance.instance.dispose()
+  PhysX.PhysXInstance.instance = new PhysX.PhysXInstance()
+  await PhysX.PhysXInstance.instance.initPhysX(
+    Engine.initOptions.physics.physxWorker(),
+    Engine.initOptions.physics.settings
+  )
 }

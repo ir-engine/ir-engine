@@ -2,7 +2,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { BodyType, PhysXInstance } from 'three-physx'
+import PhysX from 'three-physx'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
@@ -54,13 +54,13 @@ export const PhysicsSystem = async (
     }
   })
 
-  if (!PhysXInstance.instance) {
-    PhysXInstance.instance = new PhysXInstance()
+  if (!PhysX.PhysXInstance.instance) {
+    PhysX.PhysXInstance.instance = new PhysX.PhysXInstance()
   }
 
   simulationEnabled = attributes.simulationEnabled ?? true
 
-  await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
+  await PhysX.PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
   Engine.workers.push(Engine.physxWorker)
 
   return defineSystem((world: ECSWorld) => {
@@ -93,14 +93,14 @@ export const PhysicsSystem = async (
     for (const entity of colliderRemoveQuery(world)) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent) {
-        PhysXInstance.instance.removeBody(colliderComponent.body)
+        PhysX.PhysXInstance.instance.removeBody(colliderComponent.body)
       }
     }
 
     for (const entity of raycastRemoveQuery(world)) {
       const raycastComponent = getComponent(entity, RaycastComponent, true)
       if (raycastComponent) {
-        PhysXInstance.instance.removeRaycastQuery(raycastComponent.raycastQuery)
+        PhysX.PhysXInstance.instance.removeRaycastQuery(raycastComponent.raycastQuery)
       }
     }
 
@@ -110,10 +110,10 @@ export const PhysicsSystem = async (
       const transform = getComponent(entity, TransformComponent)
       if (hasComponent(entity, ClientAuthoritativeComponent)) continue
 
-      if (collider.body.type === BodyType.KINEMATIC) {
+      if (collider.body.type === PhysX.BodyType.KINEMATIC) {
         velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
-      } else if (collider.body.type === BodyType.DYNAMIC) {
+      } else if (collider.body.type === PhysX.BodyType.DYNAMIC) {
         const { linearVelocity } = collider.body.transform
         velocity.velocity.copy(linearVelocity)
 
@@ -159,7 +159,7 @@ export const PhysicsSystem = async (
       console.log('removed prefab with id', networkObject.networkId)
     }
 
-    if (simulationEnabled) PhysXInstance.instance?.update()
+    if (simulationEnabled) PhysX.PhysXInstance.instance?.update()
     return world
   })
 }

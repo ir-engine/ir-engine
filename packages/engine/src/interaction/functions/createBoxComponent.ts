@@ -1,5 +1,5 @@
 import { Box3, Mesh, Vector3 } from 'three'
-import { BodyType } from 'three-physx'
+import PhysX from 'three-physx'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -9,7 +9,8 @@ import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
 export const createBoxComponent = (entity: Entity) => {
   const dynamic =
-    hasComponent(entity, ColliderComponent) && getComponent(entity, ColliderComponent).body.type !== BodyType.STATIC
+    hasComponent(entity, ColliderComponent) &&
+    getComponent(entity, ColliderComponent).body.type !== PhysX.BodyType.STATIC
 
   const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
 

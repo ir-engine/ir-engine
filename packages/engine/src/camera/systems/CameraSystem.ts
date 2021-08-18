@@ -15,7 +15,7 @@ import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraMode } from '../types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
-import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
+import PhysX from 'three-physx'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -63,11 +63,11 @@ const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCamera = (entity: Entity) => {
-  if (typeof entity === 'undefined') return console.log("undefined")
+  if (typeof entity === 'undefined') return console.log('undefined')
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform && !Engine.portCamera) return console.log("!cameraDesiredTransform && !Engine.portCamera")
+  if (!cameraDesiredTransform && !Engine.portCamera) return console.log('!cameraDesiredTransform && !Engine.portCamera')
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
@@ -212,11 +212,11 @@ export const CameraSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of followCameraAddQuery(world)) {
-      console.log("      const cameraFollow = getComponent(entity, FollowCameraComponent)      ")
+      console.log('      const cameraFollow = getComponent(entity, FollowCameraComponent)      ')
       const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
-        new RaycastQuery({
-          type: SceneQueryType.Closest,
+      cameraFollow.raycastQuery = PhysX.PhysXInstance.instance.addRaycastQuery(
+        new PhysX.RaycastQuery({
+          type: PhysX.SceneQueryType.Closest,
           origin: new Vector3(),
           direction: new Vector3(0, -1, 0),
           maxDistance: 10,
@@ -239,7 +239,7 @@ export const CameraSystem = async (): Promise<System> => {
 
     for (const entity of followCameraRemoveQuery(world)) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
-      if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
+      if (cameraFollow) PhysX.PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
       if (activeCameraComponent) {
         Engine.activeCameraFollowTarget = null

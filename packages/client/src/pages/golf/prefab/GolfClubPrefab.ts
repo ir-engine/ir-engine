@@ -14,7 +14,7 @@ import {
   Vector3,
   Quaternion
 } from 'three'
-import { Body, BodyType, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES, ShapeType } from 'three-physx'
+import PhysX from 'three-physx'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -209,18 +209,18 @@ export const initializeGolfClub = (entityClub: Entity, playerNumber: number, own
 
   const color = GolfColours[playerNumber].clone()
 
-  const raycast = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
+  const raycast = PhysX.PhysXInstance.instance.addRaycastQuery(
+    new PhysX.RaycastQuery({
+      type: PhysX.SceneQueryType.Closest,
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
       maxDistance: rayLength,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
-  const raycast1 = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
+  const raycast1 = PhysX.PhysXInstance.instance.addRaycastQuery(
+    new PhysX.RaycastQuery({
+      type: PhysX.SceneQueryType.Closest,
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
       maxDistance: rayLength,
@@ -258,8 +258,8 @@ export const initializeGolfClub = (entityClub: Entity, playerNumber: number, own
 
   // since hitting balls are client authored, we only need the club collider on the local client
   if (isEntityLocalClient(ownerEntity)) {
-    const shapeHead: ShapeType = {
-      shape: SHAPES.Box,
+    const shapeHead: PhysX.ShapeType = {
+      shape: PhysX.SHAPES.Box,
       options: { boxExtents: clubColliderSize },
       config: {
         isTrigger: true,
@@ -267,10 +267,10 @@ export const initializeGolfClub = (entityClub: Entity, playerNumber: number, own
         collisionMask: GolfCollisionGroups.Ball
       }
     }
-    const body = PhysXInstance.instance.addBody(
-      new Body({
+    const body = PhysX.PhysXInstance.instance.addBody(
+      new PhysX.Body({
         shapes: [shapeHead],
-        type: BodyType.STATIC,
+        type: PhysX.BodyType.STATIC,
         transform: {
           translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
         }

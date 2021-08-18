@@ -16,17 +16,7 @@ import {
   Material,
   BufferAttribute
 } from 'three'
-import {
-  Body,
-  BoxObstacle,
-  CapsuleObstacle,
-  Controller,
-  Obstacle,
-  PhysXInstance,
-  BodyType,
-  SHAPES,
-  Shape
-} from 'three-physx'
+import PhysX from 'three-physx'
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 
 const parentMatrix = new Matrix4()
@@ -91,11 +81,11 @@ export class DebugRenderer {
       return
     }
 
-    PhysXInstance.instance._bodies.forEach((body: Body) => {
+    PhysX.PhysXInstance.instance._bodies.forEach((body: PhysX.Body) => {
       pos.set(body.transform.translation.x, body.transform.translation.y, body.transform.translation.z)
-      if (body.type === BodyType.CONTROLLER) {
-        const controllerShapeID = (body as Controller)._shape.id
-        this._updateController(body as Controller, controllerShapeID)
+      if (body.type === PhysX.BodyType.CONTROLLER) {
+        const controllerShapeID = (body as PhysX.Controller)._shape.id
+        this._updateController(body as PhysX.Controller, controllerShapeID)
         this._meshes.get(controllerShapeID).position.copy(pos)
         return
       }
@@ -107,7 +97,7 @@ export class DebugRenderer {
       )
       parentMatrix.compose(pos, rot, scale)
 
-      body.shapes.forEach((shape: Shape) => {
+      body.shapes.forEach((shape: PhysX.Shape) => {
         this._updateMesh(body, shape.id, shape)
 
         if (this._meshes.get(shape.id)) {
@@ -127,20 +117,20 @@ export class DebugRenderer {
         }
       })
     })
-    PhysXInstance.instance._raycasts.forEach((raycast, id) => {
+    PhysX.PhysXInstance.instance._raycasts.forEach((raycast, id) => {
       this._updateRaycast(raycast, id)
     })
-    PhysXInstance.instance._obstacles.forEach((obstacle, id) => {
+    PhysX.PhysXInstance.instance._obstacles.forEach((obstacle, id) => {
       this._updateObstacle(obstacle, id)
     })
     this._obstacles.forEach((mesh, id) => {
-      if (!PhysXInstance.instance._obstacles.has(id)) {
+      if (!PhysX.PhysXInstance.instance._obstacles.has(id)) {
         this.scene.remove(mesh)
         this._meshes.delete(id)
       }
     })
     this._meshes.forEach((mesh, id) => {
-      if (!PhysXInstance.instance._shapes.has(id)) {
+      if (!PhysX.PhysXInstance.instance._shapes.has(id)) {
         this.scene.remove(mesh)
         this._meshes.delete(id)
       }
@@ -167,18 +157,18 @@ export class DebugRenderer {
     }
   }
 
-  private _updateObstacle(obstacle: Obstacle, id) {
+  private _updateObstacle(obstacle: PhysX.Obstacle, id) {
     if (!this._obstacles.get(id)) {
       const geom = obstacle.isCapsule
         ? new CapsuleBufferGeometry(
-            (obstacle as CapsuleObstacle).radius,
-            (obstacle as CapsuleObstacle).radius,
-            (obstacle as CapsuleObstacle).halfHeight * 2
+            (obstacle as PhysX.CapsuleObstacle).radius,
+            (obstacle as PhysX.CapsuleObstacle).radius,
+            (obstacle as PhysX.CapsuleObstacle).halfHeight * 2
           )
         : new BoxBufferGeometry(
-            (obstacle as BoxObstacle).halfExtents.x * 2,
-            (obstacle as BoxObstacle).halfExtents.y * 2,
-            (obstacle as BoxObstacle).halfExtents.z * 2
+            (obstacle as PhysX.BoxObstacle).halfExtents.x * 2,
+            (obstacle as PhysX.BoxObstacle).halfExtents.y * 2,
+            (obstacle as PhysX.BoxObstacle).halfExtents.z * 2
           )
       const mesh = new Mesh(geom, this._materials[5])
       mesh.position.copy(obstacle.position)
@@ -188,7 +178,7 @@ export class DebugRenderer {
     }
   }
 
-  private _updateController(controller: Controller, id: number) {
+  private _updateController(controller: PhysX.Controller, id: number) {
     let mesh = this._meshes.get(id)
     let needsUpdate = false
     if (controller._debugNeedsUpdate) {
@@ -207,7 +197,7 @@ export class DebugRenderer {
             clampNonzeroPositive(controller.radius),
             clampNonzeroPositive(controller.height)
           ),
-          this._materials[BodyType.CONTROLLER]
+          this._materials[PhysX.BodyType.CONTROLLER]
         )
       } else {
         mesh = new Mesh(
@@ -216,7 +206,7 @@ export class DebugRenderer {
             clampNonzeroPositive(controller.halfHeight * 2),
             clampNonzeroPositive(controller.halfForwardExtent * 2)
           ),
-          this._materials[BodyType.CONTROLLER]
+          this._materials[PhysX.BodyType.CONTROLLER]
         )
       }
       this._meshes.set(id, mesh)
@@ -224,7 +214,7 @@ export class DebugRenderer {
     }
   }
 
-  private _updateMesh(body: Body, id: number, shape: Shape) {
+  private _updateMesh(body: PhysX.Body, id: number, shape: PhysX.Shape) {
     let mesh = this._meshes.get(id)
     let needsUpdate = false
     if (shape._debugNeedsUpdate) {
@@ -242,18 +232,18 @@ export class DebugRenderer {
     }
   }
 
-  private _createMesh(shape: Shape, type: BodyType): Mesh | Points {
+  private _createMesh(shape: PhysX.Shape, type: PhysX.BodyType): Mesh | Points {
     let mesh: Mesh | Points
     let geometry: BufferGeometry
     const material: Material = this._materials[shape.config.isTrigger ? 4 : type]
     let points: Vector3[] = []
 
     switch (shape.shape) {
-      case SHAPES.Sphere:
+      case PhysX.SHAPES.Sphere:
         mesh = new Mesh(this._sphereGeometry, material)
         break
 
-      case SHAPES.Capsule:
+      case PhysX.SHAPES.Capsule:
         mesh = new Mesh(
           new CapsuleBufferGeometry(
             clampNonzeroPositive(shape.options.radius),
@@ -264,15 +254,15 @@ export class DebugRenderer {
         )
         break
 
-      case SHAPES.Box:
+      case PhysX.SHAPES.Box:
         mesh = new Mesh(this._boxGeometry, material)
         break
 
-      case SHAPES.Plane:
+      case PhysX.SHAPES.Plane:
         mesh = new Mesh(this._planeGeometry, material)
         break
 
-      case SHAPES.ConvexMesh:
+      case PhysX.SHAPES.ConvexMesh:
         geometry = new BufferGeometry()
         points = []
         for (let i = 0; i < shape.options.vertices.length; i += 3) {
@@ -307,7 +297,7 @@ export class DebugRenderer {
         // });
         break
 
-      case SHAPES.TriangleMesh:
+      case PhysX.SHAPES.TriangleMesh:
         geometry = new BufferGeometry()
         points = []
         geometry.setAttribute('position', new BufferAttribute(new Float32Array(shape.options.vertices), 3))
@@ -358,12 +348,12 @@ export class DebugRenderer {
     return mesh
   }
 
-  private _scaleMesh(mesh: Mesh | Points, shape: Shape) {
+  private _scaleMesh(mesh: Mesh | Points, shape: PhysX.Shape) {
     const scale = shape.transform.scale as Vector3
-    if (shape.shape === SHAPES.Sphere) {
+    if (shape.shape === PhysX.SHAPES.Sphere) {
       const radius = clampNonzeroPositive(shape.options.radius)
       mesh.scale.set(radius, radius, radius)
-    } else if (shape.shape === SHAPES.Box) {
+    } else if (shape.shape === PhysX.SHAPES.Box) {
       const { x, y, z } = shape.options.boxExtents
       mesh.scale.set(clampNonzeroPositive(x), clampNonzeroPositive(y), clampNonzeroPositive(z)).multiplyScalar(2)
     }

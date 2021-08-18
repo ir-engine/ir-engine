@@ -19,7 +19,7 @@ const gamepadButtons: BinaryValue[] = []
 const gamepadInput: number[] = []
 
 const inputPerGamepad = 2
-let input: InputComponent
+let input: ReturnType<typeof InputComponent.get>
 let gamepads: Gamepad[]
 let gamepad: Gamepad
 let inputBase: number

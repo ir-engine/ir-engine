@@ -1,5 +1,5 @@
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { RaycastQuery } from 'three-physx'
+import PhysX from 'three-physx'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { CameraMode } from '../types/CameraMode'
 
@@ -21,7 +21,7 @@ export type FollowCameraComponentType = {
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
   locked: boolean
   /** Camera physics raycast data */
-  raycastQuery: RaycastQuery
+  raycastQuery: PhysX.RaycastQuery
   /** Camera physics raycast has hit */
   rayHasHit: boolean
   collisionMask: CollisionGroups

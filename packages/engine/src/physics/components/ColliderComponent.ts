@@ -1,4 +1,4 @@
-import { Body } from 'three-physx'
+import PhysX from 'three-physx'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /**
@@ -6,7 +6,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  */
 
 export type ColliderComponentType = {
-  body: Body
+  body: PhysX.Body
 }
 
 export const ColliderComponent = createMappedComponent<ColliderComponentType>()

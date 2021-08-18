@@ -162,9 +162,11 @@ export const handleConsumeDataEvent =
 
         logger.info('Setting data consumer to room state')
         if (Network.instance.clients[userId] == null)
+          //@ts-ignore
           return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists' })
         Network.instance.clients[userId].dataConsumers.set(dataProducer.id, dataConsumer)
         if (Network.instance.clients[userId] == null)
+          //@ts-ignore
           return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists' })
         const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance')
         // Data consumers are all consuming the single producer that outputs from the server's message queue

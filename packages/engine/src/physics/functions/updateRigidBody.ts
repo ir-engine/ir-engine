@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { BodyType } from 'three-physx'
+import PhysX from 'three-physx'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
@@ -28,7 +28,7 @@ export const updateRigidBody = (entity: Entity, snapshots: SnapshotData, delta):
 
   const collider = getComponent(entity, ColliderComponent)
   const transform = getComponent(entity, TransformComponent)
-  if (collider.body.type === BodyType.KINEMATIC) {
+  if (collider.body.type === PhysX.BodyType.KINEMATIC) {
     transform.position.set(snapshot.x, snapshot.y, snapshot.z)
     transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
   } else {

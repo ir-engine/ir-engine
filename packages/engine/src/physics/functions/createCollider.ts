@@ -1,5 +1,5 @@
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { ShapeType, SHAPES, Body, BodyType, PhysXInstance } from 'three-physx'
+import PhysX from 'three-physx'
 import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
 import { ColliderTypes } from '../types/PhysicsTypes'
@@ -21,7 +21,7 @@ const halfPI = Math.PI / 2
 
 type ColliderData = {
   type?: ColliderTypes
-  bodytype?: BodyType
+  bodytype?: PhysX.BodyType
   isTrigger?: boolean
   staticFriction?: number
   dynamicFriction?: number
@@ -38,7 +38,7 @@ export function createCollider(
   pos = new Vector3(),
   rot = new Quaternion(),
   scale = new Vector3(1, 1, 1)
-): Body {
+): PhysX.Body {
   const userData = mesh.userData as ColliderData
   // console.log(userData, pos, rot, scale)
 
@@ -60,27 +60,27 @@ export function createCollider(
   if (typeof userData.collisionMask === 'undefined' && typeof (userData as any).collisionmask !== 'undefined')
     userData.collisionMask = (userData as any).collisionmask
 
-  const shapeArgs: ShapeType = { config: {} }
+  const shapeArgs: any = { config: {} }
   switch (userData.type) {
     case 'box':
-      shapeArgs.shape = SHAPES.Box
+      shapeArgs.shape = PhysX.SHAPES.Box
       shapeArgs.options = { boxExtents: { x: Math.abs(scale.x), y: Math.abs(scale.y), z: Math.abs(scale.z) } }
       break
 
     case 'ground':
-      shapeArgs.shape = SHAPES.Plane
+      shapeArgs.shape = PhysX.SHAPES.Plane
       quat1.setFromAxisAngle(xVec, -halfPI)
       quat2.set(rot.x, rot.y, rot.z, rot.w)
       rot = quat2.multiply(quat1)
       break
 
     case 'sphere':
-      shapeArgs.shape = SHAPES.Sphere
+      shapeArgs.shape = PhysX.SHAPES.Sphere
       shapeArgs.options = { radius: Math.abs(scale.x) }
       break
 
     case 'capsule':
-      shapeArgs.shape = SHAPES.Capsule
+      shapeArgs.shape = PhysX.SHAPES.Capsule
       shapeArgs.options = { halfHeight: Math.abs(scale.y), radius: Math.abs(scale.x) }
       break
 
@@ -101,12 +101,12 @@ export function createCollider(
       }
     // yes, don't break here - use convex for cylinder
     case 'convex':
-      shapeArgs.shape = SHAPES.ConvexMesh
+      shapeArgs.shape = PhysX.SHAPES.ConvexMesh
       shapeArgs.options = { vertices: [...userData.vertices], indices: [...userData.indices] }
       break
 
     case 'trimesh':
-      shapeArgs.shape = SHAPES.TriangleMesh
+      shapeArgs.shape = PhysX.SHAPES.TriangleMesh
       shapeArgs.options = { vertices: [...userData.vertices], indices: [...userData.indices] }
       break
 
@@ -144,9 +144,9 @@ export function createCollider(
     shapeArgs.config.isTrigger = Boolean(userData.isTrigger)
   }
 
-  const body = new Body({
+  const body = new PhysX.Body({
     shapes: [shapeArgs],
-    type: userData.bodytype ?? BodyType.STATIC,
+    type: userData.bodytype ?? PhysX.BodyType.STATIC,
     transform: {
       translation: { x: pos.x, y: pos.y, z: pos.z },
       rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
@@ -159,7 +159,7 @@ export function createCollider(
     }
   })
 
-  PhysXInstance.instance.addBody(body)
+  PhysX.PhysXInstance.instance.addBody(body)
 
   return body
 }

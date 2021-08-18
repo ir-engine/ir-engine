@@ -1,5 +1,5 @@
 import { BufferGeometry, Euler, ExtrudeGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
+import PhysX from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
@@ -48,8 +48,8 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     previewMesh.geometry.computeBoundingBox()
     previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
 
-    const portalShape: ShapeType = {
-      shape: SHAPES.Box,
+    const portalShape: PhysX.ShapeType = {
+      shape: PhysX.SHAPES.Box,
       options: { boxExtents: vec3 },
       transform: { translation: previewMesh.position },
       config: {
@@ -59,10 +59,10 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       }
     }
 
-    const portalBody = PhysXInstance.instance.addBody(
-      new Body({
+    const portalBody = PhysX.PhysXInstance.instance.addBody(
+      new PhysX.Body({
         shapes: [portalShape],
-        type: BodyType.STATIC,
+        type: PhysX.BodyType.STATIC,
         transform: {
           translation: transform.position,
           rotation: transform.rotation
@@ -70,7 +70,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       })
     )
 
-    PhysXInstance.instance.addBody(portalBody)
+    PhysX.PhysXInstance.instance.addBody(portalBody)
 
     portalBody.userData = { entity }
 

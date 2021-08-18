@@ -1,5 +1,5 @@
 import { Color, Group, Material, MathUtils, Mesh, MeshBasicMaterial, Quaternion, Vector3, Vector4 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
+import PhysX from 'three-physx'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -235,8 +235,8 @@ export const initializeGolfBall = (
     assetLoadCallback(group, ballEntity, playerNumber)
   }
 
-  const shape: ShapeType = {
-    shape: SHAPES.Sphere,
+  const shape: PhysX.ShapeType = {
+    shape: PhysX.SHAPES.Sphere,
     options: { radius: golfBallRadius + golfBallColliderExpansion },
     config: {
       // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
@@ -253,11 +253,11 @@ export const initializeGolfBall = (
 
   const isMyBall = isEntityLocalClient(ownerEntity)
 
-  const body = PhysXInstance.instance.addBody(
-    new Body({
+  const body = PhysX.PhysXInstance.instance.addBody(
+    new PhysX.Body({
       shapes: [shape],
       // make static on server and remote player's balls so we can still detect collision with hole
-      type: isMyBall ? BodyType.DYNAMIC : BodyType.STATIC,
+      type: isMyBall ? PhysX.BodyType.DYNAMIC : PhysX.BodyType.STATIC,
       transform: {
         translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
       },
@@ -267,9 +267,9 @@ export const initializeGolfBall = (
   addComponent(ballEntity, ColliderComponent, { body })
 
   // for track ground
-  const groundRaycast = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
+  const groundRaycast = PhysX.PhysXInstance.instance.addRaycastQuery(
+    new PhysX.RaycastQuery({
+      type: PhysX.SceneQueryType.Closest,
       origin: transform.position,
       direction: new Vector3(0, -1, 0),
       maxDistance: 1,
@@ -278,9 +278,9 @@ export const initializeGolfBall = (
   )
 
   // for track wall
-  const wallRaycast = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
+  const wallRaycast = PhysX.PhysXInstance.instance.addRaycastQuery(
+    new PhysX.RaycastQuery({
+      type: PhysX.SceneQueryType.Closest,
       origin: transform.position,
       direction: new Vector3(0, 0, 0),
       maxDistance: 0.5,

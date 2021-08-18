@@ -7,7 +7,7 @@ import { EquippedStateUpdateSchema } from '../enums/EquippedEnums'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjectUpdates'
 import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate'
-import { BodyType } from 'three-physx'
+import PhysX from 'three-physx'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
@@ -32,7 +32,7 @@ export const EquippableSystem = async (): Promise<System> => {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       // all equippables must have a collider to grab by in VR
       const collider = getComponent(equippedEntity, ColliderComponent)
-      if (collider) collider.body.type = BodyType.KINEMATIC
+      if (collider) collider.body.type = PhysX.BodyType.KINEMATIC
       // send equip to clients
       if (!isClient) {
         const networkObject = getComponent(equippedEntity, NetworkObjectComponent)
@@ -67,7 +67,7 @@ export const EquippableSystem = async (): Promise<System> => {
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
       const collider = getComponent(equippedEntity, ColliderComponent)
       if (collider) {
-        collider.body.type = BodyType.DYNAMIC
+        collider.body.type = PhysX.BodyType.DYNAMIC
         collider.body.updateTransform({
           translation: equippedTransform.position,
           rotation: equippedTransform.rotation

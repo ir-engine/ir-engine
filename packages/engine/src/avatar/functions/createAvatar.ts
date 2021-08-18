@@ -11,7 +11,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
+import PhysX from 'three-physx'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -90,9 +90,9 @@ export const createAvatar = (
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
 
-  const raycastQuery = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
+  const raycastQuery = PhysX.PhysXInstance.instance.addRaycastQuery(
+    new PhysX.RaycastQuery({
+      type: PhysX.SceneQueryType.Closest,
       origin: new Vector3(0, avatarHalfHeight, 0),
       direction: new Vector3(0, -1, 0),
       maxDistance: avatarHalfHeight + 0.05,
@@ -102,11 +102,11 @@ export const createAvatar = (
   addComponent(entity, RaycastComponent, { raycastQuery })
 
   if (isRemotePlayer) {
-    const body = PhysXInstance.instance.addBody(
-      new Body({
+    const body = PhysX.PhysXInstance.instance.addBody(
+      new PhysX.Body({
         shapes: [
           {
-            shape: SHAPES.Capsule,
+            shape: PhysX.SHAPES.Capsule,
             options: { halfHeight: capsuleHeight / 2, radius: avatarRadius },
             config: {
               collisionLayer: CollisionGroups.Avatars,
@@ -114,7 +114,7 @@ export const createAvatar = (
             }
           }
         ],
-        type: BodyType.STATIC,
+        type: PhysX.BodyType.STATIC,
         transform: {
           translation: {
             x: transform.position.x,
@@ -137,8 +137,8 @@ export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
 
-  const controller = PhysXInstance.instance.createController(
-    new Controller({
+  const controller = PhysX.PhysXInstance.instance.createController(
+    new PhysX.Controller({
       isCapsule: true,
       collisionLayer: CollisionGroups.Avatars,
       collisionMask: DefaultCollisionMask,
