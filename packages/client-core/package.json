@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "module": "dist/client-core.es.js",
   "repository": {
     "type": "git",
@@ -30,9 +30,9 @@
     "react": "^17.0.0"
   },
   "dependencies": {
-    "@hookstate/core": "3.0.8",
     "@feathersjs/client": "5.0.0-pre.9",
     "@google/model-viewer": "1.8.0",
+    "@hookstate/core": "3.0.8",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",
@@ -49,8 +49,8 @@
     "@types/styled-components": "5.1.12",
     "@typescript-eslint/eslint-plugin": "4.29.2",
     "@typescript-eslint/parser": "4.29.2",
-    "@xrengine/common": "^0.3.32",
-    "@xrengine/engine": "^0.3.32",
+    "@xrengine/common": "^0.3.33",
+    "@xrengine/engine": "^0.3.33",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.3.1",
