@@ -1,5 +1,11 @@
 import { Mesh, Object3D, BoxBufferGeometry, Material } from 'three'
-import { createBuildings, createRoads, createGround, safelySetGroundScaleAndPosition } from '../../map/MeshBuilder'
+import {
+  createBuildings,
+  createRoads,
+  createGround,
+  createWater,
+  safelySetGroundScaleAndPosition
+} from '../../map/MeshBuilder'
 import { fetchVectorTiles, fetchRasterTiles } from '../../map/MapBoxClient'
 import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
@@ -60,7 +66,9 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
       road: createRoads(vectorTiles, center, renderer),
 
-      ground: createGround(rasterTiles, center[1])
+      ground: createGround(rasterTiles, center[1]),
+
+      water: createWater(vectorTiles, center, renderer)
     }
 
     Object.values(this.mapLayers).forEach((layer) => {
