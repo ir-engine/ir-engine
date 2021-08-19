@@ -8,6 +8,9 @@
   "engines": {
     "node": ">= 16.3.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "npmClient": "npm",
   "jest": "ts-jest",
   "main": "src/bot.ts",
