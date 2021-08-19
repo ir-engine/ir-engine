@@ -88,8 +88,15 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     this.addMap(this.editor)
   }, 3000)
 
-  copy(source, recursive = true) {
+  copy(source: MapNode, recursive = true) {
     super.copy(source, recursive)
+    Object.entries(source.getProps()).forEach(([prop, value]) => {
+      if (value?.copy) {
+        value.copy(this[prop])
+      } else {
+        this[prop] = value
+      }
+    })
     return this
   }
   onChange(prop?: string) {
