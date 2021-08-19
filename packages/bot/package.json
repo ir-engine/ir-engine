@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/bot",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -8,13 +8,17 @@
   "engines": {
     "node": ">= 16.3.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "npmClient": "npm",
   "jest": "ts-jest",
   "main": "src/bot.ts",
   "scripts": {
     "validate": "npm run test",
     "dev": "node -r ts-eager/register src/run-bot.ts",
-    "test": "jest"
+    "test": "jest",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.16.0",

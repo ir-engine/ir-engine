@@ -1,8 +1,8 @@
 import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import IKRig from '@xrengine/engine/src/ikrig/components/IKRig'
+import { IKRig } from '../components/IKRig'
 import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import DebugComponent from '../classes/Debug'
+// import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
 import { FORWARD, UP } from '../constants/Vector3Constants'
 import {
@@ -20,39 +20,39 @@ import {
   visualizeSpine
 } from '../functions/IKFunctions'
 
-export class DebugComponent {
-  static points = null
-  static lines = null
+// export class DebugComponent {
+//   static points = null
+//   static lines = null
 
-  static init() {
-    const entity = createEntity()
-    addComponent(entity, Obj, {})
-    addComponent(entity, PointsComponent, {})
+//   static init() {
+//     const entity = createEntity()
+//     addComponent(entity, Obj, {})
+//     addComponent(entity, PointsComponent, {})
 
-    this.points = getComponent(entity, PointsComponent)
-    this.points.init()
+//     this.points = getComponent(entity, PointsComponent)
+//     this.points.init()
 
-    addComponent(entity, Lines, {})
-    this.lines = getComponent(entity, Lines, {})
-    this.lines.init()
-    return this
-  }
+//     addComponent(entity, Lines, {})
+//     this.lines = getComponent(entity, Lines, {})
+//     this.lines.init()
+//     return this
+//   }
 
-  static reset() {
-    this.points.reset()
-    this.lines.reset()
-    return this
-  }
+//   static reset() {
+//     this.points.reset()
+//     this.lines.reset()
+//     return this
+//   }
 
-  static setPoint(p, hex: any = 0xff0000, shape = null, size = null) {
-    this.points.add(p, hex, shape, size)
-    return this
-  }
-  static setLine(p0, p1, hex_0: any = 0xff0000, hex_1 = null, is_dash = false) {
-    this.lines.add(p0, p1, hex_0, hex_1, is_dash)
-    return this
-  }
-}
+//   static setPoint(p, hex: any = 0xff0000, shape = null, size = null) {
+//     this.points.add(p, hex, shape, size)
+//     return this
+//   }
+//   static setLine(p0, p1, hex_0: any = 0xff0000, hex_1 = null, is_dash = false) {
+//     this.lines.add(p0, p1, hex_0, hex_1, is_dash)
+//     return this
+//   }
+// }
 
 export const IKRigSystem = async (): Promise<System> => {
   const ikrigsQuery = defineQuery([IKRig])
@@ -61,7 +61,7 @@ export const IKRigSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
-    d.reset() // For this example, Lets reset visual debug for every compute.
+    // d.reset() // For this example, Lets reset visual debug for every compute.
 
     // RUN
     for (const entity of ikposeQuery(world)) {

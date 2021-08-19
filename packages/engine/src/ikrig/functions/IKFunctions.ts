@@ -1,10 +1,9 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
-import IKRig from '@xrengine/engine/src/ikrig/components/IKRig'
+import { IKRig } from '../components/IKRig'
 import { Bone, Object3D, Quaternion, Vector3 } from 'three'
 import { IKPose } from '../components/IKPose'
 import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
-import debug from '@xrengine/engine/src/ikrig/classes/Debug'
+// import { debug } from '../classes/Debug'
 
 const tempQ = new Quaternion()
 const aToBDirection = new Vector3()
@@ -22,11 +21,11 @@ const COLOR = {
   orange: 0xff8000
 }
 
-let Debug
-export function initDebug() {
-  Debug = debug.init()
-  return Debug
-}
+// let Debug
+// export function initDebug() {
+//   Debug = debug.init()
+//   return Debug
+// }
 
 // Hold the IK Information, then apply it to a Rig
 export function LawCosinesSSS(aLen, bLen, cLen) {
@@ -39,33 +38,31 @@ export function LawCosinesSSS(aLen, bLen, cLen) {
   return Math.acos(v)
 }
 
-export function setupIKRig(rig: IKRig) {
+export function setupIKRig(rig: ReturnType<typeof IKRig.get>) {
   //-----------------------------------------
   // Auto Setup the Points and Chains based on
   // Known Skeleton Structures.
-  rig
-    .addPoint('hip', 'Hips')
-    .addPoint('head', 'Head')
-    .addPoint('neck', 'Neck')
-    .addPoint('chest', 'Spine2')
-    .addPoint('foot_l', 'LeftFoot')
-    .addPoint('foot_r', 'RightFoot')
-
-    .addChain('arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
-    .addChain('arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
-    .addChain('leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
-    .addChain('leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
-    .addChain('spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
-
-  rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones)
-
-  rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
-  rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
-  rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
-  rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
+  // TODO:Fix
+  // rig
+  //   .addPoint('hip', 'Hips')
+  //   .addPoint('head', 'Head')
+  //   .addPoint('neck', 'Neck')
+  //   .addPoint('chest', 'Spine2')
+  //   .addPoint('foot_l', 'LeftFoot')
+  //   .addPoint('foot_r', 'RightFoot')
+  //   .addChain('arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
+  //   .addChain('arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
+  //   .addChain('leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
+  //   .addChain('leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
+  //   .addChain('spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
+  // rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
+  // rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
+  // rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones)
+  // rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones)
+  // rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
+  // rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
+  // rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
+  // rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
 }
 
 export function computeHip(rig, ik_pose) {
@@ -273,13 +270,13 @@ export function computeSpine(rig, chain, ik_pose, lookDirection, twistDirection)
 // How to visualize the IK Pose Informaation to get an Idea of what we're looking at.
 export function visualizeHip(rig, ik) {
   rig.pose.bones[rig.points.hip.index].getWorldPosition(boneAWorldPos)
-  Debug.setPoint(boneAWorldPos, COLOR.orange, 6, 6).setLine(
-    boneAWorldPos,
-    new Vector3().copy(ik.hip.dir).multiplyScalar(0.2).add(boneAWorldPos),
-    COLOR.cyan,
-    null,
-    true
-  )
+  // Debug.setPoint(boneAWorldPos, COLOR.orange, 6, 6).setLine(
+  //   boneAWorldPos,
+  //   new Vector3().copy(ik.hip.dir).multiplyScalar(0.2).add(boneAWorldPos),
+  //   COLOR.cyan,
+  //   null,
+  //   true
+  // )
 }
 
 export function visualizeLimb(pose, chain, ik) {
@@ -290,18 +287,18 @@ export function visualizeLimb(pose, chain, ik) {
     posB = new Vector3().copy(ik.dir).multiplyScalar(len).add(posA),
     posC = new Vector3().copy(ik.jointDirection).multiplyScalar(0.2).add(posA) // Direction of Joint
 
-  Debug.setPoint(posA, COLOR.yellow, 6, 4)
-    .setPoint(posB, COLOR.orange, 6, 4)
-    .setLine(posA, posB, COLOR.yellow, COLOR.orange, true)
-    .setLine(posA, posC, COLOR.yellow, null, true)
+  // Debug.setPoint(posA, COLOR.yellow, 6, 4)
+  //   .setPoint(posB, COLOR.orange, 6, 4)
+  //   .setLine(posA, posB, COLOR.yellow, COLOR.orange, true)
+  //   .setLine(posA, posC, COLOR.yellow, null, true)
 }
 
 export function visualizeLookTwist(rig, boneInfo, ik) {
   const position = new Vector3()
   rig.pose.bones[boneInfo.index].getWorldPosition(position)
-  Debug.setPoint(position, COLOR.cyan, 1, 2.5) // Foot Position
-    .setLine(position, new Vector3().copy(ik.lookDirection).multiplyScalar(0.2).add(position), COLOR.cyan, null, true) // IK.DIR
-    .setLine(position, new Vector3().copy(ik.twistDirection).multiplyScalar(0.2).add(position), COLOR.cyan, null, true) // RESULT OF IK.TWIST
+  // Debug.setPoint(position, COLOR.cyan, 1, 2.5) // Foot Position
+  //   .setLine(position, new Vector3().copy(ik.lookDirection).multiplyScalar(0.2).add(position), COLOR.cyan, null, true) // IK.DIR
+  //   .setLine(position, new Vector3().copy(ik.twistDirection).multiplyScalar(0.2).add(position), COLOR.cyan, null, true) // RESULT OF IK.TWIST
 }
 
 export function visualizeSpine(rig, chain, ik_ary) {
@@ -315,13 +312,13 @@ export function visualizeSpine(rig, chain, ik_ary) {
     poseBone.getWorldPosition(ws)
     ik = ik_ary[i]
 
-    Debug.setPoint(ws, COLOR.orange, 1, 2)
-      .setLine(ws, new Vector3().copy(ik.lookDirection).multiplyScalar(0.2).add(ws), COLOR.yellow, null)
-      .setLine(ws, new Vector3().copy(ik.twistDirection).multiplyScalar(0.2).add(ws), COLOR.orange, null)
+    // Debug.setPoint(ws, COLOR.orange, 1, 2)
+    //   .setLine(ws, new Vector3().copy(ik.lookDirection).multiplyScalar(0.2).add(ws), COLOR.yellow, null)
+    //   .setLine(ws, new Vector3().copy(ik.twistDirection).multiplyScalar(0.2).add(ws), COLOR.orange, null)
   }
 }
 
-export function applyHip(pose: IKPose) {
+export function applyHip(pose: ReturnType<typeof IKPose.get>) {
   pose.targetRigs.forEach((rig) => {
     // First step is we need to get access to the Rig's TPose and Pose Hip Bone.
     // The idea is to transform our Bind Pose into a New Pose based on IK Data
@@ -393,7 +390,7 @@ export function applyHip(pose: IKPose) {
 // 	this.target[ solver ]( chain, rig.tpose, rig.pose, p_tran );
 // }
 
-export function applyLimb(ikPose: IKPose, chain, limb, grounding = 0) {
+export function applyLimb(ikPose: ReturnType<typeof IKPose.get>, chain, limb, grounding = 0) {
   ikPose.targetRigs.forEach((rig) => {
     // solve for ik
     // Using law of cos SSS, so need the length of all sides of the triangle
@@ -635,9 +632,9 @@ export function applyGrounding(entity, y_lmt) {
     posA = tar.startPosition.add(new Vector3(-1, 0, 0)),
     posB = tar.endPosition.add(new Vector3(-1, 0, 0))
 
-  Debug.setPoint(posA, COLOR.yellow, 0.05, 6)
-    .setPoint(posB, COLOR.white, 0.05, 6)
-    .setLine(posA, posB, COLOR.yellow, COLOR.white, true)
+  // Debug.setPoint(posA, COLOR.yellow, 0.05, 6)
+  //   .setPoint(posB, COLOR.white, 0.05, 6)
+  //   .setLine(posA, posB, COLOR.yellow, COLOR.white, true)
 
   // Where on the line between the Start and end Points would work for our
   // Y Limit. An easy solution is to find the SCALE based on doing a 1D Scale
@@ -650,7 +647,7 @@ export function applyGrounding(entity, y_lmt) {
   ;(ik as any).target.endPosition.set((b.x - a.x) * s + a.x, y_lmt, (b.z - a.z) * s + a.z)
 
   /* DEBUG NEW END EFFECTOR */
-  Debug.setPoint((ik as any).target.endPosition.add(new Vector3(-1, 0, 0)), 'orange', 0.05, 6)
+  // Debug.setPoint((ik as any).target.endPosition.add(new Vector3(-1, 0, 0)), 'orange', 0.05, 6)
 
   // Since we changed the end effector, lets update the Sqr Length and Length of our target
   // This is normally computed by our IK Target when we set it, but since I didn't bother
