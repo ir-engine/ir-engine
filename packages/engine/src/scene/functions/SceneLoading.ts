@@ -278,7 +278,7 @@ export class WorldScene {
           transform.rotation,
           transform.scale
         )
-        if (boxColliderProps.removeMesh) {
+        if (boxColliderProps.removeMesh === 'true' || boxColliderProps.removeMesh === true) {
           const obj = getComponent(entity, Object3DComponent)
           if (obj?.value) {
             if (obj.value.parent) obj.value.removeFromParent()
