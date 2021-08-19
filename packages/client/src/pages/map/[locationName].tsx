@@ -14,7 +14,7 @@ import UserProfile from './UserProfile'
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()
-  const [showUserProfile, setShowUserProfile] = useState(true)
+  const [isUserProfileOpen, setShowUserProfile] = useState(true)
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -28,7 +28,7 @@ const LocationPage = (props) => {
 
   return (
     <Layout theme={theme} hideVideo={true} hideFullscreen={true} pageTitle={t('location.locationName.pageTitle')}>
-      <UserProfile isUserProfileShowing={showUserProfile} showHideProfile={setShowUserProfile} />
+      <UserProfile isUserProfileShowing={isUserProfileOpen} showHideProfile={setShowUserProfile} />
       <LoadingScreen objectsToLoad={loadingItemCount} />
       <World
         allowDebug={true}
