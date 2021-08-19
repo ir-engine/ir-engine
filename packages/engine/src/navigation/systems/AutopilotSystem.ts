@@ -126,7 +126,7 @@ export const AutopilotSystem = async (): Promise<System> => {
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
         if (!autopilot.path.current()) {
-          console.warn('autopilot.path is invalid or empty')
+          console.error('autopilot.path is invalid or empty')
           removeComponent(entity, AutoPilotComponent)
           continue
         }
