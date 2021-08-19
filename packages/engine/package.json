@@ -91,7 +91,7 @@
     "@types/puppeteer": "5.4.4",
     "@types/three": "0.131.0",
     "@types/yuka": "0.7.1",
-    "babel-jest": "^27.0.6",
+    "babel-jest": "27.0.6",
     "cross-env": "7.0.3",
     "esbuild": "0.12.21",
     "eslint": "7.32.0",
