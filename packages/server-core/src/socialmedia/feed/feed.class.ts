@@ -43,7 +43,8 @@ export class Feed extends Service {
     //All Feeds as Admin
     if (action === 'admin') {
       const dataQuery = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
-      sr2.url as previewUrl, sr1.url as videoUrl, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fb.id) as bookmarks 
+      sr2.url as previewUrl, sr1.url as videoUrl, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fb.id) as bookmarks, 
+      COUNT(fr.id) as reports 
         FROM \`feed\` as feed
         JOIN \`creator\` as creator ON creator.id=feed.creatorId
         JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
@@ -51,6 +52,7 @@ export class Feed extends Service {
         LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
         LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
         LEFT JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
+        LEFT JOIN \`feed_report\` as fr ON fr.feedId=feed.id
         WHERE 1
         GROUP BY feed.id
         ORDER BY feed.createdAt DESC    

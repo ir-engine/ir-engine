@@ -33,8 +33,8 @@ const FeedsPage = ({ feedsState, getFeeds }: Props) => {
     <>
       <div>
         <Dashboard>
-          <div />
-          {/* {feedsList && <FeedConsole list={feedsList} />} */}
+          {/* <div /> */}
+          {feedsList && <FeedConsole list={feedsList} />}
         </Dashboard>
       </div>
     </>

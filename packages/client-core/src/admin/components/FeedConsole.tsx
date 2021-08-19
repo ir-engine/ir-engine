@@ -22,6 +22,7 @@ import Backdrop from '@material-ui/core/Backdrop'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
+import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined'
 import BookmarkIcon from '@material-ui/icons/Bookmark'
 import StarIcon from '@material-ui/icons/Star'
 import StarOutlineIcon from '@material-ui/icons/StarOutline'
@@ -227,6 +228,10 @@ const FeedConsole = (props: Props) => {
                           <Typography variant="h3" color="textPrimary">
                             <BookmarkIcon />
                             {row.bookmarks}
+                          </Typography>
+                          <Typography variant="h3" color="textPrimary">
+                            <ReportOutlinedIcon htmlColor="#FF0000" />
+                            {row.reports}
                           </Typography>
                         </section>
                         <br />

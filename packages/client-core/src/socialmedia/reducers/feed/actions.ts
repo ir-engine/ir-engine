@@ -28,7 +28,8 @@ import {
   FEEDS_FIRED_RETRIEVED,
   CLEAR_CREATOR_FEATURED,
   DELETE_FEED,
-  LAST_FEED_VIDEO_URL
+  LAST_FEED_VIDEO_URL,
+  ADD_FEED_REPORT
 } from '../actions'
 import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed'
 
@@ -230,5 +231,12 @@ export function lastFeedVideoUrl(filePath): oneFeedAction {
   return {
     type: LAST_FEED_VIDEO_URL,
     feedId: filePath
+  }
+}
+
+export function addFeedReport(feedId: string): oneFeedAction {
+  return {
+    type: ADD_FEED_REPORT,
+    feedId: feedId
   }
 }

@@ -72,7 +72,8 @@
     },
     "feed": {
         "back": "Back",
-        "related": "Related feeds"
+        "related": "Related feeds",
+        "is-repoted-message": "Feed is reported!"
     },
     "feedForm": {
         "back": "Back",
