@@ -15,7 +15,6 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import DownArrow from '../assets/DownArrow.png'
 import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
@@ -23,6 +22,13 @@ import ShareMenu from './menus/ShareMenu'
 import InstanceChat from '../MapInstanceChat'
 import styles from './MapUserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
+import { AvatarAnimations, AvatarStates, WeightsParameterType } from '@xrengine/engine/src/avatar/animations/Util'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
+import { stopAutopilot } from '@xrengine/engine/src/navigation/functions/stopAutopilot'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AutoPilotComponent } from '@xrengine/engine/src/navigation/component/AutoPilotComponent'
 
 enum PanelState {
   CLOSE,
@@ -216,18 +222,57 @@ const UserMenu = (props: UserMenuProps): any => {
     }
   }
 
+  const runAnimation = (animationName: string, params: WeightsParameterType) => {
+    const entity = Network.instance.localClientEntity
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+
+    if (
+      !avatarAnimationComponent.animationGraph.validateTransition(
+        avatarAnimationComponent.currentState,
+        avatarAnimationComponent.animationGraph.states[animationName]
+      )
+    ) {
+      console.warn(
+        'immediate transition to [%s] is not available from current state [%s]',
+        animationName,
+        avatarAnimationComponent.currentState.name
+      )
+    }
+
+    if (!hasComponent(entity, AutoPilotComponent)) {
+      AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
+    } else {
+      stopAutopilot(entity)
+      let interval
+      interval = setInterval(() => {
+        // wait for valid state (like IDLE)
+        if (
+          avatarAnimationComponent.animationGraph.validateTransition(
+            avatarAnimationComponent.currentState,
+            avatarAnimationComponent.animationGraph.states[animationName]
+          )
+        ) {
+          clearInterval(interval)
+          AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
+        }
+      }, 50)
+    }
+
+    togglePanelStatus()
+  }
+
   return (
     <>
       <section className={styles.settingContainer}>
         <div className={styles.iconContainer}>
-          <span
+          <button
             id={Views.Profile}
             // onClick={ShowProfile}
             // className={'profile'}
             className={styles.profile}
           >
-            <img src={DownArrow} />
-          </span>
+            <img src="/static/DownArrow.png" />
+          </button>
         </div>
         {currentActiveMenu ? renderMenuPanel() : null}
       </section>
@@ -244,12 +289,47 @@ const UserMenu = (props: UserMenuProps): any => {
               anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
               className={styles.chatBadge}
             >
-              <button className={styles.iconCallChat} onClick={() => changeActivePanel(ActivePanel.CHAT)}>
+              <button className={styles.iconCallChat} onClick={() => changeActivePanel(ActivePanel.CHAT)} title="Chat">
                 <img src="/static/Chat.png" />
               </button>
             </Badge>
-            <button className={styles.share} onClick={() => changeActivePanel(ActivePanel.SHARE)}>
+            <button className={styles.share} onClick={() => changeActivePanel(ActivePanel.SHARE)} title="Share">
               <img src="/static/Share.png" />
+            </button>
+            <button
+              className={styles.dance1}
+              onClick={() => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })}
+              title="Dance"
+            >
+              <img src="/static/Dance1.png" />
+            </button>
+            <button
+              className={styles.dance2}
+              onClick={() => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })}
+              title="Dance"
+            >
+              <img src="/static/Dance2.png" />
+            </button>
+            <button
+              className={styles.dance3}
+              onClick={() => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })}
+              title="Dance"
+            >
+              <img src="/static/Dance3.png" />
+            </button>
+            <button
+              className={styles.dance4}
+              onClick={() => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })}
+              title="Dance"
+            >
+              <img src="/static/Dance4.png" />
+            </button>
+            <button
+              className={styles.wave}
+              onClick={() => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })}
+              title="Wave"
+            >
+              <img src="/static/Wave.png" />
             </button>
           </div>
         ) : panelState === PanelState.PANEL_OPEN ? (

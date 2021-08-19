@@ -13,14 +13,6 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-
-    const gameObject = json.components.find((c) => c.name === 'game-object')
-
-    if (gameObject) {
-      node.target = gameObject.props.target
-      node.role = gameObject.props.role
-    }
-
     const boxCollider = json.components.find((c) => c.name === 'box-collider')
 
     if (boxCollider) {
@@ -61,16 +53,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   async serialize(projectID) {
     const components = {
       'box-collider': {
-        type: 'box',
         isTrigger: this.isTrigger
-      }
-    } as any
-
-    if (this.target != undefined) {
-      components['game-object'] = {
-        gameName: this.editor.nodes.find((node) => node.uuid === this.target).name,
-        role: this.role,
-        target: this.target
       }
     }
     return await super.serialize(projectID, components)
@@ -79,16 +62,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     super.prepareForExport()
     this.remove(this.helper)
     this.addGLTFComponent('box-collider', {
-      // TODO: Remove exporting these properties. They are already included in the transform props.
-      type: 'box',
       isTrigger: this.isTrigger
     })
-    if (this.target != undefined) {
-      this.addGLTFComponent('game-object', {
-        gameName: this.editor.nodes.find((node) => node.uuid === this.target).name,
-        role: this.role,
-        target: this.target
-      })
-    }
   }
 }

@@ -26,6 +26,12 @@ import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPl
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import {
+  handleTouch,
+  handleTouchDirectionalPad,
+  handleTouchGamepadButton,
+  handleTouchMove
+} from '@xrengine/engine/src/input/schema/ClientInputSchema'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -280,6 +286,11 @@ export const EnginePage = (props: Props) => {
     })
   }
 
+  const handleTouchStartEvent = (e: TouchEvent) => {
+    handleTouch(e)
+    handleTouchMove(e)
+  }
+
   if (isUserBanned) return <div className="banned">You have been banned from this location</div>
 
   if (isInXR) return <></>
@@ -305,13 +316,15 @@ export const EnginePage = (props: Props) => {
 
       {props.children}
 
-      <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
+      <div onTouchStart={handleTouchStartEvent}>
+        <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
-      {props.showTouchpad && isTouchAvailable ? (
-        <Suspense fallback={<></>}>
-          <TouchGamepad layout="default" />
-        </Suspense>
-      ) : null}
+        {props.showTouchpad && isTouchAvailable ? (
+          <Suspense fallback={<></>}>
+            <TouchGamepad layout="default" />
+          </Suspense>
+        ) : null}
+      </div>
 
       <GameServerWarnings
         isTeleporting={isTeleporting}

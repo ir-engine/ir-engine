@@ -1,17 +1,16 @@
-import World, { EngineCallbacks } from '../../components/World'
-import React, { useState } from 'react'
-import Layout from '../../components/Layout/Layout'
-import { useTranslation } from 'react-i18next'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
-import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
-import RecordingApp from '../../components/Recorder/RecordingApp'
+import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
+import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
+import World, { EngineCallbacks } from '../../components/World'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -58,7 +57,7 @@ const LocationPage = (props) => {
         showTouchpad
       >
         <InteractableModal />
-        <RecordingApp />
+        {/* <RecordingApp /> */}
         <MediaIconsBox />
         <UserMenu />
         <EmoteMenu />

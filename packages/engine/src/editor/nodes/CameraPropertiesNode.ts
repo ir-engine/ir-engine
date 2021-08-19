@@ -1,4 +1,6 @@
 import { Object3D } from 'three'
+import { CameraMode } from '../../camera/types/CameraMode'
+import { ProjectionType } from '../../camera/types/ProjectionType'
 import EditorNodeMixin from './EditorNodeMixin'
 export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'cameraproperties'
@@ -16,19 +18,26 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
       startCameraDistance,
       minCameraDistance,
       cameraMode,
-      cameraModeDefault
+      cameraModeDefault,
+      startInFreeLook,
+      minPhi,
+      maxPhi,
+      startPhi
     } = json.components.find((c) => c.name === CameraPropertiesNode.legacyComponentName).props
     node.name = name
     node.fov = fov ?? 50
-    node.cameraNearClip = cameraNearClip ?? 0.1
+    node.cameraNearClip = cameraNearClip ?? 0.01
     node.cameraFarClip = cameraFarClip ?? 100
-    node.projectionType = projectionType
-    node.minCameraDistance = minCameraDistance ?? 6
-    node.maxCameraDistance = maxCameraDistance ?? 20
-    node.startCameraDistance = startCameraDistance ?? 12
-
-    node.cameraMode = cameraMode
-    node.cameraModeDefault = cameraModeDefault
+    node.projectionType = projectionType ?? ProjectionType.Perspective
+    node.minCameraDistance = minCameraDistance ?? 1
+    node.maxCameraDistance = maxCameraDistance ?? 50
+    node.cameraMode = cameraMode ?? CameraMode.Dynamic
+    node.cameraModeDefault = cameraModeDefault ?? CameraMode.ThirdPerson
+    node.startInFreeLook = startInFreeLook ?? false
+    node.startCameraDistance = startCameraDistance ?? 5
+    node.minPhi = minPhi ?? 0
+    node.maxPhi = maxPhi ?? 90
+    node.startPhi = startPhi ?? 10
     return node
   }
   constructor(editor) {
@@ -42,15 +51,19 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
     const components = {
       cameraproperties: {
         name: this.name,
-        fov: this.fov,
-        cameraNearClip: this.cameraNearClip,
-        cameraFarClip: this.cameraFarClip,
-        projectionType: this.projectionType,
-        minCameraDistance: this.minCameraDistance,
-        maxCameraDistance: this.maxCameraDistance,
-        startCameraDistance: this.startCameraDistance,
-        cameraMode: this.cameraMode,
-        cameraModeDefault: this.cameraModeDefault
+        fov: this.fov ?? 50,
+        cameraNearClip: this.cameraNearClip ?? 0.01,
+        cameraFarClip: this.cameraFarClip ?? 100,
+        projectionType: this.projectionType ?? ProjectionType.Perspective,
+        minCameraDistance: this.minCameraDistance ?? 1,
+        maxCameraDistance: this.maxCameraDistance ?? 50,
+        startCameraDistance: this.startCameraDistance ?? 5,
+        cameraMode: this.cameraMode ?? CameraMode.Dynamic,
+        cameraModeDefault: this.cameraModeDefault ?? CameraMode.ThirdPerson,
+        startInFreeLook: this.startInFreeLook ?? false,
+        minPhi: this.minPhi ?? 0,
+        maxPhi: this.maxPhi ?? 90,
+        startPhi: this.startPhi ?? 10
       }
     } as any
     return await super.serialize(projectID, components)
