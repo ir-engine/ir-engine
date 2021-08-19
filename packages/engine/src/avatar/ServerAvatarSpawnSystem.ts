@@ -80,7 +80,6 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
 
       Network.instance.worldState.createObjects.push({
         networkId,
-        ownerId: uniqueId,
         prefabType: PrefabType.Player,
         uniqueId,
         parameters: { position: transform.position, rotation: transform.rotation }

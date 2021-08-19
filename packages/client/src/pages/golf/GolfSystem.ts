@@ -24,26 +24,24 @@ import {
   spawnBall,
   updateBall
 } from './prefab/GolfBallPrefab'
-import { enableClub, initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
+import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { SpawnNetworkObjectComponent } from '@xrengine/engine/src/scene/components/SpawnNetworkObjectComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { setupPlayerInput } from './functions/setupPlayerInput'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
-import { getCurrentGolfPlayerEntity, getGolfPlayerNumber, isCurrentGolfPlayer } from './functions/golfFunctions'
+import { getCurrentGolfPlayerEntity, getGolfPlayerNumber, getPlayerEntityFromNumber } from './functions/golfFunctions'
 import { hitBall } from './functions/hitBall'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { getCollisions } from '@xrengine/engine/src/physics/functions/getCollisions'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
-import { Vector3 } from 'three'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { useState } from '@hookstate/core'
-import { createNetworkPlayerUI } from './GolfPlayerUISystem'
-import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { NetworkObjectComponentOwner } from '../../../../engine/src/networking/components/NetworkObjectComponentOwner'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -356,20 +354,18 @@ export const GolfSystem = async (): Promise<System> => {
 
     if (isClient) {
       for (const entity of golfClubQuery(world)) {
-        const { ownerId } = getComponent(entity, NetworkObjectComponent)
-        const ownerEntity = playerQuery(world).find((player) => {
-          return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
-        })
+        const { number } = getComponent(entity, GolfClubComponent)
+        const ownerEntity = getPlayerEntityFromNumber(number)
         // we only need to detect hits for our own club
         if (typeof ownerEntity !== 'undefined' && isEntityLocalClient(ownerEntity)) {
           updateClub(entity)
 
           if (getCurrentGolfPlayerEntity() === ownerEntity) {
-            const { uniqueId } = getComponent(ownerEntity, NetworkObjectComponent)
+            const { uniqueId, networkId } = getComponent(ownerEntity, NetworkObjectComponent)
             const currentPlayerNumber = GolfState.currentPlayer.value
             const entityBall = GolfObjectEntities.get(`GolfBall-${currentPlayerNumber}`)
 
-            if (entityBall && getComponent(entityBall, NetworkObjectComponent).ownerId === uniqueId) {
+            if (entityBall && getComponent(entityBall, NetworkObjectComponentOwner).networkId === networkId) {
               const { collisionEntity } = getCollisions(entity, GolfBallComponent)
               if (collisionEntity !== null && collisionEntity === entityBall) {
                 const golfBallComponent = getComponent(entityBall, GolfBallComponent)
@@ -385,17 +381,17 @@ export const GolfSystem = async (): Promise<System> => {
       }
     } else {
       for (const entity of playerEnterQueryResults) {
-        const { ownerId } = getComponent(entity, NetworkObjectComponent)
+        const { uniqueId } = getComponent(entity, NetworkObjectComponent)
 
         // Add a player to player list (start at hole 0, scores at 0 for all holes)
-        dispatchFromServer(GolfAction.playerJoined(ownerId))
+        dispatchFromServer(GolfAction.playerJoined(uniqueId))
       }
 
       for (const entity of playerExitQuery(world)) {
-        const { ownerId } = getComponent(entity, NetworkObjectComponent)
+        const { uniqueId } = getComponent(entity, NetworkObjectComponent)
         console.log('player leave???')
         // if a player disconnects and it's their turn, change turns to the next player
-        if (currentPlayer.id === ownerId) dispatchFromServer(GolfAction.nextTurn())
+        if (currentPlayer.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
       }
     }
 
@@ -459,17 +455,14 @@ export const GolfSystem = async (): Promise<System> => {
      * as there can be a race condition between the two
      */
     for (const entity of spawnGolfBallQuery(world)) {
-      const { ownerId } = getComponent(entity, NetworkObjectComponent)
-      const ownerEntity = playerQuery(world).find((player) => {
-        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
-      })
+      const { parameters } = getComponent(entity, SpawnNetworkObjectComponent)
+      const ownerEntity = getPlayerEntityFromNumber(parameters.playerNumber)
       if (typeof ownerEntity !== 'undefined') {
-        const playerNumber = getGolfPlayerNumber(ownerEntity)
-        if (typeof playerNumber !== 'undefined') {
+        if (typeof parameters.playerNumber !== 'undefined') {
           const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
           // removeComponent(entity, GolfBallTagComponent)
-          initializeGolfBall(entity, playerNumber, ownerEntity, parameters)
-          if (GolfState.currentPlayer.value === playerNumber) {
+          initializeGolfBall(entity, ownerEntity, parameters)
+          if (GolfState.currentPlayer.value === parameters.playerNumber) {
             setBallState(entity, BALL_STATES.WAITING)
           } else {
             setBallState(entity, BALL_STATES.INACTIVE)
@@ -479,19 +472,16 @@ export const GolfSystem = async (): Promise<System> => {
     }
 
     for (const entity of spawnGolfClubQuery(world)) {
-      const { ownerId } = getComponent(entity, NetworkObjectComponent)
-      const ownerEntity = playerQuery(world).find((player) => {
-        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
-      })
+      const { parameters } = getComponent(entity, SpawnNetworkObjectComponent)
+      const ownerEntity = getPlayerEntityFromNumber(parameters.playerNumber)
       if (typeof ownerEntity !== 'undefined') {
-        const playerNumber = getGolfPlayerNumber(ownerEntity)
-        if (typeof playerNumber !== 'undefined') {
-          removeComponent(entity, SpawnNetworkObjectComponent)
+        if (typeof parameters.playerNumber !== 'undefined') {
+          const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
           // removeComponent(entity, GolfClubTagComponent)
-          initializeGolfClub(entity, playerNumber, ownerEntity)
+          initializeGolfClub(entity, ownerEntity, parameters)
           if (isEntityLocalClient(ownerEntity)) {
             console.log('i am ready')
-            dispatchFromClient(GolfAction.playerReady(GolfState.players.value[playerNumber].id))
+            dispatchFromClient(GolfAction.playerReady(GolfState.players.value[parameters.playerNumber].id))
           }
         }
       }
