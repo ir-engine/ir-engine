@@ -1,7 +1,8 @@
 import { Feature } from 'geojson'
 
-export type ILayerName = 'building' | 'road'
 export interface TileFeaturesByLayer {
   building: Feature[]
   road: Feature[]
+  water: Feature[]
 }
+export type ILayerName = keyof TileFeaturesByLayer

@@ -1,11 +1,10 @@
-import { ILayerName, TileFeaturesByLayer } from './types'
+import { TileFeaturesByLayer } from './types'
 import { VectorTile } from '@mapbox/vector-tile'
 import { Feature, Position } from 'geojson'
 import { Config } from '@xrengine/client-core/src/helper'
 import { vectors } from './vectors'
 
 const TILE_ZOOM = 16
-const LAYERS: ILayerName[] = ['building', 'road']
 export const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
@@ -25,13 +24,15 @@ function lat2tile(lat: number, zoom: number) {
 
 /**
  * Return the features we care about from a tiles
+ * Full list of layers with explanations: https://docs.mapbox.com/vector-tiles/reference/mapbox-streets-v8/
  */
 function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFeaturesByLayer {
   const result: TileFeaturesByLayer = {
     building: [],
-    road: []
+    road: [],
+    water: []
   }
-  LAYERS.forEach((layerName) => {
+  Object.keys(result).forEach((layerName) => {
     const vectorLayer = tile.layers[layerName]
 
     if (!vectorLayer) return

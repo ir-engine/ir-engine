@@ -341,16 +341,29 @@ export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Po
   return meshes[0]
 }
 
+function createLayerGroup(
+  layers: ILayerName[],
+  vectorTiles: TileFeaturesByLayer[],
+  llCenter: Position,
+  renderer: WebGLRenderer
+): Group {
+  const meshes = layers.reduce((accMeshes, layerName) => {
+    const featuresInLayer = vectorTiles.reduce((accFeatures, tile) => {
+      return [...accFeatures, ...tile[layerName]]
+    }, [])
+
+    const meshes = buildMeshes(layerName, featuresInLayer, llCenter, renderer)
+    return [...accMeshes, ...meshes]
+  }, [])
+  return new Group().add(...meshes)
+}
+
 export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  const group = new Group()
-  const features = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
-  const objects3d = buildMeshes('road', features, llCenter, renderer)
+  return createLayerGroup(['road'], vectorTiles, llCenter, renderer)
+}
 
-  objects3d.forEach((o) => {
-    group.add(o)
-  })
-
-  return group
+export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
+  return createLayerGroup(['water'], vectorTiles, llCenter, renderer)
 }
 
 /** Workaround for until we get the Web Mercator projection math right so that the ground and building meshes line up */

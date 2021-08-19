@@ -206,6 +206,12 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
     }
   },
 
+  water: {
+    color: {
+      constant: 0x0044ee
+    }
+  },
+
   poi: {
     color: {
       constant: 0xff0000
