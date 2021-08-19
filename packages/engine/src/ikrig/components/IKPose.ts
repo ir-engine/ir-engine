@@ -9,7 +9,7 @@ type IKPoseComponentType = {
   axis: Axis // Axis of rotation toward the end position
   length: number
 
-  targetRigs: IKRig[]
+  targetRigs: ReturnType<typeof IKRig.get>[]
 
   spineParentQuaternion: Quaternion
   spineParentPosition: Vector3

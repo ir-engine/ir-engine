@@ -34,7 +34,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     }
     return node
   }
-  _canonicalUrl = ''
+  src = ''
   autoPlay = true
   volume = 0.5
   controls = true
@@ -43,30 +43,20 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   synchronize = 0
   constructor(editor) {
     super(editor, editor.audioListener)
+    this.src = 'hello'
   }
-  get src(): string {
-    return this._canonicalUrl
-  }
-  set src(value) {
-    this.load(value).catch(console.error)
-  }
-  async load(src, onError?) {
-    const nextSrc = src || ''
-    if (nextSrc === this._canonicalUrl && nextSrc !== '') {
-      return
-    }
-    this._canonicalUrl = src || ''
+  async load(onError?) {
     this.issues = []
     this.hideErrorIcon()
     if (this.editor.playing) {
       ;(this.el as any).pause()
     }
-    if (!this._canonicalUrl || this._canonicalUrl === '') {
-      return
-    }
+    // if (!this.src || this.src === '') {
+    //   return
+    // }
     try {
-      const { url, contentType } = await this.editor.api.resolveMedia(src)
-      const isHls = isHLS(src, contentType)
+      const { url, contentType } = await this.editor.api.resolveMedia(this.src)
+      const isHls = isHLS(this.src, contentType)
       if (isHls) {
         // this.hls = new Hls({
         //   xhrSetup: (xhr, url) => {
@@ -75,7 +65,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
         // });
         this.hls = new Hls()
       }
-      super.load(src, contentType)
+      super.load(this.src, contentType)
       if (isHls && this.hls) {
         this.hls.stopLoad()
       } else if ((this.el as any).duration) {
@@ -88,7 +78,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     } catch (error) {
       this.showErrorIcon()
       // const videoError = new RethrownError(
-      //   `Error loading video ${this._canonicalUrl}`,
+      //   `Error loading video ${this.src}`,
       //   error
       // );
       // if (onError) {
@@ -101,6 +91,9 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.editor.emit('selectionChanged')
     // this.hideLoadingCube();
     return this
+  }
+  onChange() {
+    this.load(this.src)
   }
   onPlay(): void {
     if (this.autoPlay) {
@@ -117,13 +110,13 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   copy(source, recursive = true): any {
     super.copy(source, recursive)
     this.controls = source.controls
-    this._canonicalUrl = source._canonicalUrl
+    this.src = source.src
     return this
   }
   async serialize(projectID) {
     return await super.serialize(projectID, {
       video: {
-        src: this._canonicalUrl,
+        src: this.src,
         interactable: this.interactable,
         isLivestream: this.isLivestream,
         controls: this.controls,
@@ -147,7 +140,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   prepareForExport(): void {
     super.prepareForExport()
     this.addGLTFComponent('video', {
-      src: this._canonicalUrl,
+      src: this.src,
       interactable: this.interactable,
       isLivestream: this.isLivestream,
       controls: this.controls,

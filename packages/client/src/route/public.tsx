@@ -61,6 +61,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             component={React.lazy(() => import('../pages/examples/NavMeshBuilder'))}
           />
           <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
+          <Route path="/map-test" component={React.lazy(() => import('../pages/examples/map-test'))} />
 
           {/* Auth Routes */}
           <Route path="/auth/oauth/facebook" component={React.lazy(() => import('../pages/auth/oauth/facebook'))} />

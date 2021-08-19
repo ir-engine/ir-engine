@@ -1,4 +1,12 @@
-import { DirectionalLight, LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping, Vector3 } from 'three'
+import {
+  DirectionalLight,
+  LinearToneMapping,
+  PCFSoftShadowMap,
+  PerspectiveCamera,
+  ShadowMapType,
+  ToneMapping,
+  Vector3
+} from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
 import { Engine } from '../../ecs/classes/Engine'
@@ -30,7 +38,7 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
   if (Engine.isHMD || Engine.csm) return
 
   const csm = new CSM({
-    camera: Engine.camera,
+    camera: Engine.camera as PerspectiveCamera,
     parent: Engine.scene,
     lights: directionalLights
   })

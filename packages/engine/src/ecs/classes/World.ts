@@ -1,4 +1,4 @@
-import { createWorld, IWorld } from '../../ecs/bitecs'
+import { createWorld } from '../../ecs/bitecs'
 import { Entity } from './Entity'
 
 export type PipelineType = (world: ECSWorld) => ECSWorld
@@ -9,7 +9,7 @@ export interface EnginePipelines {
   [x: string]: PipelineType
 }
 
-export interface ECSWorld extends IWorld {
+export interface ECSWorld {
   _removedComponents: Map<Entity, any>
   delta: number
   time: number

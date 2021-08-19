@@ -265,12 +265,10 @@ export function Timer(
   }
 
   function clear() {
-    cancelAnimationFrame(frameId)
+    stop()
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_START)
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_SESSION)
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_END)
-    delete this.fixedRunner
-    delete this.networkRunner
   }
 
   return {

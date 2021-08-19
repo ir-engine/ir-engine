@@ -151,7 +151,7 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
-          const ballEntity = GolfEntities.get(`golfball-${playerNumber}`)
+          const ballEntity = getBall(world, playerNumber)
           const collider = getComponent(ballEntity, ColliderComponent)
           const velocity = getComponent(ballEntity, VelocityComponent)
           velocity.velocity.set(0, 0, 0)

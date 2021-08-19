@@ -4,7 +4,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../components/NameComponent'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
@@ -42,6 +42,7 @@ import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -202,7 +203,7 @@ export class WorldScene {
         break
 
       case 'map':
-        if (isClient) createMap(entity, component.data)
+        if (isClient) this.loaders.push(createMap(entity, component.data))
         break
 
       case 'audio':
@@ -262,6 +263,11 @@ export class WorldScene {
         })
         break
 
+      case 'collider': {
+        // TODO
+        break
+      }
+
       case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
         const transform = getComponent(entity, TransformComponent)
@@ -275,8 +281,18 @@ export class WorldScene {
           },
           transform.position,
           transform.rotation,
-          transform.scale.clone().multiplyScalar(0.5)
+          transform.scale // convert from half extents to full extents
         )
+        if (
+          boxColliderProps.removeMesh === 'true' ||
+          (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)
+        ) {
+          const obj = getComponent(entity, Object3DComponent)
+          if (obj?.value) {
+            if (obj.value.parent) obj.value.removeFromParent()
+            removeComponent(entity, Object3DComponent)
+          }
+        }
         break
       }
 

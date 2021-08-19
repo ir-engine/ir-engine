@@ -1,9 +1,9 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from 'three'
-import { Component } from '../../ecs/classes/Component'
+// import { Component } from '../../ecs/classes/Component'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
-import IKObj from './IKObj'
-
+// import IKObj from './IKObj'
+/*
 class PointsComponent extends Component<PointsComponent> {
   cnt = 0
   use_size = 10
@@ -187,3 +187,4 @@ function gl_color(hex, out = null) {
 }
 
 export default PointsComponent
+*/

@@ -1,12 +1,12 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, LineSegments, RawShaderMaterial } from 'three'
-import { Component } from '../../ecs/classes/Component'
+// import { Component } from '../../ecs/classes/Component'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import IKObj from './IKObj'
+// import IKObj from './IKObj'
 
 const DASH_SEG = 1 / 0.07
 const DASH_DIV = 0.4
-
+/*
 class Lines extends Component<Lines> {
   cnt = 0
   buf_pos: BufferAttribute
@@ -141,3 +141,4 @@ function gl_color(hex, out = null) {
 }
 
 export default Lines
+*/

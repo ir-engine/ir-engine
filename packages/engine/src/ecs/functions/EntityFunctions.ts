@@ -4,7 +4,7 @@ import {
   hasComponent as _hasComponent,
   removeEntity as _removeEntity,
   defineComponent,
-  ComponentType,
+  ComponentType as _ComponentType,
   ISchema,
   Type,
   addEntity,
@@ -93,7 +93,7 @@ export type SoAProxy<S extends ISchema> = {
     : unknown
 }
 
-export type MappedComponent<T, S extends ISchema> = ComponentType<S> & {
+export type MappedComponent<T, S extends ISchema> = _ComponentType<S> & {
   get: (entity: number) => T & SoAProxy<S>
   set: (entity: number, value: T) => void
   delete: (entity: number) => void
@@ -112,6 +112,7 @@ export const removeEntity = (entity: Entity, world = World.defaultWorld.ecsWorld
 }
 
 export type ComponentConstructor<T, S extends ISchema> = MappedComponent<T, S>
+export type ComponentType<C extends MappedComponent<any, any>> = ReturnType<C['get']>
 
 export const getComponent = <T extends any, S extends ISchema>(
   entity: Entity,
