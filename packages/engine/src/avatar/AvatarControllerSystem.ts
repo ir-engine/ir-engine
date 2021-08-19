@@ -138,7 +138,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       moveAvatar(entity, delta)
 
-      detectUserInPortal(entity)
+      detectUserInTrigger(entity)
     }
 
     for (const entity of raycastQuery(world)) {
