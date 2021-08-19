@@ -17,11 +17,12 @@ import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
-import { getOwnerIdPlayerNumber } from '../functions/golfFunctions'
+import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import { getTee, GolfState } from '../GolfSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ECSWorld } from '../../../../../engine/src/ecs/classes/World'
+import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
+import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -45,8 +46,7 @@ interface BallGroupType extends Group {
 
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  const playerNumber = getOwnerIdPlayerNumber(getComponent(entityBall, NetworkObjectComponent).ownerId)
-  console.log('setBallState', playerNumber, Object.values(BALL_STATES)[ballState])
+  console.log('setBallState', golfBallComponent.number, Object.values(BALL_STATES)[ballState])
   golfBallComponent.state = ballState
 
   if (isClient) {
@@ -59,7 +59,7 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
         })
         // hide ball
         ballGroup.quaternion.identity()
-        if (GolfState.players.value[playerNumber].stroke === 0) {
+        if (GolfState.players.value[golfBallComponent.number].stroke === 0) {
           ballGroup.visible = false
         }
         ballGroup.userData.trailObject.visible = false
@@ -114,22 +114,16 @@ export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHo
 
   const parameters: GolfBallSpawnParameters = {
     spawnPosition: new Vector3().copy(teeTransform.position),
-    ownerNetworkId: playerNetworkObject.networkId
+    ownerNetworkId: playerNetworkObject.networkId,
+    playerNumber: getGolfPlayerNumber(entityPlayer)
   }
 
   // this spawns the ball on the server
-  spawnPrefab(
-    GolfPrefabTypes.Ball,
-    playerNetworkObject.ownerId, // the uuid of the player whose ball this is
-    uuid,
-    networkId,
-    parameters
-  )
+  spawnPrefab(GolfPrefabTypes.Ball, uuid, networkId, parameters)
 
   // this sends the ball to the clients
   Network.instance.worldState.createObjects.push({
     networkId,
-    ownerId: playerNetworkObject.ownerId,
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Ball,
     parameters
@@ -209,16 +203,13 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
 type GolfBallSpawnParameters = {
   spawnPosition: Vector3
   ownerNetworkId: number
+  playerNumber: number
 }
 
-export const initializeGolfBall = (
-  ballEntity: Entity,
-  playerNumber: number,
-  ownerEntity: Entity,
-  parameters: GolfBallSpawnParameters
-) => {
-  console.log('initializeGolfBall', ballEntity, playerNumber, ownerEntity, parameters)
-  const { spawnPosition } = parameters
+export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, parameters: GolfBallSpawnParameters) => {
+  console.log('initializeGolfBall', ballEntity, ownerEntity, parameters)
+  const { spawnPosition, playerNumber } = parameters
+  const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
 
   const transform = addComponent(ballEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
@@ -227,8 +218,7 @@ export const initializeGolfBall = (
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
   addComponent(ballEntity, NameComponent, { name: `GolfBall-${playerNumber}` })
-
-  const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
+  addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
@@ -289,7 +279,12 @@ export const initializeGolfBall = (
     })
   )
 
-  addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast, state: BALL_STATES.INACTIVE })
+  addComponent(ballEntity, GolfBallComponent, {
+    groundRaycast,
+    wallRaycast,
+    state: BALL_STATES.INACTIVE,
+    number: playerNumber
+  })
   if (!isClient || isMyBall) {
     addComponent(ballEntity, ClientAuthoritativeComponent, { ownerNetworkId })
   }

@@ -43,6 +43,7 @@ import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { UserdataComponent } from '../components/UserdataComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -138,6 +139,10 @@ export class WorldScene {
             console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
           }
         }
+        break
+
+      case 'userdata':
+        addComponent(entity, UserdataComponent, { data: component.data })
         break
 
       case 'ambient-light':

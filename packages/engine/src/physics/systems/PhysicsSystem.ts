@@ -82,7 +82,6 @@ export const PhysicsSystem = async (
       } else {
         Network.instance.worldState.createObjects.push({
           networkId: networkId,
-          ownerId: uniqueId,
           prefabType: PrefabType.RigidBody,
           uniqueId,
           parameters: parameters
