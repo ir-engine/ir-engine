@@ -66,19 +66,19 @@ export function getPlayerNumber() {
 }
 
 export function getTeePosition() {
-  const teeEntity = GolfObjectEntities.get(`golftee-${GolfState.currentHole.value}`)
+  const teeEntity = GolfObjectEntities.get(`GolfTee-${GolfState.currentHole.value}`)
   const teeTransform = getComponent(teeEntity, TransformComponent)
   return teeTransform.position
 }
 
 export function getHolePosition() {
-  const holeEntity = GolfObjectEntities.get(`golfhole-${GolfState.currentHole.value}`)
+  const holeEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
   const holeTransform = getComponent(holeEntity, TransformComponent)
   return holeTransform.position
 }
 
 export function getBallPosition() {
-  const ballEntity = GolfObjectEntities.get(`golfball-${GolfState.currentPlayer.value}`)
+  const ballEntity = GolfObjectEntities.get(`GolfBall-${GolfState.currentPlayer.value}`)
   const ballTransform = getComponent(ballEntity, TransformComponent)
   return ballTransform.position
 }
