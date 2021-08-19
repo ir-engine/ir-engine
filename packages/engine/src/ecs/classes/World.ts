@@ -1,4 +1,5 @@
 import { createWorld } from '../../ecs/bitecs'
+import { createEntity } from '../functions/EntityFunctions'
 import { Entity } from './Entity'
 
 export type PipelineType = (world: ECSWorld) => ECSWorld
@@ -33,9 +34,10 @@ export class World {
     World.worlds.set(worldIds++, this)
     this.ecsWorld = createWorld() as ECSWorld
     this.ecsWorld._removedComponents = new Map()
-    this.entities = []
     this.ecsWorld.world = this
     this.portalEntities = []
     this.namedEntities = new Map()
+    this.entities = []
+    createEntity(this.ecsWorld) // make sure we have no eid 0; also, world entity?
   }
 }
