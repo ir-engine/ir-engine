@@ -43,7 +43,6 @@ export const testWorldState = {
           w: 0.3826834323650898
         }
       },
-      ownerId: testUserId,
       uniqueId: testUserId
     }
   ],

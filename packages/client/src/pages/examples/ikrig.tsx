@@ -24,10 +24,11 @@ import {
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
-import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
+import Debug from '../../../components/Debug'
+import { defineQuery, defineSystem, System } from '../../../../../engine/src/ecs/bitecs'
+import { ECSWorld, World } from '../../../../../engine/src/ecs/classes/World'
+import { Timer } from '../../../../../engine/src/common/functions/Timer'
+import { setReference } from '../../../../../engine/src/ikrig/functions/RigFunctions'
 
 const AnimationSystem = async (): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
@@ -128,8 +129,7 @@ const Page = () => {
       rig.sourcePose = getComponent(sourceEntity, IKPose)
 
       setReference(sourceEntity, skinnedMesh)
-      // TODO: this was clips[3], but that was invalid
-      ac.mixer.clipAction(model.animations[3]).play()
+      ac.mixer.clipAction(clips[3]).play()
 
       // Set up poses
       rig.pose = new Pose(sourceEntity, false)
@@ -218,7 +218,7 @@ const Page = () => {
     })()
   }, [])
   // Some JSX to keep the compiler from complaining
-  return <></>
+  return <Debug />
 }
 
 export default Page
@@ -232,7 +232,7 @@ async function initThree() {
     h = window.innerHeight
 
   let ctx = canvas.getContext('webgl2') //, { alpha: false }
-  Engine.renderer = new WebGLRenderer({ canvas: canvas, antialias: true })
+  Engine.renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
 
   Engine.renderer.setClearColor(0x3a3a3a, 1)
   Engine.renderer.setSize(w, h)

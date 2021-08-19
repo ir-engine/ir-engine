@@ -23,13 +23,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       (async () => {
         const { src, envMapOverride, textureOverride } = json.components.find((c) => c.name === 'gltf-model').props
 
-        const gameObject = json.components.find((c) => c.name === 'game-object')
-
-        if (gameObject) {
-          node.target = gameObject.props.target
-          node.role = gameObject.props.role
-        }
-
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
         if (textureOverride)
@@ -85,7 +78,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   envMapOverride = ''
   textureOverride = ''
   collidable = true
-  target = null
   walkable = true
   initialScale: string | number = 1
   boundingBox = new Box3()
@@ -263,14 +255,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
     }
 
-    if (this.interactionType === 'gameobject') {
-      components['game-object'] = {
-        gameName: this.editor.nodes.find((node) => node.uuid === this.target).name,
-        role: this.role,
-        target: this.target
-      }
-    }
-
     if (this.activeClipIndex !== -1) {
       components['loop-animation'] = {
         activeClipIndex: this.activeClipIndex,
@@ -296,7 +280,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this._canonicalUrl = source._canonicalUrl
       this.envMapOverride = source.envMapOverride
     }
-    this.target = source.target
     this.collidable = source.collidable
     this.textureOverride = source.textureOverride
     this.walkable = source.walkable

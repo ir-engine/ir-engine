@@ -35,12 +35,12 @@ export const TYPES = {
 }
 
 const UNSIGNED_MAX = {
-  uint8: 2**8,
-  uint16: 2**16,
-  uint32: 2**32
+  uint8: 2 ** 8,
+  uint16: 2 ** 16,
+  uint32: 2 ** 32
 }
 
-const roundToMultiple4 = x => Math.ceil(x / 4) * 4
+const roundToMultiple4 = (x) => Math.ceil(x / 4) * 4
 
 export const $storeRef = Symbol('storeRef')
 export const $storeSize = Symbol('storeSize')
@@ -76,13 +76,13 @@ export const resize = (ta, size) => {
 export const createShadow = (store, key) => {
   if (!ArrayBuffer.isView(store)) {
     const shadowStore = store[$parentArray].slice(0).fill(0)
-    store[key] = store.map((_,eid) => {
+    store[key] = store.map((_, eid) => {
       const from = store[eid][$subarrayFrom]
       const to = store[eid][$subarrayTo]
       return shadowStore.subarray(from, to)
     })
   } else {
-    store[key] = store.slice(0).fill(0)
+    store[key] = (store as any).slice(0).fill(0)
   }
 }
 
@@ -90,16 +90,13 @@ const resizeSubarray = (metadata, store, size) => {
   const cursors = metadata[$subarrayCursors]
   const type = store[$storeType]
   const length = store[0].length
-  const indexType =
-    length <= UNSIGNED_MAX.uint8
-      ? 'ui8'
-      : length <= UNSIGNED_MAX.uint16
-        ? 'ui16'
-        : 'ui32'
+  const indexType = length <= UNSIGNED_MAX.uint8 ? 'ui8' : length <= UNSIGNED_MAX.uint16 ? 'ui16' : 'ui32'
 
   const arrayCount = metadata[$storeArrayCounts][type]
-  const summedLength = Array(arrayCount).fill(0).reduce((a, p) => a + length, 0)
-  
+  const summedLength = Array(arrayCount)
+    .fill(0)
+    .reduce((a, p) => a + length, 0)
+
   // // for threaded impl
   // // const summedBytesPerElement = Array(arrayCount).fill(0).reduce((a, p) => a + TYPES[type].BYTES_PER_ELEMENT, 0)
   // // const totalBytes = roundToMultiple4(summedBytesPerElement * summedLength * size)
@@ -110,9 +107,9 @@ const resizeSubarray = (metadata, store, size) => {
   console.log(array.length, metadata[$storeSubarrays][type].length, type)
 
   array.set(metadata[$storeSubarrays][type])
-  
+
   metadata[$storeSubarrays][type] = array
-  
+
   array[$indexType] = TYPES_NAMES[indexType]
   array[$indexBytes] = TYPES[indexType].BYTES_PER_ELEMENT
 
@@ -139,17 +136,17 @@ const resizeSubarray = (metadata, store, size) => {
   const start = cursors[type]
   let end = 0
   for (let eid = 0; eid < size; eid++) {
-    const from = cursors[type] + (eid * length)
+    const from = cursors[type] + eid * length
     const to = from + length
 
     store[eid] = metadata[$storeSubarrays][type].subarray(from, to)
-    
+
     store[eid][$subarrayFrom] = from
     store[eid][$subarrayTo] = to
     store[eid][$subarray] = true
     store[eid][$indexType] = TYPES_NAMES[indexType]
     store[eid][$indexBytes] = TYPES[indexType].BYTES_PER_ELEMENT
-    
+
     end = to
   }
 
@@ -159,7 +156,7 @@ const resizeSubarray = (metadata, store, size) => {
 }
 
 const resizeRecursive = (metadata, store, size) => {
-  Object.keys(store).forEach(key => {
+  Object.keys(store).forEach((key) => {
     const ta = store[key]
     if (Array.isArray(ta)) {
       // store[$storeSubarrays] = {}
@@ -179,18 +176,18 @@ export const resizeStore = (store, size) => {
   if (store[$tagStore]) return
   store[$storeSize] = size
   store[$storeFlattened].length = 0
-  Object.keys(store[$subarrayCursors]).forEach(k => {
+  Object.keys(store[$subarrayCursors]).forEach((k) => {
     store[$subarrayCursors][k] = 0
   })
   resizeRecursive(store, store, size)
 }
 
-export const resetStore = store => {
+export const resetStore = (store) => {
   if (store[$storeFlattened]) {
-    store[$storeFlattened].forEach(ta => {
+    store[$storeFlattened].forEach((ta) => {
       ta.fill(0)
     })
-    Object.keys(store[$storeSubarrays]).forEach(key => {
+    Object.keys(store[$storeSubarrays]).forEach((key) => {
       store[$storeSubarrays][key].fill(0)
     })
   }
@@ -198,7 +195,7 @@ export const resetStore = store => {
 
 export const resetStoreFor = (store, eid) => {
   if (store[$storeFlattened]) {
-    store[$storeFlattened].forEach(ta => {
+    store[$storeFlattened].forEach((ta) => {
       if (ArrayBuffer.isView(ta)) ta[eid] = 0
       else ta[eid].fill(0)
     })
@@ -211,7 +208,7 @@ const createTypeStore = (type, length) => {
   return new TYPES[type](buffer)
 }
 
-export const parentArray = store => store[$parentArray]
+export const parentArray = (store) => store[$parentArray]
 
 const createArrayStore = (metadata, type, length) => {
   const size = metadata[$storeSize]
@@ -219,12 +216,7 @@ const createArrayStore = (metadata, type, length) => {
   store[$storeType] = type
 
   const cursors = metadata[$subarrayCursors]
-  const indexType =
-    length < UNSIGNED_MAX.uint8
-      ? 'ui8'
-      : length < UNSIGNED_MAX.uint16
-        ? 'ui16'
-        : 'ui32'
+  const indexType = length < UNSIGNED_MAX.uint8 ? 'ui8' : length < UNSIGNED_MAX.uint16 ? 'ui16' : 'ui32'
 
   if (!length) throw new Error('bitECS - Must define component array length')
   if (!TYPES[type]) throw new Error(`bitECS - Invalid component array property type ${type}`)
@@ -232,8 +224,10 @@ const createArrayStore = (metadata, type, length) => {
   // create buffer for type if it does not already exist
   if (!metadata[$storeSubarrays][type]) {
     const arrayCount = metadata[$storeArrayCounts][type]
-    const summedLength = Array(arrayCount).fill(0).reduce((a, p) => a + length, 0)
-    
+    const summedLength = Array(arrayCount)
+      .fill(0)
+      .reduce((a, p) => a + length, 0)
+
     // for threaded impl
     // const summedBytesPerElement = Array(arrayCount).fill(0).reduce((a, p) => a + TYPES[type].BYTES_PER_ELEMENT, 0)
     // const totalBytes = roundToMultiple4(summedBytesPerElement * summedLength * size)
@@ -244,7 +238,7 @@ const createArrayStore = (metadata, type, length) => {
     // console.log(`array of type ${type} has size of ${array.length}`)
 
     metadata[$storeSubarrays][type] = array
-    
+
     array[$indexType] = TYPES_NAMES[indexType]
     array[$indexBytes] = TYPES[indexType].BYTES_PER_ELEMENT
   }
@@ -253,17 +247,17 @@ const createArrayStore = (metadata, type, length) => {
   const start = cursors[type]
   let end = 0
   for (let eid = 0; eid < size; eid++) {
-    const from = cursors[type] + (eid * length)
+    const from = cursors[type] + eid * length
     const to = from + length
 
     store[eid] = metadata[$storeSubarrays][type].subarray(from, to)
-    
+
     store[eid][$subarrayFrom] = from
     store[eid][$subarrayTo] = to
     store[eid][$subarray] = true
     store[eid][$indexType] = TYPES_NAMES[indexType]
     store[eid][$indexBytes] = TYPES[indexType].BYTES_PER_ELEMENT
-    
+
     end = to
   }
 
@@ -274,7 +268,7 @@ const createArrayStore = (metadata, type, length) => {
   return store
 }
 
-const isArrayType = x => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'number'
+const isArrayType = (x) => Array.isArray(x) && typeof x[0] === 'string' && typeof x[1] === 'number'
 
 export const createStore = (schema, size) => {
   const $store = Symbol('store')
@@ -292,7 +286,7 @@ export const createStore = (schema, size) => {
   schema = JSON.parse(JSON.stringify(schema))
 
   const arrayCounts = {}
-  const collectArrayCounts = s => {
+  const collectArrayCounts = (s) => {
     const keys = Object.keys(s)
     for (const k of keys) {
       if (isArrayType(s[k])) {
@@ -316,28 +310,20 @@ export const createStore = (schema, size) => {
   }
 
   if (schema instanceof Object && Object.keys(schema).length) {
-
     const recursiveTransform = (a, k) => {
-
       if (typeof a[k] === 'string') {
-
         a[k] = createTypeStore(a[k], size)
         a[k][$storeBase] = () => stores[$store]
         metadata[$storeFlattened].push(a[k])
-
       } else if (isArrayType(a[k])) {
-        
         const [type, length] = a[k]
         a[k] = createArrayStore(metadata, type, length)
         a[k][$storeBase] = () => stores[$store]
         metadata[$storeFlattened].push(a[k])
         // Object.seal(a[k])
-
       } else if (a[k] instanceof Object) {
-        
         a[k] = Object.keys(a[k]).reduce(recursiveTransform, a[k])
         // Object.seal(a[k])
-        
       }
 
       return a
@@ -349,7 +335,6 @@ export const createStore = (schema, size) => {
     // Object.seal(stores[$store])
 
     return stores[$store]
-
   }
 }
 

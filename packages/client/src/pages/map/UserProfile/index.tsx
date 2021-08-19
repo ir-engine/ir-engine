@@ -5,6 +5,7 @@ import CardContent from '@material-ui/core/CardContent'
 import TextField from '@material-ui/core/TextField'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
+import { NavigateNext, NavigateBefore } from '@material-ui/icons'
 import Fab from '@material-ui/core/Fab'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
@@ -25,8 +26,8 @@ interface Props {
   currentScene?: any
   showUserProfile?: any
   authState?: any
-  fetchAvatars: any
-  isUserProfileShowing?: Function
+  fetchAvatars?: any
+  isUserProfileShowing?: any
   showHideProfile?: Function
 }
 
@@ -58,6 +59,9 @@ const UserProfileScreen = (props: Props) => {
   const userNameRef = React.useRef<HTMLInputElement>()
   const [searchCursorPosition, setSearchCursorPosition] = React.useState(0)
   const [isAvatarLoaded, setAvatarLoaded] = useState(false)
+  const [page, setPage] = useState(0)
+  const imgPerPage = 8
+  const [selectedAvatarId, setSelectedAvatarId] = useState('')
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name)
@@ -67,9 +71,30 @@ const UserProfileScreen = (props: Props) => {
     fetchAvatars()
   }, [isAvatarLoaded])
 
-  const updateUserName = (e) => {
+  useEffect(() => {
+    if (page * imgPerPage >= avatarList.length) {
+      setPage(page - 1)
+    }
+  }, [avatarList])
+
+  const loadNextAvatars = (e) => {
     e.preventDefault()
-    handleUpdateUsername()
+    if ((page + 1) * imgPerPage >= avatarList.length) return
+    setPage(page + 1)
+  }
+  const loadPreviousAvatars = (e) => {
+    e.preventDefault()
+    if (page === 0) return
+    setPage(page - 1)
+  }
+
+  const selectAvatar = (avatarResources: any) => {
+    const avatar = avatarResources.avatar
+
+    setSelectedAvatarId(avatar.name)
+    if (selfUser.avatarId !== avatar.name) {
+      updateUserAvatarId(selfUser.id, avatar.name, avatar.url, avatarResources['user-thumbnail'].url)
+    }
   }
 
   const handleUsernameChange = (e) => {
@@ -98,6 +123,10 @@ const UserProfileScreen = (props: Props) => {
     if (isEditProfile) {
       //save edit profile detail
       setEditProfile(false)
+
+      if (isProfileEdited) {
+        handleUpdateUsername()
+      }
       setProfileEdited(false)
     } else {
       setEditProfile(true)
@@ -111,17 +140,14 @@ const UserProfileScreen = (props: Props) => {
   const renderAvatarList = () => {
     const avatarListData = []
     if (avatarList != undefined) {
-      var avatarLimit = 8
+      const startIndex = page * imgPerPage
+      const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
 
-      if (avatarList.length < avatarLimit) {
-        avatarLimit = avatarList.length
-      }
-
-      for (let i = 0; i < avatarLimit; i++) {
+      for (let i = startIndex; i < endIndex; i++) {
         try {
           const characterAvatar = avatarList[i]
           avatarListData.push(
-            <Card className={styles.profileImage}>
+            <Card key={`avatar_${i}`} className={styles.profileImage} onClick={() => selectAvatar(characterAvatar)}>
               <LazyImage
                 key={characterAvatar.avatar.id}
                 src={characterAvatar['user-thumbnail'].url}
@@ -132,17 +158,51 @@ const UserProfileScreen = (props: Props) => {
         } catch (e) {}
       }
     }
-    return <div className={styles.profileImages}>{avatarListData}</div>
+    return (
+      <div>
+        <div className={styles.profileImages}>{avatarListData}</div>
+        <div className={styles.avatarPagination}>
+          <button
+            type="button"
+            key={'loadPreviousAvatars'}
+            className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`}
+            onClick={loadPreviousAvatars}
+          >
+            <NavigateBefore />
+          </button>
+          <button
+            type="button"
+            key={'loadNextAvatars'}
+            className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= avatarList.length ? styles.disabled : ''}`}
+            onClick={loadNextAvatars}
+          >
+            <NavigateNext />
+          </button>
+        </div>
+      </div>
+    )
   }
 
-  if (isUserProfileShowing === false) return null
   return (
     <div>
-      <section className={styles.blockbg}>
+      <section className={`${styles.blockbg} ${isUserProfileShowing === false ? styles.hideProfile : ''}`}>
         <div className={styles.avatarBlock}>
           <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id)} />
-          <div className={styles.avatarBtn} onClick={handleEditProfile}>
-            {!isEditProfile ? <EditPencil /> : isProfileEdited ? <SaveEnable /> : <SaveDisable />}
+          <div
+            className={`${styles.avatarBtn} ${
+              !isEditProfile ? styles.editBtn : isProfileEdited ? styles.enableBtn : styles.disableBtn
+            }`}
+            onClick={handleEditProfile}
+          >
+            <img
+              src={
+                !isEditProfile
+                  ? '/static/edit.png'
+                  : isProfileEdited
+                  ? '/static/Rightenable.png'
+                  : '/static/Rightdisable.png'
+              }
+            />
           </div>
         </div>
         <div className={styles.userName}>
@@ -208,6 +268,7 @@ const UserProfileScreen = (props: Props) => {
             <div className={styles.searchIcon}>
               <SearchIcon />
             </div>
+            +
           </CardContent>
         </Card>
 
@@ -215,9 +276,14 @@ const UserProfileScreen = (props: Props) => {
           <CardContent className={styles['map-box']}></CardContent>
         </Card>
 
-        <Fab className={styles.closeProfile} color="primary" onClick={handleCloseProfile}>
-          <Close />
-        </Fab>
+        {!isEditProfile && (
+          <div className={styles.profileButton}>
+            {' '}
+            <Fab className={styles.closeProfile} color="primary" onClick={handleCloseProfile}>
+              <Close />
+            </Fab>
+          </div>
+        )}
       </section>
     </div>
   )

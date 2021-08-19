@@ -10,7 +10,6 @@ import styles from './NewComment.module.scss'
 import { addCommentToFeed } from '../../reducers/feedComment/service'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import PopupLogin from '../PopupLogin/PopupLogin'
-// import { IndexPage } from '@xrengine/social/pages/login';
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {

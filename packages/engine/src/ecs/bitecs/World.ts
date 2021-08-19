@@ -1,8 +1,8 @@
-import { $componentMap } from './Component.js'
-import { $queryMap, $queries, $dirtyQueries, $notQueries } from './Query.js'
-import { $entityArray, $entityComponents, $entityMasks, $entitySparseSet, getGlobalSize, removeEntity } from './Entity.js'
-import { resize } from './Storage.js'
-import { SparseSet } from './Util.js'
+import { $componentMap } from './Component'
+import { $queryMap, $queries, $dirtyQueries, $notQueries } from './Query'
+import { $entityArray, $entityComponents, $entityMasks, $entitySparseSet, getGlobalSize, removeEntity } from './Entity'
+import { resize } from './Storage'
+import { SparseSet } from './Util'
 
 export const $size = Symbol('size')
 export const $resizeThreshold = Symbol('resizeThreshold')
@@ -13,15 +13,15 @@ export const $localEntities = Symbol('localEntities')
 export const worlds = []
 
 export const resizeWorlds = (size) => {
-  worlds.forEach(world => {
+  worlds.forEach((world) => {
     world[$size] = size
 
     for (let i = 0; i < world[$entityMasks].length; i++) {
-      const masks = world[$entityMasks][i];
+      const masks = world[$entityMasks][i]
       world[$entityMasks][i] = resize(masks, size)
     }
-    
-    world[$resizeThreshold] = world[$size] - (world[$size] / 5)
+
+    world[$resizeThreshold] = world[$size] - world[$size] / 5
   })
 }
 
@@ -47,7 +47,7 @@ export const resetWorld = (world) => {
   const size = getGlobalSize()
   world[$size] = size
 
-  if (world[$entityArray]) world[$entityArray].forEach(eid => removeEntity(world, eid))
+  if (world[$entityArray]) world[$entityArray].forEach((eid) => removeEntity(world, eid))
 
   world[$entityMasks] = [new Uint32Array(size)]
   world[$entityComponents] = new Map()
@@ -76,7 +76,11 @@ export const resetWorld = (world) => {
  * @param {World} world
  */
 export const deleteWorld = (world) => {
-  Object.getOwnPropertySymbols(world).forEach($ => { delete world[$] })
-  Object.keys(world).forEach(key => { delete world[key] })
+  Object.getOwnPropertySymbols(world).forEach(($) => {
+    delete world[$]
+  })
+  Object.keys(world).forEach((key) => {
+    delete world[key]
+  })
   worlds.splice(worlds.indexOf(world), 1)
 }
