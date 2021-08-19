@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { GolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/GolfBotHooks'
+import { GolfBotHooks } from '@xrengine/client/src/pages/golf/functions/GolfBotHooks'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import { XREngineBot } from '@xrengine/bot/src/bot'

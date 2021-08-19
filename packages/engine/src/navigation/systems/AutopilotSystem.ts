@@ -11,7 +11,7 @@ import { InputType } from '../../input/enums/InputType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
-import { defineQuery, defineSystem, enterQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, removeQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
@@ -34,6 +34,7 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): 
 }
 
 export const AutopilotSystem = async (): Promise<System> => {
+  const stick = GamepadAxis.Left
   const raycaster = new Raycaster()
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
@@ -42,6 +43,7 @@ export const AutopilotSystem = async (): Promise<System> => {
   const requestsAddQuery = enterQuery(requestsQuery)
 
   const ongoingQuery = defineQuery([AutoPilotComponent])
+  const removedAutopilotsQuery = exitQuery(ongoingQuery)
 
   const navClickQuery = defineQuery([LocalInputReceiverComponent, AutoPilotClickRequestComponent])
   const navClickAddQuery = enterQuery(navClickQuery)
@@ -122,7 +124,6 @@ export const AutopilotSystem = async (): Promise<System> => {
       const ARRIVING_DISTANCE = 1
       const ARRIVED_DISTANCE = 0.1
       const MIN_SPEED = 0.2
-      const stick = GamepadAxis.Left
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
         if (!autopilot.path.current()) {
@@ -148,7 +149,7 @@ export const AutopilotSystem = async (): Promise<System> => {
             continue
           }
           autopilot.path.advance()
-          return
+          continue
         }
 
         const avatar = getComponent(entity, AvatarComponent)
@@ -205,6 +206,15 @@ export const AutopilotSystem = async (): Promise<System> => {
           updatePlayerRotationFromViewVector(entity, targetDirection)
         }
       }
+    }
+
+    if (removedAutopilotsQuery(world).length) {
+      // send one relaxed gamepad state to stop movement
+      Engine.inputState.set(stick, {
+        type: InputType.TWODIM,
+        value: [0, 0],
+        lifecycleState: LifecycleValue.CHANGED
+      })
     }
 
     return world
