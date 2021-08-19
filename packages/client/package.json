@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "private": true,
   "repository": {
     "type": "git",
@@ -42,13 +42,13 @@
     "@material-ui/styles": "4.11.4",
     "@mui-treasury/components": "1.10.1",
     "@styled-icons/boxicons-regular": "10.37.0",
+    "@styled-icons/boxicons-solid": "10.37.0",
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
-    "@styled-icons/boxicons-solid": "10.37.0",
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.12",
-    "@xrengine/client-core": "^0.3.32",
+    "@xrengine/client-core": "^0.3.33",
     "axios": "0.21.1",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",

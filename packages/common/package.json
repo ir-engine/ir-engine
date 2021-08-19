@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/common",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "main": "dist/common.umd.js",
   "module": "dist/common.es.js",
   "publishConfig": {
