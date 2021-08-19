@@ -1,7 +1,7 @@
-import { expect, test } from "@jest/globals"
-import { ParticleMesh } from "../../src/particles/interfaces"
-import { createParticleEmitter, createParticleMesh } from "../../src/particles"
-import { Matrix4 } from "three"
+import { expect, test } from '@jest/globals'
+import { ParticleMesh } from '../../src/particles/interfaces'
+import { createParticleEmitter, createParticleMesh } from '../../src/particles'
+import { Matrix4 } from 'three'
 
 let sharedParticleMesh: ParticleMesh
 
@@ -21,7 +21,7 @@ afterEach(() => {
   sharedParticleMesh = null
 })
 
-test("nextIndex properly set", () => {
+test('nextIndex properly set', () => {
   const emitter = {
     particleMesh: sharedParticleMesh,
     count: 100
@@ -31,7 +31,7 @@ test("nextIndex properly set", () => {
   expect(sharedParticleMesh.userData.nextIndex).toBe(100)
 })
 
-test("geometry values bounds correct", () => {
+test('geometry values bounds correct', () => {
   const options = {
     emitter1: {
       particleMesh: sharedParticleMesh,
@@ -54,7 +54,7 @@ test("geometry values bounds correct", () => {
   createParticleEmitter(options.emitter2, new Matrix4(), 0)
   createParticleEmitter(options.emitter3, new Matrix4(), 0)
 
-  const velocity = sharedParticleMesh.geometry.getAttribute("velocity")
+  const velocity = sharedParticleMesh.geometry.getAttribute('velocity')
   const emmitter1_first_radial = velocity.getW(0)
   const emmitter1_last_radial = velocity.getW(9)
   const emmitter2_first_radial = velocity.getW(10)

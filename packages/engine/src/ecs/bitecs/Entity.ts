@@ -1,7 +1,7 @@
-import { resizeComponents } from './Component.js'
-import { $notQueries, $queries, queryAddEntity, queryCheckEntity, queryRemoveEntity } from './Query.js'
-import { resizeWorlds } from './World.js'
-import { setSerializationResized } from './Serialize.js'
+import { resizeComponents } from './Component'
+import { $notQueries, $queries, queryAddEntity, queryCheckEntity, queryRemoveEntity } from './Query'
+import { resizeWorlds } from './World'
+import { setSerializationResized } from './Serialize'
 
 export const $entityMasks = Symbol('entityMasks')
 export const $entityComponents = Symbol('entityMasks')
@@ -16,7 +16,7 @@ let defaultSize = 100000
 // so that world entities can posess entire rows spanning all component tables
 let globalEntityCursor = 0
 let globalSize = defaultSize
-let resizeThreshold = () => globalSize - (globalSize / 5)
+let resizeThreshold = () => globalSize - globalSize / 5
 
 export const getGlobalSize = () => globalSize
 
@@ -36,7 +36,7 @@ export const getDefaultSize = () => defaultSize
  *
  * @param {number} size
  */
-export const setDefaultSize = size => { 
+export const setDefaultSize = (size) => {
   defaultSize = size
   resetGlobals()
 }
@@ -53,7 +53,6 @@ export const eidToWorld = new Map()
  * @returns {number} eid
  */
 export const addEntity = (world) => {
-  
   const eid = removed.length > 0 ? removed.shift() : globalEntityCursor++
   world[$entitySparseSet].add(eid)
   eidToWorld.set(eid, world)
@@ -74,7 +73,7 @@ export const addEntity = (world) => {
   //   console.info(`👾 bitECS - resizing all data stores from ${size} to ${size+amount}`)
   // }
 
-  world[$notQueries].forEach(q => {
+  world[$notQueries].forEach((q) => {
     const match = queryCheckEntity(world, q, eid)
     if (match) queryAddEntity(q, eid)
   })
@@ -96,7 +95,7 @@ export const removeEntity = (world, eid) => {
 
   // Remove entity from all queries
   // TODO: archetype graph
-  world[$queries].forEach(q => {
+  world[$queries].forEach((q) => {
     queryRemoveEntity(world, q, eid)
   })
 
