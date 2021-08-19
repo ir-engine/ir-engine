@@ -1,8 +1,6 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
-
 export default {
   before: {
-    all: [collectAnalytics()],
+    all: [],
     find: [],
     get: [],
     create: [],

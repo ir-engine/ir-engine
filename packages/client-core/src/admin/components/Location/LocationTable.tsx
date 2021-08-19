@@ -29,6 +29,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
+import { PAGE_LIMIT } from '../../reducers/admin/location/reducers'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -67,7 +68,7 @@ const LocationTable = (props: Props) => {
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [locationId, setLocationId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
@@ -78,6 +79,8 @@ const LocationTable = (props: Props) => {
   const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchAdminLocations(incDec)
     setPage(newPage)
   }
 
@@ -91,7 +94,7 @@ const LocationTable = (props: Props) => {
       fetchAdminLocations()
     }
     if (user?.id != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
-      fetchAdminScenes()
+      fetchAdminScenes('all')
     }
     if (user?.id != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       fetchLocationTypes()
@@ -214,7 +217,7 @@ const LocationTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+            {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                   {columns.map((column) => {
@@ -232,7 +235,7 @@ const LocationTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[PAGE_LIMIT]}
         component="div"
         count={adminLocationCount}
         rowsPerPage={rowsPerPage}

@@ -1,4 +1,3 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import * as authentication from '@feathersjs/authentication'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 
@@ -6,7 +5,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
+    all: [authenticate('jwt')],
     find: [
       addAssociations({
         models: [

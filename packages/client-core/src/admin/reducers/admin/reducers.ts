@@ -43,6 +43,11 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LoadedUsersAction } from './user/actions'
 import { CollectionsFetchedAction } from '../../../world/reducers/scenes/actions'
 import { LocationsRetrievedAction } from '../../../social/reducers/location/actions'
+import { PAGE_LIMIT as USER_PAGE_LIMIT } from '../../reducers/admin/user/reducers'
+import { PAGE_LIMIT as SCENE_PAGE_LIMIT } from '../../reducers/admin/scene/reducers'
+import { PAGE_LIMIT as INSTANCE_PAGE_LIMIT } from '../../reducers/admin/instance/reducers'
+import { PAGE_LIMIT as PARTY_PAGE_LIMIT } from '../../reducers/admin/party/reducers'
+import { PAGE_LIMIT as LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
 
 export const PAGE_LIMIT = 100
 
@@ -56,7 +61,7 @@ export const initialAdminState = {
   locations: {
     locations: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: LOCATION_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -70,7 +75,7 @@ export const initialAdminState = {
   scenes: {
     scenes: [],
     skip: 0,
-    limit: 1000,
+    limit: SCENE_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -80,7 +85,7 @@ export const initialAdminState = {
   users: {
     users: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: USER_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -90,7 +95,7 @@ export const initialAdminState = {
   instances: {
     instances: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: INSTANCE_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -100,7 +105,7 @@ export const initialAdminState = {
   parties: {
     parties: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: PARTY_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,

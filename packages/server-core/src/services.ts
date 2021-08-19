@@ -1,4 +1,5 @@
 import { Application } from '../declarations'
+import AnalyticsServices from './analytics/services'
 import EntityServices from './entities/services'
 import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
@@ -12,6 +13,7 @@ import ScopeService from './scope/service'
 
 export default (app: Application): void => {
   ;[
+    ...AnalyticsServices,
     ...UserServices,
     ...MediaServices,
     ...WorldServices,

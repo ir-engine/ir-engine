@@ -14,6 +14,7 @@ declare module '../../../declarations' {
 export default (app: Application): void => {
   const options = {
     Model: createModel(app),
+    paginate: app.get('paginate'),
     multi: true
   }
 
