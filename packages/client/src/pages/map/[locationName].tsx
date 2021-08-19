@@ -10,9 +10,11 @@ import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema
 import { TouchInputs } from '@xrengine/engine/src/input/enums/InputEnums'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 
+import UserProfile from './UserProfile'
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const { t } = useTranslation()
+  const [showUserProfile, setShowUserProfile] = useState(true)
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -26,6 +28,7 @@ const LocationPage = (props) => {
 
   return (
     <Layout theme={theme} hideVideo={true} hideFullscreen={true} pageTitle={t('location.locationName.pageTitle')}>
+      <UserProfile isUserProfileShowing={showUserProfile} showHideProfile={setShowUserProfile} />
       <LoadingScreen objectsToLoad={loadingItemCount} />
       <World
         allowDebug={true}
@@ -34,7 +37,7 @@ const LocationPage = (props) => {
         engineCallbacks={engineCallbacks}
       >
         <MapMediaIconsBox />
-        <MapUserMenu />
+        <MapUserMenu showHideProfile={setShowUserProfile} />
       </World>
     </Layout>
   )

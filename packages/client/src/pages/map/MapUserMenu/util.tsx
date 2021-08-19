@@ -30,6 +30,7 @@ export interface UserMenuProps {
   getLocations?: Function
   enableSharing?: boolean
   hideLogin?: boolean
+  showHideProfile?: Function
 }
 
 export interface SettingMenuProps {
