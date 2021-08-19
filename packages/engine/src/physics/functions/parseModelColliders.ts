@@ -50,7 +50,6 @@ export function applyTransformToMeshWorld(entity: Entity, mesh: Mesh) {
     transform.rotation,
     transform.scale
   )
-  console.log(position, transform.position)
   mesh.position.copy(position)
   mesh.quaternion.copy(quaternion)
   mesh.scale.copy(scale)
@@ -92,12 +91,12 @@ export function getTransform(posM, queM, scaM, posE, queE, scaE): [Vector3, Quat
 export const makeCollidersInvisible = (asset: any) => {
   const parseColliders = (mesh) => {
     if (mesh.userData.data === 'physics') {
-      mesh.visible = false
-      // if(mesh.material) {
-      //   mesh.material.wireframe = true
-      //   mesh.material.opacity = 0.2
-      //   mesh.material.transparent = true
-      // }
+      // mesh.visible = false
+      if (mesh.material) {
+        mesh.material.opacity = 0.2
+        mesh.material.transparent = true
+        // mesh.material.wireframe = true
+      }
     }
   }
   asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders)
@@ -132,7 +131,6 @@ export const createCollidersFromModel = (entity: Entity, asset: any) => {
       transform.rotation,
       transform.scale
     )
-    console.log('collider', mesh.userData)
     createCollider(entity, mesh, position, quaternion, scale)
     mesh.removeFromParent()
   })

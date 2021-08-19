@@ -3,11 +3,11 @@ export const Uint32SparseSet = (length) => {
   const sparse = new Uint32Array(length)
 
   let cursor = 0
-  dense.count = () => cursor + 1
+  // dense.count = () => cursor + 1
 
-  const has = val => dense[sparse[val]] === val
+  const has = (val) => dense[sparse[val]] === val
 
-  const add = val => {
+  const add = (val) => {
     if (has(val)) return
     sparse[val] = cursor
     dense[cursor] = val
@@ -15,7 +15,7 @@ export const Uint32SparseSet = (length) => {
     cursor++
   }
 
-  const remove = val => {
+  const remove = (val) => {
     if (!has(val)) return
     const index = sparse[val]
     const swapped = dense[cursor]
@@ -32,7 +32,7 @@ export const Uint32SparseSet = (length) => {
     remove,
     has,
     sparse,
-    dense,
+    dense
   }
 }
 
@@ -43,21 +43,21 @@ export const SparseSet = () => {
   dense.sort = function (comparator) {
     const result = Array.prototype.sort.call(this, comparator)
 
-    for(let i = 0; i < dense.length; i++) {
+    for (let i = 0; i < dense.length; i++) {
       sparse[dense[i]] = i
     }
-    
+
     return result
   }
 
-  const has = val => dense[sparse[val]] === val
+  const has = (val) => dense[sparse[val]] === val
 
-  const add = val => {
+  const add = (val) => {
     if (has(val)) return
     sparse[val] = dense.push(val) - 1
   }
 
-  const remove = val => {
+  const remove = (val) => {
     if (!has(val)) return
     const index = sparse[val]
     const swapped = dense.pop()
@@ -72,6 +72,6 @@ export const SparseSet = () => {
     remove,
     has,
     sparse,
-    dense,
+    dense
   }
 }

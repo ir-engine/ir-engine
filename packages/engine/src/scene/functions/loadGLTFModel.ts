@@ -36,6 +36,7 @@ export const loadGLTFModel = (
           entity
         },
         (res) => {
+          // legacy physics loader
           createCollidersFromModel(entity, res)
 
           // DIRTY HACK TO LOAD NAVMESH

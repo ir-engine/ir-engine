@@ -263,6 +263,11 @@ export class WorldScene {
         })
         break
 
+      case 'collider': {
+        // TODO
+        break
+      }
+
       case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
         const transform = getComponent(entity, TransformComponent)
@@ -276,9 +281,12 @@ export class WorldScene {
           },
           transform.position,
           transform.rotation,
-          transform.scale
+          transform.scale // convert from half extents to full extents
         )
-        if (boxColliderProps.removeMesh === 'true' || boxColliderProps.removeMesh === true) {
+        if (
+          boxColliderProps.removeMesh === 'true' ||
+          (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)
+        ) {
           const obj = getComponent(entity, Object3DComponent)
           if (obj?.value) {
             if (obj.value.parent) obj.value.removeFromParent()
