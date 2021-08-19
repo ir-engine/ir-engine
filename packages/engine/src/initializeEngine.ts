@@ -191,7 +191,6 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
   // Scene Systems
-  // registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
@@ -214,7 +213,6 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  // registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
