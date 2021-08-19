@@ -18,7 +18,6 @@ import SimpleModal from '../SimpleModal'
 import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service'
 import { selectFeedCommentsState } from '../../reducers/feedComment/selector'
 import PopupLogin from '../PopupLogin/PopupLogin'
-// import { IndexPage } from '@xrengine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { useTranslation } from 'react-i18next'
 

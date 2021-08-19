@@ -11,7 +11,6 @@ export function sendClientObjectUpdate(entity: Entity, type: number, values: num
 
   Network.instance.worldState.editObjects.push({
     networkId: networkObject.networkId,
-    ownerId: networkObject.ownerId,
     type,
     values,
     data

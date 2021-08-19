@@ -15,7 +15,7 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
 import { hideClub } from '../prefab/GolfClubPrefab'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
-import { GolfObjectEntities, GolfState } from '../GolfSystem'
+import { getBall, getClub, getHole, GolfState } from '../GolfSystem'
 import { getGolfPlayerNumber, isCurrentGolfPlayer } from '../functions/golfFunctions'
 import { swingClub } from '../functions/golfBotHookFunctions'
 import {
@@ -30,10 +30,11 @@ import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarCo
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
 import { rotateViewVectorXZ } from '@xrengine/engine/src/camera/systems/CameraSystem'
 import { BALL_STATES, setBallState } from '../prefab/GolfBallPrefab'
-import { dispatchFromClient } from '../../../../../engine/src/networking/functions/dispatch'
+import { dispatchFromClient } from '@xrengine/engine/src/networking/functions/dispatch'
 import { GolfAction } from '../GolfAction'
-import { Network } from '../../../../../engine/src/networking/classes/Network'
-import { NetworkObjectComponent } from '../../../../../engine/src/networking/components/NetworkObjectComponent'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
+import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -44,7 +45,7 @@ export enum GolfInput {
 
 const rotate90onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
 
-export const setupPlayerInput = (entityPlayer: Entity) => {
+export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
   const inputs = getComponent(entityPlayer, InputComponent)
 
   // override the default mapping and behavior of input schema and interact
@@ -56,14 +57,14 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
       const playerNumber = getGolfPlayerNumber(entity)
-      const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+      const ballEntity = getBall(world, playerNumber)
       console.log('k', playerNumber, ballEntity)
       if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position
       console.log('teleporting to', position.x, position.y, position.z)
 
-      const holeEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
+      const holeEntity = getHole(world, GolfState.currentHole.value)
       const holeTransform = getComponent(holeEntity, TransformComponent)
       // its do ball - hole
       let pos1 = new Vector3().copy(ballTransform.position).setY(0)
@@ -107,7 +108,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
 
       const playerNumber = getGolfPlayerNumber(entity)
-      const clubEntity = GolfObjectEntities.get(`GolfClub-${playerNumber}`)
+      const clubEntity = getClub(world, playerNumber)
       const golfClubComponent = getComponent(clubEntity, GolfClubComponent)
       golfClubComponent.hidden = !golfClubComponent.hidden
 
@@ -130,8 +131,8 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
           const currentHole = GolfState.currentHole.value
-          const holeEntity = GolfObjectEntities.get(`GolfHole-${currentHole}`)
-          const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+          const holeEntity = getHole(world, currentHole)
+          const ballEntity = getBall(world, playerNumber)
           const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
           position.y += 0.1
           teleportObject(ballEntity, position)
@@ -150,7 +151,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
-          const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+          const ballEntity = getBall(world, playerNumber)
           const collider = getComponent(ballEntity, ColliderComponent)
           const velocity = getComponent(ballEntity, VelocityComponent)
           velocity.velocity.set(0, 0, 0)

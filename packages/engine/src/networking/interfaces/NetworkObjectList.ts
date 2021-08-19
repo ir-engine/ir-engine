@@ -1,8 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
 
 export type NetworkObjectType = {
-  /** Owner's socket ID. */
-  ownerId: string
   /** All network objects need to be a registered prefab. */
   prefabType: number
   /** The parameters by which the prefab was created */
@@ -16,5 +14,5 @@ export type NetworkObjectType = {
 /** Interface for holding Network Object. */
 export interface NetworkObjectList {
   /** Key is network ID. */
-  [key: number]: NetworkObjectType
+  [key: string]: NetworkObjectType
 }

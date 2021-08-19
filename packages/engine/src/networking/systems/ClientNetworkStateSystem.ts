@@ -26,7 +26,7 @@ function searchSameInAnotherId(objectToCreate) {
   if (objectToCreate.prefabType === PrefabType.Player) {
     return Object.keys(Network.instance.networkObjects)
       .map(Number)
-      .find((key) => Network.instance.networkObjects[key]?.ownerId === objectToCreate.ownerId)
+      .find((key) => Network.instance.networkObjects[key]?.uniqueId === objectToCreate.uniqueId)
   } else {
     return Object.keys(Network.instance.networkObjects)
       .map(Number)
@@ -37,11 +37,7 @@ function searchSameInAnotherId(objectToCreate) {
 function syncNetworkObjectsTest(createObjects) {
   createObjects?.forEach((objectToCreate) => {
     if (!Network.instance.networkObjects[objectToCreate.networkId]) return
-    if (
-      objectToCreate.uniqueId === Network.instance.networkObjects[objectToCreate.networkId]?.uniqueId &&
-      objectToCreate.ownerId === Network.instance.networkObjects[objectToCreate.networkId]?.ownerId
-    )
-      return
+    if (objectToCreate.uniqueId === Network.instance.networkObjects[objectToCreate.networkId]?.uniqueId) return
 
     Object.keys(Network.instance.networkObjects)
       .map(Number)
@@ -49,10 +45,7 @@ function syncNetworkObjectsTest(createObjects) {
         if (Network.instance.networkObjects[key].entity == null) {
           console.warn('TRY RESTART SERVER, MAYBE ON SERVER DONT CREATE THIS LOCATION')
         }
-        if (
-          Network.instance.networkObjects[key].uniqueId === objectToCreate.uniqueId &&
-          Network.instance.networkObjects[key].ownerId === objectToCreate.ownerId
-        ) {
+        if (Network.instance.networkObjects[key].uniqueId === objectToCreate.uniqueId) {
           console.warn(
             '*createObjects* Correctiong networkObjects as a server id: ' +
               objectToCreate.networkId +
@@ -77,7 +70,7 @@ function syncPhysicsObjects(objectToCreate) {
   if (
     Object.keys(Network.instance.networkObjects)
       .map(Number)
-      .every((key) => Network.instance.networkObjects[key].ownerId != objectToCreate.ownerId)
+      .every((key) => Network.instance.networkObjects[key].uniqueId != objectToCreate.uniqueId)
   ) {
     Object.keys(Network.instance.networkObjects)
       .map(Number)
@@ -185,7 +178,6 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           if (Network.instance.networkObjects[objectToCreate.networkId] === undefined) {
             spawnPrefab(
               objectToCreate.prefabType,
-              objectToCreate.ownerId,
               objectToCreate.uniqueId,
               objectToCreate.networkId,
               objectToCreate.parameters

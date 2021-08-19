@@ -1,7 +1,15 @@
-import { $indexBytes, $indexType, $serializeShadow, $storeBase, $storeFlattened, $tagStore, createShadow } from "./Storage.js"
-import { $componentMap, addComponent, hasComponent } from "./Component.js"
-import { $entityArray, $entitySparseSet, addEntity, eidToWorld } from "./Entity.js"
-import { $localEntities } from "./World.js"
+import {
+  $indexBytes,
+  $indexType,
+  $serializeShadow,
+  $storeBase,
+  $storeFlattened,
+  $tagStore,
+  createShadow
+} from './Storage'
+import { $componentMap, addComponent, hasComponent } from './Component'
+import { $entityArray, $entitySparseSet, addEntity, eidToWorld } from './Entity'
+import { $localEntities } from './World'
 
 export const DESERIALIZE_MODE = {
   REPLACE: 0,
@@ -11,17 +19,19 @@ export const DESERIALIZE_MODE = {
 
 let resized = false
 
-export const setSerializationResized = v => { resized = v }
+export const setSerializationResized = (v) => {
+  resized = v
+}
 
 const canonicalize = (target) => {
-  let componentProps = []
+  let componentProps: any = []
   let changedProps = new Map()
   if (Array.isArray(target)) {
     componentProps = target
-      .map(p => {
+      .map((p) => {
         if (!p) throw new Error('bitECS - Cannot serialize undefined component')
         if (typeof p === 'function' && p.name === 'QueryChanged') {
-          p()[$storeFlattened].forEach(prop => {
+          p()[$storeFlattened].forEach((prop) => {
             const $ = Symbol()
             createShadow(prop, $)
             changedProps.set(prop, $)
@@ -35,7 +45,7 @@ const canonicalize = (target) => {
           return p
         }
       })
-      .reduce((a,v) => a.concat(v), [])
+      .reduce((a, v) => a.concat(v), [])
   }
   return [componentProps, changedProps]
 }
@@ -58,21 +68,19 @@ export const defineSerializer = (target, maxBytes = 20000000) => {
   const view = new DataView(buffer)
 
   return (ents) => {
-
     if (resized) {
-      [componentProps, changedProps] = canonicalize(target)
+      ;[componentProps, changedProps] = canonicalize(target)
       resized = false
     }
 
     if (isWorld) {
       componentProps = []
       target[$componentMap].forEach((c, component) => {
-        if (component[$storeFlattened])
-          componentProps.push(...component[$storeFlattened])
+        if (component[$storeFlattened]) componentProps.push(...component[$storeFlattened])
         else componentProps.push(component)
       })
     }
-    
+
     let world
     if (Object.getOwnPropertySymbols(ents).includes($componentMap)) {
       world = ents
@@ -89,7 +97,7 @@ export const defineSerializer = (target, maxBytes = 20000000) => {
     for (let pid = 0; pid < componentProps.length; pid++) {
       const prop = componentProps[pid]
       const $diff = changedProps.get(prop)
-      
+
       // write pid
       view.setUint8(where, pid)
       where += 1
@@ -97,7 +105,7 @@ export const defineSerializer = (target, maxBytes = 20000000) => {
       // save space for entity count
       const countWhere = where
       where += 4
-      
+
       let count = 0
       // write eid,val
       for (let i = 0; i < ents.length; i++) {
@@ -114,7 +122,7 @@ export const defineSerializer = (target, maxBytes = 20000000) => {
           if (ArrayBuffer.isView(prop[eid])) {
             let dirty = false
             for (let i = 0; i < prop[eid].length; i++) {
-              if(prop[eid][i] !== prop[eid][$diff][i]) {
+              if (prop[eid][i] !== prop[eid][$diff][i]) {
                 dirty = true
                 break
               }
@@ -165,7 +173,6 @@ export const defineSerializer = (target, maxBytes = 20000000) => {
 
           // write total element count
           view[`set${indexType}`](countWhere2, count2)
-
         } else {
           // regular property values
           const type = prop.constructor.name.replace('Array', '')
@@ -196,21 +203,18 @@ export const defineDeserializer = (target) => {
   const isWorld = Object.getOwnPropertySymbols(target).includes($componentMap)
   let [componentProps] = canonicalize(target)
 
-
-  return (world, packet, mode=0) => {
-
+  return (world, packet, mode = 0) => {
     newEntities.clear()
-    
+
     if (resized) {
-      [componentProps] = canonicalize(target)
+      ;[componentProps] = canonicalize(target)
       resized = false
     }
 
     if (isWorld) {
       componentProps = []
       target[$componentMap].forEach((c, component) => {
-        if (component[$storeFlattened])
-          componentProps.push(...component[$storeFlattened])
+        if (component[$storeFlattened]) componentProps.push(...component[$storeFlattened])
         else componentProps.push(component)
       })
     }
@@ -221,7 +225,6 @@ export const defineDeserializer = (target) => {
     let where = 0
 
     while (where < packet.byteLength) {
-
       // pid
       const pid = view.getUint8(where)
       where += 1
@@ -239,7 +242,6 @@ export const defineDeserializer = (target) => {
         where += 4
 
         if (mode === DESERIALIZE_MODE.MAP) {
-
           if (localEntities.has(eid)) {
             eid = localEntities.get(eid)
           } else if (newEntities.has(eid)) {
@@ -252,8 +254,9 @@ export const defineDeserializer = (target) => {
           }
         }
 
-        if (mode === DESERIALIZE_MODE.APPEND ||  
-          mode === DESERIALIZE_MODE.REPLACE && !world[$entitySparseSet].has(eid)
+        if (
+          mode === DESERIALIZE_MODE.APPEND ||
+          (mode === DESERIALIZE_MODE.REPLACE && !world[$entitySparseSet].has(eid))
         ) {
           const newEid = newEntities.get(eid) || addEntity(world)
           newEntities.set(eid, newEid)
@@ -268,7 +271,7 @@ export const defineDeserializer = (target) => {
         if (component[$tagStore]) {
           continue
         }
-        
+
         if (ArrayBuffer.isView(prop[eid])) {
           const array = prop[eid]
           const count = view[`get${array[$indexType]}`](where)

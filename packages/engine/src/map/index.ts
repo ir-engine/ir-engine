@@ -60,7 +60,7 @@ const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position
   const gBuildings = tiles
     .reduce((acc, tiles) => acc.concat(tiles.building), [])
     .map((feature) => {
-      return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
+      return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center as any, scale)
     })
 
   const gGround = computeBoundingBox(gBuildings)
