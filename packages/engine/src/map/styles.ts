@@ -207,8 +207,26 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   water: {
+    extrude: 'flat',
     color: {
       constant: 0x0044ee
+    }
+  },
+  waterway: {
+    extrude: 'flat',
+    color: {
+      constant: 0x0044ee
+    },
+    width: 2,
+    classOverride: {
+      river: {
+        width: 4
+      },
+      drain: {
+        color: {
+          constant: 0x777777
+        }
+      }
     }
   },
 

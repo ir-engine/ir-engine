@@ -30,7 +30,8 @@ function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFea
   const result: TileFeaturesByLayer = {
     building: [],
     road: [],
-    water: []
+    water: [],
+    waterway: []
   }
   Object.keys(result).forEach((layerName) => {
     const vectorLayer = tile.layers[layerName]

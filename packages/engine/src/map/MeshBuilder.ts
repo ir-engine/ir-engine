@@ -363,7 +363,7 @@ export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Positi
 }
 
 export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  return createLayerGroup(['water'], vectorTiles, llCenter, renderer)
+  return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter, renderer)
 }
 
 /** Workaround for until we get the Web Mercator projection math right so that the ground and building meshes line up */
