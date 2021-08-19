@@ -15,7 +15,6 @@ import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getLoggedCreator } from '../../reducers/creator/service'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
-// import IndexPage from "@xrengine/social/pages/login";
 import {
   updateArMediaState,
   updateCreatorFormState,
