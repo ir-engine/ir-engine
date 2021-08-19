@@ -1,7 +1,7 @@
-import { expect, test } from "@jest/globals"
-import { ParticleMesh } from "../../src/particles/interfaces"
-import { createParticleEmitter, createParticleMesh, deleteParticleEmitter } from "../../src/particles"
-import { Matrix4 } from "three"
+import { expect, test } from '@jest/globals'
+import { ParticleMesh } from '../../src/particles/interfaces'
+import { createParticleEmitter, createParticleMesh, deleteParticleEmitter } from '../../src/particles'
+import { Matrix4 } from 'three'
 
 let sharedParticleMesh: ParticleMesh
 const options = {
@@ -45,7 +45,7 @@ function clearSharedMesh() {
   options.emitter3.particleMesh = null
 }
 
-describe("nextIndex and emitters data properly updated", () => {
+describe('nextIndex and emitters data properly updated', () => {
   createSharedMesh()
 
   const emitter1 = createParticleEmitter(options.emitter1, new Matrix4(), 0)
@@ -54,20 +54,20 @@ describe("nextIndex and emitters data properly updated", () => {
 
   deleteParticleEmitter(emitter2)
 
-  test("nextIndex", () => {
+  test('nextIndex', () => {
     expect(sharedParticleMesh.userData.nextIndex).toBe(40)
   })
-  test("emitter1: startIndex,endIndex", () => {
+  test('emitter1: startIndex,endIndex', () => {
     expect([emitter1.startIndex, emitter1.endIndex]).toStrictEqual([0, 9])
   })
-  test("emitter2: startIndex,endIndex", () => {
+  test('emitter2: startIndex,endIndex', () => {
     expect([emitter3.startIndex, emitter3.endIndex]).toStrictEqual([10, 39])
   })
 
   clearSharedMesh()
 })
 
-test("delete correctly updates geometry", () => {
+test('delete correctly updates geometry', () => {
   createSharedMesh()
 
   createParticleEmitter(options.emitter1, new Matrix4(), 0)
@@ -77,7 +77,7 @@ test("delete correctly updates geometry", () => {
 
   deleteParticleEmitter(emitter2)
 
-  const velocity = sharedParticleMesh.geometry.getAttribute("velocity")
+  const velocity = sharedParticleMesh.geometry.getAttribute('velocity')
   const emmitter1_first_radial = velocity.getW(0)
   const emmitter1_last_radial = velocity.getW(9)
   const emmitter3_first_radial = velocity.getW(10)
@@ -94,8 +94,8 @@ test("delete correctly updates geometry", () => {
     emmitter4_last_radial
   ]
   const expected = [1, 1, 3, 3, 1, 1]
-  console.log("result", result)
-  console.log("expected", expected)
+  console.log('result', result)
+  console.log('expected', expected)
 
   expect(result).toStrictEqual(expected)
 

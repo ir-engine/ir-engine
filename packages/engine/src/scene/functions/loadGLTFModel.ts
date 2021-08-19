@@ -1,11 +1,15 @@
-import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D } from 'three'
+import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createEntity, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { applyTransformToMesh, createCollidersFromModel } from '../../physics/functions/parseModelColliders'
+import {
+  applyTransformToMesh,
+  applyTransformToMeshWorld,
+  createCollidersFromModel
+} from '../../physics/functions/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
@@ -111,17 +115,20 @@ export const loadGLTFModel = (
           // model entity & component loader
           res.traverse((mesh: Mesh) => {
             if (typeof mesh.userData.entity !== 'undefined') {
-              console.log('entity on gltf?')
-
+              const sceneEntityId = MathUtils.generateUUID()
               const e = createEntity()
               addComponent(e, NameComponent, { name: mesh.userData.entity })
-              mesh.removeFromParent()
-              applyTransformToMesh(entity, mesh)
-              addComponent(entity, TransformComponent, {
-                position: mesh.position.clone(),
-                rotation: mesh.quaternion.clone(),
-                scale: mesh.scale.clone()
+              delete mesh.userData.entity
+              delete mesh.userData.name
+
+              // apply root mesh's world transform to this mesh locally
+              applyTransformToMeshWorld(entity, mesh)
+              addComponent(e, TransformComponent, {
+                position: mesh.getWorldPosition(new Vector3()),
+                rotation: mesh.getWorldQuaternion(new Quaternion()),
+                scale: mesh.getWorldScale(new Vector3())
               })
+              mesh.removeFromParent()
               addComponent(e, Object3DComponent, { value: mesh })
 
               const components = {}
@@ -129,26 +136,19 @@ export const loadGLTFModel = (
 
               // find all components
               for (const [key, value] of data) {
-                const parts = key.split('-')
-                if (parts.length === 2 && parts[0] === 'component') {
-                  components[value] = {}
-                }
-              }
-
-              // find all component data tags
-              for (const [key, value] of data) {
-                const parts = key.split('-')
-                if (parts.length > 2 && components[`${parts[0]}-${parts[1]}`]) {
-                  if (typeof components[value] !== 'undefined') {
-                    components[value][parts.slice(2).join('')] = value
+                const parts = key.split('.')
+                if (parts.length > 1) {
+                  if (typeof components[parts[0]] === 'undefined') {
+                    components[parts[0]] = {}
                   }
+                  components[parts[0]][parts[1]] = value
                 }
               }
               for (const [key, value] of Object.entries(components)) {
                 const component = {
                   name: key,
                   data: value,
-                  sceneEntityId: MathUtils.generateUUID()
+                  sceneEntityId
                 } as SceneDataComponent
                 sceneLoader.loadComponent(e, component, sceneProperty)
               }

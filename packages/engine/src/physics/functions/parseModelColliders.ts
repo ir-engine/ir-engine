@@ -34,6 +34,27 @@ export function applyTransformToMesh(entity: Entity, mesh: Mesh) {
   mesh.quaternion.copy(quaternion)
   mesh.scale.copy(scale)
 }
+/**
+ * Applies an entity's transform component to a child mesh in world position
+ * @param {Entity} entity
+ * @param {Mesh} mesh
+ */
+
+export function applyTransformToMeshWorld(entity: Entity, mesh: Mesh) {
+  const transform = getComponent(entity, TransformComponent)
+  const [position, quaternion, scale] = getTransform(
+    mesh.getWorldPosition(new Vector3()),
+    mesh.getWorldQuaternion(new Quaternion()),
+    mesh.getWorldScale(new Vector3()),
+    transform.position,
+    transform.rotation,
+    transform.scale
+  )
+  console.log(position, transform.position)
+  mesh.position.copy(position)
+  mesh.quaternion.copy(quaternion)
+  mesh.scale.copy(scale)
+}
 
 /**
  * Returns the result of applying a transform to another transform
