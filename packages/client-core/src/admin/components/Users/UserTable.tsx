@@ -51,7 +51,6 @@ const UserTable = (props: Props) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-
   React.useEffect(() => {
     const fetchData = async () => {
       await fetchUsersAsAdmin()
@@ -113,7 +112,6 @@ const UserTable = (props: Props) => {
       )
     }
   }
-
   const rows = adminUsers.map((el) => {
     const loc = el.party?.id ? el.party.location : null
     const loca = loc ? (

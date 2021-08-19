@@ -7,10 +7,6 @@ export default {
           type: 'string',
           description: ''
         },
-        type: {
-          type: 'string',
-          description: ''
-        },
         userId: {
           type: 'string',
           description: ''
