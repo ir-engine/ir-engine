@@ -56,14 +56,14 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
       const playerNumber = getGolfPlayerNumber(entity)
-      const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+      const ballEntity = GolfObjectEntities.get(`golfball-${playerNumber}`)
       console.log('k', playerNumber, ballEntity)
       if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position
       console.log('teleporting to', position.x, position.y, position.z)
 
-      const holeEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
+      const holeEntity = GolfObjectEntities.get(`golfhole-${GolfState.currentHole.value}`)
       const holeTransform = getComponent(holeEntity, TransformComponent)
       // its do ball - hole
       let pos1 = new Vector3().copy(ballTransform.position).setY(0)
@@ -107,7 +107,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
 
       const playerNumber = getGolfPlayerNumber(entity)
-      const clubEntity = GolfObjectEntities.get(`GolfClub-${playerNumber}`)
+      const clubEntity = GolfObjectEntities.get(`golfclub-${playerNumber}`)
       const golfClubComponent = getComponent(clubEntity, GolfClubComponent)
       golfClubComponent.hidden = !golfClubComponent.hidden
 
@@ -130,8 +130,8 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
           const currentHole = GolfState.currentHole.value
-          const holeEntity = GolfObjectEntities.get(`GolfHole-${currentHole}`)
-          const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+          const holeEntity = GolfObjectEntities.get(`golfhole-${currentHole}`)
+          const ballEntity = GolfObjectEntities.get(`golfball-${playerNumber}`)
           const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
           position.y += 0.1
           teleportObject(ballEntity, position)
@@ -150,7 +150,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
-          const ballEntity = GolfObjectEntities.get(`GolfBall-${playerNumber}`)
+          const ballEntity = GolfObjectEntities.get(`golfball-${playerNumber}`)
           const collider = getComponent(ballEntity, ColliderComponent)
           const velocity = getComponent(ballEntity, VelocityComponent)
           velocity.velocity.set(0, 0, 0)

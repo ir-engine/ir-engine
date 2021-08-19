@@ -20,36 +20,24 @@ const Me = () => {
     }
   }) as any)
 
-  const toggleExpanded = () => setExpanded(!expanded)
-
   return (
     <>
-      <div className={styles.expandMenu}>
-        You
-        <button type="button" className={expanded ? styles.expanded : ''} onClick={toggleExpanded}>
-          <ChevronRight />
-        </button>
-      </div>
-      {expanded ? (
-        <>
-          <PartyParticipantWindow
-            containerProportions={{
-              height: 135,
-              width: 240
-            }}
-            peerId={'me_cam'}
-          />
-          {(MediaStreams.instance?.screenVideoProducer || MediaStreams.instance?.screenAudioProducer) && (
-            <PartyParticipantWindow
-              containerProportions={{
-                height: 135,
-                width: 240
-              }}
-              peerId={'me_screen'}
-            />
-          )}
-        </>
-      ) : null}
+      <PartyParticipantWindow
+        containerProportions={{
+          height: 135,
+          width: 240
+        }}
+        peerId={'me_cam'}
+      />
+      {(MediaStreams.instance?.screenVideoProducer || MediaStreams.instance?.screenAudioProducer) && (
+        <PartyParticipantWindow
+          containerProportions={{
+            height: 135,
+            width: 240
+          }}
+          peerId={'me_screen'}
+        />
+      )}
     </>
   )
 }
