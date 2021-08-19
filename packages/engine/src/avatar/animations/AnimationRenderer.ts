@@ -80,15 +80,12 @@ export class AnimationRenderer {
 
       if (animation.weight > 0) {
         // if (!animation.action.isRunning() && animation.weight > 0) {
-
         animation.action.play()
 
         // Sync Actions if state requires
         if (currState.syncActions) {
           for (let i = 0; i < currState.animations.length; i++) {
             if (currState.animations[i].action?.isRunning) {
-              animation.action.syncWith(currState.animations[i].action)
-              break
             }
           }
         }
@@ -137,6 +134,7 @@ export class AnimationRenderer {
 
       if (animation.weight <= 0) {
         // Reset the animation of the action
+
         animation.action.reset()
 
         // Stop the action
@@ -149,7 +147,7 @@ export class AnimationRenderer {
     if (avatarAnimationComponent.prevState.name !== avatarAnimationComponent.animationGraph.defaultState.name) {
       // If there is no weight in the prevState animations then remove it.
       if (prevStateWeight <= 0) {
-        this.resetPreviousState(entity, true)
+        //this.resetPreviousState(entity, true)
       }
     }
 
@@ -208,7 +206,7 @@ export class AnimationRenderer {
     })
 
     if (emptyPrevState) {
-      avatarAnimationComponent.prevState = null
+      //avatarAnimationComponent.prevState = null
     }
   }
 }
