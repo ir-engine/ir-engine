@@ -17,6 +17,7 @@ import { PrefabType } from '../../networking/templates/PrefabType'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -107,7 +108,7 @@ export const PhysicsSystem = async (
       const collider = getComponent(entity, ColliderComponent)
       const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
-      if (hasComponent(entity, ClientAuthoritativeComponent)) continue
+      if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
 
       if (collider.body.type === BodyType.KINEMATIC) {
         velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
