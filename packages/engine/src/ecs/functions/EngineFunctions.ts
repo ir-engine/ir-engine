@@ -2,14 +2,19 @@
 
 import { Color } from 'three'
 import { PhysXInstance } from 'three-physx'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
+import { Network } from '../../networking/classes/Network'
+import { Vault } from '../../networking/classes/Vault'
+import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
-import { hasComponent, removeAllComponents, removeEntity } from './EntityFunctions'
+import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from './EntityFunctions'
 
 /** Reset the engine and remove everything from memory. */
-export async function reset(): Promise<void> {}
-/*
+export async function reset(): Promise<void> {
   console.log('RESETTING ENGINE')
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())
@@ -18,56 +23,33 @@ export async function reset(): Promise<void> {}
   disposeDracoLoaderWorkers()
 
   // clear all entities components
-  await new Promise<void>((resolve) => {
-    World.defaultWorld.entities.forEach((entity) => {
-      removeAllComponents(entity, false)
-    })
-    setTimeout(() => {
-      executeSystemBeforeReset() // for systems to handle components deletion
-      resolve()
-    }, 500)
-  })
+  // await new Promise<void>((resolve) => {
+  //   World.defaultWorld.entities.forEach((entity) => {
+  //     removeAllComponents(entity)
+  //   })
+  //   setTimeout(() => {
+  //     executeSystemBeforeReset() // for systems to handle components deletion
+  //     resolve()
+  //   }, 500)
+  // })
 
-  await new Promise<void>((resolve) => {
-    // delete all entities
-    removeAllEntities()
-    setTimeout(() => {
-      executeSystemBeforeReset() // for systems to handle components deletion
-      resolve()
-    }, 500)
-  })
+  // await new Promise<void>((resolve) => {
+  //   // delete all entities
+  //   removeAllEntities()
+  //   setTimeout(() => {
+  //     executeSystemBeforeReset() // for systems to handle components deletion
+  //     resolve()
+  //   }, 500)
+  // })
 
-  if (World.defaultWorld.entities.length) {
-    console.log('World.defaultWorld.entities.length', World.defaultWorld.entities.length)
-    throw new Error('World.defaultWorld.entities cleanup not complete')
-  }
+  // if (World.defaultWorld.entities.length) {
+  //   console.log('World.defaultWorld.entities.length', World.defaultWorld.entities.length)
+  //   throw new Error('World.defaultWorld.entities cleanup not complete')
+  // }
 
   Engine.tick = 0
 
   World.defaultWorld.entities.length = 0
-  World.defaultWorld.entitiesToRemove.length = 0
-  World.defaultWorld.entitiesWithComponentsToRemove.length = 0
-  Engine.nextEntityId = 0
-
-  // cleanup/unregister components
-  Engine.components.length = 0
-  // Engine.componentsMap = {}
-  // Engine.numComponents = {}
-  // Engine.componentPool = {}
-  Engine.nextComponentId = 0
-
-  // cleanup systems
-  Engine.systems.forEach((system) => {
-    system.dispose()
-  })
-  Engine.systems.length = 0
-  Engine.activeSystems.clear()
-
-  // cleanup queries
-  Engine.queries.length = 0
-
-  // cleanup events
-  Engine.eventDispatcher.reset()
 
   // delete all what is left on scene
   if (Engine.scene) {
@@ -93,9 +75,9 @@ export async function reset(): Promise<void> {}
   // Engine.enabled = false;
   Engine.inputState.clear()
   Engine.prevInputState.clear()
-}*/
+}
 
-export const executeSystemBeforeReset = (world: World) => {
+export const executeSystemBeforeReset = (world: World = World.defaultWorld) => {
   Object.values(world.pipelines).forEach((pipeline) => {
     pipeline(world.ecsWorld)
   })
