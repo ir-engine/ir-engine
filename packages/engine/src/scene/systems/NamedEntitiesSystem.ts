@@ -14,7 +14,7 @@ export const NamedEntitiesSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const entity of nameEnterQuery(world)) {
       const { name } = NameComponent.get(entity)
-      if (world.world.namedEntities.has(name)) throw new Error(`An Entity with name "${name}" already exists.`)
+      if (world.world.namedEntities.has(name)) console.warn(`An Entity with name "${name}" already exists.`)
       world.world.namedEntities.set(name, entity)
     }
 
