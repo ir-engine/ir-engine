@@ -1,5 +1,10 @@
 import { Object3D, BoxBufferGeometry, Material, Mesh, BoxHelper } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
+
+/**
+ * @todo add collisionLayer and collisionMask properties
+ */
+
 export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'box-collider'
   static nodeName = 'Box Collider'
@@ -8,14 +13,6 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-
-    const gameObject = json.components.find((c) => c.name === 'game-object')
-
-    if (gameObject) {
-      node.target = gameObject.props.target
-      node.role = gameObject.props.role
-    }
-
     const boxCollider = json.components.find((c) => c.name === 'box-collider')
 
     if (boxCollider) {
@@ -28,6 +25,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   constructor(editor) {
     super(editor)
     const boxMesh = new Mesh(BoxColliderNode._geometry, BoxColliderNode._material)
+    boxMesh.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
     const box = new BoxHelper(boxMesh, 0x00ff00)
     box.layers.set(1)
     this.helper = box
@@ -43,6 +41,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
       const helperIndex = source.children.indexOf(source.helper)
       if (helperIndex !== -1) {
         const boxMesh = new Mesh(BoxColliderNode._geometry, BoxColliderNode._material)
+        boxMesh.scale.multiplyScalar(2)
         const box = new BoxHelper(boxMesh, 0x00ff00) as any
         box.layers.set(1)
         this.helper = box
@@ -56,29 +55,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   async serialize(projectID) {
     const components = {
       'box-collider': {
-        type: 'box',
-        isTrigger: this.isTrigger,
-        mass: 0,
-        position: this.position,
-        quaternion: {
-          x: this.quaternion.x,
-          y: this.quaternion.y,
-          z: this.quaternion.z,
-          w: this.quaternion.w
-        },
-        scale: {
-          x: this.scale.x / 2,
-          y: this.scale.y / 2,
-          z: this.scale.z / 2
-        }
-      }
-    } as any
-
-    if (this.target != undefined) {
-      components['game-object'] = {
-        gameName: this.editor.nodes.find((node) => node.uuid === this.target).name,
-        role: this.role,
-        target: this.target
+        isTrigger: this.isTrigger
       }
     }
     return await super.serialize(projectID, components)
@@ -87,23 +64,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     super.prepareForExport()
     this.remove(this.helper)
     this.addGLTFComponent('box-collider', {
-      // TODO: Remove exporting these properties. They are already included in the transform props.
-      type: 'box',
-      isTrigger: this.isTrigger,
-      position: this.position,
-      rotation: {
-        x: this.rotation.x,
-        y: this.rotation.y,
-        z: this.rotation.z
-      },
-      scale: this.scale
+      isTrigger: this.isTrigger
     })
-    if (this.target != undefined) {
-      this.addGLTFComponent('game-object', {
-        gameName: this.editor.nodes.find((node) => node.uuid === this.target).name,
-        role: this.role,
-        target: this.target
-      })
-    }
   }
 }

@@ -59,9 +59,6 @@ export class Network {
   /** Outgoing actions */
   outgoingActions = [] as ActionType[]
 
-  /** Game mode mapping schema */
-  loadedGames: Entity[] = [] // its for network
-
   /** Map of Network Objects. */
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null

@@ -44,6 +44,7 @@ import { XRSystem } from './xr/systems/XRSystem'
 import { FontManager } from './xrui/classes/FontManager'
 import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
+import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
@@ -145,7 +146,6 @@ const configureServer = async (options: Required<InitializeOptions>) => {
 
 const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   // Network Systems
-
   !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
 
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
@@ -157,14 +157,13 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
-  registerSystem(SystemUpdateType.Fixed, AnimationSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
   registerSystem(SystemUpdateType.Fixed, AvatarLoadingSystem)
+  registerSystem(SystemUpdateType.Free, AnimationSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
@@ -180,10 +179,12 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
+  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
 
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
+  registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
@@ -192,6 +193,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
   // Scene Systems
   // registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
+  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
@@ -204,6 +206,8 @@ const registerEditorSystems = (options: Required<InitializeOptions>) => {
 }
 
 const registerServerSystems = (options: Required<InitializeOptions>) => {
+  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
+
   // Network Incoming Systems
   registerSystem(SystemUpdateType.Fixed, ServerNetworkIncomingSystem, { ...options.networking }) // first
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
@@ -214,8 +218,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  // registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
-  registerSystem(SystemUpdateType.Fixed, TransformSystem)
+  registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
@@ -326,7 +329,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 }
 
 export const shutdownEngine = async () => {
-  if (Engine.initOptions.type === EngineSystemPresets.CLIENT) {
+  if (Engine.initOptions?.type === EngineSystemPresets.CLIENT) {
     removeClientInputListeners()
   }
 

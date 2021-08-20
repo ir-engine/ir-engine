@@ -43,7 +43,7 @@ export const handleTouchMove = (event: TouchEvent): void => {
   )
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y]
 
-  if (event.touches.length == 1) {
+  if (event.touches.length >= 1) {
     const mappedPositionInput = TouchInputs.Touch1Position
     const hasData = Engine.inputState.has(mappedPositionInput)
 
@@ -165,27 +165,17 @@ export const handleTouch = (event: TouchEvent): void => {
         const timeNow = Date.now()
         const doubleTapInput = TouchInputs.DoubleTouch
         if (timeNow - lastTap < tapLength) {
-          if (Engine.inputState.has(doubleTapInput)) {
-            Engine.inputState.set(doubleTapInput, {
-              type: InputType.BUTTON,
-              value: BinaryValue.ON,
-              lifecycleState: LifecycleValue.CONTINUED
-            })
-          } else {
-            Engine.inputState.set(doubleTapInput, {
-              type: InputType.BUTTON,
-              value: BinaryValue.ON,
-              lifecycleState: LifecycleValue.STARTED
-            })
-          }
-        } else {
-          if (Engine.inputState.has(doubleTapInput)) {
-            Engine.inputState.set(doubleTapInput, {
-              type: InputType.BUTTON,
-              value: BinaryValue.OFF,
-              lifecycleState: LifecycleValue.ENDED
-            })
-          }
+          Engine.inputState.set(doubleTapInput, {
+            type: InputType.BUTTON,
+            value: BinaryValue.ON,
+            lifecycleState: Engine.inputState.has(doubleTapInput) ? LifecycleValue.CONTINUED : LifecycleValue.STARTED
+          })
+        } else if (Engine.inputState.has(doubleTapInput)) {
+          Engine.inputState.set(doubleTapInput, {
+            type: InputType.BUTTON,
+            value: BinaryValue.OFF,
+            lifecycleState: LifecycleValue.ENDED
+          })
         }
         lastTap = timeNow
       }
@@ -211,26 +201,34 @@ export const handleTouch = (event: TouchEvent): void => {
     } else {
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
-        value: BinaryValue.ON,
-        lifecycleState: LifecycleValue.ENDED
-      })
-    }
-  } else {
-    const doubleTapInput = TouchInputs.DoubleTouch
-    if (Engine.inputState.has(doubleTapInput)) {
-      Engine.inputState.set(doubleTapInput, {
-        type: InputType.BUTTON,
         value: BinaryValue.OFF,
         lifecycleState: LifecycleValue.ENDED
       })
     }
-    if (Engine.inputState.has(TouchInputs.Touch1Movement)) {
-      Engine.inputState.set(TouchInputs.Touch1Movement, {
-        type: InputType.TWODIM,
-        value: [0, 0],
-        lifecycleState: LifecycleValue.ENDED
-      })
-    }
+    return
+  }
+  if (Engine.inputState.has(TouchInputs.Touch)) {
+    Engine.inputState.set(TouchInputs.Touch, {
+      type: InputType.BUTTON,
+      value: BinaryValue.OFF,
+      lifecycleState: LifecycleValue.ENDED
+    })
+  }
+
+  if (Engine.inputState.has(TouchInputs.DoubleTouch)) {
+    Engine.inputState.set(TouchInputs.DoubleTouch, {
+      type: InputType.BUTTON,
+      value: BinaryValue.OFF,
+      lifecycleState: LifecycleValue.ENDED
+    })
+  }
+
+  if (Engine.inputState.has(TouchInputs.Touch1Movement)) {
+    Engine.inputState.set(TouchInputs.Touch1Movement, {
+      type: InputType.TWODIM,
+      value: [0, 0],
+      lifecycleState: LifecycleValue.ENDED
+    })
   }
 }
 
@@ -517,7 +515,7 @@ export const handleKey = (event: KeyboardEvent): any => {
   }
 
   const element = event.target as HTMLElement
-  // Сheck which excludes the possibility of controlling the character (car, etc.) when typing a text
+  // Сheck which excludes the possibility of controlling the avatar (car, etc.) when typing a text
   if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {
     return
   }

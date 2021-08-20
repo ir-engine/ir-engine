@@ -63,11 +63,11 @@ const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCamera = (entity: Entity) => {
-  if (typeof entity === 'undefined') return console.log("undefined")
+  if (typeof entity === 'undefined') return console.log('undefined')
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform && !Engine.portCamera) return console.log("!cameraDesiredTransform && !Engine.portCamera")
+  if (!cameraDesiredTransform && !Engine.portCamera) return console.log('!cameraDesiredTransform && !Engine.portCamera')
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
@@ -212,7 +212,6 @@ export const CameraSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of followCameraAddQuery(world)) {
-      console.log("      const cameraFollow = getComponent(entity, FollowCameraComponent)      ")
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
@@ -247,7 +246,6 @@ export const CameraSystem = async (): Promise<System> => {
       }
     }
 
-    // follow camera component should only ever be on the character
     for (const entity of followCameraQuery(world)) {
       followCamera(entity)
     }

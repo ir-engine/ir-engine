@@ -126,7 +126,7 @@ export class EngineRenderer {
 
   renderPass: RenderPass
   normalPass: NormalPass
-  renderContext: WebGLRenderingContext
+  renderContext: WebGLRenderingContext | WebGL2RenderingContext
 
   supportWebGL2: boolean = WebGL.isWebGL2Available()
   rendereringEnabled = true
@@ -146,7 +146,7 @@ export class EngineRenderer {
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
     this.renderContext = context
-    const options = {
+    const options: any = {
       canvas,
       context,
       antialias: !Engine.isHMD,

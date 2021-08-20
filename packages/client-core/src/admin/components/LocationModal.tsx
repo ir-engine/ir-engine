@@ -21,8 +21,7 @@ import { selectAuthState } from '../../user/reducers/auth/selector'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-// import { selectAdminSceneState } from '../reducers/admin/scene/selector'
-import { useAdminSceneState } from '../reducers/admin/scene/store/AdminSceneState'
+import { selectAdminSceneState } from '../reducers/admin/scene/selector'
 import { selectAdminLocationState } from '../reducers/admin/location/selector'
 
 interface Props {
@@ -42,7 +41,7 @@ const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
     authState: selectAuthState(state),
-    // adminSceneState: selectAdminSceneState(state),
+    adminSceneState: selectAdminSceneState(state),
     adminLocationState: selectAdminLocationState(state)
   }
 }
@@ -54,17 +53,25 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const LocationModal = (props: Props): any => {
-  const { open, handleClose, location, editing, createLocation, patchLocation, removeLocation, adminLocationState } =
-    props
+  const {
+    open,
+    handleClose,
+    location,
+    editing,
+    createLocation,
+    patchLocation,
+    removeLocation,
+    adminSceneState,
+    adminLocationState
+  } = props
 
-  const adminSceneState = useAdminSceneState()
   const [name, setName] = useState('')
   const [sceneId, setSceneId] = useState('')
   const [maxUsers, setMaxUsers] = useState(10)
   const [videoEnabled, setVideoEnabled] = useState(false)
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [locationType, setLocationType] = useState('private')
-  const adminScenes = adminSceneState.scenes.scenes.get()
+  const adminScenes = adminSceneState.get('scenes').get('scenes')
   const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
   const [state, setState] = React.useState({
     feature: false,

@@ -4,7 +4,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../components/NameComponent'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
@@ -42,6 +42,9 @@ import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { Water } from '../classes/Water'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { UserdataComponent } from '../components/UserdataComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -118,6 +121,31 @@ export class WorldScene {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     switch (name) {
+      case 'mtdata':
+        if (isClient && Engine.isBot) {
+          const { meta_data } = component.data
+          console.log('scene_metadata|' + meta_data)
+        }
+        break
+
+      case '_metadata':
+        {
+          addObject3DComponent(entity, new Object3D(), component.data)
+          addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
+          const transform = getComponent(entity, TransformComponent)
+
+          if (isClient && Engine.isBot) {
+            const { _data } = component.data
+            const { x, y, z } = transform.data['position']
+            console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
+          }
+        }
+        break
+
+      case 'userdata':
+        addComponent(entity, UserdataComponent, { data: component.data })
+        break
+
       case 'ambient-light':
         addObject3DComponent(entity, new AmbientLight(), component.data)
         break
@@ -181,7 +209,7 @@ export class WorldScene {
         break
 
       case 'map':
-        if (isClient) createMap(entity, component.data)
+        if (isClient) this.loaders.push(createMap(entity, component.data))
         break
 
       case 'audio':
@@ -241,8 +269,14 @@ export class WorldScene {
         })
         break
 
-      case 'box-collider':
+      case 'collider': {
+        // TODO
+        break
+      }
+
+      case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
+        const transform = getComponent(entity, TransformComponent)
         createCollider(
           entity,
           {
@@ -251,11 +285,22 @@ export class WorldScene {
               ...boxColliderProps
             }
           },
-          boxColliderProps.position,
-          boxColliderProps.quaternion,
-          boxColliderProps.scale
+          transform.position,
+          transform.rotation,
+          transform.scale // convert from half extents to full extents
         )
+        if (
+          boxColliderProps.removeMesh === 'true' ||
+          (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)
+        ) {
+          const obj = getComponent(entity, Object3DComponent)
+          if (obj?.value) {
+            if (obj.value.parent) obj.value.removeFromParent()
+            removeComponent(entity, Object3DComponent)
+          }
+        }
         break
+      }
 
       case 'trigger-volume':
         createTriggerVolume(entity, component.data)
@@ -322,7 +367,6 @@ export class WorldScene {
         break
 
       /* deprecated */
-      case 'game':
       case 'mesh-collider':
         break
 

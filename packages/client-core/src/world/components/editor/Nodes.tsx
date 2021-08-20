@@ -4,7 +4,7 @@ import BoxColliderNode from '@xrengine/engine/src/editor/nodes/BoxColliderNode'
 import PortalNode from '@xrengine/engine/src/editor/nodes/PortalNode'
 import DirectionalLightNode from '@xrengine/engine/src/editor/nodes/DirectionalLightNode'
 import FloorPlanNode from '@xrengine/engine/src/editor/nodes/FloorPlanNode'
-import GameNode from '@xrengine/engine/src/editor/nodes/GameNode'
+import SystemNode from '@xrengine/engine/src/editor/nodes/SystemNode'
 import GroundPlaneNode from '@xrengine/engine/src/editor/nodes/GroundPlaneNode'
 import GroupNode from '@xrengine/engine/src/editor/nodes/GroupNode'
 import HemisphereLightNode from '@xrengine/engine/src/editor/nodes/HemisphereLightNode'
@@ -14,7 +14,7 @@ import ModelNode from '@xrengine/engine/src/editor/nodes/ModelNode'
 import ParticleEmitterNode from '@xrengine/engine/src/editor/nodes/ParticleEmitterNode'
 import PointLightNode from '@xrengine/engine/src/editor/nodes/PointLightNode'
 import PostProcessingNode from '@xrengine/engine/src/editor/nodes/PostProcessingNode'
-import CameraPropertiesNode from '@xrengine/engine/src/editor/nodes/CameraPropertiesNode'
+import CameraPropertiesNode from '../../../../../engine/src/editor/nodes/CameraPropertiesNode'
 import SceneNode from '@xrengine/engine/src/editor/nodes/SceneNode'
 import ScenePreviewCameraNode from '@xrengine/engine/src/editor/nodes/ScenePreviewCameraNode'
 import SkyboxNode from '@xrengine/engine/src/editor/nodes/SkyboxNode'
@@ -38,7 +38,7 @@ import BoxColliderNodeEditor from './properties/BoxColliderNodeEditor'
 import PortalNodeEditor from './properties/PortalNodeEditor'
 import DirectionalLightNodeEditor from './properties/DirectionalLightNodeEditor'
 import FloorPlanNodeEditor from './properties/FloorPlanNodeEditor'
-import GameNodeEditor from './properties/GameNodeEditor'
+import SystemNodeEditor from './properties/SystemNodeEditor'
 import GroundPlaneNodeEditor from './properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from './properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from './properties/HemisphereLightNodeEditor'
@@ -104,7 +104,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(SplineNode, SplineNodeEditor)
   editor.registerSource(new ElementsSource(editor))
   editor.registerSource(new MyAssetsSource(editor))
-  editor.registerNode(GameNode, GameNodeEditor)
+  editor.registerNode(SystemNode, SystemNodeEditor)
   editor.registerNode(MapNode, MapNodeEditor)
   editor.registerNode(ReflectionProbeNode, ReflectionProbeNodeEditor)
   editor.registerNode(CloudsNode, CloudsNodeEditor)

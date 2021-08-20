@@ -9,7 +9,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Not, defineQuery, enterQuery, defineSystem, System, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
 import { Quaternion, Vector3 } from 'three'
 import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '../../../engine/src/networking/classes/Network'
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 
@@ -21,7 +21,7 @@ export const AvatarUISystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const userEntity of userEnterQuery(world)) {
       if (userEntity === Network.instance.localClientEntity) continue
-      const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
+      const userId = getComponent(userEntity, NetworkObjectComponent).uniqueId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
       addComponent(ui.entity, TransformComponent, {

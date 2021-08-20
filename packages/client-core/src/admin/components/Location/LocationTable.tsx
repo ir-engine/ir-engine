@@ -13,10 +13,8 @@ import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
-// import { fetchAdminScenes } from '../../reducers/admin/scene/service'
-import { AdminSceneService } from '../../reducers/admin/scene/store/AdminSceneService'
-// import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
-import { useAdminSceneState } from '../../reducers/admin/scene/store/AdminSceneState'
+import { fetchAdminScenes } from '../../reducers/admin/scene/service'
+import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { connect } from 'react-redux'
@@ -38,14 +36,14 @@ const mapStateToProps = (state: any): any => {
     authState: selectAuthState(state),
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
-    adminInstanceState: selectAdminInstanceState(state)
-    // adminSceneState: selectAdminSceneState(state)
+    adminInstanceState: selectAdminInstanceState(state),
+    adminSceneState: selectAdminSceneState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-  fetchAdminScenes: bindActionCreators(AdminSceneService.fetchAdminScenes, dispatch),
+  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
   fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
   fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
   fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
@@ -65,10 +63,9 @@ const LocationTable = (props: Props) => {
     adminLocationState,
     adminUserState,
     adminInstanceState,
+    adminSceneState,
     removeLocation
   } = props
-
-  const adminSceneState = useAdminSceneState()
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
@@ -93,7 +90,7 @@ const LocationTable = (props: Props) => {
     if (user?.id != null && adminLocationState.get('locations').get('updateNeeded') === true) {
       fetchAdminLocations()
     }
-    if (user?.id != null && adminSceneState.scenes.updateNeeded.get() === true) {
+    if (user?.id != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
       fetchAdminScenes()
     }
     if (user?.id != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {

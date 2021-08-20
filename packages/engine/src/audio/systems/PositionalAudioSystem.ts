@@ -111,7 +111,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
     for (const entity of avatarAudioAddQuery(world)) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
-        const peerId = entityNetworkObject.ownerId
+        const peerId = entityNetworkObject.uniqueId
         const consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
@@ -138,7 +138,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       let consumer
       if (entityNetworkObject != null) {
-        const peerId = entityNetworkObject.ownerId
+        const peerId = entityNetworkObject.uniqueId
         consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )

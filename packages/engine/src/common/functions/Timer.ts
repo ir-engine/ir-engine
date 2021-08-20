@@ -265,12 +265,10 @@ export function Timer(
   }
 
   function clear() {
-    cancelAnimationFrame(frameId)
+    stop()
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_START)
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_SESSION)
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_END)
-    delete this.fixedRunner
-    delete this.networkRunner
   }
 
   return {
@@ -318,8 +316,7 @@ export class FixedStepsRunner {
     let timeout = timeUsed > this.limit
     let updatesLimitReached = updatesCount > this.updatesLimit
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      this.callback(this.accumulator)
-      // console.log(this.accumulator)
+      this.callback(this.timestep)
 
       this.accumulator -= this.timestep
       ++updatesCount
@@ -332,8 +329,24 @@ export class FixedStepsRunner {
 
     if (!accumulatorDepleted) {
       if (this.subsequentErrorsShown <= this.subsequentErrorsLimit) {
-        // console.error('Fixed timesteps SKIPPED time used ', timeUsed, 'ms (of ', this.limit, 'ms), made ', updatesCount, 'updates. skipped ', Math.floor(this.accumulator / this.timestep))
-        // console.log('accumulatorDepleted', accumulatorDepleted, 'timeout', timeout, 'updatesLimitReached', updatesLimitReached)
+        console.error(
+          'Fixed timesteps SKIPPED time used ',
+          timeUsed,
+          'ms (of ',
+          this.limit,
+          'ms), made ',
+          updatesCount,
+          'updates. skipped ',
+          Math.floor(this.accumulator / this.timestep)
+        )
+        console.log(
+          'accumulatorDepleted',
+          accumulatorDepleted,
+          'timeout',
+          timeout,
+          'updatesLimitReached',
+          updatesLimitReached
+        )
       } else {
         if (this.subsequentErrorsShown > this.subsequentErrorsResetLimit) {
           console.error('FixedTimestep', this.subsequentErrorsResetLimit, ' subsequent errors catched')
@@ -354,7 +367,8 @@ export class FixedStepsRunner {
   }
 }
 
-// TODO: unused
+/*
+// TODO: unused 
 export function createFixedTimestep(
   updatesPerSecond: number,
   callback: (time: number) => void
@@ -414,3 +428,4 @@ export function createFixedTimestep(
     }
   }
 }
+*/
