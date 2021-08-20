@@ -1,7 +1,7 @@
 import Immutable from 'immutable'
 import { update } from 'lodash'
 
-import { GROUP_FETCHING, GROUP_ADMIN_RETRIEVED, ADD_GROUP } from '../../actions'
+import { GROUP_FETCHING, GROUP_ADMIN_RETRIEVED, ADD_GROUP, GROUP_ADMIN_UPDATE, GROUP_ADMIN_DELETE } from '../../actions'
 
 import { GroupAction, GroupRetrieveAction } from './actions'
 
@@ -39,6 +39,14 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       updateMap.set('lastFetched', new Date())
       return state.set('group', updateMap)
     case ADD_GROUP:
+      updateMap = new Map(state.get('group'))
+      updateMap.set('updateNeeded', true)
+      return state.set('group', updateMap)
+    case GROUP_ADMIN_UPDATE:
+      updateMap = new Map(state.get('group'))
+      updateMap.set('updateNeeded', true)
+      return state.set('group', updateMap)
+    case GROUP_ADMIN_DELETE:
       updateMap = new Map(state.get('group'))
       updateMap.set('updateNeeded', true)
       return state.set('group', updateMap)

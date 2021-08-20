@@ -124,7 +124,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginBottom: '20px'
     },
     marginTop: {
-      marginTop: '7%'
+      marginTop: '4%'
     },
     paperHeight: {
       height: '20vh',
@@ -138,6 +138,19 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     typo: {
       textTransform: 'capitalize'
+    },
+    root: {
+      width: '100%',
+      backgroundColor: '#43484F'
+    },
+    flex: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginTop: '4%'
+    },
+    alert: {
+      background: '#343b41',
+      color: '#f1f1f1'
     }
   })
 )
@@ -147,7 +160,7 @@ export const useStyle = makeStyles({
     width: '100%'
   },
   paper: {
-    width: '40%',
+    width: '50%',
     backgroundColor: '#43484F',
     color: '#f1f1f1'
   },

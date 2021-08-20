@@ -13,6 +13,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { patchGroup } from '../../reducers/admin/group/service'
 import { useStyles, useStyle } from './styles'
 
 interface Props {
@@ -20,11 +21,13 @@ interface Props {
   closeEditModal: any
   adminScopeState?: any
   getScopeTypeService?: any
+  patchGroup?: any
   authState?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch),
+  patchGroup: bindActionCreators(patchGroup, dispatch)
 })
 
 const mapStateToProps = (state: any): any => {
@@ -38,7 +41,7 @@ const EditGroup = (props: Props) => {
   const classes = useStyles()
   const classx = useStyle()
 
-  const { groupAdmin, closeEditModal, authState, adminScopeState } = props
+  const { groupAdmin, closeEditModal, patchGroup, authState, adminScopeState } = props
   const user = authState.get('user')
   const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
@@ -59,9 +62,46 @@ const EditGroup = (props: Props) => {
     }
   }, [adminScopeState, user])
 
-  const handleChange = () => {}
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    let temp = state.formErrors
 
-  const onSubmitHandler = (e) => {}
+    switch (name) {
+      case 'name':
+        temp.name = value.length < 2 ? 'Name is required' : ''
+        break
+      case 'description':
+        temp.description = value.length < 2 ? 'Description is required' : ''
+    }
+
+    setState({ ...state, [name]: value, formErrors: temp })
+  }
+
+  const onSubmitHandler = (e) => {
+    e.preventDefault()
+    const { name, description, scopeType } = state
+    let temp = state.formErrors
+
+    if (!state.name) {
+      temp.name = "Name can't be empty"
+    }
+    if (!state.description) {
+      temp.description = "Description can't be empty"
+    }
+    if (!state.scopeType.length) {
+      temp.scopeType = "Scope can't be empty"
+    }
+    setState({ ...state, formErrors: temp })
+    if (formValid(state, state.formErrors)) {
+      patchGroup(groupAdmin.id, { name, description, scopeType })
+      setState({
+        ...state,
+        name: '',
+        description: '',
+        scopeType: []
+      })
+    }
+  }
 
   return (
     <Container maxWidth="sm" className={classes.marginTp}>
@@ -97,8 +137,11 @@ const EditGroup = (props: Props) => {
           />
         </Paper>
 
-        <label>Grant access</label>
-        <Paper component="div" className={classes.createInput}>
+        <label>Grant Scope</label>
+        <Paper
+          component="div"
+          className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+        >
           <Autocomplete
             onChange={(event, value) =>
               setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
@@ -107,7 +150,7 @@ const EditGroup = (props: Props) => {
             className={classes.selector}
             classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
             id="tags-standard"
-            value={groupAdmin.scopes}
+            value={state.scopeType}
             options={adminScopes}
             getOptionLabel={(option) => option.type}
             renderInput={(params) => <TextField {...params} placeholder="Select access" />}

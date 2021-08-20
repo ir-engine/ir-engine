@@ -1,4 +1,4 @@
-import { GROUP_FETCHING, GROUP_ADMIN_RETRIEVED, ADD_GROUP } from '../../actions'
+import { GROUP_FETCHING, GROUP_ADMIN_RETRIEVED, ADD_GROUP, GROUP_ADMIN_UPDATE, GROUP_ADMIN_DELETE } from '../../actions'
 
 export interface FetchingAction {
   type: string
@@ -32,6 +32,20 @@ export function setAdminGroup(list: any[]): GroupRetrieveAction {
 export function addAdminGroup(item: any): GroupOneAction {
   return {
     type: ADD_GROUP,
+    item
+  }
+}
+
+export function updateGroup(item: any): GroupOneAction {
+  return {
+    type: GROUP_ADMIN_UPDATE,
+    item
+  }
+}
+
+export function removeGroup(item: any): GroupOneAction {
+  return {
+    type: GROUP_ADMIN_DELETE,
     item
   }
 }

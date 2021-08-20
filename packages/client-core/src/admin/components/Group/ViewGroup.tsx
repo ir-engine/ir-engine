@@ -5,13 +5,14 @@ import Paper from '@material-ui/core/Paper'
 import Avatar from '@material-ui/core/Avatar'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
-import InputBase from '@material-ui/core/InputBase'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import ListItemAvatar from '@material-ui/core/ListItemAvatar'
+import ImageIcon from '@material-ui/icons/Image'
+import Chip from '@material-ui/core/Chip'
 import { useStyles, useStyle } from './styles'
 import EditGroup from './EditGroup'
 
@@ -46,24 +47,69 @@ const ViewGroup = (props: Props) => {
             <Typography variant="h4" component="h4" className={classes.mb20px}>
               Group Information
             </Typography>
-            <Grid container spacing={3} className={classes.mt10}>
-              <Grid item xs={6}>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  Name:
-                </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  Description:
-                </Typography>
+            <Container>
+              <Grid container spacing={3}>
+                <Grid item xs={6}>
+                  <Typography variant="h5" component="h5" className={classes.mb10}>
+                    Name:
+                  </Typography>
+                  <Typography variant="h5" component="h5" className={classes.mb10}>
+                    Description:
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="h6" component="h6" className={classes.mb10}>
+                    {groupAdmin?.name || <span className={classes.spanNone}>None</span>}
+                  </Typography>
+                  <Typography variant="h6" component="h6" className={classes.mb10}>
+                    {groupAdmin?.description || <span className={classes.spanNone}>None</span>}
+                  </Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {groupAdmin?.name || <span className={classes.spanNone}>None</span>}
+            </Container>
+            <div className={classes.flex}>
+              <div>
+                <Typography variant="h4" component="h4" className={classes.mb20px}>
+                  User scope
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {groupAdmin?.description || <span className={classes.spanNone}>None</span>}
+                <Container>
+                  {groupAdmin.scopes?.map((el, index) => {
+                    const [label, type] = el.type.split(':')
+                    return (
+                      <Grid container spacing={3} key={el.id}>
+                        <Grid item xs={8}>
+                          <Typography variant="h6" component="h6" className={classes.mb10}>
+                            {label}:
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Chip label={type} />
+                        </Grid>
+                      </Grid>
+                    )
+                  })}
+                </Container>
+              </div>
+              <div>
+                <Typography variant="h4" component="h4" className={classes.mb20px}>
+                  Users Information
                 </Typography>
-              </Grid>
-            </Grid>
+                <List className={classes.root} style={{ overflowY: 'scroll' }}>
+                  {groupAdmin.groupUsers.map((obj) => (
+                    <ListItem key={obj.id}>
+                      <ListItemAvatar>
+                        <Avatar style={{ textTransform: 'uppercase' }}>{obj.user.name.slice(0, 1)}</Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={obj.user.name}
+                        classes={{ secondary: '#808080' }}
+                        secondary={obj.groupUserRank}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </div>
+            </div>
           </Container>
           <DialogActions className={classes.mb10}>
             <div className={classes.marginTop}>

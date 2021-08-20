@@ -197,6 +197,9 @@ const ViewUser = (props: Props) => {
     if (!state.scopeType) {
       temp.scopeType = "Scope type can't be empty"
     }
+    if (!state.scopeType.length) {
+      temp.scopeType = "Scope can't be empty"
+    }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
       patchUser(userAdmin.id, data)
@@ -361,9 +364,14 @@ const ViewUser = (props: Props) => {
               </Paper>
 
               <label>Grant scope</label>
-              <Paper component="div" className={classes.createInput}>
+              <Paper
+                component="div"
+                className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+              >
                 <Autocomplete
-                  onChange={(event, value) => setState({ ...state, scopeType: value })}
+                  onChange={(event, value) =>
+                    setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+                  }
                   multiple
                   value={state.scopeType}
                   className={classes.selector}

@@ -37,7 +37,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#343b41'
     },
     center: {
-      margin: '4rem auto 0 auto',
+      margin: '3rem auto',
       textAlign: 'center'
     },
     typo: {
@@ -62,7 +62,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1 !important'
     },
     marginTp: {
-      marginTop: '20%'
+      marginTop: '10%'
     },
     texAlign: {
       textAlign: 'center'
@@ -91,7 +91,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginBottom: '15px'
     },
     mb10: {
-      marginBottom: '10%'
+      marginBottom: '5%'
     },
     space: {
       padding: '1.2rem'
@@ -106,14 +106,17 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginTop: '10%'
     },
     marginTop: {
-      marginTop: '7%'
+      marginTop: '4%'
+    },
+    table: {
+      minWidth: 650
     }
   })
 )
 
 export const useStyle = makeStyles({
   paper: {
-    width: '40%',
+    width: '70%',
     backgroundColor: '#43484F',
     color: '#f1f1f1'
   },
