@@ -126,6 +126,25 @@ export const getAssetClass = (assetFileName: string): AssetClass => {
   }
 }
 
+const fbxLoader = new FBXLoader()
+const textureLoader = new TextureLoader()
+const fileLoader = new FileLoader()
+
+const getLoader = (assetType: AssetType) => {
+  switch (assetType) {
+    case AssetType.glTF:
+    case AssetType.VRM:
+      return getGLTFLoader()
+    case AssetType.FBX:
+      return fbxLoader
+    case AssetType.PNG:
+    case AssetType.JPEG:
+      return textureLoader
+    default:
+      return fileLoader
+  }
+}
+
 type AssetLoaderParamType = {
   entity?: Entity
   parent?: Object3D
@@ -135,6 +154,49 @@ type AssetLoaderParamType = {
   [key: string]: any
 }
 
+const load = (
+  params: AssetLoaderParamType,
+  onLoad?: (response: any) => void,
+  onProgress?: (request: ProgressEvent) => void,
+  onError?: (event: ErrorEvent | Error) => void
+) => {
+  if (!params.url) {
+    onError(new Error('URL is empty'))
+    return
+  }
+
+  if (AssetLoader.Cache.has(params.url)) {
+    return AssetLoader.Cache.get(params.url)
+  }
+
+  const assetType = getAssetType(params.url)
+  const assetClass = getAssetClass(params.url)
+
+  const loader = getLoader(assetType)
+  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
+
+  loader.load(
+    url,
+    (asset) => {
+      if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+        loadExtentions(asset)
+        // result = response.scene
+        // result.animations = response.animations
+      }
+
+      if (assetClass === AssetClass.Model) {
+        processModelAsset(asset.scene, params)
+      }
+
+      AssetLoader.Cache.set(params.url, asset)
+
+      onLoad(asset)
+    },
+    onProgress,
+    onError
+  )
+}
+
 export class AssetLoader {
   static Cache = new Map<string, any>()
   static loaders = new Map<number, any>()
@@ -142,85 +204,7 @@ export class AssetLoader {
 
   assetType: AssetType
   assetClass: AssetClass
-  fileLoader: any
   result: any
-  status: number = LOADER_STATUS.LOADING
-
-  constructor(
-    private params: AssetLoaderParamType,
-    private onLoad?: (response: any) => void,
-    private onProgress?: (request: ProgressEvent) => void,
-    private onError?: (event: ErrorEvent | Error) => void
-  ) {
-    if (!this.params.url) {
-      this._onError(new Error('URL is empty'))
-      return
-    }
-
-    this.assetType = getAssetType(this.params.url)
-    this.assetClass = getAssetClass(this.params.url)
-
-    if (AssetLoader.Cache.has(this.params.url)) {
-      this._onLoad(AssetLoader.Cache.get(this.params.url))
-      return
-    }
-
-    switch (this.assetType) {
-      case AssetType.glTF:
-      case AssetType.VRM:
-        this.fileLoader = getGLTFLoader()
-        break
-      case AssetType.FBX:
-        this.fileLoader = new FBXLoader()
-        break
-      case AssetType.PNG:
-      case AssetType.JPEG:
-        this.fileLoader = new TextureLoader()
-        break
-      default:
-        this.fileLoader = new FileLoader()
-        break
-    }
-
-    const url = isAbsolutePath(this.params.url) ? this.params.url : Engine.publicPath + this.params.url
-    this.fileLoader.load(url, this._onLoad, this._onProgress, this._onError)
-
-    // Add or overwrites the loader for an entity.
-    if (this.params.entity) {
-      AssetLoader.loaders.set(this.params.entity, this)
-    }
-  }
-
-  _onLoad = (response: any): void => {
-    this.result = response
-    // TODO: we shouldn't be changing the gltf/vrm default object hierarchy
-    if (response && (this.assetType === AssetType.glTF || this.assetType === AssetType.VRM)) {
-      loadExtentions(this.result)
-      this.result = response.scene
-      this.result.animations = response.animations
-    }
-
-    if (this.assetClass === AssetClass.Model) {
-      processModelAsset(this.result, this.params)
-    }
-
-    if (!AssetLoader.Cache.has(this.params.url)) AssetLoader.Cache.set(this.params.url, response)
-
-    this.status = LOADER_STATUS.LOADED
-
-    if (typeof this.onLoad === 'function') this.onLoad(this.result)
-    else return this.result
-  }
-
-  _onProgress = (request: ProgressEvent): void => {
-    this.status = LOADER_STATUS.LOADING
-    if (typeof this.onProgress === 'function') this.onProgress(request)
-  }
-
-  _onError = (event: ErrorEvent | Error): void => {
-    this.status = LOADER_STATUS.ERROR
-    if (typeof this.onError === 'function') this.onError(event)
-  }
 
   static load(
     params: AssetLoaderParamType,
@@ -228,35 +212,17 @@ export class AssetLoader {
     onProgress?: (request: ProgressEvent) => void,
     onError?: (event: ErrorEvent | Error) => void
   ) {
-    const loader = new AssetLoader(params, onLoad, onProgress, onError)
-    return loader
+    load(params, onLoad, onProgress, onError)
   }
 
   static async loadAsync(params: AssetLoaderParamType) {
     return new Promise<any>((resolve, reject) => {
-      new AssetLoader(params, resolve, () => {}, resolve)
+      load(params, resolve, () => {}, resolve)
     })
   }
 
   // TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
   static getFromCache(url: string) {
-    const response = AssetLoader.Cache.get(url)
-    const assetType = getAssetType(url)
-    const assetClass = getAssetClass(url)
-
-    let result = response
-
-    // TODO: we shouldn't be changing the gltf/vrm default object hierarchy
-    if (response && (assetType === AssetType.glTF || assetType === AssetType.VRM)) {
-      loadExtentions(result)
-      result = response.scene
-      result.animations = response.animations
-    }
-
-    // should already be processed, this should happen on load only the first time :/
-    // if (assetClass === AssetClass.Model) {
-    //   processModelAsset(result, params)
-    // }
-    return result
+    return AssetLoader.Cache.get(url)
   }
 }
