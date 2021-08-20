@@ -36,7 +36,7 @@ export class SceneOptions {
 }
 
 export const SceneObjectSystem = async (): Promise<System> => {
-  const sceneObjectQuery = defineQuery([Object3DComponent])
+  const sceneObjectQuery = defineQuery([Object3DComponent, TransformComponent])
   const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
   const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
 
