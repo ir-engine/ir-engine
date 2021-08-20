@@ -91,6 +91,7 @@ export interface IStyles {
   extrude?: string
   offy?: number
   opacity?: number
+  zIndex?: number
 }
 export interface IFeatureStyles extends IStyles {
   classOverride?: {
@@ -100,6 +101,12 @@ export interface IFeatureStyles extends IStyles {
 
 export interface IFeatureStylesByLayerName {
   [layerName: string]: IFeatureStyles
+}
+
+const zIndexes = ['landuse', 'waterway', 'water', 'road', 'landuse']
+
+function getZIndex(key: string) {
+  return zIndexes.indexOf(key)
 }
 
 export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
@@ -133,6 +140,7 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   road: {
+    zIndex: getZIndex('road'),
     color: {
       constant: 0x333333
     },
@@ -206,20 +214,101 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
     }
   },
 
+  water: {
+    zIndex: getZIndex('water'),
+    extrude: 'flat',
+    color: {
+      constant: 0x0f336d
+    }
+  },
+  waterway: {
+    zIndex: getZIndex('waterway'),
+    extrude: 'flat',
+    color: {
+      constant: 0x0b3e46
+    },
+    width: 2,
+    classOverride: {
+      river: {
+        width: 4
+      },
+      drain: {
+        color: {
+          constant: 0x777777
+        }
+      }
+    }
+  },
+  landuse: {
+    zIndex: getZIndex('landuse'),
+    extrude: 'flat',
+    color: {
+      constant: 0x433d13
+    },
+    classOverride: {
+      sand: {
+        color: {
+          constant: 0x9d880e
+        }
+      },
+      grass: {
+        color: {
+          constant: 0x265513
+        }
+      },
+      pitch: {
+        color: {
+          constant: 0x1d410e
+        }
+      },
+      scrub: {
+        color: {
+          constant: 0x27390e
+        }
+      },
+      park: {
+        color: {
+          constant: 0x125019
+        }
+      },
+      wood: {
+        color: {
+          constant: 0x042808
+        }
+      },
+      rock: {
+        color: {
+          constant: 0x33333
+        }
+      },
+      parking: {
+        color: {
+          constant: 0x333333
+        }
+      },
+      hospital: {
+        color: {
+          constant: 0x222f23
+        }
+      },
+      school: {
+        color: {
+          constant: 0x222f23
+        }
+      },
+      residential: {
+        color: {
+          constant: 0x222f23
+        }
+      }
+    }
+  },
+
   poi: {
     color: {
       constant: 0xff0000
     },
     height: 20
-  },
-
-  landuse: {
-    color: {
-      constant: 0xffff00
-    },
-    opacity: 1,
-    extrude: 'flat',
-    offy: -0.2
   },
 
   landcover: {

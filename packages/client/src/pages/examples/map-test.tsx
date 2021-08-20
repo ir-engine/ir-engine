@@ -5,24 +5,41 @@ import MapNode from '../../../../engine/src/editor/nodes/MapNode'
 import MapNodeEditor from '../../../../client-core/src/world/components/editor/properties/MapNodeEditor'
 import { createState, useState } from '@hookstate/core'
 
-const globalState = createState(0)
-
 const scene = new Scene()
+
+const LOCAL_STORAGE_KEY = 'xrengine:map-test:editor:object'
 
 class EditorMock {
   renderer: {
     renderer: WebGLRenderer
   }
   object = new MapNode(this)
+  async load() {
+    const json = localStorage.getItem(LOCAL_STORAGE_KEY)
+    if (json) {
+      this.object = (await MapNode.deserialize(this, JSON.parse(json))) as MapNode
+      globalState.set(this.object)
+    }
+  }
+  async save() {
+    const serialized = await this.object.serialize('test')
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(serialized))
+  }
   setPropertySelected(propertyName: string, value: any) {
-    this.object[propertyName] = value
-    this.object.onChange(propertyName)
-    globalState.set((version) => version + 1)
+    if (this.object) {
+      this.object[propertyName] = value
+      this.object.onChange(propertyName)
+      globalState.set(this.object.clone(false))
+      this.save()
+    }
   }
 }
 
 const editor = new EditorMock()
-const mapNode = editor.object
+editor.load()
+
+const globalState = createState(editor.object)
+
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const canvasStyle = {
@@ -47,7 +64,7 @@ async function init(): Promise<any> {
 
   scene.add(new HemisphereLight())
   scene.add(new DirectionalLight())
-  scene.add(mapNode as any)
+  scene.add(editor.object as any)
 
   let camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
   camera.position.set(1, 2, 5)
@@ -58,7 +75,7 @@ async function init(): Promise<any> {
   controls.target.set(0, 0, 0)
   controls.object.position.set(0, 2000, 0)
 
-  mapNode.onChange()
+  editor.object.onChange()
 
   const animate = () => {
     requestAnimationFrame(animate)
@@ -78,8 +95,8 @@ const Page = () => {
 
   return (
     <>
-      <p>version {state.get()}</p>
-      <MapNodeEditor editor={editor} node={mapNode} />
+      <p style={{ color: 'black' }}>JSON: {JSON.stringify(state.value.getProps())}</p>
+      <MapNodeEditor editor={editor} node={editor.object} />
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
     </>
   )
