@@ -1,6 +1,7 @@
 import { URL } from 'url'
 import puppeteer from 'puppeteer'
 import fs from 'fs'
+import { getOS } from '../../common/src/utils/getOS'
 
 class PageUtils {
   bot: XREngineBot
@@ -262,7 +263,7 @@ export class XREngineBot {
     const options: any = {}
     let chromePath = ''
     switch (os) {
-      case 'Mac OS':
+      case 'macOS':
         chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
         break
       case 'Windows':
@@ -435,17 +436,4 @@ export class XREngineBot {
       this.browser.close()
     }
   }
-}
-
-function getOS() {
-  const platform = process.platform
-
-  if (platform.includes('darwin')) {
-    return 'Mac OS'
-  } else if (platform.includes('win32')) {
-    return 'Windows'
-  } else if (platform.includes('linux')) {
-    return 'Linux'
-  }
-  return ''
 }

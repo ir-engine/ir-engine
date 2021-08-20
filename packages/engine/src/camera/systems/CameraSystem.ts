@@ -212,7 +212,6 @@ export const CameraSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of followCameraAddQuery(world)) {
-      console.log('      const cameraFollow = getComponent(entity, FollowCameraComponent)      ')
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
@@ -247,7 +246,6 @@ export const CameraSystem = async (): Promise<System> => {
       }
     }
 
-    // follow camera component should only ever be on the character
     for (const entity of followCameraQuery(world)) {
       followCamera(entity)
     }

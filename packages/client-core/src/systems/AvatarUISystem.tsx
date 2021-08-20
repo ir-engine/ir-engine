@@ -21,7 +21,7 @@ export const AvatarUISystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const userEntity of userEnterQuery(world)) {
       if (userEntity === Network.instance.localClientEntity) continue
-      const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
+      const userId = getComponent(userEntity, NetworkObjectComponent).uniqueId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
       addComponent(ui.entity, TransformComponent, {

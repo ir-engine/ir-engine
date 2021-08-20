@@ -1,11 +1,23 @@
-import { SparseSet } from './Util.js'
-import { $queryShadow, $storeFlattened, $tagStore, createShadow } from './Storage.js'
-import { $componentMap, registerComponent } from './Component.js'
-import { $entityMasks, $entityArray, getEntityCursor, $entitySparseSet } from './Entity.js'
+import { SparseSet } from './Util'
+import { $queryShadow, $storeFlattened, $tagStore, createShadow } from './Storage'
+import { $componentMap, registerComponent } from './Component'
+import { $entityMasks, $entityArray, getEntityCursor, $entitySparseSet } from './Entity'
 
-export function Not(c) { return function QueryNot() { return c } }
-export function Or(c) { return function QueryOr() { return c } }
-export function Changed(c) { return function QueryChanged() { return c } }
+export function Not(c) {
+  return function QueryNot() {
+    return c
+  }
+}
+export function Or(c) {
+  return function QueryOr() {
+    return c
+  }
+}
+export function Changed(c) {
+  return function QueryChanged() {
+    return c
+  }
+}
 
 export const $queries = Symbol('queries')
 export const $notQueries = Symbol('notQueries')
@@ -21,7 +33,7 @@ export const $exitQuery = Symbol('exitQuery')
  * @param {function} query
  * @returns {function} enteredQuery
  */
-export const enterQuery = query => world => {
+export const enterQuery = (query) => (world) => {
   if (!world[$queryMap].has(query)) registerQuery(world, query)
   const q = world[$queryMap].get(query)
   return q.entered.splice(0)
@@ -33,19 +45,18 @@ export const enterQuery = query => world => {
  * @param {function} query
  * @returns {function} enteredQuery
  */
-export const exitQuery = query => world => {
+export const exitQuery = (query) => (world) => {
   if (!world[$queryMap].has(query)) registerQuery(world, query)
   const q = world[$queryMap].get(query)
   return q.exited.splice(0)
 }
 
 export const registerQuery = (world, query) => {
-
   const components = []
   const notComponents = []
   const changedComponents = []
 
-  query[$queryComponents].forEach(c => {
+  query[$queryComponents].forEach((c) => {
     if (typeof c === 'function') {
       const comp = c()
       if (!world[$componentMap].has(comp)) registerComponent(world, comp)
@@ -62,8 +73,7 @@ export const registerQuery = (world, query) => {
     }
   })
 
-
-  const mapComponents = c => world[$componentMap].get(c)
+  const mapComponents = (c) => world[$componentMap].get(c)
 
   const allComponents = components.concat(notComponents).map(mapComponents)
 
@@ -78,48 +88,43 @@ export const registerQuery = (world, query) => {
   const exited = []
 
   const generations = allComponents
-    .map(c => c.generationId)
-    .reduce((a,v) => {
+    .map((c) => c.generationId)
+    .reduce((a, v) => {
       if (a.includes(v)) return a
       a.push(v)
       return a
     }, [])
 
-  const reduceBitflags = (a,c) => {
+  const reduceBitflags = (a, c) => {
     if (!a[c.generationId]) a[c.generationId] = 0
     a[c.generationId] |= c.bitflag
     return a
   }
-  const masks = components
-    .map(mapComponents)
-    .reduce(reduceBitflags, {})
+  const masks = components.map(mapComponents).reduce(reduceBitflags, {})
 
-  const notMasks = notComponents
-    .map(mapComponents)
-    .reduce((a,c) => {
-      if (!a[c.generationId]) {
-        a[c.generationId] = 0
-      }
-      a[c.generationId] |= c.bitflag
-      return a
-    }, {})
+  const notMasks = notComponents.map(mapComponents).reduce((a, c) => {
+    if (!a[c.generationId]) {
+      a[c.generationId] = 0
+    }
+    a[c.generationId] |= c.bitflag
+    return a
+  }, {})
 
   // const orMasks = orComponents
   //   .map(mapComponents)
   //   .reduce(reduceBitmasks, {})
 
-  const hasMasks = allComponents
-    .reduce(reduceBitflags, {})
+  const hasMasks = allComponents.reduce(reduceBitflags, {})
 
   const flatProps = components
-    .filter(c => !c[$tagStore])
-    .map(c => Object.getOwnPropertySymbols(c).includes($storeFlattened) ? c[$storeFlattened] : [c])
-    .reduce((a,v) => a.concat(v), [])
+    .filter((c) => !c[$tagStore])
+    .map((c) => (Object.getOwnPropertySymbols(c).includes($storeFlattened) ? c[$storeFlattened] : [c]))
+    .reduce((a, v) => a.concat(v), [])
 
-  const shadows = flatProps.map(prop => {
-      const $ = Symbol()
-      createShadow(prop, $)
-      return prop[$]
+  const shadows = flatProps.map((prop) => {
+    const $ = Symbol()
+    createShadow(prop, $)
+    return prop[$]
   }, [])
 
   const q = Object.assign(sparseSet, {
@@ -137,19 +142,19 @@ export const registerQuery = (world, query) => {
     toRemove,
     entered,
     exited,
-    shadows,
+    shadows
   })
-  
+
   world[$queryMap].set(query, q)
   world[$queries].add(q)
-  
-  components.map(mapComponents).forEach(c => {
+
+  components.map(mapComponents).forEach((c) => {
     c.queries.add(q)
   })
-  notComponents.map(mapComponents).forEach(c => {
+  notComponents.map(mapComponents).forEach((c) => {
     c.notQueries.add(q)
   })
-  changedComponents.map(mapComponents).forEach(c => {
+  changedComponents.map(mapComponents).forEach((c) => {
     c.changedQueries.add(q)
   })
 
@@ -204,7 +209,6 @@ const diff = (q, clearDiff) => {
 //   })
 // }
 
-
 /**
  * Defines a query function which returns a matching set of entities when called on a world.
  *
@@ -214,10 +218,10 @@ const diff = (q, clearDiff) => {
 
 export const defineQuery = (components) => {
   if (components === undefined || components[$componentMap] !== undefined) {
-    return world => world ? world[$entityArray] : components[$entityArray]
+    return (world) => (world ? world[$entityArray] : components[$entityArray])
   }
 
-  const query = function (world, clearDiff=true) {
+  const query = function (world, clearDiff = true) {
     if (!world[$queryMap].has(query)) registerQuery(world, query)
 
     const q = world[$queryMap].get(query)
@@ -243,7 +247,7 @@ export const queryCheckEntity = (world, q, eid) => {
     const qNotMask = notMasks[generationId]
     // const qOrMask = orMasks[generationId]
     const eMask = world[$entityMasks][generationId][eid]
-    
+
     // if (qOrMask && (eMask & qOrMask) !== qOrMask) {
     //   continue
     // }
@@ -287,7 +291,6 @@ export const queryRemoveEntity = (world, q, eid) => {
   world[$dirtyQueries].add(q)
   q.exited.push(eid)
 }
-
 
 /**
  * Resets a Changed-based query, clearing the underlying list of changed entities.

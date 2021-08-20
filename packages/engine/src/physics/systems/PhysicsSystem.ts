@@ -17,6 +17,7 @@ import { PrefabType } from '../../networking/templates/PrefabType'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -26,8 +27,8 @@ import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeC
 export const PhysicsSystem = async (
   attributes: { worker?: () => Worker; simulationEnabled?: boolean } = {}
 ): Promise<System> => {
-  const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
-  const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
+  const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
+  const spawnRigidbodyAddQuery = enterQuery(spawnRigidbodyQuery)
 
   const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
   const colliderRemoveQuery = exitQuery(colliderQuery)
@@ -58,6 +59,8 @@ export const PhysicsSystem = async (
     PhysXInstance.instance = new PhysXInstance()
   }
 
+  console.log(PhysXInstance.instance)
+
   simulationEnabled = attributes.simulationEnabled ?? true
 
   await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
@@ -66,7 +69,7 @@ export const PhysicsSystem = async (
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
-    for (const entity of spawnNetworkObjectAddQuery(world)) {
+    for (const entity of spawnRigidbodyAddQuery(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
 
       addComponent(entity, TransformComponent, {
@@ -82,7 +85,6 @@ export const PhysicsSystem = async (
       } else {
         Network.instance.worldState.createObjects.push({
           networkId: networkId,
-          ownerId: uniqueId,
           prefabType: PrefabType.RigidBody,
           uniqueId,
           parameters: parameters
@@ -108,7 +110,7 @@ export const PhysicsSystem = async (
       const collider = getComponent(entity, ColliderComponent)
       const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
-      if (hasComponent(entity, ClientAuthoritativeComponent)) continue
+      if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
 
       if (collider.body.type === BodyType.KINEMATIC) {
         velocity.velocity.subVectors(collider.body.transform.translation, transform.position)

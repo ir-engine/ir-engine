@@ -1,10 +1,9 @@
-
 function degToRad(deg) {
-  return deg * Math.PI / 180
+  return (deg * Math.PI) / 180
 }
 
 function radToDegree(rad) {
-  return rad * 180 / Math.PI
+  return (rad * 180) / Math.PI
 }
 
 function thetaAndVectorToGLQuat(theta: number, v: number[]): number[] {
@@ -12,7 +11,6 @@ function thetaAndVectorToGLQuat(theta: number, v: number[]): number[] {
   const sinT = Math.sin(degToRad(theta))
   return [sinT * v[0], sinT * v[1], sinT * v[2], cosT]
 }
-
 
 interface angles {
   pitch: number
@@ -27,7 +25,7 @@ const tests = [
   },
   {
     theta: 45,
-    expected: Math.PI/2
+    expected: Math.PI / 2
   },
   {
     theta: 90,
@@ -39,14 +37,13 @@ const tests = [
   },
   {
     theta: -45,
-    expected: Math.PI/2
+    expected: Math.PI / 2
   },
   {
     theta: -180,
     expected: 0
-  },
+  }
 ]
-
 
 // // TODO: get tests with negative thetas to pass
 // // TODO: get tests that expect 0 but outpu ~Pi to pass
@@ -90,4 +87,3 @@ const tests = [
 //       });
 //   })
 // })
-

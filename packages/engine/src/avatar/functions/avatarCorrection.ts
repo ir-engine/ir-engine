@@ -14,8 +14,8 @@ import { AvatarComponent } from '../components/AvatarComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
- * Interpolates the local client's character transform with the interpolated snapshots
- * @param {Entity} entity the entity belonging to the character
+ * Interpolates the local client's avatar transform with the interpolated snapshots
+ * @param {Entity} entity the entity belonging to the avatar
  * @param {SnapshotData} snapshots the snapshot data to use
  * @param {number} delta the delta of this frame
  */
