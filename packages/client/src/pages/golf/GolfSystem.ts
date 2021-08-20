@@ -100,7 +100,7 @@ export const GolfSystem = async (): Promise<System> => {
 
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
-    Network.instance.schema.prefabs.set(Number(prefabType), prefab)
+    Network.instance.schema.prefabs.set(prefabType, prefab)
   })
 
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
@@ -147,7 +147,10 @@ export const GolfSystem = async (): Promise<System> => {
             console.log('namedEntities', JSON.stringify(world.world.namedEntities))
 
             // const playerNumber = getGolfPlayerNumber(entity)
-            spawnBall(world, entity, GolfState.currentHole.value)
+
+            if (!getBall(world, getGolfPlayerNumber(entity))) {
+              spawnBall(world, entity, GolfState.currentHole.value)
+            }
             spawnClub(entity)
           }
           return
@@ -402,6 +405,7 @@ export const GolfSystem = async (): Promise<System> => {
         console.log('player leave???')
         // if a player disconnects and it's their turn, change turns to the next player
         if (currentPlayer.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
+        removeEntity(getClub(world, getGolfPlayerNumber(entity)))
       }
     }
 

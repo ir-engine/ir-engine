@@ -5,7 +5,14 @@ import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
 import { fetchRasterTiles, fetchVectorTiles, getCenterTile } from './MapBoxClient'
 import { MapProps } from './MapProps'
-import { createBuildings, createGroundMesh, createRoads, llToScene, setGroundScaleAndPosition } from './MeshBuilder'
+import {
+  createBuildings,
+  createGroundMesh,
+  createRoads,
+  createWater,
+  createLandUse,
+  setGroundScaleAndPosition
+} from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
 import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
@@ -25,6 +32,8 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   const buildingMesh = createBuildings(vectorTiles, center, renderer)
   const groundMesh = createGroundMesh(rasterTiles as any, center[1])
   const roadsMesh = createRoads(vectorTiles, center, renderer)
+  const waterMesh = createWater(vectorTiles, center, renderer)
+  const landUseMesh = createLandUse(vectorTiles, center, renderer)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
@@ -33,6 +42,10 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   group.add(roadsMesh)
 
   group.add(groundMesh)
+
+  group.add(waterMesh)
+
+  group.add(landUseMesh)
 
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
