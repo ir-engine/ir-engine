@@ -27,8 +27,8 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 export const PhysicsSystem = async (
   attributes: { worker?: () => Worker; simulationEnabled?: boolean } = {}
 ): Promise<System> => {
-  const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
-  const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
+  const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
+  const spawnRigidbodyAddQuery = enterQuery(spawnRigidbodyQuery)
 
   const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
   const colliderRemoveQuery = exitQuery(colliderQuery)
@@ -59,6 +59,8 @@ export const PhysicsSystem = async (
     PhysXInstance.instance = new PhysXInstance()
   }
 
+  console.log(PhysXInstance.instance)
+
   simulationEnabled = attributes.simulationEnabled ?? true
 
   await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
@@ -67,7 +69,7 @@ export const PhysicsSystem = async (
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
-    for (const entity of spawnNetworkObjectAddQuery(world)) {
+    for (const entity of spawnRigidbodyAddQuery(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
 
       addComponent(entity, TransformComponent, {

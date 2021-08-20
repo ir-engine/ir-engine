@@ -236,7 +236,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           // TODO: minimise quaternions to 3 components
           for (const transform of transformState.transforms) {
             const networkObject = Network.instance.networkObjects[transform.networkId]
-            // for character entities, we are sending the view vector, so we have to apply it and retrieve the rotation
+            // for avatar entities, we are sending the view vector, so we have to apply it and retrieve the rotation
             if (networkObject && hasComponent(networkObject.entity, AvatarComponent)) {
               vector3_0.set(transform.qX, transform.qY, transform.qZ)
               vector3_1.copy(vector3_0).setY(0).normalize()

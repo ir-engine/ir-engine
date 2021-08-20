@@ -246,7 +246,6 @@ export const CameraSystem = async (): Promise<System> => {
       }
     }
 
-    // follow camera component should only ever be on the character
     for (const entity of followCameraQuery(world)) {
       followCamera(entity)
     }
