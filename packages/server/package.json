@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server",
   "description": "API Server for XREngine",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "private": true,
   "homepage": "",
   "main": "dist/index.js",
@@ -72,8 +72,8 @@
     "@feathersjs/socketio": "5.0.0-pre.9",
     "@feathersjs/socketio-client": "5.0.0-pre.9",
     "@feathersjs/transport-commons": "5.0.0-pre.9",
-    "@xrengine/server-core": "^0.3.32",
-    "aws-sdk": "2.970.0",
+    "@xrengine/server-core": "^0.3.33",
+    "aws-sdk": "2.972.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "comlink": "4.3.1",
@@ -125,7 +125,7 @@
   "devDependencies": {
     "@types/compression": "1.7.1",
     "@types/cors": "2.8.12",
-    "@types/node": "14.17.9",
+    "@types/node": "14.17.10",
     "@types/serve-favicon": "2.5.3",
     "@typescript-eslint/eslint-plugin": "4.29.2",
     "@typescript-eslint/parser": "4.29.2",
@@ -133,8 +133,8 @@
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
     "no-master-commits": "1.1.1",
-    "ts-node": "10.2.0",
-    "typedoc": "0.21.5",
+    "ts-node": "10.2.1",
+    "typedoc": "0.21.6",
     "typescript": "4.3.5"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"

@@ -14,6 +14,8 @@ import {
   pauseProducer,
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
+import { MicOff } from './icons/MicOff'
+import { MicOn } from './icons/MicOn'
 import styles from './MapMediaIconsBox.module.scss'
 
 const mapStateToProps = (state: any): any => {

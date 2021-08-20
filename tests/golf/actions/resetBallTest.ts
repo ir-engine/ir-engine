@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { GolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/GolfBotHooks'
+import { GolfBotHooks } from '@xrengine/client/src/pages/golf/functions/GolfBotHooks'
 import { XREngineBot } from '@xrengine/bot/src/bot'
 
 const maxTimeout = 60 * 1000

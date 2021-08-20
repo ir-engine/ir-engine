@@ -1,4 +1,5 @@
-import { createWorld, IWorld } from '../../ecs/bitecs'
+import { createWorld } from '../../ecs/bitecs'
+import { createEntity } from '../functions/EntityFunctions'
 import { Entity } from './Entity'
 
 export type PipelineType = (world: ECSWorld) => ECSWorld
@@ -9,7 +10,7 @@ export interface EnginePipelines {
   [x: string]: PipelineType
 }
 
-export interface ECSWorld extends IWorld {
+export interface ECSWorld {
   _removedComponents: Map<Entity, any>
   delta: number
   time: number
@@ -24,6 +25,7 @@ export class World {
   entities: Entity[]
   portalEntities: Entity[]
   pipelines: EnginePipelines
+  namedEntities: Map<string, Entity>
 
   constructor() {
     if (typeof World.defaultWorld === 'undefined') {
@@ -32,8 +34,10 @@ export class World {
     World.worlds.set(worldIds++, this)
     this.ecsWorld = createWorld() as ECSWorld
     this.ecsWorld._removedComponents = new Map()
-    this.entities = []
     this.ecsWorld.world = this
     this.portalEntities = []
+    this.namedEntities = new Map()
+    this.entities = []
+    createEntity(this.ecsWorld) // make sure we have no eid 0; also, world entity?
   }
 }

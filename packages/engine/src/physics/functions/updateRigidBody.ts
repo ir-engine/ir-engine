@@ -12,7 +12,7 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
 
 /**
  * @author Josh Field <github.com/HexaField>
- * Copies the rigidbody's transform from the latest
+ * Copies the rigidbody's transform from the latest snapshot
  * If a networked entity does not have an interpolation component, just copy the data
  * @param {Entity} entity the entity belonging to the rigidbody
  * @param {SnapshotData} snapshots the snapshot data to use

@@ -29,7 +29,7 @@ function createAttribute(src_attribute) {
     src_attribute.itemSize
   )
 
-  const dst_array = dst_attribute.array
+  const dst_array = dst_attribute.array as any
   const src_array = src_attribute.array
 
   switch (src_attribute.itemSize) {

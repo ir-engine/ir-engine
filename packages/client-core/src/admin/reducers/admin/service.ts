@@ -8,7 +8,6 @@ import {
   locationTypesRetrieved,
   instancesRetrievedAction,
   instanceRemovedAction,
-  instanceCreated,
   instanceRemoved,
   userRoleRetrieved,
   userRoleCreated,

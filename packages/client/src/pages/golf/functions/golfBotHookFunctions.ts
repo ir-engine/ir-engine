@@ -5,8 +5,9 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
 import { tweenXRInputSource, updateController, updateHead } from '@xrengine/engine/src/bot/functions/xrBotHookFunctions'
-import { GolfObjectEntities, GolfState } from '../GolfSystem'
+import { GolfState, getHole, getBall, getClub, getTee } from '../GolfSystem'
 import { getGolfPlayerNumber, isCurrentGolfPlayer } from './golfFunctions'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 export const GolfBotHookFunctions = {
   [GolfBotHooks.GetBallPosition]: getBallPosition,
@@ -66,19 +67,19 @@ export function getPlayerNumber() {
 }
 
 export function getTeePosition() {
-  const teeEntity = GolfObjectEntities.get(`GolfTee-${GolfState.currentHole.value}`)
+  const teeEntity = getTee(World.defaultWorld.ecsWorld, GolfState.currentHole.value)
   const teeTransform = getComponent(teeEntity, TransformComponent)
   return teeTransform.position
 }
 
 export function getHolePosition() {
-  const holeEntity = GolfObjectEntities.get(`GolfHole-${GolfState.currentHole.value}`)
+  const holeEntity = getHole(World.defaultWorld.ecsWorld, GolfState.currentHole.value)
   const holeTransform = getComponent(holeEntity, TransformComponent)
   return holeTransform.position
 }
 
 export function getBallPosition() {
-  const ballEntity = GolfObjectEntities.get(`GolfBall-${GolfState.currentPlayer.value}`)
+  const ballEntity = getBall(World.defaultWorld.ecsWorld, GolfState.currentPlayer.value)
   const ballTransform = getComponent(ballEntity, TransformComponent)
   return ballTransform.position
 }
