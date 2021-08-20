@@ -176,7 +176,7 @@ export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
   return defineSystem((world) => {
-    // return world
+    return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
