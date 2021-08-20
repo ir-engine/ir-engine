@@ -4,31 +4,31 @@ import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/e
 import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
-import { IKPose } from '@xrengine/engine/src/ikrig/components/IKPose'
+import { defaultIKPoseComponentValues, IKPose } from '@xrengine/engine/src/ikrig/components/IKPose'
 import { IKRig } from '@xrengine/engine/src/ikrig/components/IKRig'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
-import { initDebug, setupIKRig } from '@xrengine/engine/src/ikrig/functions/IKFunctions'
 import { IKRigSystem } from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect } from 'react'
 import {
   AmbientLight,
-  AnimationClip,
   AnimationMixer,
   DirectionalLight,
   GridHelper,
   PerspectiveCamera,
   Scene,
+  Skeleton,
   SkeletonHelper,
+  SkinnedMesh,
   WebGLRenderer
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import Debug from '../../../components/Debug'
-import { defineQuery, defineSystem, System } from '../../../../../engine/src/ecs/bitecs'
-import { ECSWorld, World } from '../../../../../engine/src/ecs/classes/World'
-import { Timer } from '../../../../../engine/src/common/functions/Timer'
-import { setReference } from '../../../../../engine/src/ikrig/functions/RigFunctions'
+import Debug from '../../components/Debug'
+import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
+import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
+import { Timer } from '@xrengine/engine/src/common/functions/Timer'
+import { initRig, setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
+import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
 
 const AnimationSystem = async (): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
@@ -53,7 +53,7 @@ const RenderSystem = async (): Promise<System> => {
 const Page = () => {
   useEffect(() => {
     ;(async function () {
-      initializeEngine()
+      //initializeEngine()
       // Register our systems to do stuff
       registerSystem(SystemUpdateType.Fixed, AnimationSystem)
       registerSystem(SystemUpdateType.Fixed, IKRigSystem)
@@ -72,7 +72,8 @@ const Page = () => {
         }
       }
 
-      const world = World.defaultWorld
+      const world = new World()
+      // const world = World.defaultWorld
 
       // TODO: support multiple worlds
       // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
@@ -87,132 +88,9 @@ const Page = () => {
         Engine.networkFramerate
       )
 
-      await initThree() // Set up the three.js scene with grid, light, etc
-
-      initDebug()
-
-      ////////////////////////////////////////////////////////////////////////////
-
-      // LOAD SOURCE
-      let model = await LoadGLTF('ikrig/anim/Walking.glb')
-      console.log('Model is', model)
-      // Set up skinned meshes
-      let skinnedMeshes = []
-      Engine.scene.add(model.scene)
-      Engine.scene.add(new SkeletonHelper(model.scene))
-      model.scene.traverse((node) => {
-        if (node.children)
-          node.children.forEach((n) => {
-            if (n.type === 'SkinnedMesh') skinnedMeshes.push(n)
-            n.visible = false
-          })
+      initExample(world).catch((e) => {
+        console.error('Failed to init example', e)
       })
-      let skinnedMesh = skinnedMeshes.sort((a, b) => {
-        return a.skeleton.bones.length - b.skeleton.bones.length
-      })[0]
-
-      // Set up entity
-      let sourceEntity = createEntity()
-      const ac = addComponent(sourceEntity, AnimationComponent, {
-        mixer: new AnimationMixer(model.scene),
-        animations: model.animations,
-        animationSpeed: 1
-      })
-      addComponent(sourceEntity, IKObj, { ref: model.scene })
-      addComponent(sourceEntity, IKPose, { ref: null })
-      addComponent(sourceEntity, IKRig, { sourceRig: skinnedMesh })
-
-      const rig = getComponent(sourceEntity, IKRig)
-      const sourcePose = getComponent(sourceEntity, IKPose)
-
-      rig.sourceRig = skinnedMesh
-      rig.sourcePose = getComponent(sourceEntity, IKPose)
-
-      setReference(sourceEntity, skinnedMesh)
-      ac.mixer.clipAction(clips[3]).play()
-
-      // Set up poses
-      rig.pose = new Pose(sourceEntity, false)
-      rig.tpose = new Pose(sourceEntity, true) // If Passing a TPose, it must have its world space computed.
-
-      //-----------------------------------------
-      // Apply Node's Starting Transform as an offset for poses.
-      // This is only important when computing World Space Transforms when
-      // dealing with specific skeletons, like Mixamo stuff.
-      // Need to do this to render things correctly
-      // TODO: Verify the numbers of this vs the original
-      let objRoot = getComponent(sourceEntity, IKObj).ref // Obj is a ThreeJS Component
-      rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
-      rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
-
-      setupIKRig(rig)
-      rig.tpose.apply()
-
-      ////////////////////////////////////////////////////////////////////////////
-
-      // LOAD MESH A
-      let targetModel = await LoadGLTF('ikrig/models/vegeta.glb')
-      targetModel.scene.position.set(0, 0, 0)
-      Engine.scene.add(targetModel.scene)
-      // Engine.scene.add(new SkeletonHelper(targetModel.scene));
-      let targetSkinnedMeshes = []
-      targetModel.scene.traverse((node) => {
-        if (node.children) {
-          node.children.forEach((n) => {
-            if (n.type === 'SkinnedMesh') {
-              targetSkinnedMeshes.push(n)
-            }
-          })
-        }
-      })
-      let targetSkinnedMesh = targetSkinnedMeshes.sort((a, b) => {
-        return a.skeleton.bones.length - b.skeleton.bones.length
-      })[0]
-
-      // Create entity
-      let targetEntity = createEntity()
-      addComponent(targetEntity, IKObj, {})
-      addComponent(targetEntity, IKRig, {})
-
-      let targetRig = getComponent(targetEntity, IKRig)
-
-      targetRig.sourceRig = targetRig
-      targetRig.sourcePose = getComponent(sourceEntity, IKPose)
-
-      // Set the skinned mesh reference
-      let targetObj = getComponent(targetEntity, IKObj)
-      setReference(targetEntity, targetSkinnedMesh)
-
-      targetRig.pose = new Pose(targetEntity, false)
-      targetRig.tpose = new Pose(targetEntity, true) // If Passing a TPose, it must have its world space computed.
-      targetRig.pose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
-      targetRig.tpose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
-      setupIKRig(targetRig)
-
-      for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
-        let bone = targetObj.ref.skeleton.bones[index]
-        targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale)
-      }
-
-      const helper = new SkeletonHelper(targetRig.pose.bones[0])
-      Engine.scene.add(helper)
-
-      // targetRig.tpose.align_leg( ["LeftUpLeg", "LeftLeg"] )
-      // targetRig.tpose.align_leg( ["RightUpLeg", "RightLeg"] )
-      // targetRig.tpose.align_arm_left( ["LeftArm", "LeftForeArm"] )
-      // targetRig.tpose.align_arm_right( ["RightArm", "RightForeArm"] )
-      // targetRig.tpose.align_foot( "LeftFoot" )
-      // targetRig.tpose.align_foot( "RightFoot" )
-      // targetRig.tpose.build();
-
-      sourcePose.targetRigs.push(targetRig)
-
-      targetRig.tpose.apply()
-
-      // // TODO: Fix me
-      targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
-
-      ////////////////////////////////////////////////////////////////////////////
 
       Engine.engineTimer.start()
     })()
@@ -223,15 +101,164 @@ const Page = () => {
 
 export default Page
 
+async function initExample(world) {
+  await initThree() // Set up the three.js scene with grid, light, etc
+
+  // initDebug()
+
+  ////////////////////////////////////////////////////////////////////////////
+  // const ANIM_FILE = 'ikrig2/anim/Walking.gltf'
+  // const MODEL_A_FILE = 'ikrig2/models/vegeta.gltf'
+  // const ANIMATION_INDEX = 0
+
+  const ANIM_FILE = 'ikrig/anim/Walking.glb'
+  const MODEL_A_FILE = 'ikrig/models/vegeta.glb'
+  const ANIMATION_INDEX = 12
+
+  // LOAD SOURCE
+  let model = await LoadGLTF(ANIM_FILE)
+  console.log('Model is', model)
+  console.log('Animations:')
+  model.animations.forEach((a, i) => console.log(i, a.name))
+  // Set up skinned meshes
+  let skinnedMeshes = []
+  Engine.scene.add(model.scene)
+  Engine.scene.add(new SkeletonHelper(model.scene))
+  model.scene.traverse((node) => {
+    if (node.children)
+      node.children.forEach((n) => {
+        if (n.type === 'SkinnedMesh') skinnedMeshes.push(n)
+        n.visible = false
+      })
+  })
+  let skinnedMesh = skinnedMeshes.sort((a, b) => {
+    return a.skeleton.bones.length - b.skeleton.bones.length
+  })[0]
+  // if (!skinnedMesh) {
+  //   // try to create skinnedmesh with skeleton from what we have
+  //   const hipsBone = model.scene.getObjectByName('Hips')
+  //   console.log('hipBone', hipsBone)
+  //   const bones = []
+  //   hipsBone.traverse((b) => (b.type === 'Bone' ? bones.push(b) : null))
+  //   console.log('bones', bones)
+  //   skinnedMesh = new SkinnedMesh()
+  //   const skeleton = new Skeleton(bones)
+  //   skinnedMesh.bind(skeleton)
+  //   model.scene.add(skinnedMesh)
+  // }
+
+  // Set up entity
+  let sourceEntity = createEntity(world.ecsWorld)
+  const ac = addComponent(sourceEntity, AnimationComponent, {
+    mixer: new AnimationMixer(model.scene),
+    animations: model.animations,
+    animationSpeed: 1
+  })
+  addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
+  addComponent(sourceEntity, IKPose, defaultIKPoseComponentValues())
+  addComponent(sourceEntity, IKRig, {
+    tpose: null,
+    pose: null,
+    chains: null,
+    points: null,
+    sourcePose: null,
+    sourceRig: null
+  })
+
+  const rig = getComponent(sourceEntity, IKRig)
+  const sourcePose = getComponent(sourceEntity, IKPose)
+
+  rig.sourceRig = skinnedMesh
+  rig.sourcePose = sourcePose
+
+  ac.mixer.clipAction(model.animations[ANIMATION_INDEX]).play().setEffectiveTimeScale(0.2)
+
+  initRig(sourceEntity, null, false, ArmatureType.MIXAMO)
+
+  ////////////////////////////////////////////////////////////////////////////
+
+  // LOAD MESH A
+  let targetModel = await LoadGLTF(MODEL_A_FILE)
+  targetModel.scene.position.set(1, 0, 0)
+  Engine.scene.add(targetModel.scene)
+  // Engine.scene.add(new SkeletonHelper(targetModel.scene));
+  let targetSkinnedMeshes = []
+  targetModel.scene.traverse((node) => {
+    if (node.children) {
+      node.children.forEach((n) => {
+        if (n.type === 'SkinnedMesh') {
+          targetSkinnedMeshes.push(n)
+        }
+      })
+    }
+  })
+  let targetSkinnedMesh = targetSkinnedMeshes.sort((a, b) => {
+    return a.skeleton.bones.length - b.skeleton.bones.length
+  })[0]
+
+  // Create entity
+  let targetEntity = createEntity()
+  addComponent(targetEntity, IKObj, { ref: targetSkinnedMesh })
+  addComponent(targetEntity, IKRig, {
+    tpose: null,
+    pose: null,
+    chains: null,
+    points: null,
+    sourcePose: null,
+    sourceRig: null
+  })
+
+  const targetRig = getComponent(targetEntity, IKRig)
+
+  targetRig.sourceRig = targetRig
+  targetRig.sourcePose = getComponent(sourceEntity, IKPose)
+
+  // Set the skinned mesh reference
+  const targetObj = getComponent(targetEntity, IKObj)
+
+  targetRig.pose = new Pose(targetEntity, false)
+  targetRig.tpose = new Pose(targetEntity, true) // If Passing a TPose, it must have its world space computed.
+  targetRig.pose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
+  targetRig.tpose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
+  //setupIKRig(targetEntity, targetRig)
+  initRig(targetEntity)
+
+  for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
+    const bone = targetObj.ref.skeleton.bones[index]
+    targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale)
+  }
+
+  const helper = new SkeletonHelper(targetRig.pose.bones[0])
+  Engine.scene.add(helper)
+
+  // targetRig.tpose.align_leg(['LeftUpLeg', 'LeftLeg'])
+  // targetRig.tpose.align_leg(['RightUpLeg', 'RightLeg'])
+  // targetRig.tpose.align_arm_left(['LeftArm', 'LeftForeArm'])
+  // targetRig.tpose.align_arm_right(['RightArm', 'RightForeArm'])
+  // targetRig.tpose.align_foot('LeftFoot')
+  // targetRig.tpose.align_foot('RightFoot')
+  //targetRig.tpose.build()
+
+  sourcePose.targetRigs.push(targetRig)
+
+  targetRig.tpose.apply()
+
+  // // TODO: Fix me
+  // targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
+
+  ////////////////////////////////////////////////////////////////////////////
+}
+
 async function initThree() {
   // Set up rendering and basic scene for demo
   const canvas = document.createElement('canvas')
   document.body.appendChild(canvas) // adds the canvas to the body element
 
-  let w = window.innerWidth,
+  const w = window.innerWidth,
     h = window.innerHeight
 
-  let ctx = canvas.getContext('webgl2') //, { alpha: false }
+  const ctx = canvas.getContext('webgl2') //, { alpha: false }
+  // @ts-ignore
   Engine.renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
 
   Engine.renderer.setClearColor(0x3a3a3a, 1)

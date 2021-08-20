@@ -73,16 +73,16 @@ export const IKRigSystem = async (): Promise<System> => {
 
       computeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l)
       computeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r)
-
+      //
       computeLookTwist(rig, rig.points.foot_l, ikPose.foot_l, FORWARD, UP) // Look = Fwd, Twist = Up
       computeLookTwist(rig, rig.points.foot_r, ikPose.foot_r, FORWARD, UP)
-
-      computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD)
-
-      computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l)
-      computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r)
-
-      computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP)
+      //
+      // computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD)
+      //
+      // computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l)
+      // computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r)
+      //
+      // computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP)
 
       // // // VISUALIZE
       // visualizeHip(rig, ikPose);
@@ -110,9 +110,9 @@ export const IKRigSystem = async (): Promise<System> => {
       applyLimb(ikPose, rig.chains.arm_l, ikPose.arm_l)
       applyLimb(ikPose, rig.chains.arm_r, ikPose.arm_r)
 
-      // applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP);
+      applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP)
 
-      // rig.pose.apply();
+      // rig.pose.apply()
     }
 
     return world

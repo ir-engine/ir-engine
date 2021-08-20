@@ -3,9 +3,12 @@ import { IKRig } from '../components/IKRig'
 import { Bone, Object3D, Quaternion, Vector3 } from 'three'
 import { IKPose } from '../components/IKPose'
 import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
+import { addChain, addPoint } from './RigFunctions'
+import { Entity } from '../../ecs/classes/Entity'
 // import { debug } from '../classes/Debug'
 
 const tempQ = new Quaternion()
+const tempV = new Vector3()
 const aToBDirection = new Vector3()
 const boneAWorldPos = new Vector3()
 const boneBWorldPos = new Vector3()
@@ -38,34 +41,38 @@ export function LawCosinesSSS(aLen, bLen, cLen) {
   return Math.acos(v)
 }
 
-export function setupIKRig(rig: ReturnType<typeof IKRig.get>) {
+export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
+  rig.points = {}
+  rig.chains = {}
   //-----------------------------------------
   // Auto Setup the Points and Chains based on
   // Known Skeleton Structures.
   // TODO:Fix
-  // rig
-  //   .addPoint('hip', 'Hips')
-  //   .addPoint('head', 'Head')
-  //   .addPoint('neck', 'Neck')
-  //   .addPoint('chest', 'Spine2')
-  //   .addPoint('foot_l', 'LeftFoot')
-  //   .addPoint('foot_r', 'RightFoot')
-  //   .addChain('arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
-  //   .addChain('arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
-  //   .addChain('leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
-  //   .addChain('leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
-  //   .addChain('spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
-  // rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
-  // rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
-  // rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones)
-  // rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones)
-  // rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
-  // rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
-  // rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
-  // rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
+
+  addPoint(entity, 'hip', 'Hips')
+  addPoint(entity, 'hip', 'Hips')
+  addPoint(entity, 'head', 'Head')
+  addPoint(entity, 'neck', 'Neck')
+  addPoint(entity, 'chest', 'Spine2')
+  addPoint(entity, 'foot_l', 'LeftFoot')
+  addPoint(entity, 'foot_r', 'RightFoot')
+  addChain(entity, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
+  addChain(entity, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
+  addChain(entity, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
+  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
+  addChain(entity, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
+
+  rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
+  rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
+  rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
+  rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
 }
 
-export function computeHip(rig, ik_pose) {
+export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   // First thing we need is the Hip bone from the Animated Pose
   // Plus what the hip's Bind Pose as well.
   // We use these two states to determine what change the animation did to the tpose.
@@ -129,12 +136,13 @@ export function computeHip(rig, ik_pose) {
   // 		twist		= Vec3.angle( swing_up, pose_up );		// Swing + Pose have same Fwd, Use Angle between both UPs for twist
   const swing = new Quaternion()
     .setFromUnitVectors(FORWARD, poseForward) // First we create a swing rotation from one dir to the other.
-    .multiply(bindBone.quaternion) // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
+    .multiply(bindBoneWorldQuaternion) // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
 
   // a new Up direction based on only swing.
   const swing_up = new Vector3().copy(UP).applyQuaternion(swing)
   // TODO: Make sure this isn't flipped
   let twist = swing_up.angleTo(poseUp) // Swing + Pose have same Fwd, Use Angle between both UPs for twist
+  let twist2 = poseUp.angleTo(swing_up) // Swing + Pose have same Fwd, Use Angle between both UPs for twist
 
   // The difference between Pose UP and Swing UP is what makes up our twist since they both
   // share the same forward access. The issue is that we do not know if that twist is in the Negative direction
@@ -168,6 +176,8 @@ export function computeHip(rig, ik_pose) {
   ik_pose.hip.movement.copy(posePosition).sub(bindPosition) // How much movement did the hip do between Bind and Animated.
   ik_pose.hip.dir.copy(poseForward) // Pose Forward is the direction we want the Hip to Point to.
   ik_pose.hip.twist = twist // How Much Twisting to Apply after pointing in the correct direction.
+
+  // console.log('twist', twist.toFixed(4), vec3Dot.toFixed(4))
 }
 
 export function computeLimb(pose, chain, ik_limb) {
@@ -338,7 +348,7 @@ export function applyHip(pose: ReturnType<typeof IKPose.get>) {
     if (rig.pose.bones[boneInfo.index].parent) {
       rig.pose.bones[boneInfo.index].parent.getWorldQuaternion(parentRotation)
     } else {
-      rig.pose.bones[boneInfo.index].getWorldQuaternion(parentRotation)
+      // rig.pose.bones[boneInfo.index].getWorldQuaternion(parentRotation)
     }
 
     const b_rot = new Quaternion()
@@ -614,6 +624,9 @@ export function applyLookTwist(entity, boneInfo, ik, lookDirection, twistDirecti
   boneParentQuaternionInverse.invert()
 
   rotation.premultiply(boneParentQuaternionInverse) // To Local Space
+
+  // TODO: this makes strange changes in original skeleton
+  // rig.pose.set_bone( b_info.idx, rot );	// Save to pose.
   rig.pose.bones[boneInfo.index].setRotationFromQuaternion(rotation) // Save result to bone.
 }
 
@@ -671,7 +684,7 @@ export function applySpine(entity, chain, ik, lookDirection, twistDirection) {
     const boneParent = bone.parent
 
     // Fix this, since tempV is dead and we use this nowhere
-    ;(boneParent as Bone).getWorldPosition(ik.tempV)
+    ;(boneParent as Bone).getWorldPosition(tempV)
 
     // Copy bone to our transform variables to work on them
     ikPose.spineParentPosition.copy(boneParent.position)

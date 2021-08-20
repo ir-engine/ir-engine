@@ -1,7 +1,8 @@
+import { Bone } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import IKObj from '../components/IKObj'
+import { IKObj } from '../components/IKObj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
 import { spin_bone_forward, align_chain, align_bone_forward } from '../functions/IKFunctions'
 
@@ -12,7 +13,7 @@ class Pose {
 
   entity: any
   skeleton: Skeleton
-  bones: any[]
+  bones: Bone[]
   rootOffset = {
     quaternion: new Quaternion(),
     position: new Vector3(0, 0, 0),
