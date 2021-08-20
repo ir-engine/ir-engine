@@ -248,23 +248,22 @@ export function buildMeshes(
   llCenter: Position,
   renderer: WebGLRenderer
 ): Mesh[] {
-  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
   const geometries = buildGeometries(layerName, features, llCenter)
 
-  const texture = new CanvasTexture(generateTextureCanvas())
-  texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
-  texture.needsUpdate = true
+  return geometries.map((g, i) => {
+    const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[i].properties.class)
 
-  const color = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName).color
-  const materialParams = {
-    color: color.constant,
-    vertexColors: color.builtin_function === 'purple_haze' ? true : false,
-    depthTest: styles.extrude !== 'flat'
-  }
+    const texture = new CanvasTexture(generateTextureCanvas())
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+    texture.needsUpdate = true
 
-  const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
+    const materialParams = {
+      color: styles.color?.constant,
+      vertexColors: styles.color?.builtin_function === 'purple_haze' ? true : false,
+      depthTest: styles.extrude !== 'flat'
+    }
 
-  return geometries.map((g) => {
+    const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
     const mesh = new Mesh(g, material)
     mesh.renderOrder = styles.extrude === 'flat' ? styles.zIndex : Infinity
     return mesh
@@ -315,13 +314,13 @@ export function createGround(rasterTiles: ImageBitmap[], latitude: number): Mesh
   const texture = rasterTiles.length > 0 ? new CanvasTexture(generateRasterTileCanvas(rasterTiles)) : null
 
   const material = getOrCreateMaterial(
-    MeshBasicMaterial,
+    MeshLambertMaterial,
     texture
       ? {
           map: texture
         }
       : {
-          color: 0x8c6f2b
+          color: 0x433d13
         }
   )
   const mesh = new Mesh(geometry, material)
@@ -370,6 +369,9 @@ export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Positi
 
 export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter, renderer)
+}
+export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
+  return createLayerGroup(['landuse'], vectorTiles, llCenter, renderer)
 }
 
 /** Workaround for until we get the Web Mercator projection math right so that the ground and building meshes line up */

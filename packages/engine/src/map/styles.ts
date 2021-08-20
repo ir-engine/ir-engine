@@ -103,6 +103,12 @@ export interface IFeatureStylesByLayerName {
   [layerName: string]: IFeatureStyles
 }
 
+const zIndexes = ['landuse', 'waterway', 'water', 'road', 'landuse']
+
+function getZIndex(key: string) {
+  return zIndexes.indexOf(key)
+}
+
 export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   building: {
     /*fragment_shader:
@@ -134,7 +140,7 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   road: {
-    zIndex: 4,
+    zIndex: getZIndex('road'),
     color: {
       constant: 0x333333
     },
@@ -209,14 +215,14 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   water: {
-    zIndex: 2,
+    zIndex: getZIndex('water'),
     extrude: 'flat',
     color: {
       constant: 0x0f336d
     }
   },
   waterway: {
-    zIndex: 1,
+    zIndex: getZIndex('waterway'),
     extrude: 'flat',
     color: {
       constant: 0x0b3e46
@@ -229,6 +235,70 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
       drain: {
         color: {
           constant: 0x777777
+        }
+      }
+    }
+  },
+  landuse: {
+    zIndex: getZIndex('landuse'),
+    extrude: 'flat',
+    color: {
+      constant: 0x433d13
+    },
+    classOverride: {
+      sand: {
+        color: {
+          constant: 0x9d880e
+        }
+      },
+      grass: {
+        color: {
+          constant: 0x265513
+        }
+      },
+      pitch: {
+        color: {
+          constant: 0x1d410e
+        }
+      },
+      scrub: {
+        color: {
+          constant: 0x27390e
+        }
+      },
+      park: {
+        color: {
+          constant: 0x125019
+        }
+      },
+      wood: {
+        color: {
+          constant: 0x042808
+        }
+      },
+      rock: {
+        color: {
+          constant: 0x33333
+        }
+      },
+      parking: {
+        color: {
+          constant: 0x333333
+        }
+      },
+      hospital: {
+        color: {
+          constant: 0x222f23
+        }
+      },
+      school: {
+        color: {
+          constant: 0x222f23
+        }
+      },
+      residential: {
+        color: {
+          constant: 0x222f23
         }
       }
     }

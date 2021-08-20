@@ -5,5 +5,6 @@ export interface TileFeaturesByLayer {
   road: Feature[]
   water: Feature[]
   waterway: Feature[]
+  landuse: Feature[]
 }
 export type ILayerName = keyof TileFeaturesByLayer

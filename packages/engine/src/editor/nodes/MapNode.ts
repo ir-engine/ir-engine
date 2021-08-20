@@ -4,6 +4,7 @@ import {
   createRoads,
   createGround,
   createWater,
+  createLandUse,
   safelySetGroundScaleAndPosition
 } from '../../map/MeshBuilder'
 import { fetchVectorTiles, fetchRasterTiles } from '../../map/MapBoxClient'
@@ -68,7 +69,9 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
       ground: createGround(rasterTiles, center[1]),
 
-      water: createWater(vectorTiles, center, renderer)
+      water: createWater(vectorTiles, center, renderer),
+
+      landUse: createLandUse(vectorTiles, center, renderer)
     }
 
     Object.values(this.mapLayers).forEach((layer) => {

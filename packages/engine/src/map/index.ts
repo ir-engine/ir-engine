@@ -10,6 +10,7 @@ import {
   createGround,
   createRoads,
   createWater,
+  createLandUse,
   llToScene,
   setGroundScaleAndPosition
 } from './MeshBuilder'
@@ -33,6 +34,7 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   const groundMesh = createGround(rasterTiles as any, center[1])
   const roadsMesh = createRoads(vectorTiles, center, renderer)
   const waterMesh = createWater(vectorTiles, center, renderer)
+  const landUseMesh = createLandUse(vectorTiles, center, renderer)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
@@ -43,6 +45,8 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   group.add(groundMesh)
 
   group.add(waterMesh)
+
+  group.add(landUseMesh)
 
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
