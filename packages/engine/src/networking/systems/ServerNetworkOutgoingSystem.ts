@@ -98,6 +98,7 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
         Network.instance.worldState.editObjects.length ||
         Network.instance.worldState.destroyObjects.length
       ) {
+        console.log('Sending world state', JSON.stringify(Network.instance.worldState))
         const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState)
         if (!bufferReliable) {
           console.warn('World state buffer is null')

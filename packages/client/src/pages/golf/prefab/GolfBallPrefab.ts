@@ -164,6 +164,7 @@ const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: number) {
   const color = GolfColours[ownerPlayerNumber]
+  console.log(group)
 
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent)
@@ -217,13 +218,13 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
     scale: new Vector3().setScalar(golfBallRadius)
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
-  addComponent(ballEntity, NameComponent, { name: `ball-${playerNumber}` })
+  addComponent(ballEntity, NameComponent, { name: `GolfBall-${playerNumber}` })
   addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
-    const group = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/golf_ball.glb')
-    assetLoadCallback(group, ballEntity, playerNumber)
+    const gltf = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/golf_ball.glb')
+    assetLoadCallback(gltf.scene, ballEntity, playerNumber)
   }
 
   const shape: ShapeType = {

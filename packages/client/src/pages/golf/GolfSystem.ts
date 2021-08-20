@@ -41,7 +41,7 @@ import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/i
 import { useState } from '@hookstate/core'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { NetworkObjectComponentOwner } from '../../../../engine/src/networking/components/NetworkObjectComponentOwner'
+import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -50,16 +50,16 @@ import { NetworkObjectComponentOwner } from '../../../../engine/src/networking/c
  */
 
 export function getHole(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`hole-${i}`)
+  return world.world.namedEntities.get(`GolfHole-${i}`)
 }
 export function getBall(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`ball-${i}`)
+  return world.world.namedEntities.get(`GolfBall-${i}`)
 }
 export function getTee(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`tee-${i}`)
+  return world.world.namedEntities.get(`GolfTee-${i}`)
 }
 export function getClub(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`club-${i}`)
+  return world.world.namedEntities.get(`GolfClub-${i}`)
 }
 
 /**
@@ -101,7 +101,7 @@ export const GolfSystem = async (): Promise<System> => {
 
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
-    Network.instance.schema.prefabs.set(Number(prefabType), prefab)
+    Network.instance.schema.prefabs.set(prefabType, prefab)
   })
 
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
@@ -148,7 +148,10 @@ export const GolfSystem = async (): Promise<System> => {
             console.log('namedEntities', JSON.stringify(world.world.namedEntities))
 
             // const playerNumber = getGolfPlayerNumber(entity)
-            spawnBall(world, entity, GolfState.currentHole.value)
+
+            if (!getBall(world, getGolfPlayerNumber(entity))) {
+              spawnBall(world, entity, GolfState.currentHole.value)
+            }
             spawnClub(entity)
           }
           return
@@ -403,6 +406,7 @@ export const GolfSystem = async (): Promise<System> => {
         console.log('player leave???')
         // if a player disconnects and it's their turn, change turns to the next player
         if (currentPlayer.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
+        removeEntity(getClub(world, getGolfPlayerNumber(entity)))
       }
     }
 

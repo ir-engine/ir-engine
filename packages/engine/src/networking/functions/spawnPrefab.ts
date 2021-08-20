@@ -3,7 +3,7 @@ import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetwork
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
-export const spawnPrefab = (prefabType: number, uniqueId: string, networkId: number, parameters = {}) => {
+export const spawnPrefab = (prefabType: string, uniqueId: string, networkId: number, parameters = {}) => {
   const entity = createEntity()
   console.log('spawnPrefab', prefabType, uniqueId, networkId, parameters)
   addComponent(entity, Network.instance.schema.prefabs.get(prefabType), {})
