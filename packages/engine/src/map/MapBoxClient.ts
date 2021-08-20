@@ -42,7 +42,6 @@ function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFea
     for (let i = 0; i < vectorLayer.length; i++) {
       const feature = vectorLayer.feature(i).toGeoJSON(tileX, tileY, TILE_ZOOM)
       result[layerName].push(feature)
-      if (layerName === 'landuse') console.log('landuse class', feature.properties.class)
     }
   })
   return result
