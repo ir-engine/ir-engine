@@ -14,6 +14,7 @@ import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { useUserState } from '../../../../client-core/src/user/store/UserState'
 
 export function createScorecardUI() {
   const ui = createXRUI(GolfScorecardView, GolfState)
@@ -75,7 +76,13 @@ const GolfScores = () => {
   )
 }
 
+function getUserById(id: string, userState: ReturnType<typeof useUserState>) {
+  return userState.layerUsers.find((user) => user.id.value === id)
+}
+
 const GolfLabelsView = () => {
+  const userState = useUserState()
+  const players = useState(GolfState.players)
   return (
     <div
       id="labels"
@@ -87,20 +94,20 @@ const GolfLabelsView = () => {
         padding: '15px 0px 15px 10px',
         position: 'static',
         width: 'fit-content',
-        height: 'fit-content'
+        height: 'fit-content',
+        fontFamily: 'Racing Sans One',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        textAlign: 'right',
+        color: '#FFFFFF'
       }}
     >
       <div
         style={{
           position: 'static',
           height: '40px',
-          fontFamily: 'Racing Sans One',
-          fontStyle: 'normal',
-          fontWeight: 'normal',
           fontSize: '30px',
-          lineHeight: '38px',
-          textAlign: 'right',
-          color: '#FFFFFF'
+          lineHeight: '38px'
         }}
       >
         Hole
@@ -109,17 +116,31 @@ const GolfLabelsView = () => {
         style={{
           position: 'static',
           height: '40px',
-          fontFamily: 'Racing Sans One',
-          fontStyle: 'normal',
-          fontWeight: 'normal',
           fontSize: '15px',
-          lineHeight: '19px',
-          textAlign: 'right',
-          color: '#FFFFFF'
+          lineHeight: '19px'
         }}
       >
         Par
       </div>
+      {players.map((p, i) => {
+        const color = GolfColours[i]
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'static',
+              width: '107px',
+              height: '40px',
+              fontSize: '30px',
+              lineHeight: '38px',
+              alignItems: 'center',
+              color: color.getStyle()
+            }}
+          >
+            {getUserById(p.id.value, userState)?.name.value || `Player${i}`}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -127,24 +148,26 @@ const GolfLabelsView = () => {
 const GolfScorecardView = () => {
   return (
     <>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
+      {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link> */}
       <div
         id="scorecard"
         style={{
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'flex-start',
-          padding: '64px 63px',
+          padding: '30px 40px',
           position: 'relative',
-          width: '773px',
-          height: '438px',
+          width: 'fit-content',
+          height: 'fit-content',
           background: ' rgba(0, 0, 0, 0.51)',
           border: '10px solid #FFFFFF',
           boxSizing: 'border-box',
           boxShadow: '0px 4px 80px rgba(0, 0, 0, 0.57)',
           borderRadius: '60px'
         }}
-      ></div>
+      >
+        <GolfLabelsView />
+      </div>
     </>
   )
 }
