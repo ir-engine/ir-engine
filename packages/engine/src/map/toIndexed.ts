@@ -50,7 +50,13 @@ function createAttribute(src_attribute) {
       break
     case 4:
       for (let i = 0, l = list.length; i < l; i++) {
-        dst_attribute.setXYZW(i, src_attribute.getX(list[i]), src_attribute.getY(list[i]), src_attribute.getZ(list[i]), src_attribute.getW(list[i]))
+        dst_attribute.setXYZW(
+          i,
+          src_attribute.getX(list[i]),
+          src_attribute.getY(list[i]),
+          src_attribute.getZ(list[i]),
+          src_attribute.getW(list[i])
+        )
       }
 
       break

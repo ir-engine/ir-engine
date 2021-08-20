@@ -1,6 +1,13 @@
 import { $componentMap } from './Component'
 import { $queryMap, $queries, $dirtyQueries, $notQueries } from './Query'
-import { $entityArray, $entityComponents, $entityMasks, $entitySparseSet, getGlobalSize, bit_removeEntity } from './Entity'
+import {
+  $entityArray,
+  $entityComponents,
+  $entityMasks,
+  $entitySparseSet,
+  getGlobalSize,
+  bit_removeEntity
+} from './Entity'
 import { resize } from './Storage'
 import { SparseSet } from './Util'
 
