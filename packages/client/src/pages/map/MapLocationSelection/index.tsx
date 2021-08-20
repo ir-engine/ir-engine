@@ -1,10 +1,9 @@
-
-import "mapbox-gl/dist/mapbox-gl.css"
-import "react-map-gl-geocoder/dist/mapbox-gl-geocoder.css";
-import React, { Component, createRef, useState } from 'react';
-import { render } from "react-dom";
-import MapGL, { Marker, Popup } from 'react-map-gl';
-import Geocoder from 'react-mapbox-gl-geocoder';
+import 'mapbox-gl/dist/mapbox-gl.css'
+import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css'
+import React, { Component, createRef, useState } from 'react'
+import { render } from 'react-dom'
+import MapGL, { Marker, Popup } from 'react-map-gl'
+import Geocoder from 'react-mapbox-gl-geocoder'
 import { Button } from '@material-ui/core'
 
 const mapboxApiKey = 'pk.eyJ1IjoibmF2ZGVlcHlhZGF2IiwiYSI6ImNrc2EzM2pnejBqaWUyeHA0bW8xaXFwaWEifQ.hIpiYzWrUer4F31GpCqoHA'
@@ -26,24 +25,26 @@ const CustomPopup = ({ index, marker, closePopup, remove }) => {
     >
       <p>{marker.name}</p>
       <div>
-        <Button color="secondary" onClick={() => remove(index)}>Remove</Button>
-        <Button color="secondary" >GO!</Button>
+        <Button color="secondary" onClick={() => remove(index)}>
+          Remove
+        </Button>
+        <Button color="secondary">GO!</Button>
       </div>
     </Popup>
   )
-};
+}
 
 const CustomMarker = ({ index, marker, openPopup }) => {
   return (
-    <Marker
-      longitude={marker.longitude}
-      latitude={marker.latitude}>
+    <Marker longitude={marker.longitude} latitude={marker.latitude}>
       <div className="marker" onClick={() => openPopup(index)}>
-        <span><b>{index + 1 + "  Marker"}</b></span>
+        <span>
+          <b>{index + 1 + '  Marker'}</b>
+        </span>
       </div>
     </Marker>
   )
-};
+}
 
 const MapView = (props) => {
   const [state, setState] = useState({
@@ -99,61 +100,54 @@ const MapView = (props) => {
     })
   }
 
-    const { viewport, tempMarker, markers, selectedMarkerIndex } = state;
-    return (
-      <div style={{ height: "100vh" }}>
-        <MapGL
-          ref={mapRef}
-          mapboxApiAccessToken={mapboxApiKey}
-          mapStyle="mapbox://styles/mapbox/streets-v11"
-          {...viewport}
-          {...mapStyle}
-          onViewportChange={(viewport) => setState({...state, viewport })} >
-          {
-            <Geocoder
-              mapboxApiAccessToken={mapboxApiKey}
-              mapRef={mapRef}
-              onSelected={onSelected}
-              viewport={viewport}
-              hideOnSelect={true}
-              value=""
-              position="top-left"
-            />
-          }
-          {
-            <Button color="primary" onClick={add}>Add</Button>
-          }
-          {tempMarker &&
-            <Marker
-              longitude={tempMarker.longitude}
-              latitude={tempMarker.latitude}>
-              <div className="marker temporary-marker"><span></span></div>
-            </Marker>
-          }
-          {
-            state.markers.map((marker, index) => {
-              return (
-                <CustomMarker
-                  key={`marker-${index}`}
-                  index={index}
-                  marker={marker}
-                  openPopup={openPopup}
-                />
-              )
-            })
-          }
-          {
-            selectedMarkerIndex !== null &&
-            <CustomPopup
-              index={selectedMarkerIndex}
-              marker={markers[selectedMarkerIndex]}
-              closePopup={closePopup}
-              remove={remove}
-            />
-          }
-        </MapGL>
-      </div>
-    );
+  const { viewport, tempMarker, markers, selectedMarkerIndex } = state
+  return (
+    <div style={{ height: '100vh' }}>
+      <MapGL
+        ref={mapRef}
+        mapboxApiAccessToken={mapboxApiKey}
+        mapStyle="mapbox://styles/mapbox/streets-v11"
+        {...viewport}
+        {...mapStyle}
+        onViewportChange={(viewport) => setState({ ...state, viewport })}
+      >
+        {
+          <Geocoder
+            mapboxApiAccessToken={mapboxApiKey}
+            mapRef={mapRef}
+            onSelected={onSelected}
+            viewport={viewport}
+            hideOnSelect={true}
+            value=""
+            position="top-left"
+          />
+        }
+        {
+          <Button color="primary" onClick={add}>
+            Add
+          </Button>
+        }
+        {tempMarker && (
+          <Marker longitude={tempMarker.longitude} latitude={tempMarker.latitude}>
+            <div className="marker temporary-marker">
+              <span></span>
+            </div>
+          </Marker>
+        )}
+        {state.markers.map((marker, index) => {
+          return <CustomMarker key={`marker-${index}`} index={index} marker={marker} openPopup={openPopup} />
+        })}
+        {selectedMarkerIndex !== null && (
+          <CustomPopup
+            index={selectedMarkerIndex}
+            marker={markers[selectedMarkerIndex]}
+            closePopup={closePopup}
+            remove={remove}
+          />
+        )}
+      </MapGL>
+    </div>
+  )
 }
 
-render(<MapView />, document.getElementById("root"));
+render(<MapView />, document.getElementById('root'))

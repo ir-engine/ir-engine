@@ -13,7 +13,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { columns, Data } from './variables'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
-import { useStyle, useStyles } from './styles'
+import { useInstanceStyle, useInstanceStyles } from './styles'
 
 interface Props {
   adminState?: any
@@ -44,8 +44,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
  */
 const InstanceTable = (props: Props) => {
   const { fetchAdminInstances, authState, adminInstanceState } = props
-  const classes = useStyle()
-  const classex = useStyles()
+  const classes = useInstanceStyle()
+  const classex = useInstanceStyles()
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
 

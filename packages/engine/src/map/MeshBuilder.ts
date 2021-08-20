@@ -307,7 +307,7 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   })
 }
 
-export function createGround(rasterTiles: ImageBitmap[], latitude: number): Mesh {
+export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   // Will be scaled according to building mesh
   const geometry = new PlaneGeometry(1, 1)

@@ -29,7 +29,7 @@ export default (app: Application): void => {
     // @ts-ignore
     app.setup = function (...args: any): Application {
       let promiseResolve, promiseReject
-      app.isSetup = new Promise((resolve, reject) => {
+      ;(app as any).isSetup = new Promise((resolve, reject) => {
         promiseResolve = resolve
         promiseReject = reject
       })

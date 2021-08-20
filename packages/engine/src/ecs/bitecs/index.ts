@@ -1,12 +1,12 @@
 import { createWorld, resetWorld, deleteWorld } from './World'
-import { addEntity, removeEntity, setDefaultSize, getEntityComponents } from './Entity'
+import { bit_addEntity, bit_removeEntity, setDefaultSize, bit_getEntityComponents } from './Entity'
 import {
-  defineComponent,
-  registerComponent,
-  registerComponents,
-  hasComponent,
-  addComponent,
-  removeComponent
+  bit_defineComponent,
+  bit_registerComponent,
+  bit_registerComponents,
+  bit_hasComponent,
+  bit_addComponent,
+  bit_removeComponent
 } from './Component'
 import { defineSystem } from './System'
 import {
@@ -49,15 +49,15 @@ export {
   createWorld,
   resetWorld,
   deleteWorld,
-  addEntity,
-  removeEntity,
-  registerComponent,
-  registerComponents,
-  defineComponent,
-  addComponent,
-  removeComponent,
-  hasComponent,
-  getEntityComponents,
+  bit_addEntity,
+  bit_removeEntity,
+  bit_registerComponent,
+  bit_registerComponents,
+  bit_defineComponent,
+  bit_addComponent,
+  bit_removeComponent,
+  bit_hasComponent,
+  bit_getEntityComponents,
   // entityChanged,
 
   // defineProxy,

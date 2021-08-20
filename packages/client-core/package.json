@@ -17,7 +17,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build": "rimraf dist && mkdir dist && node build.js",
-    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
     "buildx": "esbuild",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
@@ -108,6 +108,7 @@
     "yup": "0.32.9"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "20.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
@@ -115,6 +116,7 @@
     "@types/react": "17.0.19",
     "@types/react-dom": "17.0.9",
     "@types/three": "0.131.0",
+    "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "esbuild": "0.12.21",
     "eslint": "7.32.0",

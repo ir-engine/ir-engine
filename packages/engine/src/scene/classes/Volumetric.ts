@@ -38,7 +38,7 @@ export default class Volumetric extends AudioSource {
     this._projection = 'flat'
     this.hls = null
   }
-  loadVideo(src, contentType) {
+  loadVideo(src: string, contentType: string) {
     return new Promise((resolve, reject) => {
       const _isHLS = isHLS(src, contentType)
       if (_isHLS) {
@@ -112,7 +112,7 @@ export default class Volumetric extends AudioSource {
     this._mesh = nextMesh
     this.onResize()
   }
-  async load(src, contentType) {
+  async load(src: string, contentType: string): Promise<this> {
     this._mesh.visible = false
     this._texture = await this.loadVideo(src, contentType)
     this.onResize()
