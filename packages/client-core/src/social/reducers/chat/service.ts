@@ -1,5 +1,5 @@
-import { Dispatch } from 'redux';
-import { client } from '../../../feathers';
+import { Dispatch } from 'redux'
+import { client } from '../../../feathers'
 import {
   createdMessage,
   loadedChannel,
@@ -12,33 +12,33 @@ import {
   createdChannel,
   patchedChannel,
   removedChannel
-} from './actions';
-import waitForClientAuthenticated from "../../../util/wait-for-client-authenticated";
+} from './actions'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
-import { User } from '@xrengine/common/src/interfaces/User';
-import Store from '../../../store';
-import { dispatchAlertError } from '../../../common/reducers/alert/service';
+import { User } from '@xrengine/common/src/interfaces/User'
+import Store from '../../../store'
+import { dispatchAlertError } from '../../../common/reducers/alert/service'
 
-import { Config } from '../../../helper';
+import { Config } from '../../../helper'
 
-const store = Store.store;
+const store = Store.store
 
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      await waitForClientAuthenticated();
+      await waitForClientAuthenticated()
       const channelResult = await client.service('channel').find({
         query: {
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get('limit'),
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get('skip')
         }
-      });
-      dispatch(loadedChannels(channelResult));
+      })
+      dispatch(loadedChannels(channelResult))
     } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 // export function getUserChannels(skip?: number, limit?: number) {
@@ -82,12 +82,12 @@ export function getInstanceChannel() {
         query: {
           channelType: 'instance'
         }
-      });
-      dispatch(loadedChannel(channelResult.data[0], 'instance'));
+      })
+      dispatch(loadedChannel(channelResult.data[0], 'instance'))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message);
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function createMessage(values: any) {
@@ -97,12 +97,12 @@ export function createMessage(values: any) {
         targetObjectId: values.targetObjectId,
         targetObjectType: values.targetObjectType,
         text: values.text
-      });
+      })
     } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function getChannelMessages(channelId: string, skip?: number, limit?: number) {
@@ -117,24 +117,24 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get(channelId).limit,
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get(channelId).skip
         }
-      });
-      dispatch(loadedMessages(channelId, messageResult));
+      })
+      dispatch(loadedMessages(channelId, messageResult))
     } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function removeMessage(messageId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('message').remove(messageId);
+      await client.service('message').remove(messageId)
     } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function patchMessage(messageId: string, text: string) {
@@ -142,12 +142,12 @@ export function patchMessage(messageId: string, text: string) {
     try {
       await client.service('message').patch(messageId, {
         text: text
-      });
+      })
     } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
     }
-  };
+  }
 }
 
 export function updateChatTarget(targetObjectType: string, targetObject: any) {
@@ -158,40 +158,42 @@ export function updateChatTarget(targetObjectType: string, targetObject: any) {
         targetObjectType: targetObjectType,
         targetObjectId: targetObject.id
       }
-    });
-    dispatch(setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''));
-  };
+    })
+    dispatch(
+      setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : '')
+    )
+  }
 }
 
 export function updateMessageScrollInit(value: boolean) {
   return async (dispatch: Dispatch): Promise<any> => {
-    dispatch(setMessageScrollInit(value));
-  };
+    dispatch(setMessageScrollInit(value))
+  }
 }
 
-if(!Config.publicRuntimeConfig.offlineMode) {
+if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('message').on('created', (params) => {
-    const selfUser = (store.getState() as any).get('auth').get('user') as User;
-    store.dispatch(createdMessage(params.message, selfUser));
-  });
+    const selfUser = (store.getState() as any).get('auth').get('user') as User
+    store.dispatch(createdMessage(params.message, selfUser))
+  })
 
   client.service('message').on('patched', (params) => {
-    store.dispatch(patchedMessage(params.message));
-  });
+    store.dispatch(patchedMessage(params.message))
+  })
 
   client.service('message').on('removed', (params) => {
-    store.dispatch(removedMessage(params.message));
-  });
+    store.dispatch(removedMessage(params.message))
+  })
 
   client.service('channel').on('created', (params) => {
-    store.dispatch(createdChannel(params.channel));
-  });
+    store.dispatch(createdChannel(params.channel))
+  })
 
   client.service('channel').on('patched', (params) => {
-    store.dispatch(patchedChannel(params.channel));
-  });
+    store.dispatch(patchedChannel(params.channel))
+  })
 
   client.service('channel').on('removed', (params) => {
-    store.dispatch(removedChannel(params.channel));
-  });
+    store.dispatch(removedChannel(params.channel))
+  })
 }

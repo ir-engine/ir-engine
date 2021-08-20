@@ -1,8 +1,8 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
-import * as authentication from '@feathersjs/authentication';
-import addAssociations from "@xrengine/server-core/src/hooks/add-associations";
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import * as authentication from '@feathersjs/authentication'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
@@ -42,4 +42,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

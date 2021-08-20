@@ -1,15 +1,3 @@
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-/**
- * @author HydraFire <github.com/HydraFire>
- */
-
-export class InterpolationComponent extends Component<any> {
-  lastUpdate = 0
-  updateDaley = 1000
-}
-
-InterpolationComponent._schema = {
-  lastUpdate: { type: Types.Number, default: 0 },
-};
+export const InterpolationComponent = createMappedComponent()

@@ -1,90 +1,91 @@
-import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from "three";
-import { Component } from "../../ecs/classes/Component";
-import { Engine } from "../../ecs/classes/Engine";
-import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
-import Obj from "./Obj";
+import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from 'three'
+// import { Component } from '../../ecs/classes/Component'
+import { Engine } from '../../ecs/classes/Engine'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+// import IKObj from './IKObj'
+/*
+class PointsComponent extends Component<PointsComponent> {
+  cnt = 0
+  use_size = 10
+  use_shape = 1
+  buf_pos: BufferAttribute
+  buf_clr: BufferAttribute
+  geo: BufferGeometry
+  mesh: Points<any, any>
 
-class PointsComponent extends Component<PointsComponent>{
-	cnt = 0;
-	use_size = 10;
-	use_shape = 1;
-	buf_pos: BufferAttribute;
-	buf_clr: BufferAttribute;
-	geo: BufferGeometry;
-	mesh: Points<any, any>;
+  constructor() {
+    super()
+    this.cnt = 0 // How many items are in the buffer.
+    this.use_size = 10 // Default size to use
+    this.use_shape = 1 // Default Shape to use
+  }
 
-    constructor(){
-		super();
-		this.cnt		= 0;	// How many items are in the buffer.
-		this.use_size	= 10;	// Default size to use
-		this.use_shape	= 1;	// Default Shape to use
-	}
+  init(name = 'points', max_len = 100) {
+    // BUFFERS
+    this.buf_pos = new BufferAttribute(new Float32Array(max_len * 4), 4)
+    this.buf_pos.setUsage(DynamicDrawUsage)
 
-	init( name = "points", max_len = 100 ){
-		// BUFFERS
-        this.buf_pos = new BufferAttribute( new Float32Array( max_len * 4 ), 4 );
-		this.buf_pos.setUsage( DynamicDrawUsage );
+    this.buf_clr = new BufferAttribute(new Float32Array(max_len * 4), 4)
+    this.buf_clr.setUsage(DynamicDrawUsage)
 
-		this.buf_clr = new BufferAttribute( new Float32Array( max_len * 4 ), 4 );
-		this.buf_clr.setUsage( DynamicDrawUsage );
+    // GEOMETRY
+    this.geo = new BufferGeometry()
+    this.geo.setAttribute('position', this.buf_pos)
+    this.geo.setAttribute('color', this.buf_clr)
+    this.geo.setDrawRange(0, 0)
 
-		// GEOMETRY
-        this.geo = new BufferGeometry();
-		this.geo.setAttribute( "position",	this.buf_pos );
-		this.geo.setAttribute( "color",		this.buf_clr );
-		this.geo.setDrawRange( 0, 0 );
+    // MESH
+    this.mesh = new Points(this.geo, getMaterial())
+    this.mesh.name = name
 
-		// MESH
-		this.mesh = new Points( this.geo, getMaterial() );
-		this.mesh.name = name;
+    let obj = getComponent(this.entity, IKObj)
+    if (!obj) {
+      addComponent(this.entity, IKObj)
+      obj = getComponent(this.entity, IKObj)
+    }
+    obj.setReference(this.mesh)
+    Engine.scene.add(obj.ref)
+    return this
+  }
 
-		let obj = getMutableComponent(this.entity, Obj);
-		if(!obj) {
-			addComponent(this.entity, Obj);
-			obj = getMutableComponent(this.entity, Obj);
-		}
-		obj.setReference( this.mesh );
-		Engine.scene.add(obj.ref);
-		return this;
-	}
-	
-	add( p, hex=0xff0000, shape=null, size=null ){ return this.addRaw( p.x, p.y, p.z, hex, shape, size ); }
-	addRaw( x, y, z, hex=0xff0000, shape=null, size=null ){
-		// VERTEX POSITION - SIZE
-		this.buf_pos.setXYZW( this.cnt, x, y, z, (size || this.use_size) );
-		this.buf_pos.needsUpdate = true;
+  add(p, hex = 0xff0000, shape = null, size = null) {
+    return this.addRaw(p.x, p.y, p.z, hex, shape, size)
+  }
+  addRaw(x, y, z, hex = 0xff0000, shape = null, size = null) {
+    // VERTEX POSITION - SIZE
+    this.buf_pos.setXYZW(this.cnt, x, y, z, size || this.use_size)
+    this.buf_pos.needsUpdate = true
 
-		// VERTEX COLOR - SHAPE
-		const c = gl_color( hex );
-		this.buf_clr.setXYZW( this.cnt, c[0], c[1], c[2], ((shape != null)? shape:this.use_shape) );
-		this.buf_clr.needsUpdate = true;
+    // VERTEX COLOR - SHAPE
+    const c = gl_color(hex)
+    this.buf_clr.setXYZW(this.cnt, c[0], c[1], c[2], shape != null ? shape : this.use_shape)
+    this.buf_clr.needsUpdate = true
 
-		// INCREMENT AND UPDATE DRAW RANGE
-		this.cnt++;
-		this.geo.setDrawRange( 0, this.cnt );
-		return this;
-	}
+    // INCREMENT AND UPDATE DRAW RANGE
+    this.cnt++
+    this.geo.setDrawRange(0, this.cnt)
+    return this
+  }
 
-	reset(){
-		this.cnt = 0;
-		this.geo.setDrawRange( 0, 0 );
-		return this;
-	}
+  reset() {
+    this.cnt = 0
+    this.geo.setDrawRange(0, 0)
+    return this
+  }
 }
 
+let gMat = null
+function getMaterial() {
+  if (gMat) return gMat
 
-let gMat = null;
-function getMaterial(){
-	if( gMat ) return gMat;
+  gMat = new RawShaderMaterial({
+    vertexShader: vert_src,
+    fragmentShader: frag_src,
+    transparent: true,
+    uniforms: { u_scale: { value: 8.0 } }
+  })
 
-	gMat = new RawShaderMaterial( { 
-		vertexShader	: vert_src, 
-		fragmentShader	: frag_src, 
-		transparent 	: true, 
-		uniforms 		: { u_scale:{ value : 8.0 } } 
-	} );
-
-	return gMat;
+  return gMat
 }
 
 const vert_src = `#version 300 es
@@ -111,7 +112,7 @@ void main(){
 	//gl_PointSize = view_port_size.y * projectionMatrix[1][5] * 1.0 / gl_Position.w;
 	//gl_PointSize = view_port_size.y * projectionMatrix[1][1] * 1.0 / gl_Position.w;
 	
-}`;
+}`
 
 const frag_src = `#version 300 es
 precision mediump float;
@@ -172,18 +173,18 @@ void main(){
 	if( frag_shape == 6 ) alpha = ring();
 
 	out_color = vec4( frag_color, alpha );
-}`;
+}`
 
+function gl_color(hex, out = null) {
+  const NORMALIZE_RGB = 1 / 255
+  out = out || [0, 0, 0]
 
-function gl_color( hex, out = null ){
-	const NORMALIZE_RGB = 1 / 255;
-	out = out || [0,0,0];
+  out[0] = ((hex >> 16) & 255) * NORMALIZE_RGB
+  out[1] = ((hex >> 8) & 255) * NORMALIZE_RGB
+  out[2] = (hex & 255) * NORMALIZE_RGB
 
-	out[0] = ( hex >> 16 & 255 ) * NORMALIZE_RGB;
-	out[1] = ( hex >> 8 & 255 ) * NORMALIZE_RGB;
-	out[2] = ( hex & 255 ) * NORMALIZE_RGB;
-
-	return out;
+  return out
 }
 
-export default PointsComponent;
+export default PointsComponent
+*/

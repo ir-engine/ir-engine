@@ -1,6 +1,6 @@
-import { Entity } from "../../ecs/classes/Entity"
-import { Network } from "../classes/Network"
+import { Entity } from '../../ecs/classes/Entity'
+import { Network } from '../classes/Network'
 
 export const isEntityLocalClient = (entity: Entity) => {
-  return Network.instance.localClientEntity && Network.instance.localClientEntity === entity;
+  return typeof Network.instance.localClientEntity !== 'undefined' && Network.instance.localClientEntity === entity
 }

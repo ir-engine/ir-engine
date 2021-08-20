@@ -1,25 +1,26 @@
-import { Config } from './helper';
+import { Config } from './helper'
 
-import { RESTORE } from './user/reducers/actions';
+import { RESTORE } from './user/reducers/actions'
 
-export function restoreState (): any {
+export function restoreState(): any {
   return {
     type: RESTORE
-  };
+  }
 }
 
-export function getStoredState (key: string) {
+export function getStoredAuthState() {
   if (!window) {
-    return undefined;
+    return undefined
   }
-  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey);
+  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey)
   if (!rawState) {
-    return undefined;
+    return undefined
   }
-  const state = JSON.parse(rawState); 
-  return state[key];
+  const state = JSON.parse(rawState)
+  return state
 }
 
-export function saveState (state: any) {
-  if(JSON.parse(JSON.stringify(state))["auth"]["isLoggedIn"])  localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state));
+export function saveAuthState(state: any) {
+  if (state.get('auth').get('isLoggedIn'))
+    localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state.get('auth')))
 }

@@ -1,34 +1,33 @@
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Container from '@material-ui/core/Container';
-import GitHubIcon from '@material-ui/icons/GitHub';
-import FacebookIcon from '@material-ui/icons/Facebook';
-import LinkedinIcon from '@material-ui/icons/LinkedIn';
-import TwitterIcon from '@material-ui/icons/Twitter';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-// @ts-ignore
-import styles from './Auth.module.scss';
-import { loginUserByOAuth } from '../../reducers/auth/service';
-import { useTranslation } from "react-i18next";
+import React from 'react'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import Container from '@material-ui/core/Container'
+import GitHubIcon from '@material-ui/icons/GitHub'
+import FacebookIcon from '@material-ui/icons/Facebook'
+import LinkedinIcon from '@material-ui/icons/LinkedIn'
+import TwitterIcon from '@material-ui/icons/Twitter'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import styles from './Auth.module.scss'
+import { loginUserByOAuth } from '../../reducers/auth/service'
+import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
-  return {};
-};
+  return {}
+}
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch)
-});
+})
 
 interface Props {
-  auth?: any;
-  enableFacebookSocial?: boolean;
-  enableGithubSocial?: boolean;
-  enableGoogleSocial?: boolean;
-  enableLinkedInSocial?: boolean;
+  auth?: any
+  enableFacebookSocial?: boolean
+  enableGithubSocial?: boolean
+  enableGoogleSocial?: boolean
+  enableLinkedInSocial?: boolean
   enableTwitterSocial?: boolean
-  loginUserByOAuth?: typeof loginUserByOAuth;
+  loginUserByOAuth?: typeof loginUserByOAuth
 }
 
 const SocialLogin = (props: Props): any => {
@@ -39,33 +38,33 @@ const SocialLogin = (props: Props): any => {
     enableLinkedInSocial,
     enableTwitterSocial,
     loginUserByOAuth
-  } = props;
-  const { t } = useTranslation();
+  } = props
+  const { t } = useTranslation()
 
   const handleGithubLogin = (e: any): void => {
-    e.preventDefault();
-    loginUserByOAuth('github');
-  };
+    e.preventDefault()
+    loginUserByOAuth('github')
+  }
 
   const handleGoogleLogin = (e: any): void => {
-    e.preventDefault();
-    loginUserByOAuth('google');
-  };
+    e.preventDefault()
+    loginUserByOAuth('google')
+  }
 
   const handleFacebookLogin = (e: any): void => {
-    e.preventDefault();
-    loginUserByOAuth('facebook');
-  };
+    e.preventDefault()
+    loginUserByOAuth('facebook')
+  }
 
   const handleLinkedinLogin = (e: any): void => {
-    e.preventDefault();
-    loginUserByOAuth('linkedin2');
-  };
+    e.preventDefault()
+    loginUserByOAuth('linkedin2')
+  }
 
   const handleTwitterLogin = (e: any): void => {
-    e.preventDefault();
-    loginUserByOAuth('twitter');
-  };
+    e.preventDefault()
+    loginUserByOAuth('twitter')
+  }
 
   const githubButton = enableGithubSocial ? (
     <Grid item xs={12}>
@@ -81,21 +80,16 @@ const SocialLogin = (props: Props): any => {
     </Grid>
   ) : (
     ''
-  );
+  )
   const googleButton = enableGoogleSocial ? (
     <Grid item xs={12}>
-      <Button
-        onClick={(e) => handleGoogleLogin(e)}
-        variant="contained"
-        className={styles.google}
-        fullWidth={true}
-      >
+      <Button onClick={(e) => handleGoogleLogin(e)} variant="contained" className={styles.google} fullWidth={true}>
         {t('user:auth.social.google')}
       </Button>
     </Grid>
   ) : (
     ''
-  );
+  )
   const facebookButton = enableFacebookSocial ? (
     <Grid item xs={12}>
       <Button
@@ -110,7 +104,7 @@ const SocialLogin = (props: Props): any => {
     </Grid>
   ) : (
     ''
-  );
+  )
 
   const linkedinButton = enableLinkedInSocial ? (
     <Grid item xs={12}>
@@ -126,9 +120,9 @@ const SocialLogin = (props: Props): any => {
     </Grid>
   ) : (
     ''
-  );
+  )
 
-  const twitterButton =  enableTwitterSocial ? (
+  const twitterButton = enableTwitterSocial ? (
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleTwitterLogin(e)}
@@ -142,7 +136,7 @@ const SocialLogin = (props: Props): any => {
     </Grid>
   ) : (
     ''
-  );
+  )
   return (
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
@@ -155,9 +149,9 @@ const SocialLogin = (props: Props): any => {
         </Grid>
       </div>
     </Container>
-  );
-};
+  )
+}
 
-const SocialLoginWrapper = (props: Props): any => <SocialLogin {...props} />;
+const SocialLoginWrapper = (props: Props): any => <SocialLogin {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(SocialLoginWrapper);
+export default connect(mapStateToProps, mapDispatchToProps)(SocialLoginWrapper)

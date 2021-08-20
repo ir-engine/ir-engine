@@ -7,6 +7,7 @@ import nodePolyfills from 'rollup-plugin-node-polyfills';
 import scss from 'rollup-plugin-scss';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
+import commonjs from '@rollup/plugin-commonjs';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
@@ -14,13 +15,15 @@ const extensions = ['.js', '.ts', '.tsx'];
 const libraryName = 'client-core'
 
 export default {
-  input: './index.ts',
-  output: [{ file: "dist/client-core.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
-  { file: "dist/client-core.es.js", format: 'es', sourcemap: true },
+  input: './src/index.ts',
+  output: [
+    { file: "dist/client-core.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+    { file: "dist/client-core.es.js", format: 'es', sourcemap: true },
   ],
   inlineDynamicImports: true,
   plugins: [
     nodePolyfills(),
+    commonjs(),
     scss({
       exclude: /node_modules/,
       output: 'dist/index.css',

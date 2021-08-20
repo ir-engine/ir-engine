@@ -1,116 +1,110 @@
-import React from 'react';
-import clsx from 'clsx';
-import { createStyles, lighten, makeStyles, Theme } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import React from 'react'
+import clsx from 'clsx'
+import { createStyles, lighten, makeStyles, Theme } from '@material-ui/core/styles'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TablePagination from '@material-ui/core/TablePagination'
+import TableRow from '@material-ui/core/TableRow'
+import TableSortLabel from '@material-ui/core/TableSortLabel'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import Paper from '@material-ui/core/Paper'
+import Checkbox from '@material-ui/core/Checkbox'
+import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@material-ui/core/Tooltip'
+import DeleteIcon from '@material-ui/icons/Delete'
+import FilterListIcon from '@material-ui/icons/FilterList'
 
 interface Data {
-  id: number;
-  description: string;
-  links: string;
-  action: any;
+  id: number
+  description: string
+  links: string
+  action: any
 }
 
-function createData(
-  id: number,
-  description: string,
-  links: string,
-  action: any,
-): Data {
-  return { id, description, links, action };
+function createData(id: number, description: string, links: string, action: any): Data {
+  return { id, description, links, action }
 }
 
 const rows = [
-  createData(1, 'Cupcake', "https://api-dev.theoverlay.io/openapi/" ,"send",),
-  createData(2, 'Donut', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(3, 'Eclair', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(4, 'Frozen yoghurt', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(5, 'Gingerbread', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(6, 'Honeycomb', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(7, 'Ice cream sandwich', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(8, 'Jelly Bean', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(9, 'KitKat', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(10, 'Lollipop', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(11, 'Marshmallow', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(12, 'Nougat', "https://api-dev.theoverlay.io/openapi/", "Send"),
-  createData(13, 'Oreo', "https://api-dev.theoverlay.io/openapi/", "Send"),
-];
-
+  createData(1, 'Cupcake', 'https://api-dev.theoverlay.io/openapi/', 'send'),
+  createData(2, 'Donut', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(3, 'Eclair', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(4, 'Frozen yoghurt', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(5, 'Gingerbread', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(6, 'Honeycomb', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(7, 'Ice cream sandwich', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(8, 'Jelly Bean', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(9, 'KitKat', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(10, 'Lollipop', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(11, 'Marshmallow', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(12, 'Nougat', 'https://api-dev.theoverlay.io/openapi/', 'Send'),
+  createData(13, 'Oreo', 'https://api-dev.theoverlay.io/openapi/', 'Send')
+]
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
-    return -1;
+    return -1
   }
   if (b[orderBy] > a[orderBy]) {
-    return 1;
+    return 1
   }
-  return 0;
+  return 0
 }
 
-type Order = 'asc' | 'desc';
+type Order = 'asc' | 'desc'
 
 function getComparator<Key extends keyof any>(
   order: Order,
-  orderBy: Key,
+  orderBy: Key
 ): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
+    : (a, b) => -descendingComparator(a, b, orderBy)
 }
 
 function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+  const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
+    const order = comparator(a[0], b[0])
+    if (order !== 0) return order
+    return a[1] - b[1]
+  })
+  return stabilizedThis.map((el) => el[0])
 }
 
 interface HeadCell {
-  disablePadding: boolean;
-  id: keyof Data;
-  label: string;
-  numeric: boolean;
+  disablePadding: boolean
+  id: keyof Data
+  label: string
+  numeric: boolean
 }
 
 const headCells: HeadCell[] = [
   { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
   { id: 'description', numeric: true, disablePadding: false, label: 'Description' },
   { id: 'links', numeric: true, disablePadding: false, label: 'Links' },
-  { id: 'action', numeric: true, disablePadding: false, label: 'Action' },
-];
+  { id: 'action', numeric: true, disablePadding: false, label: 'Action' }
+]
 
 interface EnhancedTableProps {
-  classes: ReturnType<typeof useStyles>;
-  numSelected: number;
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
-  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  order: Order;
-  orderBy: string;
-  rowCount: number;
+  classes: ReturnType<typeof useStyles>
+  numSelected: number
+  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void
+  order: Order
+  orderBy: string
+  rowCount: number
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props
   const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
-    onRequestSort(event, property);
-  };
+    onRequestSort(event, property)
+  }
 
   return (
     <TableHead>
@@ -127,7 +121,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
           <TableCell
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'default'}
+            padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -146,43 +140,43 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         ))}
       </TableRow>
     </TableHead>
-  );
+  )
 }
 
 const useToolbarStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(1),
+      paddingRight: theme.spacing(1)
     },
     highlight:
       theme.palette.type === 'light'
         ? {
             color: theme.palette.secondary.main,
-            backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+            backgroundColor: lighten(theme.palette.secondary.light, 0.85)
           }
         : {
             color: theme.palette.text.primary,
-            backgroundColor: theme.palette.secondary.dark,
+            backgroundColor: theme.palette.secondary.dark
           },
     title: {
-      flex: '1 1 100%',
-    },
-  }),
-);
+      flex: '1 1 100%'
+    }
+  })
+)
 
 interface EnhancedTableToolbarProps {
-  numSelected: number;
+  numSelected: number
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-  const classes = useToolbarStyles();
-  const { numSelected } = props;
+  const classes = useToolbarStyles()
+  const { numSelected } = props
 
   return (
     <Toolbar
       className={clsx(classes.root, {
-        [classes.highlight]: numSelected > 0,
+        [classes.highlight]: numSelected > 0
       })}
     >
       {numSelected > 0 ? (
@@ -208,20 +202,20 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         </Tooltip>
       )}
     </Toolbar>
-  );
-};
+  )
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      width: '100%',
+      width: '100%'
     },
     paper: {
       width: '100%',
-      marginBottom: theme.spacing(2),
+      marginBottom: theme.spacing(2)
     },
     table: {
-      minWidth: 750,
+      minWidth: 750
     },
     visuallyHidden: {
       border: 0,
@@ -232,67 +226,64 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: 0,
       position: 'absolute',
       top: 20,
-      width: 1,
-    },
-  }),
-);
+      width: 1
+    }
+  })
+)
 
 export default function ApiLinks() {
-  const classes = useStyles();
-  const [order, setOrder] = React.useState<Order>('asc');
-  const [orderBy, setOrderBy] = React.useState<keyof Data>('description');
-  const [selected, setSelected] = React.useState<number[]>([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const classes = useStyles()
+  const [order, setOrder] = React.useState<Order>('asc')
+  const [orderBy, setOrderBy] = React.useState<keyof Data>('description')
+  const [selected, setSelected] = React.useState<number[]>([])
+  const [page, setPage] = React.useState(0)
+  const [dense, setDense] = React.useState(false)
+  const [rowsPerPage, setRowsPerPage] = React.useState(5)
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
+    const isAsc = orderBy === property && order === 'asc'
+    setOrder(isAsc ? 'desc' : 'asc')
+    setOrderBy(property)
+  }
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.id);
-      setSelected(newSelecteds);
-      return;
+      const newSelecteds = rows.map((n) => n.id)
+      setSelected(newSelecteds)
+      return
     }
-    setSelected([]);
-  };
+    setSelected([])
+  }
 
   const handleClick = (event: React.MouseEvent<unknown>, name: number) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected: number [] = [];
+    const selectedIndex = selected.indexOf(name)
+    let newSelected: number[] = []
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, name)
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
+      newSelected = newSelected.concat(selected.slice(1))
     } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
+      newSelected = newSelected.concat(selected.slice(0, -1))
     } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
+      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
 
-    setSelected(newSelected);
-  };
+    setSelected(newSelected)
+  }
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
+  const handlePageChange = (event: unknown, newPage: number) => {
+    setPage(newPage)
+  }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
 
-  const isSelected = (name: any) => selected.indexOf(name) !== -1;
+  const isSelected = (name: any) => selected.indexOf(name) !== -1
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
 
   return (
     <div className={classes.root}>
@@ -318,8 +309,8 @@ export default function ApiLinks() {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                  const isItemSelected = isSelected(row.id)
+                  const labelId = `enhanced-table-checkbox-${index}`
 
                   return (
                     <TableRow
@@ -332,19 +323,21 @@ export default function ApiLinks() {
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isItemSelected}
-                          inputProps={{ 'aria-labelledby': labelId }}
-                        />
+                        <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
                       </TableCell>
                       <TableCell component="th" id={labelId} scope="row" padding="none">
                         {row.id}
                       </TableCell>
                       <TableCell align="right">{row.description}</TableCell>
                       <TableCell align="right">{row.links}</TableCell>
-                      <TableCell align="right"><a href="#h" className="text-dark"> {row.action} </a> </TableCell>
+                      <TableCell align="right">
+                        <a href="#h" className="text-dark">
+                          {' '}
+                          {row.action}{' '}
+                        </a>{' '}
+                      </TableCell>
                     </TableRow>
-                  );
+                  )
                 })}
               {emptyRows > 0 && (
                 <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
@@ -360,10 +353,10 @@ export default function ApiLinks() {
           count={rows.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Paper>
     </div>
-  );
+  )
 }

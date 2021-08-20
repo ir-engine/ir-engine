@@ -1,32 +1,32 @@
-import React, { useContext } from "react";
-import PropTypes from "prop-types";
-import styled, { ThemeContext } from "styled-components";
-import Dialog from "./Dialog";
-import { bytesToSize } from "@xrengine/engine/src/editor/functions/utils";
-import i18n from "i18next";
-import { useTranslation } from "react-i18next";
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import styled, { ThemeContext } from 'styled-components'
+import Dialog from './Dialog'
+import { bytesToSize } from '@xrengine/engine/src/editor/functions/utils'
+import i18n from 'i18next'
+import { useTranslation } from 'react-i18next'
 
 /**
  * ColoredText used to provide color property Dynamically.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 const ColoredText = (styled as any).span`
-  color: ${props => props.color};
-`;
+  color: ${(props) => props.color};
+`
 
 /**
  * PerformanceItemContainer used as wrapper element for Performance score.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 const PerformanceItemContainer = (styled as any).li`
   display: flex;
   min-height: 100px;
-  background-color: ${props => props.theme.toolbar};
-  border: 1px solid ${props => props.theme.panel};
+  background-color: ${(props) => props.theme.toolbar};
+  border: 1px solid ${(props) => props.theme.panel};
   border-radius: 4px;
   margin: 4px;
   color: white;
@@ -45,7 +45,7 @@ const PerformanceItemContainer = (styled as any).li`
     flex-direction: column;
     flex: 1;
     padding: 12px;
-    border-left: 1px solid ${props => props.theme.panel2};
+    border-left: 1px solid ${(props) => props.theme.panel2};
   }
 
   h5 {
@@ -58,17 +58,17 @@ const PerformanceItemContainer = (styled as any).li`
 
   a {
     white-space: nowrap;
-    color: ${props => props.theme.blue};
+    color: ${(props) => props.theme.blue};
   }
 
   p {
     margin: 0;
   }
-`;
+`
 
 /**
  * PerformanceCheckItem used to render view for PerformanceCheckDialog.
- * 
+ *
  * @author Robert Long
  * @param       {String} score
  * @param       {String} scoreColor
@@ -79,7 +79,7 @@ const PerformanceItemContainer = (styled as any).li`
  * @constructor
  */
 function PerformanceCheckItem({ score, scoreColor, title, description, learnMoreUrl, children }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <PerformanceItemContainer>
       <div>
@@ -92,19 +92,19 @@ function PerformanceCheckItem({ score, scoreColor, title, description, learnMore
           {title}: {children}
         </h6>
         <p>
-          {description}{" "}
+          {description}{' '}
           <a rel="noopener noreferrer" target="_blank" href={learnMoreUrl}>
             {t('editor:dialog.performance.learnMore')}
           </a>
         </p>
       </div>
     </PerformanceItemContainer>
-  );
+  )
 }
 
 /**
  * declairing propTypes for PerformanceCheckItem.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
@@ -115,11 +115,11 @@ PerformanceCheckItem.propTypes = {
   children: PropTypes.node,
   description: PropTypes.string.isRequired,
   learnMoreUrl: PropTypes.string.isRequired
-};
+}
 
 /**
  * initializing scoreToValue with object containing Low Medium High.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
@@ -127,34 +127,34 @@ const scoreToValue = {
   Low: 0,
   Medium: 1,
   High: 2
-};
+}
 
 /**
  * PerformanceCheckDialog used render view containing Performance scores.
- * 
+ *
  * @author Robert Long
  * @param       {String} scores
  * @param       {any} rest
  * @constructor
  */
 export function PerformanceCheckDialog({ scores, ...rest }) {
-  const theme: any = useContext(ThemeContext);
-  const { t } = useTranslation();
+  const theme: any = useContext(ThemeContext)
+  const { t } = useTranslation()
 
   //initializing scoreToColor using theme
   const scoreToColor = {
     Low: theme.green,
     Medium: theme.yellow,
     High: theme.red
-  };
+  }
 
   // initializing texturesScore using scores.textures.largeTexturesScore if scoreToValue contains scores.textures.largeTexturesScore
   // else setting scores.textures.score
   const texturesScore =
     scoreToValue[scores.textures.largeTexturesScore] > scoreToValue[scores.textures.score]
       ? scores.textures.largeTexturesScore
-      : scores.textures.score;
-   // returing view containing Performance
+      : scores.textures.score
+  // returing view containing Performance
   return (
     <Dialog {...rest}>
       <ul>
@@ -190,7 +190,7 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
           <ColoredText color={scoreToColor[scores.textures.score]}>
             {t('editor:dialog.performance.txt-ram', { count: bytesToSize(scores.textures.value) as any })}
           </ColoredText>
-          ,{" "}
+          ,{' '}
           <ColoredText color={scoreToColor[scores.textures.largeTexturesScore]}>
             {t('editor:dialog.performance.txt-texture', { count: scores.textures.largeTexturesValue })}
           </ColoredText>
@@ -217,7 +217,7 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
         </PerformanceCheckItem>
       </ul>
     </Dialog>
-  );
+  )
 }
 
 // declairing propTypes for PerformanceCheckDialog.
@@ -226,12 +226,12 @@ PerformanceCheckDialog.propTypes = {
   tag: PropTypes.string.isRequired,
   onConfirm: PropTypes.func.isRequired,
   confirmLabel: PropTypes.string.isRequired
-};
+}
 
 // initializing defaultProps for PerformanceCheckDialog
 PerformanceCheckDialog.defaultProps = {
-  tag: "div",
-  title: i18n.t('editor:dialog.performance.info-fileSize') || "Performance Check",
-  confirmLabel: i18n.t('editor:dialog.performance.info-fileSize') || "Publish Scene",
-};
-export default PerformanceCheckDialog;
+  tag: 'div',
+  title: i18n.t('editor:dialog.performance.info-fileSize') || 'Performance Check',
+  confirmLabel: i18n.t('editor:dialog.performance.info-fileSize') || 'Publish Scene'
+}
+export default PerformanceCheckDialog

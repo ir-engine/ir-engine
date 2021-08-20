@@ -1,6 +1,8 @@
-import { Component } from '../../ecs/classes/Component';
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export default class ShadowComponent extends Component<any> {
-    castShadow: boolean;
-    receiveShadow: boolean;
+export type ShadowComponentType = {
+  castShadow: boolean
+  receiveShadow: boolean
 }
+
+export const ShadowComponent = createMappedComponent<ShadowComponentType>()

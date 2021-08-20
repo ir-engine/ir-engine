@@ -1,65 +1,69 @@
-import { Dispatch } from 'redux';
-import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
-import {
-  setCamAudioState,
-  setCamVideoState,
-  setFaceTrackingState,
-  setConsumers,
-  setNearbyLayerUsers
-} from './actions';
-import Store from '@xrengine/client-core/src/store';
+import { Dispatch } from 'redux'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { setCamAudioState, setCamVideoState, setFaceTrackingState, setConsumers, setNearbyLayerUsers } from './actions'
+import Store from '@xrengine/client-core/src/store'
 
-const store = Store.store;
+const store = Store.store
 
 export const updateCamVideoState = () => {
-  const ms = MediaStreamSystem.instance;
-  if (!ms) changeCamVideoState(false);
+  const ms = MediaStreams.instance
+  if (!ms) changeCamVideoState(false)
 
-  store.dispatch(setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused));
-};
+  store.dispatch(setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
+}
 
 export const changeCamVideoState = (isEnable: boolean) => {
-  return (dispatch: Dispatch): void => { dispatch(setCamVideoState(isEnable)); };
-};
+  return (dispatch: Dispatch): void => {
+    dispatch(setCamVideoState(isEnable))
+  }
+}
 
 export const triggerUpdateConsumers = () => {
-  const ms = MediaStreamSystem.instance;
-  if (!ms) updateConsumers([]);
+  const ms = MediaStreams.instance
+  if (!ms) updateConsumers([])
 
-  store.dispatch(setConsumers(ms != null ? ms.consumers : []));
-};
+  store.dispatch(setConsumers(ms != null ? ms.consumers : []))
+}
 
 export const updateConsumers = (consumers: any[]) => {
-  return (dispatch: Dispatch): void => { dispatch(setConsumers(consumers));};
-};
+  return (dispatch: Dispatch): void => {
+    dispatch(setConsumers(consumers))
+  }
+}
 
 export const triggerUpdateNearbyLayerUsers = () => {
-  const ms = MediaStreamSystem.instance;
-  if (!ms) updateNearbyLayerUsers([]);
+  const ms = MediaStreams.instance
+  if (!ms) updateNearbyLayerUsers([])
 
-  store.dispatch(setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []));
-};
+  store.dispatch(setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []))
+}
 
 export const updateNearbyLayerUsers = (users: any[]) => {
-  return (dispatch: Dispatch): void => { dispatch(setNearbyLayerUsers(users));};
-};
+  return (dispatch: Dispatch): void => {
+    dispatch(setNearbyLayerUsers(users))
+  }
+}
 
 export const updateCamAudioState = () => {
-  const ms = MediaStreamSystem.instance;
-  if (!ms) changeCamAudioState(false);
+  const ms = MediaStreams.instance
+  if (!ms) changeCamAudioState(false)
 
-  store.dispatch(setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused));
-};
+  store.dispatch(setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
+}
 
 export const changeCamAudioState = (isEnable: boolean) => {
-  return (dispatch: Dispatch): void => { dispatch(setCamAudioState(isEnable)); };
-};
+  return (dispatch: Dispatch): void => {
+    dispatch(setCamAudioState(isEnable))
+  }
+}
 
 export const updateFaceTrackingState = () => {
-  const ms = MediaStreamSystem.instance;
-  store.dispatch(setFaceTrackingState(ms && ms.faceTracking));
-};
+  const ms = MediaStreams.instance
+  store.dispatch(setFaceTrackingState(ms && ms.faceTracking))
+}
 
 export const changeFaceTrackingState = (isEnable: boolean) => {
-  return (dispatch: Dispatch): void => { dispatch(setFaceTrackingState(isEnable)); }; 
-};
+  return (dispatch: Dispatch): void => {
+    dispatch(setFaceTrackingState(isEnable))
+  }
+}

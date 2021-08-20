@@ -162,10 +162,17 @@
             "description": "A light which illuminates the entire scene, but emits along a single direction.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
+            "lbl-cameraFar": "Camera Far",
+            "lbl-cameraNear": "Camera Near",
+            "lbl-cameraTop": "Camera Top",
+            "lbl-cameraBottom": "Camera Bottom",
+            "lbl-cameraLeft": "Camera Left",
+            "lbl-cameraRight": "Camera Right",
             "lbl-castShadow": "Cast Shadow",
             "lbl-shadowmapResolution": "Shadow Map Resolution",
             "lbl-shadowBias": "Shadow Bias",
-            "lbl-shadowRadius": "Shadow Radius"
+            "lbl-shadowRadius": "Shadow Radius",
+            "lbl-showCameraHelper": "Show Camera Helper"
         },
         "floorPlan": {
             "description": "Sets the walkable surface area in your scene.",
@@ -195,18 +202,22 @@
             "description": "Link to a room or a website.",
             "lbl-url": "URL"
         },
+        "map": {
+            "description": "3D geospatial map of e.g. a city."
+        },
         "model": {
             "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
             "lbl-modelurl": "Model Url",
             "lbl-textureOverride": "Override Texture",
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
+            "lbl-isAvatar": "Is Avatar",
             "lbl-collidable": "Collidable",
-            "lbl-saveColliders": "Save Colliders",
             "lbl-walkable": "Walkable",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
             "lbl-interactable": "Interactable",
+            "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
             "lbl-name": "Name",
             "lbl-url": "Model Url",
             "lbl-buy": "Buy Url",
@@ -214,9 +225,6 @@
             "lbl-htmlContent": "Html Content",
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
-        },
-        "game": {
-
         },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
@@ -268,6 +276,41 @@
             "info-lifetimeRandomness": "The amount of variation between particle lifetimes.",
             "info-sizeRandomness": "The amount of variation between particle starting sizes."
         },
+        "clouds": {
+            "description": "Sprite based cloud volume.",
+            "lbl-image": "Sprite Image",
+            "lbl-wroldScale": "World Scale",
+            "lbl-dimensions": "Dimensions",
+            "lbl-noiseZoom": "Noise Zoom",
+            "lbl-noiseOffset": "Noise Offset",
+            "lbl-spriteScale": "Sprite Scale",
+            "lbl-fogColor": "Fog Color",
+            "lbl-fogRange": "Fog Range"
+        },
+        "ocean": {
+            "description": "Ocean surface with waves and foam",
+            "lbl-normalMap": "Normal Map",     
+            "lbl-distortionMap": "Distortion Map",  
+            "lbl-envMap": "Environment Map",
+            "lbl-color": "Color",
+            "lbl-shallowWaterColor": "Shallow Water Color",
+            "lbl-shallowToDeepDistance":  "Shallow to Deep Distance",
+            "lbl-opacityFadeDistance":  "Opacity Fade Distance",
+            "lbl-opacityRange":  "Opacity Range",
+            "lbl-shininess":  "Shininess",
+            "lbl-reflectivity":  "Reflectivity",
+            "lbl-foamColor":  "Foam Color",
+            "lbl-foamSpeed":  "Foam Speed",
+            "lbl-foamTiling":  "Foam Tiling",
+            "lbl-bigWaveTiling":  "Big Wave Tiling",
+            "lbl-bigWaveSpeed":  "Big Wave Speed",
+            "lbl-bigWaveHeight":  "Big Wave Height",
+            "lbl-waveSpeed":  "Wave Speed",
+            "lbl-waveScale":  "Wave Scale",
+            "lbl-waveTiling":  "Wave Tiling",
+            "lbl-waveDistortionSpeed":  "Wave Distortion Speed",
+            "lbl-waveDistortionTiling":  "Wave Distortion Tiling"
+        },
         "pointLight": {
             "description": "A light which emits in all directions from a single point.",
             "lbl-color": "Color",
@@ -282,7 +325,7 @@
             "lbl-forNearDistance": "Fog Near Distance",
             "lbl-fogFarDistance": "Fog Far Distance",
             "lbl-fogDensity": "Fog Density",
-            "lbl-audioSettings": "Override Audio Settings",
+            "lbl-audioSettings": "Use Positional Audio",
             "lbl-avatarDistanceModel": "Avatar Distance Model",
             "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
             "lbl-avatarRefDistance": "Avatar Ref Distance",
@@ -309,6 +352,8 @@
             "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
             "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
             "lbl-simpleMaterials": "Use Simple Materials",
+            "lbl-lods": "LODs",
+            "info-lods": "Sets the distances at which levels of detail change.",
             "info-simpleMaterials": "Converts all expensive materials to simpler ones to take the load off scene rendering.",
             "lbl-rendererSettings": "Override Renderer Settings",
             "lbl-csm": "Cascading Shadow Maps",
@@ -316,7 +361,9 @@
             "lbl-toneMapping": "Tone Mapping",
             "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
             "lbl-toneMappingExposure": "Tone Mapping Exposure",
-            "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled."
+            "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
+            "lbl-shadowMapType": "Shadow Map Type",
+            "info-shadowMapType": "Type of shadow map"
         },
         "sceneCamera": {
             "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",
@@ -380,6 +427,15 @@
         "spline": {
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
+        },
+        "portal": {
+            "lbl-portal": "Linked Portal",
+            "description": "A Portat to teleport players to specified location",
+            "lbl-locationName": "Location",
+            "lbl-displayText": "Display Text",
+            "lbl-reflectionProbe": "Reflection Probe",
+            "lbl-spawnPosition": "Spawn position",
+            "lbl-spawnRotation": "Spawn Rotation"
         }
     },
     "projects": {

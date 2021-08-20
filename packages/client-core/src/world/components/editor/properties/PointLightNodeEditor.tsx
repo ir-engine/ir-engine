@@ -1,67 +1,57 @@
 // @ts-nocheck
 
-import React, { Component } from "react";
-import NodeEditor from "./NodeEditor";
-import InputGroup from "../inputs/InputGroup";
-import ColorInput from "../inputs/ColorInput";
-import NumericInputGroup from "../inputs/NumericInputGroup";
-import LightShadowProperties from "./LightShadowProperties";
-import { Lightbulb } from "@styled-icons/fa-solid/Lightbulb";
-import i18n from "i18next";
-import { withTranslation } from "react-i18next";
+import React, { Component } from 'react'
+import NodeEditor from './NodeEditor'
+import InputGroup from '../inputs/InputGroup'
+import ColorInput from '../inputs/ColorInput'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import LightShadowProperties from './LightShadowProperties'
+import { Lightbulb } from '@styled-icons/fa-solid/Lightbulb'
+import i18n from 'i18next'
+import { withTranslation } from 'react-i18next'
 
 //Declairing properties for PointLightNodeEditor
 type PointLightNodeEditorProps = {
-  editor?: object;
-  node?: object;
-  t: Function;
-};
+  editor?: object
+  node?: object
+  t: Function
+}
 
 /**
  * PointLightNodeEditor is used render editor view to customize component properties.
- * 
+ *
  * @author Robert Long
  * @type {class component}
  */
-export class PointLightNodeEditor extends Component<
-  PointLightNodeEditorProps,
-  {}
-> {
-
+export class PointLightNodeEditor extends Component<PointLightNodeEditorProps, {}> {
   //initializing iconComponent icon name
-  static iconComponent = Lightbulb;
+  static iconComponent = Lightbulb
 
   //initializing description will appears on editor view
-  static description = i18n.t('editor:properties.pointLight.description');
+  static description = i18n.t('editor:properties.pointLight.description')
 
   //function to handle changes in color property
-  onChangeColor = color => {
-    (this.props.editor as any).setPropertySelected("color", color);
-  };
+  onChangeColor = (color) => {
+    ;(this.props.editor as any).setPropertySelected('color', color)
+  }
 
   //function to handle changes in intensity
-  onChangeIntensity = intensity => {
-    (this.props.editor as any).setPropertySelected("intensity", intensity);
-  };
+  onChangeIntensity = (intensity) => {
+    ;(this.props.editor as any).setPropertySelected('intensity', intensity)
+  }
 
   //function to handle changes on range property
-  onChangeRange = range => {
-    (this.props.editor as any).setPropertySelected("range", range);
-  };
+  onChangeRange = (range) => {
+    ;(this.props.editor as any).setPropertySelected('range', range)
+  }
 
   //rendering editor view
   render() {
-    PointLightNodeEditor.description = this.props.t('editor:properties.pointLight.description');
-    const { node, editor } = this.props as any;
+    PointLightNodeEditor.description = this.props.t('editor:properties.pointLight.description')
+    const { node, editor } = this.props as any
     return (
-      <NodeEditor
-        {...this.props}
-        description={PointLightNodeEditor.description}
-      >
-        <InputGroup
-          name="Color"
-          label={this.props.t('editor:properties.pointLight.lbl-color')}
-        >
+      <NodeEditor {...this.props} description={PointLightNodeEditor.description}>
+        <InputGroup name="Color" label={this.props.t('editor:properties.pointLight.lbl-color')}>
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
         <NumericInputGroup
@@ -88,8 +78,8 @@ export class PointLightNodeEditor extends Component<
         />
         <LightShadowProperties node={node} editor={editor} />
       </NodeEditor>
-    );
+    )
   }
 }
 
-export default withTranslation()(PointLightNodeEditor);
+export default withTranslation()(PointLightNodeEditor)

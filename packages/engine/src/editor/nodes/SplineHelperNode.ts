@@ -1,14 +1,14 @@
 // @ts-nocheck
 
-import EditorNodeMixin from "./EditorNodeMixin";
-import SplineHelper from "../../scene/classes/SplineHelper";
-import { Object3D } from "three";
+import EditorNodeMixin from './EditorNodeMixin'
+import SplineHelper from '../../scene/classes/SplineHelper'
+import { Object3D } from 'three'
 
 export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
-  static nodeName = "SplineHelperNode";
+  static nodeName = 'SplineHelperNode'
 
-  helper = null;
-  splineObject = null;
+  helper = null
+  splineObject = null
 
   // static async deserialize(editor, json) {
   //   const node = await super.deserialize(editor, json);
@@ -33,19 +33,19 @@ export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
   //   return node;
   // }
   constructor(editor, spline) {
-    super(editor);
+    super(editor)
 
-    this.splineObject = spline;
-    this.helper = new SplineHelper();
+    this.splineObject = spline
+    this.helper = new SplineHelper()
 
-    super.add(this.helper);
-    this.splineObject.add(this);
+    super.add(this.helper)
+    this.splineObject.add(this)
   }
   onAdd() {
-    // this.helper.init(); 
+    // this.helper.init();
   }
   onChange() {
-    this.splineObject.updateSplineOutline();
+    this.splineObject.updateSplineOutline()
     // this.helper.update();
   }
   onSelect() {
@@ -55,7 +55,7 @@ export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
     // this.helper.visible = false;
   }
   onRemove() {
-    this.splineObject.removePoint(this);
+    this.splineObject.removePoint(this)
   }
   // copy(source, recursive = true) {
   //   super.copy(source, false);
@@ -73,8 +73,8 @@ export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
   //   }
   //   return this;
   // }
-  // serialize() {
-  //   return super.serialize({
+  // async serialize(projectID) {
+  //   return await super.serialize(projectID,{
   //     "point-light": {
   //       color: this.color,
   //       intensity: this.intensity,

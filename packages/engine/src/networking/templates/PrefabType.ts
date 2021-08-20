@@ -1,6 +1,4 @@
-export enum PrefabType {
-  Player,
-  RigidBody,
-  Vehicle,
-  MediaStream,
+export const PrefabType = {
+  Player: 'player',
+  RigidBody: 'rigidbody'
 }

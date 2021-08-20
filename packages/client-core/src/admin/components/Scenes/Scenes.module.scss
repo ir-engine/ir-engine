@@ -168,29 +168,14 @@
   justify-content: space-between;
 }
 
-.pack-select {
-  margin-bottom: 10px;
+.checkbox {
+  color: white !important;
 }
 
-.error-message {
-  color: red;
-  font-size: 1.5em;
-  margin-top: 10px;
+.open-modal {
+  position: fixed;
+  left: 45%;
+  z-index: 1300;
+  top: 10px;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .title {
-    font-size: 1.5em;
-  }
-
-  .closeButton {
-    &:hover {
-      cursor: pointer;
-      color: red;
-    }
-  }
-}

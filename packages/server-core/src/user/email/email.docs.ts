@@ -1,17 +1,17 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 export default {
-    definitions: {
+  definitions: {
+    email: {
+      type: 'object',
+      properties: {
         email: {
-            type: 'object',
-            properties: {
-                email: {
-                     type: 'string'
-                }
-            }
+          type: 'string'
         }
+      }
     }
-};
+  }
+}

@@ -1,13 +1,13 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { StaticResourceType } from './static-resource-type.class';
-import createModel from './static-resource-type.model';
-import hooks from './static-resource-type.hooks';
-import staticResourceTypeDocs from './static-resource-type.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { StaticResourceType } from './static-resource-type.class'
+import createModel from './static-resource-type.model'
+import hooks from './static-resource-type.hooks'
+import staticResourceTypeDocs from './static-resource-type.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'static-resource-type': StaticResourceType & ServiceAddons<any>;
+    'static-resource-type': StaticResourceType & ServiceAddons<any>
   }
 }
 
@@ -16,23 +16,23 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  };
+  }
 
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new StaticResourceType(options, app);
-  event.docs = staticResourceTypeDocs;
-  app.use('/static-resource-type', event);
+  const event = new StaticResourceType(options, app)
+  event.docs = staticResourceTypeDocs
+  app.use('/static-resource-type', event)
 
   /**
    * Get our initialized service so that we can register hooks
-   * 
+   *
    * @author Vyacheslav Solovjov
    */
-  const service = app.service('static-resource-type');
+  const service = app.service('static-resource-type')
 
-  service.hooks(hooks as any);
-};
+  service.hooks(hooks as any)
+}

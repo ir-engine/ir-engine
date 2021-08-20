@@ -1,15 +1,15 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../../declarations';
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Application } from '../../../declarations'
 
 /**
- * A class for User Settings service 
- * 
+ * A class for User Settings service
+ *
  * @author Vyacheslav Solovjov
  */
 export class UserSettings extends Service {
   public docs: any
-  
-  constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options);
+
+  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+    super(options)
   }
 }

@@ -1,6 +1,5 @@
-import React from 'react';
-// @ts-ignore
-import styles from './SpacemanLoader.module.scss';
+import React from 'react'
+import styles from './SpacemanLoader.module.scss'
 
 const SpaceLoader = (): any => {
   return (
@@ -18,7 +17,7 @@ const SpaceLoader = (): any => {
             <div className={styles['r8']} />
             <div className={styles['shad']} />
           </div>
-          <div id='container'>
+          <div id="container">
             <div className={styles['layer-1']}>
               <div className={styles['star-1']} />
               <div className={styles['star-2']} />
@@ -157,7 +156,7 @@ const SpaceLoader = (): any => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SpaceLoader;
+export default SpaceLoader

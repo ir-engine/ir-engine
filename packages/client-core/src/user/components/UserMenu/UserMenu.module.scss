@@ -217,6 +217,7 @@
         max-height: calc(100vh - 175px);
         overflow: auto;
         width: 360px;
+        z-index: 1400;
 
         .avatarHeaderBlock {
             margin: 30px 0 20px 0;
@@ -225,6 +226,7 @@
         }
         .controlContainer {
             display: flex;
+            flex-direction: column;
             margin-bottom: 30px;
             button {
                 height: 35px;
@@ -243,6 +245,10 @@
             .browseBtn { &>svg { transform: rotate(180deg); } }
             .uploadBtn { background: #21B84E; }
             button:hover, button:focus { outline: none; opacity: 0.8; }
+            .selectBtns {
+                display: flex;
+                margin-bottom: 8px;
+            }
         }
         .stage {
             border-radius: 5px;
@@ -281,10 +287,35 @@
             }
         }
 
-        .avatarSelectLabel {
-            margin: 20px 0 8px 0;
-            font-size: 15px;
-            color: #5f5ff1;
+        .thumbnailContainer {
+            display: flex;
+            width: 100%;
+            margin-top: 8px;
+
+            .thumbnailPreview {
+                max-width: 100px;
+                margin: auto;
+            }
+        }
+
+        .selectLabelContainer {
+            display: flex;
+            justify-content: space-around;
+
+            .avatarSelectLabel,
+            .thumbnailSelectLabel {
+                margin: 20px 0 8px 0;
+                font-size: 15px;
+                color: #5f5ff1;
+            }
+        }
+
+        .avatarNameContainer {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 8px;
+
+            .avatarNameInput {}
         }
 
         .iconBlock {
@@ -1113,6 +1144,7 @@
     max-height: calc(100vh - 175px);
     overflow: auto;
     width: 360px;
+    z-index: 1400;
 
     .avatarHeaderBlock {
         margin: 30px 0 20px 0;
@@ -1121,6 +1153,7 @@
     }
     .controlContainer {
         display: flex;
+        flex-direction: column;
         margin-bottom: 30px;
         button {
             height: 35px;
@@ -1142,6 +1175,10 @@
         .browseBtn { &>svg { transform: rotate(180deg); } }
         .uploadBtn { background: #21B84E; }
         button:hover, button:focus { outline: none; opacity: 0.8; }
+        .selectBtns {
+            display: flex;
+            margin-bottom: 8px;
+        }
     }
     .stage {
         border-radius: 5px;
@@ -1180,14 +1217,40 @@
         }
     }
 
-    .avatarSelectLabel {
-        margin: 20px 0 8px 0;
-        font-size: 15px;
-        color: #5f5ff1;
+    .thumbnailContainer {
+        display: flex;
+        width: 100%;
+        margin-top: 8px;
 
-        &.avatarSelectError {
-            color: red;
+        .thumbnailPreview {
+            max-width: 100px;
+            margin: auto;
         }
+    }
+
+    .selectLabelContainer {
+        display: flex;
+        justify-content: space-around;
+
+        .avatarSelectLabel,
+        .thumbnailSelectLabel {
+            margin: 20px 3px 8px 0;
+            font-size: 15px;
+            color: #5f5ff1;
+
+            &.avatarSelectError,
+            &.thumbnailSelectError {
+                color: red;
+            }
+        }
+    }
+
+    .avatarNameContainer {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 8px;
+
+        .avatarNameInput {}
     }
 
     .iconBlock {

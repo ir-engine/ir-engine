@@ -1,5 +1,5 @@
 export enum AvatarModelEnum {
-    HTML,
-    GLTF
+  HTML,
+  GLTF
 }
 export default AvatarModelEnum

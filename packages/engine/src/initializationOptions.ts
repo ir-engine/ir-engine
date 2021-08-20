@@ -1,79 +1,69 @@
-import { CharacterInputSchema } from './character/CharacterInputSchema';
-import { DefaultGameMode } from './game/templates/DefaultGameMode';
-import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema';
-import { GamesSchema, GameType } from  './game/templates/GamesSchema';
-import { InputSchema } from './input/interfaces/InputSchema';
-import { NetworkSchema } from './networking/interfaces/NetworkSchema';
-import { GameMode } from './game/types/GameMode';
-import { PhysXConfig } from 'three-physx';
+import { AvatarInputSchema } from './avatar/AvatarInputSchema'
+import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
+import { InputSchema } from './input/interfaces/InputSchema'
+import { NetworkSchema } from './networking/interfaces/NetworkSchema'
+import { PhysXConfig } from 'three-physx'
+import { SystemInitializeType } from './ecs/functions/SystemFunctions'
 
 export enum EngineSystemPresets {
   CLIENT,
   EDITOR,
-  SERVER,
+  SERVER
 }
 
 export type InitializeOptions = {
-  type?: EngineSystemPresets,
+  type?: EngineSystemPresets
   input?: {
-    disabled?: boolean,
-    schema: InputSchema,
-  },
-  networking?: {
-    schema?: NetworkSchema,
-    app?: any;
-    useOfflineMode?: boolean,
-  },
-  renderer?: {
-    canvasId?: string,
-    disabled?: boolean,
-    postProcessing?: boolean,
-  },
-  gameMode?: GameMode,
-  supportedGameModes?: {
-    [key: string]: GameMode
-  },
-  publicPath?: string,
-  physics?: {
-    simulationEnabled?: boolean,
-    physicsWorldConfig?: PhysXConfig,
-    physxWorker?: any,
+    schemas: InputSchema[]
   }
-};
+  networking?: {
+    schema: NetworkSchema
+    app?: any
+  }
+  renderer?: {
+    disabled?: boolean
+    canvasId?: string
+    postProcessing?: boolean
+  }
+  publicPath?: string
+  physics?: {
+    simulationEnabled?: boolean
+    settings?: PhysXConfig
+    physxWorker?: () => Worker
+  }
+  systems?: SystemInitializeType<any>[]
+}
 
 /**
- * 
+ *
  * @author Shaw
  * If you just want to start up multiplayer worlds, use this.
  * Otherwise you should copy this into your own into your initializeEngine call.
  */
-export const DefaultInitializationOptions: InitializeOptions = {
+export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   type: EngineSystemPresets.CLIENT,
   publicPath: '',
   input: {
-    disabled: false,
-    schema: CharacterInputSchema,
+    schemas: [AvatarInputSchema]
   },
   networking: {
-    schema: DefaultNetworkSchema,
-    useOfflineMode: false,
+    schema: DefaultNetworkSchema
   },
   renderer: {
     disabled: false,
-    postProcessing: true,
+    postProcessing: true
   },
-  gameMode: DefaultGameMode,
-  supportedGameModes: GamesSchema,
   physics: {
-    simulationEnabled: true, // start the engine with the physics simulation running
-    physicsWorldConfig: {
+    settings: {
       bounceThresholdVelocity: 0.5,
       maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
       start: false,
       lengthScale: 1,
       verbose: false,
       substeps: 1,
-      gravity: { x: 0, y: -9.81, z: 0 },
-    }
-  }
-};
+      gravity: { x: 0, y: -9.81, z: 0 }
+    },
+    simulationEnabled: true // start the engine with the physics simulation running
+  },
+  systems: []
+}

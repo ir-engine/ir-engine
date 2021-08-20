@@ -1,31 +1,31 @@
 // @ts-ignore
-import React, { Component, createRef } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
-import { getStepSize, toPrecision } from "@xrengine/engine/src/editor/functions/utils";
-import { clamp } from "@xrengine/engine/src/common/functions/MathLerpFunctions";
+import React, { Component, createRef } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { getStepSize, toPrecision } from '@xrengine/engine/src/editor/functions/utils'
+import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
 
 /**
- * 
- * 
+ *
+ *
  * @author Robert Long
- * @param value 
- * @param precision 
- * @returns 
+ * @param value
+ * @param precision
+ * @returns
  */
 function toPrecisionString(value, precision) {
   if (precision && precision <= 1) {
-    const numDigits = Math.abs(Math.log10(precision));
-    const minimumFractionDigits = Math.min(numDigits, 2);
-    const maximumFractionDigits = Math.max(minimumFractionDigits, numDigits);
+    const numDigits = Math.abs(Math.log10(precision))
+    const minimumFractionDigits = Math.min(numDigits, 2)
+    const maximumFractionDigits = Math.max(minimumFractionDigits, numDigits)
 
-    return value.toLocaleString("fullwide", {
+    return value.toLocaleString('fullwide', {
       minimumFractionDigits,
       maximumFractionDigits,
       useGrouping: false
-    });
+    })
   } else {
-    return value.toLocaleString("fullwide", { useGrouping: false });
+    return value.toLocaleString('fullwide', { useGrouping: false })
   }
 }
 
@@ -37,7 +37,7 @@ const NumericInputContainer = (styled as any).div`
   display: flex;
   flex: 1;
   max-width: 100px;
-`;
+`
 
 /**
  * @author Robert Long
@@ -45,139 +45,138 @@ const NumericInputContainer = (styled as any).div`
 const StyledNumericInput = (styled as any).input`
   display: flex;
   width: 100%;
-  color: ${props => props.theme.text};
-  background-color: ${props => props.theme.inputBackground};
+  color: ${(props) => props.theme.text};
+  background-color: ${(props) => props.theme.inputBackground};
   border-radius: 4px;
-  border: 1px solid ${props => props.theme.border};
+  border: 1px solid ${(props) => props.theme.border};
   padding-left: 6px;
   font-size: 12px;
   height: 24px;
   box-sizing: border-box;
   outline: none;
-  padding-right: ${props => (props.unit ? props.unit.length * 6 + 10 + "px" : 0)};
+  padding-right: ${(props) => (props.unit ? props.unit.length * 6 + 10 + 'px' : 0)};
 
   &:hover {
-    border-color: ${props => props.theme.blueHover};
+    border-color: ${(props) => props.theme.blueHover};
   }
 
   &:focus {
-    border-color: ${props => props.theme.blue};
+    border-color: ${(props) => props.theme.blue};
   }
 
   &:disabled {
-    background-color: ${props => props.theme.disabled};
-    color: ${props => props.theme.disabledText};
+    background-color: ${(props) => props.theme.disabled};
+    color: ${(props) => props.theme.disabledText};
   }
-`;
+`
 
 /**
  * @author Robert Long
  */
 const NumericInputUnit = (styled as any).div`
   position: absolute;
-  color: ${props => props.theme.text2};
+  color: ${(props) => props.theme.text2};
   right: 1px;
   top: 1px;
   bottom: 1px;
-  background-color: ${props => props.theme.inputBackground};
+  background-color: ${(props) => props.theme.inputBackground};
   padding: 0 4px;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
   line-height: 20px;
   height: 22px;
-`;
+`
 
 /**
  * @author Robert Long
  */
 export class NumericInput extends Component {
-
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.state = { tempValue: null, focused: false };
-    this.inputEl = createRef();
+    this.state = { tempValue: null, focused: false }
+    this.inputEl = createRef()
   }
 
   inputEl: any
 
   increment() {
-    this.handleStep(1, false);
+    this.handleStep(1, false)
   }
 
   decrement() {
-    this.handleStep(-1, false);
+    this.handleStep(-1, false)
   }
 
-  handleKeyPress = event => {
-    let direction = 0;
+  handleKeyPress = (event) => {
+    let direction = 0
 
-    if (event.key === "ArrowUp") {
-      direction = 1;
-    } else if (event.key === "ArrowDown") {
-      direction = -1;
+    if (event.key === 'ArrowUp') {
+      direction = 1
+    } else if (event.key === 'ArrowDown') {
+      direction = -1
     }
 
-    if (!direction) return;
+    if (!direction) return
 
-    event.preventDefault();
+    event.preventDefault()
 
-    this.handleStep(event, direction, true);
-  };
+    this.handleStep(event, direction, true)
+  }
 
   handleStep(event, direction, focus = true) {
-    const { smallStep, mediumStep, largeStep, min, max, precision, convertTo, onChange, onCommit } = this.props as any;
+    const { smallStep, mediumStep, largeStep, min, max, precision, convertTo, onChange, onCommit } = this.props as any
 
     const nextValue =
-      parseFloat(this.inputEl.current.value) + getStepSize(event, smallStep, mediumStep, largeStep) * direction;
-    const clampedValue = clamp(nextValue, min, max);
-    const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue;
-    const finalValue = convertTo(roundedValue);
+      parseFloat(this.inputEl.current.value) + getStepSize(event, smallStep, mediumStep, largeStep) * direction
+    const clampedValue = clamp(nextValue, min, max)
+    const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
+    const finalValue = convertTo(roundedValue)
 
     if (onCommit) {
-      onCommit(finalValue);
+      onCommit(finalValue)
     } else {
-      onChange(finalValue);
+      onChange(finalValue)
     }
 
     this.setState({
-      tempValue: roundedValue.toLocaleString("fullwide", {
+      tempValue: roundedValue.toLocaleString('fullwide', {
         useGrouping: false,
         minimumFractionDigits: 0,
         maximumFractionDigits: Math.abs(Math.log10(precision)) + 1
       }),
       focused: focus
-    });
+    })
   }
 
-  handleKeyDown = event => {
-    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-      event.preventDefault();
+  handleKeyDown = (event) => {
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault()
     }
-  };
+  }
 
-  handleChange = event => {
-    const { min, max, precision, convertTo, onChange } = this.props as any;
+  handleChange = (event) => {
+    const { min, max, precision, convertTo, onChange } = this.props as any
 
-    const tempValue = event.target.value;
+    const tempValue = event.target.value
 
-    this.setState({ tempValue, focused: true });
+    this.setState({ tempValue, focused: true })
 
-    const parsedValue = parseFloat(tempValue);
+    const parsedValue = parseFloat(tempValue)
 
     if (!Number.isNaN(parsedValue)) {
-      const clampedValue = clamp(parsedValue, min, max);
-      const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue;
-      const finalValue = convertTo(roundedValue);
-      onChange(finalValue);
+      const clampedValue = clamp(parsedValue, min, max)
+      const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
+      const finalValue = convertTo(roundedValue)
+      onChange(finalValue)
     }
-  };
+  }
 
   handleFocus = () => {
-    const { value, convertFrom, precision } = this.props as any;
+    const { value, convertFrom, precision } = this.props as any
     this.setState(
       {
-        tempValue: convertFrom(value).toLocaleString("fullwide", {
+        tempValue: convertFrom(value).toLocaleString('fullwide', {
           useGrouping: false,
           minimumFractionDigits: 0,
           maximumFractionDigits: Math.abs(Math.log10(precision)) + 1
@@ -185,22 +184,22 @@ export class NumericInput extends Component {
         focused: true
       },
       () => {
-        this.inputEl.current.select();
+        this.inputEl.current.select()
       }
-    );
-  };
+    )
+  }
 
   handleBlur = () => {
-    const { value, onCommit, onChange } = this.props as any;
+    const { value, onCommit, onChange } = this.props as any
 
-    this.setState({ tempValue: null, focused: false });
+    this.setState({ tempValue: null, focused: false })
 
     if (onCommit) {
-      onCommit(value);
+      onCommit(value)
     } else {
-      onChange(value);
+      onChange(value)
     }
-  };
+  }
 
   render() {
     const {
@@ -218,7 +217,7 @@ export class NumericInput extends Component {
       onChange,
       onCommit,
       ...rest
-    } = this.props as any;
+    } = this.props as any
 
     return (
       <NumericInputContainer>
@@ -226,7 +225,11 @@ export class NumericInput extends Component {
           {...rest}
           unit={unit}
           ref={this.inputEl}
-          value={(this.state as any).focused ? (this.state as any).tempValue : toPrecisionString(convertFrom(value), displayPrecision)}
+          value={
+            (this.state as any).focused
+              ? (this.state as any).tempValue
+              : toPrecisionString(convertFrom(value), displayPrecision)
+          }
           onKeyUp={this.handleKeyPress}
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
@@ -235,11 +238,11 @@ export class NumericInput extends Component {
         />
         {unit && <NumericInputUnit>{unit}</NumericInputUnit>}
       </NumericInputContainer>
-    );
+    )
   }
 }
 
-(NumericInput as any).propTypes = {
+;(NumericInput as any).propTypes = {
   className: PropTypes.string,
   unit: PropTypes.node,
   smallStep: PropTypes.number.isRequired,
@@ -254,9 +257,8 @@ export class NumericInput extends Component {
   convertFrom: PropTypes.func.isRequired,
   precision: PropTypes.number.isRequired,
   displayPrecision: PropTypes.number.isRequired
-};
-
-(NumericInput as any).defaultProps = {
+}
+;(NumericInput as any).defaultProps = {
   value: 0,
   smallStep: 0.025,
   mediumStep: 0.1,
@@ -265,8 +267,8 @@ export class NumericInput extends Component {
   max: Infinity,
   displayPrecision: 0.001,
   precision: Number.EPSILON,
-  convertTo: value => value,
-  convertFrom: value => value
-};
+  convertTo: (value) => value,
+  convertFrom: (value) => value
+}
 
-export default NumericInput;
+export default NumericInput

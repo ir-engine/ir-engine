@@ -1,38 +1,36 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 export default {
-    definitions: {
-        'user-settings': {
-            type: 'object',
-            properties: {
-                microphone: {
-                    type: 'integer',
-                    default: 50
-                },
-                audio: {
-                    type: 'integer',
-                    default: 50
-                },
-                spatialAudioEnabled: {
-                    type: 'string',
-                    default: true
-                }
-            }
+  definitions: {
+    'user-settings': {
+      type: 'object',
+      properties: {
+        microphone: {
+          type: 'integer',
+          default: 50
         },
-        'user-settings_list': {
-            type: 'array',
-            items: { $ref: '#/definitions/user-settings'}
+        audio: {
+          type: 'integer',
+          default: 50
+        },
+        spatialAudioEnabled: {
+          type: 'string',
+          default: true
         }
-    },
-    securities: ['create', 'update', 'patch', 'remove'],
-    operations: {
-      find: {
-        security: [
-          { bearer: [] }
-        ]
       }
-    } 
-};
+    },
+    'user-settings_list': {
+      type: 'array',
+      items: { $ref: '#/definitions/user-settings' }
+    }
+  },
+  securities: ['create', 'update', 'patch', 'remove'],
+  operations: {
+    find: {
+      security: [{ bearer: [] }]
+    }
+  }
+}

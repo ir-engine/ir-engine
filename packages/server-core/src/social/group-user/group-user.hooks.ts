@@ -1,91 +1,87 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
-import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate';
-import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate';
-import * as authentication from '@feathersjs/authentication';
-import { disallow, isProvider, iff } from 'feathers-hooks-common';
-import { HookContext } from '@feathersjs/feathers';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
+import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate'
+import * as authentication from '@feathersjs/authentication'
+import { disallow, isProvider, iff } from 'feathers-hooks-common'
+import { HookContext } from '@feathersjs/feathers'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
     all: [authenticate('jwt'), collectAnalytics()],
-    find: [
-      iff(
-        isProvider('external'),
-        groupUserPermissionAuthenticate() as any,
-      )
-    ],
+    find: [iff(isProvider('external'), groupUserPermissionAuthenticate() as any)],
     get: [],
     create: [disallow('external')],
     update: [],
     patch: [],
-    remove: [
-      groupPermissionAuthenticate()
-    ]
+    remove: [groupPermissionAuthenticate()]
   },
 
   after: {
     all: [],
     find: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context;
-        await Promise.all(result.data.map(async (groupUser) => {
-          groupUser.user = await app.service('user').get(groupUser.userId);
-        }));
-        return context;
+        const { app, result } = context
+        await Promise.all(
+          result.data.map(async (groupUser) => {
+            groupUser.user = await app.service('user').get(groupUser.userId)
+          })
+        )
+        return context
       }
     ],
     get: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context;
-        result.user = await app.service('user').get(result.userId);
-        return context;
+        const { app, result } = context
+        result.user = await app.service('user').get(result.userId)
+        return context
       }
     ],
     create: [
-        async (context: HookContext): Promise<HookContext> => {
-          const { app, result } = context;
-          const user = await app.service('user').get(result.userId);
-          await app.service('message').create({
+      async (context: HookContext): Promise<HookContext> => {
+        const { app, result } = context
+        const user = await app.service('user').get(result.userId)
+        await app.service('message').create(
+          {
             targetObjectId: result.groupId,
             targetObjectType: 'group',
             text: `${user.name} joined the group`,
             isNotification: true
-          }, {
+          },
+          {
             'identity-provider': {
               userId: result.userId
             }
-          });
-          return context;
-        }
+          }
+        )
+        return context
+      }
     ],
     update: [],
     patch: [],
     remove: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, params, result } = context;
-        console.log('Group user removal result:');
-        console.log(result);
-        const user = await app.service('user').get(result.userId);
+        const { app, params, result } = context
+        const user = await app.service('user').get(result.userId)
         await app.service('message').create({
           targetObjectId: result.groupId,
           targetObjectType: 'group',
           text: `${user.name} left the group`,
           isNotification: true
-        });
+        })
         if (params.groupUsersRemoved !== true) {
           const groupUserCount = await app.service('group-user').find({
             query: {
               groupId: params.query.groupId,
               $limit: 0
             }
-          });
+          })
           if (groupUserCount.total < 1) {
-            await app.service('group').remove(params.query.groupId, params);
+            await app.service('group').remove(params.query.groupId, params)
           }
         }
-        return context;
+        return context
       }
     ]
   },
@@ -99,4 +95,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

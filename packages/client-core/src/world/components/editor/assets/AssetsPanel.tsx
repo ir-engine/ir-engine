@@ -1,43 +1,42 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
-import { Column, Row } from "../layout/Flex";
-import { EditorContext } from "../contexts/EditorContext";
-import AssetDropZone from "./AssetDropZone";
-// @ts-ignore
-import styles from "./styles.module.scss";
+import React, { useContext, useState, useEffect, useCallback } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { Column, Row } from '../layout/Flex'
+import { EditorContext } from '../contexts/EditorContext'
+import AssetDropZone from './AssetDropZone'
+import styles from './styles.module.scss'
 
 /**
  * AssetsPanelContainer used as container element for asset penal.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 const AssetsPanelContainer = (styled as any)(Row)`
   position: relative;
   flex: 1;
-  background-color: ${props => props.theme.panel};
-`;
+  background-color: ${(props) => props.theme.panel};
+`
 
 /**
  * AssetsPanelToolbarContainer used as container element for tools like search input.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 const AssetsPanelToolbarContainer = (styled as any).div`
   display: flex;
   min-height: 32px;
-  background-color: ${props => props.theme.toolbar};
+  background-color: ${(props) => props.theme.toolbar};
   align-items: center;
   padding: 0 8px;
   justify-content: space-between;
-  border-bottom: 1px solid ${props => props.theme.panel};
-`;
+  border-bottom: 1px solid ${(props) => props.theme.panel};
+`
 
 /**
  * AssetPanelToolbarContent used to provide styles toolbar content.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
@@ -48,11 +47,11 @@ export const AssetPanelToolbarContent = (styled as any)(Row)`
   & > * {
     margin-left: 16px;
   }
-`;
+`
 
 /**
  * AssetsPanelToolbar used to create view elements for toolbar on asset penal.
- * 
+ *
  * @author Robert Long
  * @param       {string} title    [contains the title for toolbar]
  * @param       {node} children
@@ -65,130 +64,125 @@ export function AssetsPanelToolbar({ title, children, ...rest }) {
       <div>{title}</div>
       <AssetPanelToolbarContent>{children}</AssetPanelToolbarContent>
     </AssetsPanelToolbarContainer>
-  );
+  )
 }
 
 /**
  * Declairing propTypes for AssetsPanelToolbar.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
 AssetsPanelToolbar.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node
-};
+}
 
 /**
  * AssetsPanelColumn
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 const AssetsPanelColumn = (styled as any)(Column)`
   max-width: 175px;
-  border-right: 1px solid ${props => props.theme.border};
-`;
+  border-right: 1px solid ${(props) => props.theme.border};
+`
 
 /**
  * AssetPanelContentContainer container element for asset panel.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  * */
 export const AssetPanelContentContainer = (styled as any)(Row)`
   flex: 1;
   overflow: hidden;
-`;
+`
 
 /**
  * getSources used to get sources out of editor and filter sources on the basis of requiresAuthentication or isAuthenticated.
- * 
+ *
  * @author Robert Long
  * @param  {Object} editor
  * @return {any}        [description]
  */
 function getSources(editor) {
-  const isAuthenticated = editor.api.isAuthenticated();
-  return editor.sources.filter(source => !source.requiresAuthentication || isAuthenticated);
+  const isAuthenticated = editor.api.isAuthenticated()
+  return editor.sources.filter((source) => !source.requiresAuthentication || isAuthenticated)
 }
 
 /**
  * AssetsPanel used to render view for AssetsPanel.
- * 
+ *
  * @author Robert Long
  * @constructor
  */
 export default function AssetsPanel() {
-
   //initializing editor with EditorContext
-  const editor = useContext(EditorContext);
+  const editor = useContext(EditorContext)
 
   //initializing sources using getSources from editor
-  const [sources, setSources] = useState(
-    getSources(editor)
-  );
+  const [sources, setSources] = useState(getSources(editor))
 
   //initializing selectedSource as the first element of sources array
-  const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[0] : null);
-  const SourceComponent = selectedSource && selectedSource.component;
+  const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[0] : null)
+  const SourceComponent = selectedSource && selectedSource.component
 
   useEffect(() => {
-
     // function to set selected sources
-    const onSetSource = sourceId => {
-      setSelectedSource(sources.find(s => s.id === sourceId));
-    };
+    const onSetSource = (sourceId) => {
+      setSelectedSource(sources.find((s) => s.id === sourceId))
+    }
 
-   //function to handle changes in authentication
+    //function to handle changes in authentication
     const onAuthChanged = () => {
-      const nextSources = getSources(editor);
-      setSources(nextSources);
+      const nextSources = getSources(editor)
+      setSources(nextSources)
 
       if (nextSources.indexOf(selectedSource) === -1) {
-        setSelectedSource(nextSources.length > 0 ? nextSources[0] : null);
+        setSelectedSource(nextSources.length > 0 ? nextSources[0] : null)
       }
-    };
+    }
 
     // function to handle changes in authentication
     const onSettingsChanged = () => {
-      const nextSources = getSources(editor);
-      setSources(nextSources);
-    };
+      const nextSources = getSources(editor)
+      setSources(nextSources)
+    }
 
     //adding listeners to editor component
-    editor.addListener("settingsChanged", onSettingsChanged);
-    editor.addListener("setSource", onSetSource);
-    editor.api.addListener("authentication-changed", onAuthChanged);
+    editor.addListener('settingsChanged', onSettingsChanged)
+    editor.addListener('setSource', onSetSource)
+    editor.api.addListener('authentication-changed', onAuthChanged)
 
     //removing listeners from editor component
     return () => {
-      editor.removeListener("setSource", onSetSource);
-      editor.api.removeListener("authentication-changed", onAuthChanged);
-    };
-  }, [editor, setSelectedSource, sources, setSources, selectedSource]);
+      editor.removeListener('setSource', onSetSource)
+      editor.api.removeListener('authentication-changed', onAuthChanged)
+    }
+  }, [editor, setSelectedSource, sources, setSources, selectedSource])
 
   //initializing savedSourceState with empty object
-  const [savedSourceState, setSavedSourceState] = useState({});
+  const [savedSourceState, setSavedSourceState] = useState({})
 
   //initializing setSavedState
   const setSavedState = useCallback(
-    state => {
+    (state) => {
       setSavedSourceState({
         ...savedSourceState,
         [selectedSource.id]: state
-      });
+      })
     },
     [selectedSource, setSavedSourceState, savedSourceState]
-  );
+  )
   //initializing saved state on the bases of  selected source
-  const savedState = savedSourceState[selectedSource.id] || {};
+  const savedState = savedSourceState[selectedSource.id] || {}
 
   //creating view for asset penal
   return (
-    <AssetsPanelContainer id="assets-panel"
-        className={styles.assetsPanel}>
-      { /* @ts-ignore */ }
+    <AssetsPanelContainer id="assets-panel" className={styles.assetsPanel}>
+      {/* @ts-ignore */}
       {/* <AssetsPanelColumn flex>
         <AssetsPanelToolbar title="Assets" />
         <List>
@@ -212,5 +206,5 @@ export default function AssetsPanel() {
       </Column>
       <AssetDropZone />
     </AssetsPanelContainer>
-  );
+  )
 }

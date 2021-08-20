@@ -1,4 +1,4 @@
-import { createSelector } from 'reselect';
+import { createSelector } from 'reselect'
 
-const selectState = (state: any): any => state.get('channelConnection');
-export const selectChannelConnectionState = createSelector([selectState], (channelConnection) => channelConnection);
+const selectState = (state: any): any => state.get('channelConnection')
+export const selectChannelConnectionState = createSelector([selectState], (channelConnection) => channelConnection)

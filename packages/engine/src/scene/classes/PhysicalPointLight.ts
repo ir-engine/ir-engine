@@ -1,60 +1,58 @@
-import { PointLight, Object3D } from "three";
-import createShadowMapResolutionProxy from "../../editor/functions/createShadowMapResolutionProxy";
+import { PointLight, Object3D } from 'three'
+import createShadowMapResolutionProxy from '../../editor/functions/createShadowMapResolutionProxy'
 export default class PhysicalPointLight extends PointLight {
-  remove: any;
-  add: any;
-  shadowMapResolution: any;
+  shadowMapResolution: any
   constructor() {
-    super();
-    this.decay = 2;
-    this.castShadow = true;
-    this.shadowMapResolution = createShadowMapResolutionProxy(this);
+    super()
+    this.decay = 2
+    this.castShadow = true
+    this.shadowMapResolution = createShadowMapResolutionProxy(this)
   }
   get range() {
-    return this.distance;
+    return this.distance
   }
   set range(value) {
-    this.distance = value;
+    this.distance = value
   }
   // @ts-ignore
   get shadowBias() {
-    return this.shadow.bias;
+    return this.shadow.bias
   }
   // @ts-ignore
   set shadowBias(value) {
-    this.shadow.bias = value;
+    this.shadow.bias = value
   }
   // @ts-ignore
   get shadowRadius() {
-    return this.shadow.radius;
+    return this.shadow.radius
   }
   // @ts-ignore
   set shadowRadius(value) {
-    this.shadow.radius = value;
+    this.shadow.radius = value
   }
   copy(source, recursive = true) {
     // Override PointLight's copy method and pass the recursive parameter so we can avoid cloning children.
-    Object3D.prototype.copy.call(this, source, false);
-    this.color.copy(source.color);
-    this.intensity = source.intensity;
-    this.distance = source.distance;
-    this.decay = source.decay;
-    this.shadow.copy(source.shadow);
+    Object3D.prototype.copy.call(this, source, false)
+    this.color.copy(source.color)
+    this.intensity = source.intensity
+    this.distance = source.distance
+    this.decay = source.decay
+    this.shadow.copy(source.shadow)
     if (recursive) {
-      this.remove(this.target as any);
+      this.remove(this.target as any)
       for (let i = 0; i < source.children.length; i++) {
-        const child = source.children[i];
+        const child = source.children[i]
         if (child === source.target) {
-          this.target = child.clone();
-          this.add(this.target as any);
+          this.target = child.clone()
+          this.add(this.target as any)
         } else {
-          this.add(child.clone());
+          this.add(child.clone())
         }
       }
     }
-    return this;
+    return this
   }
   target(target: any) {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.')
   }
 }

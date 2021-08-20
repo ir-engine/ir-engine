@@ -1,14 +1,14 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../../declarations';
+import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Application } from '../../../declarations'
 
 /**
- * A class for Location Setting service 
- * 
+ * A class for Location Setting service
+ *
  * @author Vyacheslav Solovjov
  */
 export class LocationSettings extends Service {
- public docs: any
+  public docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options);
+    super(options)
   }
 }

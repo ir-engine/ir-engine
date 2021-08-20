@@ -1,36 +1,26 @@
-import Immutable from 'immutable';
-import {
-  DialogState,
-  DialogAction
-} from './actions';
+import Immutable from 'immutable'
+import { DialogState, DialogAction } from './actions'
 
-import {
-  CLOSE_DIALOG,
-  SHOW_DIALOG
-} from '../actions';
+import { CLOSE_DIALOG, SHOW_DIALOG } from '../actions'
 
 export const initialDialogState: DialogState = {
   isOpened: false,
   content: undefined
-};
+}
 
-const immutableState = Immutable.fromJS(initialDialogState);
+const immutableState = Immutable.fromJS(initialDialogState)
 
 const dialogReducer = (state = immutableState, action: DialogAction): any => {
   switch (action.type) {
     case SHOW_DIALOG:
-      return state
-        .set('isOpened', true)
-        .set('content', action.content);
+      return state.set('isOpened', true).set('content', action.content)
     case CLOSE_DIALOG:
-      return state
-        .set('isOpened', false)
-        .set('content', undefined);
+      return state.set('isOpened', false).set('content', undefined)
     default:
-      break;
+      break
   }
 
-  return state;
-};
+  return state
+}
 
-export default dialogReducer;
+export default dialogReducer

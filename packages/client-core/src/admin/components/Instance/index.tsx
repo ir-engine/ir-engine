@@ -1,24 +1,22 @@
-import React from 'react';
-import Search from "./SearchInstance";
-import InstanceTable from './InstanceTable';
-import { useStyles } from "./styles";
-
+import React from 'react'
+import Search from './SearchInstance'
+import InstanceTable from './InstanceTable'
+import { useInstanceStyles } from './styles'
 
 const Instance = () => {
-    const classes = useStyles();
+  const classes = useInstanceStyles()
 
-    return (
-        <div>
-            <div className={classes.marginBottm}>
-                <Search />
-            </div>
+  return (
+    <div>
+      <div className={classes.marginBottm}>
+        <Search />
+      </div>
 
-            <div className={classes.rootTable}>
-                <InstanceTable />
-            </div>
-        </div>
-    );
-};
+      <div className={classes.rootTable}>
+        <InstanceTable />
+      </div>
+    </div>
+  )
+}
 
-
-export default Instance;
+export default Instance

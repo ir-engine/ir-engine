@@ -1,5 +1,5 @@
-import getScene from '@xrengine/server-core/src/hooks/get-scene';
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
+import getScene from '@xrengine/server-core/src/hooks/get-scene'
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
@@ -32,4 +32,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

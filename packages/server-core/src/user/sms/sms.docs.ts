@@ -1,24 +1,24 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 export default {
-    definitions: {
-        sms: {
-            type: 'object',
-            properties: {
-                mobile: {
-                    type: 'string'
-                },
-                text: {
-                    type: 'string'
-                }
-            }
+  definitions: {
+    sms: {
+      type: 'object',
+      properties: {
+        mobile: {
+          type: 'string'
         },
-        sms_list: {
-            type: 'array',
-            items: { $ref: '#/definitions/sms' }
+        text: {
+          type: 'string'
         }
+      }
+    },
+    sms_list: {
+      type: 'array',
+      items: { $ref: '#/definitions/sms' }
     }
-};
+  }
+}

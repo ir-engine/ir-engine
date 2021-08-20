@@ -1,30 +1,32 @@
-import { HookContext } from '@feathersjs/feathers';
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils';
-import { BadRequest, Forbidden } from '@feathersjs/errors';
-import _ from 'lodash';
+import { HookContext } from '@feathersjs/feathers'
+import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
+import { BadRequest } from '@feathersjs/errors'
+import _ from 'lodash'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<any> => {
-    const { id, params, app } = context;
-    const loggedInUser = extractLoggedInUserFromParams(params);
-    const partyId = params.query.partyId;
-    const userId = params.query.userId || loggedInUser.userId;
-    const paramsClone = _.cloneDeep(context.params);
-    paramsClone.provider = null;
+    const { params, app } = context
+    const loggedInUser = extractLoggedInUserFromParams(params)
+    const partyId = params.query.partyId
+    const userId = params.query.userId || loggedInUser.userId
+    const paramsClone = _.cloneDeep(context.params)
+    paramsClone.provider = null
     if (params.partyUsersRemoved !== true) {
-      const partyUserResult = await app.service('party-user').find({
-        query: {
-          partyId: partyId,
-          userId: userId
-        }
-      }, paramsClone as any);
+      const partyUserResult = await app.service('party-user').find(
+        {
+          query: {
+            partyId: partyId,
+            userId: userId
+          }
+        },
+        paramsClone as any
+      )
       if (partyUserResult.total === 0) {
-        console.log('INVALID PARTY ID');
-        console.log(params);
-        throw new BadRequest('Invalid party ID in party-user-permission');
+        console.log('INVALID PARTY ID')
+        throw new BadRequest('Invalid party ID in party-user-permission')
       }
     }
-    return context;
-  };
-};
+    return context
+  }
+}

@@ -1,92 +1,115 @@
-import EditorNodeMixin from "./EditorNodeMixin";
-import PhysicalDirectionalLight from "../../scene/classes/PhysicalDirectionalLight";
-import EditorDirectionalLightHelper from "../classes/EditorDirectionalLightHelper";
-export default class DirectionalLightNode extends EditorNodeMixin(
-  PhysicalDirectionalLight
-) {
-  static legacyComponentName = "directional-light";
-  static nodeName = "Directional Light";
+import EditorNodeMixin from './EditorNodeMixin'
+import PhysicalDirectionalLight from '../../scene/classes/PhysicalDirectionalLight'
+import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
+import { CameraHelper } from 'three'
+export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirectionalLight) {
+  static legacyComponentName = 'directional-light'
+  static nodeName = 'Directional Light'
   static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json);
-    const {
-      color,
-      intensity,
-      castShadow,
-      shadowMapResolution,
-      shadowBias,
-      shadowRadius
-    } = json.components.find(c => c.name === "directional-light").props;
-    node.color.set(color);
-    node.intensity = intensity;
-    node.castShadow = castShadow;
-    node.shadowBias = shadowBias || 0;
-    node.shadowRadius = shadowRadius === undefined ? 1 : shadowRadius;
+    const node = await super.deserialize(editor, json)
+    const { color, intensity, castShadow, shadowMapResolution, shadowBias, shadowRadius, cameraFar, showCameraHelper } =
+      json.components.find((c) => c.name === 'directional-light').props
+    node.color.set(color)
+    node.intensity = intensity
+    node.cameraFar = cameraFar ?? 100
+    node.castShadow = castShadow
+    node.shadowBias = shadowBias ?? 0.5
+    node.shadowRadius = shadowRadius === undefined ? 1 : shadowRadius
+    node.showCameraHelper = !!showCameraHelper
     if (shadowMapResolution) {
-      node.shadowMapResolution.fromArray(shadowMapResolution);
+      node.shadowMapResolution.fromArray(shadowMapResolution)
     }
-    return node;
+    return node
   }
   constructor(editor) {
-    super(editor);
-    this.helper = new EditorDirectionalLightHelper(this);
-    this.helper.visible = false;
-    this.add(this.helper);
+    super(editor)
+    this.helper = new EditorDirectionalLightHelper(this)
+    this.helper.visible = false
+    this.add(this.helper)
+
+    this.cameraHelper = new CameraHelper(this.shadow.camera)
+    this.cameraHelper.visible = false
+    this.add(this.cameraHelper)
+
+    this.cameraFar = 100
   }
   onAdd() {
-    this.helper.update();
+    this.helper.update()
   }
   onChange() {
-    this.helper.update();
+    this.helper.update()
+    this.cameraHelper.visible = this.showCameraHelper
+
+    this.shadow.bias = this.shadowBias
+    this.shadow.radius = this.shadowRadius
+
+    this.shadow.camera.far = this.cameraFar
+    this.shadow.camera.updateProjectionMatrix()
+
+    this.shadow.needsUpdate = true
+
+    this.cameraHelper.update()
   }
   onSelect() {
-    this.helper.visible = true;
+    this.helper.visible = true
+    this.cameraHelper.visible = this.showCameraHelper
   }
   onDeselect() {
-    this.helper.visible = false;
+    this.helper.visible = false
+    this.cameraHelper.visible = false
   }
   copy(source, recursive = true) {
-    super.copy(source, false);
+    super.copy(source, false)
     if (recursive) {
-      this.remove(this.helper);
-      this.remove(this.target);
+      this.remove(this.helper)
+      this.remove(this.target)
       for (let i = 0; i < source.children.length; i++) {
-        const child = source.children[i];
+        const child = source.children[i]
+        if (child.type === 'CameraHelper') continue
         if (child === source.helper) {
-          this.helper = new EditorDirectionalLightHelper(this);
-          this.add(this.helper);
+          this.helper = new EditorDirectionalLightHelper(this)
+          this.add(this.helper)
         } else if (child === source.target) {
-          this.target = child.clone();
-          this.add(this.target);
+          this.target = child.clone()
+          this.add(this.target)
+        } else if (child === source.cameraHelper) {
+          this.cameraHelper = new CameraHelper(this.shadow.camera)
+          this.cameraHelper.visible = false
+          this.add(this.cameraHelper)
         } else {
-          this.add(child.clone());
+          this.add(child.clone())
         }
       }
     }
-    return this;
+    return this
   }
-  serialize() {
-    return super.serialize({
-      "directional-light": {
+  async serialize(projectID) {
+    return await super.serialize(projectID, {
+      'directional-light': {
         color: this.color,
         intensity: this.intensity,
         castShadow: this.castShadow,
         shadowMapResolution: this.shadowMapResolution.toArray(),
         shadowBias: this.shadowBias,
-        shadowRadius: this.shadowRadius
+        shadowRadius: this.shadowRadius,
+        cameraFar: this.cameraFar,
+        showCameraHelper: this.showCameraHelper
       }
-    });
+    })
   }
   prepareForExport() {
-    super.prepareForExport();
-    this.remove(this.helper);
-    this.addGLTFComponent("directional-light", {
+    super.prepareForExport()
+    this.remove(this.helper)
+    this.addGLTFComponent('directional-light', {
       color: this.color,
       intensity: this.intensity,
       castShadow: this.castShadow,
       shadowMapResolution: this.shadowMapResolution.toArray(),
       shadowBias: this.shadowBias,
-      shadowRadius: this.shadowRadius
-    });
-    this.replaceObject();
+      shadowRadius: this.shadowRadius,
+      cameraFar: this.cameraFar,
+      showCameraHelper: this.showCameraHelper
+    })
+    this.replaceObject()
   }
 }

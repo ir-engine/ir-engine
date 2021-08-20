@@ -1,5 +1,5 @@
-import { disallow } from 'feathers-hooks-common';
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
+import { disallow } from 'feathers-hooks-common'
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 
 export default {
   before: {
@@ -31,4 +31,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

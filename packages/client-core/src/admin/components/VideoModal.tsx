@@ -1,40 +1,39 @@
-import Backdrop from '@material-ui/core/Backdrop';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Grid from '@material-ui/core/Grid';
-import Modal from '@material-ui/core/Modal';
-import TextField from '@material-ui/core/TextField';
-import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../reducers/admin/selector';
-import { createVideo, deleteVideo, updateVideo } from '../reducers/admin/service';
-// @ts-ignore
-import styles from './Admin.module.scss';
+import Backdrop from '@material-ui/core/Backdrop'
+import Button from '@material-ui/core/Button'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Grid from '@material-ui/core/Grid'
+import Modal from '@material-ui/core/Modal'
+import TextField from '@material-ui/core/TextField'
+import React, { useEffect, useState } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { selectAdminState } from '../reducers/admin/selector'
+import { createVideo, deleteVideo, updateVideo } from '../reducers/admin/service'
+import styles from './Admin.module.scss'
 
 interface Props {
-  open: boolean;
-  handleClose: any;
-  createVideo?: typeof createVideo;
-  updateVideo?: typeof updateVideo;
-  deleteVideo?: typeof deleteVideo;
-  admin?: any;
-  video?: any;
-  mode: string;
+  open: boolean
+  handleClose: any
+  createVideo?: typeof createVideo
+  updateVideo?: typeof updateVideo
+  deleteVideo?: typeof deleteVideo
+  admin?: any
+  video?: any
+  mode: string
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     admin: selectAdminState(state)
-  };
-};
+  }
+}
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createVideo: bindActionCreators(createVideo, dispatch),
   updateVideo: bindActionCreators(updateVideo, dispatch),
   deleteVideo: bindActionCreators(deleteVideo, dispatch)
-});
+})
 const VideoModal = (props: Props): any => {
   const initialState = {
     id: props.video?.id ? props.video.id : '',
@@ -46,10 +45,10 @@ const VideoModal = (props: Props): any => {
     category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
     thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
     runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
-    stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
-  };
+    stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false
+  }
 
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState(initialState)
 
   useEffect(() => {
     const newState = {
@@ -62,23 +61,23 @@ const VideoModal = (props: Props): any => {
       category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
       thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
       runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
-      stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
-    };
-    if (newState !== state) {
-      setState(newState);
+      stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false
     }
-  }, [props.video]);
+    if (newState !== state) {
+      setState(newState)
+    }
+  }, [props.video])
 
   const handleInput = (e: any): void => {
-    state[e.target.name] = e.target.value;
-  };
+    state[e.target.name] = e.target.value
+  }
 
   const handleCheck = (e: any): void => {
-    state[e.target.name] = e.target.checked;
-  };
+    state[e.target.name] = e.target.checked
+  }
 
   const createVideo = (e: any): void => {
-    e.preventDefault();
+    e.preventDefault()
 
     const form = {
       id: state.id,
@@ -92,29 +91,29 @@ const VideoModal = (props: Props): any => {
         runtime: state.runtime,
         stereoscopic: state.stereoscopic
       }
-    };
+    }
 
     if (state.category1.length > 0) {
-      form.metadata.categories.push(state.category1);
+      form.metadata.categories.push(state.category1)
     }
     if (state.category2.length > 0) {
-      form.metadata.categories.push(state.category2);
+      form.metadata.categories.push(state.category2)
     }
 
     if (props.mode === 'create') {
-      delete form.id;
-      props.createVideo(form as any);
-      props.handleClose();
+      delete form.id
+      props.createVideo(form as any)
+      props.handleClose()
     } else {
-      props.updateVideo(form as any);
-      props.handleClose();
+      props.updateVideo(form as any)
+      props.handleClose()
     }
-  };
+  }
 
   const deleteVideo = (id: string): void => {
-    props.deleteVideo(id);
-    props.handleClose();
-  };
+    props.deleteVideo(id)
+    props.handleClose()
+  }
 
   return (
     <div>
@@ -131,10 +130,7 @@ const VideoModal = (props: Props): any => {
         }}
       >
         <div className={styles['paper-modal']}>
-          <Button
-            className={styles.close}
-            onClick={props.handleClose}
-          >
+          <Button className={styles.close} onClick={props.handleClose}>
             X
           </Button>
           <form className={styles.form} noValidate onSubmit={(e) => createVideo(e)}>
@@ -255,26 +251,23 @@ const VideoModal = (props: Props): any => {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox
-                    onChange={e => handleCheck(e)}
-                    defaultChecked={state.stereoscopic}
-                    name="stereoscopic"
-                    color="primary"/>}
+                  control={
+                    <Checkbox
+                      onChange={(e) => handleCheck(e)}
+                      defaultChecked={state.stereoscopic}
+                      name="stereoscopic"
+                      color="primary"
+                    />
+                  }
                   label="Stereoscopic"
                 />
               </Grid>
               <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={styles.submit}
-                >
+                <Button type="submit" fullWidth variant="contained" color="primary" className={styles.submit}>
                   {props.mode === 'create' && 'Upload Video'}
                   {props.mode === 'edit' && 'Update Video'}
                 </Button>
-                {props.mode === 'edit' &&
+                {props.mode === 'edit' && (
                   <Button
                     fullWidth
                     variant="contained"
@@ -283,17 +276,14 @@ const VideoModal = (props: Props): any => {
                   >
                     Delete Video
                   </Button>
-                }
+                )}
               </Grid>
             </Grid>
           </form>
         </div>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(VideoModal);
+export default connect(mapStateToProps, mapDispatchToProps)(VideoModal)

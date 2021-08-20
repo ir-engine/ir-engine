@@ -1,29 +1,29 @@
-import React, { useEffect } from "react";
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from "../../../social/reducers/invite/service";
-import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
-import { selectInviteState } from "../../../social/reducers/invite/selector";
-import { bindActionCreators, Dispatch } from "redux";
-import { connect } from "react-redux";
-import { Delete } from "@material-ui/icons";
-import IconButton from '@material-ui/core/IconButton';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import TableFooter from '@material-ui/core/TableFooter';
-import TablePagination from '@material-ui/core/TablePagination';
+import React, { useEffect } from 'react'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from '../../../social/reducers/invite/service'
+import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles'
+import { selectInviteState } from '../../../social/reducers/invite/selector'
+import { bindActionCreators, Dispatch } from 'redux'
+import { connect } from 'react-redux'
+import { Delete } from '@material-ui/icons'
+import IconButton from '@material-ui/core/IconButton'
+import FirstPageIcon from '@material-ui/icons/FirstPage'
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
+import LastPageIcon from '@material-ui/icons/LastPage'
+import TableFooter from '@material-ui/core/TableFooter'
+import TablePagination from '@material-ui/core/TablePagination'
 
 interface Props {
-  receivedInvites?: any,
-  retrieveReceivedInvites?: any,
-  sendInvite?: any,
-  sentInvites?: any,
+  receivedInvites?: any
+  retrieveReceivedInvites?: any
+  sendInvite?: any
+  sentInvites?: any
   invites: any
 }
 
@@ -31,73 +31,65 @@ const mapStateToProps = (state: any): any => {
   return {
     receivedInvites: selectInviteState(state),
     sentInvites: selectInviteState(state)
-  };
-};
+  }
+}
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
   sendInvite: bindActionCreators(sendInvite, dispatch),
   retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch)
-});
-
+})
 
 const useStyles = makeStyles({
   table: {
-    minWidth: 650,
-  },
-});
+    minWidth: 650
+  }
+})
 
 function createData(id: string, name: string, userRole: string, passcode: string, type: string) {
-  return { id, name, userRole, passcode, type };
+  return { id, name, userRole, passcode, type }
 }
-
-
 
 const useStyles1 = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexShrink: 0,
-      marginLeft: theme.spacing(2.5),
-    },
-  }),
-);
+      marginLeft: theme.spacing(2.5)
+    }
+  })
+)
 
 interface TablePaginationActionsProps {
-  count: number;
-  page: number;
-  rowsPerPage: number;
-  onChangePage: (event: React.MouseEvent<HTMLButtonElement>, newPage: number) => void;
+  count: number
+  page: number
+  rowsPerPage: number
+  onPageChange: (event: React.MouseEvent<HTMLButtonElement>, newPage: number) => void
 }
 
-
 function TablePaginationActions(props: TablePaginationActionsProps) {
-  const classes = useStyles1();
-  const theme = useTheme();
-  const { count, page, rowsPerPage, onChangePage } = props;
+  const classes = useStyles1()
+  const theme = useTheme()
+  const { count, page, rowsPerPage, onPageChange } = props
 
   const handleFirstPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, 0);
-  };
+    onPageChange(event, 0)
+  }
 
   const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, page - 1);
-  };
+    onPageChange(event, page - 1)
+  }
 
   const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, page + 1);
-  };
+    onPageChange(event, page + 1)
+  }
 
   const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-  };
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+  }
 
   return (
     <div className={classes.root}>
-      <IconButton
-        onClick={handleFirstPageButtonClick}
-        disabled={page === 0}
-        aria-label="first page"
-      >
+      <IconButton onClick={handleFirstPageButtonClick} disabled={page === 0} aria-label="first page">
         {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
       </IconButton>
       <IconButton onClick={handleBackButtonClick} disabled={page === 0} aria-label="previous page">
@@ -118,35 +110,29 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
         {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
       </IconButton>
     </div>
-  );
+  )
 }
 
-
-
-
 const RecievedInvite = (props: Props) => {
-  const classes = useStyles();
-  const { invites } = props;
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  
-  const rows = invites.map((el, index) => createData(el.id, el.user.name, el.user.userRole, el.passcode, el.inviteType));
+  const classes = useStyles()
+  const { invites } = props
+  const [page, setPage] = React.useState(0)
+  const [rowsPerPage, setRowsPerPage] = React.useState(5)
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  const rows = invites.map((el, index) => createData(el.id, el.user.name, el.user.userRole, el.passcode, el.inviteType))
 
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    setPage(newPage);
-  };
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
 
+  const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage)
+  }
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
   return (
-    <TableContainer >
+    <TableContainer>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -159,21 +145,22 @@ const RecievedInvite = (props: Props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {(rowsPerPage > 0
-            ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            : rows
-          ).map((row, index) => (
-            <TableRow key={`index_${index}`}>
-              <TableCell component="th" scope="row">
-                {row.id}
-              </TableCell>
-              <TableCell align="right">{row.name}</TableCell>
-              <TableCell align="right">{row.userRole}</TableCell>
-              <TableCell align="right">{row.passcode}</TableCell>
-              <TableCell align="right">{row.type}</TableCell>
-              <TableCell align="right"><Delete className="text-danger"/> </TableCell>
-            </TableRow>
-          ))}
+          {(rowsPerPage > 0 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows).map(
+            (row, index) => (
+              <TableRow key={`index_${index}`}>
+                <TableCell component="th" scope="row">
+                  {row.id}
+                </TableCell>
+                <TableCell align="right">{row.name}</TableCell>
+                <TableCell align="right">{row.userRole}</TableCell>
+                <TableCell align="right">{row.passcode}</TableCell>
+                <TableCell align="right">{row.type}</TableCell>
+                <TableCell align="right">
+                  <Delete className="text-danger" />{' '}
+                </TableCell>
+              </TableRow>
+            )
+          )}
           {emptyRows > 0 && (
             <TableRow style={{ height: 53 * emptyRows }}>
               <TableCell colSpan={6} />
@@ -190,18 +177,17 @@ const RecievedInvite = (props: Props) => {
               page={page}
               SelectProps={{
                 inputProps: { 'aria-label': 'rows per page' },
-                native: true,
+                native: true
               }}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
               ActionsComponent={TablePaginationActions}
             />
           </TableRow>
         </TableFooter>
       </Table>
     </TableContainer>
-  );
-};
+  )
+}
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(RecievedInvite);
+export default connect(mapStateToProps, mapDispatchToProps)(RecievedInvite)

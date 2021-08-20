@@ -1,23 +1,18 @@
-import { NetworkPlayerCharacter } from '../../character/prefabs/NetworkPlayerCharacter';
-import { NetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
-import { NetworkMediaStream } from '../../scene/prefabs/NetworkMediaStream';
-import { NetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
-import { MessageTypes } from '../enums/MessageTypes';
-import { NetworkSchema } from '../interfaces/NetworkSchema';
-import { PrefabType } from './PrefabType';
+import { AvatarTagComponent } from '../../avatar/components/AvatarTagComponent'
+import { MappedComponent } from '../../ecs/functions/EntityFunctions'
+import { RigidBodyTagComponent } from '../../physics/components/RigidBodyTagComponent'
+import { MessageTypes } from '../enums/MessageTypes'
+import { NetworkSchema } from '../interfaces/NetworkSchema'
+import { PrefabType } from './PrefabType'
 
-export const DefaultPrefabs = {
-  [PrefabType.Player]: NetworkPlayerCharacter,
-  [PrefabType.RigidBody]: NetworkRigidBody,
-  [PrefabType.Vehicle]: NetworkVehicle,
-  [PrefabType.MediaStream]: NetworkMediaStream,
-};
+export const DefaultPrefabs = new Map<string, MappedComponent<any, any>>()
+DefaultPrefabs.set(PrefabType.Player, AvatarTagComponent)
+DefaultPrefabs.set(PrefabType.RigidBody, RigidBodyTagComponent)
 
 export const DefaultNetworkSchema: NetworkSchema = {
   transport: null,
   messageTypes: {
     ...MessageTypes
   },
-  prefabs: DefaultPrefabs,
-  defaultClientPrefab: PrefabType.Player
-};
+  prefabs: DefaultPrefabs
+}

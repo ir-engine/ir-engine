@@ -1,36 +1,35 @@
-import React, { useState } from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
+import React, { useState } from 'react'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
 
-// @ts-ignore
-import styles from './Auth.module.scss';
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout';
-import { resetPassword } from '../../reducers/auth/service';
-import { useTranslation } from "react-i18next";
+import styles from './Auth.module.scss'
+import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
+import { resetPassword } from '../../reducers/auth/service'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
-  completeAction?: any,
-  resetPassword: typeof resetPassword;
-  token: string;
+  completeAction?: any
+  resetPassword: typeof resetPassword
+  token: string
 }
 
 export default (props: Props): any => {
-  const { resetPassword, token } = props;
-  const initialState = { password: '' };
-  const [state, setState] = useState(initialState);
-  const { t } = useTranslation();
+  const { resetPassword, token } = props
+  const initialState = { password: '' }
+  const [state, setState] = useState(initialState)
+  const { t } = useTranslation()
 
   const handleInput = (e: any): void => {
-    e.preventDefault();
-    setState({ ...state, [e.target.name]: e.target.value });
-  };
+    e.preventDefault()
+    setState({ ...state, [e.target.name]: e.target.value })
+  }
   const handleReset = (e: any): void => {
-    e.preventDefault();
-    resetPassword(token, state.password);
-    if(props.completeAction) props.completeAction();
-  };
+    e.preventDefault()
+    resetPassword(token, state.password)
+    if (props.completeAction) props.completeAction()
+  }
 
   return (
     <EmptyLayout>
@@ -55,18 +54,12 @@ export default (props: Props): any => {
               autoFocus
               onChange={(e) => handleInput(e)}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={styles.submit}
-            >
+            <Button type="submit" fullWidth variant="contained" color="primary" className={styles.submit}>
               {t('user:auth.resetPassword.lbl-submit')}
             </Button>
           </form>
         </div>
       </Container>
     </EmptyLayout>
-  );
-};
+  )
+}

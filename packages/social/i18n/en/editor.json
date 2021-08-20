@@ -197,8 +197,8 @@
             "lbl-modelurl": "Model Url",
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
+            "lbl-isAvatar": "Is Avatar",
             "lbl-collidable": "Collidable",
-            "lbl-saveColliders": "Save Colliders",
             "lbl-walkable": "Walkable",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
@@ -210,9 +210,6 @@
             "lbl-htmlContent": "Html Content",
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
-        },
-        "game": {
-
         },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
@@ -278,7 +275,7 @@
             "lbl-forNearDistance": "Fog Near Distance",
             "lbl-fogFarDistance": "Fog Far Distance",
             "lbl-fogDensity": "Fog Density",
-            "lbl-audioSettings": "Override Audio Settings",
+            "lbl-audioSettings": "Use Positional Audio",
             "lbl-avatarDistanceModel": "Avatar Distance Model",
             "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
             "lbl-avatarRefDistance": "Avatar Ref Distance",
@@ -305,6 +302,8 @@
             "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
             "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
             "lbl-simpleMaterials": "Use Simple Materials",
+            "lbl-lods": "LODs",
+            "info-lods": "Sets the distances at which levels of detail change.",
             "info-simpleMaterials": "Converts all expensive materials to simpler ones to take the load off scene rendering.",
             "lbl-rendererSettings": "Override Renderer Settings",
             "lbl-csm": "Cascading Shadow Maps",
@@ -312,7 +311,9 @@
             "lbl-toneMapping": "Tone Mapping",
             "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
             "lbl-toneMappingExposure": "Tone Mapping Exposure",
-            "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled."
+            "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
+            "lbl-shadowMapType": "Shadow Map Type",
+            "info-shadowMapType": "Type of shadow map"
           },
         "sceneCamera": {
             "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",
