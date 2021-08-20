@@ -56,6 +56,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     marginTp: {
       marginTop: '20%'
     },
+    marginTop: {
+      marginTop: '7%'
+    },
     texAlign: {
       textAlign: 'center'
     },

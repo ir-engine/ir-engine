@@ -96,6 +96,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     space: {
       padding: '1.2rem'
     },
+    mb20px: {
+      marginBottom: '20px'
+    },
     mb40px: {
       marginBottom: '40px'
     },

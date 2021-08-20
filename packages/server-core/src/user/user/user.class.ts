@@ -191,7 +191,19 @@ export class User extends Service {
       if (user.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
 
       delete params.query.action
-      return await super.find(params)
+      // return await super.find(params)
+      const users = await super.find({
+        ...params,
+        include: [
+          {
+            model: (this.app.service('scope') as any).Model,
+            require: false
+          }
+        ],
+        raw: true,
+        nest: true
+      })
+      return users
     } else if (action === 'search') {
       const searchedUser = await (this.app.service('user') as any).Model.findAll({
         where: {

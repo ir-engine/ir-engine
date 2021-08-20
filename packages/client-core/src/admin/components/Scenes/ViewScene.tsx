@@ -37,32 +37,46 @@ const ViewScene = (props: Props) => {
                 </div>
               </Container>
             </Paper>
-            <Container maxWidth="lg">
-              <div className={classesx.sceneRoot}>
-                <Grid container spacing={1}>
-                  <Grid item xs={6} sm={3}>
-                    <Paper className={classesx.sceneInfo}>
-                      <label>Scene</label>
-                      <Typography>Name:&nbsp;{adminScene.name}</Typography>
-                      <Typography>Type:&nbsp;{adminScene.type}</Typography>
-                    </Paper>
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
-                    <label>Entities</label>
-                    {adminScene.entities.map((entity, index) => (
-                      <Paper className={classesx.sceneInfo} key={entity.id}>
-                        <Typography>{entity.name}</Typography>
-                      </Paper>
-                    ))}
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
-                    <label>Entities</label>
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
-                    <Paper className={classesx.sceneInfo}>Info</Paper>
-                  </Grid>
+            <Container maxWidth="lg" className={classes.marginTop}>
+              <Typography variant="h4" component="h4" className={classes.mb40px}>
+                Scene Information
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={6}>
+                  <Typography variant="h5" component="h5" className={classes.mb10}>
+                    Type:
+                  </Typography>
+                  <Typography variant="h5" component="h5" className={classes.mb10}>
+                    SID:
+                  </Typography>
+                  <Typography variant="h5" component="h5" className={classes.mb10}>
+                    Entities:
+                  </Typography>
+                  <Typography variant="h5" component="h5" className={classes.mb10}>
+                    version:
+                  </Typography>
+                  <Typography variant="h5" component="h5" className={classes.mb10}>
+                    Description:
+                  </Typography>
                 </Grid>
-              </div>
+                <Grid item xs={6}>
+                  <Typography variant="h6" component="h6" className={classes.mb10}>
+                    {adminScene?.type || <span className={classesx.spanNone}>None</span>}
+                  </Typography>
+                  <Typography variant="h6" component="h6" className={classes.mb10}>
+                    {adminScene?.sid || <span className={classesx.spanNone}>None</span>}
+                  </Typography>
+                  <Typography variant="h6" component="h6" className={classes.mb10}>
+                    {adminScene?.entities.length || <span className={classesx.spanNone}>None</span>}
+                  </Typography>
+                  <Typography variant="h6" component="h6" className={classes.mb10}>
+                    {adminScene?.version || <span className={classesx.spanNone}>None</span>}
+                  </Typography>
+                  <Typography variant="h6" component="h6" className={classes.mb10}>
+                    {adminScene?.description || <span className={classesx.spanNone}>None</span>}
+                  </Typography>
+                </Grid>
+              </Grid>
             </Container>
 
             <DialogActions className={classes.marginTp}>

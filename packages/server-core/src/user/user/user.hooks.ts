@@ -91,12 +91,12 @@ export default {
         ]
       }),
       async (context: HookContext): Promise<HookContext> => {
-        const foundItem = await context.app.service('scope').Model.findOne({
+        const foundItem = await context.app.service('scope').Model.findAll({
           where: {
             userId: context.arguments[0]
           }
         })
-        if (!foundItem) {
+        if (!foundItem.length) {
           context.arguments[1]?.scopeType?.forEach(async (el) => {
             await context.app.service('scope').create({
               type: el.type,
@@ -104,17 +104,14 @@ export default {
             })
           })
         } else {
+          foundItem.forEach(async (scp) => {
+            await context.app.service('scope').remove(scp.dataValues.id)
+          })
           context.arguments[1]?.scopeType?.forEach(async (el) => {
-            await context.app.service('scope').Model.update(
-              {
-                type: el.type
-              },
-              {
-                where: {
-                  userId: context.arguments[0]
-                }
-              }
-            )
+            await context.app.service('scope').create({
+              type: el.type,
+              userId: context.arguments[0]
+            })
           })
         }
         return context

@@ -91,6 +91,7 @@ const ViewUser = (props: Props) => {
   const [status, setStatus] = React.useState('')
   const [editMode, setEditMode] = React.useState(false)
   const [refetch, setRefetch] = React.useState(false)
+
   const [state, setState] = React.useState({
     name: '',
     avatar: '',
@@ -147,7 +148,8 @@ const ViewUser = (props: Props) => {
       setState({
         ...state,
         name: userAdmin.name || '',
-        avatar: userAdmin.avatarId || ''
+        avatar: userAdmin.avatarId || '',
+        scopeType: userAdmin.scopes || []
       })
     }
   }, [singleUserData])
@@ -291,8 +293,8 @@ const ViewUser = (props: Props) => {
                   renderInput={(params) => <TextField {...params} label="User Role" />}
                 />
               </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog} color="primary">
+              <DialogActions className={classes.marginTop}>
+                <Button onClick={handleCloseDialog} className={classx.spanDange}>
                   Cancel
                 </Button>
                 <Button
@@ -358,17 +360,18 @@ const ViewUser = (props: Props) => {
                 </FormControl>
               </Paper>
 
-              <label>Grant access</label>
+              <label>Grant scope</label>
               <Paper component="div" className={classes.createInput}>
                 <Autocomplete
                   onChange={(event, value) => setState({ ...state, scopeType: value })}
                   multiple
+                  value={state.scopeType}
                   className={classes.selector}
                   classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                   id="tags-standard"
                   options={adminScopes}
                   getOptionLabel={(option) => option.type}
-                  renderInput={(params) => <TextField {...params} placeholder="Select access" />}
+                  renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
                 />
               </Paper>
             </div>
@@ -405,11 +408,29 @@ const ViewUser = (props: Props) => {
                   {userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}
                 </Typography>
               </Grid>
+              <Typography variant="h5" component="h5" className={classes.mb20px}>
+                User scope
+              </Typography>
+              {singleUserData.scopes?.map((el, index) => {
+                const [label, type] = el.type.split(':')
+                return (
+                  <Grid container spacing={3} style={{ paddingLeft: '10px' }} key={el.id}>
+                    <Grid item xs={4}>
+                      <Typography variant="h6" component="h6" className={classes.mb10}>
+                        {label}:
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Chip label={type} />
+                    </Grid>
+                  </Grid>
+                )
+              })}
             </Grid>
           )}
           <DialogActions className={classes.mb10}>
             {editMode ? (
-              <div>
+              <div className={classes.marginTop}>
                 <Button onClick={handleSubmit} className={classx.saveBtn}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
@@ -426,7 +447,7 @@ const ViewUser = (props: Props) => {
                 </Button>
               </div>
             ) : (
-              <div>
+              <div className={classes.marginTop}>
                 <Button
                   className={classx.saveBtn}
                   onClick={() => {

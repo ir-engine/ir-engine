@@ -10,6 +10,7 @@ import { getGroupService } from '../../reducers/admin/group/service'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { columns, Data } from './Variables'
 import { useStyles, useStyle } from './styles'
+import ViewGroup from './ViewGroup'
 
 interface Props {
   adminGroupState?: any
@@ -31,9 +32,11 @@ const GroupTable = (props: Props) => {
   const classes = useStyles()
   const classx = useStyle()
 
+  const [viewModel, setViewModel] = React.useState(false)
+  const [singleGroup, setSingleGroup] = React.useState('')
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
-  const adminUsers = adminGroupState.get('group').get('group')
+  const adminGroups = adminGroupState.get('group').get('group')
   const user = authState.get('user')
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -43,6 +46,16 @@ const GroupTable = (props: Props) => {
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
+  }
+
+  const handleViewGroup = (id: string) => {
+    const group = adminGroups.find((group) => group.id === id)
+    setSingleGroup(group)
+    setViewModel(true)
+  }
+
+  const closeViewModel = (open) => {
+    setViewModel(open)
   }
 
   React.useEffect(() => {
@@ -59,7 +72,7 @@ const GroupTable = (props: Props) => {
       description,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle}>
+          <a href="#h" className={classes.actionStyle} onClick={() => handleViewGroup(id)}>
             <span className={classes.spanWhite}>View</span>
           </a>
           <a href="#h" className={classes.actionStyle}>
@@ -71,7 +84,7 @@ const GroupTable = (props: Props) => {
     }
   }
 
-  const rows = adminUsers.map((el) => {
+  const rows = adminGroups.map((el) => {
     return createData(el.id, el.name, el.description)
   })
 
@@ -123,6 +136,7 @@ const GroupTable = (props: Props) => {
         onRowsPerPageChange={handleRowsPerPageChange}
         className={classes.tableFooter}
       />
+      {singleGroup && <ViewGroup groupAdmin={singleGroup} openView={viewModel} closeViewModal={closeViewModel} />}
     </div>
   )
 }

@@ -52,6 +52,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     saveBtn: {
       marginLeft: 'auto',
+      marginRight: '25px',
       background: '#43484F !important',
       color: '#fff !important',
       width: '150px',
@@ -82,6 +83,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       color: '#000',
       marginRight: '10px'
     },
+    spanNone: {
+      color: '#808080'
+    },
     spanWhite: {
       color: '#f1f1f1'
     },
@@ -106,6 +110,34 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     select: {
       color: '#f1f1f1 !important'
+    },
+    mt20: {
+      marginTop: '20%'
+    },
+    mt10: {
+      marginTop: '10%'
+    },
+    mb10: {
+      marginBottom: '10%'
+    },
+    mb20px: {
+      marginBottom: '20px'
+    },
+    marginTop: {
+      marginTop: '7%'
+    },
+    paperHeight: {
+      height: '20vh',
+      background: '#111',
+      color: '#f1f1f1',
+      backgroundColor: '#343b41'
+    },
+    center: {
+      margin: '4rem auto 0 auto',
+      textAlign: 'center'
+    },
+    typo: {
+      textTransform: 'capitalize'
     }
   })
 )
@@ -113,6 +145,11 @@ export const useStyles = makeStyles((theme: Theme) =>
 export const useStyle = makeStyles({
   root: {
     width: '100%'
+  },
+  paper: {
+    width: '40%',
+    backgroundColor: '#43484F',
+    color: '#f1f1f1'
   },
   container: {
     maxHeight: '80vh'

@@ -270,7 +270,7 @@ const CreateUser = (props: Props) => {
             </a>{' '}
           </DialogContentText>
 
-          <label>Grant access</label>
+          <label>Grant Scope</label>
           <Paper
             component="div"
             className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
@@ -285,7 +285,7 @@ const CreateUser = (props: Props) => {
               id="tags-standard"
               options={adminScopes}
               getOptionLabel={(option) => option.type}
-              renderInput={(params) => <TextField {...params} placeholder="Select access" />}
+              renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
             />
           </Paper>
 
