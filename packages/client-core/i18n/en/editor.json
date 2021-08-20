@@ -314,6 +314,9 @@
             "lbl-waveDistortionSpeed":  "Wave Distortion Speed",
             "lbl-waveDistortionTiling":  "Wave Distortion Tiling"
         },
+        "water": {
+            "description": "Small water surface"
+        },
         "pointLight": {
             "description": "A light which emits in all directions from a single point.",
             "lbl-color": "Color",

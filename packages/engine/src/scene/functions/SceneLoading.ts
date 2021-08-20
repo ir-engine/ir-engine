@@ -41,6 +41,7 @@ import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { Water } from '../classes/Water'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -276,6 +277,11 @@ export class WorldScene {
 
       case 'ocean':
         isClient && addObject3DComponent(entity, new Ocean(), component.data)
+        isClient && addComponent(entity, UpdatableComponent, {})
+        break
+
+      case 'water':
+        isClient && addObject3DComponent(entity, new Water(), component.data)
         isClient && addComponent(entity, UpdatableComponent, {})
         break
 

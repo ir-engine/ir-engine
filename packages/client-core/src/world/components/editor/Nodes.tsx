@@ -63,6 +63,8 @@ import CloudsNodeEditor from './properties/CloudsNodeEditor'
 import OceanNodeEditor from './properties/OceanNodeEditor'
 import MapNodeEditor from './properties/MapNodeEditor'
 import MetadataNodeEditor from './properties/MetadataNodeEditor'
+import WaterNode from '@xrengine/engine/src/editor/nodes/WaterNode'
+import WaterNodeEditor from './properties/WaterNodeEditor'
 
 /**
  * createEditor used to create editor object and register nodes available to create scene.
@@ -107,5 +109,6 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(ReflectionProbeNode, ReflectionProbeNodeEditor)
   editor.registerNode(CloudsNode, CloudsNodeEditor)
   editor.registerNode(OceanNode, OceanNodeEditor)
+  editor.registerNode(WaterNode, WaterNodeEditor)
   return editor
 }
