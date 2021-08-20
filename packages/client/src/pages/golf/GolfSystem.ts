@@ -9,7 +9,12 @@ import { createState, Downgraded } from '@hookstate/core'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  getComponent,
+  removeComponent,
+  removeEntity
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   BALL_STATES,
