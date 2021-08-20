@@ -65,7 +65,7 @@ export const HomePage = (): any => {
             <a target="_blank" className="icon" href="https://discord.gg/mQ3D4FE">
               <img src="static/discord.svg" />
             </a>
-            <a target="_blank" className="icon" href="https://github.com/XRFoundation/XREngine">
+            <a target="_blank" className="icon" href="https://github.com/XRFoundation">
               <img src="static/github.svg" />
             </a>
           </div>
