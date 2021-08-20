@@ -37,7 +37,7 @@ beforeAll(async () => {
       const listen = (message) => {
         if(!running) {
           console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
-          if(message.toString().includes('Server Ready')) {
+          if(message.toString().includes('Initialized new gameserver instance')) {
             console.log(`Successfully launched stack! Took ${Date.now() - time} seconds.`)
             dev.stdout.off('data', listen)
             resolve()
