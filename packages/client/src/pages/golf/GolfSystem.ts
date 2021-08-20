@@ -101,7 +101,7 @@ export const GolfSystem = async (): Promise<System> => {
 
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
-    Network.instance.schema.prefabs.set(Number(prefabType), prefab)
+    Network.instance.schema.prefabs.set(prefabType, prefab)
   })
 
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
