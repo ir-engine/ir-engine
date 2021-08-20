@@ -91,6 +91,7 @@ export interface IStyles {
   extrude?: string
   offy?: number
   opacity?: number
+  zIndex?: number
 }
 export interface IFeatureStyles extends IStyles {
   classOverride?: {
@@ -133,6 +134,7 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   road: {
+    zIndex: 4,
     color: {
       constant: 0x333333
     },
@@ -207,15 +209,17 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   water: {
+    zIndex: 2,
     extrude: 'flat',
     color: {
-      constant: 0x0044ee
+      constant: 0x0f336d
     }
   },
   waterway: {
+    zIndex: 1,
     extrude: 'flat',
     color: {
-      constant: 0x0044ee
+      constant: 0x0b3e46
     },
     width: 2,
     classOverride: {
@@ -235,15 +239,6 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
       constant: 0xff0000
     },
     height: 20
-  },
-
-  landuse: {
-    color: {
-      constant: 0xffff00
-    },
-    opacity: 1,
-    extrude: 'flat',
-    offy: -0.2
   },
 
   landcover: {

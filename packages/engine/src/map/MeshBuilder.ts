@@ -248,6 +248,7 @@ export function buildMeshes(
   llCenter: Position,
   renderer: WebGLRenderer
 ): Mesh[] {
+  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
   const geometries = buildGeometries(layerName, features, llCenter)
 
   const texture = new CanvasTexture(generateTextureCanvas())
@@ -257,12 +258,17 @@ export function buildMeshes(
   const color = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName).color
   const materialParams = {
     color: color.constant,
-    vertexColors: color.builtin_function === 'purple_haze' ? true : false
+    vertexColors: color.builtin_function === 'purple_haze' ? true : false,
+    depthTest: styles.extrude !== 'flat'
   }
 
   const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
 
-  return geometries.map((g) => new Mesh(g, material))
+  return geometries.map((g) => {
+    const mesh = new Mesh(g, material)
+    mesh.renderOrder = styles.extrude === 'flat' ? styles.zIndex : Infinity
+    return mesh
+  })
 }
 
 function maybeBuffer(feature: Feature, width: number): Geometry {
@@ -315,7 +321,7 @@ export function createGround(rasterTiles: ImageBitmap[], latitude: number): Mesh
           map: texture
         }
       : {
-          color: 0x81925c
+          color: 0x8c6f2b
         }
   )
   const mesh = new Mesh(geometry, material)
