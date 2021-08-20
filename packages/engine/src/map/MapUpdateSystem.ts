@@ -28,7 +28,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
       const startLat = centrCoord[1]
       const scaleArg = getScaleArg()
 
-      const longtitude = (position.x / 111134.861111) * scaleArg + startLong
+      const longtitude = position.x / (111134.861111 * scaleArg) + startLong
       const latitude = -position.z / (Math.cos((startLat * PI) / 180) * 111321.377778 * scaleArg) + startLat
 
       //get Current Tile

@@ -89,7 +89,7 @@ export const update = async function (renderer: THREE.WebGLRenderer, args: MapPr
   group.scale.multiplyScalar(args.scale.x)
   group.position.set(position.x, 0, position.z)
   group.name = 'MapObject'
-  centerCoord = Object.assign(center)
+  // centerCoord = Object.assign(center)
   centerTile = Object.assign(getCenterTile(center))
 
   return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }

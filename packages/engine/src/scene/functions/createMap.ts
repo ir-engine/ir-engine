@@ -25,11 +25,16 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 }
 
 export async function updateMap(args: MapProps, longtitude, latitude, position): Promise<void> {
+  const remobj = Engine.scene.getObjectByName('MapObject')
   const { mapMesh, navMesh, groundMesh } = await update(Engine.renderer, args, longtitude, latitude, position)
-  getComponent(currentEnt, Object3DComponent).value.clear()
-  getComponent(currentEnt, Object3DComponent).value.add(mapMesh)
+
+  remobj.removeFromParent()
+  Engine.scene.add(mapMesh)
+
+  // getComponent(currentEnt, Object3DComponent).value.clear()
+  // getComponent(currentEnt, Object3DComponent).value.add(mapMesh)
 
   getComponent(currentEnt, NavMeshComponent).navTarget.clear()
   getComponent(currentEnt, NavMeshComponent).navTarget.add(groundMesh)
-  // getComponent(currentEnt,NavMeshComponent).yukaNavMesh = navMesh
+  getComponent(currentEnt, NavMeshComponent).yukaNavMesh = navMesh
 }
