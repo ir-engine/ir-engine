@@ -79,16 +79,8 @@ export class AnimationRenderer {
       // We should figure out how/why this is affecting the walk animations, and why it's different from run anims
 
       if (animation.weight > 0) {
-        // if (!animation.action.isRunning() && animation.weight > 0) {
+        // if (!animation.action.isRunning() && animation.weight > 0) {        
         animation.action.play()
-
-        // Sync Actions if state requires
-        if (currState.syncActions) {
-          for (let i = 0; i < currState.animations.length; i++) {
-            if (currState.animations[i].action?.isRunning) {
-            }
-          }
-        }
       }
 
       // Reset animation in intra state transition
@@ -147,7 +139,7 @@ export class AnimationRenderer {
     if (avatarAnimationComponent.prevState.name !== avatarAnimationComponent.animationGraph.defaultState.name) {
       // If there is no weight in the prevState animations then remove it.
       if (prevStateWeight <= 0) {
-        //this.resetPreviousState(entity, true)
+        this.resetPreviousState(entity, true)
       }
     }
 
@@ -206,7 +198,7 @@ export class AnimationRenderer {
     })
 
     if (emptyPrevState) {
-      //avatarAnimationComponent.prevState = null
+      avatarAnimationComponent.prevState = null
     }
   }
 }
