@@ -19,6 +19,7 @@
     "build": "rimraf dist && mkdir dist && node build.js",
     "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
     "buildx": "esbuild",
+    "test": "jest",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {

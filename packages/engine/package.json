@@ -77,8 +77,6 @@
     "volumetric": "0.2.28"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.15.0",
-    "@babel/plugin-transform-runtime": "7.15.0",
     "@rollup/plugin-alias": "3.1.5",
     "@rollup/plugin-commonjs": "20.0.0",
     "@rollup/plugin-json": "4.1.0",
@@ -93,7 +91,6 @@
     "@types/puppeteer": "5.4.4",
     "@types/three": "0.131.0",
     "@types/yuka": "0.7.1",
-    "babel-jest": "27.0.6",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "esbuild": "0.12.21",
