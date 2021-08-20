@@ -1,5 +1,5 @@
-import { buffer, centerOfMass } from '@turf/turf'
-import { Feature, Geometry, Position } from 'geojson'
+import { buffer, centerOfMass, along, length } from '@turf/turf'
+import { Feature, Geometry, LineString, Position } from 'geojson'
 import { MeshBasicMaterial } from 'three'
 import {
   MeshLambertMaterial,
@@ -340,10 +340,16 @@ export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): 
 }
 
 export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Mesh {
-  const features = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
+  const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
   const meshes = buildMeshes('building', features, llCenter, renderer)
 
   return meshes[0]
+}
+
+function collectFeaturesByLayer(layerName: ILayerName, vectorTiles: TileFeaturesByLayer[]): Feature[] {
+  return vectorTiles.reduce((accFeatures, tile) => {
+    return [...accFeatures, ...tile[layerName]]
+  }, [])
 }
 
 function createLayerGroup(
@@ -353,9 +359,7 @@ function createLayerGroup(
   renderer: WebGLRenderer
 ): Group {
   const meshes = layers.reduce((accMeshes, layerName) => {
-    const featuresInLayer = vectorTiles.reduce((accFeatures, tile) => {
-      return [...accFeatures, ...tile[layerName]]
-    }, [])
+    const featuresInLayer = collectFeaturesByLayer(layerName, vectorTiles)
 
     const meshes = buildMeshes(layerName, featuresInLayer, llCenter, renderer)
     return [...accMeshes, ...meshes]
@@ -365,6 +369,35 @@ function createLayerGroup(
 
 export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   return createLayerGroup(['road'], vectorTiles, llCenter, renderer)
+}
+
+export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Object3D[] {
+  const features = collectFeaturesByLayer('road', vectorTiles)
+  return features.reduce((accMeshes, f) => {
+    if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
+      const myText = new Text()
+
+      const point = llToScene(along(f as any, length(f) / 2).geometry.coordinates, llCenter)
+
+      myText.text = f.properties.name
+      myText.fontSize = 6
+      myText.color = 0x000000
+      myText.anchorX = '50%'
+      myText.outlineWidth = '2%'
+      myText.outlineColor = 'white'
+
+      // Update the rendering:
+      myText.sync()
+
+      myText.position.y = 20
+      myText.position.x = point[0]
+      // For some reason the positions are mirrored along the X-axis
+      myText.position.z = point[1] * -1
+
+      accMeshes.push(myText)
+    }
+    return accMeshes
+  }, [])
 }
 
 export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {

@@ -1,10 +1,11 @@
-import { Mesh, Object3D, BoxBufferGeometry, Material } from 'three'
+import { Mesh, Object3D, BoxBufferGeometry, Material, Matrix4, Vector3 } from 'three'
 import {
   createBuildings,
   createRoads,
   createGroundMesh,
   createWater,
   createLandUse,
+  createLabels,
   safelySetGroundScaleAndPosition
 } from '../../map/MeshBuilder'
 import { fetchVectorTiles, fetchRasterTiles } from '../../map/MapBoxClient'
@@ -22,6 +23,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   static _material = new Material()
 
   mapLayers: { [name: string]: Object3D | undefined }
+
+  labels: Object3D[]
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
@@ -81,6 +84,20 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       }
     })
     safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
+
+    this.labels = createLabels(vectorTiles, center)
+
+    this.labels.forEach((label) => {
+      label.position.x *= this.scale.x
+      label.position.z *= this.scale.x
+      this.add(label)
+    })
+  }
+  updateLabels(cameraAngle: Matrix4, cameraPosition: Vector3) {
+    this.labels?.forEach((label) => {
+      label.quaternion.setFromRotationMatrix(cameraAngle)
+      label.visible = label.position.distanceTo(cameraPosition) < 200
+    })
   }
   async refreshGroundLayer() {
     const center = await getStartCoords(this.getProps())
