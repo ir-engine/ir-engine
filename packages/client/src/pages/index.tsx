@@ -39,8 +39,8 @@ export const HomePage = (): any => {
             <object className="lander-logo" data="static/overlay_mark.svg" />
             <div className="logo-bottom">
               <span className="gray-txt">{t('index.by')}</span>
-              <span className="gradiant-txt">{t('index.laguna')}</span>
-              <span className="white-txt">{t('index.labs')}</span>
+              <span className="gradiant-txt">{t('index.xr')}</span>
+              <span className="white-txt">{t('index.foundation')}</span>
             </div>
           </div>
         </nav>
@@ -71,8 +71,8 @@ export const HomePage = (): any => {
           </div>
           <div className="logo-bottom">
             <span className="gray-txt">{t('index.by')}</span>
-            <span className="gradiant-txt">{t('index.laguna')}</span>
-            <span className="white-txt">{t('index.labs')}</span>
+            <span className="gradiant-txt">{t('index.xr')}</span>
+            <span className="white-txt">{t('index.foundation')}</span>
           </div>
         </div>
       </div>
