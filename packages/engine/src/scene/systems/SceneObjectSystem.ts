@@ -11,6 +11,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -126,6 +127,21 @@ export const SceneObjectSystem = async (): Promise<System> => {
     for (const entity of updatableQuery(world)) {
       const obj = getComponent(entity, Object3DComponent)
       ;(obj.value as unknown as Updatable).update(world.delta)
+    }
+
+    for (const entity of sceneObjectQuery(world)) {
+      const transform = getComponent(entity, TransformComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent)
+
+      if (!object3DComponent.value) {
+        console.warn('object3D component on entity', entity, ' is undefined')
+        continue
+      }
+
+      object3DComponent.value.position.copy(transform.position)
+      object3DComponent.value.quaternion.copy(transform.rotation)
+      object3DComponent.value.scale.copy(transform.scale)
+      object3DComponent.value.updateMatrixWorld()
     }
 
     return world

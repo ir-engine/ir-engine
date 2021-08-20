@@ -217,7 +217,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
     scale: new Vector3().setScalar(golfBallRadius)
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
-  addComponent(ballEntity, NameComponent, { name: `ball-${playerNumber}` })
+  addComponent(ballEntity, NameComponent, { name: `GolfBall-${playerNumber}` })
   addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   if (isClient) {

@@ -207,7 +207,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
   })
 
   addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
-  addComponent(entityClub, NameComponent, { name: `club-${playerNumber}` })
+  addComponent(entityClub, NameComponent, { name: `GolfClub-${playerNumber}` })
   addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   const color = GolfColours[playerNumber].clone()

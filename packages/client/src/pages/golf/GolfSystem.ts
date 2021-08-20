@@ -41,7 +41,7 @@ import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/i
 import { useState } from '@hookstate/core'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { NetworkObjectComponentOwner } from '../../../../engine/src/networking/components/NetworkObjectComponentOwner'
+import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -50,16 +50,16 @@ import { NetworkObjectComponentOwner } from '../../../../engine/src/networking/c
  */
 
 export function getHole(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`hole-${i}`)
+  return world.world.namedEntities.get(`GolfHole-${i}`)
 }
 export function getBall(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`ball-${i}`)
+  return world.world.namedEntities.get(`GolfBall-${i}`)
 }
 export function getTee(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`tee-${i}`)
+  return world.world.namedEntities.get(`GolfTee-${i}`)
 }
 export function getClub(world: ECSWorld, i: number) {
-  return world.world.namedEntities.get(`club-${i}`)
+  return world.world.namedEntities.get(`GolfClub-${i}`)
 }
 
 /**

@@ -75,7 +75,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       // reset if vals are invalid
       if (isNaN(controller.controller.transform.translation.x)) {
-        console.warn('WARNING: Character physics data reporting NaN', controller.controller.transform.translation)
+        console.warn('WARNING: Avatar physics data reporting NaN', controller.controller.transform.translation)
         controller.controller.updateTransform({
           translation: { x: 0, y: 10, z: 0 },
           rotation: { x: 0, y: 0, z: 0, w: 1 }
