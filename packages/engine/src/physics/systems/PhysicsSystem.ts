@@ -17,6 +17,7 @@ import { PrefabType } from '../../networking/templates/PrefabType'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -155,7 +156,10 @@ export const PhysicsSystem = async (
     for (const entity of networkObjectRemoveQuery(world)) {
       const networkObject = getComponent(entity, NetworkObjectComponent, true)
       delete Network.instance.networkObjects[networkObject.networkId]
-      console.log('removed prefab with id', networkObject.networkId)
+      const nameComponent = getComponent(entity, NameComponent)
+      nameComponent
+        ? console.log(`removed prefab with name ${nameComponent.name} network id: ${networkObject.networkId}`)
+        : console.log('removed prefab with id ', networkObject.networkId)
     }
 
     if (simulationEnabled) PhysXInstance.instance?.update()

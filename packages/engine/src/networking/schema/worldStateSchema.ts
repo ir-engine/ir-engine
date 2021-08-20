@@ -31,7 +31,7 @@ const clientDisconnectedSchema = new Schema({
 
 const createNetworkObjectSchema = new Schema({
   networkId: uint32,
-  prefabType: uint8,
+  prefabType: string,
   uniqueId: string,
   parameters: string
 })

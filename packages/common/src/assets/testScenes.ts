@@ -29,7 +29,7 @@ export const testWorldState = {
   createObjects: [
     {
       networkId: 1,
-      prefabType: 0,
+      prefabType: 'player',
       parameters: {
         position: {
           x: -1.3892272216183488,
