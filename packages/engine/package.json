@@ -27,8 +27,8 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "vite",
-    "build": "rimraf dist && mkdir dist && node build.js",
-    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
+    "build": "rimraf dist && mkdir dist && cti entrypoint ./src -o index.ts && node build.js",
+    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",
@@ -79,6 +79,8 @@
   "devDependencies": {
     "@babel/preset-env": "7.15.0",
     "@babel/plugin-transform-runtime": "7.15.0",
+    "@rollup/plugin-alias": "3.1.5",
+    "@rollup/plugin-commonjs": "20.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
@@ -92,6 +94,7 @@
     "@types/three": "0.131.0",
     "@types/yuka": "0.7.1",
     "babel-jest": "27.0.6",
+    "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "esbuild": "0.12.21",
     "eslint": "7.32.0",

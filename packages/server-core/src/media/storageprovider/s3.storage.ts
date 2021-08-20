@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+import { PresignedPost } from 'aws-sdk/clients/s3'
 import S3BlobStore from 's3-blob-store'
 import config from '../../appconfig'
 import { StorageProviderInterface } from './storageprovider.interface'
@@ -17,7 +18,7 @@ export class S3Provider implements StorageProviderInterface {
     region: config.aws.s3.region
   })
 
-  blob: S3BlobStore = new S3BlobStore({
+  blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,
     bucket: config.aws.s3.staticResourceBucket,
     ACL: 'public-read'
@@ -139,10 +140,10 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  getStorage = (): S3BlobStore => this.blob
+  getStorage = (): typeof S3BlobStore => this.blob
 
   getSignedUrl = async (key: string, expiresAfter: number, conditions): Promise<any> => {
-    const result = await new Promise((resolve) => {
+    const result = await new Promise<PresignedPost>((resolve) => {
       this.provider.createPresignedPost(
         {
           Bucket: config.aws.s3.staticResourceBucket,
@@ -152,7 +153,7 @@ export class S3Provider implements StorageProviderInterface {
           Expires: expiresAfter,
           Conditions: conditions
         },
-        (err, data) => {
+        (err, data: PresignedPost) => {
           resolve(data)
         }
       )
@@ -180,7 +181,7 @@ export class S3Provider implements StorageProviderInterface {
         }
       )
     })
-    result.cacheDomain = this.cacheDomain
+    ;(result as any).cacheDomain = this.cacheDomain
     return result
   }
 

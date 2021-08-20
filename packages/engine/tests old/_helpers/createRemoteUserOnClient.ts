@@ -1,3 +1,5 @@
+export {}
+
 // import { Network } from "../../src/networking/classes/Network";
 // import {
 //   NetworkObjectCreateInterface,

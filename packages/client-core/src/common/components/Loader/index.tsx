@@ -58,6 +58,8 @@ const LoadingScreen = (props: Props) => {
     }
   }, [objectsToLoad])
 
+  if (!showProgressBar) return null
+
   return (
     <>
       <section className={styles.overlay}>

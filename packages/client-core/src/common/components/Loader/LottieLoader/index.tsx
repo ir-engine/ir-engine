@@ -31,7 +31,7 @@ const LottieLoader = () => {
     const pathIndex = randomNumber(0, Loaders.length, Math.random)
     const path = Loaders[parseInt(pathIndex)]
 
-    import('./' + path + '.json').then((res) => {
+    import(/* @vite-ignore */ `./${path}.json`).then((res) => {
       setAnimation(res)
     })
   }, [])

@@ -12,8 +12,7 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import {
   addComponent,
   getComponent,
-  removeComponent,
-  removeEntity
+  removeComponent
 } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {

@@ -51,7 +51,7 @@ export function setPosition(entity, ...p) {
   if (p.length == 3) ref.position.fromArray(p)
 }
 
-export function getTransform(entity) {
+export function getRigTransform(entity) {
   const { ref } = getComponent(entity, IKObj)
   const p = ref.position,
     q = ref.quaternion,
