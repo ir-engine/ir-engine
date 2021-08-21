@@ -297,7 +297,7 @@ export class XREngineBot {
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
-        '--use-gl=desktop',
+        '--use-gl=swiftshader',
         '--enable-gpu-rasterization',
         '--use-cmd-decoder=passthrough',
 
