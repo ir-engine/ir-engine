@@ -24,10 +24,6 @@ import {
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-<<<<<<< HEAD:packages/client/src/pages/examples/ikrig.tsx
-import Debug from '../../../components/Debug'
-=======
->>>>>>> animation-state:packages/client/src/pages/examples/ikrig/index.tsx
 import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
