@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { ECSWorld } from '../../ecs/classes/World'
@@ -11,6 +11,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -38,6 +39,8 @@ export const SceneObjectSystem = async (): Promise<System> => {
   const sceneObjectQuery = defineQuery([Object3DComponent])
   const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
   const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
+
+  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
   const persistAddQuery = enterQuery(persistQuery)
@@ -126,6 +129,21 @@ export const SceneObjectSystem = async (): Promise<System> => {
     for (const entity of updatableQuery(world)) {
       const obj = getComponent(entity, Object3DComponent)
       ;(obj.value as unknown as Updatable).update(world.delta)
+    }
+
+    for (const entity of transformObjectQuery(world)) {
+      const transform = getComponent(entity, TransformComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent)
+
+      if (!object3DComponent.value) {
+        console.warn('object3D component on entity', entity, ' is undefined')
+        continue
+      }
+
+      object3DComponent.value.position.copy(transform.position)
+      object3DComponent.value.quaternion.copy(transform.rotation)
+      object3DComponent.value.scale.copy(transform.scale)
+      object3DComponent.value.updateMatrixWorld()
     }
 
     return world

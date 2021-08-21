@@ -234,7 +234,7 @@ export default class AudioSource extends Object3D {
       this.el.addEventListener('error', onError)
     })
   }
-  async load() {
+  async load(src?: string, contentType?: string): Promise<this> {
     await this.loadMedia()
     if (!Engine.useAudioSystem) return this
     this.audioSource = this.audioListener.context.createMediaElementSource(this.el)

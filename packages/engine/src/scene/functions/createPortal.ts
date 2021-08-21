@@ -9,7 +9,6 @@ import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -37,7 +36,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
   // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
   AssetLoader.load({ url: Engine.publicPath + '/models/common/portal_frame.glb' }, (gltf) => {
-    const model = gltf.clone()
+    const model = gltf.scene.clone()
     const previewMesh = model.children[2] as Mesh
     const labelMesh = model.children[1] as Mesh
 

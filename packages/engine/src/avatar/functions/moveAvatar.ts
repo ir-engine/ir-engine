@@ -29,25 +29,28 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
 
   if (!controller.movementEnabled) return
 
+  vec3.copy(controller.localMovementDirection).multiplyScalar(multiplier)
+  controller.velocitySimulator.target.copy(vec3)
+  controller.velocitySimulator.simulate(deltaTime * (avatar.isGrounded ? 1 : 0.5))
+
+  const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+  newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
+  velocity.velocity.copy(newVelocity)
+
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  if (xrInputSourceComponent) {
+    // if in VR follow look direction
+    xrInputSourceComponent.head.getWorldQuaternion(quat)
+    newVelocity.applyQuaternion(quat)
+  } else {
+    // otherwise ppply direction from avatar orientation
+    newVelocity.applyQuaternion(transform.rotation)
+  }
+
+  controller.controller.velocity.x = newVelocity.x
+  controller.controller.velocity.z = newVelocity.z
+
   if (avatar.isGrounded) {
-    vec3.copy(controller.localMovementDirection).multiplyScalar(multiplier)
-    controller.velocitySimulator.target.copy(vec3)
-    controller.velocitySimulator.simulate(deltaTime)
-
-    const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
-    newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
-    velocity.velocity.copy(newVelocity)
-
-    const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-    if (xrInputSourceComponent) {
-      // if in VR follow look direction
-      xrInputSourceComponent.head.getWorldQuaternion(quat)
-      newVelocity.applyQuaternion(quat)
-    } else {
-      // otherwise ppply direction from avatar orientation
-      newVelocity.applyQuaternion(transform.rotation)
-    }
-
     const raycast = getComponent(entity, RaycastComponent)
     const closestHit = raycast.raycastQuery.hits[0]
 
@@ -59,9 +62,7 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
       onGroundVelocity.applyMatrix4(mat4)
     }
 
-    controller.controller.velocity.x = newVelocity.x
     controller.controller.velocity.y = onGroundVelocity.y
-    controller.controller.velocity.z = newVelocity.z
 
     if (controller.isJumping) {
       controller.isJumping = false

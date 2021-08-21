@@ -1,5 +1,5 @@
 import React from 'react'
-import { Analytics } from '@styled-icons/material/Analytics'
+import { Analytics } from '@styled-icons/material/Analytics/Analytics.esm'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'

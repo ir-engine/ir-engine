@@ -22,7 +22,7 @@ import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
-import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from './styles'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
@@ -250,19 +250,24 @@ export function buildMeshes(
 ): Mesh[] {
   const geometries = buildGeometries(layerName, features, llCenter)
 
-  const texture = new CanvasTexture(generateTextureCanvas())
-  texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
-  texture.needsUpdate = true
+  return geometries.map((g, i) => {
+    const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[i].properties.class)
 
-  const color = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName).color
-  const materialParams = {
-    color: color.constant,
-    vertexColors: color.builtin_function === 'purple_haze' ? true : false
-  }
+    const texture = new CanvasTexture(generateTextureCanvas())
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+    texture.needsUpdate = true
 
-  const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
+    const materialParams = {
+      color: styles.color?.constant,
+      vertexColors: styles.color?.builtin_function === 'purple_haze' ? true : false,
+      depthTest: styles.extrude !== 'flat'
+    }
 
-  return geometries.map((g) => new Mesh(g, material))
+    const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
+    const mesh = new Mesh(g, material)
+    mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
+    return mesh
+  })
 }
 
 function maybeBuffer(feature: Feature, width: number): Geometry {
@@ -302,27 +307,27 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   })
 }
 
-export function createGround(rasterTiles: ImageBitmap[], latitude: number): Mesh {
+export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   // Will be scaled according to building mesh
   const geometry = new PlaneGeometry(1, 1)
   const texture = rasterTiles.length > 0 ? new CanvasTexture(generateRasterTileCanvas(rasterTiles)) : null
 
   const material = getOrCreateMaterial(
-    MeshBasicMaterial,
+    MeshLambertMaterial,
     texture
       ? {
           map: texture
         }
       : {
-          color: 0x81925c
+          color: 0x433d13
         }
   )
   const mesh = new Mesh(geometry, material)
 
   // prevent z-fighting with vector roads
   material.depthTest = false
-  mesh.renderOrder = -1
+  mesh.renderOrder = -1 * MAX_Z_INDEX
 
   // rotate to face up
   mesh.geometry.rotateX(-Math.PI / 2)
@@ -341,16 +346,32 @@ export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Po
   return meshes[0]
 }
 
+function createLayerGroup(
+  layers: ILayerName[],
+  vectorTiles: TileFeaturesByLayer[],
+  llCenter: Position,
+  renderer: WebGLRenderer
+): Group {
+  const meshes = layers.reduce((accMeshes, layerName) => {
+    const featuresInLayer = vectorTiles.reduce((accFeatures, tile) => {
+      return [...accFeatures, ...tile[layerName]]
+    }, [])
+
+    const meshes = buildMeshes(layerName, featuresInLayer, llCenter, renderer)
+    return [...accMeshes, ...meshes]
+  }, [])
+  return new Group().add(...meshes)
+}
+
 export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  const group = new Group()
-  const features = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
-  const objects3d = buildMeshes('road', features, llCenter, renderer)
+  return createLayerGroup(['road'], vectorTiles, llCenter, renderer)
+}
 
-  objects3d.forEach((o) => {
-    group.add(o)
-  })
-
-  return group
+export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
+  return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter, renderer)
+}
+export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
+  return createLayerGroup(['landuse'], vectorTiles, llCenter, renderer)
 }
 
 /** Workaround for until we get the Web Mercator projection math right so that the ground and building meshes line up */

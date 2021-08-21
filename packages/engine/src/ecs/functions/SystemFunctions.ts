@@ -57,5 +57,5 @@ export const createPipeline = async (updateType: SystemUpdateType): Promise<Pipe
   for (const { system, args } of pipelines[updateType]) {
     systems.push(await system(args))
   }
-  return pipe(...systems)
+  return pipe(...systems) as any as PipelineType
 }

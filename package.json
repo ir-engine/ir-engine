@@ -1,8 +1,8 @@
 {
   "name": "xrengine",
-  "description": "Game Engine, Server & Devops powering The XREngine",
+  "description": "Game Engine, Server & Devops powering The XREngine. Please support XRFoundation https://opencollective.com/xrengine",
   "version": "0.2.5",
-  "homepage": "lagunalabs.io",
+  "homepage": "xrengine.io",
   "private": true,
   "workspaces": {
     "nohoist": [
@@ -25,8 +25,8 @@
     "vr"
   ],
   "author": {
-    "name": "Laguna Labs",
-    "email": "info@lagunalabs.io"
+    "name": "XR Engine - XR Foundation",
+    "email": "info@xrengine.io"
   },
   "entrypoint": {},
   "contributors": [],
@@ -111,12 +111,15 @@
     "terser": "^5.6.1"
   },
   "devDependencies": {
+    "@babel/preset-env": "7.15.0",
+    "@babel/plugin-transform-runtime": "7.15.0",
     "@hookstate/core": "3.0.8",
     "@typescript-eslint/parser": "4.29.2",
+    "babel-jest": "27.0.6",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
     "concurrently": "6.2.1",
-    "esbuild": "0.12.20",
+    "esbuild": "0.12.21",
     "esbuild-plugin-sass": "0.6.0",
     "jest": "27.0.6",
     "jest-puppeteer": "5.0.4",
