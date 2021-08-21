@@ -9,7 +9,7 @@ class PageUtils {
     this.bot = bot
   }
   async clickSelectorClassRegex(selector, classRegex) {
-    if (this.bot.autoLog) console.log(`Clicking for a ${selector} matching ${classRegex}`)
+    if (this.bot.verbose) console.log(`Clicking for a ${selector} matching ${classRegex}`)
 
     await this.bot.page.evaluate(
       (selector, classRegex) => {
@@ -23,7 +23,7 @@ class PageUtils {
     )
   }
   async clickSelectorId(selector, id) {
-    if (this.bot.autoLog) console.log(`Clicking for a ${selector} matching ${id}`)
+    if (this.bot.verbose) console.log(`Clicking for a ${selector} matching ${id}`)
 
     await this.bot.page.evaluate(
       (selector, id) => {
@@ -49,7 +49,7 @@ class PageUtils {
     )
   }
   async clickSelectorFirstMatch(selector) {
-    if (this.bot.autoLog) console.log(`Clicking for first ${selector}`)
+    if (this.bot.verbose) console.log(`Clicking for first ${selector}`)
 
     await this.bot.page.evaluate((selector) => {
       let matches = Array.from(document.querySelectorAll(selector))
@@ -60,9 +60,9 @@ class PageUtils {
 }
 
 type BotProps = {
+  verbose?: boolean
   headless?: boolean
   name?: string
-  autoLog?: boolean
   fakeMediaPath?: string
   windowSize?: { width: number; height: number }
 }
@@ -73,8 +73,8 @@ type BotProps = {
 export class XREngineBot {
   activeChannel
   headless: boolean
+  verbose: boolean
   name: string
-  autoLog: boolean
   fakeMediaPath: string
   windowSize: {
     width: number
@@ -85,9 +85,9 @@ export class XREngineBot {
   pageUtils: PageUtils
 
   constructor(args: BotProps = {}) {
+    this.verbose = args.verbose
     this.headless = args.headless ?? true
     this.name = args.name ?? 'Bot'
-    this.autoLog = args.autoLog ?? true
     this.fakeMediaPath = args.fakeMediaPath ?? ''
     this.windowSize = args.windowSize ?? { width: 1920, height: 1080 }
 
@@ -292,11 +292,21 @@ export class XREngineBot {
   async launchBrowser() {
     console.log('Launching browser')
     const options = {
-      dumpio: true,
+      dumpio: this.verbose,
       headless: this.headless,
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
+        '--use-gl=egl',
+
+        '--enable-precise-memory-info',
+        '--enable-begin-frame-control',
+        '--enable-surface-synchronization',
+        '--run-all-compositor-stages-before-draw',
+        '--disable-threaded-animation',
+        '--disable-threaded-scrolling',
+        '--disable-checker-imaging',
+
         '--enable-features=NetworkService',
         '--ignore-certificate-errors',
         `--no-sandbox`,
@@ -324,7 +334,7 @@ export class XREngineBot {
 
     this.page = await this.browser.newPage()
 
-    if (this.autoLog) {
+    if (this.verbose) {
       this.page.on('console', (consoleObj) => console.log('>> ', consoleObj.text()))
     }
 

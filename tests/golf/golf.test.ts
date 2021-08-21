@@ -7,7 +7,7 @@ import { hitBallTest } from './actions/hitBallTest'
 import { resetBall } from './actions/resetBallTest'
 
 const maxTimeout = 60 * 1000
-const bot = new XREngineBot({ name: 'bot-1', headless: false, autoLog: false })
+const bot = new XREngineBot({ name: 'bot-1', headless: false, verbose: false })
 
 const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently
