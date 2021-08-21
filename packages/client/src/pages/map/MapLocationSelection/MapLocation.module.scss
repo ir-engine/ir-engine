@@ -1,0 +1,45 @@
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0
+}
+body{
+    background: #e5e5e5;
+   
+}
+ 
+.locationSearch {
+  
+       
+      .mapView{
+        border-radius: 10px;
+        background-color: #FFFFFF;
+        width: 100%;
+        margin-top: 30px;
+        box-shadow: 2px 2px 10px gray !important;
+      }
+      
+      .mapBox{
+          height:40vh;
+      }
+   
+
+     .mapglView{ 
+         height: "40vh";
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .mapglView > div {
+        position: unset;
+        margin: 0;
+        width: 100%;
+        max-width: unset;
+    }
+
+}
+
+ 
+
+
+
