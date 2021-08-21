@@ -10,6 +10,8 @@ dotenv.config({
   path: './.env.local'
 })
 
+const timeoutMS = 3 * 60 * 1000
+
 
 const killPorts = () => {
   if (process.platform.includes('darwin') === 'macOS') return // killing ports causes testing to fail on macOS
@@ -31,6 +33,11 @@ let running = false
 beforeAll(async () => {
   dev = spawn("npm", ["run", "dev"])
   let timeout
+  
+
+  /**
+   * TODO: add checks to see if any errors occur while launching the stack to save time
+   */
 
   // process.stdin.pipe(dev.stdin)
   const time = Date.now()
@@ -53,12 +60,12 @@ beforeAll(async () => {
         if(running) return
         console.log('WARNING: Stack too long to launch! Tests will run anyway...')
         resolve()
-      }, 30 * 1000)
+      }, timeoutMS)
     })
   ])
   running = true
   clearTimeout(timeout)
-}, 60 * 1000)
+}, timeoutMS)
 
 afterAll(async () => {
   await new Promise((resolve) => {
@@ -69,7 +76,7 @@ afterAll(async () => {
     kill(dev.pid)
   })
   killPorts()
-}, 60 * 1000);
+}, timeoutMS);
 
 
 process.on('SIGTERM', async (err) => {
