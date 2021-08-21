@@ -296,6 +296,7 @@ export class XREngineBot {
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
+        `--disable-dev-shm-usage`,
         `--window-size=${this.windowSize.width},${this.windowSize.height}`,
         '--use-fake-ui-for-media-stream=1',
         '--use-fake-device-for-media-stream=1',
