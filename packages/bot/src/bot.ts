@@ -209,39 +209,51 @@ export class XREngineBot {
   }
 
   async runHook(hook, ...args) {
-    return await this.page.evaluate(
-      async (hook, ...args) => {
-        console.log('[XR-BOT]:', hook, ...args)
-        if (!globalThis.botHooks) {
-          return
-        }
-        return globalThis.botHooks[hook](...args)
-      },
-      hook,
-      ...args
-    )
+    try {
+      return await this.page.evaluate(
+        async (hook, ...args) => {
+          console.log('[XR-BOT]:', hook, ...args)
+          if (!globalThis.botHooks) {
+            return
+          }
+          return globalThis.botHooks[hook](...args)
+        },
+        hook,
+        ...args
+      )
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async awaitPromise(fn, period = 1000 / 60, ...args) {
-    return await new Promise<void>((resolve) => {
-      const interval = setInterval(async () => {
-        if (await this.page.evaluate(fn, ...args)) {
-          resolve()
-          clearInterval(interval)
-        }
-      }, period)
-    })
+    try {
+      return await new Promise<void>((resolve) => {
+        const interval = setInterval(async () => {
+          if (await this.page.evaluate(fn, ...args)) {
+            resolve()
+            clearInterval(interval)
+          }
+        }, period)
+      })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async awaitHookPromise(hook, period = 1000 / 60, ...args) {
-    return await new Promise<void>((resolve) => {
-      const interval = setInterval(async () => {
-        if (await this.runHook(hook, ...args)) {
-          resolve()
-          clearInterval(interval)
-        }
-      }, period)
-    })
+    try {
+      return await new Promise<void>((resolve) => {
+        const interval = setInterval(async () => {
+          if (await this.runHook(hook, ...args)) {
+            resolve()
+            clearInterval(interval)
+          }
+        }, period)
+      })
+    } catch (e) {
+      console.error(e)
+    }
   }
   /**
    * A main-program type wrapper. Runs a function and quits the bot with a
