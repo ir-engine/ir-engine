@@ -297,6 +297,8 @@ export class XREngineBot {
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
+        '--enable-features=NetworkService',
+        '--ignore-certificate-errors',
         `--no-sandbox`,
         `--disable-dev-shm-usage`,
         '--shm-size=4gb',
@@ -316,7 +318,7 @@ export class XREngineBot {
       ...this.detectOsOption()
     }
 
-    if (this.headless) options.args.push('--disable-gpu')
+    if (this.headless) options.args.push('--disable-gpu', '--disable-software-rasterizer', '--headless')
 
     this.browser = await puppeteer.launch(options)
 
