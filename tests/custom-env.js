@@ -39,7 +39,7 @@ beforeAll(async () => {
    * TODO: add checks to see if any errors occur while launching the stack to save time
    */
 
-  // process.stdin.pipe(dev.stdin)
+  process.stdin.pipe(dev.stdin)
   const time = Date.now()
   await Promise.race([
     new Promise((resolve) => {
