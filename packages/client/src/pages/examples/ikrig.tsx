@@ -7,7 +7,7 @@ import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import { IKPose } from '@xrengine/engine/src/ikrig/components/IKPose'
 import { IKRig } from '@xrengine/engine/src/ikrig/components/IKRig'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
-import { initDebug, setupIKRig } from '@xrengine/engine/src/ikrig/functions/IKFunctions'
+import { setupIKRig } from '@xrengine/engine/src/ikrig/functions/IKFunctions'
 import { IKRigSystem } from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect } from 'react'
@@ -88,7 +88,7 @@ const Page = () => {
 
       await initThree() // Set up the three.js scene with grid, light, etc
 
-      initDebug()
+      // initDebug()
 
       ////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +118,7 @@ const Page = () => {
         animationSpeed: 1
       })
       addComponent(sourceEntity, IKObj, { ref: model.scene })
-      addComponent(sourceEntity, IKPose, { })
+      addComponent(sourceEntity, IKPose, {})
       addComponent(sourceEntity, IKRig, { sourceRig: skinnedMesh })
 
       const rig = getComponent(sourceEntity, IKRig)
