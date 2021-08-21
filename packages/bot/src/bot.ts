@@ -297,7 +297,11 @@ export class XREngineBot {
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
-        '--use-gl=egl',
+        '--use-gl=desktop',
+        '--enable-gpu-rasterization',
+        '--use-cmd-decoder=passthrough',
+
+        // '--enable-webgl',
 
         '--enable-precise-memory-info',
         '--enable-begin-frame-control',
