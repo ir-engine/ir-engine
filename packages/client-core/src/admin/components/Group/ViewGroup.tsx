@@ -72,7 +72,7 @@ const ViewGroup = (props: Props) => {
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
                   User scope
                 </Typography>
-                <Container>
+                <Container style={{ overflowY: 'auto', height: '300px' }}>
                   {groupAdmin.scopes?.map((el, index) => {
                     const [label, type] = el.type.split(':')
                     return (
@@ -94,7 +94,7 @@ const ViewGroup = (props: Props) => {
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
                   Users Information
                 </Typography>
-                <List className={classes.root} style={{ overflowY: 'scroll' }}>
+                <List className={classes.root} style={{ overflowY: 'auto', height: '300px' }}>
                   {groupAdmin.groupUsers.map((obj) => (
                     <ListItem key={obj.id}>
                       <ListItemAvatar>

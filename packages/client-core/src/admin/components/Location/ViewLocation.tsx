@@ -53,6 +53,7 @@ const Alert = (props) => {
 
 const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, adminSceneState, adminLocationState, patchLocation, locationAdmin } = props
+  console.log(locationAdmin)
   const classex = useLocationStyle()
   const classes = useLocationStyles()
   const [editMode, setEditMode] = React.useState(false)

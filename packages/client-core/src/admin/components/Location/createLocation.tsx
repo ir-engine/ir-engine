@@ -280,6 +280,21 @@ const CreateLocation = (props: Props) => {
                     color="primary"
                     control={
                       <Switch
+                        checked={state.videoEnabled}
+                        onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+                        name="audioEnabled"
+                      />
+                    }
+                    label="Audio Enabled"
+                  />
+                </FormControl>
+              </FormGroup>
+              {/* <FormGroup>
+                <FormControl>
+                  <FormControlLabel
+                    color="primary"
+                    control={
+                      <Switch
                         checked={state.globalMediaEnabled}
                         onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
                         name="globalMediaEnabled"
@@ -288,10 +303,40 @@ const CreateLocation = (props: Props) => {
                     label={t('admin:components.locationModel.lbl-gme')}
                   />
                 </FormControl>
+              </FormGroup> */}
+              <FormGroup>
+                <FormControl>
+                  <FormControlLabel
+                    color="primary"
+                    control={
+                      <Switch
+                        checked={state.videoEnabled}
+                        onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+                        name="audioEnabled"
+                      />
+                    }
+                    label="Screen Sharing Enabled"
+                  />
+                </FormControl>
               </FormGroup>
             </Grid>
             <Grid item xs={6} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
+                <FormGroup>
+                  <FormControl>
+                    <FormControlLabel
+                      color="primary"
+                      control={
+                        <Switch
+                          checked={state.videoEnabled}
+                          onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+                          name="audioEnabled"
+                        />
+                      }
+                      label="Face streaming Enabled"
+                    />
+                  </FormControl>
+                </FormGroup>
                 <FormGroup>
                   <FormControl>
                     <FormControlLabel

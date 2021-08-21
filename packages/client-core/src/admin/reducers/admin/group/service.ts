@@ -32,7 +32,6 @@ export function createGroup(groupItem: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const newGroup = await client.service('group').create({ ...groupItem })
-      console.log(newGroup)
       dispatch(addAdminGroup(newGroup))
     } catch (err) {
       console.log(err)

@@ -147,6 +147,10 @@ export const useStyle = makeStyles({
   container: {
     maxHeight: '80vh'
   },
+  groupContainer: {
+    overflowY: 'scroll',
+    height: '300px'
+  },
   actionStyle: {
     textDecoration: 'none',
     color: '#000',
