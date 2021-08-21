@@ -7,7 +7,7 @@ import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import { IKPose } from '@xrengine/engine/src/ikrig/components/IKPose'
 import { IKRig } from '@xrengine/engine/src/ikrig/components/IKRig'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
-import { initDebug, setupIKRig } from '@xrengine/engine/src/ikrig/functions/IKFunctions'
+import { setupIKRig } from '@xrengine/engine/src/ikrig/functions/IKFunctions'
 import { IKRigSystem } from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect } from 'react'
@@ -24,10 +24,6 @@ import {
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-<<<<<<< HEAD:packages/client/src/pages/examples/ikrig.tsx
-import Debug from '../../../components/Debug'
-=======
->>>>>>> animation-state:packages/client/src/pages/examples/ikrig/index.tsx
 import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
@@ -92,7 +88,7 @@ const Page = () => {
 
       await initThree() // Set up the three.js scene with grid, light, etc
 
-      initDebug()
+      // initDebug()
 
       ////////////////////////////////////////////////////////////////////////////
 
@@ -122,7 +118,7 @@ const Page = () => {
         animationSpeed: 1
       })
       addComponent(sourceEntity, IKObj, { ref: model.scene })
-      addComponent(sourceEntity, IKPose, { })
+      addComponent(sourceEntity, IKPose, {})
       addComponent(sourceEntity, IKRig, { sourceRig: skinnedMesh })
 
       const rig = getComponent(sourceEntity, IKRig)
