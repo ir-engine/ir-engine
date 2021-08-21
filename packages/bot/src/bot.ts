@@ -297,6 +297,7 @@ export class XREngineBot {
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
+        `--no-sandbox`,
         `--disable-dev-shm-usage`,
         '--shm-size=4gb',
         `--window-size=${this.windowSize.width},${this.windowSize.height}`,
