@@ -26,12 +26,6 @@ import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPl
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import {
-  handleTouch,
-  handleTouchDirectionalPad,
-  handleTouchGamepadButton,
-  handleTouchMove
-} from '@xrengine/engine/src/input/schema/ClientInputSchema'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -316,15 +310,13 @@ export const EnginePage = (props: Props) => {
 
       {props.children}
 
-      <div onTouchStart={handleTouchStartEvent}>
-        <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
+      <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
 
-        {props.showTouchpad && isTouchAvailable ? (
-          <Suspense fallback={<></>}>
-            <TouchGamepad layout="default" />
-          </Suspense>
-        ) : null}
-      </div>
+      {props.showTouchpad && isTouchAvailable ? (
+        <Suspense fallback={<></>}>
+          <TouchGamepad layout="default" />
+        </Suspense>
+      ) : null}
 
       <GameServerWarnings
         isTeleporting={isTeleporting}

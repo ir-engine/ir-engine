@@ -61,7 +61,7 @@ export function getClub(world: ECSWorld, i: number) {
  *
  */
 export const GolfState = createState({
-  holes: [] as Array<{ par: number }>,
+  holes: [{ par: 3 }, { par: 3 }, { par: 3 }] as Array<{ par: number }>,
   players: [] as Array<{
     id: string
     scores: Array<number>
@@ -85,6 +85,22 @@ const getTeePosition = (world: ECSWorld, currentHole: number) => {
 globalThis.GolfState = GolfState
 
 export const GolfSystem = async (): Promise<System> => {
+  const playerQuery = defineQuery([AvatarComponent])
+  const playerEnterQuery = enterQuery(playerQuery)
+  const playerExitQuery = exitQuery(playerQuery)
+
+  const namedComponentQuery = defineQuery([NameComponent])
+  const namedComponentEnterQuery = enterQuery(namedComponentQuery)
+
+  const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
+  const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
+
+  const golfBallQuery = defineQuery([GolfBallComponent])
+  const golfHoleQuery = defineQuery([GolfHoleComponent])
+
+  const golfClubQuery = defineQuery([GolfClubComponent])
+  const golfClubAddQuery = enterQuery(golfClubQuery)
+
   if (isClient) {
     registerGolfBotHooks()
     // pre-cache the assets we need for this game
@@ -101,10 +117,15 @@ export const GolfSystem = async (): Promise<System> => {
 
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
   function receptor(world: ECSWorld, action: GolfActionType) {
-    console.log('\n\nACTION', action, 'CURRENT STATE', GolfState.attach(Downgraded).value, '\n\n')
+    console.log('\n\nACTION', action, 'PREV STATE', GolfState.attach(Downgraded).value)
     GolfState.batch((s) => {
       switch (action.type) {
         case 'puttclub.GAME_STATE': {
+          // for (const eid of golfHoleQuery(world)) {
+          //   s.holes.merge({
+          //     [hole.number]:
+          //   })
+          // }
           s.merge(action.state)
           return
         }
@@ -336,22 +357,8 @@ export const GolfSystem = async (): Promise<System> => {
         }
       }
     })
+    console.log('CURRENT STATE', JSON.stringify(GolfState.attach(Downgraded).value, null, 2), '\n\n')
   }
-
-  const playerQuery = defineQuery([AvatarComponent])
-  const playerEnterQuery = enterQuery(playerQuery)
-  const playerExitQuery = exitQuery(playerQuery)
-
-  const namedComponentQuery = defineQuery([NameComponent])
-  const namedComponentEnterQuery = enterQuery(namedComponentQuery)
-
-  const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
-  const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
-
-  const golfBallQuery = defineQuery([GolfBallComponent])
-
-  const golfClubQuery = defineQuery([GolfClubComponent])
-  const golfClubAddQuery = enterQuery(golfClubQuery)
 
   return defineSystem((world: ECSWorld) => {
     // runs on server & client:
@@ -412,10 +419,10 @@ export const GolfSystem = async (): Promise<System> => {
     for (const entity of namedComponentEnterQuery(world)) {
       const { name } = getComponent(entity, NameComponent)
       console.log(name)
-      if (name.includes('hole')) {
+      if (name.includes('GolfHole')) {
         addComponent(entity, GolfHoleComponent, {})
       }
-      if (name.includes('tee')) {
+      if (name.includes('GolfTole')) {
         addComponent(entity, GolfTeeComponent, {})
       }
     }

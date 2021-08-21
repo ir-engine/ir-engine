@@ -60,8 +60,6 @@ export const PhysicsSystem = async (
     PhysXInstance.instance = new PhysXInstance()
   }
 
-  console.log(PhysXInstance.instance)
-
   simulationEnabled = attributes.simulationEnabled ?? true
 
   await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
