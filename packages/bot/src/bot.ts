@@ -318,7 +318,7 @@ export class XREngineBot {
       ...this.detectOsOption()
     }
 
-    if (this.headless) options.args.push('--disable-gpu', '--disable-software-rasterizer', '--headless')
+    // if (this.headless) options.args.push('--disable-gpu', '--disable-software-rasterizer', '--headless')
 
     this.browser = await puppeteer.launch(options)
 
