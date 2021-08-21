@@ -62,6 +62,7 @@ class PageUtils {
 type BotProps = {
   verbose?: boolean
   headless?: boolean
+  gpu?: boolean
   name?: string
   fakeMediaPath?: string
   windowSize?: { width: number; height: number }
@@ -73,6 +74,7 @@ type BotProps = {
 export class XREngineBot {
   activeChannel
   headless: boolean
+  gpu: boolean
   verbose: boolean
   name: string
   fakeMediaPath: string
@@ -87,9 +89,11 @@ export class XREngineBot {
   constructor(args: BotProps = {}) {
     this.verbose = args.verbose
     this.headless = args.headless ?? true
+    this.gpu = args.gpu !== false ?? !process.env.HEADLESS
+    console.log(this.gpu)
     this.name = args.name ?? 'Bot'
     this.fakeMediaPath = args.fakeMediaPath ?? ''
-    this.windowSize = args.windowSize ?? { width: 1920, height: 1080 }
+    this.windowSize = args.windowSize ?? { width: 640, height: 480 }
 
     // for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
     // {
@@ -222,7 +226,7 @@ export class XREngineBot {
     )
   }
 
-  async awaitPromise(fn, period = 1000 / 60, ...args) {
+  async awaitPromise(fn, period = 1000 / 6, ...args) {
     return await new Promise<void>((resolve) => {
       const interval = setInterval(async () => {
         if (await this.page.evaluate(fn, ...args)) {
@@ -233,7 +237,7 @@ export class XREngineBot {
     })
   }
 
-  async awaitHookPromise(hook, period = 1000 / 60, ...args) {
+  async awaitHookPromise(hook, period = 1000 / 6, ...args) {
     return await new Promise<void>((resolve) => {
       const interval = setInterval(async () => {
         if (await this.runHook(hook, ...args)) {
@@ -297,19 +301,7 @@ export class XREngineBot {
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
-        '--use-gl=swiftshader',
-        '--enable-gpu-rasterization',
-        '--use-cmd-decoder=passthrough',
-
         // '--enable-webgl',
-
-        '--enable-precise-memory-info',
-        '--enable-begin-frame-control',
-        '--enable-surface-synchronization',
-        '--run-all-compositor-stages-before-draw',
-        '--disable-threaded-animation',
-        '--disable-threaded-scrolling',
-        '--disable-checker-imaging',
 
         '--enable-features=NetworkService',
         '--ignore-certificate-errors',
@@ -331,7 +323,21 @@ export class XREngineBot {
       ignoreDefaultArgs: ['--mute-audio'],
       ...this.detectOsOption()
     }
-
+    if (!this.gpu) {
+      console.log('Starting puppeteer without gpu...')
+      options.args.push(
+        '--enable-precise-memory-info',
+        '--enable-begin-frame-control',
+        '--enable-surface-synchronization',
+        '--run-all-compositor-stages-before-draw',
+        '--disable-threaded-animation',
+        '--disable-threaded-scrolling',
+        '--disable-checker-imaging',
+        '--use-gl=swiftshader',
+        '--enable-gpu-rasterization',
+        '--use-cmd-decoder=passthrough'
+      )
+    }
     // if (this.headless) options.args.push('--disable-gpu', '--disable-software-rasterizer', '--headless')
 
     this.browser = await puppeteer.launch(options)

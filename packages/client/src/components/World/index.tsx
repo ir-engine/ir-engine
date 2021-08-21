@@ -113,7 +113,7 @@ export const EnginePage = (props: Props) => {
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
-
+  if (process.env.VITE_WEBGL_DISABLED === 'true') engineInitializeOptions.renderer.disabled = true
   let sceneId = null
 
   const userState = useUserState()

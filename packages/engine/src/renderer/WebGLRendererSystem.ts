@@ -87,6 +87,7 @@ let lastRenderTime = 0
 
 type EngineRendererProps = {
   canvas: HTMLCanvasElement
+  enabled: boolean
 }
 
 export class EngineRenderer {
@@ -417,6 +418,7 @@ export class EngineRenderer {
 
 export const WebGLRendererSystem = async (props: EngineRendererProps): Promise<System> => {
   new EngineRenderer(props)
+  const { enabled } = props
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   EngineRenderer.instance.dispatchSettingsChangeEvent()
@@ -424,7 +426,7 @@ export const WebGLRendererSystem = async (props: EngineRendererProps): Promise<S
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
-    EngineRenderer.instance.execute(delta)
+    if (enabled) EngineRenderer.instance.execute(delta)
 
     return world
   })

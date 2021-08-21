@@ -53,6 +53,7 @@
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-nginx": "",
     "cleanup-tests": "node tests/cleanup-tests.js",
+    "test-ci": "cross-env HEADLESS=true jest && lerna run test",
     "test": "jest && lerna run test",
     "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
     "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",

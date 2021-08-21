@@ -52,8 +52,8 @@ export const BotHookFunctions = {
 export function initializeBot() {
   Engine.isBot = true
 
-  DebugHelpers.toggleDebugPhysics(true)
-  DebugHelpers.toggleDebugAvatar(true)
+  // DebugHelpers.toggleDebugPhysics(true)
+  // DebugHelpers.toggleDebugAvatar(true)
 }
 
 // === ENGINE === //
