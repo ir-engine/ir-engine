@@ -1,4 +1,15 @@
-import { BufferGeometry, Euler, ExtrudeGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
+import {
+  BufferGeometry,
+  Color,
+  Euler,
+  ExtrudeGeometry,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  PlaneBufferGeometry,
+  Quaternion,
+  Vector3
+} from 'three'
 import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
@@ -17,6 +28,7 @@ import { PortalComponent } from '../components/PortalComponent'
 export type PortalProps = {
   locationName: string
   linkedPortalId: string
+  modelUrl: string
   displayText: string
   spawnPosition: Vector3
   spawnRotation: Quaternion
@@ -34,46 +46,19 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
   const transform = getComponent(entity, TransformComponent)
 
-  // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
-  AssetLoader.load({ url: Engine.publicPath + '/models/common/portal_frame.glb' }, (gltf) => {
+  let previewMesh
+
+  if (!args.modelUrl && args.modelUrl !== '') {
+    // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
+    const gltf = await AssetLoader.loadAsync({ url: args.modelUrl })
+
     const model = gltf.scene.clone()
-    const previewMesh = model.children[2] as Mesh
+    previewMesh = model.children[2] as Mesh
     const labelMesh = model.children[1] as Mesh
 
     model.position.copy(transform.position)
     model.quaternion.copy(transform.rotation)
     model.scale.copy(transform.scale)
-
-    previewMesh.geometry.computeBoundingBox()
-    previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
-
-    const portalShape: ShapeType = {
-      shape: SHAPES.Box,
-      options: { boxExtents: vec3 },
-      transform: { translation: previewMesh.position },
-      config: {
-        isTrigger: true,
-        collisionLayer: CollisionGroups.Portal,
-        collisionMask: CollisionGroups.Avatars
-      }
-    }
-
-    const portalBody = PhysXInstance.instance.addBody(
-      new Body({
-        shapes: [portalShape],
-        type: BodyType.STATIC,
-        transform: {
-          translation: transform.position,
-          rotation: transform.rotation
-        }
-      })
-    )
-
-    PhysXInstance.instance.addBody(portalBody)
-
-    portalBody.userData = { entity }
-
-    addComponent(entity, ColliderComponent, { body: portalBody })
 
     if (isClient) {
       FontManager.instance.getDefaultFont().then((font) => {
@@ -110,7 +95,45 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     }
 
     addComponent(entity, Object3DComponent, { value: model })
-  })
+  }
+
+  if (!previewMesh) {
+    previewMesh = new Mesh(
+      new PlaneBufferGeometry(transform.scale.x, transform.scale.y),
+      new MeshPhongMaterial({ color: new Color('white') })
+    )
+  }
+
+  previewMesh.geometry.computeBoundingBox()
+  previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
+
+  const portalShape: ShapeType = {
+    shape: SHAPES.Box,
+    options: { boxExtents: vec3 },
+    transform: { translation: previewMesh.position },
+    config: {
+      isTrigger: true,
+      collisionLayer: CollisionGroups.Portal,
+      collisionMask: CollisionGroups.Avatars
+    }
+  }
+
+  const portalBody = PhysXInstance.instance.addBody(
+    new Body({
+      shapes: [portalShape],
+      type: BodyType.STATIC,
+      transform: {
+        translation: transform.position,
+        rotation: transform.rotation
+      }
+    })
+  )
+
+  PhysXInstance.instance.addBody(portalBody)
+
+  portalBody.userData = { entity }
+
+  addComponent(entity, ColliderComponent, { body: portalBody })
 
   addComponent(entity, PortalComponent, {
     location: locationName,

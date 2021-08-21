@@ -10,6 +10,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   mesh: Mesh
   linkedPortalId: string
   locationName: string
+  modelUrl: string
   displayText: string
   spawnPosition: Vector3 = new Vector3()
   spawnRotation: Euler = new Euler()
@@ -21,6 +22,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     if (portalComponent) {
       node.entityId = json.entityId
       node.linkedPortalId = portalComponent.props.linkedPortalId
+      node.modelUrl = portalComponent.props.modelUrl
       node.displayText = portalComponent.props.displayText
       node.spawnPosition = new Vector3()
       node.locationName = portalComponent.props.locationName
@@ -43,31 +45,36 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   }
   constructor(editor) {
     super(editor)
-    this.loadGLTF(Engine.publicPath + '/models/common/portal_frame.glb').then((model) => {
-      this.mesh = model
-      this.add(this.mesh)
 
-      this.spawnCylinder = new Mesh(
-        new CylinderGeometry(1, 1, 0.3, 6, 1, false, (30 * Math.PI) / 180),
-        new MeshBasicMaterial({ color: 0x2b59c3 })
-      )
+    this.spawnCylinder = new Mesh(
+      new CylinderGeometry(1, 1, 0.3, 6, 1, false, (30 * Math.PI) / 180),
+      new MeshBasicMaterial({ color: 0x2b59c3 })
+    )
 
-      const spawnDirection = new Mesh(
-        new ConeGeometry(0.15, 0.5, 4, 1, false, Math.PI / 4),
-        new MeshBasicMaterial({ color: 0xd36582 })
-      )
+    const spawnDirection = new Mesh(
+      new ConeGeometry(0.15, 0.5, 4, 1, false, Math.PI / 4),
+      new MeshBasicMaterial({ color: 0xd36582 })
+    )
 
-      spawnDirection.position.set(0, 0, 1.25)
-      spawnDirection.rotateX(Math.PI / 2)
+    spawnDirection.position.set(0, 0, 1.25)
+    spawnDirection.rotateX(Math.PI / 2)
 
-      this.spawnCylinder.add(spawnDirection)
-      this.add(this.spawnCylinder)
+    this.spawnCylinder.add(spawnDirection)
+    this.add(this.spawnCylinder)
 
-      this.updateSpawnPositionOnScene()
-      this.updateSpawnRotationOnScene()
+    this.updateSpawnPositionOnScene()
+    this.updateSpawnRotationOnScene()
 
-      this.spawnCylinder.visible = false
-    })
+    this.spawnCylinder.visible = false
+  }
+  async loadModel() {
+    if (!this.modelUrl && this.modelUrl === '') return
+    const model = await this.loadGLTF(this.modelUrl)
+    if (this.mesh) {
+      this.remove(this.mesh)
+    }
+    this.mesh = model
+    this.add(this.mesh)
   }
   copy(source, recursive = true) {
     if (recursive) {
@@ -90,6 +97,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       portal: {
         locationName: this.locationName,
         linkedPortalId: this.linkedPortalId,
+        modelUrl: this.modelUrl,
         displayText: this.displayText,
         reflectionProbeId: this.reflectionProbeId,
         spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
@@ -112,6 +120,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     this.addGLTFComponent('portal', {
       locationName: this.locationName,
       linkedPortalId: this.linkedPortalId,
+      modelUrl: this.modelUrl,
       displayText: this.displayText,
       reflectionProbeId: this.reflectionProbeId,
       spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
@@ -140,6 +149,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       this.updateSpawnPositionOnScene()
     } else if (prop === 'spawnRotation') {
       this.updateSpawnRotationOnScene()
+    } else if (prop === 'modelUrl') {
+      this.loadModel()
     }
   }
 }

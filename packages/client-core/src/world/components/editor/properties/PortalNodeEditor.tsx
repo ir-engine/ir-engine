@@ -66,6 +66,10 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     this.props.editor.setPropertySelected('linkedPortalId', linkedPortalId)
   }
 
+  onChangeModelUrl = (modelUrl) => {
+    this.props.editor.setPropertySelected('modelUrl', modelUrl)
+  }
+
   onChangeDisplayText = (displayText) => {
     this.props.editor.setPropertySelected('displayText', displayText)
   }
@@ -140,6 +144,11 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
             }}
             getOptionLabel={(data: PortalDetail) => data.name}
           />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Model Url" label={this.props.t('editor:properties.portal.lbl-modelUrl')}>
+          {/* @ts-ignore */}
+          <ControlledStringInput value={node.modelUrl} onChange={this.onChangeModelUrl} />
         </InputGroup>
         {/* @ts-ignore */}
         <InputGroup name="Display Text" label={this.props.t('editor:properties.portal.lbl-displayText')}>
