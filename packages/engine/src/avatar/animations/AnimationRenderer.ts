@@ -79,7 +79,7 @@ export class AnimationRenderer {
       // We should figure out how/why this is affecting the walk animations, and why it's different from run anims
 
       if (animation.weight > 0) {
-        // if (!animation.action.isRunning() && animation.weight > 0) {        
+        // if (!animation.action.isRunning() && animation.weight > 0) {
         animation.action.play()
       }
 
