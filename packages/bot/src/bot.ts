@@ -209,51 +209,39 @@ export class XREngineBot {
   }
 
   async runHook(hook, ...args) {
-    try {
-      return await this.page.evaluate(
-        async (hook, ...args) => {
-          console.log('[XR-BOT]:', hook, ...args)
-          if (!globalThis.botHooks) {
-            return
-          }
-          return globalThis.botHooks[hook](...args)
-        },
-        hook,
-        ...args
-      )
-    } catch (e) {
-      console.error(e)
-    }
+    return await this.page.evaluate(
+      async (hook, ...args) => {
+        console.log('[XR-BOT]:', hook, ...args)
+        if (!globalThis.botHooks) {
+          return
+        }
+        return globalThis.botHooks[hook](...args)
+      },
+      hook,
+      ...args
+    )
   }
 
   async awaitPromise(fn, period = 1000 / 60, ...args) {
-    try {
-      return await new Promise<void>((resolve) => {
-        const interval = setInterval(async () => {
-          if (await this.page.evaluate(fn, ...args)) {
-            resolve()
-            clearInterval(interval)
-          }
-        }, period)
-      })
-    } catch (e) {
-      console.error(e)
-    }
+    return await new Promise<void>((resolve) => {
+      const interval = setInterval(async () => {
+        if (await this.page.evaluate(fn, ...args)) {
+          resolve()
+          clearInterval(interval)
+        }
+      }, period)
+    })
   }
 
   async awaitHookPromise(hook, period = 1000 / 60, ...args) {
-    try {
-      return await new Promise<void>((resolve) => {
-        const interval = setInterval(async () => {
-          if (await this.runHook(hook, ...args)) {
-            resolve()
-            clearInterval(interval)
-          }
-        }, period)
-      })
-    } catch (e) {
-      console.error(e)
-    }
+    return await new Promise<void>((resolve) => {
+      const interval = setInterval(async () => {
+        if (await this.runHook(hook, ...args)) {
+          resolve()
+          clearInterval(interval)
+        }
+      }, period)
+    })
   }
   /**
    * A main-program type wrapper. Runs a function and quits the bot with a
@@ -309,6 +297,7 @@ export class XREngineBot {
       ignoreHTTPSErrors: true,
       args: [
         `--disable-dev-shm-usage`,
+        '--shm-size=4gb',
         `--window-size=${this.windowSize.width},${this.windowSize.height}`,
         '--use-fake-ui-for-media-stream=1',
         '--use-fake-device-for-media-stream=1',
