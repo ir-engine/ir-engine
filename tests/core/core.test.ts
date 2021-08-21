@@ -24,7 +24,7 @@ describe('My Bot Tests', () => {
     } catch (e) {
       console.error(e)
     }
-  }, 10 * maxTimeout)
+  }, 2 * maxTimeout)
 
   afterAll(async () => {
     console.log('Tests finished, bot is now quitting!')
