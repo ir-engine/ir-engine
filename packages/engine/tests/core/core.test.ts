@@ -1,7 +1,7 @@
 /**
  * tests
  */
-import { initializeEngineTest } from "./core.initialiseEngine.test";
+import { initializeEngineTest } from "./core.initialiseEngine";
 
 /**
  * engine utils & polyfills
@@ -35,6 +35,7 @@ const options: InitializeOptions = {
     } as any as NetworkSchema
   },
   physics: {
+    //@ts-ignore
     physxWorker: () => new Worker(currentPath + '/physx/loadPhysXNode.ts')
   },
   systems: []

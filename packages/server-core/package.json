@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "0.3.33",
+  "version": "0.3.34",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -41,7 +41,7 @@
     "dev": "cross-env NODE_ENV=development vite",
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
     "localbuild": "cross-env LOCAL_BUILD=true npm run start",
     "validate": "npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev",
@@ -71,8 +71,8 @@
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
     "@feathersjs/transport-commons": "^5.0.0-pre.9",
     "@google-cloud/agones-sdk": "1.16.0",
-    "@xrengine/common": "^0.3.33",
-    "@xrengine/engine": "^0.3.33",
+    "@xrengine/common": "^0.3.34",
+    "@xrengine/engine": "^0.3.34",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
@@ -105,6 +105,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "20.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
@@ -119,6 +120,7 @@
     "@typescript-eslint/eslint-plugin": "4.29.2",
     "@typescript-eslint/parser": "4.29.2",
     "app-root-path": "3.0.0",
+    "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
     "no-master-commits": "1.1.1",

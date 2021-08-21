@@ -2,12 +2,12 @@ import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import Search from './SearchLocation'
-import { useStyles } from './styles'
+import { useLocationStyles } from './styles'
 import LocationTable from './LocationTable'
 import CreateLocation from './createLocation'
 
 const Location = () => {
-  const classes = useStyles()
+  const classes = useLocationStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {

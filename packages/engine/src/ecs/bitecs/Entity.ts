@@ -1,7 +1,4 @@
-import { resizeComponents } from './Component'
 import { $notQueries, $queries, queryAddEntity, queryCheckEntity, queryRemoveEntity } from './Query'
-import { resizeWorlds } from './World'
-import { setSerializationResized } from './Serialize'
 
 export const $entityMasks = Symbol('entityMasks')
 export const $entityComponents = Symbol('entityMasks')
@@ -52,7 +49,7 @@ export const eidToWorld = new Map()
  * @param {World} world
  * @returns {number} eid
  */
-export const addEntity = (world) => {
+export const bit_addEntity = (world) => {
   const eid = removed.length > 0 ? removed.shift() : globalEntityCursor++
   world[$entitySparseSet].add(eid)
   eidToWorld.set(eid, world)
@@ -89,7 +86,7 @@ export const addEntity = (world) => {
  * @param {World} world
  * @param {number} eid
  */
-export const removeEntity = (world, eid) => {
+export const bit_removeEntity = (world, eid) => {
   // Check if entity is already removed
   if (!world[$entitySparseSet].has(eid)) return
 
@@ -116,4 +113,4 @@ export const removeEntity = (world, eid) => {
  * @param {*} world
  * @param {*} eid
  */
-export const getEntityComponents = (world, eid) => Array.from(world[$entityComponents].get(eid))
+export const bit_getEntityComponents = (world, eid) => Array.from(world[$entityComponents].get(eid))

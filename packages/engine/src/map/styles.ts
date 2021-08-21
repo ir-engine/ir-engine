@@ -78,6 +78,8 @@ viewpoint:2
 waste_basket:2
 */
 
+export const MAX_Z_INDEX = 10000
+
 export interface IStyles {
   color?: {
     /** use same color on all surfaces */

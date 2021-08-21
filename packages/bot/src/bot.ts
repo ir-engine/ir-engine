@@ -1,7 +1,7 @@
 import { URL } from 'url'
 import puppeteer from 'puppeteer'
 import fs from 'fs'
-import { getOS } from '../../common/src/utils/getOS'
+import { getOS } from '@xrengine/common/src/utils/getOS'
 
 class PageUtils {
   bot: XREngineBot

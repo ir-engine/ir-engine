@@ -15,4 +15,6 @@ module.exports = {
       tsconfig: '<rootDir>/tsconfig.json',
     },
   },
+  passWithNoTests: true,
+  testMatch: ['<rootDir>/tests/**/*.test.(t|j)s(x)?']
 };

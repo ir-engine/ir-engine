@@ -26,6 +26,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/tests/**/*.test.(t|j)s(x)?',
   ],
+  passWithNoTests: true,
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.json',

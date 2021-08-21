@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Drawer from '@material-ui/core/Drawer'
-import { useStyle, useStyles } from './styles'
+import { useLocationStyles, useLocationStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
@@ -53,8 +53,8 @@ const Alert = (props) => {
 
 const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, adminSceneState, adminLocationState, patchLocation, locationAdmin } = props
-  const classex = useStyle()
-  const classes = useStyles()
+  const classex = useLocationStyle()
+  const classes = useLocationStyles()
   const [editMode, setEditMode] = React.useState(false)
   const [state, setState] = React.useState({
     name: '',
