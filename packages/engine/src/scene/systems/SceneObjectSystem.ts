@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { ECSWorld } from '../../ecs/classes/World'
@@ -39,6 +39,8 @@ export const SceneObjectSystem = async (): Promise<System> => {
   const sceneObjectQuery = defineQuery([Object3DComponent])
   const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
   const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
+
+  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
   const persistAddQuery = enterQuery(persistQuery)
@@ -129,7 +131,7 @@ export const SceneObjectSystem = async (): Promise<System> => {
       ;(obj.value as unknown as Updatable).update(world.delta)
     }
 
-    for (const entity of sceneObjectQuery(world)) {
+    for (const entity of transformObjectQuery(world)) {
       const transform = getComponent(entity, TransformComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 
