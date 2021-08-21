@@ -18,7 +18,7 @@ function cssNumberProp(value) {
  *
  * @author Robert Long
  */
-export const Column = (styled as any).div`
+export const FlexColumn = (styled as any).div`
   display: flex;
   flex-direction: column;
   flex: ${getFlex};
@@ -30,7 +30,7 @@ export const Column = (styled as any).div`
  *
  * @author Robert Long
  */
-export const Row = (styled as any).div`
+export const FlexRow = (styled as any).div`
   display: flex;
   flex: ${getFlex};
   height: ${(props) => cssNumberProp(props.height)};
@@ -41,7 +41,7 @@ export const Row = (styled as any).div`
  *
  * @author Robert Long
  */
-export const VerticalScrollContainer = (styled as any)(Column)`
+export const VerticalScrollContainer = (styled as any)(FlexColumn)`
   overflow-y: auto;
   min-height: 0;
 `
@@ -50,6 +50,6 @@ export const VerticalScrollContainer = (styled as any)(Column)`
  *
  * @author Robert Long
  */
-export const HorizontalScrollContainer = (styled as any)(Row)`
+export const HorizontalScrollContainer = (styled as any)(FlexRow)`
   overflow-x: auto;
 `

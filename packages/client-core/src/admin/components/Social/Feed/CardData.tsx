@@ -19,7 +19,7 @@ import Grow from '@material-ui/core/Grow'
 import Popper from '@material-ui/core/Popper'
 import MenuItem from '@material-ui/core/MenuItem'
 import MenuList from '@material-ui/core/MenuList'
-import { useStyles } from './styles'
+import { useFeedStyles } from './styles'
 
 interface Props {
   feed: any
@@ -29,7 +29,7 @@ interface Props {
 
 const CardData = (props: Props) => {
   const { feed, openViewModal, deleteFeed } = props
-  const classes = useStyles()
+  const classes = useFeedStyles()
   const anchorRef = React.useRef(null)
   const [open, setOpen] = React.useState(false)
 

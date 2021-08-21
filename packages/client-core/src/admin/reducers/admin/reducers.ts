@@ -43,7 +43,7 @@ import { LoadedUsersAction } from '../../../user/reducers/user/actions'
 import { CollectionsFetchedAction } from '../../../world/reducers/scenes/actions'
 import { LocationsRetrievedAction } from '../../../social/reducers/location/actions'
 
-export const PAGE_LIMIT = 100
+export const ADMIN_PAGE_LIMIT = 100
 
 export const initialAdminState = {
   isLoggedIn: false,
@@ -55,7 +55,7 @@ export const initialAdminState = {
   locations: {
     locations: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: ADMIN_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -79,7 +79,7 @@ export const initialAdminState = {
   users: {
     users: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: ADMIN_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -89,7 +89,7 @@ export const initialAdminState = {
   instances: {
     instances: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: ADMIN_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -99,7 +99,7 @@ export const initialAdminState = {
   parties: {
     parties: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: ADMIN_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -109,7 +109,7 @@ export const initialAdminState = {
   userRole: {
     userRole: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: ADMIN_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -123,7 +123,7 @@ export const initialAdminState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialAdminState)
+const immutableState = Immutable.fromJS(initialAdminState) as any
 
 const adminReducer = (state = immutableState, action: any): any => {
   let result, updateMap

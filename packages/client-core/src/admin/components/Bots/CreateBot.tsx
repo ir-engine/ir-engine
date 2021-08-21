@@ -27,7 +27,7 @@ import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import { createBotAsAdmin } from '../../reducers/admin/bots/service'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { formValid } from './validation'
+import { validateForm } from './validation'
 
 interface Props {
   fetchAdminInstances?: any
@@ -146,7 +146,7 @@ const CreateBot = (props: Props) => {
     }
 
     setFormErrors(temp)
-    if (formValid(state, formErrors)) {
+    if (validateForm(state, formErrors)) {
       createBotAsAdmin(data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCommandData([])

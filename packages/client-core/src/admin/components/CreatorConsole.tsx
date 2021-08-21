@@ -4,7 +4,7 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { PAGE_LIMIT } from '../reducers/admin/reducers'
+import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -137,7 +137,7 @@ const CreatorConsole = (props: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const [dense, setDense] = React.useState(false)
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [loading, setLoading] = React.useState(false)
   const [creatorEdit, setCreatorEdit] = React.useState(null)
   const [creatorData, setCreatorData] = React.useState(null)

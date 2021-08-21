@@ -15,7 +15,7 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
-import { useStyles } from './styles'
+import { useARMediaStyles } from './styles'
 import Grid from '@material-ui/core/Grid'
 
 interface Props {
@@ -29,7 +29,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const MediaTable = (props: Props) => {
   const { list, removeArMedia } = props
-  const classes = useStyles()
+  const classes = useARMediaStyles()
   const [viewModel, setViewModel] = React.useState(false)
   const [mediaAdmin, setMediaAdmin] = React.useState('')
   const [open, setOpen] = React.useState(false)

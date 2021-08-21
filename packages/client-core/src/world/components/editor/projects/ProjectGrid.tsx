@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import ProjectGridItem from './ProjectGridItem'
-import { Row } from '../layout/Flex'
+import { FlexRow } from '../layout/Flex'
 import StringInput from '../inputs/StringInput'
 import { useHistory } from 'react-router-dom'
 import { Plus } from '@styled-icons/fa-solid/Plus'
@@ -184,7 +184,7 @@ export const Separator = styled.div`
  *
  * @author Robert Long
  */
-export const ProjectGridHeaderRow = styled(Row)`
+export const ProjectGridHeaderRow = styled(FlexRow)`
   align-items: center;
 
   & > * {

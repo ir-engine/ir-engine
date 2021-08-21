@@ -6,8 +6,8 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { DialogActions } from '@material-ui/core'
-import { formValid } from './validation'
-import { useStyle, useStyles } from './styles'
+import { validateCreatorForm } from './validation'
+import { useCreatorStyle, useCreatorStyles } from './styles'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { createCreator } from '../../../reducers/admin/Social/creator/service'
@@ -16,7 +16,7 @@ interface Props {
   open: boolean
   handleClose: any
   closeViewModel: any
-  createCreator: any
+  createCreator?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -25,8 +25,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const CreateCreator = (props: Props) => {
   const { open, handleClose, closeViewModel, createCreator } = props
-  const classes = useStyles()
-  const classesx = useStyle()
+  const classes = useCreatorStyles()
+  const classesx = useCreatorStyle()
 
   const [state, setState] = React.useState({
     name: '',
@@ -87,7 +87,7 @@ const CreateCreator = (props: Props) => {
       temp.twitter = "Twitter can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateCreatorForm(state, state.formErrors)) {
       createCreator(data)
       // closeViewModel(false)
       // setState({

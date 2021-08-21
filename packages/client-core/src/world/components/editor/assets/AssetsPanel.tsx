@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Column, Row } from '../layout/Flex'
+import { FlexColumn, FlexRow } from '../layout/Flex'
 import { EditorContext } from '../contexts/EditorContext'
 import AssetDropZone from './AssetDropZone'
 import styles from './styles.module.scss'
@@ -12,7 +12,7 @@ import styles from './styles.module.scss'
  * @author Robert Long
  * @type {Styled component}
  */
-const AssetsPanelContainer = (styled as any)(Row)`
+const AssetsPanelContainer = (styled as any)(FlexRow)`
   position: relative;
   flex: 1;
   background-color: ${(props) => props.theme.panel};
@@ -40,7 +40,7 @@ const AssetsPanelToolbarContainer = (styled as any).div`
  * @author Robert Long
  * @type {Styled component}
  */
-export const AssetPanelToolbarContent = (styled as any)(Row)`
+export const AssetPanelToolbarContent = (styled as any)(FlexRow)`
   flex: 1;
   align-items: flex-end;
 
@@ -84,7 +84,7 @@ AssetsPanelToolbar.propTypes = {
  * @author Robert Long
  * @type {Styled component}
  */
-const AssetsPanelColumn = (styled as any)(Column)`
+const AssetsPanelColumn = (styled as any)(FlexColumn)`
   max-width: 175px;
   border-right: 1px solid ${(props) => props.theme.border};
 `
@@ -95,7 +95,7 @@ const AssetsPanelColumn = (styled as any)(Column)`
  * @author Robert Long
  * @type {Styled component}
  * */
-export const AssetPanelContentContainer = (styled as any)(Row)`
+export const AssetPanelContentContainer = (styled as any)(FlexRow)`
   flex: 1;
   overflow: hidden;
 `
@@ -193,7 +193,7 @@ export default function AssetsPanel() {
           ))}
         </List>
       </AssetsPanelColumn> */}
-      <Column flex>
+      <FlexColumn flex>
         {SourceComponent && (
           <SourceComponent
             key={selectedSource.id}
@@ -203,7 +203,7 @@ export default function AssetsPanel() {
             setSavedState={setSavedState}
           />
         )}
-      </Column>
+      </FlexColumn>
       <AssetDropZone />
     </AssetsPanelContainer>
   )

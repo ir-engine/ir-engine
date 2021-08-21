@@ -9,7 +9,7 @@ import {
   SubMenu as _SubMenu,
   ContextMenuTrigger as _ContextMenuTrigger
 } from 'react-contextmenu/dist/react-contextmenu'
-import { Theme, ThemeContext } from '../theme'
+import { EditorTheme } from '../theme'
 import { createGlobalStyle } from 'styled-components'
 export const connectMenu = _connectMenu
 export const MenuItem = _MenuItem
@@ -22,7 +22,7 @@ export const ContextMenuTrigger = _ContextMenuTrigger
  *
  * @author Robert Long
  */
-export const ContextMenuStyles = createGlobalStyle<{ theme: Theme }>`
+export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
   .react-contextmenu {
     background-color: ${(props) => props.theme.dropdown};
     background-clip: padding-box;

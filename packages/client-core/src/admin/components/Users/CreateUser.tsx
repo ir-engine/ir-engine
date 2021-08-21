@@ -11,11 +11,11 @@ import CreateUserRole from './CreateUserRole'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { formValid } from './validation'
+import { validateUserForm } from './validation'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
-import { useStyles, useStyle } from './styles'
+import {useUserStyles,useUserStyle } from './styles'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
@@ -65,8 +65,8 @@ const CreateUser = (props: Props) => {
     createUserAction
   } = props
 
-  const classes = useStyles()
-  const classesx = useStyle()
+  const classes =useUserStyles()
+  const classesx =useUserStyle()
   const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false)
   const [state, setState] = React.useState({
     name: '',
@@ -149,7 +149,7 @@ const CreateUser = (props: Props) => {
       temp.userRole = "User role can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateUserForm(state, state.formErrors)) {
       createUserAction(data)
       closeViewModel(false)
       setState({

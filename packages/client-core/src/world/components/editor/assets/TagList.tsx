@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useRef, useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled, { ThemeContext } from 'styled-components'
-import { Column, Row } from '../layout/Flex'
+import { FlexColumn, FlexRow } from '../layout/Flex'
 import { useSelectionHandler } from './useSelection'
 import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
 import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
@@ -12,7 +12,7 @@ import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
  * @author Robert Long
  * @type {styled component}
  */
-const StyledTagList = (styled as any)(Column)`
+const StyledTagList = (styled as any)(FlexColumn)`
   height: auto;
   min-height: 100%;
   min-width: 175px;
@@ -25,7 +25,7 @@ const StyledTagList = (styled as any)(Column)`
  * @author Robert Long
  * @type {Styled component}
  */
-const TagListHeader = (styled as any)(Row)`
+const TagListHeader = (styled as any)(FlexRow)`
   color: ${(props) => props.theme.text2};
   justify-content: space-between;
   align-items: center;

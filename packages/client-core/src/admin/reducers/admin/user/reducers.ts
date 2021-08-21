@@ -26,9 +26,9 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LoadedUsersAction } from './actions'
 
-export const PAGE_LIMIT = 100
+export const USER_PAGE_LIMIT = 100
 
-export const initialAdminState = {
+export const initialUserAdminState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -38,7 +38,7 @@ export const initialAdminState = {
   users: {
     users: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: USER_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -48,7 +48,7 @@ export const initialAdminState = {
   userRole: {
     userRole: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: USER_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -68,7 +68,7 @@ export const initialAdminState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialAdminState)
+const immutableState = Immutable.fromJS(initialUserAdminState) as any
 
 const adminReducer = (state = immutableState, action: any): any => {
   let result, updateMap

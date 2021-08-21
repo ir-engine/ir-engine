@@ -1,11 +1,11 @@
 import Immutable from 'immutable'
-import { RETRIEVE_CREATOR_AS_ADMIN, CREATE_CREATOR_AS_ADMIN } from '../../../actions'
+import { RETRIEVE_CREATOR_AS_ADMIN } from '../../../actions'
 import { CreatorAction } from './actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 
-export const PAGE_LIMIT = 100
+export const ARMEDIA_PAGE_LIMIT = 100
 
 export const initialCreatorState = {
   isLoggedIn: false,
@@ -17,7 +17,7 @@ export const initialCreatorState = {
   creator: {
     creator: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: ARMEDIA_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -26,7 +26,7 @@ export const initialCreatorState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialCreatorState)
+const immutableState = Immutable.fromJS(initialCreatorState) as any
 
 const creatorReducer = (state = immutableState, action: CreatorAction) => {
   let result, updateMap

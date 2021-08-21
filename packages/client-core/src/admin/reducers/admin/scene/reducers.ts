@@ -5,9 +5,9 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { CollectionsFetchedAction } from '../../../../world/reducers/scenes/actions'
 
-export const PAGE_LIMIT = 100
+export const SCENE_PAGE_LIMIT = 100
 
-export const initialAdminState = {
+export const initialSceneAdminState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -26,7 +26,7 @@ export const initialAdminState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialAdminState)
+const immutableState = Immutable.fromJS(initialSceneAdminState) as any
 
 const adminReducer = (state = immutableState, action: any): any => {
   let result: any, updateMap: any

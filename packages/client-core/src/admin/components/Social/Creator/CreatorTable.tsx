@@ -5,8 +5,8 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import { useStyles, useStyle } from './styles'
-import { columns, Data } from './Variables'
+import {useCreatorStyles,useCreatorStyle } from './styles'
+import { creatorColumns, CreatorData } from './Variables'
 import { fetchCreatorAsAdmin } from '../../../reducers/admin/Social/creator/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
@@ -33,8 +33,8 @@ const mapStateToProps = (state: any): any => {
 
 const CreatorTable = (props: Props) => {
   const { fetchCreatorAsAdmin, authState, creatorState } = props
-  const classx = useStyles()
-  const classes = useStyle()
+  const classx =useCreatorStyles()
+  const classes =useCreatorStyle()
   const user = authState.get('user')
   const creator = creatorState.get('creator')
   const creatorData = creator.get('creator')
@@ -71,7 +71,7 @@ const CreatorTable = (props: Props) => {
     description: any,
     avatarId: string,
     socialMedia: string
-  ): Data => {
+  ): CreatorData => {
     return {
       id,
       name,
@@ -116,7 +116,7 @@ const CreatorTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {creatorColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -132,7 +132,7 @@ const CreatorTable = (props: Props) => {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {creatorColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>

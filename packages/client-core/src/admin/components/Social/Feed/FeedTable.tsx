@@ -5,7 +5,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { useStyle, useStyles } from './styles'
+import { useFeedStyle, useFeedStyles } from './styles'
 import { getAdminFeeds, deleteFeed } from '../../../reducers/admin/Social/feeds/service'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -36,8 +36,8 @@ const mapStateToProps = (state: any): any => {
 
 const FeedTable = (props: Props) => {
   const { getAdminFeeds, deleteFeed, authState, feedState } = props
-  const classex = useStyle()
-  const classes = useStyles()
+  const classex = useFeedStyle()
+  const classes = useFeedStyles()
 
   const user = authState.get('user')
   const feeds = feedState.get('feeds')
