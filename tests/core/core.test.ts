@@ -20,15 +20,18 @@ describe('My Bot Tests', () => {
   }, maxTimeout)
 
   afterAll(async () => {
-    await bot.delay(1000)
+    console.log('Tests finished, bot is now quitting!')
+    await bot.delay(1500)
     await bot.quit()
   }, maxTimeout)
 
   test('Can spawn in the world', async () => {
+    console.log('Running spawn in world test...')
     await bot.delay(1000)
     expect(
       vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).length()
     ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
+    console.log('Ran spawn in world test!')
   })
 
 })

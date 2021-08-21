@@ -20,7 +20,7 @@ describe('WebXR Bot Tests', () => {
   }, maxTimeout)
 
   afterAll(async () => {
-    await bot.delay(1000)
+    await bot.delay(1500)
     await bot.quit()
   }, maxTimeout)
 

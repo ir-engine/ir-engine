@@ -85,7 +85,7 @@ export const update = async function (renderer: THREE.WebGLRenderer, args: MapPr
 
   const group = new Group()
   const buildingMesh = createBuildings(vectorTiles, center, renderer)
-  const groundMesh = createGround(rasterTiles as any, center[1])
+  const groundMesh = createGroundMesh(rasterTiles as any, center[1])
   const roadsMesh = createRoads(vectorTiles, center, renderer)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
