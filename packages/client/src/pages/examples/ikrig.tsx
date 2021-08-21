@@ -24,7 +24,10 @@ import {
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+<<<<<<< HEAD:packages/client/src/pages/examples/ikrig.tsx
 import Debug from '../../../components/Debug'
+=======
+>>>>>>> animation-state:packages/client/src/pages/examples/ikrig/index.tsx
 import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
@@ -119,7 +122,7 @@ const Page = () => {
         animationSpeed: 1
       })
       addComponent(sourceEntity, IKObj, { ref: model.scene })
-      addComponent(sourceEntity, IKPose, { ref: null })
+      addComponent(sourceEntity, IKPose, { })
       addComponent(sourceEntity, IKRig, { sourceRig: skinnedMesh })
 
       const rig = getComponent(sourceEntity, IKRig)
@@ -129,7 +132,8 @@ const Page = () => {
       rig.sourcePose = getComponent(sourceEntity, IKPose)
 
       setReference(sourceEntity, skinnedMesh)
-      ac.mixer.clipAction(clips[3]).play()
+      // TODO: this was clips[3], but that was invalid
+      ac.mixer.clipAction(model.animations[3]).play()
 
       // Set up poses
       rig.pose = new Pose(sourceEntity, false)
@@ -218,7 +222,7 @@ const Page = () => {
     })()
   }, [])
   // Some JSX to keep the compiler from complaining
-  return <Debug />
+  return <></>
 }
 
 export default Page
@@ -232,7 +236,7 @@ async function initThree() {
     h = window.innerHeight
 
   let ctx = canvas.getContext('webgl2') //, { alpha: false }
-  Engine.renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
+  Engine.renderer = new WebGLRenderer({ canvas: canvas, antialias: true })
 
   Engine.renderer.setClearColor(0x3a3a3a, 1)
   Engine.renderer.setSize(w, h)
