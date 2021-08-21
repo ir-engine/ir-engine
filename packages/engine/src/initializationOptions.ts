@@ -20,6 +20,9 @@ export type InitializeOptions = {
     schema: NetworkSchema
     app?: any
   }
+  scene?: {
+    disabled?: boolean
+  }
   renderer?: {
     disabled?: boolean
     canvasId?: string
@@ -48,6 +51,9 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   },
   networking: {
     schema: DefaultNetworkSchema
+  },
+  scene: {
+    disabled: false
   },
   renderer: {
     disabled: false,

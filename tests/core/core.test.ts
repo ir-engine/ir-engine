@@ -3,12 +3,13 @@ import { XREngineBot } from '@xrengine/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 
 const maxTimeout = 60 * 1000
-const bot = new XREngineBot({ name: 'bot-1', headless: true, verbose: true })
+const bot = new XREngineBot({ name: 'bot-1', gpu: !process.env.HEADLESS, headless: true, verbose: true })
 const vector3 = new Vector3()
 
 const domain = process.env.APP_HOST
 const locationName = 'test'
 const sqrt2 = Math.sqrt(2)
+console.log('process.env.HEADLESS', process.env.HEADLESS)
 
 describe('My Bot Tests', () => {
 

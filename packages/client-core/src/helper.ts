@@ -44,7 +44,8 @@ export class Config {
     offlineMode: false,
     staticPages: {
       termsOfService: ''
-    }
+    },
+    disableRenderer: false
   }
 }
 

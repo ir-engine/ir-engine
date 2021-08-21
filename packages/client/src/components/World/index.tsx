@@ -113,7 +113,7 @@ export const EnginePage = (props: Props) => {
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
-
+  if (process.env.VITE_WEBGL_DISABLED === 'true') engineInitializeOptions.renderer.disabled = true
   let sceneId = null
 
   const userState = useUserState()
@@ -278,11 +278,6 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
-  }
-
-  const handleTouchStartEvent = (e: TouchEvent) => {
-    handleTouch(e)
-    handleTouchMove(e)
   }
 
   if (isUserBanned) return <div className="banned">You have been banned from this location</div>
