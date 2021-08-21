@@ -292,6 +292,7 @@ export class XREngineBot {
   async launchBrowser() {
     console.log('Launching browser')
     const options = {
+      dumpio: true,
       headless: this.headless,
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
