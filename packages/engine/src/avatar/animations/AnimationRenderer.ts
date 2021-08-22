@@ -75,9 +75,6 @@ export class AnimationRenderer {
       animation.action.setEffectiveWeight(animation.weight)
       animation.action.setEffectiveTimeScale(animation.timeScale || 1)
 
-      // TODO: Somthing around here is having a strange impact on the looping
-      // We should figure out how/why this is affecting the walk animations, and why it's different from run anims
-
       if (animation.weight > 0) {
         animation.action.play()
 
