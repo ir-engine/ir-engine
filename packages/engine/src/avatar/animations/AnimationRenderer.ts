@@ -75,20 +75,23 @@ export class AnimationRenderer {
       animation.action.setEffectiveWeight(animation.weight)
       animation.action.setEffectiveTimeScale(animation.timeScale || 1)
 
+      // TODO: Somthing around here is having a strange impact on the looping
+      // We should figure out how/why this is affecting the walk animations, and why it's different from run anims
+
       if (animation.weight > 0) {
         animation.action.play()
 
-        // Sync Actions if state requires 		
+        // Sync Actions if state requires
         if (currState.syncActions) {
           for (let i = 0; i < currState.animations.length; i++) {
             if (currState.animations[i].action) {
-              if(currState.animations[i].weight > 0) {
+              if (currState.animations[i].weight > 0) {
                 animation.action.syncWith(currState.animations[i].action)
                 break
-			  }
+              }
             }
           }
-        }		
+        }
       }
 
       // Reset animation in intra state transition
