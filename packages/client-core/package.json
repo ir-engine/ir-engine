@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.3.33",
+  "version": "0.3.34",
   "module": "dist/client-core.es.js",
   "repository": {
     "type": "git",
@@ -17,8 +17,9 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build": "rimraf dist && mkdir dist && node build.js",
-    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
     "buildx": "esbuild",
+    "test": "jest",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
@@ -49,11 +50,11 @@
     "@types/styled-components": "5.1.12",
     "@typescript-eslint/eslint-plugin": "4.29.2",
     "@typescript-eslint/parser": "4.29.2",
-    "@xrengine/common": "^0.3.33",
-    "@xrengine/engine": "^0.3.33",
+    "@xrengine/common": "^0.3.34",
+    "@xrengine/engine": "^0.3.34",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
-    "autoprefixer": "10.3.1",
+    "autoprefixer": "10.3.2",
     "axios": "0.21.1",
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
@@ -108,15 +109,17 @@
     "yup": "0.32.9"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "20.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
-    "@types/node": "14.17.10",
+    "@types/node": "14.17.11",
     "@types/react": "17.0.19",
     "@types/react-dom": "17.0.9",
     "@types/three": "0.131.0",
+    "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.21",
+    "esbuild": "0.12.22",
     "eslint": "7.32.0",
     "rimraf": "3.0.2",
     "rollup": "2.56.2",

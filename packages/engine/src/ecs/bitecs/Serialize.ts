@@ -7,8 +7,8 @@ import {
   $tagStore,
   createShadow
 } from './Storage'
-import { $componentMap, addComponent, hasComponent } from './Component'
-import { $entityArray, $entitySparseSet, addEntity, eidToWorld } from './Entity'
+import { $componentMap, bit_addComponent, bit_hasComponent } from './Component'
+import { $entityArray, $entitySparseSet, bit_addEntity, eidToWorld } from './Entity'
 import { $localEntities } from './World'
 
 export const DESERIALIZE_MODE = {
@@ -112,7 +112,7 @@ export const defineSerializer = (target, maxBytes = 20000000) => {
         const eid = ents[i]
 
         // skip if entity doesn't have this component
-        if (!hasComponent(world, prop[$storeBase](), eid)) {
+        if (!bit_hasComponent(world, prop[$storeBase](), eid)) {
           continue
         }
 
@@ -247,7 +247,7 @@ export const defineDeserializer = (target) => {
           } else if (newEntities.has(eid)) {
             eid = newEntities.get(eid)
           } else {
-            const newEid = addEntity(world)
+            const newEid = bit_addEntity(world)
             localEntities.set(eid, newEid)
             newEntities.set(eid, newEid)
             eid = newEid
@@ -258,14 +258,14 @@ export const defineDeserializer = (target) => {
           mode === DESERIALIZE_MODE.APPEND ||
           (mode === DESERIALIZE_MODE.REPLACE && !world[$entitySparseSet].has(eid))
         ) {
-          const newEid = newEntities.get(eid) || addEntity(world)
+          const newEid = newEntities.get(eid) || bit_addEntity(world)
           newEntities.set(eid, newEid)
           eid = newEid
         }
 
         const component = prop[$storeBase]()
-        if (!hasComponent(world, component, eid)) {
-          addComponent(world, component, eid)
+        if (!bit_hasComponent(world, component, eid)) {
+          bit_addComponent(world, component, eid)
         }
 
         if (component[$tagStore]) {

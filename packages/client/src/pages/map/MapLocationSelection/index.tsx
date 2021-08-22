@@ -5,7 +5,6 @@ import React, { useState, useRef, useCallback } from 'react'
 import MapGL from 'react-map-gl'
 import Geocoder from 'react-map-gl-geocoder'
 import styles from './MapLocation.module.scss'
-
 const mapboxApiKey = 'pk.eyJ1IjoibmF2ZGVlcHlhZGF2IiwiYSI6ImNrc2EzM2pnejBqaWUyeHA0bW8xaXFwaWEifQ.hIpiYzWrUer4F31GpCqoHA'
 const mapStyle = {
   width: '100%',
@@ -79,5 +78,3 @@ const MapView = (props: Props) => {
 }
 
 export default MapView
-
-//render(<MapView />, document.getElementById("root"));

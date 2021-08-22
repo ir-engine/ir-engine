@@ -80,18 +80,7 @@ export class AnimationRenderer {
 
       if (animation.weight > 0) {
         // if (!animation.action.isRunning() && animation.weight > 0) {
-
         animation.action.play()
-
-        // Sync Actions if state requires
-        if (currState.syncActions) {
-          for (let i = 0; i < currState.animations.length; i++) {
-            if (currState.animations[i].action?.isRunning) {
-              animation.action.syncWith(currState.animations[i].action)
-              break
-            }
-          }
-        }
       }
 
       // Reset animation in intra state transition
@@ -137,6 +126,7 @@ export class AnimationRenderer {
 
       if (animation.weight <= 0) {
         // Reset the animation of the action
+
         animation.action.reset()
 
         // Stop the action

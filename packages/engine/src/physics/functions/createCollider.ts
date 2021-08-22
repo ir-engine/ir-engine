@@ -41,6 +41,7 @@ export function createCollider(
 ): Body {
   const userData = mesh.userData as ColliderData
   // console.log(userData, pos, rot, scale)
+  console.log(mesh)
 
   if (!userData.type) return
   if (userData.type === 'trimesh' || userData.type === 'convex') {
