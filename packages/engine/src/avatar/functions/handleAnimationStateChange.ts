@@ -9,7 +9,7 @@ export const handleAnimationStateChange = (editObject: NetworkObjectEditInterfac
     return console.warn(`Entity with id ${editObject.networkId} does not exist! You should probably reconnect...`)
   }
 
-  if (Network.instance.networkObjects[editObject.networkId].ownerId === Network.instance.userId) return
+  if (Network.instance.networkObjects[editObject.networkId].uniqueId === Network.instance.userId) return
 
   const entity = Network.instance.networkObjects[editObject.networkId].entity
 

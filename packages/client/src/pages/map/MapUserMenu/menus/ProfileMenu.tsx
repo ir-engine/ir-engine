@@ -16,7 +16,7 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/client-cor
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../MapUserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
-import { selectAuthState } from '../../../../../../client-core/src/user/reducers/auth/selector'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import {
   updateUsername,
   updateUserAvatarId,
@@ -27,7 +27,7 @@ import {
   addConnectionByEmail,
   logoutUser,
   removeUser
-} from '../../../../../../client-core/src/user/reducers/auth/service'
+} from '@xrengine/client-core/src/user/reducers/auth/service'
 
 interface Props {
   changeActiveMenu?: any

@@ -14,8 +14,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
-import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent'
-import { correctRigidBody } from '../functions/correctRigidBody'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
 import { interpolateRigidBody } from '../functions/interpolateRigidBody'
 import { updateRigidBody } from '../functions/updateRigidBody'
@@ -26,11 +24,18 @@ import { updateRigidBody } from '../functions/updateRigidBody'
  */
 
 export const InterpolationSystem = async (): Promise<System> => {
-  const localCharacterInterpolationQuery = defineQuery([
+  /**
+   * Local avatar
+   */
+  const localAvatarCorrectionQuery = defineQuery([
     AvatarControllerComponent,
     InterpolationComponent,
     NetworkObjectComponent
   ])
+
+  /**
+   * Remote avatars
+   */
   const networkClientInterpolationQuery = defineQuery([
     Not(AvatarControllerComponent),
     ColliderComponent,
@@ -38,27 +43,43 @@ export const InterpolationSystem = async (): Promise<System> => {
     InterpolationComponent,
     NetworkObjectComponent
   ])
-  const localObjectInterpolationQuery = defineQuery([
-    Not(AvatarComponent),
-    LocalInterpolationComponent,
-    InterpolationComponent,
-    ColliderComponent,
-    NetworkObjectComponent
-  ])
+
+  /**
+   * Server controlled rigidbody with interpolation
+   */
   const networkObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
-    Not(LocalInterpolationComponent),
     Not(ClientAuthoritativeComponent),
     InterpolationComponent,
     ColliderComponent,
     NetworkObjectComponent
   ])
+
+  /**
+   * Server controlled rigidbody without interpolation
+   */
   const correctionFromServerQuery = defineQuery([
     Not(InterpolationComponent),
     Not(ClientAuthoritativeComponent),
     ColliderComponent,
     NetworkObjectComponent
   ])
+
+  /**
+   * Server controlled object with interpolation but no collider
+   */
+  const transformInterpolationQuery = defineQuery([
+    Not(ClientAuthoritativeComponent),
+    Not(AvatarControllerComponent),
+    Not(ColliderComponent),
+    InterpolationComponent,
+    TransformComponent,
+    NetworkObjectComponent
+  ])
+
+  /**
+   * Server controlled object with no collider or interpolation
+   */
   const transformUpdateFromServerQuery = defineQuery([
     Not(InterpolationComponent),
     Not(ClientAuthoritativeComponent),
@@ -82,16 +103,12 @@ export const InterpolationSystem = async (): Promise<System> => {
     // Create new snapshot position for next frame server correction
     Vault.instance.add(createSnapshot(snapshots.new))
 
-    for (const entity of localCharacterInterpolationQuery(world)) {
+    for (const entity of localAvatarCorrectionQuery(world)) {
       avatarCorrection(entity, snapshots, delta)
     }
 
     for (const entity of networkClientInterpolationQuery(world)) {
       interpolateAvatar(entity, snapshots, delta)
-    }
-
-    for (const entity of localObjectInterpolationQuery(world)) {
-      correctRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of networkObjectInterpolationQuery(world)) {
@@ -100,6 +117,23 @@ export const InterpolationSystem = async (): Promise<System> => {
 
     for (const entity of correctionFromServerQuery(world)) {
       updateRigidBody(entity, snapshots, delta)
+    }
+
+    for (const entity of transformInterpolationQuery(world)) {
+      const transform = getComponent(entity, TransformComponent)
+      const interpolationSnapshot =
+        findInterpolationSnapshot(entity, snapshots.interpolation) ??
+        findInterpolationSnapshot(entity, Network.instance.snapshot)
+
+      if (interpolationSnapshot == null) return
+
+      transform.position.set(interpolationSnapshot.x, interpolationSnapshot.y, interpolationSnapshot.z)
+      transform.rotation.set(
+        interpolationSnapshot.qX,
+        interpolationSnapshot.qY,
+        interpolationSnapshot.qZ,
+        interpolationSnapshot.qW
+      )
     }
 
     for (const entity of transformUpdateFromServerQuery(world)) {

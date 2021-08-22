@@ -5,6 +5,8 @@ import { selectAppOnBoardingStep } from '../../reducers/app/selector'
 import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
+import LottieLoader from './LottieLoader'
+
 interface Props {
   objectsToLoad?: number
   onBoardingStep?: number
@@ -60,9 +62,10 @@ const LoadingScreen = (props: Props) => {
 
   return (
     <>
-      <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
+      <section className={styles.overlay}>
+        <div className={styles.imageOverlay}></div>
+        {Loader ? <Loader /> : <LottieLoader />}
         <section className={styles.linearProgressContainer}>
-          {Loader && <Loader />}
           <span className={styles.loadingProgressInfo}>{loadingText}</span>
         </section>
       </section>

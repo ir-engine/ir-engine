@@ -2,7 +2,7 @@ import {
     VectorTile
 } from '@mapbox/vector-tile';
 import Protobuf from 'pbf';
-import buffer from 'buffer'; // note: the trailing slash is important!
+import buffer from 'buffer';
 import * as tb from '@turf/buffer';
 
 function turf_buffer(geojson, radius, opts) {

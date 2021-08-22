@@ -34,6 +34,26 @@ export function applyTransformToMesh(entity: Entity, mesh: Mesh) {
   mesh.quaternion.copy(quaternion)
   mesh.scale.copy(scale)
 }
+/**
+ * Applies an entity's transform component to a child mesh in world position
+ * @param {Entity} entity
+ * @param {Mesh} mesh
+ */
+
+export function applyTransformToMeshWorld(entity: Entity, mesh: Mesh) {
+  const transform = getComponent(entity, TransformComponent)
+  const [position, quaternion, scale] = getTransform(
+    mesh.getWorldPosition(new Vector3()),
+    mesh.getWorldQuaternion(new Quaternion()),
+    mesh.getWorldScale(new Vector3()),
+    transform.position,
+    transform.rotation,
+    transform.scale
+  )
+  mesh.position.copy(position)
+  mesh.quaternion.copy(quaternion)
+  mesh.scale.copy(scale)
+}
 
 /**
  * Returns the result of applying a transform to another transform
@@ -71,12 +91,12 @@ export function getTransform(posM, queM, scaM, posE, queE, scaE): [Vector3, Quat
 export const makeCollidersInvisible = (asset: any) => {
   const parseColliders = (mesh) => {
     if (mesh.userData.data === 'physics') {
-      mesh.visible = false
-      // if(mesh.material) {
-      //   mesh.material.wireframe = true
-      //   mesh.material.opacity = 0.2
-      //   mesh.material.transparent = true
-      // }
+      // mesh.visible = false
+      if (mesh.material) {
+        mesh.material.opacity = 0.2
+        mesh.material.transparent = true
+        // mesh.material.wireframe = true
+      }
     }
   }
   asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders)
@@ -111,7 +131,6 @@ export const createCollidersFromModel = (entity: Entity, asset: any) => {
       transform.rotation,
       transform.scale
     )
-    // console.log('IS NAN', mesh.scale)
     createCollider(entity, mesh, position, quaternion, scale)
     mesh.removeFromParent()
   })

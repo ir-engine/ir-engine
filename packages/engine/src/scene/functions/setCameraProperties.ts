@@ -47,9 +47,9 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
   cameraFollow.distance = data.startCameraDistance
   cameraFollow.minDistance = data.minCameraDistance
   cameraFollow.maxDistance = data.maxCameraDistance
-  // // cameraFollow.phi = data.startPhi
-  // // cameraFollow.minPhi = data.minPhi
-  // // cameraFollow.maxPhi = data.maxPhi
+  cameraFollow.phi = data.startPhi
+  cameraFollow.minPhi = data.minPhi
+  cameraFollow.maxPhi = data.maxPhi
   cameraFollow.locked = !data.startInFreeLook
   Engine.camera.updateProjectionMatrix()
   switchCameraMode(Network.instance.localClientEntity, data, true)

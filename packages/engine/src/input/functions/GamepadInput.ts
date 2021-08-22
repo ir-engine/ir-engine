@@ -7,6 +7,7 @@ import { InputComponent } from '../components/InputComponent'
 import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import { ComponentType } from '../../ecs/functions/EntityFunctions'
 /**
  * @property {Boolean} gamepadConnected Connection a new gamepad
  * @property {Number} gamepadThreshold Threshold value from 0 to 1
@@ -19,7 +20,7 @@ const gamepadButtons: BinaryValue[] = []
 const gamepadInput: number[] = []
 
 const inputPerGamepad = 2
-let input: InputComponent
+let input: ComponentType<typeof InputComponent>
 let gamepads: Gamepad[]
 let gamepad: Gamepad
 let inputBase: number

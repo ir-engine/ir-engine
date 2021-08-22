@@ -32,11 +32,11 @@ import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader
 import { defineQuery, defineSystem, System, Types } from '@xrengine/engine/src/ecs/bitecs'
 import { AnimationClip, AnimationMixer } from 'three'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
-import { NavMeshBuilder } from '../../../../engine/src/map/NavMeshBuilder'
-import { fetchVectorTiles } from '../../../../engine/src/map/MapBoxClient'
+import { NavMeshBuilder } from '@xrengine/engine/src/map/NavMeshBuilder'
+import { fetchVectorTiles } from '@xrengine/engine/src/map/MapBoxClient'
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import pc from 'polygon-clipping'
-import { computeBoundingBox } from '../../../../engine/src/map/GeoJSONFns'
+import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner
@@ -82,7 +82,7 @@ function scaleAndTranslatePosition(position: Position, llCenter: Position) {
 function scaleAndTranslatePolygon(coords: Position[][], llCenter: Position) {
   return [coords[0].map((position) => scaleAndTranslatePosition(position, llCenter))]
 }
-function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: [number, number]) {
+function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: Position) {
   switch (geometry.type) {
     case 'MultiPolygon':
       geometry.coordinates = geometry.coordinates.map((coords) => scaleAndTranslatePolygon(coords, llCenter))
@@ -97,7 +97,7 @@ function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: [number, 
 
 const loadNavMeshFromMapBox = async (navigationComponent) => {
   const builder = new NavMeshBuilder()
-  const center = [-84.388, 33.749]
+  const center = [-84.388, 33.749] as Position
   const tiles = await fetchVectorTiles(center)
   const gBuildings = tiles
     .reduce((acc, tiles) => acc.concat(tiles.building), [])
@@ -279,7 +279,7 @@ const Page = () => {
       let w = window.innerWidth,
         h = window.innerHeight
 
-      let ctx = canvas.getContext('webgl2') //, { alpha: false }
+      let ctx = canvas.getContext('webgl2') as WebGLRenderingContext //, { alpha: false }
       Engine.renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
 
       Engine.renderer.setClearColor(0x3a3a3a, 1)

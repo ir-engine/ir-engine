@@ -15,7 +15,7 @@ const locationName = process.env.TEST_LOCATION_NAME
 
 const vector3 = new Vector3()
 
-describe('Golf tests', () => {
+describe.skip('Golf tests', () => {
 
   beforeAll(async () => {
     await bot.launchBrowser()

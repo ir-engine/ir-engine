@@ -33,7 +33,6 @@ import { selectFeedFiresState } from '../../reducers/feedFires/selector'
 // import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service'
 import PopupLogin from '../PopupLogin/PopupLogin'
-// import { IndexPage } from '@xrengine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getLoggedCreator } from '../../reducers/creator/service'

@@ -8,7 +8,9 @@ dotenv.config({
   path: './.env.local'
 })
 
+
 const killPorts = () => {
+  if (process.platform.includes('darwin') === 'macOS') return // killing ports causes testing to fail on macOS
   [
     process.env.APP_PORT, // vite
     process.env.MYSQL_PORT, // docker

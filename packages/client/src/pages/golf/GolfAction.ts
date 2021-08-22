@@ -6,6 +6,12 @@ export const GolfAction = {
     }
   },
 
+  addHole(number: number, par: number) {
+    return {
+      type: 'puttclub.SET_HOLES' as const
+    }
+  },
+
   playerJoined(playerId: string) {
     return {
       type: 'puttclub.PLAYER_JOINED' as const,

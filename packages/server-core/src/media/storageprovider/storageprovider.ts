@@ -9,8 +9,8 @@ export class StorageProvider implements StorageProviderInterface {
   constructor() {
     this.provider = config.server.storageProvider === 'aws' ? new S3Storage() : new LocalStorage()
   }
-  cacheDomain: string
 
+  cacheDomain = ''
   checkObjectExistence = (key: string): Promise<any> => this.provider.checkObjectExistence(key)
   getProvider = (): StorageProviderInterface => this.provider
   getSignedUrl = (key: string, expiresAfter: number, conditions): any =>

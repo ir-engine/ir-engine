@@ -62,76 +62,9 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
     ;(this.props.editor as any).setPropertySelected('isTrigger', isTrigger)
   }
 
-  renderInteractableTypeOptions = (node) => {
-    //@ts-ignore
-    const targetOption = this.state.options.find((o) => o.value === node.target)
-    const target = targetOption ? targetOption.value : null
-    const targetNotFound = node.target && target === null
-
-    /*
-    let selectValues = []
-    if (node.target) {
-      // Get current game mode -- check target game mode
-      console.log('Target is', node.target)
-
-      console.log('Editor nodes are', (this.props.editor as any).nodes)
-
-      const nodeTarget = (this.props.editor as any).nodes.find((node) => node.uuid === target)
-
-      if (nodeTarget) {
-        console.log('nodeTarget', nodeTarget)
-
-        const gameMode = Engine.gameModes.get(nodeTarget.gameMode)
-
-        const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
-
-        console.log('gameObjectRoles are', gameObjectRoles)
-
-        selectValues = gameObjectRoles.map((role, index) => {
-          return { label: role, value: index }
-        })
-
-        console.log('SelectValues are', selectValues)
-      }
-    }*/
-
-    return (
-      <>
-        {/* @ts-ignore */}
-        <InputGroup name="Game Target" label={this.props.t('editor:properties.model.lbl-target')}>
-          {/* @ts-ignore */}
-          <SelectInput
-            error={targetNotFound}
-            placeholder={
-              targetNotFound
-                ? this.props.t('editor:properties.model.ph-errorNode')
-                : this.props.t('editor:properties.triggereVolume.ph-selectNode')
-            }
-            value={node.target}
-            onChange={this.onChangeTarget}
-            options={this.state.options}
-            disabled={this.props.multiEdit}
-          />
-        </InputGroup>
-        {node.target && (
-          /* @ts-ignore */
-          <InputGroup name="Role" label={i18n.t('editor:properties.model.lbl-role')}>
-            {/* @ts-ignore */}
-            <StringInput
-              /* @ts-ignore */
-              value={node.role}
-              onChange={this.onChangeRole}
-            />
-          </InputGroup>
-        )}
-      </>
-    )
-  }
-
   //rendering view to cusomize box collider element
   render() {
     BoxColliderNodeEditor.description = this.props.t('editor:properties.boxCollider.description')
-    const node = this.props.node as any
     return (
       <NodeEditor
         {...this.props}
@@ -142,7 +75,6 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
         <InputGroup name="Trigger" label={this.props.t('editor:properties.boxCollider.lbl-isTrigger')}>
           <BooleanInput value={(this.props.node as any).isTrigger} onChange={this.onChangeTrigger} />
         </InputGroup>
-        {this.renderInteractableTypeOptions(node)}
       </NodeEditor>
     )
   }
