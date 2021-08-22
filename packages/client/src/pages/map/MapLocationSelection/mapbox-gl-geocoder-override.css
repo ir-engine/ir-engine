@@ -1,0 +1,13 @@
+ 
+
+.mapboxgl-ctrl-top-left, .mapboxgl-ctrl-top-right{
+  width: 100% !important;
+}
+
+.mapboxgl-ctrl-top-left .mapboxgl-ctrl{
+  margin: 0px !important;
+  max-width: none !important;
+  width: 100%;
+}
+
+ 

@@ -62,6 +62,7 @@ export default defineConfig(() => {
     },
     build: {
       sourcemap: 'inline',
+      minify: 'esbuild',
       rollupOptions: {
         output: {
           dir: 'dist',

@@ -18,6 +18,7 @@ import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
 import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 import { METERS_PER_DEGREE_LL } from './constants'
+import { createGround } from '../scene/functions/createGround'
 
 let centerCoord = {}
 let centerTile = {}
