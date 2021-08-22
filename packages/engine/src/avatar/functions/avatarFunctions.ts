@@ -64,15 +64,16 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
       castShadow: true,
       receiveShadow: true
     },
-    async (asset: Group) => {
-      asset.traverse((o) => {
+    (gltf: any) => {
+      const model = SkeletonUtils.clone(gltf.scene)
+
+      model.traverse((o) => {
         // TODO: Remove me when we add retargeting
         if (o.name.includes('mixamorig')) {
           o.name = o.name.replace('mixamorig', '')
         }
       })
 
-      const model = SkeletonUtils.clone(asset)
       const avatar = getComponent(entity, AvatarComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
@@ -103,14 +104,14 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
       // advance animation for a frame to eliminate potential t-pose
       animationComponent.mixer.update(1 / 60)
 
-      await loadGrowingEffectObject(entity, materialList)
+      loadGrowingEffectObject(entity, materialList)
     }
   )
 }
 
 const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<MaterialMap>) => {
-  const textureLight = await AssetLoader.loadAsync({ url: '/itemLight.png' })
-  const texturePlate = await AssetLoader.loadAsync({ url: '/itemPlate.png' })
+  const textureLight = AssetLoader.getFromCache('/itemLight.png')
+  const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
 
   const lightMesh = new Mesh(
     new PlaneGeometry(0.04, 3.2),

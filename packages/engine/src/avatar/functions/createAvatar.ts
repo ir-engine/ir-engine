@@ -23,9 +23,9 @@ import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 
 const avatarRadius = 0.25
-const capsuleHeight = 1.3
 const avatarHeight = 1.8
-const avatarHalfHeight = 0.9
+const capsuleHeight = avatarHeight - avatarRadius * 2
+const avatarHalfHeight = avatarHeight / 2
 
 /**
  *

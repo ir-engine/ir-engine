@@ -77,8 +77,6 @@ export interface NetworkObjectRemoveInterface {
 export interface NetworkObjectEditInterface {
   /** Id of the network. */
   networkId: number
-  /** Id of the owner. */
-  ownerId: string
   /* NetworkObjectUpdateType */
   type: number
   values: number[]
@@ -93,12 +91,10 @@ export interface NetworkObjectEditInterface {
 export interface NetworkObjectCreateInterface {
   /** Id of the network. */
   networkId: number
-  /** Id of the owner. */
-  ownerId: string
   /** Entity unique Id from editor scene. */
   uniqueId: string
   /** Type of prefab used to create this object. */
-  prefabType: number
+  prefabType: string
   /** Parameters to initialze the prefab with. */
   parameters: any
 }

@@ -29,7 +29,7 @@ export const testWorldState = {
   createObjects: [
     {
       networkId: 1,
-      prefabType: 0,
+      prefabType: 'player',
       parameters: {
         position: {
           x: -1.3892272216183488,
@@ -43,7 +43,6 @@ export const testWorldState = {
           w: 0.3826834323650898
         }
       },
-      ownerId: testUserId,
       uniqueId: testUserId
     }
   ],

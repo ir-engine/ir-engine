@@ -15,6 +15,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
+import { DownArrow } from '../icons/DownArrow'
 import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
@@ -60,8 +61,16 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const UserMenu = (props: UserMenuProps): any => {
-  const { authState, updateUserAvatarId, alertSuccess, uploadAvatarModel, fetchAvatarList, enableSharing, hideLogin } =
-    props
+  const {
+    authState,
+    updateUserAvatarId,
+    alertSuccess,
+    uploadAvatarModel,
+    fetchAvatarList,
+    enableSharing,
+    hideLogin,
+    showHideProfile
+  } = props
 
   const menuPanel = {
     [Views.Profile]: ProfileMenu,
@@ -145,6 +154,10 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const updateLocationDetail = (location) => {
     setActiveLocation({ ...location })
+  }
+
+  const handleShowProfile = () => {
+    showHideProfile(true)
   }
 
   const renderMenuPanel = () => {
@@ -265,14 +278,14 @@ const UserMenu = (props: UserMenuProps): any => {
     <>
       <section className={styles.settingContainer}>
         <div className={styles.iconContainer}>
-          <button
+          <span
             id={Views.Profile}
-            // onClick={ShowProfile}
+            onClick={handleShowProfile}
             // className={'profile'}
             className={styles.profile}
           >
-            <img src="/static/DownArrow.png" />
-          </button>
+            <DownArrow />
+          </span>
         </div>
         {currentActiveMenu ? renderMenuPanel() : null}
       </section>

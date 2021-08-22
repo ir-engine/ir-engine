@@ -32,7 +32,7 @@ export const teleportToScene = async (
   removeComponent(Network.instance.localClientEntity, LocalInputReceiverComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
-  const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
+  const { scene: texture } = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
 
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)

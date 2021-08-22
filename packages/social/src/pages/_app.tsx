@@ -8,7 +8,7 @@ import { initGA, logPageView } from '@xrengine/client-core/src/common/components
 import Api from '@xrengine/client-core/src/world/components/editor/Api'
 import { ApiContext } from '@xrengine/client-core/src/world/components/editor/contexts/ApiContext'
 import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle'
-import theme from '@xrengine/social/theme'
+import theme from '../../theme'
 import { Config } from '@xrengine/client-core/src/helper'
 import { restoreState } from '@xrengine/client-core/src/persisted.store'
 import RouterComp from '../router'

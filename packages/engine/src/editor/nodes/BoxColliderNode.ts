@@ -1,5 +1,10 @@
 import { Object3D, BoxBufferGeometry, Material, Mesh, BoxHelper } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
+
+/**
+ * @todo add collisionLayer and collisionMask properties
+ */
+
 export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'box-collider'
   static nodeName = 'Box Collider'
@@ -20,6 +25,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   constructor(editor) {
     super(editor)
     const boxMesh = new Mesh(BoxColliderNode._geometry, BoxColliderNode._material)
+    boxMesh.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
     const box = new BoxHelper(boxMesh, 0x00ff00)
     box.layers.set(1)
     this.helper = box
@@ -35,6 +41,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
       const helperIndex = source.children.indexOf(source.helper)
       if (helperIndex !== -1) {
         const boxMesh = new Mesh(BoxColliderNode._geometry, BoxColliderNode._material)
+        boxMesh.scale.multiplyScalar(2)
         const box = new BoxHelper(boxMesh, 0x00ff00) as any
         box.layers.set(1)
         this.helper = box

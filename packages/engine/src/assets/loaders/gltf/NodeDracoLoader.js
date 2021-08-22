@@ -39,6 +39,7 @@ export const NodeDRACOLoader = function(manager) {
       'color' : 'COLOR',
       'uv' : 'TEX_COORD'
     };
+    this.dispose = () => {}
 };
 
 NodeDRACOLoader.prototype = {
