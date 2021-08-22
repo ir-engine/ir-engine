@@ -53,7 +53,7 @@ export class AnimationManager {
         resolve(new Group())
       }
       getLoader().load(
-        Engine.publicPath + '/models/avatars/Sonny.glb',
+        Engine.publicPath + '/models/avatars/Razer1.glb',
         (gltf) => {
           this._defaultModel = gltf.scene
           this._defaultModel.traverse((obj: Mesh) => {

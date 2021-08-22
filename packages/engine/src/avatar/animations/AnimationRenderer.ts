@@ -79,8 +79,17 @@ export class AnimationRenderer {
       // We should figure out how/why this is affecting the walk animations, and why it's different from run anims
 
       if (animation.weight > 0) {
-        // if (!animation.action.isRunning() && animation.weight > 0) {
         animation.action.play()
+        if (currState.syncActions) {
+          for (let i = 0; i < currState.animations.length; i++) {
+            if (currState.animations[i].action) {
+              if (currState.animations[i].weight > 0) {
+                animation.action.syncWith(currState.animations[i].action)
+                break
+              }
+            }
+          }
+        }
       }
 
       // Reset animation in intra state transition
