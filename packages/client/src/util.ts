@@ -8,9 +8,23 @@ import translation from '../i18n/en/translation.json'
 export const initialize = (): Promise<void> => {
   return new Promise((resolve) => {
     // Set Runtime config to client core
-    setRuntime(
-      process.env.NODE_ENV === 'development' ? process.env.publicRuntimeConfig : (window as any).env.publicRuntimeConfig
-    )
+    if (process.env.LOCAL_BUILD === 'true') {
+      console.log('local build!')
+      setRuntime({
+        gameserverHost: `${process.env.VITE_GAMESERVER_HOST}`,
+        gameserverPort: `${process.env.VITE_GAMESERVER_PORT}`,
+        apiServer: `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`,
+        gameserver: `https://${process.env.VITE_GAMESERVER_HOST}:${process.env.VITE_GAMESERVER_PORT}`,
+        mediatorServer: `${process.env.VITE_MEDIATOR_SERVER}`,
+        wasmUrl: `https://${process.env.VITE_APP_HOST}:${process.env.VITE_APP_PORT}/recast/recast.wasm`
+      })
+    } else {
+      setRuntime(
+        process.env.NODE_ENV === 'development'
+          ? process.env.publicRuntimeConfig
+          : (window as any).env.publicRuntimeConfig
+      )
+    }
     delete process.env.publicRuntimeConfig
 
     // Setup I18N

@@ -16,12 +16,12 @@
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js dist/server.js",
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite preview && cp src/server.js dist/server.js",
-    "serve": "serve dist --ssl-cert ../../certs/cert.pem --ssl-key ../../certs/key.pem -s",
     "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run test",
     "test": "jest",
-    "localbuild": "cross-env LOCAL_BUILD=true npm run build && npm run start"
+    "localbuild": "cross-env NODE_ENV=local LOCAL_BUILD=true npm run build",
+    "localstart": "cross-env NODE_ENV=local LOCAL_BUILD=true npm run start"
   },
   "resolutions": {
     "socket.io": "4.1.3",
