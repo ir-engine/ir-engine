@@ -64,6 +64,9 @@ const CreateLocation = (props: Props) => {
     scene: '',
     type: 'private',
     videoEnabled: false,
+    audioEnabled: false,
+    screenSharingEnabled: false,
+    faceStreamingEnabled: false,
     globalMediaEnabled: false,
     isLobby: false,
     isFeatured: false,
@@ -92,6 +95,9 @@ const CreateLocation = (props: Props) => {
         scene: '',
         type: 'private',
         videoEnabled: false,
+        audioEnabled: false,
+        screenSharingEnabled: false,
+        faceStreamingEnabled: false,
         globalMediaEnabled: false,
         isLobby: false,
         isFeatured: false
@@ -146,6 +152,9 @@ const CreateLocation = (props: Props) => {
       location_setting: {
         locationType: state.type,
         instanceMediaChatEnabled: state.globalMediaEnabled,
+        audioEnabled: state.audioEnabled,
+        screenSharingEnabled: state.screenSharingEnabled,
+        faceStreamingEnabled: state.faceStreamingEnabled,
         videoEnabled: state.videoEnabled
       },
       isLobby: state.isLobby,
@@ -280,16 +289,16 @@ const CreateLocation = (props: Props) => {
                     color="primary"
                     control={
                       <Switch
-                        checked={state.videoEnabled}
-                        onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+                        checked={state.audioEnabled}
+                        onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
                         name="audioEnabled"
                       />
                     }
-                    label="Audio Enabled"
+                    label={t('admin:components.locationModel.lbl-ae')}
                   />
                 </FormControl>
               </FormGroup>
-              {/* <FormGroup>
+              <FormGroup>
                 <FormControl>
                   <FormControlLabel
                     color="primary"
@@ -303,19 +312,19 @@ const CreateLocation = (props: Props) => {
                     label={t('admin:components.locationModel.lbl-gme')}
                   />
                 </FormControl>
-              </FormGroup> */}
+              </FormGroup>
               <FormGroup>
                 <FormControl>
                   <FormControlLabel
                     color="primary"
                     control={
                       <Switch
-                        checked={state.videoEnabled}
-                        onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
-                        name="audioEnabled"
+                        checked={state.screenSharingEnabled}
+                        onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+                        name="screenSharingEnabled"
                       />
                     }
-                    label="Screen Sharing Enabled"
+                    label={t('admin:components.locationModel.lbl-se')}
                   />
                 </FormControl>
               </FormGroup>
@@ -328,12 +337,12 @@ const CreateLocation = (props: Props) => {
                       color="primary"
                       control={
                         <Switch
-                          checked={state.videoEnabled}
-                          onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
-                          name="audioEnabled"
+                          checked={state.faceStreamingEnabled}
+                          onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                          name="faceStreamingEnabled"
                         />
                       }
-                      label="Face streaming Enabled"
+                      label={t('admin:components.locationModel.lbl-fe')}
                     />
                   </FormControl>
                 </FormGroup>

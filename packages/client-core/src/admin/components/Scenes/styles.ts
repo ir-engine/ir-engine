@@ -116,7 +116,7 @@ export const useStyles = makeStyles((theme: Theme) =>
 
 export const useStyle = makeStyles({
   paper: {
-    width: '70%',
+    width: '60%',
     backgroundColor: '#43484F',
     color: '#f1f1f1'
   },

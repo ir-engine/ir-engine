@@ -18,6 +18,15 @@ export default function (app: Application): typeof Model {
       videoEnabled: {
         type: DataTypes.BOOLEAN
       },
+      audioEnabled: {
+        type: DataTypes.BOOLEAN
+      },
+      screenSharingEnabled: {
+        type: DataTypes.BOOLEAN
+      },
+      faceStreamingEnabled: {
+        type: DataTypes.BOOLEAN
+      },
       instanceMediaChatEnabled: {
         type: DataTypes.BOOLEAN
       }

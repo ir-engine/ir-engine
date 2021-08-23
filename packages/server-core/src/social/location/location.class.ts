@@ -243,6 +243,9 @@ export class Location extends Service {
       await (this.app.service('location-settings') as any).Model.create(
         {
           videoEnabled: !!location_setting.videoEnabled,
+          audioEnabled: !!location_setting.audioEnabled,
+          faceStreamingEnabled: !!location_setting.faceStreamingEnabled,
+          screenSharingEnabled: !!location_setting.screenSharingEnabled,
           instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
           maxUsersPerInstance: location_setting.maxUsersPerInstance || 10,
           locationType: location_setting.locationType || 'private',
