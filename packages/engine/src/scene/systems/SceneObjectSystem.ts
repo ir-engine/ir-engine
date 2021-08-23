@@ -94,7 +94,7 @@ export const SceneObjectSystem = async (): Promise<System> => {
               )
             ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
             if (obj.receiveShadow) {
-              Engine.csm?.setupMaterial(material)
+              Engine.csm?.setupMaterial(obj)
             }
           }
         }

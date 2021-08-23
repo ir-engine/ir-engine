@@ -67,6 +67,7 @@ export class WorldScene {
     WorldScene.isLoading = true
 
     // reset renderer settings for if we are teleporting and the new scene does not have an override
+    configureCSM(null, true)
     handleRendererSettings(null, true)
 
     const sceneProperty: ScenePropertyType = {

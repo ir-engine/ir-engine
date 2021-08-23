@@ -10,7 +10,8 @@ import {
   WebGLRenderTarget,
   PerspectiveCamera,
   Material,
-  Shader as ShaderType
+  Shader as ShaderType,
+  Mesh
 } from 'three'
 import Frustum from './Frustum'
 import Shader from './Shader'
@@ -66,9 +67,11 @@ export class CSM {
   breaks: number[]
   lights: DirectionalLight[][]
   lightSourcesCount: number
-  shaders: Map<Material, ShaderType>
+  shaders: Map<Material, ShaderType> = new Map()
+  materials: Map<Mesh, Material> = new Map()
 
-  constructor(data: CSMParams = {} as CSMParams) {
+  constructor(data: CSMParams) {
+    console.log('===CSM', data, this)
     this.camera = data.camera
     this.parent = data.parent
     this.cascades = data.cascades || 3
@@ -88,7 +91,6 @@ export class CSM {
     this.breaks = []
 
     this.lights = []
-    this.shaders = new Map()
 
     this.createLights(data.lights)
     this.updateFrustums()
@@ -279,7 +281,10 @@ export class CSM {
     ShaderChunk.lights_pars_begin = Shader.lights_pars_begin
   }
 
-  setupMaterial(material: Material): void {
+  setupMaterial(mesh: Mesh): void {
+    mesh.userData._CSM_OLD_MATERIAL = mesh.material
+    const material = (mesh.material as Material).clone()
+    mesh.material = material
     material.defines = material.defines || {}
     material.defines.USE_CSM = 1
     material.defines.CSM_CASCADES = this.cascades
@@ -303,6 +308,7 @@ export class CSM {
     }
 
     shaders.set(material, null)
+    this.materials.set(mesh, material)
   }
 
   updateUniforms(): void {
@@ -375,5 +381,11 @@ export class CSM {
       material.needsUpdate = true
     })
     shaders.clear()
+    this.materials.forEach(function (material: Material, mesh: Mesh) {
+      const originalMaterial = mesh.userData._CSM_OLD_MATERIAL
+      mesh.material = originalMaterial
+      material.dispose()
+    })
+    this.materials.clear()
   }
 }
