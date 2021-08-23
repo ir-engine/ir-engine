@@ -24,6 +24,8 @@ import configs from '@xrengine/client-core/src/world/components/editor/configs'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { EngineCallbacks } from './'
+import { World } from '../../../../engine/src/ecs/classes/World'
+import { teleportPlayer } from '../../../../engine/src/avatar/functions/teleportPlayer'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -113,7 +115,7 @@ export const initEngine = async (
     // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     let spawnTransform
     if (newSpawnPos) {
-      spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
+      spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
     }
 
     const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
@@ -140,8 +142,19 @@ export const initEngine = async (
 
 export const teleportToLocation = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
+  slugifiedNameOfCurrentLocation: string,
   onTeleport: Function
 ) => {
+  // TODO: this needs to be implemented on the server too
+  // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
+  //   teleportPlayer(
+  //     Network.instance.localClientEntity,
+  //     portalComponent.remoteSpawnPosition,
+  //     portalComponent.remoteSpawnRotation
+  //   )
+  //   return
+  // }
+
   // shut down connection with existing GS
   Store.store.dispatch(resetInstanceServer())
   Network.instance.transport.close()

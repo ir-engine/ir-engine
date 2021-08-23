@@ -30,16 +30,17 @@ export type PortalProps = {
   linkedPortalId: string
   modelUrl: string
   displayText: string
-  spawnPosition: Vector3
-  spawnRotation: Quaternion
   spawnEuler: Euler
+  triggerPosition: Vector3
+  triggerRotation: Euler
+  triggerScale: Vector3
 }
 
 const vec3 = new Vector3()
 
 export const createPortal = async (entity: Entity, args: PortalProps) => {
   console.log(args)
-  const { locationName, linkedPortalId, displayText, spawnPosition } = args
+  const { locationName, linkedPortalId, displayText, triggerPosition, triggerRotation, triggerScale } = args
 
   const spawnEuler = new Euler(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z, 'XYZ')
   const spawnRotation = new Quaternion().setFromEuler(spawnEuler)
@@ -104,13 +105,13 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     )
   }
 
-  previewMesh.geometry.computeBoundingBox()
-  previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
-
   const portalShape: ShapeType = {
     shape: SHAPES.Box,
-    options: { boxExtents: vec3 },
-    transform: { translation: new Vector3(0, transform.scale.y * 0.5, 0) },
+    options: { boxExtents: new Vector3(triggerScale.x, triggerScale.y, triggerScale.z).multiplyScalar(0.5) },
+    transform: {
+      translation: new Vector3(triggerPosition.x, triggerPosition.y, triggerPosition.z),
+      rotation: new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
+    },
     config: {
       // isTrigger: true,
       collisionLayer: CollisionGroups.Trigger,
@@ -139,8 +140,6 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     location: locationName,
     linkedPortalId,
     displayText,
-    spawnPosition,
-    spawnRotation,
     spawnEuler,
     isPlayerInPortal: false,
     remoteSpawnPosition: new Vector3(),

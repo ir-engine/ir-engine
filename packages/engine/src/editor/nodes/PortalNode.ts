@@ -17,6 +17,10 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   spawnCylinder: Mesh
   triggerHelper: Mesh
 
+  triggerPosition: Vector3 = new Vector3()
+  triggerRotation: Euler = new Euler()
+  triggerScale: Vector3 = new Vector3(1, 1, 1)
+
   static async deserialize(editor, json) {
     const node = (await super.deserialize(editor, json)) as PortalNode
     const portalComponent = json.components.find((c) => c.name === 'portal')
@@ -24,24 +28,35 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       node.entityId = json.entityId
       node.linkedPortalId = portalComponent.props.linkedPortalId
       node.modelUrl = portalComponent.props.modelUrl
+      node.loadModel()
       node.displayText = portalComponent.props.displayText
-      node.spawnPosition = new Vector3()
       node.locationName = portalComponent.props.locationName
       node.reflectionProbeId = portalComponent.props.reflectionProbeId
-      if (portalComponent.props.spawnPosition)
+
+      node.spawnPosition = new Vector3()
+      if (portalComponent.props.spawnPosition) {
         node.spawnPosition.set(
           portalComponent.props.spawnPosition.x - node.position.x, // Have to convert from global space to local space
           portalComponent.props.spawnPosition.y - node.position.y,
           portalComponent.props.spawnPosition.z - node.position.z
         )
+      }
       node.spawnRotation = new Euler()
-      if (portalComponent.props.spawnRotation)
+      if (portalComponent.props.spawnRotation) {
         node.spawnRotation.set(
           portalComponent.props.spawnRotation.x - node.rotation.x, // Have to convert from global space to local space
           portalComponent.props.spawnRotation.y - node.rotation.y,
           portalComponent.props.spawnRotation.z - node.rotation.z
         )
-      node.loadModel()
+      }
+      node.updateSpawnPositionOnScene()
+      node.updateSpawnRotationOnScene()
+
+      if (portalComponent.props.triggerPosition) node.triggerPosition.copy(portalComponent.props.triggerPosition)
+      if (portalComponent.props.triggerRotation) node.triggerRotation.copy(portalComponent.props.triggerRotation)
+      if (portalComponent.props.triggerScale) node.triggerScale.copy(portalComponent.props.triggerScale)
+
+      node.updateTrigger()
     }
     return node
   }
@@ -52,9 +67,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       new BoxBufferGeometry(1, 1, 0.2),
       new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.25 })
     )
-    this.triggerHelper.geometry.translate(0, 0.5, 0)
 
-    this.triggerHelper.visible = false
     this.add(this.triggerHelper)
 
     this.spawnCylinder = new Mesh(
@@ -79,11 +92,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     this.spawnCylinder.visible = false
   }
   async loadModel() {
-    if (!this.modelUrl || this.modelUrl === '') {
-      this.triggerHelper.visible = true
-      return
-    }
-    this.triggerHelper.visible = false
+    if (!this.modelUrl || this.modelUrl === '') return
     const model = await this.loadGLTF(this.modelUrl)
     if (this.mesh) {
       this.remove(this.mesh)
@@ -116,7 +125,10 @@ export default class PortalNode extends EditorNodeMixin(Model) {
         displayText: this.displayText,
         reflectionProbeId: this.reflectionProbeId,
         spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
-        spawnRotation: rotation
+        spawnRotation: rotation,
+        triggerPosition: this.triggerPosition,
+        triggerRotation: this.triggerRotation,
+        triggerScale: this.triggerScale
       }
     } as any
     return await super.serialize(projectID, components)
@@ -139,7 +151,10 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       displayText: this.displayText,
       reflectionProbeId: this.reflectionProbeId,
       spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
-      spawnRotation: rotation
+      spawnRotation: rotation,
+      triggerPosition: this.triggerPosition,
+      triggerRotation: this.triggerRotation,
+      triggerScale: this.triggerScale
     })
   }
 
@@ -151,6 +166,12 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     this.spawnCylinder.rotation.set(this.spawnRotation.x || 0, this.spawnRotation.y || 0, this.spawnRotation.z || 0)
   }
 
+  updateTrigger() {
+    this.triggerHelper.position.copy(this.triggerPosition)
+    this.triggerHelper.rotation.copy(this.triggerRotation)
+    this.triggerHelper.scale.copy(this.triggerScale)
+  }
+
   onSelect() {
     this.spawnCylinder.visible = true
   }
@@ -160,7 +181,9 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   }
 
   onChange(prop) {
-    if (prop === 'spawnPosition') {
+    if (prop === 'triggerPosition' || prop === 'triggerRotation' || prop === 'triggerScale') {
+      this.updateTrigger()
+    } else if (prop === 'spawnPosition') {
       this.updateSpawnPositionOnScene()
     } else if (prop === 'spawnRotation') {
       this.updateSpawnRotationOnScene()
@@ -168,7 +191,5 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       this.loadModel()
     }
     this.spawnCylinder.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z)
-    // this.triggerHelper.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z)
-    // this.triggerHelper.position.setY(this.scale.y * 0.5)
   }
 }

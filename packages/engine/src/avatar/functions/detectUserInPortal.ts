@@ -10,12 +10,9 @@ export const detectUserInPortal = (entity: Entity): void => {
   const portalEntity = getControllerCollisions(entity, PortalComponent).controllerCollisionEntity
   if (typeof portalEntity === 'undefined') return
 
-  console.log('detectUserInPortal')
-
   const portalComponent = getComponent(portalEntity, PortalComponent)
   if (isClient) {
     if (World.defaultWorld.isInPortal) return
-    World.defaultWorld.isInPortal = true
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
       portalComponent

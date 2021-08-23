@@ -67,7 +67,7 @@ const followCamera = (entity: Entity) => {
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform || World.defaultWorld.isInPortal) return
+  if (!cameraDesiredTransform) return
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()

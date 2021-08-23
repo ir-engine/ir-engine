@@ -82,6 +82,18 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     this.props.editor.setPropertySelected('spawnRotation', spawnRotation)
   }
 
+  onChangeTriggerPosition = (triggerPosition) => {
+    this.props.editor.setPropertySelected('triggerPosition', triggerPosition)
+  }
+
+  onChangeTriggerRotation = (triggerRotation) => {
+    this.props.editor.setPropertySelected('triggerRotation', triggerRotation)
+  }
+
+  onChangeTriggerScale = (triggerScale) => {
+    this.props.editor.setPropertySelected('triggerScale', triggerScale)
+  }
+
   onChangeReflectionProbe = (reflectionProbeId) => {
     this.props.editor.setPropertySelected('reflectionProbeId', reflectionProbeId)
   }
@@ -180,6 +192,18 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
         {/* @ts-ignore */}
         <InputGroup name="Spawn Rotation" label={this.props.t('editor:properties.portal.lbl-spawnRotation')}>
           <EulerInput value={node.spawnRotation} onChange={this.onChangeSpawnRotation} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Trigger Position" label={this.props.t('editor:properties.portal.lbl-triggerPosition')}>
+          <Vector3Input value={node.triggerPosition} onChange={this.onChangeTriggerPosition} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Trigger Rotation" label={this.props.t('editor:properties.portal.lbl-trggerRotation')}>
+          <EulerInput value={node.triggerRotation} onChange={this.onChangeTriggerRotation} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Trigger Scale" label={this.props.t('editor:properties.portal.lbl-triggerScale')}>
+          <Vector3Input value={node.triggerScale} onChange={this.onChangeTriggerScale} />
         </InputGroup>
       </NodeEditor>
     )

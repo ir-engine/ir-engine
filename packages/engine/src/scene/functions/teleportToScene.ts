@@ -19,15 +19,19 @@ import { LocalInputReceiverComponent } from '../../input/components/LocalInputRe
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { World } from '../../ecs/classes/World'
 import { processLocationChange } from '../../ecs/functions/EngineFunctions'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { CameraMode } from '../../camera/types/CameraMode'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
+  World.defaultWorld.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
-  console.log('Network.instance.localClientEntity', Network.instance.localClientEntity)
+  switchCameraMode(Network.instance.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
   PhysXInstance.instance.removeController(

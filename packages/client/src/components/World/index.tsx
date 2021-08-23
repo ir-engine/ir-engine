@@ -249,7 +249,9 @@ export const EnginePage = (props: Props) => {
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    teleportToLocation(portalComponent, () => {
+    const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
+
+    teleportToLocation(portalComponent, slugifiedName, () => {
       setIsTeleporting(true)
 
       // change our browser URL
