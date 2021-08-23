@@ -3,24 +3,19 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { teleportPlayer } from './teleportPlayer'
+import { getControllerCollisions } from '../../physics/functions/getControllerCollisions'
+import { World } from '../../ecs/classes/World'
 
 export const detectUserInPortal = (entity: Entity): void => {
-  const raycastComponent = getComponent(entity, RaycastComponent)
-  if (!raycastComponent?.raycastQuery?.hits[0]?.body?.userData?.entity) return
+  const portalEntity = getControllerCollisions(entity, PortalComponent).controllerCollisionEntity
+  if (typeof portalEntity === 'undefined') return
 
-  const portalEntity = raycastComponent.raycastQuery.hits[0].body.userData.entity
   const portalComponent = getComponent(portalEntity, PortalComponent)
-
-  if (!portalComponent) return
-
   if (isClient) {
+    if (World.defaultWorld.isInPortal) return
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
       portalComponent
     })
-  } else {
-    teleportPlayer(entity, portalComponent.remoteSpawnPosition, portalComponent.remoteSpawnRotation)
   }
 }

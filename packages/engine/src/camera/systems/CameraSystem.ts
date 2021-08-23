@@ -24,7 +24,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TouchInputs } from '../../input/enums/InputEnums'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
+import { ECSWorld, World } from '../../ecs/classes/World'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -63,11 +63,11 @@ const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCamera = (entity: Entity) => {
-  if (typeof entity === 'undefined') return console.log('undefined')
+  if (typeof entity === 'undefined') return
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform && !Engine.portCamera) return console.log('!cameraDesiredTransform && !Engine.portCamera')
+  if (!cameraDesiredTransform) return
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
@@ -162,7 +162,7 @@ const followCamera = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-  if (followCamera.mode === CameraMode.FirstPerson || Engine.portCamera) {
+  if (followCamera.mode === CameraMode.FirstPerson || World.defaultWorld.isInPortal) {
     cameraTransform.position.copy(cameraDesiredTransform.position)
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
   }

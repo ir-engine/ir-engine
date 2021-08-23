@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.3.33",
+  "version": "0.3.34",
   "private": true,
   "repository": {
     "type": "git",
@@ -16,12 +16,12 @@
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js dist/server.js",
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite preview && cp src/server.js dist/server.js",
-    "serve": "serve dist --ssl-cert ../../certs/cert.pem --ssl-key ../../certs/key.pem -s",
     "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run test",
     "test": "jest",
-    "localbuild": "cross-env LOCAL_BUILD=true npm run build && npm run start"
+    "localbuild": "cross-env NODE_ENV=local LOCAL_BUILD=true npm run build",
+    "localstart": "cross-env NODE_ENV=local LOCAL_BUILD=true npm run start"
   },
   "resolutions": {
     "socket.io": "4.1.3",
@@ -48,7 +48,7 @@
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.12",
-    "@xrengine/client-core": "^0.3.33",
+    "@xrengine/client-core": "^0.3.34",
     "axios": "0.21.1",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
@@ -85,7 +85,7 @@
     "react-json-tree": "0.15.0",
     "react-lottie": "1.2.3",
     "react-map-gl": "6.1.16",
-    "react-mapbox-gl-geocoder": "1.1.0",
+    "react-map-gl-geocoder": "2.2.0",
     "react-modal": "3.14.3",
     "react-redux": "7.2.4",
     "react-router-dom": "5.2.0",
@@ -110,7 +110,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
-    "@types/node": "14.17.10",
+    "@types/node": "14.17.11",
     "@types/react": "17.0.19",
     "@types/react-dom": "17.0.9",
     "comlink": "4.3.1",

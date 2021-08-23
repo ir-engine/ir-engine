@@ -37,18 +37,6 @@ export const staticResourceSeed = {
       parentResourceId: null
     },
     {
-      name: 'Sonny',
-      url: getAvatarURL('Sonny.glb'),
-      key: 'avatars/Sonny.glb',
-      staticResourceType: 'avatar'
-    },
-    {
-      name: 'Sonny',
-      url: getAvatarURL('Sonny.jpg'),
-      key: 'avatars/Sonny.jpg',
-      staticResourceType: 'user-thumbnail'
-    },
-    {
       name: 'Allison',
       url: getAvatarURL('Allison.glb'),
       key: 'avatars/Allison.glb',

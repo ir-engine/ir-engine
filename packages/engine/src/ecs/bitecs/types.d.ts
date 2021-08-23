@@ -88,16 +88,16 @@ export function setDefaultSize(size: number): void
 export function createWorld(): IWorld
 export function resetWorld(world: IWorld): IWorld
 export function deleteWorld(world: IWorld): void
-export function addEntity(world: IWorld): number
-export function removeEntity(world: IWorld, eid: number): void
+export function bit_addEntity(world: IWorld): number
+export function bit_removeEntity(world: IWorld, eid: number): void
 
-export function registerComponent(world: IWorld, component: Component): void
-export function registerComponents(world: IWorld, components: Component[]): void
-export function defineComponent<T extends ISchema>(schema?: T): ComponentType<T>
-export function addComponent(world: IWorld, component: Component, eid: number): void
-export function removeComponent(world: IWorld, component: Component, eid: number): void
-export function hasComponent(world: IWorld, component: Component, eid: number): boolean
-export function getEntityComponents(world: IWorld, eid: number): Component[]
+export function bit_registerComponent(world: IWorld, component: Component): void
+export function bit_registerComponents(world: IWorld, components: Component[]): void
+export function bit_defineComponent<T extends ISchema>(schema?: T): ComponentType<T>
+export function bit_addComponent(world: IWorld, component: Component, eid: number): void
+export function bit_removeComponent(world: IWorld, component: Component, eid: number): void
+export function bit_hasComponent(world: IWorld, component: Component, eid: number): boolean
+export function bit_getEntityComponents(world: IWorld, eid: number): Component[]
 
 export function defineQuery(components: (Component | QueryModifier)[]): Query
 export function Changed(c: Component): Component | QueryModifier

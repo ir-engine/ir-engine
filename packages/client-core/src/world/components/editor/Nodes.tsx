@@ -14,7 +14,7 @@ import ModelNode from '@xrengine/engine/src/editor/nodes/ModelNode'
 import ParticleEmitterNode from '@xrengine/engine/src/editor/nodes/ParticleEmitterNode'
 import PointLightNode from '@xrengine/engine/src/editor/nodes/PointLightNode'
 import PostProcessingNode from '@xrengine/engine/src/editor/nodes/PostProcessingNode'
-import CameraPropertiesNode from '../../../../../engine/src/editor/nodes/CameraPropertiesNode'
+import CameraPropertiesNode from '@xrengine/engine/src/editor/nodes/CameraPropertiesNode'
 import SceneNode from '@xrengine/engine/src/editor/nodes/SceneNode'
 import ScenePreviewCameraNode from '@xrengine/engine/src/editor/nodes/ScenePreviewCameraNode'
 import SkyboxNode from '@xrengine/engine/src/editor/nodes/SkyboxNode'
@@ -23,7 +23,7 @@ import SpotLightNode from '@xrengine/engine/src/editor/nodes/SpotLightNode'
 import TriggerVolumeNode from '@xrengine/engine/src/editor/nodes/TriggerVolumeNode'
 import VideoNode from '@xrengine/engine/src/editor/nodes/VideoNode'
 import VolumetricNode from '@xrengine/engine/src/editor/nodes/VolumetricNode'
-import ReflectionProbeNode from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
+import CubemapBakeNode from '@xrengine/engine/src/editor/nodes/CubemapBakeNode'
 import SplineNode from '@xrengine/engine/src/editor/nodes/SplineNode'
 import MapNode from '@xrengine/engine/src/editor/nodes/MapNode'
 import MetadataNode from '@xrengine/engine/src/editor/nodes/MetadataNode'
@@ -49,7 +49,7 @@ import ParticleEmitterNodeEditor from './properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from './properties/PointLightNodeEditor'
 import PostProcessingNodeEditor from './properties/PostProcessingNodeEditor'
 import CameraPropertiesNodeEditor from './properties/CameraPropertiesNodeEditor'
-import ReflectionProbeNodeEditor from './properties/ReflectionProbeNodeEditor'
+import CubemapBakeNodeEditor from './properties/CubemapBakeNodeEditor'
 import SceneNodeEditor from './properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from './properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from './properties/SkyboxNodeEditor'
@@ -106,7 +106,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerSource(new MyAssetsSource(editor))
   editor.registerNode(SystemNode, SystemNodeEditor)
   editor.registerNode(MapNode, MapNodeEditor)
-  editor.registerNode(ReflectionProbeNode, ReflectionProbeNodeEditor)
+  editor.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
   editor.registerNode(CloudsNode, CloudsNodeEditor)
   editor.registerNode(OceanNode, OceanNodeEditor)
   editor.registerNode(WaterNode, WaterNodeEditor)

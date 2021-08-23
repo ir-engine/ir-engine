@@ -31,7 +31,7 @@ export const PhysicsSystem = async (
   const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnRigidbodyAddQuery = enterQuery(spawnRigidbodyQuery)
 
-  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const colliderQuery = defineQuery([Not(AvatarComponent), ColliderComponent, TransformComponent])
   const colliderRemoveQuery = exitQuery(colliderQuery)
 
   const raycastQuery = defineQuery([RaycastComponent])
@@ -59,8 +59,6 @@ export const PhysicsSystem = async (
   if (!PhysXInstance.instance) {
     PhysXInstance.instance = new PhysXInstance()
   }
-
-  console.log(PhysXInstance.instance)
 
   simulationEnabled = attributes.simulationEnabled ?? true
 

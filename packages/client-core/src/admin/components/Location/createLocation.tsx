@@ -8,7 +8,7 @@ import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
-import { useStyles, useStyle } from './styles'
+import { useLocationStyles, useLocationStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -54,8 +54,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const CreateLocation = (props: Props) => {
   const { open, handleClose, adminLocationState, adminSceneState, createLocationAction, closeViewModel, adminAlert } =
     props
-  const classesx = useStyle()
-  const classes = useStyles()
+  const classesx = useLocationStyle()
+  const classes = useLocationStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
   const [state, setState] = React.useState({

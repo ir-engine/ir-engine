@@ -14,7 +14,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
  * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
  */
 
-export const startXR = (): void => {
+export const startWebXR = (): void => {
   const controllerLeft = Engine.xrRenderer.getController(1) as any
   const controllerRight = Engine.xrRenderer.getController(0) as any
   const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1)

@@ -122,7 +122,7 @@ export function scaleAndTranslatePolygon(coords: Position[][], llCenter: Positio
   return [coords[0].map((position) => scaleAndTranslatePosition(position, llCenter, scale))]
 }
 
-export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: [number, number], scale = 1) {
+export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: Position, scale = 1) {
   switch (geometry.type) {
     case 'MultiPolygon':
       geometry.coordinates = geometry.coordinates.map((coords) => scaleAndTranslatePolygon(coords, llCenter, scale))

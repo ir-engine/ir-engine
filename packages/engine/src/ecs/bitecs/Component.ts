@@ -8,7 +8,7 @@ export const $componentMap = Symbol('componentMap')
 
 export const components = []
 
-export const resizeComponents = (size) => {
+export const bit_resizeComponents = (size) => {
   components.forEach((component) => resizeStore(component, size))
 }
 
@@ -18,13 +18,13 @@ export const resizeComponents = (size) => {
  * @param {object} schema
  * @returns {object}
  */
-export const defineComponent = <T extends ISchema>(schema?: T): ComponentType<T> => {
+export const bit_defineComponent = <T extends ISchema>(schema?: T): ComponentType<T> => {
   const component = createStore(schema, getDefaultSize())
   if (schema && Object.keys(schema).length) components.push(component)
   return component
 }
 
-export const incrementBitflag = (world) => {
+export const bit_incrementBitflag = (world) => {
   world[$bitflag] *= 2
   if (world[$bitflag] >= 2 ** 31) {
     world[$bitflag] = 1
@@ -38,7 +38,7 @@ export const incrementBitflag = (world) => {
  * @param {World} world
  * @param {Component} component
  */
-export const registerComponent = (world, component) => {
+export const bit_registerComponent = (world, component) => {
   if (!component) throw new Error(`bitECS - Cannot register null or undefined component`)
 
   const queries = new Set()
@@ -68,7 +68,7 @@ export const registerComponent = (world, component) => {
     resizeStore(component, world[$size])
   }
 
-  incrementBitflag(world)
+  bit_incrementBitflag(world)
 }
 
 /**
@@ -77,8 +77,8 @@ export const registerComponent = (world, component) => {
  * @param {World} world
  * @param {Component} components
  */
-export const registerComponents = (world, components) => {
-  components.forEach((c) => registerComponent(world, c))
+export const bit_registerComponents = (world, components) => {
+  components.forEach((c) => bit_registerComponent(world, c))
 }
 
 /**
@@ -89,7 +89,7 @@ export const registerComponents = (world, components) => {
  * @param {number} eid
  * @returns {boolean}
  */
-export const hasComponent = (world, component, eid) => {
+export const bit_hasComponent = (world, component, eid) => {
   const registeredComponent = world[$componentMap].get(component)
   if (!registeredComponent) return
   const { generationId, bitflag } = registeredComponent
@@ -105,14 +105,14 @@ export const hasComponent = (world, component, eid) => {
  * @param {number} eid
  * @param {boolean} [reset=false]
  */
-export const addComponent = (world, component, eid, reset = false) => {
+export const bit_addComponent = (world, component, eid, reset = false) => {
   if (!Number.isInteger(eid)) {
     component = world
     world = eidToWorld.get(eid)
     reset = eid || reset
   }
-  if (!world[$componentMap].has(component)) registerComponent(world, component)
-  if (hasComponent(world, component, eid)) return
+  if (!world[$componentMap].has(component)) bit_registerComponent(world, component)
+  if (bit_hasComponent(world, component, eid)) return
 
   const c = world[$componentMap].get(component)
   const { generationId, bitflag, queries, notQueries } = c
@@ -145,7 +145,7 @@ export const addComponent = (world, component, eid, reset = false) => {
  * @param {number} eid
  * @param {boolean} [reset=true]
  */
-export const removeComponent = (world, component, eid, reset = true) => {
+export const bit_removeComponent = (world, component, eid, reset = true) => {
   if (!Number.isInteger(eid)) {
     component = world
     world = eidToWorld.get(eid)

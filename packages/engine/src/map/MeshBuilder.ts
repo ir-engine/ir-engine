@@ -22,7 +22,7 @@ import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
-import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from './styles'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
@@ -265,7 +265,7 @@ export function buildMeshes(
 
     const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
     const mesh = new Mesh(g, material)
-    mesh.renderOrder = styles.extrude === 'flat' ? styles.zIndex : Infinity
+    mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
     return mesh
   })
 }
@@ -307,7 +307,7 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   })
 }
 
-export function createGround(rasterTiles: ImageBitmap[], latitude: number): Mesh {
+export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   // Will be scaled according to building mesh
   const geometry = new PlaneGeometry(1, 1)
@@ -327,7 +327,7 @@ export function createGround(rasterTiles: ImageBitmap[], latitude: number): Mesh
 
   // prevent z-fighting with vector roads
   material.depthTest = false
-  mesh.renderOrder = -1
+  mesh.renderOrder = -1 * MAX_Z_INDEX
 
   // rotate to face up
   mesh.geometry.rotateX(-Math.PI / 2)
@@ -360,6 +360,8 @@ function createLayerGroup(
     const meshes = buildMeshes(layerName, featuresInLayer, llCenter, renderer)
     return [...accMeshes, ...meshes]
   }, [])
+  console.log('meshes is')
+  console.log(meshes)
   return new Group().add(...meshes)
 }
 

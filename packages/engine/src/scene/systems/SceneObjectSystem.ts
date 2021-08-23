@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { ECSWorld } from '../../ecs/classes/World'
@@ -21,15 +21,15 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 // GameManagerSystem already has physics interaction behaviors, these could be made generic and not game dependent
 
 type BPCEMProps = {
-  probeScale: Vector3
-  probePositionOffset: Vector3
+  bakeScale: Vector3
+  bakePositionOffset: Vector3
 }
 
 export class SceneOptions {
   static instance: SceneOptions
   bpcemOptions: BPCEMProps = {
-    probeScale: new Vector3(1, 1, 1),
-    probePositionOffset: new Vector3()
+    bakeScale: new Vector3(1, 1, 1),
+    bakePositionOffset: new Vector3()
   }
   envMapIntensity = 1
   boxProjection = false
@@ -39,6 +39,8 @@ export const SceneObjectSystem = async (): Promise<System> => {
   const sceneObjectQuery = defineQuery([Object3DComponent])
   const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
   const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
+
+  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
   const persistAddQuery = enterQuery(persistQuery)
@@ -87,8 +89,8 @@ export const SceneObjectSystem = async (): Promise<System> => {
             // BPCEM
             if (SceneOptions.instance.boxProjection)
               material.onBeforeCompile = beforeMaterialCompile(
-                SceneOptions.instance.bpcemOptions.probeScale,
-                SceneOptions.instance.bpcemOptions.probePositionOffset
+                SceneOptions.instance.bpcemOptions.bakeScale,
+                SceneOptions.instance.bpcemOptions.bakePositionOffset
               )
             ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
             if (obj.receiveShadow) {
@@ -129,7 +131,7 @@ export const SceneObjectSystem = async (): Promise<System> => {
       ;(obj.value as unknown as Updatable).update(world.delta)
     }
 
-    for (const entity of sceneObjectQuery(world)) {
+    for (const entity of transformObjectQuery(world)) {
       const transform = getComponent(entity, TransformComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 

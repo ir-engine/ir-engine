@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { Box3, BufferAttribute, BufferGeometry, Sphere } from 'three'
 
 // Author: Fyrestar https://mevedia.com (https://github.com/Fyrestar/THREE.BufferGeometry-toIndexed)
 
@@ -24,54 +24,39 @@ function floor(array, offset) {
 }
 
 function createAttribute(src_attribute) {
-  const dst_attribute = new THREE.BufferAttribute(
+  const dst_attribute = new BufferAttribute(
     new src_attribute.array.constructor(length * src_attribute.itemSize),
     src_attribute.itemSize
   )
 
-  const dst_array = dst_attribute.array as any
-  const src_array = src_attribute.array
-
   switch (src_attribute.itemSize) {
     case 1:
       for (let i = 0, l = list.length; i < l; i++) {
-        dst_array[i] = src_array[list[i]]
+        dst_attribute.setX(i, src_attribute.getX(list[i]))
       }
 
       break
     case 2:
       for (let i = 0, l = list.length; i < l; i++) {
-        const index = list[i] * 2
-
-        const offset = i * 2
-
-        dst_array[offset] = src_array[index]
-        dst_array[offset + 1] = src_array[index + 1]
+        dst_attribute.setXY(i, src_attribute.getX(list[i]), src_attribute.getY(list[i]))
       }
 
       break
     case 3:
       for (let i = 0, l = list.length; i < l; i++) {
-        const index = list[i] * 3
-
-        const offset = i * 3
-
-        dst_array[offset] = src_array[index]
-        dst_array[offset + 1] = src_array[index + 1]
-        dst_array[offset + 2] = src_array[index + 2]
+        dst_attribute.setXYZ(i, src_attribute.getX(list[i]), src_attribute.getY(list[i]), src_attribute.getZ(list[i]))
       }
 
       break
     case 4:
       for (let i = 0, l = list.length; i < l; i++) {
-        const index = list[i] * 4
-
-        const offset = i * 4
-
-        dst_array[offset] = src_array[index]
-        dst_array[offset + 1] = src_array[index + 1]
-        dst_array[offset + 2] = src_array[index + 2]
-        dst_array[offset + 3] = src_array[index + 3]
+        dst_attribute.setXYZW(
+          i,
+          src_attribute.getX(list[i]),
+          src_attribute.getY(list[i]),
+          src_attribute.getZ(list[i]),
+          src_attribute.getW(list[i])
+        )
       }
 
       break
@@ -180,7 +165,7 @@ function indexBufferGeometry(src, dst, fullIndex) {
 
   // Index
 
-  dst.index = new THREE.BufferAttribute(indexArray, 1)
+  dst.index = new BufferAttribute(indexArray, 1)
 
   length = list.length
 
@@ -203,14 +188,14 @@ function indexBufferGeometry(src, dst, fullIndex) {
   if (src.boundingSphere) {
     dst.boundingSphere = src.boundingSphere.clone()
   } else {
-    dst.boundingSphere = new THREE.Sphere()
+    dst.boundingSphere = new Sphere()
     dst.computeBoundingSphere()
   }
 
   if (src.boundingBox) {
     dst.boundingBox = src.boundingBox.clone()
   } else {
-    dst.boundingBox = new THREE.Box3()
+    dst.boundingBox = new Box3()
     dst.computeBoundingBox()
   }
 
@@ -234,11 +219,11 @@ function indexBufferGeometry(src, dst, fullIndex) {
   morphKeys = []
 }
 
-export function toIndexed(src: THREE.BufferGeometry, fullIndex = false, precision = 6) {
+export function toIndexed(src: BufferGeometry, fullIndex = false, precision = 6) {
   prec = Math.pow(10, precision)
   precHalf = Math.pow(10, Math.floor(precision / 2))
 
-  const dst = new THREE.BufferGeometry()
+  const dst = new BufferGeometry()
 
   indexBufferGeometry(src, dst, fullIndex)
 

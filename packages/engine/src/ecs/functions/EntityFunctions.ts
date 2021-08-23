@@ -1,14 +1,14 @@
 import {
-  addComponent as _addComponent,
-  removeComponent as _removeComponent,
-  hasComponent as _hasComponent,
-  removeEntity as _removeEntity,
-  defineComponent,
+  bit_addComponent,
+  bit_removeComponent,
+  bit_hasComponent,
+  bit_removeEntity,
+  bit_defineComponent,
   ComponentType as _ComponentType,
   ISchema,
   Type,
-  addEntity,
-  getEntityComponents,
+  bit_addEntity,
+  bit_getEntityComponents,
   defineQuery
 } from '../../ecs/bitecs'
 
@@ -17,7 +17,7 @@ import { World } from '../classes/World'
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T extends {}, S extends ISchema = {}>(schema?: S, defaultValues = {}) => {
-  const component = defineComponent(schema)
+  const component = bit_defineComponent(schema)
   const componentMap = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
 
@@ -100,14 +100,14 @@ export type MappedComponent<T, S extends ISchema> = _ComponentType<S> & {
 }
 
 export const createEntity = (world = World.defaultWorld.ecsWorld): Entity => {
-  const entity = addEntity(world)
+  const entity = bit_addEntity(world)
   world.world.entities.push(entity)
   return entity
 }
 
 export const removeEntity = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
   world.world.entities.splice(world.world.entities.indexOf(entity), 1)
-  _removeEntity(world, entity)
+  bit_removeEntity(world, entity)
   // TODO: remove mapped component data
 }
 
@@ -139,8 +139,8 @@ export const addComponent = <T extends any, S extends ISchema>(
     return
   }
   // console.log('addComponent', component.name, entity)
-  _addComponent(world, component, entity)
-  // console.log('hasComponent', component.name, entity, _hasComponent(world, component, entity))
+  bit_addComponent(world, component, entity)
+  // console.log('hasComponent', component.name, entity, bit_hasComponent(world, component, entity))
   if (component._schema) {
     for (const [key] of Object.entries(component._schema)) {
       component[key][entity] = args[key]
@@ -160,7 +160,7 @@ export const hasComponent = <T extends any, S extends ISchema>(
     return
   }
   return typeof component.get(entity) !== 'undefined'
-  // return _hasComponent(world, component, entity)
+  // return bit_hasComponent(world, component, entity)
 }
 
 export const removeComponent = <T extends any, S extends ISchema>(
@@ -176,7 +176,7 @@ export const removeComponent = <T extends any, S extends ISchema>(
   const componentRef = component.get(entity)
   world._removedComponents.set(entity, componentRef)
   component.delete(entity)
-  _removeComponent(world, component, entity)
+  bit_removeComponent(world, component, entity)
   return componentRef
 }
 
@@ -200,8 +200,8 @@ export const getAllEntitiesWithComponent = <T extends any, S extends ISchema>(
 }
 
 export const removeAllComponents = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
-  for (const component of getEntityComponents(world, entity)) {
-    _removeComponent(world, component, entity)
+  for (const component of bit_getEntityComponents(world, entity)) {
+    bit_removeComponent(world, component, entity)
     // TODO: remove mapped component data
   }
 }

@@ -355,8 +355,8 @@ export class WorldScene {
         break
 
       /* intentionally empty - these are only for the editor */
-      case 'reflectionprobestatic':
-      case 'reflectionprobe':
+      case 'includeInCubemapBake':
+      case 'cubemapbake':
       case 'group':
         break
 

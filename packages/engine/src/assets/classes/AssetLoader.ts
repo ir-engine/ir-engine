@@ -166,7 +166,7 @@ const load = (
   }
 
   if (AssetLoader.Cache.has(params.url)) {
-    return AssetLoader.Cache.get(params.url)
+    onLoad(AssetLoader.Cache.get(params.url))
   }
 
   const assetType = getAssetType(params.url)

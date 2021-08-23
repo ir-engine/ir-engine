@@ -1,4 +1,6 @@
 export interface StorageProviderInterface {
+  cacheDomain: string
+
   checkObjectExistence(key: string): Promise<any>
   getObject(path: string): Promise<any>
   getProvider(): StorageProviderInterface // arrow function
