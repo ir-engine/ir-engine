@@ -80,7 +80,6 @@ export class AnimationRenderer {
 
       if (animation.weight > 0) {
         animation.action.play()
-
         // Sync Actions if state requires
         if (currState.syncActions) {
           for (let i = 0; i < currState.animations.length; i++) {

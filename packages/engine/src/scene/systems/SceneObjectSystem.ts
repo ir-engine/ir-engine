@@ -21,15 +21,15 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 // GameManagerSystem already has physics interaction behaviors, these could be made generic and not game dependent
 
 type BPCEMProps = {
-  probeScale: Vector3
-  probePositionOffset: Vector3
+  bakeScale: Vector3
+  bakePositionOffset: Vector3
 }
 
 export class SceneOptions {
   static instance: SceneOptions
   bpcemOptions: BPCEMProps = {
-    probeScale: new Vector3(1, 1, 1),
-    probePositionOffset: new Vector3()
+    bakeScale: new Vector3(1, 1, 1),
+    bakePositionOffset: new Vector3()
   }
   envMapIntensity = 1
   boxProjection = false
@@ -89,8 +89,8 @@ export const SceneObjectSystem = async (): Promise<System> => {
             // BPCEM
             if (SceneOptions.instance.boxProjection)
               material.onBeforeCompile = beforeMaterialCompile(
-                SceneOptions.instance.bpcemOptions.probeScale,
-                SceneOptions.instance.bpcemOptions.probePositionOffset
+                SceneOptions.instance.bpcemOptions.bakeScale,
+                SceneOptions.instance.bpcemOptions.bakePositionOffset
               )
             ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
             if (obj.receiveShadow) {

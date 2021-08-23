@@ -19,9 +19,9 @@ export const testWorldState = {
       userId: testUserId,
       name: testUserId,
       avatarDetail: {
-        avatarId: 'Sonny',
-        avatarURL: '/models/avatars/Sonny.glb',
-        thumbnailURL: '/static/Sonny.jpg'
+        avatarId: 'Razer1',
+        avatarURL: '/models/avatars/Razer1.glb',
+        thumbnailURL: '/static/Razer1.jpg'
       }
     }
   ],

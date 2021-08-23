@@ -432,10 +432,14 @@
             "lbl-portal": "Linked Portal",
             "description": "A Portat to teleport players to specified location",
             "lbl-locationName": "Location",
+            "lbl-modelUrl": "Model URL",
             "lbl-displayText": "Display Text",
-            "lbl-reflectionProbe": "Reflection Probe",
-            "lbl-spawnPosition": "Spawn position",
-            "lbl-spawnRotation": "Spawn Rotation"
+            "lbl-cubemapBake": "Cubemap bake",
+            "lbl-spawnPosition": "Spawn Position",
+            "lbl-spawnRotation": "Spawn Rotation",
+            "lbl-triggerPosition": "Trigger Position",
+            "lbl-triggerRotation": "Trigger Rotation",
+            "lbl-triggerScale": "Trigger Scale"
         }
     },
     "projects": {

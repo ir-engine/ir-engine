@@ -54,7 +54,7 @@ Quaternion.prototype.toJSON = function () {
 
 // @ts-ignore
 Euler.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z }
+  return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
@@ -321,7 +321,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })
-  } else {
+  } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.engineTimer.start()
   }
 
