@@ -10,7 +10,7 @@ import { Entity } from '../../ecs/classes/Entity'
 let currentEnt
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
-  const { mapMesh, navMesh, groundMesh } = await create(Engine.renderer, args)
+  const { mapMesh, navMesh, groundMesh } = await create(args)
   addComponent(entity, Object3DComponent, {
     value: mapMesh
   })
@@ -26,7 +26,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
 export async function updateMap(args: MapProps, longtitude, latitude, position): Promise<void> {
   const remobj = Engine.scene.getObjectByName('MapObject')
-  const { mapMesh, navMesh, groundMesh } = await update(Engine.renderer, args, longtitude, latitude, position)
+  const { mapMesh, navMesh, groundMesh } = await update(args, longtitude, latitude, position)
 
   remobj.removeFromParent()
   Engine.scene.add(mapMesh)

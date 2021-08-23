@@ -24,18 +24,18 @@ let centerCoord = {}
 let centerTile = {}
 let scaleArg
 
-export const create = async function (renderer: THREE.WebGLRenderer, args: MapProps) {
+export const create = async function (args: MapProps) {
   console.log('addmap called with args:', args)
   const center = await getStartCoords(args)
   const vectorTiles = await fetchVectorTiles(center)
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
-  const buildingMesh = createBuildings(vectorTiles, center, renderer)
+  const buildingMesh = createBuildings(vectorTiles, center)
   const groundMesh = createGroundMesh(rasterTiles as any, center[1])
-  const roadsMesh = createRoads(vectorTiles, center, renderer)
-  const waterMesh = createWater(vectorTiles, center, renderer)
-  const landUseMesh = createLandUse(vectorTiles, center, renderer)
+  const roadsMesh = createRoads(vectorTiles, center)
+  const waterMesh = createWater(vectorTiles, center)
+  const landUseMesh = createLandUse(vectorTiles, center)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
@@ -78,16 +78,16 @@ const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position
   return builder.build()
 }
 
-export const update = async function (renderer: THREE.WebGLRenderer, args: MapProps, longtitude, latitude, position) {
+export const update = async function (args: MapProps, longtitude, latitude, position) {
   console.log('addmap called with args:', args)
   const center = [longtitude, latitude]
   const vectorTiles = await fetchVectorTiles(center)
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
-  const buildingMesh = createBuildings(vectorTiles, center, renderer)
+  const buildingMesh = createBuildings(vectorTiles, center)
   const groundMesh = createGround(rasterTiles as any, center[1])
-  const roadsMesh = createRoads(vectorTiles, center, renderer)
+  const roadsMesh = createRoads(vectorTiles, center)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
