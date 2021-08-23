@@ -13,6 +13,7 @@ function normalizeAngle(angle: number) {
 export class GeoLabelNode extends Text {
   geoFeature: Feature<LineString>
   geoLength?: number
+  geoMiddleSlice: Position[]
   transformGeoPosition: (position: Position) => Position
 
   text: string
@@ -38,22 +39,25 @@ export class GeoLabelNode extends Text {
 
     // Update the rendering:
     ;(this as any).sync()
-  }
-  update(camera: Camera) {
-    const self = this as unknown as Object3D
-    this.geoLength = this.geoLength || length(this.geoFeature)
-    const slice = lineSliceAlong(
+
+    this.geoLength = length(this.geoFeature)
+    this.geoMiddleSlice = lineSliceAlong(
       this.geoFeature,
       this.geoLength * 0.49,
       this.geoLength * 0.51
     ).geometry.coordinates.map(this.transformGeoPosition)
+  }
+  update(camera: Camera) {
+    const self = this as unknown as Object3D
 
-    const angle = Math.atan2(slice[1][1] - slice[0][1], slice[1][0] - slice[0][0])
+    const [[x1, y1], [x2, y2]] = this.geoMiddleSlice
+
+    const angle = Math.atan2(y2 - y1, x2 - x1)
 
     self.position.y = 20
-    self.position.x = slice[0][0]
+    self.position.x = x1
     // for some reason the positions are mirrored along the X-axis
-    self.position.z = slice[0][1] * -1
+    self.position.z = y1 * -1
 
     camera.getWorldDirection(vector3)
 
