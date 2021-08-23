@@ -10,13 +10,18 @@ import { Entity } from '../../ecs/classes/Entity'
 let currentEnt
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
-  const { mapMesh, navMesh, groundMesh } = await create(args)
+  const { mapMesh, navMesh, groundMesh, labels } = await create(args)
   addComponent(entity, Object3DComponent, {
     value: mapMesh
   })
   addComponent(entity, NavMeshComponent, {
     yukaNavMesh: navMesh,
     navTarget: groundMesh
+  })
+  labels.forEach((label) => {
+    addComponent(entity, Object3DComponent, {
+      value: label as any
+    })
   })
   if (args.enableDebug) {
     addComponent(entity, DebugNavMeshComponent, null)

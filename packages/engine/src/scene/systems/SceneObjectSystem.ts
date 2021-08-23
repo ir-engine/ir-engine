@@ -99,6 +99,10 @@ export const SceneObjectSystem = async (): Promise<System> => {
           }
         }
       })
+
+      if (typeof object3DComponent.value.userData.update === 'function') {
+        object3DComponent.value.userData.update(Engine.camera)
+      }
     }
 
     for (const entity of sceneObjectRemoveQuery(world)) {

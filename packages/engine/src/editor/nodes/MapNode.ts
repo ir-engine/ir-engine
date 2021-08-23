@@ -95,7 +95,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   updateLabels(camera) {
     this.labels?.forEach((label) => {
-      label.update(camera)
+      label.userData.update(this.editor.camera)
     })
   }
   async refreshGroundLayer() {

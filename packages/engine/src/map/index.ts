@@ -11,6 +11,7 @@ import {
   createRoads,
   createWater,
   createLandUse,
+  createLabels,
   setGroundScaleAndPosition
 } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
@@ -59,7 +60,7 @@ export const create = async function (args: MapProps) {
   centerTile = Object.assign(getCenterTile(center))
   scaleArg = args.scale.x
 
-  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
+  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels: createLabels(vectorTiles, center) }
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
