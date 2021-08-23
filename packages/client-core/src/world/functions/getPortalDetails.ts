@@ -21,13 +21,13 @@ export const getPortalDetails = async (configs) => {
       const portal = getComponent(entity, PortalComponent)
       try {
         const portalDetails = await (await fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)).json()
-        console.log('portalDetails', portalDetails)
+        // console.log('portalDetails', portalDetails)
         if (portalDetails) {
           setRemoteLocationDetail(portal, portalDetails.data.spawnPosition, portalDetails.data.spawnRotation)
           const cubemapBakeDetails = await (
             await fetch(`${SERVER_URL}/cubemap/${portalDetails.data.cubemapBakeId}`, options)
           ).json()
-          console.log('cubemapBakeDetails', cubemapBakeDetails)
+          // console.log('cubemapBakeDetails', cubemapBakeDetails)
           if (cubemapBakeDetails) {
             const textureLoader = new TextureLoader()
             const texture = textureLoader.load(cubemapBakeDetails.data.options.envMapOrigin)

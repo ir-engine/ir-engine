@@ -101,14 +101,9 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
     )
     previewMesh.geometry.translate(triggerPosition.x, triggerPosition.y, triggerPosition.z)
-    // previewMesh.matrixAutoUpdate = false
 
-    // previewMesh.position.copy(transform.position)
-    // previewMesh.quaternion.copy(transform.rotation)
-    // previewMesh.scale.copy(transform.scale)
-    addComponent(entity, Object3DComponent, { value: previewMesh })
-
-    console.log(previewMesh)
+    // TODO: add bpcem stencil. until now, keep preview mesh hidden
+    // addComponent(entity, Object3DComponent, { value: previewMesh })
   }
 
   const portalShape: ShapeType = {
