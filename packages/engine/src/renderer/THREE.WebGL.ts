@@ -9,12 +9,18 @@ export default class WEBGL {
   }
 
   static isWebGL2Available() {
+    var support = true
     try {
-      return true
       const canvas = document.createElement('canvas')
+      document.body.appendChild(canvas)
+      if (canvas.getContext('webgl') == null || canvas.getContext('experimental-webgl') == null) {
+        alert('Your brower does not support webgl,or it disable webgl,Please enable webgl')
+        return
+      }
       return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'))
     } catch (e) {
-      return false
+      alert('Your brower does not support webgl,or it disable webgl,Please enable webgl')
+      return
     }
   }
 
