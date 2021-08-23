@@ -94,7 +94,7 @@ export const CubemapBakeNodeEditor = (props: CubemapBakeNodeEditorProps) => {
   return (
     <div>
       {renderCubemapBakeProperties()}
-      <MediumButton onClick={(props.node as any).Bake}>Bake</MediumButton>
+      {/* <MediumButton onClick={(props.node as any).Bake}>Bake</MediumButton> */}
     </div>
   )
 }

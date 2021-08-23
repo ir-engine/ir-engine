@@ -12,7 +12,8 @@ import {
   Scene,
   SphereGeometry,
   Vector3,
-  WebGLCubeRenderTarget
+  WebGLCubeRenderTarget,
+  WebGLRenderTarget
 } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import { envmapPhysicalParsReplace, worldposReplace } from './helper/BPCEMShader'
@@ -47,7 +48,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   static haveStaticTags = false
   gizmo: BoxHelper
   cubemapBakeSettings: CubemapBakeSettings
-  centerBall: any
+  centerBall: Mesh
   currentEnvMap: WebGLCubeRenderTarget
   ownedFileIdentifier: string
 
@@ -79,7 +80,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
     return editor.scene.findNodeByType(CubemapBakeNode) === null
   }
 
-  async captureCubeMap() {
+  async captureCubeMap(): Promise<WebGLCubeRenderTarget> {
     const sceneToBake = this.getSceneForBaking(this.editor.scene)
     const cubemapCapturer = new CubemapCapturer(
       this.editor.renderer.renderer,
@@ -96,8 +97,10 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
     return result
   }
 
-  Bake = () => {
-    return this.captureCubeMap()
+  async Bake(projectId): Promise<WebGLCubeRenderTarget> {
+    const rt = await this.captureCubeMap()
+    await this.uploadBakeToServer(projectId, rt)
+    return rt
   }
 
   onChange() {
@@ -128,6 +131,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
 
   async serialize(projectID) {
     let data: any = {}
+    await this.Bake(projectID)
     this.cubemapBakeSettings.bakePosition = this.position
     data = {
       options: this.cubemapBakeSettings
@@ -191,8 +195,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
     }
   }
 
-  async uploadBakeToServer(projectID: any) {
-    const rt = await this.Bake()
+  async uploadBakeToServer(projectID: any, rt: WebGLCubeRenderTarget) {
     const value = await uploadCubemap(
       this.editor.renderer.renderer,
       this.editor.api,
@@ -201,6 +204,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       this.ownedFileIdentifier,
       projectID
     )
+    console.log('uploadBakeToServer', value)
     this.cubemapBakeSettings.envMapOrigin = value.origin
     const {
       file_id: fileId,

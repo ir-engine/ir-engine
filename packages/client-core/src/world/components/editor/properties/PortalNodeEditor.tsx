@@ -168,7 +168,7 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
           <ControlledStringInput value={node.displayText} onChange={this.onChangeDisplayText} />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Texture Override" label={this.props.t('editor:properties.portal.lbl-cubemapBake')}>
+        <InputGroup name="Cubemap Bake" label={this.props.t('editor:properties.portal.lbl-cubemapBake')}>
           {/* @ts-ignore */}
           <SelectInput
             options={this.props.editor.scene.children

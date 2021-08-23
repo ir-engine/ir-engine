@@ -308,9 +308,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       default:
         if (!this.environmentNode) break
         envMapProps.envMapCubemapBake = this.environmentNode.cubemapBakeSettings
-        if (this.environmentNode.cubemapBakeSettings.bakeType === CubemapBakeTypes.Baked) {
-          await this.environmentNode.uploadBakeToServer(projectId)
-        }
         break
     }
 

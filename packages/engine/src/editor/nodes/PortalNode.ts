@@ -103,6 +103,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   copy(source, recursive = true) {
     if (recursive) {
       this.remove(this.mesh)
+      this.remove(this.triggerHelper)
+      this.remove(this.spawnCylinder)
     }
     super.copy(source, recursive)
     this.location = source.location
