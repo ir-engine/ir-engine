@@ -10,5 +10,5 @@ export const TestModelNodeEditor = (props) => {
 }
 
 TestModelNodeEditor.iconComponent = Book
-TestModelNodeEditor.description = 'Test Model For the Reflection'
+TestModelNodeEditor.description = 'Test Model For the Bake'
 export default TestModelNodeEditor
