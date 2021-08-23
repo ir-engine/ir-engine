@@ -30,6 +30,7 @@ const LocationPage = (props) => {
     <Layout theme={theme} hideVideo={true} hideFullscreen={true} pageTitle={t('location.locationName.pageTitle')}>
       <UserProfile isUserProfileShowing={isUserProfileOpen} showHideProfile={setShowUserProfile} />
       <LoadingScreen objectsToLoad={loadingItemCount} />
+
       <World
         allowDebug={true}
         locationName={props.match.params.locationName}

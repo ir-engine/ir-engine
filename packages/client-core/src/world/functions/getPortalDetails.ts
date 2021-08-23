@@ -1,5 +1,5 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { findProjectionScreen, setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
+import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { DoubleSide, EquirectangularRefractionMapping, MeshLambertMaterial, TextureLoader } from 'three'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -19,39 +19,30 @@ export const getPortalDetails = async (configs) => {
   await Promise.all(
     World.defaultWorld.portalEntities.map(async (entity: Entity): Promise<void> => {
       const portal = getComponent(entity, PortalComponent)
-      return fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)
-        .then((res) => {
-          try {
-            return res.json()
-          } catch (e) {}
-        })
-        .then((res) => {
-          if (res) {
-            setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-            fetch(`${SERVER_URL}/relectionProebe/${res.data.reflectionProbeId}`, options)
-              .then((res) => {
-                try {
-                  return res.json()
-                } catch (e) {}
-              })
-              .then((res) => {
-                try {
-                  if (res) {
-                    const textureLoader = new TextureLoader()
-                    const texture = textureLoader.load(res.data.options.envMapOrigin)
-                    texture.mapping = EquirectangularRefractionMapping
+      try {
+        const portalDetails = await (await fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)).json()
+        // console.log('portalDetails', portalDetails)
+        if (portalDetails) {
+          setRemoteLocationDetail(portal, portalDetails.data.spawnPosition, portalDetails.data.spawnRotation)
+          const cubemapBakeDetails = await (
+            await fetch(`${SERVER_URL}/cubemap/${portalDetails.data.cubemapBakeId}`, options)
+          ).json()
+          // console.log('cubemapBakeDetails', cubemapBakeDetails)
+          if (cubemapBakeDetails) {
+            const textureLoader = new TextureLoader()
+            const texture = textureLoader.load(cubemapBakeDetails.data.options.envMapOrigin)
+            texture.mapping = EquirectangularRefractionMapping
 
-                    const portalMaterial = new MeshLambertMaterial({ envMap: texture, side: DoubleSide })
+            const portalMaterial = new MeshLambertMaterial({ envMap: texture, side: DoubleSide })
 
-                    const screen = findProjectionScreen(entity)
-                    screen.material = portalMaterial
+            portal.previewMesh.material = portalMaterial
 
-                    texture.dispose()
-                  }
-                } catch (e) {}
-              })
+            // texture.dispose()
           }
-        })
+        }
+      } catch (e) {
+        console.log(e)
+      }
     })
   )
 }

@@ -12,7 +12,8 @@ import {
   Scene,
   SphereGeometry,
   Vector3,
-  WebGLCubeRenderTarget
+  WebGLCubeRenderTarget,
+  WebGLRenderTarget
 } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import { envmapPhysicalParsReplace, worldposReplace } from './helper/BPCEMShader'
@@ -20,34 +21,34 @@ import CubemapCapturer from './helper/CubemapCapturer'
 import { convertCubemapToEquiImageData, downloadImage, uploadCubemap } from './helper/ImageUtils'
 import SkyboxNode from './SkyboxNode'
 
-export enum ReflectionProbeTypes {
+export enum CubemapBakeTypes {
   'Realtime',
   'Baked'
 }
 
-export enum ReflectionProbeRefreshTypes {
+export enum CubemapBakeRefreshTypes {
   'OnAwake',
   'EveryFrame'
 }
 
-export type ReflectionProbeSettings = {
-  probePosition: Vector3
-  probePositionOffset?: Vector3
-  probeScale?: Vector3
-  reflectionType: ReflectionProbeTypes
+export type CubemapBakeSettings = {
+  bakePosition: Vector3
+  bakePositionOffset?: Vector3
+  bakeScale?: Vector3
+  bakeType: CubemapBakeTypes
   resolution: number
-  refreshMode: ReflectionProbeRefreshTypes
+  refreshMode: CubemapBakeRefreshTypes
   envMapOrigin: string
   boxProjection: boolean
 }
 
-export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
-  static nodeName = 'Reflection Probe'
-  static legacyComponentName = 'reflectionprobe'
+export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
+  static nodeName = 'Cubemap Bake'
+  static legacyComponentName = 'cubemapbake'
   static haveStaticTags = false
   gizmo: BoxHelper
-  reflectionProbeSettings: ReflectionProbeSettings
-  centerBall: any
+  cubemapBakeSettings: CubemapBakeSettings
+  centerBall: Mesh
   currentEnvMap: WebGLCubeRenderTarget
   ownedFileIdentifier: string
 
@@ -55,13 +56,13 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     super(editor)
     this.centerBall = new Mesh(new SphereGeometry(0.75))
     this.add(this.centerBall)
-    this.reflectionProbeSettings = {
-      probePosition: this.position,
-      probePositionOffset: new Vector3(0),
-      probeScale: new Vector3(1, 1, 1),
-      reflectionType: ReflectionProbeTypes.Baked,
+    this.cubemapBakeSettings = {
+      bakePosition: this.position,
+      bakePositionOffset: new Vector3(0),
+      bakeScale: new Vector3(1, 1, 1),
+      bakeType: CubemapBakeTypes.Baked,
       resolution: 512,
-      refreshMode: ReflectionProbeRefreshTypes.OnAwake,
+      refreshMode: CubemapBakeRefreshTypes.OnAwake,
       envMapOrigin: '',
       boxProjection: true
     }
@@ -76,35 +77,37 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   }
 
   static canAddNode(editor) {
-    return editor.scene.findNodeByType(ReflectionProbeNode) === null
+    return editor.scene.findNodeByType(CubemapBakeNode) === null
   }
 
-  async captureCubeMap() {
+  async captureCubeMap(): Promise<WebGLCubeRenderTarget> {
     const sceneToBake = this.getSceneForBaking(this.editor.scene)
     const cubemapCapturer = new CubemapCapturer(
       this.editor.renderer.renderer,
       sceneToBake,
-      this.reflectionProbeSettings.resolution
+      this.cubemapBakeSettings.resolution
     )
     const result = cubemapCapturer.update(this.position)
     const imageData = (await convertCubemapToEquiImageData(this.editor.renderer.renderer, result, 512, 512, false))
       .imageData
-    downloadImage(imageData, 'Hello', 512, 512)
+    // downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
     this.injectShader()
     this.editor.scene.setUpEnvironmentMap()
     return result
   }
 
-  Bake = () => {
-    return this.captureCubeMap()
+  async Bake(projectId): Promise<WebGLCubeRenderTarget> {
+    const rt = await this.captureCubeMap()
+    await this.uploadBakeToServer(projectId, rt)
+    return rt
   }
 
   onChange() {
     this.gizmo.matrix.compose(
-      this.reflectionProbeSettings.probePositionOffset,
+      this.cubemapBakeSettings.bakePositionOffset,
       new Quaternion(0),
-      this.reflectionProbeSettings.probeScale
+      this.cubemapBakeSettings.bakeScale
     )
     //this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
   }
@@ -113,8 +116,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     this.editor.scene.traverse((child) => {
       if (child.material) {
         child.material.onBeforeCompile = (shader) => {
-          shader.uniforms.cubeMapSize = { value: this.reflectionProbeSettings.probeScale }
-          shader.uniforms.cubeMapPos = { value: this.reflectionProbeSettings.probePositionOffset }
+          shader.uniforms.cubeMapSize = { value: this.cubemapBakeSettings.bakeScale }
+          shader.uniforms.cubeMapPos = { value: this.cubemapBakeSettings.bakePositionOffset }
           shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader
           shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
           shader.fragmentShader = shader.fragmentShader.replace(
@@ -128,26 +131,27 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
 
   async serialize(projectID) {
     let data: any = {}
-    this.reflectionProbeSettings.probePosition = this.position
+    await this.Bake(projectID)
+    this.cubemapBakeSettings.bakePosition = this.position
     data = {
-      options: this.reflectionProbeSettings
+      options: this.cubemapBakeSettings
     }
 
-    return await super.serialize(projectID, { reflectionprobe: data })
+    return await super.serialize(projectID, { cubemapbake: data })
   }
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const reflectionOptions = json.components.find((c) => c.name === 'reflectionprobe')
-    const { options } = reflectionOptions.props
+    const bakeOptions = json.components.find((c) => c.name === 'cubemapbake')
+    const { options } = bakeOptions.props
     if (options) {
-      node.reflectionProbeSettings = options as ReflectionProbeSettings
-      let v = (node.reflectionProbeSettings as ReflectionProbeSettings).probeScale
-      ;(node.reflectionProbeSettings as ReflectionProbeSettings).probeScale = new Vector3(v.x, v.y, v.z)
-      v = (node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset
-      ;(node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset = new Vector3(v.x, v.y, v.z)
-      v = (node.reflectionProbeSettings as ReflectionProbeSettings).probePosition
-      ;(node.reflectionProbeSettings as ReflectionProbeSettings).probePosition = new Vector3(v.x, v.y, v.z)
+      node.cubemapBakeSettings = options as CubemapBakeSettings
+      let v = (node.cubemapBakeSettings as CubemapBakeSettings).bakeScale
+      ;(node.cubemapBakeSettings as CubemapBakeSettings).bakeScale = new Vector3(v.x, v.y, v.z)
+      v = (node.cubemapBakeSettings as CubemapBakeSettings).bakePositionOffset
+      ;(node.cubemapBakeSettings as CubemapBakeSettings).bakePositionOffset = new Vector3(v.x, v.y, v.z)
+      v = (node.cubemapBakeSettings as CubemapBakeSettings).bakePosition
+      ;(node.cubemapBakeSettings as CubemapBakeSettings).bakePosition = new Vector3(v.x, v.y, v.z)
     }
     return node
   }
@@ -156,15 +160,15 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     this.replaceObject()
   }
 
-  getReflectionProbeProperties() {
-    this.reflectionProbeSettings.probePosition = this.position
-    return this.reflectionProbeSettings
+  getCubemapBakeProperties() {
+    this.cubemapBakeSettings.bakePosition = this.position
+    return this.cubemapBakeSettings
   }
 
   getSceneForBaking(scene: Scene) {
     const sceneToBake = new Scene()
     scene.traverse((obj) => {
-      if (obj['reflectionProbeStatic']) {
+      if (obj['includeInCubemapBake']) {
         const o = obj.clone()
         o.traverse((child) => {
           //disable specular highlights
@@ -191,17 +195,17 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     }
   }
 
-  async uploadBakeToServer(projectID: any) {
-    const rt = await this.Bake()
+  async uploadBakeToServer(projectID: any, rt: WebGLCubeRenderTarget) {
     const value = await uploadCubemap(
       this.editor.renderer.renderer,
       this.editor.api,
       rt,
-      this.reflectionProbeSettings.resolution,
+      this.cubemapBakeSettings.resolution,
       this.ownedFileIdentifier,
       projectID
     )
-    this.reflectionProbeSettings.envMapOrigin = value.origin
+    console.log('uploadBakeToServer', value)
+    this.cubemapBakeSettings.envMapOrigin = value.origin
     const {
       file_id: fileId,
       meta: { access_token: fileToken }

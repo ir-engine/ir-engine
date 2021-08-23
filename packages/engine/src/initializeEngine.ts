@@ -44,7 +44,9 @@ import { XRSystem } from './xr/systems/XRSystem'
 import { FontManager } from './xrui/classes/FontManager'
 import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
+import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
+
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
@@ -52,7 +54,7 @@ Quaternion.prototype.toJSON = function () {
 
 // @ts-ignore
 Euler.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z }
+  return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
@@ -169,7 +171,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
   })
-  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, ParticleSystem)
@@ -319,7 +321,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })
-  } else {
+  } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.engineTimer.start()
   }
 

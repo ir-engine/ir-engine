@@ -3,45 +3,42 @@
  */
 
 import React from 'react'
-import {
-  ReflectionProbeRefreshTypes,
-  ReflectionProbeTypes
-} from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
+import { CubemapBakeRefreshTypes, CubemapBakeTypes } from '@xrengine/engine/src/editor/nodes/CubemapBakeNode'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
-import { ReflectionPropertyTypes } from './ReflectionProbeNodeEditor'
+import { BakePropertyTypes } from './CubemapBakeNodeEditor'
 
-type ReflectionProbePropertyEditorProps = {
+type CubemapBakePropertyEditorProps = {
   element?: any
   editor?: any
   node?: any
 }
 
-const reflectionProbeSelectTypes = [
+const cubemapBakeSelectTypes = [
   {
     label: 'Runtime',
-    value: ReflectionProbeTypes.Realtime
+    value: CubemapBakeTypes.Realtime
   },
   {
     label: 'Baked',
-    value: ReflectionProbeTypes.Baked
+    value: CubemapBakeTypes.Baked
   }
 ]
 
-const reflectionProbeRefreshSelectTypes = [
+const cubemapBakeRefreshSelectTypes = [
   {
     label: 'On Awake',
-    value: ReflectionProbeRefreshTypes.OnAwake
+    value: CubemapBakeRefreshTypes.OnAwake
   }
   // {
   //     label:"Every Frame",
-  //     value:ReflectionProbeRefreshTypes.EveryFrame,
+  //     value:CubemapBakeRefreshTypes.EveryFrame,
   // }
 ]
 
-const reflectionResolutionTypes = [
+const bakeResolutionTypes = [
   {
     label: '128',
     value: 128
@@ -64,13 +61,13 @@ const reflectionResolutionTypes = [
   }
 ]
 
-export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorProps) => {
+export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => {
   const onChangeProperty = (value, option: string) => {
-    ;(props.editor as any).setObjectProperty(`reflectionProbeSettings.${option}`, value)
+    ;(props.editor as any).setObjectProperty(`cubemapBakeSettings.${option}`, value)
   }
 
   const getPropertyValue = (option: string) => {
-    const value = (props.node as any)['reflectionProbeSettings'][option]
+    const value = (props.node as any)['cubemapBakeSettings'][option]
     return value
   }
   let renderVal = <></>
@@ -78,16 +75,16 @@ export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorPr
   const propertyName = props.element.propertyName
 
   switch (props.element.type) {
-    case ReflectionPropertyTypes.Boolean:
+    case BakePropertyTypes.Boolean:
       renderVal = (
         <BooleanInput value={getPropertyValue(propertyName)} onChange={(id) => onChangeProperty(id, propertyName)} />
       )
       break
-    case ReflectionPropertyTypes.ReflectionProbeType:
+    case BakePropertyTypes.CubemapBakeType:
       renderVal = (
         /* @ts-ignore */
         <SelectInput
-          options={reflectionProbeSelectTypes}
+          options={cubemapBakeSelectTypes}
           onChange={(id) => {
             onChangeProperty(id, propertyName)
           }}
@@ -96,11 +93,11 @@ export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorPr
       )
       break
 
-    case ReflectionPropertyTypes.RefreshMode:
+    case BakePropertyTypes.RefreshMode:
       renderVal = (
         /* @ts-ignore */
         <SelectInput
-          options={reflectionProbeRefreshSelectTypes}
+          options={cubemapBakeRefreshSelectTypes}
           onChange={(id) => {
             onChangeProperty(id, propertyName)
           }}
@@ -109,11 +106,11 @@ export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorPr
       )
       break
 
-    case ReflectionPropertyTypes.Resolution:
+    case BakePropertyTypes.Resolution:
       renderVal = (
         /* @ts-ignore */
         <SelectInput
-          options={reflectionResolutionTypes}
+          options={bakeResolutionTypes}
           onChange={(id) => {
             onChangeProperty(id, propertyName)
           }}
@@ -122,7 +119,7 @@ export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorPr
       )
       break
 
-    case ReflectionPropertyTypes.Vector:
+    case BakePropertyTypes.Vector:
       renderVal = (
         <Vector3Input
           onChange={(id) => {

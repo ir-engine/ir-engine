@@ -19,7 +19,7 @@ export default function EditorNodeMixin(Object3DClass) {
     // Used for props like src that have side effects that we don't want to happen in the constructor
     static initialElementProps = {}
     static hideInElementsPanel = false
-    reflectionProbeStatic: boolean
+    includeInCubemapBake: boolean
     static canAddNode(_editor) {
       return true
     }
@@ -47,8 +47,8 @@ export default function EditorNodeMixin(Object3DClass) {
         const persistComponent = json.components.find((c) => c.name === 'persist')
         node.persist = !!persistComponent
 
-        const reflectionProbeStaticComponent = json.components.find((c) => c.name === 'reflectionprobestatic')
-        node.reflectionProbeStatic = !!reflectionProbeStaticComponent
+        const includeInCubemapBakeComponent = json.components.find((c) => c.name === 'includeInCubemapBake')
+        node.includeInCubemapBake = !!includeInCubemapBakeComponent
       }
       return node
     }
@@ -135,9 +135,9 @@ export default function EditorNodeMixin(Object3DClass) {
         })
       }
 
-      if (this.reflectionProbeStatic) {
+      if (this.includeInCubemapBake) {
         entityJson.components.push({
-          name: 'reflectionprobestatic',
+          name: 'includeInCubemapBake',
           props: {} as any
         })
       }

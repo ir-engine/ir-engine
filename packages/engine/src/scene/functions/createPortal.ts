@@ -1,14 +1,25 @@
-import { BufferGeometry, Euler, ExtrudeGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
+import {
+  BoxBufferGeometry,
+  BufferGeometry,
+  Color,
+  Euler,
+  ExtrudeGeometry,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  PlaneBufferGeometry,
+  Quaternion,
+  Vector3
+} from 'three'
 import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -17,63 +28,36 @@ import { PortalComponent } from '../components/PortalComponent'
 export type PortalProps = {
   locationName: string
   linkedPortalId: string
+  modelUrl: string
   displayText: string
-  spawnPosition: Vector3
-  spawnRotation: Quaternion
-  spawnEuler: Euler
+  triggerPosition: Vector3
+  triggerRotation: Euler
+  triggerScale: Vector3
 }
 
 const vec3 = new Vector3()
 
 export const createPortal = async (entity: Entity, args: PortalProps) => {
   console.log(args)
-  const { locationName, linkedPortalId, displayText, spawnPosition } = args
-
-  const spawnEuler = new Euler(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z, 'XYZ')
-  const spawnRotation = new Quaternion().setFromEuler(spawnEuler)
+  const { locationName, linkedPortalId, displayText, triggerPosition, triggerRotation, triggerScale } = args
 
   const transform = getComponent(entity, TransformComponent)
 
-  // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
-  AssetLoader.load({ url: Engine.publicPath + '/models/common/portal_frame.glb' }, (gltf) => {
+  let previewMesh: Mesh
+
+  const hasModelUrl = Boolean(args.modelUrl && args.modelUrl !== '')
+
+  if (hasModelUrl) {
+    // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
+    const gltf = await AssetLoader.loadAsync({ url: args.modelUrl })
+
     const model = gltf.scene.clone()
-    const previewMesh = model.children[2] as Mesh
+    previewMesh = model.children[2] as Mesh
     const labelMesh = model.children[1] as Mesh
 
     model.position.copy(transform.position)
     model.quaternion.copy(transform.rotation)
     model.scale.copy(transform.scale)
-
-    previewMesh.geometry.computeBoundingBox()
-    previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
-
-    const portalShape: ShapeType = {
-      shape: SHAPES.Box,
-      options: { boxExtents: vec3 },
-      transform: { translation: previewMesh.position },
-      config: {
-        isTrigger: true,
-        collisionLayer: CollisionGroups.Portal,
-        collisionMask: CollisionGroups.Avatars
-      }
-    }
-
-    const portalBody = PhysXInstance.instance.addBody(
-      new Body({
-        shapes: [portalShape],
-        type: BodyType.STATIC,
-        transform: {
-          translation: transform.position,
-          rotation: transform.rotation
-        }
-      })
-    )
-
-    PhysXInstance.instance.addBody(portalBody)
-
-    portalBody.userData = { entity }
-
-    addComponent(entity, ColliderComponent, { body: portalBody })
 
     if (isClient) {
       FontManager.instance.getDefaultFont().then((font) => {
@@ -110,15 +94,54 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     }
 
     addComponent(entity, Object3DComponent, { value: model })
-  })
+  } else {
+    previewMesh = new Mesh(new BoxBufferGeometry(), new MeshPhongMaterial({ color: new Color('white') }))
+    previewMesh.geometry.scale(triggerScale.x, triggerScale.y, triggerScale.z)
+    previewMesh.geometry.applyQuaternion(
+      new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
+    )
+    previewMesh.geometry.translate(triggerPosition.x, triggerPosition.y, triggerPosition.z)
+
+    // TODO: add bpcem stencil. until now, keep preview mesh hidden
+    // addComponent(entity, Object3DComponent, { value: previewMesh })
+  }
+
+  const portalShape: ShapeType = {
+    shape: SHAPES.Box,
+    options: { boxExtents: new Vector3(triggerScale.x, triggerScale.y, triggerScale.z).multiplyScalar(0.5) },
+    transform: {
+      translation: new Vector3(triggerPosition.x, triggerPosition.y, triggerPosition.z),
+      rotation: new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
+    },
+    config: {
+      // isTrigger: true,
+      collisionLayer: CollisionGroups.Trigger,
+      collisionMask: CollisionGroups.Trigger
+    }
+  }
+
+  const portalBody = PhysXInstance.instance.addBody(
+    new Body({
+      shapes: [portalShape],
+      type: BodyType.STATIC,
+      transform: {
+        translation: transform.position,
+        rotation: transform.rotation
+      }
+    })
+  )
+
+  PhysXInstance.instance.addBody(portalBody)
+
+  portalBody.userData = { entity }
+
+  addComponent(entity, ColliderComponent, { body: portalBody })
 
   addComponent(entity, PortalComponent, {
     location: locationName,
     linkedPortalId,
     displayText,
-    spawnPosition,
-    spawnRotation,
-    spawnEuler,
+    previewMesh,
     isPlayerInPortal: false,
     remoteSpawnPosition: new Vector3(),
     remoteSpawnRotation: new Quaternion(),
@@ -136,16 +159,4 @@ export const setRemoteLocationDetail = (
   portal.remoteSpawnPosition = new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z)
   portal.remoteSpawnEuler = new Euler(spawnRotation.x, spawnRotation.y, spawnRotation.z, 'XYZ')
   portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
-}
-
-export const findProjectionScreen = (entity: Entity): any => {
-  const obj = getComponent(entity, Object3DComponent)
-
-  if (!obj || !obj.value) return null
-
-  const mesh = obj.value
-
-  const screen = mesh.getObjectByName('portalnextscenepreview')
-
-  return screen
 }
