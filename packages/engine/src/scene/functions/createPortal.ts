@@ -1,4 +1,5 @@
 import {
+  BoxBufferGeometry,
   BufferGeometry,
   Color,
   Euler,
@@ -14,12 +15,11 @@ import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -46,9 +46,11 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
   const transform = getComponent(entity, TransformComponent)
 
-  let previewMesh
+  let previewMesh: Mesh
 
-  if (!args.modelUrl && args.modelUrl !== '') {
+  const hasModelUrl = Boolean(args.modelUrl && args.modelUrl !== '')
+
+  if (hasModelUrl) {
     // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
     const gltf = await AssetLoader.loadAsync({ url: args.modelUrl })
 
@@ -95,11 +97,9 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     }
 
     addComponent(entity, Object3DComponent, { value: model })
-  }
-
-  if (!previewMesh) {
+  } else {
     previewMesh = new Mesh(
-      new PlaneBufferGeometry(transform.scale.x, transform.scale.y),
+      new BoxBufferGeometry(transform.scale.x, transform.scale.y, transform.scale.z * 0.2),
       new MeshPhongMaterial({ color: new Color('white') })
     )
   }
@@ -110,11 +110,11 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
   const portalShape: ShapeType = {
     shape: SHAPES.Box,
     options: { boxExtents: vec3 },
-    transform: { translation: previewMesh.position },
+    transform: { translation: new Vector3(0, transform.scale.y * 0.5, 0) },
     config: {
-      isTrigger: true,
-      collisionLayer: CollisionGroups.Portal,
-      collisionMask: CollisionGroups.Avatars
+      // isTrigger: true,
+      collisionLayer: CollisionGroups.Trigger,
+      collisionMask: CollisionGroups.Trigger
     }
   }
 

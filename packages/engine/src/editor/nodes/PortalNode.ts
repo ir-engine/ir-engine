@@ -1,4 +1,4 @@
-import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { BoxBufferGeometry, ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import Model from '../../scene/classes/Model'
 import { Engine } from '../../ecs/classes/Engine'
@@ -15,6 +15,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   spawnPosition: Vector3 = new Vector3()
   spawnRotation: Euler = new Euler()
   spawnCylinder: Mesh
+  triggerHelper: Mesh
 
   static async deserialize(editor, json) {
     const node = (await super.deserialize(editor, json)) as PortalNode
@@ -40,11 +41,21 @@ export default class PortalNode extends EditorNodeMixin(Model) {
           portalComponent.props.spawnRotation.y - node.rotation.y,
           portalComponent.props.spawnRotation.z - node.rotation.z
         )
+      node.loadModel()
     }
     return node
   }
   constructor(editor) {
     super(editor)
+
+    this.triggerHelper = new Mesh(
+      new BoxBufferGeometry(1, 1, 0.2),
+      new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.25 })
+    )
+    this.triggerHelper.geometry.translate(0, 0.5, 0)
+
+    this.triggerHelper.visible = false
+    this.add(this.triggerHelper)
 
     this.spawnCylinder = new Mesh(
       new CylinderGeometry(1, 1, 0.3, 6, 1, false, (30 * Math.PI) / 180),
@@ -68,7 +79,11 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     this.spawnCylinder.visible = false
   }
   async loadModel() {
-    if (!this.modelUrl && this.modelUrl === '') return
+    if (!this.modelUrl || this.modelUrl === '') {
+      this.triggerHelper.visible = true
+      return
+    }
+    this.triggerHelper.visible = false
     const model = await this.loadGLTF(this.modelUrl)
     if (this.mesh) {
       this.remove(this.mesh)
@@ -108,7 +123,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   }
   prepareForExport() {
     super.prepareForExport()
-    this.remove(this.helper)
+    this.remove(this.triggerHelper)
 
     // Have to convert from local space to global space
     const rotation = {
@@ -152,5 +167,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     } else if (prop === 'modelUrl') {
       this.loadModel()
     }
+    this.spawnCylinder.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z)
+    // this.triggerHelper.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z)
+    // this.triggerHelper.position.setY(this.scale.y * 0.5)
   }
 }

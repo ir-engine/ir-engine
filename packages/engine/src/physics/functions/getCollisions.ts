@@ -13,7 +13,7 @@ export const getCollisions = (entity: Entity, component: ComponentConstructor<an
 
   if (collider) {
     for (const collisionEvent of collider.body.collisionEvents) {
-      const otherEntity = collisionEvent.bodyOther.userData as Entity
+      const otherEntity = collisionEvent.bodyOther.userData.entity as Entity
       if (typeof otherEntity === 'undefined') continue
 
       const hasOtherComponent = hasComponent(otherEntity, component)
@@ -27,7 +27,7 @@ export const getCollisions = (entity: Entity, component: ComponentConstructor<an
   }
 
   return {
-    collisionEvent: null,
-    collisionEntity: null
+    collisionEvent: undefined,
+    collisionEntity: undefined
   }
 }

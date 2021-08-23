@@ -18,8 +18,6 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import configs from '@xrengine/client-core/src/world/components/editor/configs'
 
@@ -142,25 +140,13 @@ export const initEngine = async (
 
 export const teleportToLocation = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
-  slugifiedNameOfCurrentLocation: string,
   onTeleport: Function
 ) => {
-  if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-    teleportPlayer(
-      Network.instance.localClientEntity,
-      portalComponent.remoteSpawnPosition,
-      portalComponent.remoteSpawnRotation
-    )
-    return
-  }
-
   // shut down connection with existing GS
   Store.store.dispatch(resetInstanceServer())
   Network.instance.transport.close()
 
   await teleportToScene(portalComponent, async () => {
-    await processLocationChange()
-
     onTeleport()
     Store.store.dispatch(getLocationByName(portalComponent.location))
   })

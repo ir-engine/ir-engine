@@ -16,6 +16,9 @@ import { delay } from '../../common/functions/delay'
 import { PhysXInstance } from 'three-physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { InteractorComponent } from '../../interaction/components/InteractorComponent'
+import { World } from '../../ecs/classes/World'
+import { processLocationChange } from '../../ecs/functions/EngineFunctions'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
@@ -24,15 +27,18 @@ export const teleportToScene = async (
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
+  console.log('Network.instance.localClientEntity', Network.instance.localClientEntity)
+
   // remove controller since physics world will be destroyed and we don't want it moving
   PhysXInstance.instance.removeController(
     getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
   )
   removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
+  removeComponent(Network.instance.localClientEntity, InteractorComponent)
   removeComponent(Network.instance.localClientEntity, LocalInputReceiverComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
-  const { scene: texture } = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
+  const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
 
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
@@ -78,14 +84,13 @@ export const teleportToScene = async (
   // TODO: add BPCEM of old and new scenes and fade them in and out too
   await hyperspaceEffect.fadeIn(delta)
 
+  await processLocationChange()
   await handleNewScene()
 
-  Engine.portCamera = true
-
   await new Promise<void>((resolve) => {
-    Engine.scene.background = null
     Engine.hasJoinedWorld = true
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
   })
 
   await delay(100)
@@ -125,7 +130,5 @@ export const teleportToScene = async (
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  Engine.portCamera = false
-
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+  World.defaultWorld.isInPortal = false
 }

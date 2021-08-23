@@ -59,6 +59,7 @@ export const InterpolationSystem = async (): Promise<System> => {
    * Server controlled rigidbody without interpolation
    */
   const correctionFromServerQuery = defineQuery([
+    Not(AvatarComponent),
     Not(InterpolationComponent),
     Not(ClientAuthoritativeComponent),
     ColliderComponent,
@@ -70,7 +71,7 @@ export const InterpolationSystem = async (): Promise<System> => {
    */
   const transformInterpolationQuery = defineQuery([
     Not(ClientAuthoritativeComponent),
-    Not(AvatarControllerComponent),
+    Not(AvatarComponent),
     Not(ColliderComponent),
     InterpolationComponent,
     TransformComponent,
@@ -83,7 +84,7 @@ export const InterpolationSystem = async (): Promise<System> => {
   const transformUpdateFromServerQuery = defineQuery([
     Not(InterpolationComponent),
     Not(ClientAuthoritativeComponent),
-    Not(AvatarControllerComponent),
+    Not(AvatarComponent),
     Not(ColliderComponent),
     TransformComponent,
     NetworkObjectComponent
