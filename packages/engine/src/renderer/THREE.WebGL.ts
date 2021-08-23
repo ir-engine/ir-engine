@@ -8,51 +8,19 @@ export default class WEBGL {
     }
   }
 
-  static create3DContext(canvas) {
-    var names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl']
-    var context = null
-    for (var ii = 0; ii < names.length; ++ii) {
-      try {
-        context = canvas.getContext(names[ii])
-      } catch (e) {}
-      if (context) {
-        break
-      }
-    }
-    return context
-  }
-
   static isWebGL2Available() {
     var support = true
-
     try {
-      var $canvas = $('<canvas />')
-      $('body').append($canvas)
-      var canvas = $canvas[0]
-
-      if (canvas.addEventListener) {
-        canvas.addEventListener(
-          'webglcontextcreationerror',
-          function (event) {
-            support = false
-          },
-          false
-        )
+      const canvas = document.createElement('canvas')
+      document.body.appendChild(canvas)
+      if (canvas.getContext('webgl') == null || canvas.getContext('experimental-webgl') == null) {
+        alert('Your brower does not support webgl,or it disable webgl,Please enable webgl')
+        return
       }
-
-      var context = create3DContext(canvas)
-      if (!context) {
-        if (!window.WebGLRenderingContext) {
-          console.log('No WebGLRenderingContext')
-        }
-
-        support = false
-      }
+      return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'))
     } catch (e) {
       alert('Your brower does not support webgl,or it disable webgl,Please enable webgl')
       return
-    } finally {
-      canvas.remove()
     }
   }
 
