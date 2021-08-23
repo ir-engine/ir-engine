@@ -19,7 +19,8 @@ import {
   USER_ADMIN_CREATED,
   USER_ADMIN_PATCHED,
   USER_SEARCH_ADMIN,
-  SINGLE_USER_ADMIN_LOADED
+  SINGLE_USER_ADMIN_LOADED,
+  SINGLE_USER_ADMIN_REFETCH
 } from '../actions'
 
 import { User } from '@xrengine/common/src/interfaces/User'
@@ -233,9 +234,15 @@ export const searchedUser = (data: any): any => {
   }
 }
 
-export const fetchedSIngleUser = (data: any): any => {
+export const fetchedSingleUser = (data: any): any => {
   return {
     type: SINGLE_USER_ADMIN_LOADED,
     data: data
+  }
+}
+
+export const refetchSingleUser = (): any => {
+  return {
+    type: SINGLE_USER_ADMIN_REFETCH
   }
 }

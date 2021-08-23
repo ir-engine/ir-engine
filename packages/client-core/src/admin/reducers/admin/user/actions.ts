@@ -91,7 +91,7 @@ export const searchedUser = (data: any): any => {
   }
 }
 
-export const fetchedSIngleUser = (data: any): any => {
+export const fetchedSingleUser = (data: any): any => {
   return {
     type: SINGLE_USER_ADMIN_LOADED,
     data: data

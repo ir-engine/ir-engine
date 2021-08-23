@@ -18,7 +18,8 @@ import {
   PARTY_ADMIN_DISPLAYED,
   USER_ADMIN_REMOVED,
   USER_SEARCH_ADMIN,
-  SINGLE_USER_ADMIN_LOADED
+  SINGLE_USER_ADMIN_LOADED,
+  SINGLE_USER_ADMIN_REFETCH
 } from '../actions'
 import {
   LOCATIONS_RETRIEVED,
@@ -39,7 +40,7 @@ import { ADMIN_LOADED_USERS } from '@xrengine/client-core/src/admin/reducers/act
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { LoadedUsersAction } from '../../../user/reducers/user/actions'
+import { LoadedUsersAction } from './user/actions'
 import { CollectionsFetchedAction } from '../../../world/reducers/scenes/actions'
 import { LocationsRetrievedAction } from '../../../social/reducers/location/actions'
 
@@ -173,16 +174,7 @@ const adminReducer = (state = immutableState, action: any): any => {
     case ADMIN_LOADED_USERS:
       result = (action as LoadedUsersAction).users
       updateMap = new Map(state.get('users'))
-      let combinedUsers = state.get('users').get('users')
-      ;(result as any).data.forEach((item) => {
-        const match = combinedUsers.find((user) => user.id === item.id)
-        if (match == null) {
-          combinedUsers = combinedUsers.concat(item)
-        } else {
-          combinedUsers = combinedUsers.map((user) => (user.id === item.id ? item : user))
-        }
-      })
-      updateMap.set('users', combinedUsers)
+      updateMap.set('users', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)
@@ -195,16 +187,7 @@ const adminReducer = (state = immutableState, action: any): any => {
     case INSTANCES_RETRIEVED:
       result = (action as InstancesRetrievedResponse).instances
       updateMap = new Map(state.get('instances'))
-      let combinedInstances = state.get('instances').get('instances')
-      ;(result as any).data.forEach((item) => {
-        const match = combinedInstances.find((instance) => instance.id === item.id)
-        if (match == null) {
-          combinedInstances = combinedInstances.concat(item)
-        } else {
-          combinedInstances = combinedInstances.map((instance) => (instance.id === item.id ? item : instance))
-        }
-      })
-      updateMap.set('instances', combinedInstances)
+      updateMap.set('instances', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)
@@ -307,6 +290,10 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('retrieving', false)
       updateMap.set('fetched', true)
       updateMap.set('updateNeeded', false)
+      return state.set('singleUser', updateMap)
+    case SINGLE_USER_ADMIN_REFETCH:
+      updateMap = new Map(state.get('singleUser'))
+      updateMap.set('updateNeeded', true)
       return state.set('singleUser', updateMap)
   }
 

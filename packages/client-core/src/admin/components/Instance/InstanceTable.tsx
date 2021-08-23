@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -48,6 +48,7 @@ const InstanceTable = (props: Props) => {
   const classex = useInstanceStyles()
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [refetch, setRefetch] = React.useState(false)
 
   const user = authState.get('user')
   const adminInstances = adminInstanceState.get('instances')
@@ -59,11 +60,23 @@ const InstanceTable = (props: Props) => {
     setPage(0)
   }
 
+  const fetchTick = () => {
+    setTimeout(() => {
+      setRefetch(true)
+      fetchTick()
+    }, 5000)
+  }
+
+  useEffect(() => {
+    fetchTick()
+  }, [])
+
   React.useEffect(() => {
-    if (user.id && adminInstances.get('updateNeeded')) {
-      fetchAdminInstances()
-    }
-  }, [user, adminInstanceState])
+    console.log('Checking for refetch')
+    console.log('refetch', refetch)
+    if ((user.id && adminInstances.get('updateNeeded')) || refetch === true) fetchAdminInstances()
+    setRefetch(false)
+  }, [user, adminInstanceState, refetch])
 
   const createData = (
     id: string,
@@ -89,6 +102,7 @@ const InstanceTable = (props: Props) => {
     }
   }
 
+  console.log('adminInstances', adminInstances.get('instances'))
   const rows = adminInstances
     .get('instances')
     .map((el: any) => createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || ''))
