@@ -43,13 +43,13 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       updateMap.set('updateNeeded', true)
       return state.set('group', updateMap)
     case GROUP_ADMIN_UPDATE:
-      updateMap = new Map(state.get('group'))
-      updateMap.set('updateNeeded', true)
-      return state.set('group', updateMap)
+      const groupMap = new Map(state.get('group'))
+      groupMap.set('updateNeeded', true)
+      return state.set('group', groupMap)
     case GROUP_ADMIN_DELETE:
-      updateMap = new Map(state.get('group'))
-      updateMap.set('updateNeeded', true)
-      return state.set('group', updateMap)
+      const deleteMap = new Map(state.get('group'))
+      deleteMap.set('updateNeeded', true)
+      return state.set('group', deleteMap)
   }
   return state
 }

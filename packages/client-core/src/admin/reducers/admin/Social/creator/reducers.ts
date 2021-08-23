@@ -50,16 +50,10 @@ const creatorReducer = (state = immutableState, action: CreatorAction) => {
       const addCreator = new Map(state.get('creator'))
       addCreator.set('updateNeeded', true)
       return state.set('creator', addCreator)
-
     case UPDATE_CREATOR:
-      updateMap = new Map(state.get('creator'))
-      updateMap.set('updateNeeded', true)
-      return state.set('creator', updateMap)
-
-    case UPDATE_CREATOR:
-      updateMap = new Map(state.get('creator'))
-      updateMap.set('updateNeeded', true)
-      return state.set('creator', updateMap)
+      const creatorMap = new Map(state.get('creator'))
+      creatorMap.set('updateNeeded', true)
+      return state.set('creator', creatorMap)
 
     case REMOVE_CREATOR:
       const creatorData = new Map(state.get('creator'))
