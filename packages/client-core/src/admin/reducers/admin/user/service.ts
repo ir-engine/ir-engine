@@ -7,7 +7,7 @@ import {
   userPatched,
   userRoleUpdated,
   searchedUser,
-  fetchedSIngleUser,
+  fetchedSingleUser,
   fetchedStaticResource
 } from './actions'
 import { client } from '../../../../feathers'
@@ -128,7 +128,7 @@ export const fetchSingleUserAdmin = (id: string) => {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const result = await client.service('user').get(id)
-      dispatch(fetchedSIngleUser(result))
+      dispatch(fetchedSingleUser(result))
     } catch (error) {
       console.error(error)
       dispatchAlertError(dispatch, error.message)

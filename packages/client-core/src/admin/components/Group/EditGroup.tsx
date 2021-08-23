@@ -23,6 +23,7 @@ interface Props {
   getScopeTypeService?: any
   patchGroup?: any
   authState?: any
+  closeViewModal?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -41,7 +42,7 @@ const EditGroup = (props: Props) => {
   const classes = useStyles()
   const classx = useStyle()
 
-  const { groupAdmin, closeEditModal, patchGroup, authState, adminScopeState } = props
+  const { groupAdmin, closeEditModal, closeViewModal, patchGroup, authState, adminScopeState } = props
   const user = authState.get('user')
   const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
@@ -100,6 +101,8 @@ const EditGroup = (props: Props) => {
         description: '',
         scopeType: []
       })
+      closeEditModal(false)
+      if (typeof closeViewModal === 'function') closeViewModal()
     }
   }
 
@@ -107,7 +110,7 @@ const EditGroup = (props: Props) => {
     <Container maxWidth="sm" className={classes.marginTp}>
       <form onSubmit={(e) => onSubmitHandler(e)}>
         <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-          Create New Group
+          Edit Group
         </DialogTitle>
         <label>Name</label>
         <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
@@ -152,6 +155,10 @@ const EditGroup = (props: Props) => {
             id="tags-standard"
             value={state.scopeType}
             options={adminScopes}
+            disableCloseOnSelect
+            filterOptions={(options) =>
+              options.filter((option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null)
+            }
             getOptionLabel={(option) => option.type}
             renderInput={(params) => <TextField {...params} placeholder="Select access" />}
           />

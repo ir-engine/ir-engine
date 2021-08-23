@@ -31,7 +31,7 @@ const ViewGroup = (props: Props) => {
   return (
     <Drawer anchor="right" open={openView} onClose={() => closeViewModal(false)} classes={{ paper: classx.paper }}>
       {editMode ? (
-        <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} />
+        <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
       ) : (
         <React.Fragment>
           <Paper elevation={3} className={classes.paperHeight}>

@@ -40,8 +40,7 @@ const mapStateToProps = (state: any): any => {
 }
 
 const CreateGroup = (props: Props) => {
-  const { open, handleClose, authState, createGroupService, getScopeTypeService, adminScopeState, adminGroupState } =
-    props
+  const { open, handleClose, authState, createGroupService, getScopeTypeService, adminScopeState } = props
   const classes = useStyles()
   const classx = useStyle()
   const user = authState.get('user')
@@ -100,6 +99,7 @@ const CreateGroup = (props: Props) => {
         scopeType: []
       })
     }
+    handleClose(false)
   }
 
   return (
@@ -152,6 +152,12 @@ const CreateGroup = (props: Props) => {
                 classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                 id="tags-standard"
                 options={adminScopes}
+                disableCloseOnSelect
+                filterOptions={(options) =>
+                  options.filter(
+                    (option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null
+                  )
+                }
                 getOptionLabel={(option) => option.type}
                 renderInput={(params) => <TextField {...params} placeholder="Select access" />}
               />

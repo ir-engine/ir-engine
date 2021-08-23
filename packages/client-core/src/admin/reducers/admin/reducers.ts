@@ -18,7 +18,8 @@ import {
   PARTY_ADMIN_DISPLAYED,
   USER_ADMIN_REMOVED,
   USER_SEARCH_ADMIN,
-  SINGLE_USER_ADMIN_LOADED
+  SINGLE_USER_ADMIN_LOADED,
+  SINGLE_USER_ADMIN_REFETCH
 } from '../actions'
 import {
   LOCATIONS_RETRIEVED,
@@ -39,7 +40,7 @@ import { ADMIN_LOADED_USERS } from '@xrengine/client-core/src/admin/reducers/act
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { LoadedUsersAction } from '../../../user/reducers/user/actions'
+import { LoadedUsersAction } from './user/actions'
 import { CollectionsFetchedAction } from '../../../world/reducers/scenes/actions'
 import { LocationsRetrievedAction } from '../../../social/reducers/location/actions'
 
@@ -289,6 +290,10 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('retrieving', false)
       updateMap.set('fetched', true)
       updateMap.set('updateNeeded', false)
+      return state.set('singleUser', updateMap)
+    case SINGLE_USER_ADMIN_REFETCH:
+      updateMap = new Map(state.get('singleUser'))
+      updateMap.set('updateNeeded', true)
       return state.set('singleUser', updateMap)
   }
 

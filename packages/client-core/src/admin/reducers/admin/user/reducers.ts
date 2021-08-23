@@ -12,7 +12,8 @@ import {
   USER_ADMIN_REMOVED,
   USER_SEARCH_ADMIN,
   SINGLE_USER_ADMIN_LOADED,
-  STATIC_RESOURCE_RETRIEVED
+  STATIC_RESOURCE_RETRIEVED,
+  SINGLE_USER_ADMIN_REFETCH
 } from '../../actions'
 import {
   USER_ROLE_RETRIEVED,
@@ -149,6 +150,10 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false)
       updateMap.set('fetched', true)
       return state.set('staticResource', updateMap)
+    case SINGLE_USER_ADMIN_REFETCH:
+      updateMap = new Map(state.get('singleUser'))
+      updateMap.set('updateNeeded', true)
+      return state.set('singleUser', updateMap)
   }
 
   return state

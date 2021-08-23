@@ -135,7 +135,7 @@ const ViewUser = (props: Props) => {
     if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
       getScopeTypeService()
     }
-  }, [adminUserState, user, refetch])
+  }, [adminUserState, user, refetch, singleUser])
 
   React.useEffect(() => {
     if (!refetch) {
@@ -224,7 +224,7 @@ const ViewUser = (props: Props) => {
     setOpenWarning(false)
   }
 
-  const handleCloseDrawe = () => {
+  const handleCloseDrawer = () => {
     setError('')
     setOpenWarning(false)
     closeViewModel(false)
@@ -241,7 +241,7 @@ const ViewUser = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawe()} classes={{ paper: classx.paper }}>
+      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawer()} classes={{ paper: classx.paper }}>
         {userAdmin && (
           <Paper elevation={3} className={classes.paperHeight}>
             <Container maxWidth="sm">
@@ -378,6 +378,12 @@ const ViewUser = (props: Props) => {
                   classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                   id="tags-standard"
                   options={adminScopes}
+                  disableCloseOnSelect
+                  filterOptions={(options) =>
+                    options.filter(
+                      (option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null
+                    )
+                  }
                   getOptionLabel={(option) => option.type}
                   renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
                 />
@@ -460,11 +466,17 @@ const ViewUser = (props: Props) => {
                   className={classx.saveBtn}
                   onClick={() => {
                     setEditMode(true)
+                    setState({
+                      ...state,
+                      name: userAdmin.name || '',
+                      avatar: userAdmin.avatarId || '',
+                      scopeType: userAdmin.scopes || []
+                    })
                   }}
                 >
                   EDIT
                 </Button>
-                <Button onClick={() => handleCloseDrawe()} className={classx.saveBtn}>
+                <Button onClick={() => handleCloseDrawer()} className={classx.saveBtn}>
                   CANCEL
                 </Button>
               </div>
