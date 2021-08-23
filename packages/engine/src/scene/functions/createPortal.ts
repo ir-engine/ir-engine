@@ -95,10 +95,20 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
     addComponent(entity, Object3DComponent, { value: model })
   } else {
-    previewMesh = new Mesh(
-      new BoxBufferGeometry(transform.scale.x, transform.scale.y, transform.scale.z * 0.2),
-      new MeshPhongMaterial({ color: new Color('white') })
+    previewMesh = new Mesh(new BoxBufferGeometry(), new MeshPhongMaterial({ color: new Color('white') }))
+    previewMesh.geometry.scale(triggerScale.x, triggerScale.y, triggerScale.z)
+    previewMesh.geometry.applyQuaternion(
+      new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
     )
+    previewMesh.geometry.translate(triggerPosition.x, triggerPosition.y, triggerPosition.z)
+    // previewMesh.matrixAutoUpdate = false
+
+    // previewMesh.position.copy(transform.position)
+    // previewMesh.quaternion.copy(transform.rotation)
+    // previewMesh.scale.copy(transform.scale)
+    addComponent(entity, Object3DComponent, { value: previewMesh })
+
+    console.log(previewMesh)
   }
 
   const portalShape: ShapeType = {
@@ -136,6 +146,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     location: locationName,
     linkedPortalId,
     displayText,
+    previewMesh,
     isPlayerInPortal: false,
     remoteSpawnPosition: new Vector3(),
     remoteSpawnRotation: new Quaternion(),
@@ -153,16 +164,4 @@ export const setRemoteLocationDetail = (
   portal.remoteSpawnPosition = new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z)
   portal.remoteSpawnEuler = new Euler(spawnRotation.x, spawnRotation.y, spawnRotation.z, 'XYZ')
   portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
-}
-
-export const findProjectionScreen = (entity: Entity): any => {
-  const obj = getComponent(entity, Object3DComponent)
-
-  if (!obj || !obj.value) return null
-
-  const mesh = obj.value
-
-  const screen = mesh.getObjectByName('portalnextscenepreview')
-
-  return screen
 }

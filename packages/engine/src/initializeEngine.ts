@@ -54,7 +54,7 @@ Quaternion.prototype.toJSON = function () {
 
 // @ts-ignore
 Euler.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z }
+  return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
 Mesh.prototype.raycast = acceleratedRaycast

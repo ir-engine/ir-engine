@@ -52,8 +52,15 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       node.updateSpawnPositionOnScene()
       node.updateSpawnRotationOnScene()
 
+      console.log(portalComponent.props.triggerRotation)
+
       if (portalComponent.props.triggerPosition) node.triggerPosition.copy(portalComponent.props.triggerPosition)
-      if (portalComponent.props.triggerRotation) node.triggerRotation.copy(portalComponent.props.triggerRotation)
+      if (portalComponent.props.triggerRotation)
+        node.triggerRotation.set(
+          portalComponent.props.triggerRotation.x ?? 0,
+          portalComponent.props.triggerRotation.y ?? 0,
+          portalComponent.props.triggerRotation.z ?? 0
+        )
       if (portalComponent.props.triggerScale) node.triggerScale.copy(portalComponent.props.triggerScale)
 
       node.updateTrigger()
@@ -129,10 +136,11 @@ export default class PortalNode extends EditorNodeMixin(Model) {
         spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
         spawnRotation: rotation,
         triggerPosition: this.triggerPosition,
-        triggerRotation: this.triggerRotation,
+        triggerRotation: { x: this.triggerRotation.x, y: this.triggerRotation.y, z: this.triggerRotation.z },
         triggerScale: this.triggerScale
       }
     } as any
+    console.log(components.portal, this.triggerRotation)
     return await super.serialize(projectID, components)
   }
   prepareForExport() {
@@ -155,7 +163,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
       spawnRotation: rotation,
       triggerPosition: this.triggerPosition,
-      triggerRotation: this.triggerRotation,
+      triggerRotation: { x: this.triggerRotation.x, y: this.triggerRotation.y, z: this.triggerRotation.z },
       triggerScale: this.triggerScale
     })
   }

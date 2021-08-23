@@ -198,7 +198,7 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
           <Vector3Input value={node.triggerPosition} onChange={this.onChangeTriggerPosition} />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Trigger Rotation" label={this.props.t('editor:properties.portal.lbl-trggerRotation')}>
+        <InputGroup name="Trigger Rotation" label={this.props.t('editor:properties.portal.lbl-triggerRotation')}>
           <EulerInput value={node.triggerRotation} onChange={this.onChangeTriggerRotation} />
         </InputGroup>
         {/* @ts-ignore */}
