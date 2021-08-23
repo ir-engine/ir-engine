@@ -1,56 +1,19 @@
 import {
   Mesh,
   PlaneBufferGeometry,
-  Vector2,
   Color,
-  MeshPhongMaterial,
-  AddOperation,
   WebGLRenderTarget,
-  DepthTexture,
-  RGBFormat,
-  NearestFilter,
-  DepthFormat,
-  UnsignedShortType,
-  Texture,
-  ShaderChunk,
-  TextureLoader,
-  Object3D,
-  Material,
   ShaderMaterial,
-  MeshBasicMaterial,
-  AlwaysDepth,
-  LessEqualDepth,
-  DoubleSide,
   CubeTextureLoader,
   CubeTexture,
-  sRGBEncoding,
-  Matrix4,
-  Vector4
+  sRGBEncoding
 } from 'three'
-import { TGALoader } from '../../assets/loaders/tga/TGALoader'
 import { Updatable } from '../interfaces/Updatable'
 import { WaveSimulator } from './water/WaveSimulator'
 
 import vertexShader from './water/shaders/surface/vertex'
 import fragmentShader from './water/shaders/surface/fragment'
-import { Vec3 } from 'three-physx'
 import { Vector3 } from 'three'
-
-function addImageProcess(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    let img = new Image()
-    img.onload = () => resolve(img)
-    img.onerror = reject
-    img.src = src
-  })
-}
-
-function loadTexture(src): Promise<Texture> {
-  const loader = src.endsWith('tga') ? new TGALoader() : new TextureLoader()
-  return new Promise((resolve, reject) => {
-    loader.load(src, resolve, null, (error) => reject(error))
-  })
-}
 
 function loadCubeMap(path): Promise<CubeTexture> {
   const loader = new CubeTextureLoader().setPath(path)

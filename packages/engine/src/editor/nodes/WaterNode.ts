@@ -1,6 +1,5 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import DirectionalPlaneHelper from '../../scene/classes/DirectionalPlaneHelper'
-import { Color, Vector2 } from 'three'
 import { Water } from '../../scene/classes/Water'
 
 const defaultSkyBoxUrl = '/cubemap/'
