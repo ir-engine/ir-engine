@@ -30,7 +30,6 @@ export type PortalProps = {
   linkedPortalId: string
   modelUrl: string
   displayText: string
-  spawnEuler: Euler
   triggerPosition: Vector3
   triggerRotation: Euler
   triggerScale: Vector3
@@ -41,9 +40,6 @@ const vec3 = new Vector3()
 export const createPortal = async (entity: Entity, args: PortalProps) => {
   console.log(args)
   const { locationName, linkedPortalId, displayText, triggerPosition, triggerRotation, triggerScale } = args
-
-  const spawnEuler = new Euler(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z, 'XYZ')
-  const spawnRotation = new Quaternion().setFromEuler(spawnEuler)
 
   const transform = getComponent(entity, TransformComponent)
 
@@ -140,7 +136,6 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     location: locationName,
     linkedPortalId,
     displayText,
-    spawnEuler,
     isPlayerInPortal: false,
     remoteSpawnPosition: new Vector3(),
     remoteSpawnRotation: new Quaternion(),
