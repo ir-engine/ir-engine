@@ -1,5 +1,5 @@
-import { buffer, centerOfMass, along, length } from '@turf/turf'
-import { Feature, Geometry, LineString, Position } from 'geojson'
+import { buffer, centerOfMass } from '@turf/turf'
+import { Feature, Geometry, Position } from 'geojson'
 import { MeshBasicMaterial } from 'three'
 import {
   MeshLambertMaterial,
@@ -18,7 +18,6 @@ import {
   PlaneGeometry,
   MeshLambertMaterialParameters
 } from 'three'
-import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
@@ -27,6 +26,8 @@ import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
 import { METERS_PER_DEGREE_LL } from './constants'
+import { collectFeaturesByLayer } from './util'
+import { GeoLabelNode } from './GeoLabelNode'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -286,27 +287,6 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
   return feature.geometry
 }
 
-function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D[] {
-  return features.map((f) => {
-    const myText = new Text()
-
-    const point = llToScene(centerOfMass(f).geometry.coordinates, llCenter)
-
-    // Set properties to configure:
-    myText.text = f.properties.type
-    myText.fontSize = 5
-    myText.position.y = (f.properties.height || 1) + 50
-    myText.position.x = point[0]
-    myText.position.z = point[1]
-    myText.color = 0x000000
-
-    // Update the rendering:
-    myText.sync()
-
-    return myText
-  })
-}
-
 export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   // Will be scaled according to building mesh
@@ -346,12 +326,6 @@ export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Po
   return meshes[0]
 }
 
-function collectFeaturesByLayer(layerName: ILayerName, vectorTiles: TileFeaturesByLayer[]): Feature[] {
-  return vectorTiles.reduce((accFeatures, tile) => {
-    return [...accFeatures, ...tile[layerName]]
-  }, [])
-}
-
 function createLayerGroup(
   layers: ILayerName[],
   vectorTiles: TileFeaturesByLayer[],
@@ -371,32 +345,15 @@ export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Positi
   return createLayerGroup(['road'], vectorTiles, llCenter, renderer)
 }
 
-export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Object3D[] {
+export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): GeoLabelNode[] {
   const features = collectFeaturesByLayer('road', vectorTiles)
-  return features.reduce((accMeshes, f) => {
+  return features.reduce((acc, f) => {
     if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
-      const myText = new Text()
+      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter))
 
-      const point = llToScene(along(f as any, length(f) / 2).geometry.coordinates, llCenter)
-
-      myText.text = f.properties.name
-      myText.fontSize = 6
-      myText.color = 0x000000
-      myText.anchorX = '50%'
-      myText.outlineWidth = '2%'
-      myText.outlineColor = 'white'
-
-      // Update the rendering:
-      myText.sync()
-
-      myText.position.y = 20
-      myText.position.x = point[0]
-      // For some reason the positions are mirrored along the X-axis
-      myText.position.z = point[1] * -1
-
-      accMeshes.push(myText)
+      acc.push(labelView)
     }
-    return accMeshes
+    return acc
   }, [])
 }
 

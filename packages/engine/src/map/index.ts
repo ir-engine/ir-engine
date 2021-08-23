@@ -14,10 +14,11 @@ import {
   setGroundScaleAndPosition
 } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
-import { TileFeaturesByLayer } from './types'
+import { Label, TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
 import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 import { METERS_PER_DEGREE_LL } from './constants'
+import { collectFeaturesByLayer } from './util'
 
 let centerCoord = {}
 let centerTile = {}

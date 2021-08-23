@@ -13,6 +13,7 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
 import { getStartCoords } from '../../map'
 import { MapProps } from '../../map/MapProps'
+import { GeoLabelNode } from '../../map/GeoLabelNode'
 
 const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 
@@ -24,7 +25,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
   mapLayers: { [name: string]: Object3D | undefined }
 
-  labels: Object3D[]
+  labels: GeoLabelNode[]
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
@@ -95,8 +96,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   updateLabels(cameraAngle: Matrix4, cameraPosition: Vector3) {
     this.labels?.forEach((label) => {
-      label.quaternion.setFromRotationMatrix(cameraAngle)
-      label.visible = label.position.distanceTo(cameraPosition) < 200
+      label.update(cameraAngle, cameraPosition)
     })
   }
   async refreshGroundLayer() {
