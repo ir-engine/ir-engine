@@ -31,7 +31,6 @@ interface Props {
   handleClose: any
   location: any
   editing: boolean
-  adminState?: any
   createLocation?: any
   patchLocation?: any
   removeLocation?: any

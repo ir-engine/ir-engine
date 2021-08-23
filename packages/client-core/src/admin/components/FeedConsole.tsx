@@ -37,13 +37,8 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  adminState?: any
   authState?: any
   locationState?: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
-  fetchUsersAsAdmin?: any
   fetchAdminInstances?: any
   removeUser?: any
   list?: any
@@ -136,7 +131,6 @@ const FeedConsole = (props: Props) => {
   const [loading, setLoading] = React.useState(false)
   const [view, setView] = React.useState(null)
 
-  // const adminUsers = adminState.get('users').get('users');
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')

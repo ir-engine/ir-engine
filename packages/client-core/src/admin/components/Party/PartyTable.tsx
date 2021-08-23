@@ -10,7 +10,6 @@ import { fetchAdminParty } from '../../reducers/admin/party/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { selectAdminState } from '../../reducers/admin/selector'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
 import { selectAdminPartyState } from '../../reducers/admin/party/selector'
@@ -21,7 +20,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminState: selectAdminState(state),
     authState: selectAuthState(state),
     adminPartyState: selectAdminPartyState(state)
   }

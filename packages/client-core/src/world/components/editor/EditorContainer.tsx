@@ -1,5 +1,5 @@
-import { cmdOrCtrlString, objectToMap } from '@xrengine/engine/src/editor/functions/utils'
-import { useLocation, withRouter } from 'react-router-dom'
+import { cmdOrCtrlString } from '@xrengine/engine/src/editor/functions/utils'
+import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import React, { Component, Fragment } from 'react'
 import { DndProvider } from 'react-dnd'
@@ -27,10 +27,9 @@ import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import ToolBar from './toolbar/ToolBar'
 import ViewportPanelContainer from './viewport/ViewportPanelContainer'
 import AssetsPanel from './assets/AssetsPanel'
-import { selectAdminState } from '../../../admin/reducers/admin/selector'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { fetchAdminScenes, fetchLocationTypes } from '../../../admin/reducers/admin/service'
+import { fetchLocationTypes } from '../../../admin/reducers/admin/location/service'
 import { fetchAdminLocations } from '../../../admin/reducers/admin/location/service'
 import { withTranslation } from 'react-i18next'
 import { DockLayout, DockMode } from 'rc-dock'
@@ -38,6 +37,9 @@ import 'rc-dock/dist/rc-dock.css'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import { ProjectDiagram } from '@styled-icons/fa-solid'
+import { fetchAdminScenes } from '../../../admin/reducers/admin/scene/service'
+import { selectAdminSceneState } from '../../../admin/reducers/admin/scene/selector'
+import { selectAdminLocationState } from '../../../admin/reducers/admin/location/selector'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -115,7 +117,8 @@ const DockContainer = (styled as any).div`
 
 type EditorContainerProps = {
   api: Api
-  adminState: any
+  adminLocationState: any
+  adminSceneState: any
   fetchAdminLocations?: any
   fetchAdminScenes?: any
   fetchLocationTypes?: any
@@ -148,7 +151,6 @@ type EditorContainerState = {
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,
-    adminState: PropTypes.object
   }
 
   constructor(props) {
@@ -187,13 +189,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    if (this.props.adminState.get('locations').get('updateNeeded') === true) {
+    if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
       this.props.fetchAdminLocations()
     }
-    if (this.props.adminState.get('scenes').get('updateNeeded') === true) {
+    if (this.props.adminSceneState.get('scenes').get('updateNeeded') === true) {
       this.props.fetchAdminScenes()
     }
-    if (this.props.adminState.get('locationTypes').get('updateNeeded') === true) {
+    if (this.props.adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       this.props.fetchLocationTypes()
     }
     const pathParams = this.state.pathParams
@@ -862,7 +864,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const { DialogComponent, dialogProps, modified, settingsContext, editor } = this.state
     const toolbarMenu = this.generateToolbarMenu()
     const isPublishedScene = !!this.getSceneId()
-    const locations = this.props.adminState.get('locations').get('locations')
+    const locations = this.props.adminLocationState.get('locations').get('locations')
     let assigneeScene
     if (locations) {
       locations.forEach((element) => {
@@ -978,7 +980,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminState: selectAdminState(state)
+    adminLocationState: selectAdminLocationState(state),
+    adminSceneState: selectAdminSceneState(state)
   }
 }
 

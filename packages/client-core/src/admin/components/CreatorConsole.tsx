@@ -35,13 +35,8 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  adminState?: any
   authState?: any
   locationState?: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
-  fetchUsersAsAdmin?: any
   fetchAdminInstances?: any
   removeUser?: any
   list?: any

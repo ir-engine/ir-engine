@@ -6,56 +6,56 @@ import {
   ARMEDIA_ADMIN_RETRIEVED
 } from '../../../actions'
 
-export interface ArMediaOneAction {
+export interface AdminArMediaOneAction {
   type: string
   item: any
 }
-export interface ArMediaRetriveAction {
+export interface AdminArMediaRetriveAction {
   type: string
   list: any[]
 }
 
-export interface ArMediaRetrievedItemAction {
+export interface AdminArMediaRetrievedItemAction {
   type: string
   item: any
 }
-export interface FetchingArMediaItemAction {
+export interface AdminFetchingArMediaItemAction {
   type: string
   id: string
 }
-export interface FetchingAction {
+export interface AdminFetchingAction {
   type: string
 }
 
-export type ArMediaAction = ArMediaOneAction | ArMediaRetriveAction | FetchingArMediaItemAction
+export type AdminArMediaAction = AdminArMediaOneAction | AdminArMediaRetriveAction | AdminFetchingArMediaItemAction
 
-export function setAdminArMedia(list: any[]): ArMediaRetriveAction {
+export function setAdminArMedia(list: any[]): AdminArMediaRetriveAction {
   return {
     type: ARMEDIA_ADMIN_RETRIEVED,
     list
   }
 }
-export function removeArMediaItem(id): FetchingArMediaItemAction {
+export function removeArMediaItem(id): AdminFetchingArMediaItemAction {
   return {
     type: REMOVE_ARMEDIA,
     id
   }
 }
 
-export function addAdminArMedia(item): ArMediaOneAction {
+export function addAdminArMedia(item): AdminArMediaOneAction {
   return {
     type: ADD_ARMEDIA,
     item
   }
 }
-export function updateAdminArMedia(result): ArMediaAction {
+export function updateAdminArMedia(result): AdminArMediaAction {
   return {
     type: UPDATE_AR_MEDIA,
     item: result
   }
 }
 
-export function fetchingArMedia(): FetchingAction {
+export function fetchingArMedia(): AdminFetchingAction {
   return {
     type: ARMEDIA_FETCHING
   }

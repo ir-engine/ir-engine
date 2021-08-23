@@ -25,8 +25,8 @@ import { TransitionProps } from '@material-ui/core/transitions'
 import { selectAppState } from '../../common/reducers/app/selector'
 import { selectAuthState } from '../../user/reducers/auth/selector'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
-import { selectAdminState } from '../reducers/admin/selector'
-import { fetchAdminInstances, removeInstance } from '../reducers/admin/service'
+import { selectAdminInstanceState } from '../reducers/admin/instance/selector'
+import { fetchAdminInstances, removeInstance } from '../reducers/admin/instance/service'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
 if (!global.setImmediate) {
@@ -34,7 +34,7 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  adminState?: any
+  adminInstanceState?: any
   authState?: any
   locationState?: any
   fetchAdminInstances?: any
@@ -45,7 +45,7 @@ const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
     authState: selectAuthState(state),
-    adminState: selectAdminState(state)
+    adminInstanceState: selectAdminInstanceState(state)
   }
 }
 
@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function InstanceConsole(props: Props) {
   const classes = useStyles()
-  const { adminState, authState, fetchAdminInstances, removeInstance } = props
+  const { adminInstanceState, authState, fetchAdminInstances, removeInstance } = props
   const initialInstance = {
     id: '',
     ipAddress: '',
@@ -90,7 +90,7 @@ function InstanceConsole(props: Props) {
   const [selectedInstance, setSelectedInstance] = useState(initialInstance)
   const [instanceCreateOpen, setInstanceCreateOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
-  const adminInstances = adminState.get('instances').get('instances')
+  const adminInstances = adminInstanceState.get('instances').get('instances')
 
   const headCells = {
     instances: [
@@ -233,11 +233,11 @@ function InstanceConsole(props: Props) {
   }
 
   useEffect(() => {
-    if (user?.id != null && (adminState.get('instances').get('updateNeeded') === true || refetch === true)) {
+    if (user?.id != null && (adminInstanceState.get('instances').get('updateNeeded') === true || refetch === true)) {
       fetchAdminInstances()
     }
     setRefetch(false)
-  }, [authState, adminState, refetch])
+  }, [authState, adminInstanceState, refetch])
 
   const handleClickOpen = (instance: any) => {
     setInstanceId(instance)

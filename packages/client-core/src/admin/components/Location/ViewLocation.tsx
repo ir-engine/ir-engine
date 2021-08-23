@@ -21,7 +21,7 @@ import Switch from '@material-ui/core/Switch'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { connect } from 'react-redux'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { validateForm } from '../Users/validation'
+import { validateUserForm } from '../Users/validation'
 import { patchLocation } from '../../reducers/admin/location/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import MuiAlert from '@material-ui/lab/Alert'
@@ -146,7 +146,7 @@ const ViewLocation = (props: Props) => {
       temp.scene = "Type can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (validateForm(state, state.formErrors)) {
+    if (validateUserForm(state, state.formErrors)) {
       patchLocation(location.id, locationData)
       setState({
         ...state,

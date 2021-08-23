@@ -36,7 +36,6 @@ interface Props {
   userAdmin: any
   authState?: any
   fetchUserRole?: any
-  fetchAdminParty?: any
   patchUser?: any
   closeViewModel?: any
   updateUserRole?: any

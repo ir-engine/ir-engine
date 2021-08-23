@@ -7,8 +7,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { selectAdminState } from '../../reducers/admin/selector'
-import { fetchAdminInstances, removeInstance } from '../../reducers/admin/instance/service'
+import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { columns, Data } from './variables'
@@ -16,7 +15,6 @@ import { selectAdminInstanceState } from '../../reducers/admin/instance/selector
 import { useInstanceStyle, useInstanceStyles } from './styles'
 
 interface Props {
-  adminState?: any
   authState?: any
   fetchAdminState?: any
   fetchAdminInstances?: any
@@ -26,7 +24,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
-    adminState: selectAdminState(state),
     adminInstanceState: selectAdminInstanceState(state)
   }
 }

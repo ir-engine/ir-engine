@@ -7,7 +7,7 @@ import {
   REMOVE_ARMEDIA,
   ARMEDIA_FETCHING
 } from '../../../actions'
-import { ArMediaAction, ArMediaOneAction, ArMediaRetriveAction } from './actions'
+import { AdminArMediaAction, AdminArMediaOneAction, AdminArMediaRetriveAction } from './actions'
 
 export const ARMEDIA_SOCIAL_PAGE_LIMIT = 100
 
@@ -26,13 +26,13 @@ export const initialArMediaState = {
 
 const immutableState = Immutable.fromJS(initialArMediaState) as any
 
-const arMediaReducer = (state = immutableState, action: ArMediaAction): any => {
+const arMediaReducer = (state = immutableState, action: AdminArMediaAction): any => {
   let result: any, updateMap: any
   switch (action.type) {
     case ARMEDIA_FETCHING:
       return state.set('fetching', true)
     case ARMEDIA_ADMIN_RETRIEVED:
-      result = (action as ArMediaRetriveAction).list
+      result = (action as AdminArMediaRetriveAction).list
       updateMap = new Map(state.get('arMedia'))
       updateMap.set('arMedia', result.data)
       updateMap.set('skip', (result as any).skip)

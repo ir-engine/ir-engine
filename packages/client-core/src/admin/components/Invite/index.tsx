@@ -65,7 +65,6 @@ interface Props {
   retrieveSentInvites?: any
   sendInvite?: any
   sentInvites?: any
-  adminState?: any
   fetchUsersAsAdmin?: any
   authState?: any
   adminUserState?: any
@@ -75,7 +74,6 @@ const mapStateToProps = (state: any): any => {
   return {
     receivedInvites: selectInviteState(state),
     sentInvites: selectInviteState(state),
-    adminState: selectAdminState(state),
     authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state)
   }
@@ -90,7 +88,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const InvitesConsole = (props: Props) => {
   const {
-    adminState,
     authState,
     fetchUsersAsAdmin,
     sentInvites,

@@ -5,7 +5,6 @@ import { createUser as createUserAction, fetchStaticResource } from '../../reduc
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { fetchUserRole } from '../../reducers/admin/user/service'
-import { selectAdminState } from '../../reducers/admin/selector'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import CreateUserRole from './CreateUserRole'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -30,10 +29,8 @@ const Alert = (props) => {
 interface Props {
   open: boolean
   handleClose: any
-  adminState?: any
   createUserAction?: any
   authState?: any
-  patchUser?: any
   fetchUserRole?: any
   closeViewModel: any
   adminUserState?: any
@@ -41,7 +38,6 @@ interface Props {
 }
 const mapStateToProps = (state: any): any => {
   return {
-    adminState: selectAdminState(state),
     authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state)
   }

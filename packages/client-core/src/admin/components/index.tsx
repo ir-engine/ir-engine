@@ -45,7 +45,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  adminState?: any
   authState?: any
   locationState?: any
   fetchAdminLocations?: any

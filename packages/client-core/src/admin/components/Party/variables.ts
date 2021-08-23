@@ -2,7 +2,6 @@ export interface PartyProps {
   open: boolean
   handleClose: any
   fetchAdminLocations?: any
-  adminState?: any
   authState?: any
   fetchAdminInstances?: any
   createAdminParty?: any
@@ -12,7 +11,6 @@ export interface PartyProps {
 
 export interface PartyPropsTable {
   fetchAdminParty?: any
-  adminState?: any
   authState?: any
   adminPartyState?: any
 }

@@ -74,7 +74,6 @@ export interface LocationData {
 }
 
 export interface LocationProps {
-  adminState?: any
   authState?: any
   locationState?: any
   fetchAdminLocations?: any
