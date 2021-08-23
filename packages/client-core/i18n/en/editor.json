@@ -434,7 +434,7 @@
             "lbl-locationName": "Location",
             "lbl-modelUrl": "Model URL",
             "lbl-displayText": "Display Text",
-            "lbl-reflectionProbe": "Reflection Probe",
+            "lbl-cubemapBake": "Cubemap bake",
             "lbl-spawnPosition": "Spawn Position",
             "lbl-spawnRotation": "Spawn Rotation",
             "lbl-triggerPosition": "Trigger Position",

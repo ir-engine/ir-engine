@@ -12,7 +12,7 @@ import SelectInput from '../inputs/SelectInput'
 import type PortalNode from '@xrengine/engine/src/editor/nodes/PortalNode'
 import configs from '../configs'
 import { Object3D } from 'three'
-import ReflectionProbeNode from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
+import CubemapBakeNode from '@xrengine/engine/src/editor/nodes/CubemapBakeNode'
 
 type PortalNodeEditorProps = {
   editor?: Editor
@@ -94,8 +94,8 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     this.props.editor.setPropertySelected('triggerScale', triggerScale)
   }
 
-  onChangeReflectionProbe = (reflectionProbeId) => {
-    this.props.editor.setPropertySelected('reflectionProbeId', reflectionProbeId)
+  onChangeCubemapBake = (cubemapBakeId) => {
+    this.props.editor.setPropertySelected('cubemapBakeId', cubemapBakeId)
   }
 
   componentDidUpdate() {
@@ -168,12 +168,12 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
           <ControlledStringInput value={node.displayText} onChange={this.onChangeDisplayText} />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Texture Override" label={this.props.t('editor:properties.portal.lbl-reflectionProbe')}>
+        <InputGroup name="Texture Override" label={this.props.t('editor:properties.portal.lbl-cubemapBake')}>
           {/* @ts-ignore */}
           <SelectInput
             options={this.props.editor.scene.children
               .filter((obj: Object3D) => {
-                return (obj as any).nodeName === ReflectionProbeNode.nodeName
+                return (obj as any).nodeName === CubemapBakeNode.nodeName
               })
               .map((obj: Object3D) => {
                 return {
@@ -181,8 +181,8 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
                   value: obj.uuid
                 }
               })}
-            value={node.reflectionProbeId}
-            onChange={this.onChangeReflectionProbe}
+            value={node.cubemapBakeId}
+            onChange={this.onChangeCubemapBake}
           />
         </InputGroup>
         {/* @ts-ignore */}

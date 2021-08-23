@@ -28,7 +28,7 @@ export const getPortalDetails = async (configs) => {
         .then((res) => {
           if (res) {
             setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-            fetch(`${SERVER_URL}/relectionProebe/${res.data.reflectionProbeId}`, options)
+            fetch(`${SERVER_URL}/cubemap/${res.data.cubemapBakeId}`, options)
               .then((res) => {
                 try {
                   return res.json()

@@ -31,7 +31,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       node.loadModel()
       node.displayText = portalComponent.props.displayText
       node.locationName = portalComponent.props.locationName
-      node.reflectionProbeId = portalComponent.props.reflectionProbeId
+      node.cubemapBakeId = portalComponent.props.cubemapBakeId
 
       node.spawnPosition = new Vector3()
       if (portalComponent.props.spawnPosition) {
@@ -123,7 +123,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
         linkedPortalId: this.linkedPortalId,
         modelUrl: this.modelUrl,
         displayText: this.displayText,
-        reflectionProbeId: this.reflectionProbeId,
+        cubemapBakeId: this.cubemapBakeId,
         spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
         spawnRotation: rotation,
         triggerPosition: this.triggerPosition,
@@ -149,7 +149,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       linkedPortalId: this.linkedPortalId,
       modelUrl: this.modelUrl,
       displayText: this.displayText,
-      reflectionProbeId: this.reflectionProbeId,
+      cubemapBakeId: this.cubemapBakeId,
       spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
       spawnRotation: rotation,
       triggerPosition: this.triggerPosition,

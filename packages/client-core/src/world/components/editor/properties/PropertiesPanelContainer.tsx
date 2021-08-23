@@ -161,8 +161,8 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
     ;((this.props as any).editor as any).setPropertySelected('visible', value)
   }
 
-  onChangeProbeStatic = (value) => {
-    ;((this.props as any).editor as any).setPropertySelected('reflectionProbeStatic', value)
+  onChangeBakeStatic = (value) => {
+    ;((this.props as any).editor as any).setPropertySelected('includeInCubemapBake', value)
   }
 
   onChangePersist = (value) => {
@@ -217,8 +217,8 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
                     <BooleanInput value={activeNode.visible} onChange={this.onChangeVisible} />
                   </VisibleInputGroup>
                   {haveStaticTags && (
-                    <VisibleInputGroup name="Probe Static" label="Probe Static">
-                      <BooleanInput value={activeNode.reflectionProbeStatic} onChange={this.onChangeProbeStatic} />
+                    <VisibleInputGroup name="Bake Static" label="Bake Static">
+                      <BooleanInput value={activeNode.includeInCubemapBake} onChange={this.onChangeBakeStatic} />
                     </VisibleInputGroup>
                   )}
                 </>
