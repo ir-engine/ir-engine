@@ -1,13 +1,24 @@
- 
-
 .mapboxgl-ctrl-top-left, .mapboxgl-ctrl-top-right{
-  width: 100% !important;
+  width: 100% !important; 
+  border-radius: 10px;
 }
 
 .mapboxgl-ctrl-top-left .mapboxgl-ctrl{
   margin: 0px !important;
   max-width: none !important;
   width: 100%;
+}
+
+.mapboxgl-map{
+  border-radius: 0 0 10px 10px;
+}
+
+.mapboxgl-canvas{
+  margin-top: 60px !important;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  width: 100%;
+  margin-top: 30px; 
 }
 
  
