@@ -61,7 +61,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
     for (const entity of labelsQuery(world)) {
       const labels = getComponent(entity, GeoLabelSetComponent).value
       for (const label of labels) {
-        label.update(Engine.camera)
+        label.onUpdate(Engine.camera)
       }
     }
 

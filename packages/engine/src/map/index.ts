@@ -40,17 +40,14 @@ export const create = async function (args: MapProps) {
   const landUseMesh = createLandUse(vectorTiles, center)
   const labels = createLabels(vectorTiles, center, args.scale.x)
 
+  ;[buildingMesh, roadsMesh, waterMesh, landUseMesh].forEach((mesh) => {
+    mesh.scale.copy(args.scale)
+    group.add(mesh)
+  })
+
+  buildingMesh.scale.copy(args.scale)
+
   setGroundScaleAndPosition(groundMesh, buildingMesh)
-
-  group.add(buildingMesh)
-
-  group.add(roadsMesh)
-
-  group.add(groundMesh)
-
-  group.add(waterMesh)
-
-  group.add(landUseMesh)
 
   labels.forEach((label) => {
     ;(label as unknown as Object3D).scale.copy(args.scale)
