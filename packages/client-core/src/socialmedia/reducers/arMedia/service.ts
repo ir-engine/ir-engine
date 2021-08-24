@@ -14,7 +14,7 @@ import {
   retrievedArMediaItem,
   updateAdminArMedia
 } from './actions'
-import { upload } from '@xrengine/editor/src/components/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 
 export function getArMediaService(type?: string, limit: Number = 12) {
   return async (dispatch: Dispatch): Promise<any> => {

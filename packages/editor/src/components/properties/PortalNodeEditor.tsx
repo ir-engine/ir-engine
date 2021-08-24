@@ -1,19 +1,19 @@
-import React, { Component } from 'react'
-import Editor from '../Editor'
-import InputGroup from '../inputs/InputGroup'
-import { ControlledStringInput } from '../inputs/StringInput'
-import NodeEditor from './NodeEditor'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
 import { DoorOpen } from '@styled-icons/fa-solid'
-import Vector3Input from '../inputs/Vector3Input'
-import EulerInput from '../inputs/EulerInput'
-import SelectInput from '../inputs/SelectInput'
-import type PortalNode from '@xrengine/editor/src/nodes/PortalNode'
-import configs from '../configs'
-import { Object3D } from 'three'
+import { Config } from '@xrengine/common/src/config'
 import CubemapBakeNode from '@xrengine/editor/src/nodes/CubemapBakeNode'
-import { fetchUrl } from '../Api'
+import type PortalNode from '@xrengine/editor/src/nodes/PortalNode'
+import { fetchUrl } from "@xrengine/engine/src/scene/functions/fetchUrl"
+import i18n from 'i18next'
+import React, { Component } from 'react'
+import { withTranslation } from 'react-i18next'
+import { Object3D } from 'three'
+import Editor from '../Editor'
+import EulerInput from '../inputs/EulerInput'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { ControlledStringInput } from '../inputs/StringInput'
+import Vector3Input from '../inputs/Vector3Input'
+import NodeEditor from './NodeEditor'
 
 type PortalNodeEditorProps = {
   editor?: Editor
@@ -112,8 +112,7 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
   }
 
   loadPortals = async () => {
-    const SERVER_URL = (configs as any).SERVER_URL
-    const portalsDetail = await fetchUrl(`${SERVER_URL}/portal/list`)
+    const portalsDetail = await fetchUrl(`${Config.publicRuntimeConfig.apiServer}/portal/list`)
       .then((res) => res.json())
       .catch((err) => {
         console.error(err)

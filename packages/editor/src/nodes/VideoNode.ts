@@ -2,6 +2,7 @@ import EditorNodeMixin from './EditorNodeMixin'
 import Video from '@xrengine/engine/src/scene/classes/Video'
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
+import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
 
 // @ts-ignore
 export default class VideoNode extends EditorNodeMixin(Video) {
@@ -55,7 +56,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     //   return
     // }
     try {
-      const { url, contentType } = await this.editor.api.resolveMedia(this.src)
+      const { url, contentType } = await resolveMedia(this.src)
       const isHls = isHLS(this.src, contentType)
       if (isHls) {
         this.hls = new Hls()

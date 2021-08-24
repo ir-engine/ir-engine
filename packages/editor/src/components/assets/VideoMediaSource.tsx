@@ -2,7 +2,7 @@ import { BaseSource } from './sources'
 import { ItemTypes } from '../dnd'
 import VideoSourcePanel from './VideoSourcePanel'
 import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
-import { searchMedia } from '../Api'
+import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'
 
 /**
  * VideoMediaSource used as parent class for Videos Source components like BingVideosSource.

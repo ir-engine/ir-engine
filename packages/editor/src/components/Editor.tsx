@@ -1,6 +1,3 @@
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import GLTFCache from '@xrengine/editor/src/caches/GLTFCache'
 import TextureCache from '@xrengine/editor/src/caches/TextureCache'
 import EditorInfiniteGridHelper from '@xrengine/editor/src/classes/EditorInfiniteGridHelper'
@@ -43,12 +40,12 @@ import SetSelectionCommand from '@xrengine/editor/src/commands/SetSelectionComma
 import TranslateCommand from '@xrengine/editor/src/commands/TranslateCommand'
 import TranslateMultipleCommand from '@xrengine/editor/src/commands/TranslateMultipleCommand'
 import { TransformSpace } from '@xrengine/editor/src/constants/TransformSpace'
-import EditorControls, { TransformMode } from '@xrengine/editor/src/controls/EditorControls'
+import EditorControls from '@xrengine/editor/src/controls/EditorControls'
+import { TransformMode } from "@xrengine/engine/src/scene/constants/transformConstants"
 import FlyControls from '@xrengine/editor/src/controls/FlyControls'
 import InputManager from '@xrengine/editor/src/controls/InputManager'
 import PlayModeControls from '@xrengine/editor/src/controls/PlayModeControls'
-import cloneObject3D from '@xrengine/editor/src/functions/cloneObject3D'
-import { MultiError, RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import getDetachedObjectsRoots from '@xrengine/editor/src/functions/getDetachedObjectsRoots'
 import getIntersectingNode from '@xrengine/editor/src/functions/getIntersectingNode'
 import isEmptyObject from '@xrengine/editor/src/functions/isEmptyObject'
@@ -66,8 +63,11 @@ import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
 import VolumetricNode from '@xrengine/editor/src/nodes/VolumetricNode'
 import Renderer from '@xrengine/editor/src/renderer/Renderer'
 import ThumbnailRenderer from '@xrengine/editor/src/renderer/ThumbnailRenderer'
+import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { AnyRecordWithTtl } from 'dns'
+import { MultiError, RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 import EventEmitter from 'eventemitter3'
 import i18n from 'i18next'
 import {
@@ -82,8 +82,9 @@ import {
   Vector2,
   Vector3
 } from 'three'
-import { Config } from '@xrengine/client-core/src/helper'
-import { fetchUrl, getContentType } from './Api'
+import { fetchContentType } from '@xrengine/engine/src/scene/functions/fetchContentType'
+import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
+import { guessContentType } from '@xrengine/engine/src/scene/functions/guessContentType'
 import AssetManifestSource from './assets/AssetManifestSource'
 import { loadEnvironmentMap } from './EnvironmentMap'
 
@@ -2705,7 +2706,7 @@ export class Editor extends EventEmitter {
     const { hostname } = new URL(url)
 
     try {
-      contentType = (await getContentType(url)) || ''
+      contentType = (await guessContentType(url) || (await fetchContentType(url))) || ''
     } catch (error) {
       console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`)
     }

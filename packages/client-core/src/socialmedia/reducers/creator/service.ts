@@ -3,7 +3,7 @@
  */
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { Dispatch } from 'redux'
-import { upload } from '@xrengine/editor/src/components/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import { client } from '../../../feathers'
 import {

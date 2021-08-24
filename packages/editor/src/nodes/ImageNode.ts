@@ -1,7 +1,7 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import Image, { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
-import { RethrownError } from '../../../engine/src/scene/functions/errors'
-import { resolveMedia } from '../components/Api'
+import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
 // @ts-ignore
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'

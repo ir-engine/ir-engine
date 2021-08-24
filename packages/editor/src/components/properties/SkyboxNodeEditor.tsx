@@ -1,17 +1,16 @@
+import { Cloud } from '@styled-icons/fa-solid/Cloud'
+import { SkyTypeEnum } from "@xrengine/engine/src/scene/constants/SkyBoxShaderProps"
+import i18n from 'i18next'
 import React, { Component } from 'react'
+import { withTranslation } from 'react-i18next'
+import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
-import { ControlledStringInput } from '../inputs/StringInput'
-import SelectInput from '../inputs/SelectInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { Cloud } from '@styled-icons/fa-solid/Cloud'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
-import { Color } from 'three'
-import ColorInput from '../inputs/ColorInput'
-import { SkyTypeEnum } from '@xrengine/editor/src/nodes/SkyboxNode'
 
 const hoursToRadians = (hours) => hours / 24
 const radiansToHours = (rads) => rads * 24

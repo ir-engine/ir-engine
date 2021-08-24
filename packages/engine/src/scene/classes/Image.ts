@@ -9,7 +9,7 @@ import {
   PlaneBufferGeometry,
   MeshStandardMaterial
 } from 'three'
-import loadTexture from '@xrengine/editor/src/functions/loadTexture'
+import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 export const ImageProjection = {
   Flat: 'flat',
   Equirectangular360: '360-equirectangular'

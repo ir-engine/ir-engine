@@ -2,7 +2,7 @@ import { BaseSource } from './sources'
 import { ItemTypes } from '../dnd'
 import ImageSourcePanel from './ImageSourcePanel'
 import ImageNode from '@xrengine/editor/src/nodes/ImageNode'
-import { searchMedia } from '../Api'
+import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'
 
 /**
  * ImageMediaSource used to get image source by calling api.

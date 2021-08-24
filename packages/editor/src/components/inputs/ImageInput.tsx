@@ -4,7 +4,7 @@ import { ControlledStringInput } from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
 import useUpload from '../assets/useUpload'
-import { ImageFileTypes } from '../assets/fileTypes'
+import { ImageFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 /**
  * used to set uploadOptions.

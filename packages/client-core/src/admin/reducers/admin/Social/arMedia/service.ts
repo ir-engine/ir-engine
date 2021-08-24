@@ -1,4 +1,4 @@
-import { upload } from '@xrengine/editor/src/components/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { Dispatch } from 'redux'
 import { client } from '../../../../../feathers'
 import { addAdminArMedia, updateAdminArMedia, removeArMediaItem, fetchingArMedia, setAdminArMedia } from './actions'

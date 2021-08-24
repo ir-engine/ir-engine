@@ -1,10 +1,12 @@
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import Tab from '@material-ui/core/Tab'
+import Tabs from '@material-ui/core/Tabs'
 import { Person } from '@material-ui/icons'
+import LocationAdmin from '@xrengine/client-core/src/admin/components/Location'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto, logoutUser } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { deleteProject, getProjects } from '@xrengine/editor/src/components/Api'
 import { Button, MediumButton } from '@xrengine/editor/src/components/inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '@xrengine/editor/src/components/layout/ContextMenu'
 import {
@@ -16,24 +18,18 @@ import {
   ProjectGridHeaderRow
 } from '@xrengine/editor/src/components/projects/ProjectGrid'
 import templates from '@xrengine/editor/src/components/projects/templates'
-import { useHistory } from 'react-router-dom'
+import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
-import LocationAdmin from '@xrengine/client-core/src/admin/components/Location'
 import {
-  TabPanel,
+  ProfileButton, ProjectsContainer,
+  ProjectsHeader, ProjectsSection, TabPanel,
   tapId,
-  useStyles,
-  ProjectsContainer,
-  ProjectsHeader,
-  WelcomeContainer,
-  ProjectsSection,
-  ProfileButton
+  useStyles, WelcomeContainer
 } from './projectUtility'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
 
 /**
  *Defining contextMenuId for rendering menus.

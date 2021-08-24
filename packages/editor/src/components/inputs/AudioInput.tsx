@@ -5,7 +5,7 @@ import StringInput from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
 import useUpload from '../assets/useUpload'
-import { AudioFileTypes } from '../assets/fileTypes'
+import { AudioFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 /**
  * Initializing uploadOptions properties.

@@ -5,7 +5,7 @@ import ImageNode from '@xrengine/editor/src/nodes/ImageNode'
 import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
 import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
 import VolumetricNode from '@xrengine/editor/src/nodes/VolumetricNode'
-import { fetchUrl } from '../Api'
+import { fetchUrl } from "@xrengine/engine/src/scene/functions/fetchUrl"
 function hasTags(result, tags) {
   for (const { value } of tags) {
     if (result.tags.indexOf(value) === -1) {

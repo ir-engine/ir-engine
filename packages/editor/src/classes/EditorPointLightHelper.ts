@@ -1,5 +1,5 @@
 import { Mesh, SphereBufferGeometry, MeshBasicMaterial, IcosahedronBufferGeometry } from 'three'
-import { addIsHelperFlag } from '../functions/addIsHelperFlag'
+import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 export default class EditorPointLightHelper extends Mesh {
   light: any
   lightDistanceHelper: Mesh

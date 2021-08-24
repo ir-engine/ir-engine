@@ -1,5 +1,5 @@
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import { restoreState } from '@xrengine/client-core/src/persisted.store'
 import { configureStore } from '@xrengine/client-core/src/store'
 import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'

@@ -1,5 +1,5 @@
 import { Mesh, Color, PlaneBufferGeometry, ShaderMaterial, DoubleSide, Plane, Vector3 } from 'three'
-import { addIsHelperFlag } from '../functions/addIsHelperFlag'
+import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377

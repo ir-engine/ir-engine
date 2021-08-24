@@ -2,11 +2,11 @@ import { Box3, Sphere, PropertyBinding } from 'three'
 import Model from '@xrengine/engine/src/scene/classes/Model'
 import EditorNodeMixin from './EditorNodeMixin'
 import { setStaticMode, StaticModes } from '../functions/StaticMode'
-import cloneObject3D from '../functions/cloneObject3D'
+import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { makeCollidersInvisible } from '@xrengine/engine/src/physics/functions/parseModelColliders'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
-import { resolveMedia } from '../components/Api'
+import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'

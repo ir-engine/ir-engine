@@ -1,4 +1,4 @@
-import { upload } from '@xrengine/editor/src/components/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../../../common/reducers/alert/service'
 import { client } from '../../../../../feathers'

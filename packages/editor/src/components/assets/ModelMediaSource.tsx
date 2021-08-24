@@ -2,7 +2,7 @@ import { BaseSource } from './sources'
 import { ItemTypes } from '../dnd'
 import ModelSourcePanel from './ModelSourcePanel'
 import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
-import { searchMedia } from '../Api'
+import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'
 
 /**
  * ModelMediaSource used to provide model media by calling api.

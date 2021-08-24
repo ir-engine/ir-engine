@@ -1,11 +1,9 @@
-import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import configs from '../configs'
-import PreviewDialog from './PreviewDialog'
-import StringInput from '../inputs/StringInput'
-import BooleanInput from '../inputs/BooleanInput'
+import React, { Component } from 'react'
+import { withTranslation } from 'react-i18next'
 import FormField from '../inputs/FormField'
-import { Trans, withTranslation } from 'react-i18next'
+import StringInput from '../inputs/StringInput'
+import PreviewDialog from './PreviewDialog'
 
 /**
  * PublishDialog used to show the dialog when we are going to publish scene.

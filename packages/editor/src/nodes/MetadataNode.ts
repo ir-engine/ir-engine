@@ -1,6 +1,6 @@
 import { Object3D, PlaneBufferGeometry, MeshBasicMaterial, Mesh, DoubleSide } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
-import loadTexture from '../functions/loadTexture'
+import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 
 let metadataHelperTexture = null
 export default class MetadataNode extends EditorNodeMixin(Object3D) {

@@ -14,7 +14,7 @@ import traverseEarlyOut from '@xrengine/editor/src/functions/traverseEarlyOut'
 import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
 import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
 import useUpload from '../assets/useUpload'
-import { AllFileTypes } from '../assets/fileTypes'
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import { useTranslation } from 'react-i18next'
 

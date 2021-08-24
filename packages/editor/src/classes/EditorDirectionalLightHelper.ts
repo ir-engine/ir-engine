@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { Line, Object3D, BufferGeometry, LineBasicMaterial, Float32BufferAttribute } from 'three'
-import { addIsHelperFlag } from '../functions/addIsHelperFlag'
+import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 export default class EditorDirectionalLightHelper extends Object3D {
   light: any
   color: any

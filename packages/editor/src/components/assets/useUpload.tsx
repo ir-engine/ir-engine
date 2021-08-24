@@ -4,7 +4,7 @@ import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { DialogContext } from '../contexts/DialogContext'
 import { EditorContext } from '../contexts/EditorContext'
 import { useTranslation } from 'react-i18next'
-import { AllFileTypes } from './fileTypes'
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 /**
  * useUpload used to upload asset file.

@@ -1,32 +1,7 @@
 import { Sky } from '@xrengine/engine/src/scene/classes/Sky'
+import { SceneBackgroundProps, SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
 import { Color, CubeTextureLoader, Mesh, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
-
-export type SkyBoxShaderProps = {
-  turbidity: number
-  rayleigh: number
-  luminance: number
-  mieCoefficient: number
-  mieDirectionalG: number
-  inclination: number
-  azimuth: number
-  distance: number
-}
-
-export enum SkyTypeEnum {
-  'color',
-  'cubemap',
-  'equirectangular',
-  'skybox'
-}
-
-export type SceneBackgroundProps = {
-  backgroundColor: string
-  equirectangularPath: string
-  cubemapPath: string
-  backgroundType: SkyTypeEnum
-  skyboxProps: SkyBoxShaderProps
-}
 
 export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static legacyComponentName = 'skybox'

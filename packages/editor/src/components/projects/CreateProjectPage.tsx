@@ -19,7 +19,8 @@ import InfiniteScroll from 'react-infinite-scroller'
 import { useHistory, useLocation, withRouter } from 'react-router-dom'
 import usePaginatedSearch from './usePaginatedSearch'
 import { useTranslation } from 'react-i18next'
-import { serverURL } from '../Api'
+import { Config } from '@xrengine/common/src/config'
+export const serverURL = Config.publicRuntimeConfig.apiServer
 
 /**
  *

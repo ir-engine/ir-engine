@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import ProtectedRoute from './protected'
 import homePage from '../pages/index'
 import CircularProgress from '@material-ui/core/CircularProgress'

@@ -1,58 +1,19 @@
-import EventEmitter from 'eventemitter3'
-import { Editor, EditorMapping, Fly } from './input-mappings'
-import {
-  Matrix3,
-  Vector2,
-  Vector3,
-  Spherical,
-  Box3,
-  Raycaster,
-  Sphere,
-  Ray,
-  Plane,
-  Quaternion,
-  MathUtils as _Math,
-  Layers,
-  PerspectiveCamera
-} from 'three'
-import getIntersectingNode from '../functions/getIntersectingNode'
-import { TransformSpace } from '../constants/TransformSpace'
-
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { TransformAxis, TransformAxisConstraints, TransformMode, TransformPivot } from "@xrengine/engine/src/scene/constants/transformConstants"
+import EventEmitter from 'eventemitter3'
+import {
+  Box3, Layers, MathUtils as _Math, Matrix3, PerspectiveCamera, Plane,
+  Quaternion, Ray, Raycaster,
+  Sphere, Spherical, Vector2,
+  Vector3
+} from 'three'
+import { TransformSpace } from '../constants/TransformSpace'
+import getIntersectingNode from '../functions/getIntersectingNode'
+import { Editor, EditorMapping, Fly } from './input-mappings'
+
 export const SnapMode = {
   Disabled: 'Disabled',
   Grid: 'Grid'
-}
-export const TransformPivot = {
-  Selection: 'Selection',
-  Center: 'Center',
-  Bottom: 'Bottom'
-}
-export const TransformMode = {
-  Disabled: 'Disabled',
-  Grab: 'Grab',
-  Placement: 'Placement',
-  Translate: 'Translate',
-  Rotate: 'Rotate',
-  Scale: 'Scale'
-}
-export const TransformAxis = {
-  X: 'X',
-  Y: 'Y',
-  Z: 'Z',
-  XY: 'XY',
-  YZ: 'YZ',
-  XZ: 'XZ',
-  XYZ: 'XYZ'
-}
-export const TransformAxisConstraints = {
-  X: new Vector3(1, 0, 0),
-  Y: new Vector3(0, 1, 0),
-  Z: new Vector3(0, 0, 1),
-  XY: new Vector3(1, 1, 0),
-  YZ: new Vector3(0, 1, 1),
-  XZ: new Vector3(1, 0, 1),
-  XYZ: new Vector3(1, 1, 1)
 }
 const viewDirection = new Vector3()
 function sortDistance(a, b) {

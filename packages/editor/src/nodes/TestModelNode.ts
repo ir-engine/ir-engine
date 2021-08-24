@@ -13,10 +13,8 @@ import {
   RepeatWrapping,
   TextureLoader
 } from 'three'
+import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
 import EditorNodeMixin from './EditorNodeMixin'
-// import { RectAreaLightHelper } from './helper/RectAreaLightHelper.js'
-// import { RectAreaLightUniformsLib } from './helper/RectAreaLightUniformsLib.js'
-
 export default class TestModelNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'TestModel'
   groundPlane: any
@@ -38,7 +36,7 @@ export default class TestModelNode extends EditorNodeMixin(Object3D) {
       console.log('Hello Texture')
     }
   ) {
-    const { url, files } = await this.editor.api.resolveMedia(src)
+    const { url, files } = await resolveMedia(src)
     const loader = new TextureLoader()
     return loader.load(url, callbackFunc)
   }

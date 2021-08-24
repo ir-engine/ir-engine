@@ -1,7 +1,7 @@
 import AudioSource from '@xrengine/engine/src/scene/classes/AudioSource'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry } from 'three'
-import { resolveMedia, resolveMedia } from '../components/Api'
-import loadTexture from '../functions/loadTexture'
+import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 import EditorNodeMixin from './EditorNodeMixin'
 
 let audioHelperTexture = null

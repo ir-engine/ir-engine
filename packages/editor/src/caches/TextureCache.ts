@@ -1,5 +1,5 @@
 import { TextureLoader } from 'three'
-import loadTexture from '../functions/loadTexture'
+import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 
 class Cache {
   _cache = new Map()

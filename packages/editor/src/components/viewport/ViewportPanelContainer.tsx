@@ -1,18 +1,13 @@
-import React, { useEffect, useRef, useCallback, useContext, useState } from 'react'
 import PropTypes from 'prop-types'
-import { EditorContext } from '../contexts/EditorContext'
-import styled from 'styled-components'
-import Panel from '../layout/Panel'
-import { WindowMaximize } from '@styled-icons/fa-solid/WindowMaximize'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
-import { ItemTypes, AssetTypes, addAssetAtCursorPositionOnDrop } from '../dnd'
-// import SelectInput from "../inputs/SelectInput";
-import { TransformMode } from '@xrengine/editor/src/controls/EditorControls'
-import AssetDropZone from '../assets/AssetDropZone'
-// import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
-import { InfoTooltip } from '../layout/Tooltip'
-// import Stats from "./Stats";
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import AssetDropZone from '../assets/AssetDropZone'
+import { EditorContext } from '../contexts/EditorContext'
+import { addAssetAtCursorPositionOnDrop, AssetTypes, ItemTypes } from '../dnd'
+import { InfoTooltip } from '../layout/Tooltip'
 
 /**
  * BorderColor used to get border color.
@@ -151,82 +146,6 @@ IconToggle.propTypes = {
   tooltip: PropTypes.string
 }
 
-// /**
-//  * SelectInputStyles used to show select input inside ToolBar.
-//  *
-//  * @author Robert Long
-//  * @type {Object}
-//  */
-// const selectInputStyles = {
-//   container: base => ({
-//     ...base,
-//     width: "120px"
-//   }),
-//   control: (base, { isFocused, theme }) => ({
-//     ...base,
-//     backgroundColor: "transparent",
-//     minHeight: "20px",
-//     borderRadius: "0px",
-//     borderWidth: "0px 1px",
-//     borderStyle: "solid",
-//     borderColor: isFocused ? theme.colors.primary : "rgba(255, 255, 255, 0.2)",
-//     cursor: "pointer",
-//     outline: "none",
-//     boxShadow: "none"
-//   })
-// };
-
-/**
- * ViewportToolbar used as warpper for IconToggle, SelectInput.
- *
- * @author Robert Long
- * @param  {any} onToggleStats
- * @param  {any} showStats
- * @constructor
- */
-// function ViewportToolbar({ onToggleStats, showStats }) {
-//   const editor = useContext(EditorContext);
-
-//   const renderer = editor.renderer;
-//   const [renderMode, setRenderMode] = useState(renderer && renderer.renderMode);
-
-//   const options = renderer
-//     ? renderer.renderModes.map(mode => ({
-//         label: mode.name,
-//         value: mode
-//       }))
-//     : [];
-
-//   useEffect(() => {
-//     editor.addListener("initialized", () => {
-//       setRenderMode(editor.renderer.renderMode);
-//     });
-//   }, [editor]);
-
-//   const onChangeRenderMode = useCallback(
-//     mode => {
-//       editor.renderer.setRenderMode(mode);
-//       setRenderMode(mode);
-//     },
-//     [editor, setRenderMode]
-//   );
-
-//   // creating ToolBar view
-//   return (
-//     <ViewportToolbarContainer>
-//       <IconToggle onClick={onToggleStats} value={showStats} tooltip="Toggle Stats" icon={ChartArea} />
-//       { /* @ts-ignore */ }
-//       <SelectInput value={renderMode} options={options} onChange={onChangeRenderMode} styles={selectInputStyles} />
-//     </ViewportToolbarContainer>
-//   );
-// }
-
-// // creating properties for  ViewportToolbar
-// ViewportToolbar.propTypes = {
-//   showStats: PropTypes.bool,
-//   onToggleStats: PropTypes.func
-// };
-
 /**
  * ViewportPanelContainer used to render viewport.
  *
@@ -352,20 +271,11 @@ export function ViewportPanelContainer() {
   }
 
   return (
-    // <Panel
-    //   /* @ts-ignore */
-    //   id="viewport-panel"
-    //   title={t('editor:viewport.title')}
-    //   icon={WindowMaximize}
-    //   // toolbarContent={<ViewportToolbar onToggleStats={setShowStats} showStats={showStats} />}
-    // >
     <ViewportContainer error={isOver && !canDrop} canDrop={isOver && canDrop} ref={dropRef}>
       <Viewport ref={canvasRef} tabIndex="-1" />
       <ControlsText>{controlsText}</ControlsText>
-      {/* {showStats && <Stats editor={editor} />} */}
       <AssetDropZone afterUpload={onAfterUploadAssets} />
     </ViewportContainer>
-    // </Panel>
   )
 }
 export default ViewportPanelContainer

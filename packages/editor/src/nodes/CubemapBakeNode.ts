@@ -22,7 +22,7 @@ import { envmapPhysicalParsReplace, worldposReplace } from '@xrengine/engine/src
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData, uploadCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import SkyboxNode from './SkyboxNode'
-import { deleteAsset } from '../components/Api'
+import { deleteAsset } from '@xrengine/engine/src/scene/functions/deleteAsset'
 
 export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'Cubemap Bake'
