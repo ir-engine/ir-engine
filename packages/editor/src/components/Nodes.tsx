@@ -3,7 +3,6 @@ import AudioNode from '@xrengine/editor/src/nodes/AudioNode'
 import BoxColliderNode from '@xrengine/editor/src/nodes/BoxColliderNode'
 import PortalNode from '@xrengine/editor/src/nodes/PortalNode'
 import DirectionalLightNode from '@xrengine/editor/src/nodes/DirectionalLightNode'
-import FloorPlanNode from '@xrengine/editor/src/nodes/FloorPlanNode'
 import SystemNode from '@xrengine/editor/src/nodes/SystemNode'
 import GroundPlaneNode from '@xrengine/editor/src/nodes/GroundPlaneNode'
 import GroupNode from '@xrengine/editor/src/nodes/GroupNode'
@@ -37,7 +36,6 @@ import AudioNodeEditor from './properties/AudioNodeEditor'
 import BoxColliderNodeEditor from './properties/BoxColliderNodeEditor'
 import PortalNodeEditor from './properties/PortalNodeEditor'
 import DirectionalLightNodeEditor from './properties/DirectionalLightNodeEditor'
-import FloorPlanNodeEditor from './properties/FloorPlanNodeEditor'
 import SystemNodeEditor from './properties/SystemNodeEditor'
 import GroundPlaneNodeEditor from './properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from './properties/GroupNodeEditor'
@@ -87,7 +85,6 @@ export function createEditor(settings, Engine) {
   editor.registerNode(PointLightNode, PointLightNodeEditor)
   editor.registerNode(SpawnPointNode, SpawnPointNodeEditor)
   editor.registerNode(SkyboxNode, SkyboxNodeEditor)
-  editor.registerNode(FloorPlanNode, FloorPlanNodeEditor)
   editor.registerNode(ImageNode, ImageNodeEditor)
   editor.registerNode(MetadataNode, MetadataNodeEditor)
   editor.registerNode(VideoNode, VideoNodeEditor)

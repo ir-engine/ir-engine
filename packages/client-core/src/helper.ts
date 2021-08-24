@@ -18,7 +18,6 @@ export class Config {
     appServer: 'https://dev.theoverlay.io',
     gameserver: 'https://localhost:3030',
     mediatorServer: 'https://authn.io',
-    wasmUrl: 'https://localhost:3000/recast/recast.wasm',
     gameserverDomain: '',
     lobbyLocationName: 'lobby',
     siteTitle: 'The Overlay',

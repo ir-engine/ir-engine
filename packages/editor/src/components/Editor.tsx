@@ -60,7 +60,6 @@ import {
   generateVideoFileThumbnail
 } from '@xrengine/editor/src/functions/thumbnails'
 import AudioNode from '@xrengine/editor/src/nodes/AudioNode'
-import FloorPlanNode from '@xrengine/editor/src/nodes/FloorPlanNode'
 import GroupNode from '@xrengine/editor/src/nodes/GroupNode'
 import ImageNode from '@xrengine/editor/src/nodes/ImageNode'
 import LinkNode from '@xrengine/editor/src/nodes/LinkNode'
@@ -506,16 +505,6 @@ export class Editor extends EventEmitter {
     this.deselectAll(false)
 
     const scene = this.scene
-
-    const floorPlanNode = scene.findNodeByType(FloorPlanNode)
-
-    if (floorPlanNode) {
-      try {
-        await floorPlanNode.generate(signal, Config.publicRuntimeConfig.wasmUrl)
-      } catch (error) {
-        console.warn('Failed to generate floorplan', error)
-      }
-    }
 
     const clonedScene = cloneObject3D(scene, true)
     const animations = clonedScene.getAnimationClips()
