@@ -1,4 +1,4 @@
-import { Config } from './helper'
+import { Config } from '@xrengine/common/src/config'
 
 import { RESTORE } from './user/reducers/actions'
 

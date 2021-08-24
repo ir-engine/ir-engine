@@ -58,12 +58,27 @@ export interface StateClientEntity {
   qW: number
 }
 
+export interface StateClientMovingEntity {
+  networkId: number
+  x: number
+  y: number
+  z: number
+  vX: number
+  vY: number
+  vZ: number
+  qX: number
+  qY: number
+  qZ: number
+  qW: number
+}
+
 export type ID = string
 export type Time = number
 export type StateEntityGroup = StateEntity[]
 export type StateEntityIKGroup = StateEntityIK[]
 export type StateEntityInterGroup = StateInterEntity[]
 export type StateEntityClientGroup = StateClientEntity[]
+export type StateEntityClientMovingGroup = StateClientMovingEntity[]
 
 export interface Snapshot {
   id: ID

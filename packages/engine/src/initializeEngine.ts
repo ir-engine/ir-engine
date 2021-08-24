@@ -54,7 +54,7 @@ Quaternion.prototype.toJSON = function () {
 
 // @ts-ignore
 Euler.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z }
+  return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
@@ -186,8 +186,8 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
-  registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
+  registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
 }
@@ -321,7 +321,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })
-  } else {
+  } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.engineTimer.start()
   }
 

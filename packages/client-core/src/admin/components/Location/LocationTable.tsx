@@ -248,7 +248,7 @@ const LocationTable = (props: Props) => {
         aria-describedby="alert-dialog-description"
         classes={{ paper: classes.paperDialog }}
       >
-        <DialogTitle id="alert-dialog-title">Confirm to delete this location!</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Confirm location deletion</DialogTitle>
         <DialogActions>
           <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
             Cancel

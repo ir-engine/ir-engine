@@ -6,8 +6,8 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [disallow()],
-    patch: [disallow()],
+    update: [],
+    patch: [],
     remove: []
   },
 

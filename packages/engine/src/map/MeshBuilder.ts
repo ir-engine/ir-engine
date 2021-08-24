@@ -8,7 +8,6 @@ import {
   Shape,
   ShapeGeometry,
   ExtrudeGeometry,
-  WebGLRenderer,
   BufferAttribute,
   Color,
   CanvasTexture,
@@ -242,20 +241,11 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildMeshes(
-  layerName: ILayerName,
-  features: Feature[],
-  llCenter: Position,
-  renderer: WebGLRenderer
-): Mesh[] {
+export function buildMeshes(layerName: ILayerName, features: Feature[], llCenter: Position): Mesh[] {
   const geometries = buildGeometries(layerName, features, llCenter)
 
   return geometries.map((g, i) => {
     const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[i].properties.class)
-
-    const texture = new CanvasTexture(generateTextureCanvas())
-    texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
-    texture.needsUpdate = true
 
     const materialParams = {
       color: styles.color?.constant,
@@ -339,25 +329,20 @@ export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): 
   return mesh
 }
 
-export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Mesh {
+export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Mesh {
   const features = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
-  const meshes = buildMeshes('building', features, llCenter, renderer)
+  const meshes = buildMeshes('building', features, llCenter)
 
   return meshes[0]
 }
 
-function createLayerGroup(
-  layers: ILayerName[],
-  vectorTiles: TileFeaturesByLayer[],
-  llCenter: Position,
-  renderer: WebGLRenderer
-): Group {
+function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
   const meshes = layers.reduce((accMeshes, layerName) => {
     const featuresInLayer = vectorTiles.reduce((accFeatures, tile) => {
       return [...accFeatures, ...tile[layerName]]
     }, [])
 
-    const meshes = buildMeshes(layerName, featuresInLayer, llCenter, renderer)
+    const meshes = buildMeshes(layerName, featuresInLayer, llCenter)
     return [...accMeshes, ...meshes]
   }, [])
   console.log('meshes is')
@@ -365,15 +350,15 @@ function createLayerGroup(
   return new Group().add(...meshes)
 }
 
-export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  return createLayerGroup(['road'], vectorTiles, llCenter, renderer)
+export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+  return createLayerGroup(['road'], vectorTiles, llCenter)
 }
 
-export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter, renderer)
+export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+  return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter)
 }
-export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  return createLayerGroup(['landuse'], vectorTiles, llCenter, renderer)
+export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+  return createLayerGroup(['landuse'], vectorTiles, llCenter)
 }
 
 /** Workaround for until we get the Web Mercator projection math right so that the ground and building meshes line up */

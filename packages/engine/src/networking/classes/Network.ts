@@ -68,8 +68,6 @@ export class Network {
   channelSocketId: string
   /** User id hosting this network. */
   userId: string
-  /** Network id of the local User. */
-  localAvatarNetworkId: number
   /** Access tocken of the User. */
   accessToken: string
   /** Snapshot of the network. */

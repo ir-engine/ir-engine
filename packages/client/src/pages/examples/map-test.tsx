@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { Scene, WebGLRenderer, Color, DirectionalLight, PerspectiveCamera, HemisphereLight } from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import MapNode from '../../../../engine/src/editor/nodes/MapNode'
-import MapNodeEditor from '../../../../client-core/src/world/components/editor/properties/MapNodeEditor'
+import MapNode from '@xrengine/editor/src/nodes/MapNode'
+import MapNodeEditor from '@xrengine/editor/src/components/properties/MapNodeEditor'
 import { createState, useState } from '@hookstate/core'
 
 const scene = new Scene()

@@ -24,6 +24,7 @@ export class World {
   ecsWorld: ECSWorld
   entities: Entity[]
   portalEntities: Entity[]
+  isInPortal = false
   pipelines: EnginePipelines
   namedEntities: Map<string, Entity>
 

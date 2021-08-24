@@ -73,6 +73,7 @@ const CreateCreator = (props: Props) => {
       email: state.email,
       twitter: state.twitter
     }
+
     let temp = state.formErrors
     if (!state.name) {
       temp.name = "Name can't be empty"
@@ -90,13 +91,13 @@ const CreateCreator = (props: Props) => {
     if (formValid(state, state.formErrors)) {
       createCreator(data)
       // closeViewModel(false)
-      // setState({
-      //   ...state,
-      //   name: '',
-      //   username: '',
-      //   email: '',
-      //   twitter: ''
-      // })
+      setState({
+        ...state,
+        name: '',
+        username: '',
+        email: '',
+        twitter: ''
+      })
     } else {
       setError('Please fill all required field')
     }
