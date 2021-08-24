@@ -166,6 +166,8 @@ const GolfScorecardView = () => {
   )
 }
 
+const mat4 = new Matrix4()
+
 export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
@@ -175,15 +177,15 @@ export const GolfScorecardUISystem = async () => {
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    Engine.camera.updateMatrixWorld(true)
-    const cameraMatrix = Engine.camera.matrixWorld
-    // const uiTransform = getComponent(ui.entity, TransformComponent)
+    const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+    mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
 
+    // const uiTransform = getComponent(ui.entity, TransformComponent)
     const layer = uiComponent.layer
     layer.position.set(0, 0, -1)
     layer.quaternion.set(0, 0, 0, 1)
     layer.scale.setScalar(1)
-    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(cameraMatrix)
+    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
 
     // uiTransform.rotation.copy(cameraTransform.rotation)
