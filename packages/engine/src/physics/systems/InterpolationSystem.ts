@@ -2,9 +2,9 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { avatarCorrection } from '../../avatar/functions/avatarCorrection'
 import { interpolateAvatar } from '../../avatar/functions/interpolateAvatar'
-import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, Not, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -17,6 +17,7 @@ import { InterpolationComponent } from '../components/InterpolationComponent'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
 import { interpolateRigidBody } from '../functions/interpolateRigidBody'
 import { updateRigidBody } from '../functions/updateRigidBody'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -113,14 +114,31 @@ export const InterpolationSystem = async (): Promise<System> => {
     }
 
     for (const entity of networkObjectInterpolationQuery(world)) {
+      // TODO: quick bitecs fix
+      if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
       interpolateRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of correctionFromServerQuery(world)) {
+      // TODO: quick bitecs fix
+      if (
+        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, InterpolationComponent) ||
+        hasComponent(entity, ColliderComponent)
+      )
+        continue
       updateRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of transformInterpolationQuery(world)) {
+      // TODO: quick bitecs fix
+      if (
+        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, AvatarComponent) ||
+        hasComponent(entity, ColliderComponent)
+      )
+        continue
+
       const transform = getComponent(entity, TransformComponent)
       const interpolationSnapshot =
         findInterpolationSnapshot(entity, snapshots.interpolation) ??
@@ -138,6 +156,15 @@ export const InterpolationSystem = async (): Promise<System> => {
     }
 
     for (const entity of transformUpdateFromServerQuery(world)) {
+      // TODO: quick bitecs fix
+      if (
+        hasComponent(entity, InterpolationComponent) ||
+        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, AvatarComponent) ||
+        hasComponent(entity, ColliderComponent)
+      )
+        continue
+      console.log(getComponent(entity, NameComponent).name)
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) return
       const transform = getComponent(entity, TransformComponent)

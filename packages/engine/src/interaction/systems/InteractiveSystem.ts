@@ -26,7 +26,7 @@ import AudioSource from '../../scene/classes/AudioSource'
 import { Engine } from '../../ecs/classes/Engine'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { defineQuery, defineSystem, enterQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 const upVec = new Vector3(0, 1, 0)

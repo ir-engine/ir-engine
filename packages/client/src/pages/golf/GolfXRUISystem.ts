@@ -1,4 +1,4 @@
-import { pipe } from '@xrengine/engine/src/ecs/bitecs'
+import { pipe } from 'bitecs'
 import { GolfPlayerUISystem } from './GolfPlayerUISystem'
 import { GolfScorecardUISystem } from './GolfScorecardUISystem'
 
