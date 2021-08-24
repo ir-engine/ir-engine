@@ -25,10 +25,14 @@ import { connect } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import {
-  ProfileButton, ProjectsContainer,
-  ProjectsHeader, ProjectsSection, TabPanel,
+  ProfileButton,
+  ProjectsContainer,
+  ProjectsHeader,
+  ProjectsSection,
+  TabPanel,
   tapId,
-  useStyles, WelcomeContainer
+  useStyles,
+  WelcomeContainer
 } from './projectUtility'
 
 /**

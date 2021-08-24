@@ -17,8 +17,8 @@ import { withRouter } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
-import { getScene } from "@xrengine/engine/src/scene/functions/getScene"
-import { fetchUrl } from "@xrengine/engine/src/scene/functions/fetchUrl"
+import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
+import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
 import { EditorContextProvider } from './contexts/EditorContext'
@@ -44,7 +44,6 @@ import PublishDialog from './dialogs/PublishDialog'
 import PublishedSceneDialog from './dialogs/PublishedSceneDialog'
 import i18n from 'i18next'
 
-
 /**
  * getSceneUrl used to create url for the scene.
  *
@@ -52,7 +51,7 @@ import i18n from 'i18next'
  * @param  {any} sceneId
  * @return {string}         [url]
  */
- export const getSceneUrl = (sceneId): string => `${APP_URL}/scenes/${sceneId}`
+export const getSceneUrl = (sceneId): string => `${APP_URL}/scenes/${sceneId}`
 
 /**
  * publishProject is used to publish project, firstly we save the project the publish.
@@ -64,7 +63,7 @@ import i18n from 'i18next'
  * @param  {any}  hideDialog
  * @return {Promise}            [returns published project data]
  */
- export const publishProject = async (project, editor, showDialog, hideDialog?): Promise<any> => {
+export const publishProject = async (project, editor, showDialog, hideDialog?): Promise<any> => {
   let screenshotUrl
   try {
     const scene = editor.scene

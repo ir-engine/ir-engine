@@ -1,5 +1,5 @@
-import jwtDecode from 'jwt-decode';
-import { getToken } from './getToken';
+import jwtDecode from 'jwt-decode'
+import { getToken } from './getToken'
 
 /**
  * getAccountId used to get accountId using token.
@@ -8,6 +8,6 @@ import { getToken } from './getToken';
  */
 
 export const getAccountId = (): string => {
-  const token = getToken();
-  return (jwtDecode(token) as any).sub;
-};
+  const token = getToken()
+  return (jwtDecode(token) as any).sub
+}

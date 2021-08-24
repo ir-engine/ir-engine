@@ -12,5 +12,5 @@ export const serverURL = Config.publicRuntimeConfig.apiServer
  */
 
 export const scaledThumbnailUrlFor = (url, width, height) => {
-  return `${serverURL}/thumbnail/${url}?w=${width}&h=${height}`;
-};
+  return `${serverURL}/thumbnail/${url}?w=${width}&h=${height}`
+}

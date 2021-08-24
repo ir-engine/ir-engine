@@ -2,7 +2,7 @@ import { DoorOpen } from '@styled-icons/fa-solid'
 import { Config } from '@xrengine/common/src/config'
 import CubemapBakeNode from '@xrengine/editor/src/nodes/CubemapBakeNode'
 import type PortalNode from '@xrengine/editor/src/nodes/PortalNode'
-import { fetchUrl } from "@xrengine/engine/src/scene/functions/fetchUrl"
+import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import i18n from 'i18next'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'

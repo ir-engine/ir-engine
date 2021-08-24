@@ -4,16 +4,16 @@
  * @author Robert Long
  * @type {Object}
  */
- export const CommonKnownContentTypes = {
-    gltf: 'model/gltf',
-    glb: 'model/gltf-binary',
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    pdf: 'application/pdf',
-    mp4: 'video/mp4',
-    mp3: 'audio/mpeg'
-  }
+export const CommonKnownContentTypes = {
+  gltf: 'model/gltf',
+  glb: 'model/gltf-binary',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  pdf: 'application/pdf',
+  mp4: 'video/mp4',
+  mp3: 'audio/mpeg'
+}
 
 /**
  * guessContentType function to get contentType from url.
@@ -24,6 +24,6 @@
  */
 
 export function guessContentType(url): string {
-  const extension = new URL(url).pathname.split('.').pop();
-  return CommonKnownContentTypes[extension];
+  const extension = new URL(url).pathname.split('.').pop()
+  return CommonKnownContentTypes[extension]
 }

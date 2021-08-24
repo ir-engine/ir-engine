@@ -1,5 +1,5 @@
-import { fetchUrl } from './fetchUrl';
-import { serverURL } from './projectFunctions';
+import { fetchUrl } from './fetchUrl'
+import { serverURL } from './projectFunctions'
 
 /**
  * getScene used to Calling api to get scene data using id.
@@ -10,15 +10,15 @@ import { serverURL } from './projectFunctions';
 export const getScene = async (sceneId): Promise<JSON> => {
   const headers = {
     'content-type': 'application/json'
-  };
+  }
 
   const response = await fetchUrl(`${serverURL}/project/${sceneId}`, {
     headers
-  });
+  })
 
-  console.log('Response: ' + Object.values(response));
+  console.log('Response: ' + Object.values(response))
 
-  const json = await response.json();
+  const json = await response.json()
 
-  return json.scenes[0];
-};
+  return json.scenes[0]
+}

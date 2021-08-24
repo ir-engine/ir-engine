@@ -1,10 +1,24 @@
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { TransformAxis, TransformAxisConstraints, TransformMode, TransformPivot } from "@xrengine/engine/src/scene/constants/transformConstants"
+import {
+  TransformAxis,
+  TransformAxisConstraints,
+  TransformMode,
+  TransformPivot
+} from '@xrengine/engine/src/scene/constants/transformConstants'
 import EventEmitter from 'eventemitter3'
 import {
-  Box3, Layers, MathUtils as _Math, Matrix3, PerspectiveCamera, Plane,
-  Quaternion, Ray, Raycaster,
-  Sphere, Spherical, Vector2,
+  Box3,
+  Layers,
+  MathUtils as _Math,
+  Matrix3,
+  PerspectiveCamera,
+  Plane,
+  Quaternion,
+  Ray,
+  Raycaster,
+  Sphere,
+  Spherical,
+  Vector2,
   Vector3
 } from 'three'
 import { TransformSpace } from '../constants/TransformSpace'

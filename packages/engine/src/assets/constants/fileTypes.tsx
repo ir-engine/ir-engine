@@ -11,5 +11,3 @@ export const AllFileTypes = [...AudioFileTypes, ...VideoFileTypes, ...ImageFileT
 
 //creatig comma saperated string contains all file types
 export const AcceptsAllFileTypes = AllFileTypes.join(',')
-
-

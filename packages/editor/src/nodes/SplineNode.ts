@@ -1,9 +1,7 @@
-// @ts-nocheck
-
 import EditorNodeMixin from './EditorNodeMixin'
 import Spline from '@xrengine/engine/src/scene/classes/Spline'
 import { Object3D } from 'three'
-import SplineHelperNode from '../../editor/nodes/SplineHelperNode'
+import SplineHelperNode from './SplineHelperNode'
 
 export default class SplineNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'spline'
@@ -11,7 +9,6 @@ export default class SplineNode extends EditorNodeMixin(Object3D) {
   helper = null
   loadedSplinePositions = null
   static async deserialize(editor, json) {
-    console.log('DESERIALIZE', json)
     const node = await super.deserialize(editor, json)
     const { splinePositions } = json.components.find((c) => c.name === 'spline').props
     node.loadedSplinePositions = splinePositions
@@ -44,12 +41,10 @@ export default class SplineNode extends EditorNodeMixin(Object3D) {
     // Maybe this should not be done here?
     this.editor.nodes.push(splineHelperObject)
   }
-  copy(source, recursive = true) {
+  copy(source, recursive?: boolean) {
     super.copy(source, false)
-    console.log('COPY')
   }
   async serialize(projectID) {
-    console.log('SERIALIZE')
     const splineExportInfo = this.helper.exportSpline()
     console.log(splineExportInfo)
     return await super.serialize(projectID, {
@@ -60,11 +55,5 @@ export default class SplineNode extends EditorNodeMixin(Object3D) {
   }
   prepareForExport() {
     super.prepareForExport()
-    console.log('prepareForExport')
-    // this.remove(this.helper);
-    // this.addGLTFComponent("point-light", {
-    //   color: this.color,
-    // });
-    // this.replaceObject();
   }
 }

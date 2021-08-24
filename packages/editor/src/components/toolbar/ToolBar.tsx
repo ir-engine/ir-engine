@@ -11,7 +11,7 @@ import { Play } from '@styled-icons/fa-solid/Play'
 import { SyncAlt } from '@styled-icons/fa-solid/SyncAlt'
 import { TransformSpace } from '@xrengine/editor/src/constants/TransformSpace'
 import { SnapMode } from '@xrengine/editor/src/controls/EditorControls'
-import { TransformMode, TransformPivot } from "@xrengine/engine/src/scene/constants/transformConstants"
+import { TransformMode, TransformPivot } from '@xrengine/engine/src/scene/constants/transformConstants'
 import PropTypes from 'prop-types'
 import React, { Component, useCallback, useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'

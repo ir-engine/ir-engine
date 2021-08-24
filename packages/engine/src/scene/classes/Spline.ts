@@ -1,5 +1,5 @@
 import { Vector3, BufferGeometry, BufferAttribute, CatmullRomCurve3, Line, LineBasicMaterial, Object3D } from 'three'
-import { removeElementFromArray } from "@xrengine/common/src/utils/removeElementFromArray"
+import { removeElementFromArray } from '@xrengine/common/src/utils/removeElementFromArray'
 
 export default class Spline extends Object3D {
   ARC_SEGMENTS = 200

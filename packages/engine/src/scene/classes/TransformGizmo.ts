@@ -1,6 +1,6 @@
 import { Color, Object3D, Raycaster, Vector3 } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
-import { TransformAxis, TransformMode } from "@xrengine/engine/src/scene/constants/transformConstants"
+import { TransformAxis, TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 let gizmoGltf: { scene: any; json: any; stats: any } = null
 const GLTF_PATH = '/editor/TransformGizmo.glb' // STATIC

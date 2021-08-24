@@ -1,10 +1,10 @@
-import { Vector3 } from 'three';
+import { Vector3 } from 'three'
 
 export const TransformPivot = {
   Selection: 'Selection',
   Center: 'Center',
   Bottom: 'Bottom'
-};
+}
 export const TransformMode = {
   Disabled: 'Disabled',
   Grab: 'Grab',
@@ -12,7 +12,7 @@ export const TransformMode = {
   Translate: 'Translate',
   Rotate: 'Rotate',
   Scale: 'Scale'
-};
+}
 export const TransformAxis = {
   X: 'X',
   Y: 'Y',
@@ -21,7 +21,7 @@ export const TransformAxis = {
   YZ: 'YZ',
   XZ: 'XZ',
   XYZ: 'XYZ'
-};
+}
 export const TransformAxisConstraints = {
   X: new Vector3(1, 0, 0),
   Y: new Vector3(0, 1, 0),
@@ -30,4 +30,4 @@ export const TransformAxisConstraints = {
   YZ: new Vector3(0, 1, 1),
   XZ: new Vector3(1, 0, 1),
   XYZ: new Vector3(1, 1, 1)
-};
+}

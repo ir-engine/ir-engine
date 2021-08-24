@@ -41,7 +41,7 @@ import TranslateCommand from '@xrengine/editor/src/commands/TranslateCommand'
 import TranslateMultipleCommand from '@xrengine/editor/src/commands/TranslateMultipleCommand'
 import { TransformSpace } from '@xrengine/editor/src/constants/TransformSpace'
 import EditorControls from '@xrengine/editor/src/controls/EditorControls'
-import { TransformMode } from "@xrengine/engine/src/scene/constants/transformConstants"
+import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import FlyControls from '@xrengine/editor/src/controls/FlyControls'
 import InputManager from '@xrengine/editor/src/controls/InputManager'
 import PlayModeControls from '@xrengine/editor/src/controls/PlayModeControls'
@@ -2706,7 +2706,7 @@ export class Editor extends EventEmitter {
     const { hostname } = new URL(url)
 
     try {
-      contentType = (await guessContentType(url) || (await fetchContentType(url))) || ''
+      contentType = (await guessContentType(url)) || (await fetchContentType(url)) || ''
     } catch (error) {
       console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`)
     }
