@@ -60,6 +60,8 @@ export const isInXR = (entity: Entity) => {
 }
 
 const vec3 = new Vector3()
+const v3 = new Vector3()
+const uniformScale = new Vector3(1, 1, 1)
 const quat = new Quaternion()
 const forward = new Vector3(0, 0, -1)
 
@@ -79,6 +81,7 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
+      rigHand.updateMatrixWorld(true)
       return rigHand.getWorldPosition(vec3)
     }
   }
@@ -101,6 +104,7 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
+      rigHand.updateMatrixWorld(true)
       return rigHand.getWorldQuaternion(quat)
     }
   }
@@ -126,6 +130,7 @@ export const getHandTransform = (
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
+      rigHand.updateMatrixWorld(true)
       return {
         position: rigHand.getWorldPosition(vec3),
         rotation: rigHand.getWorldQuaternion(quat)
@@ -136,5 +141,30 @@ export const getHandTransform = (
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position),
     rotation: quat.setFromUnitVectors(forward, avatar.viewVector)
+  }
+}
+
+/**
+ * Gets the head transform in world space
+ * @author Josh Field <github.com/HexaField>
+ * @param entity the player entity
+ * @returns { position: Vector3, rotation: Quaternion }
+ */
+
+export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  if (xrInputSourceComponent) {
+    Engine.camera.matrix.decompose(vec3, quat, v3)
+    return {
+      position: vec3,
+      rotation: quat,
+      scale: uniformScale
+    }
+  }
+  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  return {
+    position: cameraTransform.position,
+    rotation: cameraTransform.rotation,
+    scale: uniformScale
   }
 }

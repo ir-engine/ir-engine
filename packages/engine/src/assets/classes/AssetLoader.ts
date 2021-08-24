@@ -164,31 +164,29 @@ const load = (
     onError(new Error('URL is empty'))
     return
   }
+  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
-  if (AssetLoader.Cache.has(params.url)) {
-    return AssetLoader.Cache.get(params.url)
+  if (AssetLoader.Cache.has(url)) {
+    onLoad(AssetLoader.Cache.get(url))
   }
 
-  const assetType = getAssetType(params.url)
-  const assetClass = getAssetClass(params.url)
+  const assetType = getAssetType(url)
+  const assetClass = getAssetClass(url)
 
   const loader = getLoader(assetType)
-  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
   loader.load(
     url,
     (asset) => {
       if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
         loadExtentions(asset)
-        // result = response.scene
-        // result.animations = response.animations
       }
 
       if (assetClass === AssetClass.Model) {
         processModelAsset(asset.scene, params)
       }
 
-      AssetLoader.Cache.set(params.url, asset)
+      AssetLoader.Cache.set(url, asset)
 
       onLoad(asset)
     },
@@ -223,6 +221,6 @@ export class AssetLoader {
 
   // TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
   static getFromCache(url: string) {
-    return AssetLoader.Cache.get(url)
+    return AssetLoader.Cache.get(isAbsolutePath(url) ? url : Engine.publicPath + url)
   }
 }

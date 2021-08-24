@@ -47,7 +47,6 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
         })
         addComponent(entity, PersistTagComponent, {})
 
-        Network.instance.localAvatarNetworkId = networkId
         Network.instance.localClientEntity = entity
       }
 

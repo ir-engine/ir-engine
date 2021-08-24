@@ -1,11 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./lib"
+    "outDir": "lib"
   },
   "exclude": [
     "node_modules",
     "tests/**",
-    "./**/*.d.ts"
+    "**/*.d.ts"
   ],
 }

@@ -40,8 +40,7 @@ export function createCollider(
   scale = new Vector3(1, 1, 1)
 ): Body {
   const userData = mesh.userData as ColliderData
-  // console.log(userData, pos, rot, scale)
-  console.log(mesh)
+  // console.log(mesh, userData, pos, rot, scale)
 
   if (!userData.type) return
   if (userData.type === 'trimesh' || userData.type === 'convex') {

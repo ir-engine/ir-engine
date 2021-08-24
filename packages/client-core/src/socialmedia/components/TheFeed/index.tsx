@@ -7,8 +7,8 @@ import { bindActionCreators, Dispatch } from 'redux'
 // import { selectAuthState } from '../../../user/reducers/auth/selector';
 // import { selectFeedsState } from '../../reducers/feed/selector';
 // import { getFeeds } from '../../reducers/feed/service';
-import { getTheFeedsNew } from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/service'
-import { selectTheFeedsState } from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/selector'
+import { getTheFeedsNew } from '../../reducers/thefeeds/service'
+import { selectTheFeedsState } from '../../reducers/thefeeds/selector'
 
 import TheFeedsCard from '../TheFeedsCard'
 

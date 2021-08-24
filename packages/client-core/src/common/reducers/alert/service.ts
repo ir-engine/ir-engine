@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { showAlert, hideAlert } from './actions'
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 
 export function alertSuccess(message: string) {
   return (dispatch: Dispatch): any => {

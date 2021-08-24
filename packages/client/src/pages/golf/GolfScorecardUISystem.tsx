@@ -1,31 +1,21 @@
-import React from 'react'
-import { Vector3, Quaternion, Matrix4 } from 'three'
 import { useState } from '@hookstate/core'
-
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { defineSystem } from '@xrengine/engine/src/ecs/bitecs'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addComponent, getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-
+import React from 'react'
+import { Matrix4 } from 'three'
+import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
-import { getPlayerNumber } from './functions/golfBotHookFunctions'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { useUserState } from '../../../../client-core/src/user/store/UserState'
 
 export function createScorecardUI() {
-  const ui = createXRUI(GolfScorecardView, GolfState)
-
-  // addComponent(ui.entity, TransformComponent, {
-  //   position: new Vector3(),
-  //   rotation: new Quaternion(),
-  //   scale: new Vector3(1, 1, 1)
-  // })
-
-  return ui
+  return createXRUI(GolfScorecardView, GolfState)
 }
 
 const GolfHoles = () => {
@@ -123,13 +113,13 @@ const GolfLabelsView = () => {
         Par
       </div>
       {players.map((p, i) => {
+        console.log('PLAYER ' + p.id.value)
         const color = GolfColours[i]
         return (
           <div
             key={i}
             style={{
               position: 'static',
-              width: '107px',
               height: '40px',
               fontSize: '30px',
               lineHeight: '38px',
@@ -148,7 +138,7 @@ const GolfLabelsView = () => {
 const GolfScorecardView = () => {
   return (
     <>
-      {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link> */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
       <div
         id="scorecard"
         style={{
@@ -162,8 +152,9 @@ const GolfScorecardView = () => {
           background: ' rgba(0, 0, 0, 0.51)',
           border: '10px solid #FFFFFF',
           boxSizing: 'border-box',
-          boxShadow: '0px 4px 80px rgba(0, 0, 0, 0.57)',
-          borderRadius: '60px'
+          filter: 'drop-shadow(0 0 30px rgba(0, 0, 0, 0.57))',
+          borderRadius: '60px',
+          margin: '50px'
         }}
       >
         <GolfLabelsView />
@@ -172,23 +163,26 @@ const GolfScorecardView = () => {
   )
 }
 
+const mat4 = new Matrix4()
+
 export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
   return defineSystem((world) => {
-    return world
+    // return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    const cameraMatrix = Engine.camera.matrix
-    // const uiTransform = getComponent(ui.entity, TransformComponent)
+    const cameraTransform = getHeadTransform(Network.instance.localClientEntity)
+    mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
 
+    // const uiTransform = getComponent(ui.entity, TransformComponent)
     const layer = uiComponent.layer
     layer.position.set(0, 0, -1)
     layer.quaternion.set(0, 0, 0, 1)
     layer.scale.setScalar(1)
-    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(cameraMatrix)
+    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
 
     // uiTransform.rotation.copy(cameraTransform.rotation)
