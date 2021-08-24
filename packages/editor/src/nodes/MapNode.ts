@@ -93,11 +93,6 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       this.add(label)
     })
   }
-  updateLabels() {
-    this.labels?.forEach((label) => {
-      label.update(this.editor.camera)
-    })
-  }
   async refreshGroundLayer() {
     const center = await getStartCoords(this.getProps())
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
@@ -137,7 +132,13 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       this.addMap(this.editor)
     }
   }
-  onUpdate(delta: number, time: number) {}
+  onUpdate(delta: number, time: number) {
+    void delta
+    void time
+    this.labels?.forEach((label) => {
+      label.onUpdate(this.editor.camera)
+    })
+  }
   getProps(): MapProps {
     return {
       name: this.name,
