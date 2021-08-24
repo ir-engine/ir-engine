@@ -86,7 +86,7 @@ export const update = async function (args: MapProps, longtitude, latitude, posi
 
   const group = new Group()
   const buildingMesh = createBuildings(vectorTiles, center)
-  const groundMesh = createGround(rasterTiles as any, center[1])
+  const groundMesh = createGroundMesh(rasterTiles as any, center[1])
   const roadsMesh = createRoads(vectorTiles, center)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)

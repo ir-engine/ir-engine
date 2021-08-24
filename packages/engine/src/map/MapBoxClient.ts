@@ -4,22 +4,30 @@ import { Position } from 'geojson'
 import { TileFeaturesByLayer } from './types'
 import { vectors } from './vectors'
 
-const TILE_ZOOM = 16
+export const TILE_ZOOM = 16
 export const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
 export const RASTER_TILE_SIZE_HDPI = 256
 
-function long2tile(lon: number, zoom: number) {
+export function long2tile(lon: number, zoom: number) {
   return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom))
 }
 
-function lat2tile(lat: number, zoom: number) {
+export function lat2tile(lat: number, zoom: number) {
   return Math.floor(
     ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) *
       Math.pow(2, zoom)
   )
+}
+
+export function tile2long(tileX: number, zoom: number) {
+  return (tileX / Math.pow(2, zoom)) * 360 - 180
+}
+
+export function tile2lat(tileY: number, zoom: number) {
+  return Math.atan(Math.sinh(Math.PI * (1 - (2 * tileY) / Math.pow(2, zoom)))) * (180 / Math.PI)
 }
 
 /**

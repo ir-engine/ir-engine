@@ -26,11 +26,24 @@ import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
 import { METERS_PER_DEGREE_LL } from './constants'
+import { PI } from '../common/constants/MathConstants'
 
 // TODO free resources used by canvases, bitmaps etc
 
 export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
+}
+
+export function llToScene2([lng, lat]: Position, [lngCenter, latCenter]: Position, scale = 1): Position {
+  const x = (lng - lngCenter) * 111134.861111 * scale
+  const z = (lat - latCenter) * (Math.cos((latCenter * PI) / 180) * 111321.377778) * scale
+  return [x, z]
+}
+
+export function sceneToLl(position: Position, [lngCenter, latCenter]: Position, scale = 1): Position {
+  const longtitude = position[0] / (111134.861111 * scale) + lngCenter
+  const latitude = -position[1] / (Math.cos((latCenter * PI) / 180) * 111321.377778 * scale) + latCenter
+  return [longtitude, latitude]
 }
 
 function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
