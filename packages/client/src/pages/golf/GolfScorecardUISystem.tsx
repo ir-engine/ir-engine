@@ -1,20 +1,18 @@
-import React from 'react'
-import { Vector3, Quaternion, Matrix4 } from 'three'
 import { useState } from '@hookstate/core'
-
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { defineSystem } from '@xrengine/engine/src/ecs/bitecs'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addComponent, getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-
+import React from 'react'
+import { Matrix4 } from 'three'
+import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
-import { getPlayerNumber } from './functions/golfBotHookFunctions'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 
 export function createScorecardUI() {
   return createXRUI(GolfScorecardView, GolfState)
@@ -122,7 +120,6 @@ const GolfLabelsView = () => {
             key={i}
             style={{
               position: 'static',
-              width: '107px',
               height: '40px',
               fontSize: '30px',
               lineHeight: '38px',
@@ -177,7 +174,7 @@ export const GolfScorecardUISystem = async () => {
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+    const cameraTransform = getHeadTransform(Network.instance.localClientEntity)
     mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
 
     // const uiTransform = getComponent(ui.entity, TransformComponent)
