@@ -296,6 +296,12 @@
         "water": {
             "description": "Small water surface"
         },
+        "interior": {
+            "description": "A surface with mapped cube texture to emulate interior environments",
+            "lbl-cubeMap":  "Cube Map texture",
+            "lbl-tiling": "Tiling amount",
+            "lbl-size": "Surface size"
+        },
         "pointLight": {
             "description": "A light which emits in all directions from a single point.",
             "lbl-color": "Color",
