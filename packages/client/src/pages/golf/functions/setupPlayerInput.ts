@@ -181,7 +181,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       )
       let xrSetup = false
       const setupBotKey = 141
-      inputs.schema.inputMap.set(';', setupBotKey)
+      inputs.schema.inputMap.set('j', setupBotKey)
       inputs.schema.behaviorMap.set(setupBotKey, () => {
         if (xrSetup) return
         xrSetup = true

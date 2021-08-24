@@ -10,12 +10,12 @@ export const teleportToBall = (bot: XREngineBot) => {
   test(
     'Can teleport to ball',
     async () => {
-      await bot.delay(1000)
+      await bot.delay(200)
 
       // wait for turn, then move to ball position
       await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
       await bot.keyPress('KeyK', 200)
-      await bot.delay(1000)
+      await bot.delay(200)
 
       const ballPosition = await bot.runHook(GolfBotHooks.GetBallPosition)
 

@@ -6,13 +6,14 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { GolfBotHooks } from './GolfBotHooks'
 import { tweenXRInputSource, updateController, updateHead } from '@xrengine/engine/src/bot/functions/xrBotHookFunctions'
 import { GolfObjectEntities, GolfState } from '../GolfSystem'
-import { getGolfPlayerNumber, isCurrentGolfPlayer } from './golfFunctions'
+import { getCurrentGolfPlayerEntity, getGolfPlayerNumber, isCurrentGolfPlayer } from './golfFunctions'
 
 export const GolfBotHookFunctions = {
   [GolfBotHooks.GetBallPosition]: getBallPosition,
   [GolfBotHooks.GetHolePosition]: getHolePosition,
   [GolfBotHooks.GetTeePosition]: getTeePosition,
   [GolfBotHooks.GetIsPlayerTurn]: getIsPlayerTurn,
+  [GolfBotHooks.GetPlayerPosition]: getPlayerPosition,
   [GolfBotHooks.GetIsGoal]: getIsGoal,
   [GolfBotHooks.GetIsBallStopped]: getIsBallStopped,
   [GolfBotHooks.GetIsOutOfCourse]: getIsOutOfCourse,
@@ -21,9 +22,9 @@ export const GolfBotHookFunctions = {
 
 export function getIsPlayerTurn() {
   if (!Network.instance.localClientEntity) return false
-  return isCurrentGolfPlayer(Network.instance.localClientEntity)
+  //return isCurrentGolfPlayer(Network.instance.localClientEntity)
+  return true
 }
-
 export function getIsGoal() {
   // if (!Network.instance.localClientEntity) return false
   // return hasComponent(Network.instance.localClientEntity, GolfState.Goal)
@@ -58,6 +59,13 @@ export function swingClub() {
       }
     })
   })
+}
+
+export function getPlayerPosition() {
+  // if (!Network.instance.localClientEntity) return false
+  const entityPlayer = getCurrentGolfPlayerEntity()
+  const positionPlayer = getComponent(entityPlayer, TransformComponent)
+  return positionPlayer.position
 }
 
 export function getPlayerNumber() {
