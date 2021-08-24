@@ -14,7 +14,9 @@ import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { useUserState } from '../../../../client-core/src/user/store/UserState'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 
 export function createScorecardUI() {
   return createXRUI(GolfScorecardView, GolfState)
@@ -177,7 +179,7 @@ export const GolfScorecardUISystem = async () => {
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+    const cameraTransform = getHeadTransform(Network.instance.localClientEntity)
     mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
 
     // const uiTransform = getComponent(ui.entity, TransformComponent)
