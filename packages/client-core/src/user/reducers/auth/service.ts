@@ -918,7 +918,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     if (Network.instance != null) await loadAvatarForUpdatedUser(user)
 
     if (selfUser.id === user.id) {
-      if (selfUser.instanceId !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
+      store.dispatch(UserAction.clearLayerUsers())
       if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(UserAction.clearChannelLayerUsers())
       store.dispatch(userUpdated(user))
       if (user.partyId) {
