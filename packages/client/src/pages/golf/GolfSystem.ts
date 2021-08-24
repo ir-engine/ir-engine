@@ -1,5 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System, pipe } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System, pipe } from 'bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
