@@ -406,7 +406,7 @@ connect to it. To reboot xrengine, run the following:
 
 https://mailtrap.io/inboxes
 
-add credentials in ```packages/server/.env```
+add credentials in ```root folder/.env.local```
 ```dotenv
 SMTP_HOST=smtp.mailtrap.io
 SMTP_PORT=2525
@@ -454,3 +454,121 @@ https://github.com/douglas-treadwell/sequelize-cli-typescript
 ## Browser Debug
 
 ```p key``` debug colliders view
+
+## Nodes
+
+### What is a Node?
+
+A Node in XREngine is a premade object
+
+### How to create a node
+
+In order to create a node you will to create the Node file (XREngine/packages/engine/src/editor/nodes) and the Editor file (XRENgine/packages/client-core-src/world/components/editor/properties) for the node and then import the Node in the Nodes.tsx file (XREngine/packages/client-core/src/world/components/editor)
+
+#### The Node File
+
+The Node File contains all the core information about the Node, the values, the icon (the icon can be imported through [Styled Icons](https://styled-icons.js.org/)) and the name that it is serialized to, also the functions for onLoad, Serialization, Deserialization, the name of the component, the type etc.
+
+##### Example
+
+[Fully documented Node](https://github.com/XRFoundation/XREngine/blob/dev/packages/engine/src/editor/nodes/MetadataNode.ts)
+
+##### Node Types
+
+Object3D, AmbientLight, AudioSource, Clouds, PhysicalDirectionalLight, FloorPlan, GroundPlane, Group, HemisphereLight, Image, Model, Ocean, ParticleEmitter, PhysicalPointLight, PostProcessing, Scene (the base settings of the Scene, better not reused), PerspectiveCamera, Sky, PhysicalSpotLight, Video and Volumetric
+Of course new Node Types can be created, you can see examples of other nodes of how they use each Node Type
+
+##### The Node Editor File
+
+The Node Editor File contains the logic of the Node in the Editor, how the icons will be, the input fields etc
+
+##### Example
+
+[Fulle documented Node Editor](https://github.com/XRFoundation/XREngine/blob/dev/packages/client-core/src/world/components/editor/properties/MetadataNodeEditor.tsx)
+
+##### Input Types
+
+1. StringInput - Text Field
+2. ColorInput - RGBA Colour Picker
+3. AudioInput - Audio File Picker
+4. BooleanInput - Toggle (true/false)
+5. SelectInput - Drop Down Picker (based on a custom created enumerator)
+6. ImageInput - Image File Picker
+7. Vector3Input - Vector 3 (x, y, z) 
+8. Vector2Input - Vector 2 (x, y)
+9. ModelInput - Model File ([.glb](https://www.marxentlabs.com/glb-files/)) Picker
+10. CompoundNumericInput - Slider
+11. EulerInput - Vector3 (x, y, z) for rotation
+12. VideoInput - Video File Picker
+13. VolumetricInput - 
+14. InputGroup - A group of different input types
+15. NumbericInputGroup - A group of different numeric input types
+16. RadianNumericInputGroup - 
+
+##### Finishing the new Node
+
+Finally, you will need to import the node into the Nodes.tsx (XREngine/packages/client-core/src/world/components/editor)
+In the function `createEditor` - `line 75` add the new node, for example `editor.registerNode(nodeName, nodeNameEditor)`
+and it will automatically be registered in the engine and the editor.
+
+#### Scene Node
+
+##### What is the Scene Node
+
+The Scene Node (XREngine/packages/engine/src/editor/nodes) - and the Scene Node Editor (XREngine/packages/client-core/src/world/components/editor/properties) - is the main node of each scene, it contains the core data for the scene (metadata, name, environment settings etc), but it can be edited easily in order to add new data for the overall scene.
+
+##### How to edit it
+
+First you will need to edit the Node it self going to the SceneNode.ts file in order to add the new values and then in the SceneNodeEditor.tsx in order to update the Editor Layout with the input for the new values
+
+###### SceneNode.ts
+
+In the scene node file you will need to add all the values and update the serialization/deserialization functions with these.
+First you will need to add the values in the node, like
+`
+data1 = '' //default value, if not found in json
+data2 = 5 //default value, if not found in json
+`
+Then in the deserilize function `line 97` you can read the json using 
+`
+const valueParent = json.components.find((c) => c.name == 'data_parent_name')
+if (valueParent) {
+ const { data1, data2 } = valueParent.props
+ node.data1 = data1
+ node.data2 = data2
+}`
+In one value parent you can have multiple parents. If the values don't exist in the scene, then the values won't be loaded and will be set to the default
+Then in the copy function `line 409` you will need to add the new values
+`
+this.data1 = source.data1
+this.data2 = source.data2
+`
+Finally in the serialize function `line 447` you will add the new values in the new json that will be exported
+`
+new line
+{
+ name: 'parentValue',
+ props: {
+  data1: this.data1
+  data2: this.data2
+ }
+}, 
+new line
+`
+
+###### SceneNodeEditor.tsx
+
+In the scene node editor you will need to update the ui. Lets take data1 as a Strign Input (text) and data2 as a Slider (float)
+First you will need to add the callbacks for the onValue Update `line 160`
+`
+const onChangeData1 = useSetPropertySelected(editor, 'valueParentData1')
+const onChangeData2 = useSetPropertySelected(editor, 'valueParentData2')
+`
+And then you will need to update the ui, in the return function `line 199` inside the NodeEditor go to
+`
+{/* @ts-ignore */}
+//Create the new input group for the new values
+<InputGroup name="ValueParent" label="ValueParent">
+ <StringInput name="data 1" value={node.data1} onChange={onChangeData1} />
+ <CompoundNumericInput name="data 2" value={node.data2} onChange={onChangeData2} />=
+</InputGroup>

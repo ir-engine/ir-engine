@@ -1,16 +1,23 @@
+//Import all the needed scripts and classes
 import { Object3D, PlaneBufferGeometry, MeshBasicMaterial, Mesh, DoubleSide } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import loadTexture from '../functions/loadTexture'
 
+/**
+ * @author Alex Titonis
+ */
+//The helper object for the Icon Texture
 let metadataHelperTexture = null
 export default class MetadataNode extends EditorNodeMixin(Object3D) {
     static nodeName = 'Metadata'
     static legacyComponentName = '_metadata'
 
     static async load() {
+      //OnLoad, load the .png file for the texture (this will be shown in the map - editor)
         metadataHelperTexture = await loadTexture('/editor/metadata-icon.png')
       }
 
+      //On deserialization, it will look for the values with parent name '_metadata' and then get the _data from the props
     static async deserialize(editor, json){
         const node = await super.deserialize(editor, json)
         const { _data } = json.components.find((c)  => c.name == '_metadata').props
@@ -31,6 +38,7 @@ export default class MetadataNode extends EditorNodeMixin(Object3D) {
         this.add(this.helper)
     }
 
+    //This function is called when the node is copied to another one, compying all the needed values from the one to the other
     copy(source, recursive = true) {
         if (recursive) {
             this.remove(this.helper)
@@ -49,6 +57,7 @@ export default class MetadataNode extends EditorNodeMixin(Object3D) {
         return this
     }
 
+    //This function is called when serializing the scene, translating the needed values from the node to json
     async serialize(projectID) {
         return await super.serialize(projectID, {
             _metadata: {
@@ -57,6 +66,7 @@ export default class MetadataNode extends EditorNodeMixin(Object3D) {
         })
     }
 
+    //This function is called when exporting the node
     prepareForExport() {
         super.prepareForExport()
         this.remove(this.helper)
