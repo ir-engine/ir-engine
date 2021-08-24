@@ -293,7 +293,7 @@ export class DebugRenderer {
         break
       default:
         mesh = new Mesh()
-        
+
         break
     }
 

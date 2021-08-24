@@ -166,7 +166,7 @@ export const fetchContentType = async (url): Promise<any> => {
  * @return {Promise}     [returns the contentType]
  */
 export const getContentType = async (url): Promise<any> => {
-  return (guessContentType(url) || await fetchContentType(url))
+  return guessContentType(url) || (await fetchContentType(url))
 }
 
 /**
@@ -194,7 +194,7 @@ export const resolveMedia = async (url, index?): Promise<any> => {
 
     // getting contentType, url using absoluteUrl.
     try {
-      contentType = guessContentType(url) || await fetchContentType(url)
+      contentType = guessContentType(url) || (await fetchContentType(url))
     } catch (error) {
       throw new RethrownError(i18n.t('editor:errors.resolveURL', { url: url }), error)
     }
@@ -302,7 +302,14 @@ export const searchMedia = async (source, params, cursor, signal): Promise<any> 
  * @param  {any}  hideDialog
  * @return {Promise}               [response as json]
  */
-export const createProject = async (scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog): Promise<any> => {
+export const createProject = async (
+  scene,
+  parentSceneId,
+  thumbnailBlob,
+  signal,
+  showDialog,
+  hideDialog
+): Promise<any> => {
   if (signal.aborted) {
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
@@ -1083,7 +1090,7 @@ export const fetchUrl = async (url, options: any = {}): Promise<any> => {
     options.headers = {}
   }
   options.headers.authorization = `Bearer ${token}`
-  console.log(url);
+  console.log(url)
   console.log(options)
   const res = await fetch(url, options).catch((error) => {
     console.log(error)
@@ -1105,4 +1112,3 @@ export const fetchUrl = async (url, options: any = {}): Promise<any> => {
   err['response'] = res
   throw err
 }
-

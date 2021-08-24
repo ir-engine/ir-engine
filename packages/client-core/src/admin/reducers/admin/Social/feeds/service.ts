@@ -2,7 +2,7 @@ import { upload } from '@xrengine/editor/src/components/Api'
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../../../common/reducers/alert/service'
 import { client } from '../../../../../feathers'
-import { addFeed, feedsAdminRetrieved, removeFeed } from './actions'
+import { addFeed, editFeed, feedsAdminRetrieved, removeFeed } from './actions'
 
 export const getAdminFeeds =
   () =>
@@ -47,6 +47,30 @@ export function createFeed({ title, description, video, preview }: any) {
       }
     } catch (err) {
       console.log(err)
+      dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function updateFeed(feedId, files, feedItem) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // dispatch(fetchingFeeds())
+      const storedPreview = files.preview instanceof File ? await upload(files.preview, null) : null
+      const storedVideo = files.video instanceof File ? await upload(files.video, null) : null
+
+      //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+      //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+      const feed = await client.service('feed').patch(feedId, {
+        ...feedItem,
+        videoId: storedVideo?.file_id,
+        previewId: storedPreview?.file_id
+      })
+      dispatch(editFeed(feed))
+      //@ts-ignore
+      const mediaLinks = { video: storedVideo.origin, preview: storedPreview.origin }
+      return mediaLinks
+    } catch (err) {
       dispatchAlertError(dispatch, err.message)
     }
   }

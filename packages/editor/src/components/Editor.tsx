@@ -55,10 +55,7 @@ import isEmptyObject from '@xrengine/editor/src/functions/isEmptyObject'
 import isInputSelected from '@xrengine/editor/src/functions/isInputSelected'
 import makeUniqueName from '@xrengine/editor/src/functions/makeUniqueName'
 import resizeShadowCameraFrustum from '@xrengine/editor/src/functions/resizeShadowCameraFrustum'
-import {
-  generateImageFileThumbnail,
-  generateVideoFileThumbnail
-} from '@xrengine/editor/src/functions/thumbnails'
+import { generateImageFileThumbnail, generateVideoFileThumbnail } from '@xrengine/editor/src/functions/thumbnails'
 import AudioNode from '@xrengine/editor/src/nodes/AudioNode'
 import GroupNode from '@xrengine/editor/src/nodes/GroupNode'
 import ImageNode from '@xrengine/editor/src/nodes/ImageNode'

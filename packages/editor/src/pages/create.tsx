@@ -5,9 +5,7 @@ import { connect } from 'react-redux'
 /**
  * Exporting component by dynamicaly loaded component.
  */
-const CreateProjectPage = React.lazy(
-  () => import('@xrengine/editor/src/components/projects/CreateProjectPage')
-)
+const CreateProjectPage = React.lazy(() => import('@xrengine/editor/src/components/projects/CreateProjectPage'))
 
 /**
  * Declairing Props interface having two props.

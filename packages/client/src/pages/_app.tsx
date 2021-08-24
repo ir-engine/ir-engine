@@ -28,7 +28,6 @@ const App = (): any => {
     initGA()
 
     logPageView()
-
   }, [])
 
   useEffect(initApp, [])
@@ -43,8 +42,8 @@ const App = (): any => {
         />
       </Helmet>
       <ThemeProvider theme={theme}>
-          <GlobalStyle />
-          <RouterComp />
+        <GlobalStyle />
+        <RouterComp />
       </ThemeProvider>
     </>
   )

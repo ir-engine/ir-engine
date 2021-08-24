@@ -8,7 +8,6 @@ import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 import { resolveMedia } from '../components/Api'
 
-
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
   static legacyComponentName = 'gltf-model'

@@ -6,11 +6,7 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { doLoginAuto, logoutUser } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { deleteProject, getProjects } from '@xrengine/editor/src/components/Api'
 import { Button, MediumButton } from '@xrengine/editor/src/components/inputs/Button'
-import {
-  connectMenu,
-  ContextMenu,
-  MenuItem
-} from '@xrengine/editor/src/components/layout/ContextMenu'
+import { connectMenu, ContextMenu, MenuItem } from '@xrengine/editor/src/components/layout/ContextMenu'
 import {
   ErrorMessage,
   ProjectGrid,

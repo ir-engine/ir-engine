@@ -18,7 +18,8 @@ import {
   adminUserPatched,
   userRoleUpdated,
   searchedUser,
-  fetchedSIngleUser
+  fetchedSingleUser,
+  refetchSingleUser
 } from './actions'
 
 import axios from 'axios'
@@ -355,10 +356,15 @@ export const fetchSingleUserAdmin = (id: string) => {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const result = await client.service('user').get(id)
-      dispatch(fetchedSIngleUser(result))
+      dispatch(fetchedSingleUser(result))
     } catch (error) {
       console.error(error)
       dispatchAlertError(dispatch, error.message)
     }
   }
+}
+
+export const refetchSingleUserAdmin = () => {
+  console.log('refetchSingleUserAdmin')
+  return async (dispatch: Dispatch): Promise<any> => dispatch(refetchSingleUser())
 }

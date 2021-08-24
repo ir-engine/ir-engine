@@ -2,8 +2,22 @@ import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSourc
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import {
-  Color, CubeTextureLoader, DataTexture, Fog,
-  FogExp2, Group, LinearFilter, LinearToneMapping, Object3D, PCFSoftShadowMap, PMREMGenerator, RGBFormat, Scene, ShadowMapType, sRGBEncoding, TextureLoader,
+  Color,
+  CubeTextureLoader,
+  DataTexture,
+  Fog,
+  FogExp2,
+  Group,
+  LinearFilter,
+  LinearToneMapping,
+  Object3D,
+  PCFSoftShadowMap,
+  PMREMGenerator,
+  RGBFormat,
+  Scene,
+  ShadowMapType,
+  sRGBEncoding,
+  TextureLoader,
   Vector3
 } from 'three'
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'

@@ -103,27 +103,26 @@ class ProjectsPage extends Component<{ t: Function }> {
 
   componentDidMount() {
     // We dont need to load projects if the user isn't logged in
-      getProjects()
-        .then((projects) => {
-          this.setState({
-            projects: projects.map((project) => ({
-              ...project,
-              url: `/editor/projects/${project.project_id}`
-            })),
-            loading: false
-          })
+    getProjects()
+      .then((projects) => {
+        this.setState({
+          projects: projects.map((project) => ({
+            ...project,
+            url: `/editor/projects/${project.project_id}`
+          })),
+          loading: false
         })
-        .catch((error) => {
-          console.error(error)
+      })
+      .catch((error) => {
+        console.error(error)
 
-          if (error.response && error.response.status === 401) {
-            // User has an invalid auth token. Prompt them to login again.
-            return (this.props as any).history.push('/', { from: '/editor/projects' })
-          }
+        if (error.response && error.response.status === 401) {
+          // User has an invalid auth token. Prompt them to login again.
+          return (this.props as any).history.push('/', { from: '/editor/projects' })
+        }
 
-          this.setState({ error, loading: false })
-        })
-    
+        this.setState({ error, loading: false })
+      })
   }
 
   onDeleteProject = (project) => {
