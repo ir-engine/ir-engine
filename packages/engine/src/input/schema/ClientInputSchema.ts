@@ -515,7 +515,7 @@ export const handleKey = (event: KeyboardEvent): any => {
   }
 
   const element = event.target as HTMLElement
-  // Сheck which excludes the possibility of controlling the character (car, etc.) when typing a text
+  // Сheck which excludes the possibility of controlling the avatar (car, etc.) when typing a text
   if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {
     return
   }

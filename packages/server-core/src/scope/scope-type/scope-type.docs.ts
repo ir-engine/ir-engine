@@ -3,27 +3,7 @@ export default {
     'scope-type': {
       type: 'object',
       properties: {
-        location: {
-          type: 'string',
-          description: ''
-        },
-        scene: {
-          type: 'string',
-          description: ''
-        },
-        static_resource: {
-          type: 'string',
-          description: ''
-        },
-        bot: {
-          type: 'string',
-          description: ''
-        },
-        editor: {
-          type: 'string',
-          description: ''
-        },
-        globalAvatars: {
+        type: {
           type: 'string',
           description: ''
         }

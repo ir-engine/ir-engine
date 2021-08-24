@@ -1,7 +1,7 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes'
 import { InputAlias } from '../../input/types/InputAlias'
-import { StateEntityClientGroup, StateEntityGroup, StateEntityIKGroup } from '../types/SnapshotDataTypes'
+import { StateEntityClientMovingGroup, StateEntityGroup, StateEntityIKGroup } from '../types/SnapshotDataTypes'
 
 export interface AvatarProps {
   avatarURL?: string
@@ -45,7 +45,7 @@ export interface NetworkInputInterface {
   viewVector: { x: number; y: number; z: number }
   snapShotTime: number
   commands: CommandType[]
-  transforms: StateEntityClientGroup
+  transforms: StateEntityClientMovingGroup
 }
 
 /** Interface for handling client network input. */
@@ -77,8 +77,6 @@ export interface NetworkObjectRemoveInterface {
 export interface NetworkObjectEditInterface {
   /** Id of the network. */
   networkId: number
-  /** Id of the owner. */
-  ownerId: string
   /* NetworkObjectUpdateType */
   type: number
   values: number[]
@@ -93,12 +91,10 @@ export interface NetworkObjectEditInterface {
 export interface NetworkObjectCreateInterface {
   /** Id of the network. */
   networkId: number
-  /** Id of the owner. */
-  ownerId: string
   /** Entity unique Id from editor scene. */
   uniqueId: string
   /** Type of prefab used to create this object. */
-  prefabType: number
+  prefabType: string
   /** Parameters to initialze the prefab with. */
   parameters: any
 }

@@ -12,7 +12,7 @@ import SelectInput from '../inputs/SelectInput'
 import type PortalNode from '@xrengine/engine/src/editor/nodes/PortalNode'
 import configs from '../configs'
 import { Object3D } from 'three'
-import ReflectionProbeNode from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
+import CubemapBakeNode from '@xrengine/engine/src/editor/nodes/CubemapBakeNode'
 
 type PortalNodeEditorProps = {
   editor?: Editor
@@ -66,6 +66,10 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     this.props.editor.setPropertySelected('linkedPortalId', linkedPortalId)
   }
 
+  onChangeModelUrl = (modelUrl) => {
+    this.props.editor.setPropertySelected('modelUrl', modelUrl)
+  }
+
   onChangeDisplayText = (displayText) => {
     this.props.editor.setPropertySelected('displayText', displayText)
   }
@@ -78,8 +82,20 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     this.props.editor.setPropertySelected('spawnRotation', spawnRotation)
   }
 
-  onChangeReflectionProbe = (reflectionProbeId) => {
-    this.props.editor.setPropertySelected('reflectionProbeId', reflectionProbeId)
+  onChangeTriggerPosition = (triggerPosition) => {
+    this.props.editor.setPropertySelected('triggerPosition', triggerPosition)
+  }
+
+  onChangeTriggerRotation = (triggerRotation) => {
+    this.props.editor.setPropertySelected('triggerRotation', triggerRotation)
+  }
+
+  onChangeTriggerScale = (triggerScale) => {
+    this.props.editor.setPropertySelected('triggerScale', triggerScale)
+  }
+
+  onChangeCubemapBake = (cubemapBakeId) => {
+    this.props.editor.setPropertySelected('cubemapBakeId', cubemapBakeId)
   }
 
   componentDidUpdate() {
@@ -142,17 +158,22 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
           />
         </InputGroup>
         {/* @ts-ignore */}
+        <InputGroup name="Model Url" label={this.props.t('editor:properties.portal.lbl-modelUrl')}>
+          {/* @ts-ignore */}
+          <ControlledStringInput value={node.modelUrl} onChange={this.onChangeModelUrl} />
+        </InputGroup>
+        {/* @ts-ignore */}
         <InputGroup name="Display Text" label={this.props.t('editor:properties.portal.lbl-displayText')}>
           {/* @ts-ignore */}
           <ControlledStringInput value={node.displayText} onChange={this.onChangeDisplayText} />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Texture Override" label={this.props.t('editor:properties.portal.lbl-reflectionProbe')}>
+        <InputGroup name="Cubemap Bake" label={this.props.t('editor:properties.portal.lbl-cubemapBake')}>
           {/* @ts-ignore */}
           <SelectInput
             options={this.props.editor.scene.children
               .filter((obj: Object3D) => {
-                return (obj as any).nodeName === ReflectionProbeNode.nodeName
+                return (obj as any).nodeName === CubemapBakeNode.nodeName
               })
               .map((obj: Object3D) => {
                 return {
@@ -160,8 +181,8 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
                   value: obj.uuid
                 }
               })}
-            value={node.reflectionProbeId}
-            onChange={this.onChangeReflectionProbe}
+            value={node.cubemapBakeId}
+            onChange={this.onChangeCubemapBake}
           />
         </InputGroup>
         {/* @ts-ignore */}
@@ -171,6 +192,18 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
         {/* @ts-ignore */}
         <InputGroup name="Spawn Rotation" label={this.props.t('editor:properties.portal.lbl-spawnRotation')}>
           <EulerInput value={node.spawnRotation} onChange={this.onChangeSpawnRotation} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Trigger Position" label={this.props.t('editor:properties.portal.lbl-triggerPosition')}>
+          <Vector3Input value={node.triggerPosition} onChange={this.onChangeTriggerPosition} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Trigger Rotation" label={this.props.t('editor:properties.portal.lbl-triggerRotation')}>
+          <EulerInput value={node.triggerRotation} onChange={this.onChangeTriggerRotation} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Trigger Scale" label={this.props.t('editor:properties.portal.lbl-triggerScale')}>
+          <Vector3Input value={node.triggerScale} onChange={this.onChangeTriggerScale} />
         </InputGroup>
       </NodeEditor>
     )

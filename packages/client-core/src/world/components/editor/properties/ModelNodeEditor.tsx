@@ -32,10 +32,6 @@ const InteractableOption = [
   {
     label: 'Equippable',
     value: 'equippable'
-  },
-  {
-    label: 'GameObject',
-    value: 'gameobject'
   }
 ]
 
@@ -211,58 +207,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   // creating view for interactable type
   renderInteractableTypeOptions = (node) => {
-    const targetOption = this.state.options.find((o) => o.value === node.target)
-    const target = targetOption ? targetOption.value : null
-    const targetNotFound = node.target && target === null
-
-    let selectValues = []
-    if (node.target) {
-      const nodeTarget = this.props.editor.nodes.find((node) => node.uuid === target)
-
-      if (nodeTarget) {
-        const gameMode = Engine.gameModes.get(nodeTarget.gameMode)
-
-        const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
-
-        selectValues = gameObjectRoles.map((role, index) => {
-          return { label: role, value: index }
-        })
-      }
-    }
-
     switch (node.interactionType) {
-      case 'gameobject':
-        return (
-          <>
-            {/* @ts-ignore */}
-            <InputGroup name="Game Target" label={this.props.t('editor:properties.model.lbl-target')}>
-              {/* @ts-ignore */}
-              <SelectInput
-                error={targetNotFound}
-                placeholder={
-                  targetNotFound
-                    ? this.props.t('editor:properties.model.ph-errorNode')
-                    : this.props.t('editor:properties.triggereVolume.ph-selectNode')
-                }
-                value={node.target}
-                onChange={this.onChangeTarget}
-                options={this.state.options}
-                disabled={this.props.multiEdit}
-              />
-            </InputGroup>
-            {node.target && (
-              /* @ts-ignore */
-              <InputGroup name="Role" label={i18n.t('editor:properties.model.lbl-role')}>
-                {/* @ts-ignore */}
-                <SelectInput
-                  options={selectValues}
-                  value={selectValues.findIndex((v) => v.label === node.role)}
-                  onChange={this.onChangeRole}
-                />
-              </InputGroup>
-            )}
-          </>
-        )
       case 'infoBox':
         return (
           <>

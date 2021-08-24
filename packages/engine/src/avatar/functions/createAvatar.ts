@@ -23,9 +23,9 @@ import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 
 const avatarRadius = 0.25
-const capsuleHeight = 1.3
 const avatarHeight = 1.8
-const avatarHalfHeight = 0.9
+const capsuleHeight = avatarHeight - avatarRadius * 2
+const avatarHalfHeight = avatarHeight / 2
 
 /**
  *
@@ -96,7 +96,7 @@ export const createAvatar = (
       origin: new Vector3(0, avatarHalfHeight, 0),
       direction: new Vector3(0, -1, 0),
       maxDistance: avatarHalfHeight + 0.05,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Portal
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
     })
   )
   addComponent(entity, RaycastComponent, { raycastQuery })
@@ -141,7 +141,7 @@ export const createAvatarController = (entity: Entity) => {
     new Controller({
       isCapsule: true,
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: DefaultCollisionMask,
+      collisionMask: DefaultCollisionMask | CollisionGroups.Trigger,
       height: capsuleHeight,
       contactOffset: 0.01,
       stepOffset: 0.25,

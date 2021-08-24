@@ -173,7 +173,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     image: {
       height: '18rem',
-      width: '100%'
+      width: '100%',
+      borderRadius: '5px'
     },
     containerMargin: {
       marginTop: '.7rem'
@@ -199,6 +200,22 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     spanNone: {
       color: '#808080'
+    },
+    mgBtn: {
+      marginBottom: '25px'
+    },
+    contSize: {
+      marginTop: '4.5%',
+      width: '373px',
+      position: 'relative'
+    },
+    margin: {
+      marginTop: '70px'
+    },
+    pos: {
+      position: 'absolute',
+      top: '-15px',
+      right: '0'
     }
   })
 )

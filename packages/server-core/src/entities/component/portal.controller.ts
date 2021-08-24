@@ -60,20 +60,20 @@ export const getPortalByEntityId = async (app, entityId: string) => {
   })
 }
 
-export const getReflectionProbe = (app: any): any => {
+export const getCubemapBake = (app: any): any => {
   return async (req: express.Request, res: express.Response) => {
-    const reflectionProbe = await getReflectionProbeById(app, req.params.entityId)
+    const cubemapBake = await getCubemapBakeById(app, req.params.entityId)
 
-    res.json(reflectionProbe)
+    res.json(cubemapBake)
   }
 }
 
-export const getReflectionProbeById = async (app, entityId: string) => {
+export const getCubemapBakeById = async (app, entityId: string) => {
   const models = app.get('sequelizeClient').models
 
   return models.component.findOne({
     where: {
-      type: 'reflectionprobe',
+      type: 'cubemapbake',
       '$entity.entityId$': entityId
     },
     include: [

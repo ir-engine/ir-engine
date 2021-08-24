@@ -1,6 +1,12 @@
-import { FEEDS_ADMIN_RETRIEVED, ADMIN_FEEDS_FETCH, ADD_AS_ADMIN_FEED, REMOVE_FEED } from '../../../actions'
+import {
+  FEEDS_ADMIN_RETRIEVED,
+  ADMIN_FEEDS_FETCH,
+  ADD_AS_ADMIN_FEED,
+  UPDATE_ADMIN_FEED,
+  REMOVE_FEED
+} from '../../../actions'
 import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed'
-
+import { FeedsAction } from '../../../../../socialmedia/reducers/feed/actions'
 export interface FeedRetrievedAction {
   type: string
   feed: Feed
@@ -44,5 +50,12 @@ export function removeFeed(id): FetchingFeedItemAction {
   return {
     type: REMOVE_FEED,
     id
+  }
+}
+
+export function editFeed(result): FeedsAction {
+  return {
+    type: UPDATE_ADMIN_FEED,
+    item: result
   }
 }

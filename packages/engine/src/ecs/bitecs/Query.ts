@@ -1,6 +1,6 @@
 import { SparseSet } from './Util'
 import { $queryShadow, $storeFlattened, $tagStore, createShadow } from './Storage'
-import { $componentMap, registerComponent } from './Component'
+import { $componentMap, bit_registerComponent } from './Component'
 import { $entityMasks, $entityArray, getEntityCursor, $entitySparseSet } from './Entity'
 
 export function Not(c) {
@@ -59,7 +59,7 @@ export const registerQuery = (world, query) => {
   query[$queryComponents].forEach((c) => {
     if (typeof c === 'function') {
       const comp = c()
-      if (!world[$componentMap].has(comp)) registerComponent(world, comp)
+      if (!world[$componentMap].has(comp)) bit_registerComponent(world, comp)
       if (c.name === 'QueryNot') {
         notComponents.push(comp)
       }
@@ -68,7 +68,7 @@ export const registerQuery = (world, query) => {
         components.push(comp)
       }
     } else {
-      if (!world[$componentMap].has(c)) registerComponent(world, c)
+      if (!world[$componentMap].has(c)) bit_registerComponent(world, c)
       components.push(c)
     }
   })

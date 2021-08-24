@@ -9,5 +9,5 @@ export interface NetworkSchema {
     [key: string]: any
   }
   /** Prefabs for the schema. */
-  prefabs: Map<number, ComponentConstructor<any, any>>
+  prefabs: Map<string, ComponentConstructor<any, any>>
 }

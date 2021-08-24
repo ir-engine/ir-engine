@@ -14,9 +14,8 @@ import { getNewNetworkId } from '@xrengine/engine/src/networking/functions/getNe
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
-import { NetworkObjectComponent } from '../../engine/src/networking/components/NetworkObjectComponent'
-import { decode } from 'msgpackr'
-import { IncomingActionType } from '../../engine/src/networking/interfaces/NetworkTransport'
+import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
+import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -169,7 +168,7 @@ export async function validateNetworkObjects(): Promise<void> {
       // Loop through network objects in world
       // If this client owns the object, add it to our array
       for (const obj in Network.instance.networkObjects)
-        if (Network.instance.networkObjects[obj].ownerId === userId)
+        if (Network.instance.networkObjects[obj].uniqueId === userId)
           networkObjectsClientOwns.push(Network.instance.networkObjects[obj])
 
       // Remove all objects for disconnecting user
@@ -187,16 +186,17 @@ export async function validateNetworkObjects(): Promise<void> {
       console.log('Finished removing inactive client', userId)
     }
   }
+  /*
   Object.keys(Network.instance.networkObjects).forEach((key: string) => {
     const networkObject = Network.instance.networkObjects[key]
     // Validate that the object has an associated user and doesn't belong to a non-existant user
     if (
-      (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined) ||
-      networkObject.ownerId === 'server'
+      !hasComponent(networkObject.entity, AvatarComponent) ||
+      (networkObject.uniqueId !== undefined && Network.instance.clients[networkObject.uniqueId] !== undefined)
     )
       return
 
-    logger.info('Culling ownerless object: ', key, 'owned by ', networkObject.ownerId)
+    console.log('Culling ownerless object: ', key, 'owned by ', networkObject.uniqueId)
 
     // If it does, tell clients to destroy it
     const removeMessage = { networkId: Number(key) }
@@ -211,7 +211,7 @@ export async function validateNetworkObjects(): Promise<void> {
     // Remove network object from list
     delete Network.instance.networkObjects[key]
     logger.info(key, ' removed from simulation')
-  })
+  })*/
 }
 
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
@@ -283,11 +283,11 @@ function disconnectClientIfConnected(socket, userId: string): void {
   Object.keys(Network.instance.networkObjects).forEach((key: string) => {
     const networkObject = Network.instance.networkObjects[key]
     // Validate that the object belongeread to disconnecting user
-    if (networkObject.ownerId !== userId) return
+    if (networkObject.uniqueId !== userId) return
 
     // If it does, tell clients to destroy it
     if (typeof getComponent(networkObject.entity, NetworkObjectComponent).networkId === 'number') {
-      Network.instance.worldState.destroyObjects.push({ networkId: networkObject.networkId })
+      Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })
     } else {
       logger.error('networkId is invalid')
       logger.error(networkObject)
@@ -330,14 +330,13 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     worldState.createObjects.push({
       prefabType: Network.instance.networkObjects[networkId].prefabType,
       networkId: Number(networkId),
-      ownerId: Network.instance.networkObjects[networkId].ownerId,
       uniqueId: Network.instance.networkObjects[networkId].uniqueId,
       parameters: Network.instance.networkObjects[networkId].parameters
     })
   })
 
   const networkId = getNewNetworkId(userId)
-  spawnPrefab(PrefabType.Player, userId, userId, networkId, spawnPos)
+  spawnPrefab(PrefabType.Player, userId, networkId, spawnPos)
 
   await new Promise<void>((resolve) => {
     const listener = ({ uniqueId }) => {
@@ -394,9 +393,9 @@ export async function handleDisconnect(socket): Promise<any> {
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
       const networkObject = Network.instance.networkObjects[key]
       // Validate that the object belonged to disconnecting user
-      if (networkObject.ownerId !== userId) return
+      if (networkObject.uniqueId !== userId) return
 
-      logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.ownerId)
+      logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.uniqueId)
 
       // If it does, tell clients to destroy it
       Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })

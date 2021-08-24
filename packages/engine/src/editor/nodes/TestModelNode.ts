@@ -14,10 +14,8 @@ import {
   TextureLoader
 } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
-// @ts-ignore
-import { RectAreaLightHelper } from './helper/RectAreaLightHelper.js'
-// @ts-ignore
-import { RectAreaLightUniformsLib } from './helper/RectAreaLightUniformsLib.js'
+// import { RectAreaLightHelper } from './helper/RectAreaLightHelper.js'
+// import { RectAreaLightUniformsLib } from './helper/RectAreaLightUniformsLib.js'
 
 export default class TestModelNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'TestModel'
@@ -54,22 +52,22 @@ export default class TestModelNode extends EditorNodeMixin(Object3D) {
     const height = 50
     const intensity = 0.5
 
-    RectAreaLightUniformsLib.init()
+    // RectAreaLightUniformsLib.init()
     const blueRectLight = new RectAreaLight(0x9aaeff, intensity, width, height)
     blueRectLight.position.set(99, 5, 0)
     blueRectLight.lookAt(0, 5, 0)
     gr.add(blueRectLight)
 
-    const blueRectLightHelper = new RectAreaLightHelper(blueRectLight)
-    blueRectLight.add(blueRectLightHelper)
+    // const blueRectLightHelper = new RectAreaLightHelper(blueRectLight)
+    // blueRectLight.add(blueRectLightHelper)
 
     const redRectLight = new RectAreaLight(0xf3aaaa, intensity, width, height)
     redRectLight.position.set(-99, 5, 0)
     redRectLight.lookAt(0, 5, 0)
     gr.add(redRectLight)
 
-    const redRectLightHelper = new RectAreaLightHelper(redRectLight)
-    redRectLight.add(redRectLightHelper)
+    // const redRectLightHelper = new RectAreaLightHelper(redRectLight)
+    // redRectLight.add(redRectLightHelper)
 
     const rMap = await this.load('/textures/lavatile.jpg')
 

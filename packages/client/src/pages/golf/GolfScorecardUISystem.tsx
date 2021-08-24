@@ -14,17 +14,12 @@ import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 
 export function createScorecardUI() {
-  const ui = createXRUI(GolfScorecardView, GolfState)
-
-  addComponent(ui.entity, TransformComponent, {
-    position: new Vector3(),
-    rotation: new Quaternion(),
-    scale: new Vector3(1, 1, 1)
-  })
-
-  return ui
+  return createXRUI(GolfScorecardView, GolfState)
 }
 
 const GolfHoles = () => {
@@ -75,35 +70,124 @@ const GolfScores = () => {
   )
 }
 
-const GolfScorecardView = () => {
+function getUserById(id: string, userState: ReturnType<typeof useUserState>) {
+  return userState.layerUsers.find((user) => user.id.value === id)
+}
+
+const GolfLabelsView = () => {
+  const userState = useUserState()
+  const players = useState(GolfState.players)
   return (
-    <div id="scorecard">
-      <GolfHoles></GolfHoles>
-      <GolfPar></GolfPar>
-      <GolfScores></GolfScores>
+    <div
+      id="labels"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        padding: '15px 0px 15px 10px',
+        position: 'static',
+        width: 'fit-content',
+        height: 'fit-content',
+        fontFamily: 'Racing Sans One',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        textAlign: 'right',
+        color: '#FFFFFF'
+      }}
+    >
+      <div
+        style={{
+          position: 'static',
+          height: '40px',
+          fontSize: '30px',
+          lineHeight: '38px'
+        }}
+      >
+        Hole
+      </div>
+      <div
+        style={{
+          position: 'static',
+          height: '40px',
+          fontSize: '15px',
+          lineHeight: '19px'
+        }}
+      >
+        Par
+      </div>
+      {players.map((p, i) => {
+        console.log('PLAYER ' + p.id.value)
+        const color = GolfColours[i]
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'static',
+              height: '40px',
+              fontSize: '30px',
+              lineHeight: '38px',
+              alignItems: 'center',
+              color: color.getStyle()
+            }}
+          >
+            {getUserById(p.id.value, userState)?.name.value || `Player${i}`}
+          </div>
+        )
+      })}
     </div>
   )
 }
 
+const GolfScorecardView = () => {
+  return (
+    <>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
+      <div
+        id="scorecard"
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          padding: '30px 40px',
+          position: 'relative',
+          width: 'fit-content',
+          height: 'fit-content',
+          background: ' rgba(0, 0, 0, 0.51)',
+          border: '10px solid #FFFFFF',
+          boxSizing: 'border-box',
+          filter: 'drop-shadow(0 0 30px rgba(0, 0, 0, 0.57))',
+          borderRadius: '60px',
+          margin: '50px'
+        }}
+      >
+        <GolfLabelsView />
+      </div>
+    </>
+  )
+}
+
+const mat4 = new Matrix4()
+
 export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
-  const mat = new Matrix4()
-
   return defineSystem((world) => {
-    return world
+    // return world
 
-    const uiRoot = getComponent(ui.entity, XRUIComponent)
-    if (!uiRoot) return world
+    const uiComponent = getComponent(ui.entity, XRUIComponent)
+    if (!uiComponent) return world
 
-    const cameraMatrix = Engine.camera.matrix
-    const uiTransform = getComponent(ui.entity, TransformComponent)
+    const cameraTransform = getHeadTransform(Network.instance.localClientEntity)
+    mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
 
-    uiTransform.position.set(0, 0, -1)
-    uiTransform.rotation.set(0, 0, 0, 1)
-    uiTransform.scale.setScalar(1)
-    mat.compose(uiTransform.position, uiTransform.rotation, uiTransform.scale).premultiply(cameraMatrix)
-    mat.decompose(uiTransform.position, uiTransform.rotation, uiTransform.scale)
+    // const uiTransform = getComponent(ui.entity, TransformComponent)
+    const layer = uiComponent.layer
+    layer.position.set(0, 0, -1)
+    layer.quaternion.set(0, 0, 0, 1)
+    layer.scale.setScalar(1)
+    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
+    layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
 
     // uiTransform.rotation.copy(cameraTransform.rotation)
     // uiTransform.position.copy(cameraTransform.position)

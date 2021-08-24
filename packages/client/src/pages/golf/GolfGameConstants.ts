@@ -7,9 +7,9 @@ export enum GolfCollisionGroups {
   Course = 1 << 13
 }
 
-export enum GolfPrefabTypes {
-  Ball = 10, // TODO: make a prefab register
-  Club = 11
+export const GolfPrefabTypes = {
+  Ball: 'ball', // TODO: make a prefab register
+  Club: 'club'
 }
 
 export const GolfColours = [

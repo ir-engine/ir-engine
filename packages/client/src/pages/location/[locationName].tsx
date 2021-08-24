@@ -10,8 +10,8 @@ import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { InitializeOptions } from '../../../../engine/src/initializationOptions'
-import { XRUISystem } from '../../../../engine/src/xrui/systems/XRUISystem'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)

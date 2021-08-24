@@ -20,7 +20,6 @@ export const handleObjectEquipped = (editObject: NetworkObjectEditInterface): vo
       return console.warn(
         `Equipped entity with id ${equippedEntityId} does not exist! You should probably reconnect...`
       )
-    // if(Network.instance.localAvatarNetworkId !== editObject.networkId) return;
     const entityEquipped = Network.instance.networkObjects[equippedEntityId].entity
     equipEntity(entityEquipper, entityEquipped)
   } else {

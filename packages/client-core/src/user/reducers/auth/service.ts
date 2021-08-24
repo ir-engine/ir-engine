@@ -867,7 +867,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       //Find entityId from network objects of updated user and dispatch avatar load event.
       for (let key of Object.keys(Network.instance.networkObjects)) {
         const obj = Network.instance.networkObjects[key]
-        if (obj?.ownerId === user.id) {
+        if (obj?.uniqueId === user.id) {
           setAvatar(obj.entity, user.avatarId, avatarURL)
           break
         }
@@ -900,7 +900,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     //Find entityId from network objects of updated user and dispatch avatar load event.
     for (let key of Object.keys(Network.instance.networkObjects)) {
       const obj = Network.instance.networkObjects[key]
-      if (obj?.ownerId === user.id) {
+      if (obj?.uniqueId === user.id) {
         setAvatar(obj.entity, user.avatarId, avatarURL)
         break
       }
@@ -918,7 +918,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     if (Network.instance != null) await loadAvatarForUpdatedUser(user)
 
     if (selfUser.id === user.id) {
-      if (selfUser.instanceId !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
+      store.dispatch(UserAction.clearLayerUsers())
       if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(UserAction.clearChannelLayerUsers())
       store.dispatch(userUpdated(user))
       if (user.partyId) {

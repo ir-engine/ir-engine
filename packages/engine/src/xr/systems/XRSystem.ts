@@ -15,7 +15,7 @@ import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { addControllerModels } from '../functions/addControllerModels'
-import { endXR, startXR } from '../functions/WebXRFunctions'
+import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
 /**
  * System for XR session and input handling
@@ -31,7 +31,7 @@ export const XRSystem = async (): Promise<System> => {
 
   // TEMPORARY - precache controller model
   // TODO: remove this when IK system is in
-  AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
+  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     Engine.renderer.outputEncoding = sRGBEncoding
@@ -49,7 +49,7 @@ export const XRSystem = async (): Promise<System> => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
       })
 
-      startXR()
+      startWebXR()
     } catch (e) {
       console.log('Failed to create XR Session', e)
     }

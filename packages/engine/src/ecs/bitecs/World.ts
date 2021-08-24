@@ -1,6 +1,13 @@
 import { $componentMap } from './Component'
 import { $queryMap, $queries, $dirtyQueries, $notQueries } from './Query'
-import { $entityArray, $entityComponents, $entityMasks, $entitySparseSet, getGlobalSize, removeEntity } from './Entity'
+import {
+  $entityArray,
+  $entityComponents,
+  $entityMasks,
+  $entitySparseSet,
+  getGlobalSize,
+  bit_removeEntity
+} from './Entity'
 import { resize } from './Storage'
 import { SparseSet } from './Util'
 
@@ -47,7 +54,7 @@ export const resetWorld = (world) => {
   const size = getGlobalSize()
   world[$size] = size
 
-  if (world[$entityArray]) world[$entityArray].forEach((eid) => removeEntity(world, eid))
+  if (world[$entityArray]) world[$entityArray].forEach((eid) => bit_removeEntity(world, eid))
 
   world[$entityMasks] = [new Uint32Array(size)]
   world[$entityComponents] = new Map()

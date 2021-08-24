@@ -196,17 +196,17 @@ export const componentSeed = {
       id: '09cc03c4-24e9-sd1b-bc2e-e7e742fb069f',
       data: {
         options: {
-          probePosition: {
+          bakePosition: {
             x: 0,
             y: 0,
             z: 0
           },
-          probePositionOffset: {
+          bakePositionOffset: {
             x: 0,
             y: 0,
             z: 0
           },
-          probeScale: {
+          bakeScale: {
             x: 1,
             y: 1,
             z: 1

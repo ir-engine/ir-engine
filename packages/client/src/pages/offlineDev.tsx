@@ -11,8 +11,8 @@ import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/system
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import React, { useEffect, useState } from 'react'
-import { InitializeOptions } from '../../../engine/src/initializationOptions'
-import { Network } from '../../../engine/src/networking/classes/Network'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 const canvasStyle = {
   zIndex: 0,

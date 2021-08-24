@@ -41,8 +41,10 @@ import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { Water } from '../classes/Water'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { UserdataComponent } from '../components/UserdataComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -138,6 +140,10 @@ export class WorldScene {
             console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
           }
         }
+        break
+
+      case 'userdata':
+        addComponent(entity, UserdataComponent, { data: component.data })
         break
 
       case 'ambient-light':
@@ -319,6 +325,11 @@ export class WorldScene {
         isClient && addComponent(entity, UpdatableComponent, {})
         break
 
+      case 'water':
+        isClient && addObject3DComponent(entity, new Water(), component.data)
+        isClient && addComponent(entity, UpdatableComponent, {})
+        break
+
       case 'postprocessing':
         EngineRenderer.instance?.configurePostProcessing(component.data.options)
         break
@@ -344,8 +355,8 @@ export class WorldScene {
         break
 
       /* intentionally empty - these are only for the editor */
-      case 'reflectionprobestatic':
-      case 'reflectionprobe':
+      case 'includeInCubemapBake':
+      case 'cubemapbake':
       case 'group':
         break
 

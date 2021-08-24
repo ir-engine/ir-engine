@@ -29,6 +29,7 @@ import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowCompon
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { ClientAuthoritativeComponent } from '@xrengine/engine/src/physics/components/ClientAuthoritativeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { getGolfPlayerNumber } from '../functions/golfFunctions'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -40,20 +41,19 @@ const eulerX90 = new Euler(Math.PI * 0.5, 0, 0)
  */
 
 export const spawnClub = (entityPlayer: Entity): void => {
-  const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
-
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
 
-  const parameters: GolfClubSpawnParameters = {}
+  const parameters: GolfClubSpawnParameters = {
+    playerNumber: getGolfPlayerNumber(entityPlayer)
+  }
 
   // this spawns the club on the server
-  spawnPrefab(GolfPrefabTypes.Club, playerNetworkObject.ownerId, uuid, networkId, parameters)
+  spawnPrefab(GolfPrefabTypes.Club, uuid, networkId, parameters)
 
   // this sends the club to the clients
   Network.instance.worldState.createObjects.push({
     networkId,
-    ownerId: playerNetworkObject.ownerId,
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Club,
     parameters
@@ -192,10 +192,13 @@ const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, c
 const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
-type GolfClubSpawnParameters = {}
+type GolfClubSpawnParameters = {
+  playerNumber: number
+}
 
-export const initializeGolfClub = (entityClub: Entity, playerNumber: number, ownerEntity: Entity) => {
+export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, parameters: GolfClubSpawnParameters) => {
   const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
+  const { playerNumber } = parameters
 
   const transform = addComponent(entityClub, TransformComponent, {
     position: new Vector3(),
@@ -303,7 +306,8 @@ export const initializeGolfClub = (entityClub: Entity, playerNumber: number, own
     velocityServer: new Vector3(),
     swingVelocity: 0,
     hidden: false,
-    disabledOpacity: 0.3
+    disabledOpacity: 0.3,
+    number: playerNumber
   })
 
   for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
