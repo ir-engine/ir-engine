@@ -49,16 +49,10 @@ const FeedTable = (props: Props) => {
   const [feedId, setFeedId] = React.useState('')
 
   React.useEffect(() => {
-    if (feeds.get('updateNeeded')) {
-      getAdminFeeds()
-    }
-  }, [feeds])
-
-  React.useEffect(() => {
     if (user.id && feeds.get('updateNeeded')) {
       getAdminFeeds()
     }
-  }, [user, getAdminFeeds])
+  }, [user, getAdminFeeds, feeds])
 
   const openViewModalHandler = (open: boolean, feed: any) => {
     setFeedAdmin(feed)

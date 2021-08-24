@@ -8,7 +8,7 @@ import styles from './MapLocation.module.scss'
 const mapboxApiKey = 'pk.eyJ1IjoibmF2ZGVlcHlhZGF2IiwiYSI6ImNrc2EzM2pnejBqaWUyeHA0bW8xaXFwaWEifQ.hIpiYzWrUer4F31GpCqoHA'
 const mapStyle = {
   width: '100%',
-  height: '40vh'
+  height: '45vh'
 }
 
 interface Props {}

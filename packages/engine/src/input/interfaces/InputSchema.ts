@@ -10,9 +10,11 @@ export type InputBehaviorType = (
   delta: number
 ) => void
 
+type InputChange = (entity: Entity, delta: number) => void
+
 export interface InputSchema {
-  onAdded: (entity: Entity, delta: number) => void
-  onRemove: (entity: Entity, delta: number) => void
+  onAdded: InputChange[]
+  onRemove: InputChange[]
   inputMap: Map<InputAlias, InputAlias>
   behaviorMap: Map<InputAlias, InputBehaviorType>
 }

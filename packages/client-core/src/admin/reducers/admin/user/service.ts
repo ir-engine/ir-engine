@@ -7,8 +7,9 @@ import {
   userPatched,
   userRoleUpdated,
   searchedUser,
-  fetchedSIngleUser,
-  fetchedStaticResource
+  fetchedSingleUser,
+  fetchedStaticResource,
+  refetchSingleUser
 } from './actions'
 import { client } from '../../../../feathers'
 import { loadedUsers } from './actions'
@@ -17,8 +18,6 @@ import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 export function fetchUsersAsAdmin(offset: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user')
-    console.log(user)
-
     const skip = getState().get('adminUser').get('users').get('skip')
     const limit = getState().get('adminUser').get('users').get('limit')
     try {
@@ -43,6 +42,7 @@ export function fetchUsersAsAdmin(offset: string) {
 }
 
 export function createUser(user: any) {
+  console.log('user:', user)
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const result = await client.service('user').create(user)
@@ -129,7 +129,7 @@ export const fetchSingleUserAdmin = (id: string) => {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const result = await client.service('user').get(id)
-      dispatch(fetchedSIngleUser(result))
+      dispatch(fetchedSingleUser(result))
     } catch (error) {
       console.error(error)
       dispatchAlertError(dispatch, error.message)
@@ -150,4 +150,9 @@ export const fetchStaticResource = () => {
       console.error(error)
     }
   }
+}
+
+export const refetchSingleUserAdmin = () => {
+  console.log('refetchSingleUserAdmin')
+  return async (dispatch: Dispatch): Promise<any> => dispatch(refetchSingleUser())
 }

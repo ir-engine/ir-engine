@@ -159,7 +159,7 @@ const InvitesConsole = (props: Props) => {
               color="primary"
               onClick={openModelInvite}
             >
-              Sent Invite
+              Send Invite
             </Button>
           </Grid>
         </Grid>

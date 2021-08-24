@@ -30,6 +30,8 @@ import Snackbar from '@material-ui/core/Snackbar'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
+import { selectScopeState } from '../../reducers/admin/scope/selector'
+import { getScopeTypeService } from '../../reducers/admin/scope/service'
 
 interface Props {
   openView: boolean
@@ -42,12 +44,15 @@ interface Props {
   fetchSingleUserAdmin?: any
   adminUserState?: any
   fetchStaticResource?: any
+  adminScopeState?: any
+  getScopeTypeService?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
-    adminUserState: selectAdminUserState(state)
+    adminUserState: selectAdminUserState(state),
+    adminScopeState: selectScopeState(state)
   }
 }
 
@@ -56,7 +61,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   patchUser: bindActionCreators(patchUser, dispatch),
   updateUserRole: bindActionCreators(updateUserRole, dispatch),
   fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
+  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
 })
 
 const Alert = (props) => {
@@ -76,18 +82,23 @@ const ViewUser = (props: Props) => {
     updateUserRole,
     fetchSingleUserAdmin,
     adminUserState,
-    fetchStaticResource
+    fetchStaticResource,
+    adminScopeState,
+    getScopeTypeService
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
   const [editMode, setEditMode] = React.useState(false)
   const [refetch, setRefetch] = React.useState(false)
+
   const [state, setState] = React.useState({
     name: '',
     avatar: '',
+    scopeType: [],
     formErrors: {
       name: '',
-      avatar: ''
+      avatar: '',
+      scopeType: ''
     }
   })
   const [error, setError] = React.useState('')
@@ -99,6 +110,7 @@ const ViewUser = (props: Props) => {
   const singleUserData = adminUserState.get('singleUser').get('singleUser')
   const staticResource = adminUserState.get('staticResource')
   const staticResourceData = staticResource.get('staticResource')
+  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
   const handleClick = () => {
     setOpenDialog(true)
@@ -119,7 +131,10 @@ const ViewUser = (props: Props) => {
     if (user.id && staticResource.get('updateNeeded')) {
       fetchStaticResource()
     }
-  }, [adminUserState, user, refetch])
+    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
+      getScopeTypeService()
+    }
+  }, [adminUserState, user, refetch, singleUser])
 
   React.useEffect(() => {
     if (!refetch) {
@@ -132,7 +147,8 @@ const ViewUser = (props: Props) => {
       setState({
         ...state,
         name: userAdmin.name || '',
-        avatar: userAdmin.avatarId || ''
+        avatar: userAdmin.avatarId || '',
+        scopeType: userAdmin.scopes || []
       })
     }
   }, [singleUserData])
@@ -166,7 +182,8 @@ const ViewUser = (props: Props) => {
   const handleSubmit = () => {
     const data = {
       name: state.name,
-      avatarId: state.avatar
+      avatarId: state.avatar,
+      scopeType: state.scopeType
     }
 
     let temp = state.formErrors
@@ -176,13 +193,20 @@ const ViewUser = (props: Props) => {
     if (!state.avatar) {
       temp.avatar = "Avatar can't be empty"
     }
+    if (!state.scopeType) {
+      temp.scopeType = "Scope type can't be empty"
+    }
+    if (!state.scopeType.length) {
+      temp.scopeType = "Scope can't be empty"
+    }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       patchUser(userAdmin.id, data)
       setState({
         ...state,
         name: '',
-        avatar: ''
+        avatar: '',
+        scopeType: []
       })
       setEditMode(false)
       closeViewModel(false)
@@ -199,7 +223,7 @@ const ViewUser = (props: Props) => {
     setOpenWarning(false)
   }
 
-  const handleCloseDrawe = () => {
+  const handleCloseDrawer = () => {
     setError('')
     setOpenWarning(false)
     closeViewModel(false)
@@ -208,14 +232,15 @@ const ViewUser = (props: Props) => {
       formErrors: {
         ...state.formErrors,
         name: '',
-        avatar: ''
+        avatar: '',
+        scopeType: ''
       }
     })
   }
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawe()} classes={{ paper: classx.paper }}>
+      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawer()} classes={{ paper: classx.paper }}>
         {userAdmin && (
           <Paper elevation={3} className={classes.paperHeight}>
             <Container maxWidth="sm">
@@ -270,8 +295,8 @@ const ViewUser = (props: Props) => {
                   renderInput={(params) => <TextField {...params} label="User Role" />}
                 />
               </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog} color="primary">
+              <DialogActions className={classes.marginTop}>
+                <Button onClick={handleCloseDialog} className={classx.spanDange}>
                   Cancel
                 </Button>
                 <Button
@@ -336,6 +361,32 @@ const ViewUser = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
+
+              <label>Grant scope</label>
+              <Paper
+                component="div"
+                className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+              >
+                <Autocomplete
+                  onChange={(event, value) =>
+                    setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+                  }
+                  multiple
+                  value={state.scopeType}
+                  className={classes.selector}
+                  classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
+                  id="tags-standard"
+                  options={adminScopes}
+                  disableCloseOnSelect
+                  filterOptions={(options) =>
+                    options.filter(
+                      (option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null
+                    )
+                  }
+                  getOptionLabel={(option) => option.type}
+                  renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
+                />
+              </Paper>
             </div>
           ) : (
             <Grid container spacing={3} className={classes.mt10}>
@@ -370,11 +421,29 @@ const ViewUser = (props: Props) => {
                   {userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}
                 </Typography>
               </Grid>
+              <Typography variant="h5" component="h5" className={classes.mb20px}>
+                User scope
+              </Typography>
+              {singleUserData.scopes?.map((el, index) => {
+                const [label, type] = el.type.split(':')
+                return (
+                  <Grid container spacing={3} style={{ paddingLeft: '10px' }} key={el.id}>
+                    <Grid item xs={4}>
+                      <Typography variant="h6" component="h6" className={classes.mb10}>
+                        {label}:
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Chip label={type} />
+                    </Grid>
+                  </Grid>
+                )
+              })}
             </Grid>
           )}
           <DialogActions className={classes.mb10}>
             {editMode ? (
-              <div>
+              <div className={classes.marginTop}>
                 <Button onClick={handleSubmit} className={classx.saveBtn}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
@@ -391,16 +460,22 @@ const ViewUser = (props: Props) => {
                 </Button>
               </div>
             ) : (
-              <div>
+              <div className={classes.marginTop}>
                 <Button
                   className={classx.saveBtn}
                   onClick={() => {
                     setEditMode(true)
+                    setState({
+                      ...state,
+                      name: userAdmin.name || '',
+                      avatar: userAdmin.avatarId || '',
+                      scopeType: userAdmin.scopes || []
+                    })
                   }}
                 >
                   EDIT
                 </Button>
-                <Button onClick={() => handleCloseDrawe()} className={classx.saveBtn}>
+                <Button onClick={() => handleCloseDrawer()} className={classx.saveBtn}>
                   CANCEL
                 </Button>
               </div>

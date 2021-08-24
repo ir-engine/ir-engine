@@ -36,16 +36,7 @@ const adminReducer = (state = immutableState, action: any): any => {
     case INSTANCES_RETRIEVED:
       result = (action as InstancesRetrievedResponse).instances
       updateMap = new Map(state.get('instances'))
-      let combinedInstances = state.get('instances').get('instances')
-      ;(result as any).data.forEach((item) => {
-        const match = combinedInstances.find((instance) => instance.id === item.id)
-        if (match == null) {
-          combinedInstances = combinedInstances.concat(item)
-        } else {
-          combinedInstances = combinedInstances.map((instance) => (instance.id === item.id ? item : instance))
-        }
-      })
-      updateMap.set('instances', combinedInstances)
+      updateMap.set('instances', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)

@@ -34,6 +34,9 @@ export default {
           },
           {
             model: 'instance'
+          },
+          {
+            model: 'scope'
           }
         ]
       })
@@ -55,6 +58,9 @@ export default {
           },
           {
             model: 'user-settings'
+          },
+          {
+            model: 'scope'
           }
         ]
       })
@@ -78,9 +84,38 @@ export default {
           },
           {
             model: 'user-settings'
+          },
+          {
+            model: 'scope'
           }
         ]
-      })
+      }),
+      async (context: HookContext): Promise<HookContext> => {
+        const foundItem = await context.app.service('scope').Model.findAll({
+          where: {
+            userId: context.arguments[0]
+          }
+        })
+        if (!foundItem.length) {
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
+            await context.app.service('scope').create({
+              type: el.type,
+              userId: context.arguments[0]
+            })
+          })
+        } else {
+          foundItem.forEach(async (scp) => {
+            await context.app.service('scope').remove(scp.dataValues.id)
+          })
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
+            await context.app.service('scope').create({
+              type: el.type,
+              userId: context.arguments[0]
+            })
+          })
+        }
+        return context
+      }
     ],
     remove: []
   },
@@ -158,6 +193,12 @@ export default {
         try {
           await context.app.service('user-settings').create({
             userId: context.result.id
+          })
+          context.arguments[0]?.scopeType?.forEach((el) => {
+            context.app.service('scope').create({
+              type: el.type,
+              userId: context.result.id
+            })
           })
           const app = context.app
           let result = context.result

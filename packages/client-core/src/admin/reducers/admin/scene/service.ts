@@ -15,3 +15,6 @@ export function fetchAdminScenes() {
     dispatch(collectionsFetched(scenes))
   }
 }
+export function deleteScene() {
+  return async (dispatch: Dispatch): Promise<any> => {}
+}

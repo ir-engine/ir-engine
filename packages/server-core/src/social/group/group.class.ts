@@ -35,6 +35,10 @@ export class Group extends Service {
         where: {
           id: loggedInUser.userId
         }
+      },
+      {
+        model: (this.app.service('scope') as any).Model,
+        require: false
       }
     ]
     if (params.query?.invitable === true) {

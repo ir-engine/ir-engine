@@ -31,7 +31,7 @@ export const PhysicsSystem = async (
   const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnRigidbodyAddQuery = enterQuery(spawnRigidbodyQuery)
 
-  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const colliderQuery = defineQuery([Not(AvatarComponent), ColliderComponent, TransformComponent])
   const colliderRemoveQuery = exitQuery(colliderQuery)
 
   const raycastQuery = defineQuery([RaycastComponent])
