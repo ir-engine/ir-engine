@@ -1,6 +1,6 @@
-import EditorNodeMixin from './EditorNodeMixin'
 import Spline from '@xrengine/engine/src/scene/classes/Spline'
 import { Object3D } from 'three'
+import EditorNodeMixin from './EditorNodeMixin'
 import SplineHelperNode from './SplineHelperNode'
 
 export default class SplineNode extends EditorNodeMixin(Object3D) {
