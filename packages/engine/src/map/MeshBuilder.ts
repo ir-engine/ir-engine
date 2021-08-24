@@ -30,8 +30,8 @@ import { GeoLabelNode } from './GeoLabelNode'
 
 // TODO free resources used by canvases, bitmaps etc
 
-export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
-  return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
+export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position, sceneScale = 1): Position {
+  return [(lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale, (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale]
 }
 
 function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
@@ -336,11 +336,15 @@ export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Positi
   return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter)
 }
 
-export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): GeoLabelNode[] {
+export function createLabels(
+  vectorTiles: TileFeaturesByLayer[],
+  llCenter: Position,
+  sceneScale: number
+): GeoLabelNode[] {
   const features = collectFeaturesByLayer('road', vectorTiles)
   return features.reduce((acc, f) => {
     if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
-      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter))
+      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter, sceneScale))
 
       acc.push(labelView)
     }

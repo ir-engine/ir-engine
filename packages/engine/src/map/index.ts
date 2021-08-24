@@ -1,6 +1,6 @@
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import * as THREE from 'three'
-import { Group } from 'three'
+import { Group, Object3D } from 'three'
 import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
 import { fetchRasterTiles, fetchVectorTiles, getCenterTile } from './MapBoxClient'
@@ -38,7 +38,7 @@ export const create = async function (args: MapProps) {
   const roadsMesh = createRoads(vectorTiles, center)
   const waterMesh = createWater(vectorTiles, center)
   const landUseMesh = createLandUse(vectorTiles, center)
-  const labels = createLabels(vectorTiles, center)
+  const labels = createLabels(vectorTiles, center, args.scale.x)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
@@ -53,6 +53,7 @@ export const create = async function (args: MapProps) {
   group.add(landUseMesh)
 
   labels.forEach((label) => {
+    ;(label as unknown as Object3D).scale.copy(args.scale)
     group.add(label as any)
   })
 

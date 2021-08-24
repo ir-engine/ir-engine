@@ -85,11 +85,10 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     })
     safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
 
-    this.labels = createLabels(vectorTiles, center)
+    this.labels = createLabels(vectorTiles, center, this.scale.x)
 
     this.labels.forEach((label) => {
-      label.position.x *= this.scale.x
-      label.position.z *= this.scale.x
+      ;(label as unknown as Object3D).scale.copy(this.scale)
       this.add(label)
     })
   }
