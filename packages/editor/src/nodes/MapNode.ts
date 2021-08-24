@@ -1,4 +1,4 @@
-import { Mesh, Object3D, BoxBufferGeometry, Material, Matrix4, Vector3 } from 'three'
+import { Mesh, Object3D, BoxBufferGeometry, Material } from 'three'
 import {
   createBuildings,
   createRoads,

@@ -1,6 +1,5 @@
 import { Position, Polygon, MultiPolygon } from 'geojson'
-import * as THREE from 'three'
-import { Group, Object3D } from 'three'
+import { Group } from 'three'
 import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
 import { fetchRasterTiles, fetchVectorTiles, getCenterTile } from './MapBoxClient'

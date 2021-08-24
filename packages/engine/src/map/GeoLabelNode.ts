@@ -1,10 +1,10 @@
 import { Feature, LineString, Position } from 'geojson'
-import { Vector3, Object3D, Camera } from 'three'
+import { Vector3, Camera } from 'three'
 import { Text } from 'troika-three-text'
 import { length, lineSliceAlong } from '@turf/turf'
 
 const axisY = new Vector3(0, 1, 0)
-const vector3 = new Vector3(1, 0, 0)
+const cameraDirection = new Vector3()
 
 function normalizeAngle(angle: number) {
   return angle < 0 ? Math.PI * 2 + angle : angle
@@ -62,9 +62,9 @@ export class GeoLabelNode {
     // for some reason the positions are mirrored along the X-axis
     this.object3d.position.z = y1 * -1
 
-    camera.getWorldDirection(vector3)
+    camera.getWorldDirection(cameraDirection)
 
-    const cameraAngle = normalizeAngle(Math.atan2(vector3.x, vector3.z))
+    const cameraAngle = normalizeAngle(Math.atan2(cameraDirection.x, cameraDirection.z))
     const angleDiff = normalizeAngle(cameraAngle - angle)
     this.object3d.quaternion.setFromAxisAngle(
       axisY,
