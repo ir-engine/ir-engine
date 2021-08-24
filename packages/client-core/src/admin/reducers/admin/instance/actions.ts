@@ -1,4 +1,4 @@
-import { INSTANCES_RETRIEVED, INSTANCE_REMOVED_ROW } from '@xrengine/client-core/src/world/reducers/actions'
+import { INSTANCES_RETRIEVED, INSTANCE_REMOVED_ROW } from '../../../../world/reducers/actions'
 // } from "../../actions";
 
 // /var/www/html/workspace/tsdoc/xr3ngine/packages/client-core/src/world/reducers/actions.ts

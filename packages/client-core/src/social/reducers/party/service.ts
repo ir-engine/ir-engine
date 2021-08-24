@@ -14,7 +14,7 @@ import {
   removedPartyUser
 } from './actions'
 
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'

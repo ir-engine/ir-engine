@@ -3,7 +3,7 @@
  */
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { Dispatch } from 'redux'
-import Api from '../../../world/components/editor/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import { client } from '../../../feathers'
 import {
@@ -80,8 +80,7 @@ export function updateCreator(creator: Creator) {
     try {
       dispatch(fetchingCurrentCreator())
       if (creator.newAvatar) {
-        const api = new Api()
-        const storedAvatar = await api.upload(creator.newAvatar, null)
+        const storedAvatar = await upload(creator.newAvatar, null)
         //@ts-ignore error that this vars are void because upload is defines as void funtion
         creator.avatarId = storedAvatar.file_id
         delete creator.newAvatar

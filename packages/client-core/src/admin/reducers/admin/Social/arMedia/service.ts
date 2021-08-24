@@ -1,4 +1,4 @@
-import Api from '../../../../../world/components/editor/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { Dispatch } from 'redux'
 import { client } from '../../../../../feathers'
 import { addAdminArMedia, updateAdminArMedia, removeArMediaItem, fetchingArMedia, setAdminArMedia } from './actions'
@@ -28,24 +28,23 @@ export function getArMediaService(type?: string, limit: Number = 12) {
   }
 }
 
-const uploadtFIle = async (files) => {
-  const api = new Api()
-  const manifest = files.manifest instanceof File ? await api.upload(files.manifest, null) : null
-  const audio = files.audio instanceof File ? await api.upload(files.audio, null) : null
-  const dracosis = files.dracosis instanceof File ? await api.upload(files.dracosis, null) : null
-  const preview = files.preview instanceof File ? await api.upload(files.preview, null) : null
+const uploadFile = async (files) => {
+  const manifest = files.manifest instanceof File ? await upload(files.manifest, null) : null
+  const audio = files.audio instanceof File ? await upload(files.audio, null) : null
+  const dracosis = files.dracosis instanceof File ? await upload(files.dracosis, null) : null
+  const preview = files.preview instanceof File ? await upload(files.preview, null) : null
   return {
-    manifestId: manifest?.file_id,
-    audioId: audio?.file_id,
-    dracosisId: dracosis?.file_id,
-    previewId: preview?.file_id
+    manifestId: (manifest as any)?.file_id,
+    audioId: (audio as any)?.file_id,
+    dracosisId: (dracosis as any)?.file_id,
+    previewId: (preview as any)?.file_id
   }
 }
 
 export function createArMedia(mediaItem: any, files: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const file = await uploadtFIle(files)
+      const file = await uploadFile(files)
       //@ts-ignore error that this vars are void because upload is defines as void function
       const newItem = await client.service('ar-media').create({
         ...mediaItem,
@@ -62,13 +61,13 @@ export function createArMedia(mediaItem: any, files: any) {
 export const updateArMedia =
   (mediaItem, files, id) =>
   async (dispatch: Dispatch): Promise<any> => {
-    const result = await uploadtFIle(files)
-    const newItem = await client.service('ar-media').patch(id, {
-      ...mediaItem,
-      ...result
-    })
-    dispatch(updateAdminArMedia(newItem))
     try {
+      const result = await uploadFile(files)
+      const newItem = await client.service('ar-media').patch(id, {
+        ...mediaItem,
+        ...result
+      })
+      dispatch(updateAdminArMedia(newItem))
     } catch (error) {
       console.error(error)
       dispatchAlertError(dispatch, error.message)
