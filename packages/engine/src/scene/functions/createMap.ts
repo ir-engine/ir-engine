@@ -6,6 +6,7 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
+import { GeoLabelSetComponent } from '../../map/GeoLabelSetComponent'
 
 let currentEnt
 
@@ -18,11 +19,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     yukaNavMesh: navMesh,
     navTarget: groundMesh
   })
-  labels.forEach((label) => {
-    addComponent(entity, Object3DComponent, {
-      value: label as any
-    })
-  })
+  addComponent(entity, GeoLabelSetComponent, { value: new Set(labels) })
   if (args.enableDebug) {
     addComponent(entity, DebugNavMeshComponent, null)
   }

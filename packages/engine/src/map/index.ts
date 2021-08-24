@@ -15,7 +15,7 @@ import {
   setGroundScaleAndPosition
 } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
-import { Label, TileFeaturesByLayer } from './types'
+import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
 import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 import { METERS_PER_DEGREE_LL } from './constants'
@@ -38,6 +38,7 @@ export const create = async function (args: MapProps) {
   const roadsMesh = createRoads(vectorTiles, center)
   const waterMesh = createWater(vectorTiles, center)
   const landUseMesh = createLandUse(vectorTiles, center)
+  const labels = createLabels(vectorTiles, center)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
@@ -51,6 +52,10 @@ export const create = async function (args: MapProps) {
 
   group.add(landUseMesh)
 
+  labels.forEach((label) => {
+    group.add(label as any)
+  })
+
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
   group.position.multiplyScalar(args.scale.x)
@@ -60,7 +65,7 @@ export const create = async function (args: MapProps) {
   centerTile = Object.assign(getCenterTile(center))
   scaleArg = args.scale.x
 
-  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels: createLabels(vectorTiles, center) }
+  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels }
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
