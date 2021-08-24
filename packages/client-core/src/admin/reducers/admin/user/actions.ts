@@ -13,7 +13,7 @@ import {
   USER_ROLE_RETRIEVED,
   USER_ROLE_CREATED,
   USER_ROLE_UPDATED
-} from '@xrengine/client-core/src/world/reducers/actions'
+} from '../../../../world/reducers/actions'
 
 export interface userRoleRetrievedResponse {
   type: string

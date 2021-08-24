@@ -1,8 +1,8 @@
+import { upload } from '@xrengine/editor/src/components/Api'
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../../../common/reducers/alert/service'
 import { client } from '../../../../../feathers'
-import { fetchingAdminFeeds, feedsAdminRetrieved, addFeed, removeFeed } from './actions'
-import Api from '../../../../../world/components/editor/Api'
+import { addFeed, feedsAdminRetrieved, removeFeed } from './actions'
 
 export const getAdminFeeds =
   () =>
@@ -28,9 +28,8 @@ export function createFeed({ title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       // dispatch(fetchingFeeds())
-      const api = new Api()
-      const storedVideo = await api.upload(video, null)
-      const storedPreview = await api.upload(preview, null)
+      const storedVideo = await upload(video, null)
+      const storedPreview = await upload(preview, null)
 
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
       if (storedVideo && storedPreview) {

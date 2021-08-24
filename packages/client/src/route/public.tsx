@@ -95,10 +95,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           {/* Editor Routes */}
           <Route
             path="/editor/projects/:projectId"
-            component={React.lazy(() => import('../pages/editor/projects/[projectId]'))}
+            component={React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))}
           />
-          <Route path="/editor/projects" component={React.lazy(() => import('../pages/editor/projects'))} />
-          <Route path="/editor/create" component={React.lazy(() => import('../pages/editor/create'))} />
+          <Route path="/editor/projects" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
+          <Route path="/editor/create" component={React.lazy(() => import('@xrengine/editor/src/pages/create'))} />
           <Redirect path="/editor" to="/editor/projects" />
 
           <Route path="/workerTest" component={React.lazy(() => import('../pages/WorkerTest'))} />

@@ -5,7 +5,7 @@ import ContactForm from '@xrengine/client-core/src/common/components/ContactForm
 import { useHistory, Redirect } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
 import { useTranslation, Trans } from 'react-i18next'
-import configs from '@xrengine/client-core/src/world/components/editor/configs'
+import configs from '@xrengine/editor/src/components/configs'
 
 export const HomePage = (): any => {
   const router = useHistory()

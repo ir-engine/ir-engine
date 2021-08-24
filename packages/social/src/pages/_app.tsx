@@ -5,9 +5,7 @@ import { Helmet } from 'react-helmet'
 import { ThemeProvider } from 'styled-components'
 import { configureStore } from '@xrengine/client-core/src/store'
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
-import Api from '@xrengine/client-core/src/world/components/editor/Api'
-import { ApiContext } from '@xrengine/client-core/src/world/components/editor/contexts/ApiContext'
-import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle'
+import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
 import theme from '../../theme'
 import { Config } from '@xrengine/client-core/src/helper'
 import { restoreState } from '@xrengine/client-core/src/persisted.store'
@@ -17,7 +15,6 @@ import './styles.scss'
 
 const App = (): any => {
   const dispatch = useDispatch()
-  const [api, setApi] = useState<Api>()
 
   const initApp = useCallback(() => {
     if (process.env && process.env.NODE_CONFIG) {
@@ -31,8 +28,6 @@ const App = (): any => {
     initGA()
 
     logPageView()
-
-    setApi(new Api())
   }, [])
 
   useEffect(initApp, [])
@@ -47,11 +42,8 @@ const App = (): any => {
         />
       </Helmet>
       <ThemeProvider theme={theme}>
-        <ApiContext.Provider value={api}>
-          {/* <CssBaseline /> */}
           <GlobalStyle />
           <RouterComp />
-        </ApiContext.Provider>
       </ThemeProvider>
     </>
   )

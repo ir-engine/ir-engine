@@ -14,7 +14,7 @@ import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { useUserState } from '../../../../client-core/src/user/store/UserState'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 
 export function createScorecardUI() {
   const ui = createXRUI(GolfScorecardView, GolfState)

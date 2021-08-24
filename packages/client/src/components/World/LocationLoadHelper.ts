@@ -19,7 +19,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import configs from '@xrengine/client-core/src/world/components/editor/configs'
+import configs from '@xrengine/editor/src/components/configs'
 
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'

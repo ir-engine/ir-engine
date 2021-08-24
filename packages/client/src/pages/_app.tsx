@@ -1,24 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Dispatch } from 'redux'
-import { Provider, useDispatch } from 'react-redux'
-import { BrowserRouter } from 'react-router-dom'
-import { Helmet } from 'react-helmet'
-import { ThemeProvider } from 'styled-components'
-import { configureStore } from '@xrengine/client-core/src/store'
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
-import Api from '@xrengine/client-core/src/world/components/editor/Api'
-import { ApiContext } from '@xrengine/client-core/src/world/components/editor/contexts/ApiContext'
-import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle'
-import theme from '@xrengine/client-core/src/world/components/editor/theme'
 import { Config } from '@xrengine/client-core/src/helper'
 import { restoreState } from '@xrengine/client-core/src/persisted.store'
-import RouterComp from '../route/public'
+import { configureStore } from '@xrengine/client-core/src/store'
+import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
+import theme from '@xrengine/editor/src/components/theme'
+import React, { useCallback, useEffect } from 'react'
+import { Helmet } from 'react-helmet'
+import { Provider, useDispatch } from 'react-redux'
+import { BrowserRouter } from 'react-router-dom'
+import { ThemeProvider } from 'styled-components'
 import reducers from '../reducers'
+import RouterComp from '../route/public'
 import './styles.scss'
 
 const App = (): any => {
   const dispatch = useDispatch()
-  const [api, setApi] = useState<Api>()
 
   const initApp = useCallback(() => {
     if (process.env && process.env.NODE_CONFIG) {
@@ -33,7 +29,6 @@ const App = (): any => {
 
     logPageView()
 
-    setApi(new Api())
   }, [])
 
   useEffect(initApp, [])
@@ -48,11 +43,8 @@ const App = (): any => {
         />
       </Helmet>
       <ThemeProvider theme={theme}>
-        <ApiContext.Provider value={api}>
-          {/* <CssBaseline /> */}
           <GlobalStyle />
           <RouterComp />
-        </ApiContext.Provider>
       </ThemeProvider>
     </>
   )

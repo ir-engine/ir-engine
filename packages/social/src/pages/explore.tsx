@@ -1,4 +1,4 @@
-import AppHeader from '@xrengine/client-core/src/socialmedia/components//Header'
+import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
