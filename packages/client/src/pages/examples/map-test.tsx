@@ -83,7 +83,7 @@ async function init(): Promise<any> {
 
     controls.update()
 
-    editor.object.updateLabels(editor.camera)
+    editor.object.onUpdate(editor.camera)
     renderer.render(scene, editor.camera)
   }
   requestAnimationFrame(animate)

@@ -57,7 +57,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   applyScale(object3d: Object3D) {
     object3d.position.multiplyScalar(this.scale.x)
-    object3d.scale.multiplyScalar(this.scale.x)
+    object3d.scale.copy(this.scale)
   }
   async addMap(editor) {
     console.log('creating map')

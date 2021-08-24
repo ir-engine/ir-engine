@@ -53,7 +53,7 @@ export class GeoLabelNode extends Text {
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
 
-    self.position.y = 50 * self.scale.y
+    self.position.y = 15
     self.position.x = x1
     // for some reason the positions are mirrored along the X-axis
     self.position.z = y1 * -1
@@ -67,8 +67,7 @@ export class GeoLabelNode extends Text {
       angleDiff < Math.PI / 2 || angleDiff > (Math.PI * 3) / 2 ? angle + Math.PI : angle
     )
 
-    const visibleDistanceMax = 100 * self.scale.length()
-
+    const visibleDistanceMax = 150 * self.scale.length()
     self.visible = self.position.distanceTo(camera.position) < visibleDistanceMax
   }
 }
