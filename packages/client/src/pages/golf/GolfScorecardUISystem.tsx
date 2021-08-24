@@ -17,15 +17,7 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { useUserState } from '../../../../client-core/src/user/store/UserState'
 
 export function createScorecardUI() {
-  const ui = createXRUI(GolfScorecardView, GolfState)
-
-  // addComponent(ui.entity, TransformComponent, {
-  //   position: new Vector3(),
-  //   rotation: new Quaternion(),
-  //   scale: new Vector3(1, 1, 1)
-  // })
-
-  return ui
+  return createXRUI(GolfScorecardView, GolfState)
 }
 
 const GolfHoles = () => {
@@ -123,6 +115,7 @@ const GolfLabelsView = () => {
         Par
       </div>
       {players.map((p, i) => {
+        console.log('PLAYER ' + p.id.value)
         const color = GolfColours[i]
         return (
           <div
@@ -148,7 +141,7 @@ const GolfLabelsView = () => {
 const GolfScorecardView = () => {
   return (
     <>
-      {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link> */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
       <div
         id="scorecard"
         style={{
@@ -162,8 +155,9 @@ const GolfScorecardView = () => {
           background: ' rgba(0, 0, 0, 0.51)',
           border: '10px solid #FFFFFF',
           boxSizing: 'border-box',
-          boxShadow: '0px 4px 80px rgba(0, 0, 0, 0.57)',
-          borderRadius: '60px'
+          filter: 'drop-shadow(0 0 30px rgba(0, 0, 0, 0.57))',
+          borderRadius: '60px',
+          margin: '50px'
         }}
       >
         <GolfLabelsView />
@@ -176,12 +170,13 @@ export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
   return defineSystem((world) => {
-    return world
+    // return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    const cameraMatrix = Engine.camera.matrix
+    Engine.camera.updateMatrixWorld(true)
+    const cameraMatrix = Engine.camera.matrixWorld
     // const uiTransform = getComponent(ui.entity, TransformComponent)
 
     const layer = uiComponent.layer

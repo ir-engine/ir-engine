@@ -186,8 +186,8 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
-  registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
+  registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
 }
