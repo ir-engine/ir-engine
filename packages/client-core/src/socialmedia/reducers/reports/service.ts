@@ -21,13 +21,13 @@ export function getReportsNew() {
   }
 }
 const func = async () => {
-	await console.log('createReportsNew adawdawdawwdawdwa')
+  await console.log('createReportsNew adawdawdawwdawdwa')
 }
 
 export const createReportsNew = (data: any) => {
   console.log('createReportsNew Redux Before')
   return async (dispatch: Dispatch) => {
-	  console.log('createReportsNew Redux Beetween')
+    console.log('createReportsNew Redux Beetween')
     try {
       const reports = await client.service('reports').create({
         title: data.title,

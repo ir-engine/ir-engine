@@ -860,4 +860,4 @@ RIGHT AND AUTHORITY TO LEGALLY BIND THE ENTITY TO THESE TERMS.  </font></font>
 </body>
 </html>`
 
-export default termsText;
+export default termsText

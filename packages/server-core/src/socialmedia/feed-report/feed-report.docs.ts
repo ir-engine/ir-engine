@@ -6,6 +6,6 @@ export default {
     'feed-report': {
       type: 'object',
       properties: {}
-    },
+    }
   }
 }

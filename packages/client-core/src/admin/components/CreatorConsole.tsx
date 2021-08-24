@@ -195,14 +195,14 @@ const CreatorConsole = (props: Props) => {
             <TableBody className={styles.thead}>
               {stableSort(list, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
+                .map((row, id) => {
                   return (
                     <TableRow
                       hover
                       className={styles.trow}
                       style={{ color: 'black !important' }}
                       tabIndex={-1}
-                      key={row.id}
+                      key={id}
                     >
                       <TableCell className={styles.tcell} align="center">
                         {/* <Avatar src={row.avatar.toString()} /> */}

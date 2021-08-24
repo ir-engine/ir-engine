@@ -77,7 +77,7 @@ export class FeedReport extends Service {
       this.app.get('sequelizeClient')
     )
     const newReport = await feedReportModel.create({ feedId: data.feedId, creatorId })
-    return newReport;
+    return newReport
   }
 
   //!!!!!unnesessary for now

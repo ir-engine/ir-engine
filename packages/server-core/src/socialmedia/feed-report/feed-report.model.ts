@@ -26,15 +26,15 @@ export default function (app: Application): typeof Model {
         }
       }
     }
-  );
+  )
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (feedReport as any).associate = function (models: any): void {
+  ;(feedReport as any).associate = function (models: any): void {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (feedReport as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
-    (feedReport as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: false });
+    ;(feedReport as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false })
+    ;(feedReport as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: false })
   }
 
-  return feedReport;
+  return feedReport
 }
