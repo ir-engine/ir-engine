@@ -293,7 +293,7 @@ export class XREngineBot {
     console.log('Launching browser')
     const options = {
       headless: this.headless,
-      devtools: !this.headless,
+      devtools: false, //!this.headless,
       ignoreHTTPSErrors: true,
       args: [
         `--window-size=${this.windowSize.width},${this.windowSize.height}`,
@@ -316,7 +316,10 @@ export class XREngineBot {
 
     this.browser = await puppeteer.launch(options)
 
-    this.page = await this.browser.newPage()
+    const emptyTab = await this.browser.targets().find((target) => target.type() === 'page')
+    this.page = await emptyTab.page()
+
+    //this.page = await this.browser.newPage()
 
     if (this.autoLog) {
       this.page.on('console', (consoleObj) => console.log('>> ', consoleObj.text()))

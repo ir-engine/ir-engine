@@ -16,7 +16,7 @@ export const GolfBotHookFunctions = {
   [GolfBotHooks.GetTeePosition]: getTeePosition,
   [GolfBotHooks.GetIsPlayerTurn]: getIsPlayerTurn,
   [GolfBotHooks.GetPlayerPosition]: getPlayerPosition,
-  [GolfBotHooks.GetIsGoal]: getIsGoal,
+  [GolfBotHooks.GetPlayerScore]: getPlayerScore,
   [GolfBotHooks.GetIsBallStopped]: getIsBallStopped,
   [GolfBotHooks.GetIsOutOfCourse]: getIsOutOfCourse,
   [GolfBotHooks.SwingClub]: swingClub
@@ -91,4 +91,9 @@ export function getBallPosition() {
   const ballEntity = getBall(World.defaultWorld.ecsWorld, GolfState.currentPlayer.value)
   const ballTransform = getComponent(ballEntity, TransformComponent)
   return ballTransform.position
+}
+
+export function getPlayerScore() {
+  // GolfState.players[playerNumber].scores[hole].value
+  return GolfState.currentPlayer.value
 }

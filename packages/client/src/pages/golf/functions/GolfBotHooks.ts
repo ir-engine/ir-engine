@@ -4,7 +4,7 @@ export enum GolfBotHooks {
   GetTeePosition = 'GolfBotHook_GetTeePosition',
   GetIsPlayerTurn = 'GolfBotHook_GetIsPlayerTurn',
   GetPlayerPosition = 'GolfBotHook_GetPlayerPosition',
-  GetIsGoal = 'GolfBotHook_GetIsGoal',
+  GetPlayerScore = 'GolfBotHook_GetPlayerScore',
   GetIsBallStopped = 'GolfBotHook_GetIsBallStopped',
   GetIsOutOfCourse = 'GolfBotHook_GetIsOutOfCourse',
   SwingClub = 'GolfBotHook_SwingClub'

@@ -210,7 +210,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
   addComponent(entityClub, NameComponent, { name: `GolfClub-${playerNumber}` })
   addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
-  const color = GolfColours[0].clone()
+  const color = GolfColours[playerNumber].clone()
 
   const raycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({

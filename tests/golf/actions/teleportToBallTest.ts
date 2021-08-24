@@ -10,12 +10,12 @@ export const teleportToBall = (bot: XREngineBot) => {
   test(
     'Can teleport to ball',
     async () => {
-      await bot.delay(200)
+      await bot.delay(100)
 
       // wait for turn, then move to ball position
-      await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
+      // await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
       await bot.keyPress('KeyK', 200)
-      await bot.delay(200)
+      await bot.delay(2000)
 
       const ballPosition = await bot.runHook(GolfBotHooks.GetBallPosition)
 
@@ -25,7 +25,32 @@ export const teleportToBall = (bot: XREngineBot) => {
           .copy(await bot.runHook(BotHooks.GetPlayerPosition))
           .sub(ballPosition)
           .length()
-      ).toBeLessThan(0.1)
+      ).toBeLessThan(0.2)
+    },
+    maxTimeout
+  )
+}
+
+export const teleportOnSpawn = (bot: XREngineBot, keyPress) => {
+  test(
+    'teleport to spawn',
+    async () => {
+      await bot.delay(100)
+      // wait for turn, then move to ball position
+      await bot.keyPress(keyPress, 200)
+      await bot.delay(300)
+      const playerPosition = await bot.runHook(GolfBotHooks.GetPlayerPosition)
+
+      const spawnPosition = new Vector3(playerPosition.x - 2, playerPosition.y, playerPosition.z)
+      // should be at ball position
+      /*
+      expect(
+        vector3
+          .copy(playerPosition)
+          .sub(spawnPosition)
+          .length()
+      ).toBeLessThan(1)
+        */
     },
     maxTimeout
   )

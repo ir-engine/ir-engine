@@ -2,9 +2,18 @@ import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot'
 import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
-import { teleportToBall } from './actions/teleportToBallTest'
-import { headUpdateTest, hitBallTest } from './actions/hitBallTest'
+import { teleportOnSpawn, teleportToBall } from './actions/teleportToBallTest'
+import { checkGoal, headUpdateTest, hitBallTest } from './actions/hitBallTest'
 import { resetBall } from './actions/resetBallTest'
+
+const testdata = { 
+  'bot-1': { 
+    teeLastPosition: new Vector3()
+  },
+  'bot-2': { 
+    teeLastPosition: new Vector3()
+  } 
+}
 
 const maxTimeout = 60 * 1000
 const bot = new XREngineBot({ name: 'bot-1', headless: false, autoLog: false })
@@ -16,8 +25,8 @@ const locationName = process.env.TEST_LOCATION_NAME
 
 const vector3 = new Vector3()
 
-describe.skip('Golf tests', () => {
-
+describe('Golf tests', () => {
+chrome://version/
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterLocation(`https://${domain}/golf/${locationName}`)
@@ -47,40 +56,39 @@ describe.skip('Golf tests', () => {
   
   testWebXR(bot)
   headUpdateTest(bot)
-  // Test player ids
-  // Test state stuff like score and current hole
-
   teleportToBall(bot)
-  hitBallTest(bot)
 
   testWebXR(bot2)
   headUpdateTest(bot2)
 
+    // Test player ids
+  // Test state stuff like score and current hole
+
+  hitBallTest(bot)
+  teleportOnSpawn(bot, 'KeyJ')
+
   teleportToBall(bot2)
   hitBallTest(bot2)
+  teleportOnSpawn(bot2, 'KeyM')
 
-  teleportToBall(bot)
-  hitBallTest(bot)
 
-  teleportToBall(bot)
-  hitBallTest(bot)
+  for (let count = 0; count < 30; count++) {
+    if (count%2) {
+      teleportToBall(bot)
+      hitBallTest(bot)
+      teleportOnSpawn(bot, 'KeyJ')
+     // checkGoal(bot, testdata)
+    } else {
+
+    teleportToBall(bot2)
+    hitBallTest(bot2)
+    teleportOnSpawn(bot2, 'KeyM')
+  //  checkGoal(bot2, testdata)
+    }
+  
+  }
+
   // resetBall(bot)
-
-
-  teleportToBall(bot)
-  hitBallTest(bot)
-  // resetBall(bot)
-
-
-  teleportToBall(bot)
-  hitBallTest(bot)
-  // resetBall(bot)
-
-
-  teleportToBall(bot)
-  hitBallTest(bot)
-  // resetBall(bot)
-
   // resetBall(bot)
 
 })
