@@ -471,7 +471,7 @@ The Node File contains all the core information about the Node, the values, the 
 
 ##### Example
 
-[Fully documented Node](https://github.com/XRFoundation/XREngine/blob/dev/packages/engine/src/editor/nodes/MetadataNode.ts)
+[Fully documented Node](https://github.com/XRFoundation/XREngine/blob/CUSTOM_METADATA_EDITOR/packages/engine/src/editor/nodes/MetadataNode.ts)
 
 ##### Node Types
 
@@ -484,7 +484,7 @@ The Node Editor File contains the logic of the Node in the Editor, how the icons
 
 ##### Example
 
-[Fulle documented Node Editor](https://github.com/XRFoundation/XREngine/blob/dev/packages/client-core/src/world/components/editor/properties/MetadataNodeEditor.tsx)
+[Fulle documented Node Editor](https://github.com/XRFoundation/XREngine/blob/CUSTOM_METADATA_EDITOR/packages/client-core/src/world/components/editor/properties/MetadataNodeEditor.tsx)
 
 ##### Input Types
 
@@ -525,50 +525,60 @@ First you will need to edit the Node it self going to the SceneNode.ts file in o
 
 In the scene node file you will need to add all the values and update the serialization/deserialization functions with these.
 First you will need to add the values in the node, like
-`
+
+```
 data1 = '' //default value, if not found in json
 data2 = 5 //default value, if not found in json
-`
+```
+
 Then in the deserilize function `line 97` you can read the json using 
-`
+
+```
 const valueParent = json.components.find((c) => c.name == 'data_parent_name')
 if (valueParent) {
  const { data1, data2 } = valueParent.props
  node.data1 = data1
  node.data2 = data2
-}`
+}
+```
+
 In one value parent you can have multiple parents. If the values don't exist in the scene, then the values won't be loaded and will be set to the default
 Then in the copy function `line 409` you will need to add the new values
-`
+
+```
 this.data1 = source.data1
 this.data2 = source.data2
-`
+```
+
 Finally in the serialize function `line 447` you will add the new values in the new json that will be exported
-`
-new line
+
+```
 {
  name: 'parentValue',
  props: {
   data1: this.data1
   data2: this.data2
  }
-}, 
-new line
-`
+},
+```
 
 ###### SceneNodeEditor.tsx
 
 In the scene node editor you will need to update the ui. Lets take data1 as a Strign Input (text) and data2 as a Slider (float)
 First you will need to add the callbacks for the onValue Update `line 160`
-`
+
+```
 const onChangeData1 = useSetPropertySelected(editor, 'valueParentData1')
 const onChangeData2 = useSetPropertySelected(editor, 'valueParentData2')
-`
+```
+
 And then you will need to update the ui, in the return function `line 199` inside the NodeEditor go to
-`
+
+```
 {/* @ts-ignore */}
 //Create the new input group for the new values
 <InputGroup name="ValueParent" label="ValueParent">
  <StringInput name="data 1" value={node.data1} onChange={onChangeData1} />
  <CompoundNumericInput name="data 2" value={node.data2} onChange={onChangeData2} />=
 </InputGroup>
+```
