@@ -136,7 +136,6 @@ export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHo
 
 export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
-
   const ballPosition = collider.body.transform.translation
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   golfBallComponent.groundRaycast.origin.copy(ballPosition)
@@ -253,7 +252,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
       transform: {
         translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
       },
-      userData: ballEntity
+      userData: { entity: ballEntity }
     })
   )
   addComponent(ballEntity, ColliderComponent, { body })
