@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/social",
-  "version": "0.3.34",
+  "version": "0.3.35",
   "private": true,
   "repository": {
     "type": "git",
@@ -37,10 +37,10 @@
     "@capacitor/share": "1.0.3",
     "@material-ui/core": "4.12.3",
     "@types/react-redux": "7.1.18",
-    "@xrengine/client-core": "^0.3.34",
-    "@xrengine/common": "^0.3.34",
-    "@xrengine/engine": "^0.3.34",
-    "@xrengine/editor": "^0.3.34",
+    "@xrengine/client-core": "^0.3.35",
+    "@xrengine/common": "^0.3.35",
+    "@xrengine/editor": "^0.3.35",
+    "@xrengine/engine": "^0.3.35",
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "formik": "2.2.9",
