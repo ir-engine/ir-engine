@@ -124,7 +124,6 @@ const GolfLabelsView = () => {
             key={i}
             style={{
               position: 'static',
-              width: '107px',
               height: '40px',
               fontSize: '30px',
               lineHeight: '38px',
