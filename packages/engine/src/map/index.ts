@@ -50,8 +50,8 @@ export const create = async function (args: MapProps) {
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
   labels.forEach((label) => {
-    ;(label as unknown as Object3D).scale.copy(args.scale)
-    group.add(label as any)
+    label.scale.copy(args.scale)
+    group.add(label.object3d)
   })
 
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)

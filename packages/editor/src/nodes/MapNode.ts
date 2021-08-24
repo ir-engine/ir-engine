@@ -88,8 +88,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     this.labels = createLabels(vectorTiles, center, this.scale.x)
 
     this.labels.forEach((label) => {
-      ;(label as unknown as Object3D).scale.copy(this.scale)
-      this.add(label)
+      label.scale.copy(this.scale)
+      this.add(label.object3d)
     })
   }
   async refreshGroundLayer() {
