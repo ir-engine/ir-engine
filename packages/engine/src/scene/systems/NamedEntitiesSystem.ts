@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { NameComponent } from '../components/NameComponent'
 

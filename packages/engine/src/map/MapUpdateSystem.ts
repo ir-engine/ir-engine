@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Vector3 } from 'three'
 import { getCoord, getScaleArg, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'

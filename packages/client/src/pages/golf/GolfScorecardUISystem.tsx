@@ -6,7 +6,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { addComponent, getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery } from 'bitecs'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 

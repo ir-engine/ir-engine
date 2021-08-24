@@ -1,6 +1,6 @@
 import { Object3D, sRGBEncoding, Box3, Vector3 } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { ECSWorld } from '../ecs/classes/World'
 
 import { getComponent, hasComponent, addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
