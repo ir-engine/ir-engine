@@ -2,6 +2,7 @@ import { ParticleEmitterMesh as ParticleEmitter } from '@xrengine/engine/src/par
 import EditorNodeMixin from './EditorNodeMixin'
 import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
 import loadTexture from '../functions/loadTexture'
+import { resolveMedia } from '../components/Api'
 
 let defaultParticleSprite = null
 const defaultParticleUrl = '/editor/dot.png'
@@ -101,7 +102,7 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
     this._canonicalUrl = nextSrc
 
     try {
-      const { url } = await this.editor.api.resolveMedia(src)
+      const { url } = await resolveMedia(src)
       ;(this.material.uniforms as any).map.value = await loadTexture(url)
     } catch (error) {
       if (onError) {

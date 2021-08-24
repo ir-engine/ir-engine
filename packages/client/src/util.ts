@@ -15,8 +15,7 @@ export const initialize = (): Promise<void> => {
         gameserverPort: `${process.env.VITE_GAMESERVER_PORT}`,
         apiServer: `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`,
         gameserver: `https://${process.env.VITE_GAMESERVER_HOST}:${process.env.VITE_GAMESERVER_PORT}`,
-        mediatorServer: `${process.env.VITE_MEDIATOR_SERVER}`,
-        wasmUrl: `https://${process.env.VITE_APP_HOST}:${process.env.VITE_APP_PORT}/recast/recast.wasm`
+        mediatorServer: `${process.env.VITE_MEDIATOR_SERVER}`
       })
     } else {
       setRuntime(
