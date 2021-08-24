@@ -61,7 +61,7 @@ import CloudsNodeEditor from './properties/CloudsNodeEditor'
 import OceanNodeEditor from './properties/OceanNodeEditor'
 import MapNodeEditor from './properties/MapNodeEditor'
 import MetadataNodeEditor from './properties/MetadataNodeEditor'
-import WaterNode from '@xrengine/engine/src/editor/nodes/WaterNode'
+import WaterNode from '@xrengine/editor/src/nodes/WaterNode'
 import WaterNodeEditor from './properties/WaterNodeEditor'
 
 /**

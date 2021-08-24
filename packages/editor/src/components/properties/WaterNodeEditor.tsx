@@ -1,14 +1,9 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import NodeEditor from '@xrengine/client-core/src/world/components/editor/properties/NodeEditor'
-import InputGroup from '@xrengine/client-core/src/world/components/editor/inputs/InputGroup'
-import ImageInput from '@xrengine/client-core/src/world/components/editor/inputs/ImageInput'
-import Vector3Input from '@xrengine/client-core/src/world/components/editor/inputs/Vector3Input'
-import Vector2Input from '@xrengine/client-core/src/world/components/editor/inputs/Vector2Input'
 import { Water } from '@styled-icons/fa-solid/Water'
+import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
 import i18n from 'i18next'
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
-import ColorInput from '@xrengine/client-core/src/world/components/editor/inputs/ColorInput'
 
 //declaring properties for WaterNodeEditor
 type WaterNodeEditorProps = {
