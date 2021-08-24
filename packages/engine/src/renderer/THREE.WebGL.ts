@@ -1,3 +1,5 @@
+import { SocketWebRTCClientTransport } from '../../../client/src/transports/SocketWebRTCClientTransport'
+
 export default class WEBGL {
   static isWebGLAvailable() {
     try {
@@ -14,12 +16,12 @@ export default class WEBGL {
       const canvas = document.createElement('canvas')
       document.body.appendChild(canvas)
       if (canvas.getContext('webgl') == null || canvas.getContext('experimental-webgl') == null) {
-        alert('Your brower does not support webgl,or it disable webgl,Please enable webgl')
+        EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
         return
       }
       return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'))
     } catch (e) {
-      alert('Your brower does not support webgl,or it disable webgl,Please enable webgl')
+      EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
       return
     }
   }
