@@ -83,7 +83,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
             {
               opacityMultiplier: 1
             },
-            100
+            1000
           )
           .easing(Easing.Exponential.Out)
           .start()

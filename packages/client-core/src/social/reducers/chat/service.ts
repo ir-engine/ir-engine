@@ -19,7 +19,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import Store from '../../../store'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 
 const store = Store.store
 

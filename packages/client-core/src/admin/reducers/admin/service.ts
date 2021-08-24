@@ -23,7 +23,7 @@ import {
 } from './actions'
 
 import axios from 'axios'
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 import { client } from '../../../feathers'
 import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service'
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions'

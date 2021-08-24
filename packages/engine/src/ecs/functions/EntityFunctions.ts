@@ -14,24 +14,20 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = {
   //     value: defaultValues
   //   })
   // }
-
   if (schema) {
     Object.defineProperty(component, '_schema', {
       value: schema
     })
   }
-
   Object.defineProperty(component, '_map', {
     value: componentMap
   })
-
   Object.defineProperty(component, 'get', {
     value: function (eid: number) {
       // return componentMap[eid]
       return componentMap.get(eid)
     }
   })
-
   Object.defineProperty(component, 'set', {
     value: function (eid: number, value: any) {
       if (schema) {
@@ -54,14 +50,12 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = {
       return componentMap.set(eid, value)
     }
   })
-
   Object.defineProperty(component, 'delete', {
     value: function (eid: number) {
       // componentMap[eid] = undefined
       return componentMap.delete(eid)
     }
   })
-
   return component as typeof component & {
     get: typeof componentMap.get
     set: typeof componentMap.set
@@ -126,7 +120,7 @@ export const addComponent = <T extends any, S extends bitECS.ISchema>(
     console.warn('[addComponent]: entity is undefined')
     return
   }
-  // console.log('addComponent', component.name, entity)
+  // console.log('addComponent', component, entity)
   bitECS.addComponent(world, component, entity)
   // console.log('hasComponent', component.name, entity, _hasComponent(world, component, entity))
   if (component._schema) {
@@ -192,9 +186,4 @@ export const removeAllComponents = (entity: Entity, world = World.defaultWorld.e
     bitECS.removeComponent(world, component, entity)
     // TODO: remove mapped component data
   }
-}
-
-export const removeAllEntities = (world = World.defaultWorld.ecsWorld) => {
-  // TODO
-  // getEntityComponents
 }

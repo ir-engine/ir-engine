@@ -36,7 +36,7 @@ import {
   USER_ROLE_CREATED,
   USER_ROLE_UPDATED
 } from '../../../world/reducers/actions'
-import { ADMIN_LOADED_USERS } from '@xrengine/client-core/src/admin/reducers/actions'
+import { ADMIN_LOADED_USERS } from '../actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
