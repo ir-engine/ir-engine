@@ -1,22 +1,18 @@
-import React from 'react'
-import { Vector3, Quaternion, Matrix4 } from 'three'
 import { useState } from '@hookstate/core'
-
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addComponent, getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-
-import { GolfColours } from './GolfGameConstants'
-import { GolfState } from './GolfSystem'
-import { getPlayerNumber } from './functions/golfBotHookFunctions'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { defineSystem } from '@xrengine/engine/src/ecs/bitecs'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import React from 'react'
+import { Matrix4 } from 'three'
+import { getPlayerNumber } from './functions/golfBotHookFunctions'
+import { GolfColours } from './GolfGameConstants'
+import { GolfState } from './GolfSystem'
 
 export function createScorecardUI() {
   return createXRUI(GolfScorecardView, GolfState)

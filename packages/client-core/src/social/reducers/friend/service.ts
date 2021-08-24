@@ -5,7 +5,7 @@ import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import Store from '../../../store'
 import { User } from '@xrengine/common/src/interfaces/User'
 
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 import { UserAction } from '../../../user/store/UserAction'
 
 const store = Store.store

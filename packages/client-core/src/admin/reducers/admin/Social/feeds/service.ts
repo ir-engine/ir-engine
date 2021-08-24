@@ -1,8 +1,8 @@
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../../../common/reducers/alert/service'
 import { client } from '../../../../../feathers'
-import { fetchingAdminFeeds, feedsAdminRetrieved, addFeed, removeFeed, editFeed } from './actions'
-import Api from '../../../../../world/components/editor/Api'
+import { addFeed, editFeed, feedsAdminRetrieved, removeFeed } from './actions'
 
 export const getAdminFeeds =
   () =>
@@ -28,9 +28,8 @@ export function createFeed({ title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       // dispatch(fetchingFeeds())
-      const api = new Api()
-      const storedVideo = await api.upload(video, null)
-      const storedPreview = await api.upload(preview, null)
+      const storedVideo = await upload(video, null)
+      const storedPreview = await upload(preview, null)
 
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
       if (storedVideo && storedPreview) {
@@ -57,9 +56,8 @@ export function updateFeed(feedId, files, feedItem) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       // dispatch(fetchingFeeds())
-      const api = new Api()
-      const storedPreview = files.preview instanceof File ? await api.upload(files.preview, null) : null
-      const storedVideo = files.video instanceof File ? await api.upload(files.video, null) : null
+      const storedPreview = files.preview instanceof File ? await upload(files.preview, null) : null
+      const storedVideo = files.video instanceof File ? await upload(files.video, null) : null
 
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
@@ -77,25 +75,6 @@ export function updateFeed(feedId, files, feedItem) {
     }
   }
 }
-
-// export function updateFeed(feedId, files ,feedItem) {
-//   return async (dispatch: Dispatch): Promise<any> => {
-//     try {
-//       const api = new Api()
-//       const storedVideo = await api.upload(files.video, null)
-//       const storedPreview = await api.upload(files.preview, null)
-
-//       if(storedPreview && storedVideo){
-//         const updatedFeed = await client.service('feed').patch(feedId, { ...feedItem })
-
-//       }
-
-//     } catch (err) {
-//       console.log(err)
-//       dispatchAlertError(dispatch, err.message)
-//     }
-//   }
-// }
 
 export function deleteFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {

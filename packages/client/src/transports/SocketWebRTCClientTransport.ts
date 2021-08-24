@@ -8,7 +8,7 @@ import {
 } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import { io as ioclient, Socket } from 'socket.io-client'
 import {
   createDataProducer,
