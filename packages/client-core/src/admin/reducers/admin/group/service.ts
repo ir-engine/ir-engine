@@ -1,4 +1,3 @@
-import Api from '../../../../world/components/editor/Api'
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { fetchingGroup, setAdminGroup, addAdminGroup, updateGroup, removeGroup } from './actions'

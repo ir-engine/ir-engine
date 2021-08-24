@@ -44,7 +44,6 @@ const contextMenuId = 'project-menu'
 
 /**
  *Declairing Props component.
- * @api is of type {Api} EventEmitter.
  * @history is of type object.
  * @router is of type Router
  */
