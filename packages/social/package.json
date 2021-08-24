@@ -40,6 +40,7 @@
     "@xrengine/client-core": "^0.3.34",
     "@xrengine/common": "^0.3.34",
     "@xrengine/engine": "^0.3.34",
+    "@xrengine/editor": "^0.3.34",
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "formik": "2.2.9",

@@ -49,6 +49,8 @@
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.12",
     "@xrengine/client-core": "^0.3.34",
+    "@xrengine/engine": "^0.3.34",
+    "@xrengine/editor": "^0.3.34",
     "axios": "0.21.1",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
