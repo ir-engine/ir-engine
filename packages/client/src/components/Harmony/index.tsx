@@ -679,15 +679,17 @@ const Harmony = (props: Props): any => {
     }
   }
 
-  const checkMediaStream = async (streamType: string, channelType: string, channelId?: string) => {
+  const checkMediaStream = async (streamType: string, channelType: string, channelId?: string): Promise<boolean> => {
     if (streamType === 'video' && !MediaStreams.instance?.videoStream) {
       console.log('Configuring video transport', channelType, channelId)
-      await configureMediaTransports(['video'], channelType, channelId)
+      return configureMediaTransports(['video'], channelType, channelId)
     }
     if (streamType === 'audio' && !MediaStreams.instance?.audioStream) {
       console.log('Configuring audio transport', channelType, channelId)
-      await configureMediaTransports(['audio'], channelType, channelId)
+      return configureMediaTransports(['audio'], channelType, channelId)
     }
+
+    return Promise.resolve(false)
   }
 
   const handleMicClick = async (e: any) => {

@@ -342,9 +342,9 @@ export function createLabels(
   sceneScale: number
 ): GeoLabelNode[] {
   const features = collectFeaturesByLayer('road', vectorTiles)
-  return features.reduce((acc, f) => {
+  return features.reduce((acc, f: any) => {
     if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
-      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter, sceneScale))
+      const labelView = new GeoLabelNode(f as any, (pos: Position) => llToScene(pos, llCenter, sceneScale))
 
       acc.push(labelView)
     }

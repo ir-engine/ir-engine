@@ -2,6 +2,7 @@
 
 export * from './assets/testScenePreset';
 export * from './assets/testScenes';
+export * from './config';
 export * from './constants/AvatarConstants';
 export * from './enums/avatar-model';
 export * from './enums/axis';
@@ -43,5 +44,6 @@ export * from './interfaces/WebXrNative';
 export * from './utils/capitalizeFirstLetter';
 export * from './utils/getOS';
 export * from './utils/isExternalUrl';
+export * from './utils/removeElementFromArray';
 export * from './utils/secondsToString';
 export * from './utils/triggerNavigation';

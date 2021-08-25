@@ -8,6 +8,8 @@ import scss from 'rollup-plugin-scss';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
+import css from 'rollup-plugin-css-only'
+
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
@@ -24,6 +26,9 @@ export default {
   plugins: [
     nodePolyfills(),
     commonjs(),
+    css({
+      output: 'dist/index.css',
+    }),
     scss({
       exclude: /node_modules/,
       output: 'dist/index.css',

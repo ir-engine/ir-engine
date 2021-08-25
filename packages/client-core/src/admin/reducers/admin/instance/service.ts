@@ -2,8 +2,8 @@ import { Dispatch } from 'redux'
 import { instancesRetrievedAction, instanceRemoved, instanceRemovedAction } from './actions'
 import { client } from '../../../../feathers'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
-import { Config } from '../../../../helper'
 import Store from '../../../../store'
+import { Config } from '@xrengine/common/src/config'
 
 export function fetchAdminInstances() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

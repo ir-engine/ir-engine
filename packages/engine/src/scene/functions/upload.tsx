@@ -3,7 +3,8 @@ import i18n from 'i18next'
 import { AudioFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { getToken } from './getToken'
 import { Config } from '@xrengine/common/src/config'
-export const serverURL = Config.publicRuntimeConfig.apiServer
+
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 let lastUploadAssetRequest = 0
 

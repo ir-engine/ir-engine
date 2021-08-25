@@ -9,6 +9,9 @@ const posx = '/cubemap/posx.jpg'
 const posy = '/cubemap/posy.jpg'
 const posz = '/cubemap/posz.jpg'
 let cubeMapTexturePromise = null
+
+const defaultCubeMapURLs = [posx, negx, posy, negy, posz, negz]
+
 export let environmentMap = null
 
 /**
@@ -16,12 +19,12 @@ export let environmentMap = null
  * @author Robert Long
  * @returns
  */
-export function loadEnvironmentMap() {
+export function loadEnvironmentMap(cubeMapURLs?: string[]) {
   if (cubeMapTexturePromise) {
     return cubeMapTexturePromise
   }
   cubeMapTexturePromise = new Promise((resolve, reject) => {
-    const cubeMapURLs = [posx, negx, posy, negy, posz, negz]
+    cubeMapURLs = cubeMapURLs || defaultCubeMapURLs
     cubeMapTexturePromise = new CubeTextureLoader().load(
       cubeMapURLs,
       (texture) => {

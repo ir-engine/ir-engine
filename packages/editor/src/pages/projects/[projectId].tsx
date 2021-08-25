@@ -91,7 +91,13 @@ const Project = (props: Props) => {
         {authUser?.accessToken != null &&
           authUser.accessToken.length > 0 &&
           user?.id != null &&
-          engineIsInitialized && <EditorContainer Engine={Engine} {...props} />}
+          engineIsInitialized
+          ? (
+            <>
+              {/* @ts-ignore */}
+              <EditorContainer Engine={Engine} {...props} />
+            </>
+          ) : null}
       </Suspense>
     )
   )

@@ -23,7 +23,7 @@ import {
 } from 'three'
 import { TransformSpace } from '../constants/TransformSpace'
 import getIntersectingNode from '../functions/getIntersectingNode'
-import { Editor, EditorMapping, Fly } from './input-mappings'
+import { EditorInputs, EditorMapping, Fly } from './input-mappings'
 
 export const SnapMode = {
   Disabled: 'Disabled',
@@ -210,19 +210,19 @@ export default class EditorControls extends EventEmitter {
   }
   enable() {
     this.enabled = true
-    this.inputManager.enableInputMapping(Editor, EditorMapping)
+    this.inputManager.enableInputMapping(EditorInputs, EditorMapping)
   }
   disable() {
     this.enabled = false
-    this.inputManager.disableInputMapping(Editor)
+    this.inputManager.disableInputMapping(EditorInputs)
   }
   update() {
     if (!this.enabled) return
     const input = this.inputManager
-    if (input.get(Editor.enableFlyMode)) {
+    if (input.get(EditorInputs.enableFlyMode)) {
       this.flyStartTime = performance.now()
       this.distance = this.camera.position.distanceTo(this.center)
-    } else if (input.get(Editor.disableFlyMode)) {
+    } else if (input.get(EditorInputs.disableFlyMode)) {
       this.flyControls.disable()
       this.flyControls.lookSensitivity = this.initialLookSensitivity
       this.flyControls.boostSpeed = this.initialBoostSpeed
@@ -236,7 +236,7 @@ export default class EditorControls extends EventEmitter {
         this.cancel()
       }
     }
-    const flying = input.get(Editor.flying)
+    const flying = input.get(EditorInputs.flying)
     if (flying && !this.flyControls.enabled && performance.now() - this.flyStartTime > 100) {
       this.flyControls.enable()
       this.initialLookSensitivity = this.flyControls.lookSensitivity
@@ -247,10 +247,10 @@ export default class EditorControls extends EventEmitter {
       this.flyControls.boostSpeed = this.boostSpeed
       this.emit('flyModeChanged')
     }
-    const shift = input.get(Editor.shift)
+    const shift = input.get(EditorInputs.shift)
     const selected = this.editor.selected
     const selectedTransformRoots = this.editor.selectedTransformRoots
-    const modifier = input.get(Editor.modifier)
+    const modifier = input.get(EditorInputs.modifier)
     let grabStart = false
     if (this.transformModeChanged) {
       this.transformGizmo.setTransformMode(this.transformMode)
@@ -259,7 +259,7 @@ export default class EditorControls extends EventEmitter {
       }
     }
     const selectStart =
-      input.get(Editor.selectStart) &&
+      input.get(EditorInputs.selectStart) &&
       !flying &&
       this.transformMode !== TransformMode.Grab &&
       this.transformMode !== TransformMode.Placement
@@ -312,9 +312,9 @@ export default class EditorControls extends EventEmitter {
     this.transformPivotChanged = false
     this.transformSpaceChanged = false
     // Set up the transformRay
-    const cursorPosition = input.get(Editor.cursorPosition)
+    const cursorPosition = input.get(EditorInputs.cursorPosition)
     if (selectStart) {
-      const selectStartPosition = input.get(Editor.selectStartPosition)
+      const selectStartPosition = input.get(EditorInputs.selectStartPosition)
       this.selectStartPosition.copy(selectStartPosition)
       this.raycaster.setFromCamera(selectStartPosition, this.camera)
       if (this.transformGizmo.activeControls) {
@@ -332,7 +332,7 @@ export default class EditorControls extends EventEmitter {
       this.raycaster.setFromCamera(cursorPosition, this.camera)
       this.transformGizmo.highlightHoveredAxis(this.raycaster)
     }
-    const selectEnd = input.get(Editor.selectEnd) === 1
+    const selectEnd = input.get(EditorInputs.selectEnd) === 1
     if (this.dragging || this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
       let constraint
       if (this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
@@ -508,7 +508,7 @@ export default class EditorControls extends EventEmitter {
           }
         }
       } else {
-        const selectEndPosition = input.get(Editor.selectEndPosition)
+        const selectEndPosition = input.get(EditorInputs.selectEndPosition)
         if (this.selectStartPosition.distanceTo(selectEndPosition) < this.selectSensitivity) {
           const result = this.raycastNode(selectEndPosition)
           if (result) {
@@ -526,56 +526,56 @@ export default class EditorControls extends EventEmitter {
       }
     }
     this.transformPropertyChanged = false
-    if (input.get(Editor.rotateLeft)) {
+    if (input.get(EditorInputs.rotateLeft)) {
       this.editor.rotateAroundSelected(
         this.transformGizmo.position,
         new Vector3(0, 1, 0),
         this.rotationSnap * _Math.DEG2RAD
       )
-    } else if (input.get(Editor.rotateRight)) {
+    } else if (input.get(EditorInputs.rotateRight)) {
       this.editor.rotateAroundSelected(
         this.transformGizmo.position,
         new Vector3(0, 1, 0),
         -this.rotationSnap * _Math.DEG2RAD
       )
-    } else if (input.get(Editor.grab)) {
+    } else if (input.get(EditorInputs.grab)) {
       if (this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
         this.cancel()
       }
       if (this.editor.selected.length > 0) {
         this.setTransformMode(TransformMode.Grab)
       }
-    } else if (input.get(Editor.cancel)) {
+    } else if (input.get(EditorInputs.cancel)) {
       this.cancel()
-    } else if (input.get(Editor.focusSelection)) {
+    } else if (input.get(EditorInputs.focusSelection)) {
       this.focus(this.editor.selected)
-    } else if (input.get(Editor.setTranslateMode)) {
+    } else if (input.get(EditorInputs.setTranslateMode)) {
       this.setTransformMode(TransformMode.Translate)
-    } else if (input.get(Editor.setRotateMode)) {
+    } else if (input.get(EditorInputs.setRotateMode)) {
       this.setTransformMode(TransformMode.Rotate)
-    } else if (input.get(Editor.setScaleMode)) {
+    } else if (input.get(EditorInputs.setScaleMode)) {
       this.setTransformMode(TransformMode.Scale)
-    } else if (input.get(Editor.toggleSnapMode)) {
+    } else if (input.get(EditorInputs.toggleSnapMode)) {
       this.toggleSnapMode()
-    } else if (input.get(Editor.toggleTransformPivot)) {
+    } else if (input.get(EditorInputs.toggleTransformPivot)) {
       this.changeTransformPivot()
-    } else if (input.get(Editor.toggleTransformSpace)) {
+    } else if (input.get(EditorInputs.toggleTransformSpace)) {
       this.toggleTransformSpace()
-    } else if (input.get(Editor.incrementGridHeight)) {
+    } else if (input.get(EditorInputs.incrementGridHeight)) {
       this.editor.incrementGridHeight()
-    } else if (input.get(Editor.decrementGridHeight)) {
+    } else if (input.get(EditorInputs.decrementGridHeight)) {
       this.editor.decrementGridHeight()
-    } else if (input.get(Editor.undo)) {
+    } else if (input.get(EditorInputs.undo)) {
       this.editor.undo()
-    } else if (input.get(Editor.redo)) {
+    } else if (input.get(EditorInputs.redo)) {
       this.editor.redo()
-    } else if (input.get(Editor.duplicateSelected)) {
+    } else if (input.get(EditorInputs.duplicateSelected)) {
       this.editor.duplicateSelected()
-    } else if (input.get(Editor.groupSelected)) {
+    } else if (input.get(EditorInputs.groupSelected)) {
       this.editor.groupSelected()
-    } else if (input.get(Editor.deleteSelected)) {
+    } else if (input.get(EditorInputs.deleteSelected)) {
       this.editor.removeSelectedObjects()
-    } else if (input.get(Editor.saveProject)) {
+    } else if (input.get(EditorInputs.saveProject)) {
       // TODO: Move save to Project class
       this.editor.emit('saveProject')
     }
@@ -583,11 +583,11 @@ export default class EditorControls extends EventEmitter {
       this.updateTransformGizmoScale()
       return
     }
-    const selecting = input.get(Editor.selecting)
+    const selecting = input.get(EditorInputs.selecting)
     const orbiting = selecting && !this.dragging
-    const zoomDelta = input.get(Editor.zoomDelta)
-    const cursorDeltaX = input.get(Editor.cursorDeltaX)
-    const cursorDeltaY = input.get(Editor.cursorDeltaY)
+    const zoomDelta = input.get(EditorInputs.zoomDelta)
+    const cursorDeltaX = input.get(EditorInputs.cursorDeltaX)
+    const cursorDeltaY = input.get(EditorInputs.cursorDeltaY)
     if (zoomDelta !== 0) {
       const camera = this.camera
       const delta = this.delta
@@ -598,12 +598,12 @@ export default class EditorControls extends EventEmitter {
       if (delta.length() > distance) return
       delta.applyMatrix3(this.normalMatrix.getNormalMatrix(camera.matrix))
       camera.position.add(delta)
-    } else if (input.get(Editor.focus)) {
-      const result = this.raycastNode(input.get(Editor.focusPosition))
+    } else if (input.get(EditorInputs.focus)) {
+      const result = this.raycastNode(input.get(EditorInputs.focusPosition))
       if (result) {
         this.focus([result.node])
       }
-    } else if (input.get(Editor.panning)) {
+    } else if (input.get(EditorInputs.panning)) {
       const camera = this.camera
       const delta = this.delta
       const center = this.center
