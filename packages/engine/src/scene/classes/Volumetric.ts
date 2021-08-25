@@ -10,9 +10,9 @@ import {
   MeshStandardMaterial,
   VideoTexture
 } from 'three'
-import { RethrownError } from '../../editor/functions/errors'
+import { RethrownError } from '../functions/errors'
 import Hls from 'hls.js/dist/hls.light'
-import isHLS from '../../editor/functions/isHLS'
+import isHLS from '../functions/isHLS'
 import AudioSource from './AudioSource'
 
 export default class Volumetric extends AudioSource {

@@ -1,7 +1,7 @@
 import Immutable from 'immutable'
 import { InstanceRemovedResponse, InstancesRetrievedResponse } from './actions'
 
-import { INSTANCE_REMOVED_ROW, INSTANCES_RETRIEVED } from '@xrengine/client-core/src/world/reducers/actions'
+import { INSTANCE_REMOVED_ROW, INSTANCES_RETRIEVED } from '../../../../world/reducers/actions'
 // } from "../../actions";
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'

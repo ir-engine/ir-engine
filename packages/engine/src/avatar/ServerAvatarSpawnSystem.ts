@@ -9,7 +9,7 @@ import { Network } from '../networking/classes/Network'
 import { PrefabType } from '../networking/templates/PrefabType'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { AvatarTagComponent } from './components/AvatarTagComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../ecs/classes/World'
 
 const randomPositionCentered = (area: Vector3) => {
@@ -27,15 +27,17 @@ export class SpawnPoints {
   }
 
   getRandomSpawnPoint(): { position: Vector3; rotation: Quaternion } {
-    const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent)
-    if (spawnTransform && this.spawnPoints.length > 0) {
-      // Get new spawn point (round robin)
-      this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length
-      return {
-        position: spawnTransform.position
-          .clone()
-          .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
-        rotation: new Quaternion() //spawnTransform.rotation.clone()
+    if (typeof this.spawnPoints[this.lastSpawnIndex] !== 'undefined') {
+      const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent)
+      if (spawnTransform && this.spawnPoints.length > 0) {
+        // Get new spawn point (round robin)
+        this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length
+        return {
+          position: spawnTransform.position
+            .clone()
+            .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
+          rotation: new Quaternion() //spawnTransform.rotation.clone()
+        }
       }
     }
 

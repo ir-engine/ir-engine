@@ -1,4 +1,4 @@
-import { Config } from '../../helper'
+import { Config } from '@xrengine/common/src/config'
 import React, { useEffect, useState } from 'react'
 import Search from './Search'
 import Table from '@material-ui/core/Table'

@@ -14,7 +14,7 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -106,12 +106,14 @@ export const PhysicsSystem = async (
     }
 
     for (const entity of colliderQuery(world)) {
-      const collider = getComponent(entity, ColliderComponent)
       const velocity = getComponent(entity, VelocityComponent)
+      if (!velocity) continue
+      const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
+      if ((!isClient && hasComponent(entity, ClientAuthoritativeComponent)) || hasComponent(entity, AvatarComponent))
+        continue
 
-      if (collider.body.type === BodyType.KINEMATIC) {
+      if (collider.body.type === BodyType.KINEMATIC || collider.body.type === BodyType.STATIC) {
         velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       } else if (collider.body.type === BodyType.DYNAMIC) {
@@ -136,12 +138,16 @@ export const PhysicsSystem = async (
     for (const entity of clientAuthoritativeQuery(world)) {
       const networkObject = getComponent(entity, NetworkObjectComponent)
       const collider = getComponent(entity, ColliderComponent)
+      const velocity = getComponent(entity, VelocityComponent)
       if (isClient) {
         Network.instance.clientInputState.transforms.push({
           networkId: networkObject.networkId,
           x: collider.body.transform.translation.x,
           y: collider.body.transform.translation.y,
           z: collider.body.transform.translation.z,
+          vX: velocity.velocity.x,
+          vY: velocity.velocity.y,
+          vZ: velocity.velocity.z,
           qX: collider.body.transform.rotation.x,
           qY: collider.body.transform.rotation.y,
           qZ: collider.body.transform.rotation.z,

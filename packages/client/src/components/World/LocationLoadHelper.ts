@@ -1,31 +1,27 @@
-import { Config } from '@xrengine/client-core/src/helper'
-import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
-import Store from '@xrengine/client-core/src/store'
-import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { client } from '@xrengine/client-core/src/feathers'
-import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import {
   GeneralStateList,
   setAppLoaded,
   setAppOnBoardingStep
 } from '@xrengine/client-core/src/common/reducers/app/actions'
-import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { client } from '@xrengine/client-core/src/feathers'
+import { Config } from '@xrengine/common/src/config'
+import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
+import Store from '@xrengine/client-core/src/store'
+import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
+import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
+import { testScenes } from '@xrengine/common/src/assets/testScenes'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import configs from '@xrengine/client-core/src/world/components/editor/configs'
-
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { EngineCallbacks } from './'
-import { World } from '../../../../engine/src/ecs/classes/World'
-import { teleportPlayer } from '../../../../engine/src/avatar/functions/teleportPlayer'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -102,7 +98,7 @@ export const initEngine = async (
 
   await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
 
-  getPortalDetails(configs)
+  getPortalDetails()
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Store.store.dispatch(setAppLoaded(true))
 

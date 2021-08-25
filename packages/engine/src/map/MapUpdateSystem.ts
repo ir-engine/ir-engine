@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Vector3 } from 'three'
 import { getCoord, getScaleArg, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'
@@ -9,10 +9,12 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
 import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
 import { updateMap } from '../scene/functions/createMap'
+import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 
 export const MapUpdateSystem = async (): Promise<System> => {
   const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
   const moveAddQuery = enterQuery(moveQuery)
+  const labelsQuery = defineQuery([GeoLabelSetComponent])
   let updateStatus = false
 
   return defineSystem((world: ECSWorld) => {
@@ -55,6 +57,14 @@ export const MapUpdateSystem = async (): Promise<System> => {
         }
       }
     }
+
+    for (const entity of labelsQuery(world)) {
+      const labels = getComponent(entity, GeoLabelSetComponent).value
+      for (const label of labels) {
+        label.onUpdate(Engine.camera)
+      }
+    }
+
     return world
   })
 }
