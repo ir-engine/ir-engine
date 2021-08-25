@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { EventEmitter } from 'puppeteer';
-export default class XRDevice extends EventEmitter {
+import { EventDispatcher } from 'three';
+export default class XRDevice extends EventDispatcher {
   /**
    * Takes a VRDisplay object from the WebVR 1.1 spec.
    *
