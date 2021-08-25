@@ -31,6 +31,7 @@ import Button from '@material-ui/core/Button'
 import image from '/static/images/image.jpg'
 import mockupIPhone from '/static/images/mockupIPhone.jpg'
 import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
+import Ban from '@xrengine/client-core/src/socialmedia/components/Ban/'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import TermsAndPolicy from '../../../client-core/src/socialmedia/components/TermsandPolicy'
 
@@ -106,6 +107,7 @@ const Home = ({
     }, 115000)
     return (
       <Splash>
+        <Ban />
         <div className={styles.btn_skip}>
           <Button
             onClick={() => {
