@@ -1,5 +1,3 @@
-import { DDSLoader } from 'three/examples/jsm/loaders/DDSLoader'
-
 import {
   Mesh,
   PlaneBufferGeometry,
@@ -10,6 +8,7 @@ import {
   Texture,
   Vector2
 } from 'three'
+import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
 
 const vertexShader = `
 attribute vec4 tangent;
