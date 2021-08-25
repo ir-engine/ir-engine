@@ -13,14 +13,11 @@
  * limitations under the License.
  */
 
-import EventTarget from '../lib/EventTarget';
-import now from '../lib/now';
 import XRFrame, {PRIVATE as XRFRAME_PRIVATE} from './XRFrame';
 import XRReferenceSpace, {
   XRReferenceSpaceTypes
 } from './XRReferenceSpace';
 import XRRenderState from './XRRenderState';
-import XRWebGLLayer from './XRWebGLLayer';
 import XRInputSourceEvent from './XRInputSourceEvent';
 import XRSessionEvent from './XRSessionEvent';
 import XRSpace from './XRSpace';
@@ -146,7 +143,7 @@ export default class XRSession extends EventTarget {
       //   - If the entry’s cancelled boolean is true, continue to the next entry.
       //   - Invoke the Web IDL callback function, passing now and frame as the arguments
       //   - If an exception is thrown, report the exception.
-      const rightNow = now(); //should we get this from arguments?
+      const rightNow = Date.now(); //should we get this from arguments?
       for (let i = 0; i < callbacks.length; i++) {
         try {
           if (!callbacks[i].cancelled && typeof callbacks[i].callback === 'function') {

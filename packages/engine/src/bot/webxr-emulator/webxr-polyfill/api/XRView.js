@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import * as mat4 from 'gl-matrix/src/gl-matrix/mat4';
-
 import XRViewport from './XRViewport';
 import XRRigidTransform from './XRRigidTransform';
 

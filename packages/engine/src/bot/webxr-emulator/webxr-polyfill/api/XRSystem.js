@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-import EventTarget from '../lib/EventTarget';
-import { XRReferenceSpaceTypes } from './XRReferenceSpace';
+import { EventDispatcher } from 'three';
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XR');
 
@@ -41,7 +40,7 @@ or navigator.xr.requestSession('inline') prior to requesting an immersive
 session. This is a limitation specific to the WebXR Polyfill and does not apply
 to native implementations of the API.`
 
-export default class XRSystem extends EventTarget {
+export default class XRSystem extends EventDispatcher {
   /**
    * Receives a promise of an XRDevice, so that the polyfill
    * can pass in some initial checks to asynchronously provide XRDevices

@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-import EventTarget from '../lib/EventTarget';
-import XRReferenceSpace from '../api/XRReferenceSpace';
-
-export default class XRDevice extends EventTarget {
+import { EventEmitter } from 'puppeteer';
+export default class XRDevice extends EventEmitter {
   /**
    * Takes a VRDisplay object from the WebVR 1.1 spec.
    *

@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import CardboardXRDevice from './devices/CardboardXRDevice';
+// import CardboardXRDevice from './devices/CardboardXRDevice';
 import InlineDevice from './devices/InlineDevice';
 import WebVRDevice from './devices/WebVRDevice';
 
-import { isMobile } from './utils';
+// import { isMobile } from './utils';
 
 /**
  * Queries browser to see if any VRDisplay exists.
@@ -52,8 +52,7 @@ export const requestXRDevice = async function (global, config) {
     if (xr) {
       return xr;
     }
-  }
-
+  }/*
   // If no WebVR devices are present, check to see if a Cardboard device is
   // allowed and if so return that.
   // TODO: This probably requires more changes to allow creating an
@@ -73,7 +72,7 @@ export const requestXRDevice = async function (global, config) {
     }
 
     return new CardboardXRDevice(global, config.cardboardConfig);
-  }
+  }*/
 
   // Inline sessions are always allowed, so if no other device is available
   // create one that only supports sensorless inline sessions.

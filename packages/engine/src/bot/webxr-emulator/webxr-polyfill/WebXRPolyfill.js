@@ -13,14 +13,16 @@
  * limitations under the License.
  */
 
-import GLOBAL from './lib/global';
 import API from './api/index';
 import {
   polyfillMakeXRCompatible,
   polyfillGetContext
 } from './polyfill-globals';
-import { isImageBitmapSupported, isMobile } from './utils';
 import { requestXRDevice } from './devices';
+
+const GLOBAL = typeof global !== 'undefined' ? global :
+                typeof self !== 'undefined' ? self :
+                typeof window !== 'undefined' ? window : {};
 
 const CONFIG_DEFAULTS = {
   // The default global to use for needed APIs.

@@ -1,8 +1,8 @@
-import XRDevice from './webxr-polyfill//devices/XRDevice';
-// import XRInputSource from './webxr-polyfill//api/XRInputSource';
+import XRDevice from './webxr-polyfill/devices/XRDevice';
+// import XRInputSource from './webxr-polyfill/api/XRInputSource';
 import XRTransientInputHitTestSource from './api/XRTransientInputHitTestSource';
-import {PRIVATE as XRSESSION_PRIVATE} from './webxr-polyfill//api/XRSession';
-import GamepadXRInputSource from './webxr-polyfill//devices/GamepadXRInputSource';
+import {PRIVATE as XRSESSION_PRIVATE} from './webxr-polyfill/api/XRSession';
+import GamepadXRInputSource from './webxr-polyfill/devices/GamepadXRInputSource';
 import {
   vec3,
   quat,

@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 import XRRigidTransform from './XRRigidTransform';
-import * as mat4 from 'gl-matrix/src/gl-matrix/mat4';
+import {
+  mat4
+} from 'gl-matrix';
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XRSpace');
 
