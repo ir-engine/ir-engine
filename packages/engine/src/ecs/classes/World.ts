@@ -1,4 +1,4 @@
-import { createWorld } from '../../ecs/bitecs'
+import { createWorld } from 'bitecs'
 import { createEntity } from '../functions/EntityFunctions'
 import { Entity } from './Entity'
 

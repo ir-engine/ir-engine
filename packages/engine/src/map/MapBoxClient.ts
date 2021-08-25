@@ -1,7 +1,7 @@
-import { TileFeaturesByLayer } from './types'
 import { VectorTile } from '@mapbox/vector-tile'
-import { Feature, Position } from 'geojson'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
+import { Position } from 'geojson'
+import { TileFeaturesByLayer } from './types'
 import { vectors } from './vectors'
 
 const TILE_ZOOM = 16

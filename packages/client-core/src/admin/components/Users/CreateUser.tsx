@@ -22,6 +22,10 @@ import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
+import Autocomplete from '@material-ui/lab/Autocomplete'
+import TextField from '@material-ui/core/TextField'
+import { getScopeTypeService } from '../../reducers/admin/scope/service'
+import { selectScopeState } from '../../reducers/admin/scope/selector'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -38,19 +42,23 @@ interface Props {
   closeViewModel: any
   adminUserState?: any
   fetchStaticResource?: any
+  getScopeTypeService?: any
+  adminScopeState?: any
 }
 const mapStateToProps = (state: any): any => {
   return {
     adminState: selectAdminState(state),
     authState: selectAuthState(state),
-    adminUserState: selectAdminUserState(state)
+    adminUserState: selectAdminUserState(state),
+    adminScopeState: selectScopeState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createUserAction: bindActionCreators(createUserAction, dispatch),
   fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
+  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
 })
 
 const CreateUser = (props: Props) => {
@@ -62,7 +70,9 @@ const CreateUser = (props: Props) => {
     fetchUserRole,
     adminUserState,
     fetchStaticResource,
-    createUserAction
+    createUserAction,
+    getScopeTypeService,
+    adminScopeState
   } = props
 
   const classes = useStyles()
@@ -72,12 +82,15 @@ const CreateUser = (props: Props) => {
     name: '',
     avatar: '',
     userRole: '',
+    scopeType: [],
     formErrors: {
       name: '',
       avatar: '',
-      userRole: ''
+      userRole: '',
+      scopeType: ''
     }
   })
+
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
 
@@ -86,6 +99,7 @@ const CreateUser = (props: Props) => {
   const userRoleData = userRole ? userRole.get('userRole') : []
   const staticResource = adminUserState.get('staticResource')
   const staticResourceData = staticResource.get('staticResource')
+  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -95,6 +109,9 @@ const CreateUser = (props: Props) => {
     if (role === true && user.id) fetchData()
     if (user.id && staticResource.get('updateNeeded')) {
       fetchStaticResource()
+    }
+    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
+      getScopeTypeService()
     }
   }, [adminUserState, user])
 
@@ -126,6 +143,7 @@ const CreateUser = (props: Props) => {
       case 'userRole':
         temp.userRole = value.length < 2 ? 'User role is required!' : ''
         break
+
       default:
         break
     }
@@ -136,7 +154,8 @@ const CreateUser = (props: Props) => {
     const data = {
       name: state.name,
       avatarId: state.avatar,
-      userRole: state.userRole
+      userRole: state.userRole,
+      scopeType: state.scopeType
     }
     let temp = state.formErrors
     if (!state.name) {
@@ -148,6 +167,9 @@ const CreateUser = (props: Props) => {
     if (!state.userRole) {
       temp.userRole = "User role can't be empty"
     }
+    if (!state.scopeType.length) {
+      temp.scopeType = "Scope type can't be empty"
+    }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
       createUserAction(data)
@@ -156,7 +178,8 @@ const CreateUser = (props: Props) => {
         ...state,
         name: '',
         avatar: '',
-        userRole: ''
+        userRole: '',
+        scopeType: []
       })
     } else {
       setError('Please fill all required field')
@@ -239,7 +262,6 @@ const CreateUser = (props: Props) => {
               </Select>
             </FormControl>
           </Paper>
-
           <DialogContentText className={classes.marginBottm}>
             {' '}
             <span className={classes.select}>Don't see user role? </span>{' '}
@@ -247,6 +269,30 @@ const CreateUser = (props: Props) => {
               Create One
             </a>{' '}
           </DialogContentText>
+
+          <label>Grant Scope</label>
+          <Paper
+            component="div"
+            className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+          >
+            <Autocomplete
+              onChange={(event, value) =>
+                setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+              }
+              multiple
+              className={classes.selector}
+              classes={{ paper: classesx.selectPaper, inputRoot: classes.select }}
+              id="tags-standard"
+              options={adminScopes}
+              disableCloseOnSelect
+              filterOptions={(options) =>
+                options.filter((option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null)
+              }
+              getOptionLabel={(option) => option.type}
+              renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
+            />
+          </Paper>
+
           <DialogActions>
             <Button className={classesx.saveBtn} onClick={handleSubmit}>
               Submit

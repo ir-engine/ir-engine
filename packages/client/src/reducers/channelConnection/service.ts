@@ -2,7 +2,7 @@ import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunction
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { client } from '@xrengine/client-core/src/feathers'
 import Store from '@xrengine/client-core/src/store'

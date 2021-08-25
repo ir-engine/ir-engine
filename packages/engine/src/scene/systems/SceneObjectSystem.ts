@@ -1,10 +1,10 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { beforeMaterialCompile } from '../../editor/nodes/helper/BPCEMShader'
+import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -129,21 +129,6 @@ export const SceneObjectSystem = async (): Promise<System> => {
     for (const entity of updatableQuery(world)) {
       const obj = getComponent(entity, Object3DComponent)
       ;(obj.value as unknown as Updatable).update(world.delta)
-    }
-
-    for (const entity of transformObjectQuery(world)) {
-      const transform = getComponent(entity, TransformComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
-
-      if (!object3DComponent.value) {
-        console.warn('object3D component on entity', entity, ' is undefined')
-        continue
-      }
-
-      object3DComponent.value.position.copy(transform.position)
-      object3DComponent.value.quaternion.copy(transform.rotation)
-      object3DComponent.value.scale.copy(transform.scale)
-      object3DComponent.value.updateMatrixWorld()
     }
 
     return world

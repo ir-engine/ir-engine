@@ -4,10 +4,11 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import { DoubleSide, EquirectangularRefractionMapping, MeshLambertMaterial, TextureLoader } from 'three'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Config } from '@xrengine/common/src/config'
 
-export const getPortalDetails = async (configs) => {
-  const token = localStorage.getItem((configs as any).FEATHERS_STORE_KEY)
-  const SERVER_URL = (configs as any).SERVER_URL
+export const getPortalDetails = async () => {
+  const token = localStorage.getItem(Config.publicRuntimeConfig.feathersStoreKey)
+  const SERVER_URL = Config.publicRuntimeConfig.apiServer
 
   const options = {
     headers: {

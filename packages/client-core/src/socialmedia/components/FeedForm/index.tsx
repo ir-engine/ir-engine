@@ -21,9 +21,9 @@ import styles from './FeedForm.module.scss'
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service'
 import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { selectWebXrNativeState } from '@xrengine/client-core/src/socialmedia/reducers/webxr_native/selector'
-import { changeWebXrNative } from '@xrengine/client-core/src/socialmedia/reducers/webxr_native/service'
-import Preloader from '@xrengine/client-core/src/socialmedia/components/Preloader'
+import { selectWebXrNativeState } from '../../reducers/webxr_native/selector'
+import { changeWebXrNative } from '../../reducers/webxr_native/service'
+import Preloader from '../Preloader'
 import { selectFeedsState } from '../../reducers/feed/selector'
 
 const mapStateToProps = (state: any): any => {

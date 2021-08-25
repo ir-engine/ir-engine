@@ -24,7 +24,7 @@ import {
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, System } from 'bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'

@@ -4,7 +4,7 @@
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import { client } from '../../../feathers'
-import Api from '../../../world/components/editor/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import {
   addTipsAndTricks,
   fetchingTipsAndTricks,
@@ -29,8 +29,7 @@ export function getTipsAndTricks() {
 export function createTipsAndTricksNew(data) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const api = new Api()
-      const storedVideo = await api.upload(data.video, null)
+      const storedVideo = await upload(data.video, null)
       const tips_and_tricks = await client.service('tips-and-tricks').create({
         title: data.title,
         // @ts-ignore
@@ -51,8 +50,7 @@ export function updateTipsAndTricksAsAdmin(data: any) {
     try {
       let tips_and_tricks = { id: data.id, title: data.title, videoId: data.video, description: data.description }
       if (typeof data.video === 'object') {
-        const api = new Api()
-        const storedVideo = await api.upload(data.video, null)
+        const storedVideo = await upload(data.video, null)
         // @ts-ignore
         tips_and_tricks['videoId'] = storedVideo.file_id
       }
