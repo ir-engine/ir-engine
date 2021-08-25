@@ -24,10 +24,10 @@ import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
 import { Engine } from '../../ecs/classes/Engine'
-import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 
 const upVec = new Vector3(0, 1, 0)
 
@@ -124,7 +124,7 @@ export const InteractiveSystem = async (): Promise<System> => {
 
     for (const entity of interactedAddQuery(world)) {
       const interactiveComponent = getComponent(entity, InteractableComponent)
-      if (hasComponent(entity, PositionalAudioComponent)) {
+      if (hasComponent(entity, AudioTagComponent)) {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
         mediaObject?.toggle()
       } else {

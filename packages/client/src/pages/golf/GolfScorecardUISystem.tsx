@@ -84,7 +84,7 @@ const GolfLabelColumn = () => {
   )
 }
 
-const GolfScoreBox = (props: { scoreState: State<number> }) => {
+const GolfScoreBox = (props: { scoreState: State<number | undefined> }) => {
   const score = useState(props.scoreState).value
   return (
     <div
@@ -99,7 +99,7 @@ const GolfScoreBox = (props: { scoreState: State<number> }) => {
         fontSize: '32px'
       }}
     >
-      {score || 0}
+      {score ?? '-'}
     </div>
   )
 }
