@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { EventDispatcher } from 'three';
-export default class XRDevice extends EventDispatcher {
+import EventTarget from '../EventTarget.js'
+export default class XRDevice extends EventTarget {
   /**
    * Takes a VRDisplay object from the WebVR 1.1 spec.
    *

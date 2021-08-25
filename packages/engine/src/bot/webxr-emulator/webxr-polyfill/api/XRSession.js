@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import EventTarget from '../EventTarget.js'
 import XRFrame, {PRIVATE as XRFRAME_PRIVATE} from './XRFrame';
 import XRReferenceSpace, {
   XRReferenceSpaceTypes
