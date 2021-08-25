@@ -3,7 +3,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { defineQuery, defineSystem, enterQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ECSWorld } from '../../ecs/classes/World'
@@ -15,7 +15,7 @@ import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { addControllerModels } from '../functions/addControllerModels'
-import { endXR, startXR } from '../functions/WebXRFunctions'
+import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
 /**
  * System for XR session and input handling
@@ -49,7 +49,7 @@ export const XRSystem = async (): Promise<System> => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
       })
 
-      startXR()
+      startWebXR()
     } catch (e) {
       console.log('Failed to create XR Session', e)
     }

@@ -51,7 +51,10 @@ export async function overrideXR() {
   }
 
   // send our device info to the polyfill API so it knows our capabilities
-  window.dispatchEvent(new CustomEvent('webxr-device-init', { detail: { stereoEffect: false, deviceDefinition } }))
+  globalThis.EngineEvents.instance.dispatchEvent({
+    type: 'webxr-device-init',
+    detail: { stereoEffect: false, deviceDefinition }
+  })
 }
 
 export async function xrSupported() {
@@ -66,37 +69,32 @@ export function xrInitialized() {
 
 export function startXR() {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
-  window.dispatchEvent(
-    new CustomEvent('webxr-pose', {
-      detail: {
-        position: [0, 1.6, 0],
-        quaternion: [0, 0, 0, 1]
-      }
-    })
-  )
-  window.dispatchEvent(
-    new CustomEvent('webxr-input-pose', {
-      detail: {
-        objectName: 'rightController',
-        position: [0.5, 1.5, -1],
-        quaternion: [0, 0, 0, 1]
-      }
-    })
-  )
-  window.dispatchEvent(
-    new CustomEvent('webxr-input-pose', {
-      detail: {
-        objectName: 'leftController',
-        position: [-0.5, 1.5, -1],
-        quaternion: [0, 0, 0, 1]
-      }
-    })
-  )
-
-  // send our input data non stop
-  setInterval(() => {
-    sendXRInputData()
-  }, 1000 / 60)
+  globalThis.EngineEvents.instance.dispatchEvent({
+    type: 'webxr-pose',
+    detail: {
+      position: [0, 1.6, 0],
+      quaternion: [0, 0, 0, 1]
+    }
+  })
+  // )
+  globalThis.EngineEvents.instance.dispatchEvent({
+    type: 'webxr-input-pose',
+    detail: {
+      objectName: 'rightController',
+      position: [0.5, 1.5, -1],
+      quaternion: [0, 0, 0, 1]
+    }
+  })
+  // )
+  globalThis.EngineEvents.instance.dispatchEvent({
+    type: 'webxr-input-pose',
+    detail: {
+      objectName: 'leftController',
+      position: [-0.5, 1.5, -1],
+      quaternion: [0, 0, 0, 1]
+    }
+  })
+  // )
 }
 
 /**
@@ -107,11 +105,8 @@ export function startXR() {
  * @returns {function}
  */
 export function pressControllerButton(args) {
-  window.dispatchEvent(
-    new CustomEvent('webxr-input-button', {
-      detail: args
-    })
-  )
+  globalThis.EngineEvents.instance.dispatchEvent({ type: 'webxr-input-button', detail: args })
+  // )
 }
 
 /**
@@ -122,11 +117,8 @@ export function pressControllerButton(args) {
  * @returns {function}
  */
 export function moveControllerStick(args) {
-  window.dispatchEvent(
-    new CustomEvent('webxr-input-axes', {
-      detail: args
-    })
-  )
+  globalThis.EngineEvents.instance.dispatchEvent({ type: 'webxr-input-axes', detail: args })
+  // )
 }
 
 // is in world space, so subtract player pos from it
@@ -172,33 +164,36 @@ export const getInputSourceRotation = (inputSource: InputSource) => {
   }
 }
 
+const tweens = []
+
 export const sendXRInputData = () => {
-  window.dispatchEvent(
-    new CustomEvent('webxr-pose', {
-      detail: {
-        position: headPosition.toArray(),
-        quaternion: headRotation.toArray()
-      }
-    })
-  )
-  window.dispatchEvent(
-    new CustomEvent('webxr-input-pose', {
-      detail: {
-        objectName: 'leftController',
-        position: leftControllerPosition.toArray(),
-        quaternion: leftControllerRotation.toArray()
-      }
-    })
-  )
-  window.dispatchEvent(
-    new CustomEvent('webxr-input-pose', {
-      detail: {
-        objectName: 'rightController',
-        position: rightControllerPosition.toArray(),
-        quaternion: rightControllerRotation.toArray()
-      }
-    })
-  )
+  tweens.forEach((call) => call())
+  globalThis.EngineEvents.instance.dispatchEvent({
+    type: 'webxr-pose',
+    detail: {
+      position: headPosition.toArray(),
+      quaternion: headRotation.toArray()
+    }
+  })
+  // )
+  globalThis.EngineEvents.instance.dispatchEvent({
+    type: 'webxr-input-pose',
+    detail: {
+      objectName: 'leftController',
+      position: leftControllerPosition.toArray(),
+      quaternion: leftControllerRotation.toArray()
+    }
+  })
+  // )
+  globalThis.EngineEvents.instance.dispatchEvent({
+    type: 'webxr-input-pose',
+    detail: {
+      objectName: 'rightController',
+      position: rightControllerPosition.toArray(),
+      quaternion: rightControllerRotation.toArray()
+    }
+  })
+  // )
 }
 
 export type InputSourceTweenProps = {
@@ -210,21 +205,25 @@ export type InputSourceTweenProps = {
   quaternionTo: Quaternion
   callback: () => void
 }
-const frameDelta = 1000 / 60
+let last
 
 export function tweenXRInputSource(args: InputSourceTweenProps) {
   let counter = 0
   const vec3 = getInputSourcePosition(args.objectName)
   const quat = getInputSourceRotation(args.objectName)
-  const interval = setInterval(() => {
+  const tweenFunction = () => {
     vec3.lerpVectors(args.positionFrom, args.positionTo, counter / args.time)
     quat.slerpQuaternions(args.quaternionFrom, args.quaternionTo, counter / args.time)
     if (counter >= args.time) {
-      clearInterval(interval)
+      tweens.splice(tweens.indexOf(tweenFunction))
       args.callback()
     }
     counter++
-  }, frameDelta)
+    const now = Date.now()
+    console.log(now - last)
+    last = now
+  }
+  tweens.push(tweenFunction)
 }
 
 /**

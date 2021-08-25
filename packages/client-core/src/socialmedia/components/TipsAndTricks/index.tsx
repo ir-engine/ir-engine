@@ -12,10 +12,10 @@ import { useTranslation } from 'react-i18next'
 
 import styles from './TipsAndTricks.module.scss'
 import { connect } from 'react-redux'
-import { getTipsAndTricks } from '@xrengine/client-core/src/socialmedia/reducers/tips_and_tricks/service'
-import { selectTipsAndTricksState } from '@xrengine/client-core/src/socialmedia/reducers/tips_and_tricks/selector'
+import { getTipsAndTricks } from '../../reducers/tips_and_tricks/service'
+import { selectTipsAndTricksState } from '../../reducers/tips_and_tricks/selector'
 import { bindActionCreators, Dispatch } from 'redux'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { doLoginAuto } from '../../../user/reducers/auth/service'
 
 const mapStateToProps = (state: any): any => {
   return {

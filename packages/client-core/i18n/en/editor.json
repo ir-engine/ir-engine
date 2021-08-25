@@ -174,25 +174,7 @@
             "lbl-shadowRadius": "Shadow Radius",
             "lbl-showCameraHelper": "Show Camera Helper"
         },
-        "floorPlan": {
-            "description": "Sets the walkable surface area in your scene.",
-            "generatePlan": "Generating Floor Plan",
-            "generatePlanMsg": "Generating Floor Plan...",
-            "generatePlanError": "Error Generating Floor Plan",
-            "generatePlanErrorMsg": "There was an unknown error.",
-            "lbl-autoCellSize": "Auto Cell Size",
-            "lbl-cellSize": "Cell Size",
-            "lbl-cellHeight": "Cell Height",
-            "lbl-agentHeight": "Agent Height",
-            "lbl-agentRadius": "Agent Radius",
-            "lbl-maxStepHeight": "Maximum Step Height",
-            "lbl-maxSlope": "Maximum Slope",
-            "lbl-minRegionArea": "Minimum Region Area",
-            "lbl-forceTrimesh": "Force Trimesh",
-            "lbl-collisionThreshold": "Collision Geo Triangle Threshold",
-            "lbl-regenerate": "Regenerate"
-        },
-        "groundPlan": {
+        "groundPlane": {
             "description": "A flat ground plane that extends into the distance.",
             "lbl-color": "Color",
             "lbl-receiveShadow": "Receive Shadow",
@@ -310,6 +292,9 @@
             "lbl-waveTiling":  "Wave Tiling",
             "lbl-waveDistortionSpeed":  "Wave Distortion Speed",
             "lbl-waveDistortionTiling":  "Wave Distortion Tiling"
+        },
+        "water": {
+            "description": "Small water surface"
         },
         "pointLight": {
             "description": "A light which emits in all directions from a single point.",
@@ -432,10 +417,14 @@
             "lbl-portal": "Linked Portal",
             "description": "A Portat to teleport players to specified location",
             "lbl-locationName": "Location",
+            "lbl-modelUrl": "Model URL",
             "lbl-displayText": "Display Text",
-            "lbl-reflectionProbe": "Reflection Probe",
-            "lbl-spawnPosition": "Spawn position",
-            "lbl-spawnRotation": "Spawn Rotation"
+            "lbl-cubemapBake": "Cubemap bake",
+            "lbl-spawnPosition": "Spawn Position",
+            "lbl-spawnRotation": "Spawn Rotation",
+            "lbl-triggerPosition": "Trigger Position",
+            "lbl-triggerRotation": "Trigger Rotation",
+            "lbl-triggerScale": "Trigger Scale"
         }
     },
     "projects": {

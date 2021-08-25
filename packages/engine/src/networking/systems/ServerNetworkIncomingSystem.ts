@@ -17,10 +17,11 @@ import { BaseInput } from '../../input/enums/BaseInput'
 import { Group, Vector3 } from 'three'
 import { executeCommands } from '../functions/executeCommands'
 import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 
 export function cancelAllInputs(entity) {
   getComponent(entity, InputComponent)?.data.forEach((value) => {
@@ -171,6 +172,10 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
             transformComponent.position.set(transform.x, transform.y, transform.z)
             transformComponent.rotation.set(transform.qX, transform.qY, transform.qZ, transform.qW)
           }
+          const velocityComponent = getComponent(networkObject.entity, VelocityComponent)
+          if (velocityComponent) {
+            velocityComponent.velocity.set(transform.vX, transform.vY, transform.vZ)
+          }
         }
       }
     }
@@ -193,12 +198,18 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
 
     for (const entity of networkObjectsWithInputAddQuery(world)) {
       const input = getComponent(entity, InputComponent)
-      input.schema.onAdded(entity, delta)
+      for (const call of input.schema.onAdded) {
+        call(entity, delta)
+      }
     }
 
     for (const entity of networkObjectsWithInputRemoveQuery(world)) {
       const input = getComponent(entity, InputComponent, true)
-      input.schema.onRemove(entity, delta)
+      for (const call of input.schema.onRemove) {
+        call(entity, delta)
+      }
+      input.prevData.clear()
+      input.data.clear()
     }
 
     for (const entity of delegatedInputRoutingAddQuery(world)) {

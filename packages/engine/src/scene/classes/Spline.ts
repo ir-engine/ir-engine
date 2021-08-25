@@ -1,6 +1,5 @@
 import { Vector3, BufferGeometry, BufferAttribute, CatmullRomCurve3, Line, LineBasicMaterial, Object3D } from 'three'
-import SplineHelperNode from '../../editor/nodes/SplineHelperNode'
-import { removeElementFromArray } from '@xrengine/engine/src/editor/functions/utils'
+import { removeElementFromArray } from '@xrengine/common/src/utils/removeElementFromArray'
 
 export default class Spline extends Object3D {
   ARC_SEGMENTS = 200
@@ -16,8 +15,11 @@ export default class Spline extends Object3D {
 
   _editor = null
 
-  constructor() {
+  helperNode: any
+
+  constructor(helperNode) {
     super()
+    this.helperNode = helperNode
   }
 
   init(editor = null, loadedSplinePositions = null) {
@@ -103,7 +105,7 @@ export default class Spline extends Object3D {
   }
 
   addSplineObject(position = null) {
-    const splineHelperNode = new SplineHelperNode(this._editor, this)
+    const splineHelperNode = new this.helperNode(this._editor, this)
     const object = splineHelperNode
 
     if (position) {

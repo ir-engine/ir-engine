@@ -15,12 +15,10 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { fetchAvatarList } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { getAvatarURLFromNetwork, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { EditPencil } from '../icons/EditPencil'
-import { SaveDisable } from '../icons/SaveDisable'
-import { SaveEnable } from '../icons/SaveEnable'
 import { SearchIcon } from '../icons/Search'
 import { Close } from '../icons/Close'
 import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage'
+import MapView from '../MapLocationSelection'
 
 interface Props {
   currentScene?: any
@@ -233,7 +231,7 @@ const UserProfileScreen = (props: Props) => {
           )}
         </div>
         {isEditProfile && renderAvatarList()}
-        <Card className={styles['search-view']}>
+        {/*<Card className={styles['search-view']}>
           <CardContent className={styles['search-box']} style={{ boxShadow: 'none' }}>
             <TextField
               className={styles.locationFieldContainer}
@@ -268,14 +266,12 @@ const UserProfileScreen = (props: Props) => {
             <div className={styles.searchIcon}>
               <SearchIcon />
             </div>
-            +
           </CardContent>
         </Card>
-
-        <Card className={styles['map-view']}>
-          <CardContent className={styles['map-box']}></CardContent>
-        </Card>
-
+*/}
+        <div className={styles.mapView}>
+          <MapView />
+        </div>
         {!isEditProfile && (
           <div className={styles.profileButton}>
             {' '}

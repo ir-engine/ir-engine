@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
@@ -18,6 +18,7 @@ import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { teleportPlayer } from './functions/teleportPlayer'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
@@ -63,9 +64,16 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       }
     }
 
+    for (const entity of raycastQuery(world)) {
+      const raycastComponent = getComponent(entity, RaycastComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const avatar = getComponent(entity, AvatarComponent)
+      raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
+      avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
+    }
+
     for (const entity of controllerQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent)
-      const raycastComponent = getComponent(entity, RaycastComponent)
 
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
@@ -106,21 +114,9 @@ export const AvatarControllerSystem = async (): Promise<System> => {
         controller.controller.transform.translation.z
       )
 
-      avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0) // || controller.controller.collisions.down)
-
       moveAvatar(entity, delta)
 
       detectUserInPortal(entity)
-    }
-
-    for (const entity of raycastQuery(world)) {
-      const raycastComponent = getComponent(entity, RaycastComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
-      if (!hasComponent(entity, AvatarControllerComponent)) {
-        avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
-      }
     }
 
     for (const entity of xrInputQueryAddQuery(world)) {
