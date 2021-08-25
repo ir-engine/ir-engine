@@ -1,5 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System, pipe } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System, pipe } from 'bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
@@ -258,8 +258,8 @@ export const GolfSystem = async (): Promise<System> => {
         case 'puttclub.NEXT_TURN': {
           const currentPlayerNumber = s.currentPlayer.value
           const currentPlayer = s.players[currentPlayerNumber]
+          const currentHole = s.currentHole.value
           const entityBall = getBall(world, currentPlayerNumber)
-          const currentHole = GolfState.currentHole.value
           const entityHole = getHole(world, currentHole)
 
           // if hole in ball or player has had too many shots, finish their round
@@ -268,7 +268,10 @@ export const GolfSystem = async (): Promise<System> => {
             currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
           ) {
             console.log('=== PLAYER FINISHED HOLE')
-            currentPlayer.scores.set([...currentPlayer.scores.value, currentPlayer.stroke.value])
+            currentPlayer.scores.set([
+              ...currentPlayer.scores.value,
+              currentPlayer.stroke.value - s.holes[currentHole].par.value
+            ])
           }
 
           setBallState(entityBall, BALL_STATES.INACTIVE)
@@ -342,7 +345,7 @@ export const GolfSystem = async (): Promise<System> => {
           //     }
           //   }
           // }
-          s.currentHole.set(s.currentHole.value + 1)
+          s.currentHole.set((s.currentHole.value + 1) % s.holes.length)
           // Set all player strokes to 0
           for (const [i, p] of s.players.entries()) {
             p.stroke.set(0)

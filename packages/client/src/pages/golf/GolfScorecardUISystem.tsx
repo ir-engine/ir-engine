@@ -1,13 +1,12 @@
-import { useState } from '@hookstate/core'
+import { State, useState } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { defineSystem } from '@xrengine/engine/src/ecs/bitecs'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { defineSystem } from 'bitecs'
 import React from 'react'
 import { Matrix4 } from 'three'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
@@ -18,59 +17,11 @@ export function createScorecardUI() {
   return createXRUI(GolfScorecardView, GolfState)
 }
 
-const GolfHoles = () => {
-  const holes = useState(GolfState.holes)
-  return (
-    <div className="holes">
-      <span className="label">Hole</span>
-      {holes.map((_, i) => (
-        <span key={i}>{i}</span>
-      ))}
-    </div>
-  )
-}
-
-const GolfPar = () => {
-  const holes = useState(GolfState.holes)
-  return (
-    <div className="par">
-      <span>Par</span>
-      {holes.map((hole, i) => (
-        <span key={i}>{hole.par.value}</span>
-      ))}
-      <span className="total">{holes.reduce((prev, next) => prev + next.par.value, 0)}</span>
-    </div>
-  )
-}
-
-const GolfScores = () => {
-  const playerNumber = getPlayerNumber()
-  const playerColor = GolfColours[playerNumber]
-  const golfState = useXRUIState() as typeof GolfState
-  if (golfState.players.length === 0) return <div></div>
-  return (
-    <>
-      {golfState.players.map((player, i) => {
-        const scores = player.scores
-        return (
-          <div className="score" key={i}>
-            <span>{'' + player.id.value}</span>
-            {scores.value.map((score) => (
-              <span>{score}</span>
-            ))}
-            <span className="total">{scores.reduce((prev, next) => prev + next.value, 0)}</span>
-          </div>
-        )
-      })}
-    </>
-  )
-}
-
 function getUserById(id: string, userState: ReturnType<typeof useUserState>) {
   return userState.layerUsers.find((user) => user.id.value === id)
 }
 
-const GolfLabelsView = () => {
+const GolfLabelColumn = () => {
   const userState = useUserState()
   const players = useState(GolfState.players)
   return (
@@ -81,13 +32,11 @@ const GolfLabelsView = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'flex-end',
-        padding: '15px 0px 15px 10px',
+        padding: '15px 10px',
+        gap: '10px',
         position: 'static',
         width: 'fit-content',
         height: 'fit-content',
-        fontFamily: 'Racing Sans One',
-        fontStyle: 'normal',
-        fontWeight: 'normal',
         textAlign: 'right',
         color: '#FFFFFF'
       }}
@@ -106,7 +55,7 @@ const GolfLabelsView = () => {
         style={{
           position: 'static',
           height: '40px',
-          fontSize: '15px',
+          fontSize: '18px',
           lineHeight: '19px'
         }}
       >
@@ -135,9 +84,82 @@ const GolfLabelsView = () => {
   )
 }
 
+const GolfScoreBox = (props: { scoreState: State<number | undefined> }) => {
+  const score = useState(props.scoreState).value
+  return (
+    <div
+      style={{
+        width: '40px',
+        height: '40px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '9px',
+        fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        fontSize: '32px'
+      }}
+    >
+      {score ?? '-'}
+    </div>
+  )
+}
+
+const GolfHoleColumn = (props: { hole: number }) => {
+  const players = useState(GolfState.players)
+  const holeState = useState(GolfState.holes)
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        textAlign: 'center',
+        padding: '10px',
+        gap: '10px',
+        color: 'white',
+        paddingLeft: '10px'
+      }}
+    >
+      <div
+        style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #FFFFFF',
+          boxSizing: 'border-box',
+          borderRadius: '20px',
+          lineHeight: '32px',
+          fontSize: '20px'
+        }}
+      >
+        {props.hole}
+      </div>
+      <div
+        id="data"
+        style={{
+          width: '40px',
+          height: '40px',
+          fontSize: '18px',
+          lineHeight: '30px'
+        }}
+      >
+        {holeState[props.hole].par.value}
+      </div>
+      {players.map((p, i) => (
+        <GolfScoreBox key={i} scoreState={p.scores[props.hole]}></GolfScoreBox>
+      ))}
+    </div>
+  )
+}
+
+const GolfFinalScoreColumn = () => {
+  return <></>
+}
+
 const GolfScorecardView = () => {
+  const holes = useState(GolfState.holes)
   return (
     <>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></link>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
       <div
         id="scorecard"
@@ -152,12 +174,19 @@ const GolfScorecardView = () => {
           background: ' rgba(0, 0, 0, 0.51)',
           border: '10px solid #FFFFFF',
           boxSizing: 'border-box',
-          filter: 'drop-shadow(0 0 30px rgba(0, 0, 0, 0.57))',
+          filter: 'drop-shadow(0 0 20px rgba(0, 0, 0, 0.57))',
           borderRadius: '60px',
-          margin: '50px'
+          margin: '50px',
+          fontFamily: 'Racing Sans One',
+          fontStyle: 'normal',
+          fontWeight: 'normal'
         }}
       >
-        <GolfLabelsView />
+        <GolfLabelColumn />
+        {holes.map((h, i) => (
+          <GolfHoleColumn key={i} hole={i}></GolfHoleColumn>
+        ))}
+        <GolfFinalScoreColumn></GolfFinalScoreColumn>
       </div>
     </>
   )

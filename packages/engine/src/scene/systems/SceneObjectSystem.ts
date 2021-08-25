@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
@@ -129,21 +129,6 @@ export const SceneObjectSystem = async (): Promise<System> => {
     for (const entity of updatableQuery(world)) {
       const obj = getComponent(entity, Object3DComponent)
       ;(obj.value as unknown as Updatable).update(world.delta)
-    }
-
-    for (const entity of transformObjectQuery(world)) {
-      const transform = getComponent(entity, TransformComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
-
-      if (!object3DComponent.value) {
-        console.warn('object3D component on entity', entity, ' is undefined')
-        continue
-      }
-
-      object3DComponent.value.position.copy(transform.position)
-      object3DComponent.value.quaternion.copy(transform.rotation)
-      object3DComponent.value.scale.copy(transform.scale)
-      object3DComponent.value.updateMatrixWorld()
     }
 
     return world

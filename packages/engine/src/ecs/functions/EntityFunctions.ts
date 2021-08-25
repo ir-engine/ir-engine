@@ -1,4 +1,4 @@
-import * as bitECS from '../bitecs'
+import * as bitECS from 'bitecs'
 
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'

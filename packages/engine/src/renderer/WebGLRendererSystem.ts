@@ -34,7 +34,7 @@ import { PostProcessingSchema } from './interfaces/PostProcessingSchema'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { defineSystem, System } from '../ecs/bitecs'
+import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../ecs/classes/World'
 
 export enum RENDERER_SETTINGS {

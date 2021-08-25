@@ -29,7 +29,7 @@ import {
   WebGLRenderer
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
-import { defineQuery, defineSystem, System, Types } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, System, Types } from 'bitecs'
 import { AnimationClip, AnimationMixer } from 'three'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 

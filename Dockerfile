@@ -16,6 +16,7 @@ COPY package.json .
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/common/package.json ./packages/common/
+COPY packages/editor/package.json ./packages/editor/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/server/package.json ./packages/server/
