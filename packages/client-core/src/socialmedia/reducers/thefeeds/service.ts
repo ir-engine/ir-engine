@@ -5,7 +5,7 @@
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import { client } from '../../../feathers'
-import Api from '../../../world/components/editor/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { addTheFeeds, fetchingTheFeeds, thefeedsRetrieved, deleteTheFeeds, updateTheFeedsInList } from './actions'
 
 export function getTheFeedsNew() {
@@ -24,8 +24,7 @@ export function getTheFeedsNew() {
 export function createTheFeedsNew(data) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const api = new Api()
-      const storedVideo = await api.upload(data.video, null)
+      const storedVideo = await upload(data.video, null)
       console.log('storedVideo', storedVideo)
       const thefeeds = await client.service('thefeeds').create({
         title: data.title,
@@ -46,8 +45,7 @@ export function updateTheFeedsAsAdmin(data: any) {
     try {
       let thefeeds = { id: data.id, title: data.title, videoId: data.video, description: data.description }
       if (typeof data.video === 'object') {
-        const api = new Api()
-        const storedVideo = await api.upload(data.video, null)
+        const storedVideo = await upload(data.video, null)
         // @ts-ignore
         thefeeds['videoId'] = storedVideo.file_id
       }

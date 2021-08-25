@@ -11,7 +11,6 @@
     "apiServer": "https://${VITE_SERVER_HOST}:${VITE_SERVER_PORT}",
     "gameserver": "https://${VITE_GAMESERVER_HOST}:${VITE_GAMESERVER_PORT}",
     "mediatorServer": "${VITE_MEDIATOR_SERVER}",
-    "wasmUrl": "https://${VITE_APP_HOST}:${VITE_APP_PORT}/recast/recast.wasm",
     "feathersStoreKey": "TheOverlay-Auth-Store",
     "localStorageKey": "theoverlay-client-store-key-v1",
     "lobbyLocationName": "lobby",

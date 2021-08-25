@@ -11,7 +11,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
-import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from './EntityFunctions'
+import { hasComponent, removeAllComponents, removeEntity } from './EntityFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {

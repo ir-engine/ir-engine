@@ -1,4 +1,4 @@
-import { SCENES_FETCHED_ERROR, SCENES_FETCHED_SUCCESS, SET_CURRENT_SCENE } from '../../reducers/actions'
+import { SCENES_FETCHED_ERROR, SCENES_FETCHED_SUCCESS, SET_CURRENT_SCENE } from '../actions'
 import Immutable from 'immutable'
 import { PublicScenesState, ScenesFetchedAction } from './actions'
 
