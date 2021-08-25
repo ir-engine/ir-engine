@@ -9,7 +9,7 @@ import { AnimationSystem } from './avatar/AnimationSystem'
 import { AvatarControllerSystem } from './avatar/AvatarControllerSystem'
 import { ClientAvatarSpawnSystem } from './avatar/ClientAvatarSpawnSystem'
 import { ServerAvatarSpawnSystem, SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
-import { setupBotHooks } from './bot/functions/botHookFunctions'
+import { BotHookFunctions, BotHookSystem } from './bot/functions/botHookFunctions'
 import { CameraSystem } from './camera/systems/CameraSystem'
 import { now } from './common/functions/now'
 import { Timer } from './common/functions/Timer'
@@ -102,7 +102,10 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   await FontManager.instance.getDefaultFont()
 
-  setupBotHooks()
+  globalThis.botHooks = BotHookFunctions
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
 
   registerClientSystems(options, canvas)
 }
@@ -190,6 +193,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
+  registerSystem(SystemUpdateType.Free, BotHookSystem)
 }
 
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
