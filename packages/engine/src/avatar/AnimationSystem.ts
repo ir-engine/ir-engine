@@ -8,7 +8,7 @@ import { loadAvatar } from './functions/avatarFunctions'
 import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { ECSWorld } from '../ecs/classes/World'
-import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 
 export const AnimationSystem = async (): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])

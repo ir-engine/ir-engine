@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
