@@ -131,21 +131,6 @@ export const SceneObjectSystem = async (): Promise<System> => {
       ;(obj.value as unknown as Updatable).update(world.delta)
     }
 
-    for (const entity of transformObjectQuery(world)) {
-      const transform = getComponent(entity, TransformComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
-
-      if (!object3DComponent.value) {
-        console.warn('object3D component on entity', entity, ' is undefined')
-        continue
-      }
-
-      object3DComponent.value.position.copy(transform.position)
-      object3DComponent.value.quaternion.copy(transform.rotation)
-      object3DComponent.value.scale.copy(transform.scale)
-      object3DComponent.value.updateMatrixWorld()
-    }
-
     return world
   })
 }
