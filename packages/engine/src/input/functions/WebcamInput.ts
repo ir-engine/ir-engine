@@ -31,7 +31,7 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking = async () => {
   if (!faceWorker) {
-    faceWorker = Comlink.wrap(new Worker('./WebcamInputWorker'))
+    faceWorker = Comlink.wrap(new Worker('/worker.js'))
     await faceWorker.initialise()
   }
 
