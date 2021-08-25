@@ -36,7 +36,7 @@ export const initialCreatorState = {
     currentCreatorNotifications: {},
     followers: [],
     following: [],
-    fetching: false,
+    fetching: false
   }
 }
 
@@ -48,15 +48,15 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
       return state.set('fetchingCurrentCreator', true)
     case CURRENT_CREATOR_RETRIEVED:
       return state
-      .set('currentCreator', (action as CreatorRetrievedAction).creator)
-      .set(
-        'creators',
-        state.get('creators')?.map((creator) => {
-          if (creator.id === (action as CreatorRetrievedAction).creator.id) {
-            return { ...(action as CreatorRetrievedAction).creator }
-          }
-          return { ...creator }
-        })
+        .set('currentCreator', (action as CreatorRetrievedAction).creator)
+        .set(
+          'creators',
+          state.get('creators')?.map((creator) => {
+            if (creator.id === (action as CreatorRetrievedAction).creator.id) {
+              return { ...(action as CreatorRetrievedAction).creator }
+            }
+            return { ...creator }
+          })
         )
         .set('fetchingCurrentCreator', false)
         .set('updateNeeded', false)
@@ -90,9 +90,10 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
       return state.set('following', (action as CreatorsRetrievedAction).creators)
 
     case CREATOR_REMOVED:
-      return state
-      .set('currentCreator', null)
-      .set('creators', state.get('creators')?.filter((creator) => creator.id !== (action as CreatorRemoveAction).id))
+      return state.set('currentCreator', null).set(
+        'creators',
+        state.get('creators')?.filter((creator) => creator.id !== (action as CreatorRemoveAction).id)
+      )
   }
   return state
 }

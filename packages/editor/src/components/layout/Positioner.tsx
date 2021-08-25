@@ -453,10 +453,7 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
       const viewportWidth = document.documentElement.clientWidth
 
       // @ts-ignore
-      const {
-        rect,
-        position: finalPosition,
-      } = getPosition({
+      const { rect, position: finalPosition } = getPosition({
         position,
         targetRect,
         targetOffset: padding,

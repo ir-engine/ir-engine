@@ -15,7 +15,11 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createLocation, patchLocation, removeLocation } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+import {
+  createLocation,
+  patchLocation,
+  removeLocation
+} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import styles from '@xrengine/client-core/src/admin/components/Admin.module.scss'

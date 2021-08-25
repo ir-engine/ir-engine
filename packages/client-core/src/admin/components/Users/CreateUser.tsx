@@ -14,7 +14,7 @@ import { validateUserForm } from './validation'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
-import {useUserStyles,useUserStyle } from './styles'
+import { useUserStyles, useUserStyle } from './styles'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
@@ -71,8 +71,8 @@ const CreateUser = (props: Props) => {
     adminScopeState
   } = props
 
-  const classes =useUserStyles()
-  const classesx =useUserStyle()
+  const classes = useUserStyles()
+  const classesx = useUserStyle()
   const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false)
   const [state, setState] = React.useState({
     name: '',

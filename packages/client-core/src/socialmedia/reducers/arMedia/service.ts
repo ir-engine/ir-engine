@@ -61,10 +61,10 @@ export function getArMediaItem(itemId: string) {
 }
 
 const uploadFile = async (files) => {
-  const manifest = files.manifest instanceof File ? await upload(files.manifest, null) as any: null
-  const audio = files.audio instanceof File ? await upload(files.audio, null) as any: null
-  const dracosis = files.dracosis instanceof File ? await upload(files.dracosis, null) as any: null
-  const preview = files.preview instanceof File ? await upload(files.preview, null) as any: null
+  const manifest = files.manifest instanceof File ? ((await upload(files.manifest, null)) as any) : null
+  const audio = files.audio instanceof File ? ((await upload(files.audio, null)) as any) : null
+  const dracosis = files.dracosis instanceof File ? ((await upload(files.dracosis, null)) as any) : null
+  const preview = files.preview instanceof File ? ((await upload(files.preview, null)) as any) : null
   return {
     manifestId: manifest?.file_id,
     audioId: audio?.file_id,

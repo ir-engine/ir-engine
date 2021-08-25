@@ -1,7 +1,10 @@
 import { withRouter } from 'react-router-dom'
 import { ProjectDiagram } from '@styled-icons/fa-solid'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import { fetchAdminLocations, fetchLocationTypes } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+import {
+  fetchAdminLocations,
+  fetchLocationTypes
+} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
 import PropTypes from 'prop-types'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
@@ -47,7 +50,6 @@ import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/
 import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
 import { getToken } from '../../../engine/src/scene/functions/getToken'
 import { upload } from '../../../engine/src/scene/functions/upload'
-
 
 const maxUploadSize = 25
 
@@ -424,7 +426,7 @@ type EditorContainerState = {
  */
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
-    api: PropTypes.object.isRequired,
+    api: PropTypes.object.isRequired
   }
 
   constructor(props) {

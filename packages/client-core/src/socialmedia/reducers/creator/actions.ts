@@ -26,7 +26,7 @@ export interface CreatorsRetrievedAction {
 }
 
 export interface FetchingCreatorAction {
-  type: string,
+  type: string
 }
 export interface CreatorsNotificationsRetrievedAction {
   type: string

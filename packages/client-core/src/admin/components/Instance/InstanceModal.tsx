@@ -31,7 +31,7 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
+    authState: selectAuthState(state)
   }
 }
 

@@ -87,7 +87,7 @@ const contextMenuId = 'project-menu'
  *
  * @author Robert Long
  */
-class ProjectsPage extends Component<{ t: Function, history: any }> {
+class ProjectsPage extends Component<{ t: Function; history: any }> {
   static propTypes = {
     history: PropTypes.object.isRequired
   }

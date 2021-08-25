@@ -90,7 +90,14 @@ const SceneTable = (props: Props) => {
     deleteScene(sceneId)
   }
 
-  const createData = (id: string, name: string, type: string, description: string, entity: any, version: any): SceneData => {
+  const createData = (
+    id: string,
+    name: string,
+    type: string,
+    description: string,
+    entity: any,
+    version: any
+  ): SceneData => {
     return {
       id,
       name,

@@ -9,7 +9,6 @@ import { connect } from 'react-redux'
 import { selectArMediaState } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/selector'
 import { getArMediaService } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/service'
 
-
 const mapStateToProps = (state: any): any => {
   return {
     arMediaState: selectArMediaState(state)

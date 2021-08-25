@@ -130,8 +130,8 @@ export function createFeed({ title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds())
-      const storedVideo = await upload(video, null) as any
-      const storedPreview = await upload(preview, null) as any
+      const storedVideo = (await upload(video, null)) as any
+      const storedPreview = (await upload(preview, null)) as any
 
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
       if (storedVideo && storedPreview) {

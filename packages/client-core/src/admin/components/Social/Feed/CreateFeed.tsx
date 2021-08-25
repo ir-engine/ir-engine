@@ -7,7 +7,7 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import {useFeedStyles,useFeedStyle } from './styles'
+import { useFeedStyles, useFeedStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
@@ -27,8 +27,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const CreateFeeds = (props: Props) => {
   const { open, handleClose, createFeed, closeViewModel } = props
-  const classes =useFeedStyles()
-  const classesx =useFeedStyle()
+  const classes = useFeedStyles()
+  const classesx = useFeedStyle()
   const [state, setState] = useState({
     title: '',
     description: '',

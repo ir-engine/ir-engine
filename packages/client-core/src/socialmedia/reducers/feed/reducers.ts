@@ -214,12 +214,15 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
       return state
         .set(
           'feedsAdmin',
-          state.get('feedsAdmin').get('feeds').map((feed) => {
-            if (feed.id === (action as FeedRetrievedAction).feed.id) {
-              return { ...feed, ...(action as FeedRetrievedAction).feed }
-            }
-            return { ...feed }
-          })
+          state
+            .get('feedsAdmin')
+            .get('feeds')
+            .map((feed) => {
+              if (feed.id === (action as FeedRetrievedAction).feed.id) {
+                return { ...feed, ...(action as FeedRetrievedAction).feed }
+              }
+              return { ...feed }
+            })
         )
         .set('feedsAdminFetching', false)
 

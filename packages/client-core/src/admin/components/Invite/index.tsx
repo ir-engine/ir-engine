@@ -87,14 +87,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const InvitesConsole = (props: Props) => {
-  const {
-    authState,
-    fetchUsersAsAdmin,
-    sentInvites,
-    retrieveSentInvites,
-    retrieveReceivedInvites,
-    adminUserState
-  } = props
+  const { authState, fetchUsersAsAdmin, sentInvites, retrieveSentInvites, retrieveReceivedInvites, adminUserState } =
+    props
   const classes = useStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)

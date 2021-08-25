@@ -1,11 +1,5 @@
 import { Dispatch } from 'redux'
-import {
-  VideoCreationForm,
-  VideoUpdateForm,
-  videoCreated,
-  videoUpdated,
-  videoDeleted,
-} from './actions'
+import { VideoCreationForm, VideoUpdateForm, videoCreated, videoUpdated, videoDeleted } from './actions'
 
 import axios from 'axios'
 import { Config } from '@xrengine/common/src/config'

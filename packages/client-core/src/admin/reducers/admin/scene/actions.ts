@@ -1,4 +1,4 @@
-import { ADMIN_SCENES_RETRIEVED } from "../../actions";
+import { ADMIN_SCENES_RETRIEVED } from '../../actions'
 
 export interface CollectionsFetchedAction {
   type: string

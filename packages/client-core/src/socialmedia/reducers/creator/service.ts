@@ -32,9 +32,7 @@ export function createCreator(data?: any) {
         data.username = 'user_' + userNumber
       }
 
-      const creator = await client
-        .service('creator')
-        .create(data)
+      const creator = await client.service('creator').create(data)
       dispatch(creatorLoggedRetrieved(creator))
     } catch (err) {
       console.log(err)
@@ -56,15 +54,16 @@ export function getLoggedCreator() {
   }
 }
 
-export const fetchCreatorAsAdmin = () => async (dispatch: Dispatch, getState: any): Promise<any> => {
-  try {
-    const result = await client.service('creator').find({ query: { action: 'admin' } })
-    dispatch(creatorLoggedRetrieved(result))
-  } catch (error) {
-    console.error(error)
+export const fetchCreatorAsAdmin =
+  () =>
+  async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      const result = await client.service('creator').find({ query: { action: 'admin' } })
+      dispatch(creatorLoggedRetrieved(result))
+    } catch (error) {
+      console.error(error)
+    }
   }
-}
-
 
 export function getCreators(limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

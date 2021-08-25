@@ -5,7 +5,7 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import {useCreatorStyles,useCreatorStyle } from './styles'
+import { useCreatorStyles, useCreatorStyle } from './styles'
 import { creatorColumns, CreatorData } from './Variables'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
@@ -42,8 +42,8 @@ const mapStateToProps = (state: any): any => {
 
 const CreatorTable = (props: Props) => {
   const { fetchCreatorAsAdmin, authState, creatorState } = props
-  const classx =useCreatorStyles()
-  const classes =useCreatorStyle()
+  const classx = useCreatorStyles()
+  const classes = useCreatorStyle()
   const user = authState.get('user')
   const creator = creatorState.get('creators')
   const creatorData = creator.get('creators')

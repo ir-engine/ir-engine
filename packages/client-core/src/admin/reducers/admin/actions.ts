@@ -1,9 +1,5 @@
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
-import {
-  VIDEO_CREATED,
-  VIDEO_DELETED,
-  VIDEO_UPDATED
-} from '../actions'
+import { VIDEO_CREATED, VIDEO_DELETED, VIDEO_UPDATED } from '../actions'
 
 export interface VideoCreationForm {
   name: string
@@ -53,7 +49,6 @@ export interface VideoDeletedResponse {
   staticResourceType: string
 }
 
-
 export interface VideoCreatedAction {
   type: string
   data: StaticResource
@@ -67,7 +62,6 @@ export interface VideoUpdatedAction {
   type: string
   data: StaticResource
 }
-
 
 export function videoCreated(data: VideoCreatedResponse): VideoCreatedAction {
   return {

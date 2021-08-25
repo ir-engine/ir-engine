@@ -19,7 +19,6 @@ export interface ScenesFetchedAction {
   message?: string
 }
 
-
 export function scenesFetchedSuccess(scenes: PublicScene[]): ScenesFetchedAction {
   return {
     type: SCENES_FETCHED_SUCCESS,
@@ -33,8 +32,6 @@ export function scenesFetchedError(err: string): ScenesFetchedAction {
     message: err
   }
 }
-
-
 
 export function setCurrentScene(scene: PublicScene): ScenesFetchedAction {
   return {
