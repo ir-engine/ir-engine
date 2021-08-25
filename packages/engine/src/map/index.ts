@@ -1,5 +1,4 @@
 import { Position, Polygon, MultiPolygon } from 'geojson'
-import * as THREE from 'three'
 import { Group } from 'three'
 import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
@@ -11,6 +10,7 @@ import {
   createRoads,
   createWater,
   createLandUse,
+  createLabels,
   setGroundScaleAndPosition
 } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
@@ -35,18 +35,21 @@ export const create = async function (args: MapProps) {
   const roadsMesh = createRoads(vectorTiles, center)
   const waterMesh = createWater(vectorTiles, center)
   const landUseMesh = createLandUse(vectorTiles, center)
+  const labels = createLabels(vectorTiles, center, args.scale.x)
+
+  ;[buildingMesh, roadsMesh, waterMesh, landUseMesh].forEach((mesh) => {
+    mesh.scale.copy(args.scale)
+    group.add(mesh)
+  })
+
+  buildingMesh.scale.copy(args.scale)
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
-  group.add(buildingMesh)
-
-  group.add(roadsMesh)
-
-  group.add(groundMesh)
-
-  group.add(waterMesh)
-
-  group.add(landUseMesh)
+  labels.forEach((label) => {
+    label.scale.copy(args.scale)
+    group.add(label.object3d)
+  })
 
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
@@ -57,7 +60,7 @@ export const create = async function (args: MapProps) {
   centerTile = Object.assign(getCenterTile(center))
   scaleArg = args.scale.x
 
-  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
+  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels }
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
