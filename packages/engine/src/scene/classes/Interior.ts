@@ -54,7 +54,7 @@ void main()
     vec3 pos = vec3(uv * 2.0 - 1.0, -1.0);
     
     float fmin = min3(abs(viewInv) - viewInv * pos);
-    sampleDir = (sampleDir * fmin + pos).zxy;
+    sampleDir = sampleDir * fmin + pos;
 
     gl_FragColor = texture(cubemap, sampleDir);
 }`
