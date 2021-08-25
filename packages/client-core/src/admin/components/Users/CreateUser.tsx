@@ -281,10 +281,10 @@ const CreateUser = (props: Props) => {
               id="tags-standard"
               options={adminScopes}
               disableCloseOnSelect
-              filterOptions={(options) =>
+              filterOptions={(options: any) =>
                 options.filter((option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null)
               }
-              getOptionLabel={(option) => option.type}
+              getOptionLabel={(option: any) => option.type}
               renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
             />
           </Paper>

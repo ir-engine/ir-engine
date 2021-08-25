@@ -15,10 +15,7 @@ import i18n from 'i18next'
 export class ElementsSource extends BaseSource {
   component: typeof MediaSourcePanel
   editor: Editor
-  id: string
-  name: string
   disableUrl: boolean
-  searchDebounceTimeout: number
 
   //initializing variables for this component
   constructor(editor: Editor) {

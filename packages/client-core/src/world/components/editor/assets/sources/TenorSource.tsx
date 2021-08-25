@@ -14,7 +14,6 @@ export class TenorSource extends VideoMediaSource {
   searchPlaceholder: string
   searchLegalCopy: string
   privacyPolicyUrl: string
-  api: Api
 
   // initializing variables for this object
   constructor(api) {

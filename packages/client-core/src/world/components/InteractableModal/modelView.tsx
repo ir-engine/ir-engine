@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react'
-import '@google/model-viewer/dist/model-viewer'
+import * as GoogleModelView from '@google/model-viewer/dist/model-viewer'
 
 type ModelViewProps = {
   modelUrl: string
@@ -15,7 +15,7 @@ type ModelViewProps = {
 export const ModelView: FunctionComponent<ModelViewProps> = ({ modelUrl, iosModelUrl }: ModelViewProps) => {
   // @ts-ignore
   return (
-    <model-viewer
+    <GoogleModelView
       style={{ width: '100%', height: '300px' }}
       src={modelUrl}
       ios-src={iosModelUrl}

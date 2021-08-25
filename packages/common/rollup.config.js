@@ -14,7 +14,7 @@ const extensions = ['.js', '.ts', '.tsx'];
 const libraryName = 'common'
 
 export default {
-  input: './index.ts',
+  input: './src/index.ts',
   output: [{ file: "dist/common.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
   { file: "dist/common.es.js", format: 'es', sourcemap: true },
   ],

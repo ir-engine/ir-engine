@@ -12,8 +12,8 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { Dispatch, bindActionCreators } from 'redux'
-import { useStyles, useStyle } from './styles'
-import { columns, Data } from './variables'
+import { useSceneStyles, useSceneStyle } from './styles'
+import { sceneColumns, SceneData } from './variables'
 import TablePagination from '@material-ui/core/TablePagination'
 import { fetchAdminScenes, deleteScene } from '../../reducers/admin/scene/service'
 import { connect } from 'react-redux'
@@ -40,8 +40,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const SceneTable = (props: Props) => {
   const { fetchSceneAdmin, deleteScene, authState, adminSceneState } = props
-  const classx = useStyles()
-  const classes = useStyle()
+  const classx = useSceneStyles()
+  const classes = useSceneStyle()
   const user = authState.get('user')
   const scene = adminSceneState?.get('scenes')
   const sceneData = scene?.get('scenes')
@@ -90,7 +90,7 @@ const SceneTable = (props: Props) => {
     deleteScene(sceneId)
   }
 
-  const createData = (id: string, name: string, type: string, description: string, entity: any, version: any): Data => {
+  const createData = (id: string, name: string, type: string, description: string, entity: any, version: any): SceneData => {
     return {
       id,
       name,
@@ -133,7 +133,7 @@ const SceneTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {sceneColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -149,7 +149,7 @@ const SceneTable = (props: Props) => {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {sceneColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>

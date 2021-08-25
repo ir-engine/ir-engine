@@ -12,13 +12,13 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { validateFeedForm } from './validation'
-import { createFeed } from '../../../reducers/admin/Social/feeds/service'
+import { createFeed } from '../../../../socialmedia/reducers/feed/service'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   closeViewModel: (open: boolean) => void
-  createFeed?: (data: Record<string, string>) => void
+  createFeed?: typeof createFeed
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({

@@ -36,13 +36,10 @@ const assetTypeToNodeClass = {
  */
 export class AssetManifestSource extends BaseSource {
   editor: any
-  id: any
-  name: any
   manifestUrl: any
   assets: any[]
   tags: any[]
   loaded: boolean
-  searchDebounceTimeout: number
   searchPlaceholder: any
   fuse: Fuse<any>
 

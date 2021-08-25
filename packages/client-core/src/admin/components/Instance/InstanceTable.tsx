@@ -10,7 +10,7 @@ import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { columns, Data } from './variables'
+import { instanceColumns, InstanceData } from './variables'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { useInstanceStyle, useInstanceStyles } from './styles'
 
@@ -81,7 +81,7 @@ const InstanceTable = (props: Props) => {
     currentUsers: Number,
     locationId: any,
     channelId: string
-  ): Data => {
+  ): InstanceData => {
     return {
       id,
       ipAddress,
@@ -110,7 +110,7 @@ const InstanceTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {instanceColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -126,7 +126,7 @@ const InstanceTable = (props: Props) => {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {instanceColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>

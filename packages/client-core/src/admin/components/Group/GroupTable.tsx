@@ -12,10 +12,10 @@ import { TableContainer, TableHead, TablePagination, TableRow } from '@material-
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectGroupState } from '../../reducers/admin/group/selector'
-import { getGroupService, deleteGroup } from '../../reducers/admin/group/service'
+import { getGroupService, deleteGroupByAdmin } from '../../reducers/admin/group/service'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { columns, Data } from './Variables'
-import { useStyles, useStyle } from './styles'
+import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
 
 interface Props {
@@ -32,13 +32,13 @@ const mapStateToProps = (state: any): any => ({
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminGroup: bindActionCreators(getGroupService, dispatch),
-  deleteGroup: bindActionCreators(deleteGroup, dispatch)
+  deleteGroup: bindActionCreators(deleteGroupByAdmin, dispatch)
 })
 
 const GroupTable = (props: Props) => {
   const { adminGroupState, fetchAdminGroup, authState, deleteGroup } = props
-  const classes = useStyles()
-  const classx = useStyle()
+  const classes = useGroupStyles()
+  const classx = useGroupStyle()
 
   const user = authState.get('user')
   const [viewModel, setViewModel] = React.useState(false)

@@ -6,7 +6,8 @@ import {
   CreatorsAction,
   CreatorRetrievedAction,
   CreatorsRetrievedAction,
-  CreatorsNotificationsRetrievedAction
+  CreatorsNotificationsRetrievedAction,
+  CreatorRemoveAction
 } from './actions'
 
 import {
@@ -20,7 +21,8 @@ import {
   SET_CREATOR_NOT_FOLLOWED,
   CREATOR_FOLLOWING_RETRIEVED,
   CREATORS_FETCH,
-  CURRENT_CREATOR_FETCH
+  CURRENT_CREATOR_FETCH,
+  CREATOR_REMOVED
 } from '../actions'
 
 export const initialCreatorState = {
@@ -34,11 +36,11 @@ export const initialCreatorState = {
     currentCreatorNotifications: {},
     followers: [],
     following: [],
-    fetching: false
+    fetching: false,
   }
 }
 
-const immutableState = Immutable.fromJS(initialCreatorState)
+const immutableState = Immutable.fromJS(initialCreatorState) as any
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
   switch (action.type) {
@@ -46,17 +48,19 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
       return state.set('fetchingCurrentCreator', true)
     case CURRENT_CREATOR_RETRIEVED:
       return state
-        .set('currentCreator', (action as CreatorRetrievedAction).creator)
-        .set(
-          'creators',
-          state.get('creators')?.map((creator) => {
-            if (creator.id === (action as CreatorRetrievedAction).creator.id) {
-              return { ...(action as CreatorRetrievedAction).creator }
-            }
-            return { ...creator }
-          })
+      .set('currentCreator', (action as CreatorRetrievedAction).creator)
+      .set(
+        'creators',
+        state.get('creators')?.map((creator) => {
+          if (creator.id === (action as CreatorRetrievedAction).creator.id) {
+            return { ...(action as CreatorRetrievedAction).creator }
+          }
+          return { ...creator }
+        })
         )
         .set('fetchingCurrentCreator', false)
+        .set('updateNeeded', false)
+        .set('lastFetched', new Date())
 
     case CREATOR_FETCH:
       return state.set('fetchingCreator', true).set('creator', {})
@@ -84,6 +88,11 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
 
     case CREATOR_FOLLOWING_RETRIEVED:
       return state.set('following', (action as CreatorsRetrievedAction).creators)
+
+    case CREATOR_REMOVED:
+      return state
+      .set('currentCreator', null)
+      .set('creators', state.get('creators')?.filter((creator) => creator.id !== (action as CreatorRemoveAction).id))
   }
   return state
 }

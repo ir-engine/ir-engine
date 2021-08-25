@@ -75,7 +75,7 @@ const LocationModal = (props: Props): any => {
   const [maxUsers, setMaxUsers] = useState(10)
   const [videoEnabled, setVideoEnabled] = useState(false)
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
-  const [scene, setScene] = useState('')
+  const [scene, setScene] = useState(null)
   const [locationType, setLocationType] = useState('private')
   const adminScenes = adminSceneState.get('scenes').get('scenes')
   const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
@@ -149,7 +149,7 @@ const LocationModal = (props: Props): any => {
 
   useEffect(() => {
     if (currentScene) {
-      const temp = adminScenes.find((el) => el.sid === currentScene.projectId)
+      const temp = adminScenes.find((el) => el.sid === (currentScene as any).projectId)
       console.log('====================================')
       console.log(temp)
       console.log('====================================')

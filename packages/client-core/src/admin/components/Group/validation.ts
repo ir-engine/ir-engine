@@ -9,7 +9,7 @@ export const formValid = (rest, formErrors) => {
   let valid = true
 
   // validate form errors being empty
-  Object.values(formErrors).forEach((val) => {
+  Object.values(formErrors).forEach((val: any) => {
     val.length > 0 && (valid = false)
   })
 

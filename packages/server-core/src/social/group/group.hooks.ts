@@ -18,7 +18,7 @@ export default {
     patch: [
       groupPermissionAuthenticate(),
       async (context: HookContext): Promise<HookContext> => {
-        const foundItem = await context.app.service('scope').Model.findAll({
+        const foundItem = await (context.app.service('scope') as any).Model.findAll({
           where: {
             groupId: context.arguments[0]
           }

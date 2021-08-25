@@ -184,10 +184,12 @@ export const PostProcessingProperties = (props: Props) => {
       break
 
     case PostProcessingPropertyTypes.Color:
-      {
-        /* @ts-ignore */
-      }
-      renderVal = <ColorInput value={getPropertyValue()} onChange={onPropertyValueChanged} isValueAsInteger={true} />
+      renderVal = (
+        <>
+          {/* @ts-ignore */}
+          <ColorInput value={getPropertyValue()} onChange={onPropertyValueChanged} isValueAsInteger={true} />
+        </>
+      )
       break
 
     case PostProcessingPropertyTypes.KernelSize:

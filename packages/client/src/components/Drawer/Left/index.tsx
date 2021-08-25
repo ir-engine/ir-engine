@@ -12,7 +12,7 @@ import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/
 import { updateChatTarget, updateMessageScrollInit } from '@xrengine/client-core/src/social/reducers/chat/service'
 import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
 import { getFriends, unfriend } from '@xrengine/client-core/src/social/reducers/friend/service'
-import { selectGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
+import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
 import {
   createGroup,
   getGroups,
@@ -49,7 +49,7 @@ const mapStateToProps = (state: any): any => {
     authState: selectAuthState(state),
     chatState: selectChatState(state),
     friendState: selectFriendState(state),
-    groupState: selectGroupState(state),
+    groupState: selectSocialGroupState(state),
     locationState: selectLocationState(state),
     partyState: selectPartyState(state)
   }

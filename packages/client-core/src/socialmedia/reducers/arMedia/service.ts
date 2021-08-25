@@ -60,12 +60,12 @@ export function getArMediaItem(itemId: string) {
   }
 }
 
-const uploadtFIle = async (files) => {
+const uploadtFile = async (files) => {
   const api = new Api()
-  const manifest = files.manifest instanceof File ? await api.upload(files.manifest, null) : null
-  const audio = files.audio instanceof File ? await api.upload(files.audio, null) : null
-  const dracosis = files.dracosis instanceof File ? await api.upload(files.dracosis, null) : null
-  const preview = files.preview instanceof File ? await api.upload(files.preview, null) : null
+  const manifest = files.manifest instanceof File ? await api.upload(files.manifest, null) as any: null
+  const audio = files.audio instanceof File ? await api.upload(files.audio, null) as any : null
+  const dracosis = files.dracosis instanceof File ? await api.upload(files.dracosis, null) as any : null
+  const preview = files.preview instanceof File ? await api.upload(files.preview, null) as any : null
   return {
     manifestId: manifest?.file_id,
     audioId: audio?.file_id,
@@ -77,7 +77,7 @@ const uploadtFIle = async (files) => {
 export function createArMedia(mediaItem: any, files: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const file = await uploadtFIle(files)
+      const file = await uploadtFile(files)
       //@ts-ignore error that this vars are void because upload is defines as void function
       const newItem = await client.service('ar-media').create({
         ...mediaItem,
@@ -94,13 +94,13 @@ export function createArMedia(mediaItem: any, files: any) {
 export const updateArMedia =
   (mediaItem, files, id) =>
   async (dispatch: Dispatch): Promise<any> => {
-    const result = await uploadtFIle(files)
-    const newItem = await client.service('ar-media').patch(id, {
-      ...mediaItem,
-      ...result
-    })
-    dispatch(updateAdminArMedia(newItem))
     try {
+      const result = await uploadtFile(files)
+      const newItem = await client.service('ar-media').patch(id, {
+        ...mediaItem,
+        ...result
+      })
+      dispatch(updateAdminArMedia(newItem))
     } catch (error) {
       console.error(error)
       dispatchAlertError(dispatch, error.message)

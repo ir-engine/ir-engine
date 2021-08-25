@@ -456,7 +456,6 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
       const {
         rect,
         position: finalPosition,
-        transformOrigin
       } = getPosition({
         position,
         targetRect,
@@ -468,7 +467,7 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
 
       setTransformProps({
         finalPosition,
-        transformOrigin,
+        transformOrigin: transformProps.transformOrigin,
         transform: `translate(${rect.left}px, ${rect.top}px)`,
         opacity: 1
       })

@@ -42,11 +42,16 @@ const UniformButtonContainer = (styled as any).div`
 
 let uniqueId = 0
 
+type StateType = {
+  uniformEnabled: any
+  value: any
+}
+
 /**
  *
  * @author Robert Long
  */
-export class Vector2Input extends Component {
+export class Vector2Input extends Component<{}, StateType> {
   static propTypes = {
     uniformScaling: PropTypes.bool,
     value: PropTypes.object,
@@ -71,10 +76,6 @@ export class Vector2Input extends Component {
     }
   }
 
-  state: {
-    uniformEnabled: any
-    value: any
-  }
   id: number
   newValue: Vector2
 

@@ -21,7 +21,7 @@ export interface ArMediaOneAction {
   item: any
 }
 
-export interface FetchingAction {
+export interface ArMediaFetchingAction {
   type: string
 }
 
@@ -37,7 +37,7 @@ export interface ArMediaRetrievedItemAction {
 
 export type ArMediaAction =
   | ArMediaRetriveAction
-  | FetchingAction
+  | ArMediaFetchingAction
   | ArMediaOneAction
   | FetchingArMediaItemAction
   | ArMediaRetrievedItemAction
@@ -56,7 +56,7 @@ export function setArMedia(list: any[]): ArMediaRetriveAction {
   }
 }
 
-export function fetchingArMedia(): FetchingAction {
+export function fetchingArMedia(): ArMediaFetchingAction {
   return {
     type: ARMEDIA_FETCHING
   }

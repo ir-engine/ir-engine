@@ -8,8 +8,6 @@ import i18n from 'i18next'
  * @type {class component}
  */
 export class BingImagesSource extends ImageMediaSource {
-  id: string
-  name: string
   searchLegalCopy: string
   privacyPolicyUrl: string
 

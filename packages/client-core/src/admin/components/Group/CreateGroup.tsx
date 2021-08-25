@@ -1,7 +1,7 @@
 import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Container from '@material-ui/core/Container'
-import { useStyles, useStyle } from './styles'
+import { useGroupStyles, useGroupStyle } from './styles'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
@@ -11,7 +11,7 @@ import { formValid } from './validation'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { createGroup } from '../../reducers/admin/group/service'
+import { createGroupByAdmin } from '../../reducers/admin/group/service'
 import TextField from '@material-ui/core/TextField'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createGroupService: bindActionCreators(createGroup, dispatch),
+  createGroupService: bindActionCreators(createGroupByAdmin, dispatch),
   getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
 })
 
@@ -41,8 +41,8 @@ const mapStateToProps = (state: any): any => {
 
 const CreateGroup = (props: Props) => {
   const { open, handleClose, authState, createGroupService, getScopeTypeService, adminScopeState } = props
-  const classes = useStyles()
-  const classx = useStyle()
+  const classes = useGroupStyles()
+  const classx = useGroupStyle()
   const user = authState.get('user')
   const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
@@ -153,12 +153,12 @@ const CreateGroup = (props: Props) => {
                 id="tags-standard"
                 options={adminScopes}
                 disableCloseOnSelect
-                filterOptions={(options) =>
+                filterOptions={(options: any) =>
                   options.filter(
                     (option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null
                   )
                 }
-                getOptionLabel={(option) => option.type}
+                getOptionLabel={(option: any) => option.type}
                 renderInput={(params) => <TextField {...params} placeholder="Select access" />}
               />
             </Paper>

@@ -193,12 +193,12 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
 
     for (const entity of networkObjectsWithInputAddQuery(world)) {
       const input = getComponent(entity, InputComponent)
-      input.schema.onAdded(entity, delta)
+      input.schema.onAdded.push((entity, delta) => {})
     }
 
     for (const entity of networkObjectsWithInputRemoveQuery(world)) {
       const input = getComponent(entity, InputComponent, true)
-      input.schema.onRemove(entity, delta)
+      input.schema.onRemove.push((entity, delta) => {})
     }
 
     for (const entity of delegatedInputRoutingAddQuery(world)) {

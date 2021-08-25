@@ -7,7 +7,6 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import {useCreatorStyles,useCreatorStyle } from './styles'
 import { creatorColumns, CreatorData } from './Variables'
-import { fetchCreatorAsAdmin, deleteCreator } from '../../../reducers/admin/Social/creator/service'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -17,15 +16,16 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../../user/reducers/auth/selector'
-import { selectCreatorsState } from '../../../reducers/admin/Social/creator/selector'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
+import { selectCreatorsState } from '../../../../socialmedia/reducers/creator/selector'
+import { deleteCreator, fetchCreatorAsAdmin } from '../../../../socialmedia/reducers/creator/service'
 
 interface Props {
-  fetchCreatorAsAdmin?: () => void
+  fetchCreatorAsAdmin?: typeof fetchCreatorAsAdmin
   authState?: any
   creatorState?: any
-  deleteCreator?: any
+  deleteCreator?: typeof deleteCreator
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -45,8 +45,8 @@ const CreatorTable = (props: Props) => {
   const classx =useCreatorStyles()
   const classes =useCreatorStyle()
   const user = authState.get('user')
-  const creator = creatorState.get('creator')
-  const creatorData = creator.get('creator')
+  const creator = creatorState.get('creators')
+  const creatorData = creator.get('creators')
   const [singleCreator, setSingleCreator] = React.useState('')
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)

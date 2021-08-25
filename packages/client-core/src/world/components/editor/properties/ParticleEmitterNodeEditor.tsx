@@ -42,7 +42,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
 
   constructor(props: ParticleEmitterNodeEditorProps) {
     super(props)
-    this.props = props
   }
 
   //setting iconComponent name
@@ -50,8 +49,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
 
   //setting description and will appears on editor view
   static description = i18n.t('editor:properties.partileEmitter.description')
-
-  props: ParticleEmitterNodeEditorProps
 
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   updateParticles() {

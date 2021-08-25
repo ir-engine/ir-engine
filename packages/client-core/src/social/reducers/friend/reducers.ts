@@ -17,7 +17,7 @@ export const initialFriendState = {
   updateNeeded: true
 }
 
-const immutableState = Immutable.fromJS(initialFriendState)
+const immutableState = Immutable.fromJS(initialFriendState) as any
 
 const friendReducer = (state = immutableState, action: FriendAction): any => {
   let newValues, updateMap, updateMapFriends, updateMapFriendsChild, selfUser, otherUser, otherUserId

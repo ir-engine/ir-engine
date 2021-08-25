@@ -16,7 +16,7 @@ export const initialTipsAndTricksState = {
   tips_and_tricks: {}
 }
 
-const immutableState = Immutable.fromJS(initialTipsAndTricksState)
+const immutableState = Immutable.fromJS(initialTipsAndTricksState) as any
 
 const tipsAndTricksReducer = (state = immutableState, action: TipsAndTricksAction): any => {
   // const currentTipsAndTricks = state.get('tips_and_tricks');

@@ -10,13 +10,13 @@ import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createCreator } from '../../../reducers/admin/Social/creator/service'
+import { createCreator } from '../../../../socialmedia/reducers/creator/service'
 
 interface Props {
   open: boolean
   handleClose: any
   closeViewModel: any
-  createCreator?: any
+  createCreator?: typeof createCreator
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
