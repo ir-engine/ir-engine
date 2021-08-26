@@ -118,8 +118,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
         setModalValues({
           open: true,
-          title: 'Webgl disconnected',
-          body: 'Your browser not support webgl or webgl was disable.Please enable it.',
+          title: 'WebGL not enabled',
+          body: 'Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.',
           action: async () => window.location.reload(),
           timeout: 3600000
         })
