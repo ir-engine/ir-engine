@@ -53,3 +53,15 @@ export const VerticalScrollContainer = (styled as any)(Column)`
 export const HorizontalScrollContainer = (styled as any)(Row)`
   overflow-x: auto;
 `
+
+/**
+ * AssetsPanelContainer used as container element for asset penal.
+ *
+ * @author Robert Long
+ * @type {Styled component}
+ */
+export const AssetsPanelContainer = (styled as any)(Row)`
+ position: relative;
+ flex: 1;
+ background-color: ${(props) => props.theme.panel};
+`

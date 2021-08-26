@@ -26,7 +26,7 @@ const mapProjectSaveData = () => {
     })
     context.data.thumbnailOwnedFileId = context.data.ownedUploadedFileId.thumbnailOwnedFileId
     context.data.ownedFileIds = JSON.stringify(context.data.ownedUploadedFileId)
-
+    console.log('OwnedFileIDs are:' + context.data.ownedFileIds)
     return context
   }
 }

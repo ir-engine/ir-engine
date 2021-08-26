@@ -1,4 +1,4 @@
-import { ProjectDiagram } from '@styled-icons/fa-solid'
+import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { fetchAdminLocations } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
 import { selectAdminState } from '@xrengine/client-core/src/admin/reducers/admin/selector'
@@ -43,6 +43,7 @@ import PerformanceCheckDialog from './dialogs/PerformanceCheckDialog'
 import PublishDialog from './dialogs/PublishDialog'
 import PublishedSceneDialog from './dialogs/PublishedSceneDialog'
 import i18n from 'i18next'
+import FileBrowserPanel from './assets/FileBrowserPanel'
 
 /**
  * getSceneUrl used to create url for the scene.
@@ -1186,6 +1187,16 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     id: 'assetsPanel',
                     title: 'Elements',
                     content: <AssetsPanel />
+                  },
+                  {
+                    id: 'fileBrowserPanel',
+                    title: (
+                      <PanelDragContainer>
+                        <PanelIcon as={Archive} size={12} />
+                        <PanelTitle>File Browser</PanelTitle>
+                      </PanelDragContainer>
+                    ),
+                    content: <FileBrowserPanel />
                   }
                 ]
               }

@@ -16,6 +16,7 @@ export default () => {
         : config.server.localStorageProvider
 
     let savedFile
+    console.log('ProjectID is:' + body.projectId + ' previousFileId is:' + context.params.previousFileId)
     if (body.projectId && context.params.previousFileId) {
       // Update File instead of creating a new one if project exists to avoid orphan resources
       savedFile = await context.app.service('static-resource').patch(context.params.previousFileId, {
