@@ -5,6 +5,7 @@ import {
   createGroundMesh,
   createWater,
   createLandUse,
+  createLabels,
   safelySetGroundScaleAndPosition
 } from '@xrengine/engine/src/map/MeshBuilder'
 import { fetchVectorTiles, fetchRasterTiles } from '@xrengine/engine/src/map/MapBoxClient'
@@ -12,6 +13,7 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
 import { getStartCoords } from '@xrengine/engine/src/map'
 import { MapProps } from '@xrengine/engine/src/map/MapProps'
+import { GeoLabelNode } from '@xrengine/engine/src/map/GeoLabelNode'
 
 const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 
@@ -22,6 +24,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   static _material = new Material()
 
   mapLayers: { [name: string]: Object3D | undefined }
+
+  labels: GeoLabelNode[]
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
@@ -53,7 +57,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   applyScale(object3d: Object3D) {
     object3d.position.multiplyScalar(this.scale.x)
-    object3d.scale.multiplyScalar(this.scale.x)
+    object3d.scale.copy(this.scale)
   }
   async addMap(editor) {
     console.log('creating map')
@@ -80,6 +84,13 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       }
     })
     safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
+
+    this.labels = createLabels(vectorTiles, center)
+
+    this.labels.forEach((label) => {
+      label.scale.copy(this.scale)
+      this.add(label.object3d)
+    })
   }
   async refreshGroundLayer() {
     const center = await getStartCoords(this.getProps())
@@ -120,7 +131,13 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       this.addMap(this.editor)
     }
   }
-  onUpdate(delta: number, time: number) {}
+  onUpdate(delta: number, time: number) {
+    void delta
+    void time
+    this.labels?.forEach((label) => {
+      label.onUpdate(this.editor.camera)
+    })
+  }
   getProps(): MapProps {
     return {
       name: this.name,

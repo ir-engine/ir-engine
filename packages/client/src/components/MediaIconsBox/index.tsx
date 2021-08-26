@@ -18,12 +18,12 @@ import {
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from '../../reducers/mediastream/service'
-// import {
-//   startFaceTracking,
-//   startLipsyncTracking,
-//   stopFaceTracking,
-//   stopLipsyncTracking
-// } from '@xrengine/engine/src/input/functions/WebcamInput'
+import {
+  startFaceTracking,
+  startLipsyncTracking,
+  stopFaceTracking,
+  stopLipsyncTracking
+} from '@xrengine/engine/src/input/functions/WebcamInput'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -79,19 +79,19 @@ const MediaIconsBox = (props) => {
   }
   document.addEventListener('ENGINE_LOADED', onEngineLoaded)
 
-  // const handleFaceClick = async () => {
-  //   const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-  //   if (await configureMediaTransports(['video', 'audio'], partyId)) {
-  //     changeFaceTrackingState(!isFaceTrackingEnabled)
-  //     if (!isFaceTrackingEnabled) {
-  //       startFaceTracking()
-  //       startLipsyncTracking()
-  //     } else {
-  //       stopFaceTracking()
-  //       stopLipsyncTracking()
-  //     }
-  //   }
-  // }
+  const handleFaceClick = async () => {
+    const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
+    if (await configureMediaTransports(['video', 'audio'], partyId)) {
+      changeFaceTrackingState(!isFaceTrackingEnabled)
+      if (!isFaceTrackingEnabled) {
+        startFaceTracking()
+        startLipsyncTracking()
+      } else {
+        stopFaceTracking()
+        stopLipsyncTracking()
+      }
+    }
+  }
 
   const checkEndVideoChat = async () => {
     if (
@@ -159,14 +159,16 @@ const MediaIconsBox = (props) => {
           >
             <VideocamIcon />
           </button>
-          {/* <button
-            type="button"
-            id="UserFaceTracking"
-            className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')}
-            onClick={handleFaceClick}
-          >
-            <FaceIcon />
-          </button> */}
+          {
+            <button
+              type="button"
+              id="UserFaceTracking"
+              className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')}
+              onClick={handleFaceClick}
+            >
+              <FaceIcon />
+            </button>
+          }
         </>
       ) : null}
       {xrSupported ? (

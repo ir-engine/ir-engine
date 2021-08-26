@@ -36439,7 +36439,7 @@ host this content on a secure origin for the best user experience.
                 const DEFAULT_RESOLUTION = {width: 1024, height: 2048};
                 const DEFAULT_DEVICE_SIZE = {width: 0.05, height: 0.1, depth: 0.005};
                 const dispatchCustomEvent = (type, detail) => {
-                  window.dispatchEvent(new CustomEvent(type, {
+                  globalThis.EngineEvents.instance.dispatchEvent(new CustomEvent(type, {
                     detail: typeof cloneInto !== 'undefined' ? cloneInto(detail, window) : detail
                   }));
                 };
@@ -37010,7 +37010,7 @@ host this content on a secure origin for the best user experience.
                     }
                   }
                   _setupEventListeners() {
-                    window.addEventListener('webxr-device', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-device', event => {
                       const config = event.detail.deviceDefinition;
                       this.modes = config.modes || DEFAULT_MODES;
                       this.features = config.features || [];
@@ -37034,7 +37034,7 @@ host this content on a secure origin for the best user experience.
                         });
                       });
                     });
-                    window.addEventListener('webxr-pose', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-pose', event => {
                       const positionArray = event.detail.position;
                       const quaternionArray = event.detail.quaternion;
                       if (this.arDevice) {
@@ -37046,7 +37046,7 @@ host this content on a secure origin for the best user experience.
                         this._updatePose(positionArray, quaternionArray);
                       }
                     }, false);
-                    window.addEventListener('webxr-input-pose', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-input-pose', event => {
                       const positionArray = event.detail.position;
                       const quaternionArray = event.detail.quaternion;
                       const objectName = event.detail.objectName;
@@ -37075,7 +37075,7 @@ host this content on a secure origin for the best user experience.
                         }
                       }
                     });
-                    window.addEventListener('webxr-input-button', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-input-button', event => {
                       if (this.arDevice) {
                         return;
                       }
@@ -37091,7 +37091,7 @@ host this content on a secure origin for the best user experience.
                           break;
                       }
                     }, false);
-                    window.addEventListener('webxr-input-axes', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-input-axes', event => {
                       if (this.arDevice) {
                         return;
                       }
@@ -37107,10 +37107,10 @@ host this content on a secure origin for the best user experience.
                           break;
                       }
                     }, false);
-                    window.addEventListener('webxr-stereo-effect', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-stereo-effect', event => {
                       this._updateStereoEffect(event.detail.enabled);
                     });
-                    window.addEventListener('webxr-virtual-room-response', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-virtual-room-response', event => {
                       const virtualRoomAssetBuffer = event.detail.buffer;
                       this.arScene.loadVirtualRoomAsset(virtualRoomAssetBuffer);
                     });
@@ -37186,7 +37186,7 @@ host this content on a secure origin for the best user experience.
                         }
                       });
                     };
-                    window.addEventListener('webxr-exit-immersive', event => {
+                    globalThis.EngineEvents.instance.addEventListener('webxr-exit-immersive', event => {
                       if (activeImmersiveSession && !activeImmersiveSession.ended) {
                         activeImmersiveSession.end().then(() => {
                           activeImmersiveSession = null;
@@ -37277,14 +37277,14 @@ host this content on a secure origin for the best user experience.
                 const requestXRDevice$1 = async (global, config) => {
                   return new Promise((resolve, reject) => {
                     const callback = (event) => {
-                      window.removeEventListener('webxr-device-init', callback);
+                      globalThis.EngineEvents.instance.removeEventListener('webxr-device-init', callback);
                       resolve(new EmulatedXRDevice(global,
                         Object.assign({},
                           event.detail.deviceDefinition,
                           {stereoEffect: event.detail.stereoEffect}
                         )));
                     };
-                    window.addEventListener('webxr-device-init', callback, false);
+                    globalThis.EngineEvents.instance.addEventListener('webxr-device-init', callback, false);
                   });
                 };
                 const isNativeFunction = func => {

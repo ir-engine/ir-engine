@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { NameComponent } from '../components/NameComponent'
 
@@ -16,7 +16,7 @@ export const NamedEntitiesSystem = async (): Promise<System> => {
       const { name } = NameComponent.get(entity)
       if (world.world.namedEntities.has(name)) console.warn(`An Entity with name "${name}" already exists.`)
       world.world.namedEntities.set(name, entity)
-      console.log(`Added named entity '${name}'`)
+      // console.log(`Added named entity '${name}'`)
     }
 
     for (const entity of nameExitQuery(world)) {

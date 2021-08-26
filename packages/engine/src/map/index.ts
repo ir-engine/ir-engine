@@ -1,5 +1,4 @@
 import { Position, Polygon, MultiPolygon } from 'geojson'
-import * as THREE from 'three'
 import { Group } from 'three'
 import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
@@ -11,6 +10,7 @@ import {
   createRoads,
   createWater,
   createLandUse,
+  createLabels,
   setGroundScaleAndPosition
 } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
@@ -18,7 +18,6 @@ import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
 import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 import { METERS_PER_DEGREE_LL } from './constants'
-import { createGround } from '../scene/functions/createGround'
 
 let centerCoord = {}
 let centerTile = {}
@@ -36,29 +35,27 @@ export const create = async function (args: MapProps) {
   const roadsMesh = createRoads(vectorTiles, center)
   const waterMesh = createWater(vectorTiles, center)
   const landUseMesh = createLandUse(vectorTiles, center)
+  const labels = createLabels(vectorTiles, center)
+
+  ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
+    group.add(mesh)
+  })
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
-  group.add(buildingMesh)
-
-  group.add(roadsMesh)
-
-  group.add(groundMesh)
-
-  group.add(waterMesh)
-
-  group.add(landUseMesh)
+  labels.forEach((label) => {
+    label.scale.copy(args.scale)
+    group.add(label.object3d)
+  })
 
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
-  group.position.multiplyScalar(args.scale.x)
-  group.scale.multiplyScalar(args.scale.x)
   group.name = 'MapObject'
   centerCoord = Object.assign(center)
   centerTile = Object.assign(getCenterTile(center))
   scaleArg = args.scale.x
 
-  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
+  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels }
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {

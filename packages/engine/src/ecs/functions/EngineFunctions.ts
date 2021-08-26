@@ -4,14 +4,16 @@ import { Color } from 'three'
 import { PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
+import { isClient } from '../../common/functions/isClient'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
 import disposeScene from '../../renderer/functions/disposeScene'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
-import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from './EntityFunctions'
+import { hasComponent, removeAllComponents, removeEntity } from './EntityFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -77,7 +79,7 @@ export async function reset(): Promise<void> {
   Engine.prevInputState.clear()
 }
 
-export const executeSystemBeforeReset = (world: World = World.defaultWorld) => {
+export const executePipelines = (world: World = World.defaultWorld) => {
   Object.values(world.pipelines).forEach((pipeline) => {
     pipeline(world.ecsWorld)
   })
@@ -96,7 +98,7 @@ export const processLocationChange = async (): Promise<void> => {
     }
   })
 
-  executeSystemBeforeReset(World.defaultWorld)
+  executePipelines(World.defaultWorld)
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -114,7 +116,9 @@ export const processLocationChange = async (): Promise<void> => {
     removeEntity(entity)
   })
 
-  executeSystemBeforeReset(World.defaultWorld)
+  isClient && EngineRenderer.instance.resetPostProcessing()
+
+  executePipelines(World.defaultWorld)
 
   await resetPhysics()
 }

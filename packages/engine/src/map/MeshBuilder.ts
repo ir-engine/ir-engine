@@ -17,7 +17,6 @@ import {
   PlaneGeometry,
   MeshLambertMaterialParameters
 } from 'three'
-import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
@@ -26,12 +25,14 @@ import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
 import { METERS_PER_DEGREE_LL } from './constants'
+import { collectFeaturesByLayer } from './util'
+import { GeoLabelNode } from './GeoLabelNode'
 import { PI } from '../common/constants/MathConstants'
 
 // TODO free resources used by canvases, bitmaps etc
 
-export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
-  return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
+export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position, sceneScale = 1): Position {
+  return [(lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale, (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale]
 }
 
 export function llToScene2([lng, lat]: Position, [lngCenter, latCenter]: Position, scale = 1): Position {
@@ -289,27 +290,6 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
   return feature.geometry
 }
 
-function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D[] {
-  return features.map((f) => {
-    const myText = new Text()
-
-    const point = llToScene(centerOfMass(f).geometry.coordinates, llCenter)
-
-    // Set properties to configure:
-    myText.text = f.properties.type
-    myText.fontSize = 5
-    myText.position.y = (f.properties.height || 1) + 50
-    myText.position.x = point[0]
-    myText.position.z = point[1]
-    myText.color = 0x000000
-
-    // Update the rendering:
-    myText.sync()
-
-    return myText
-  })
-}
-
 export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   // Will be scaled according to building mesh
@@ -343,7 +323,7 @@ export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): 
 }
 
 export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Mesh {
-  const features = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
+  const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
   const meshes = buildMeshes('building', features, llCenter)
 
   return meshes[0]
@@ -351,9 +331,7 @@ export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Po
 
 function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
   const meshes = layers.reduce((accMeshes, layerName) => {
-    const featuresInLayer = vectorTiles.reduce((accFeatures, tile) => {
-      return [...accFeatures, ...tile[layerName]]
-    }, [])
+    const featuresInLayer = collectFeaturesByLayer(layerName, vectorTiles)
 
     const meshes = buildMeshes(layerName, featuresInLayer, llCenter)
     return [...accMeshes, ...meshes]
@@ -370,6 +348,19 @@ export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Positi
 export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
   return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter)
 }
+
+export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): GeoLabelNode[] {
+  const features = collectFeaturesByLayer('road', vectorTiles)
+  return features.reduce((acc, f) => {
+    if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
+      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter))
+
+      acc.push(labelView)
+    }
+    return acc
+  }, [])
+}
+
 export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
   return createLayerGroup(['landuse'], vectorTiles, llCenter)
 }
