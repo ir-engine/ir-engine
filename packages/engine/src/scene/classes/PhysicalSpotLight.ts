@@ -1,5 +1,5 @@
 import { SpotLight, Object3D } from 'three'
-import createShadowMapResolutionProxy from '../../editor/functions/createShadowMapResolutionProxy'
+import createShadowMapResolutionProxy from '@xrengine/engine/src/scene/functions/createShadowMapResolutionProxy'
 export default class PhysicalSpotLight extends SpotLight {
   maxOuterConeAngle: number
   shadowMapResolution: any

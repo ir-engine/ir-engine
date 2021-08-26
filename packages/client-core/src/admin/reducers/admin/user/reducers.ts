@@ -12,13 +12,10 @@ import {
   USER_ADMIN_REMOVED,
   USER_SEARCH_ADMIN,
   SINGLE_USER_ADMIN_LOADED,
-  STATIC_RESOURCE_RETRIEVED
+  STATIC_RESOURCE_RETRIEVED,
+  SINGLE_USER_ADMIN_REFETCH
 } from '../../actions'
-import {
-  USER_ROLE_RETRIEVED,
-  USER_ROLE_CREATED,
-  USER_ROLE_UPDATED
-} from '@xrengine/client-core/src/world/reducers/actions'
+import { USER_ROLE_RETRIEVED, USER_ROLE_CREATED, USER_ROLE_UPDATED } from '../../../../world/reducers/actions'
 // } from "../../actions";
 import { ADMIN_LOADED_USERS } from '../../actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
@@ -76,16 +73,8 @@ const adminReducer = (state = immutableState, action: any): any => {
     case ADMIN_LOADED_USERS:
       result = (action as LoadedUsersAction).users
       updateMap = new Map(state.get('users'))
-      let combinedUsers = state.get('users').get('users')
-      ;(result as any).data.forEach((item) => {
-        const match = combinedUsers.find((user) => user.id === item.id)
-        if (match == null) {
-          combinedUsers = combinedUsers.concat(item)
-        } else {
-          combinedUsers = combinedUsers.map((user) => (user.id === item.id ? item : user))
-        }
-      })
-      updateMap.set('users', combinedUsers)
+
+      updateMap.set('users', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)
@@ -157,6 +146,10 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false)
       updateMap.set('fetched', true)
       return state.set('staticResource', updateMap)
+    case SINGLE_USER_ADMIN_REFETCH:
+      updateMap = new Map(state.get('singleUser'))
+      updateMap.set('updateNeeded', true)
+      return state.set('singleUser', updateMap)
   }
 
   return state

@@ -251,9 +251,9 @@ const InstanceChat = (props: Props): any => {
                   }
                 }}
               />
-              <span className={styles.sendButton}>
+              {/*<span className={styles.sendButton}>
                 <SendButton onClick={packageMessage} />
-              </span>
+              </span>*/}
             </CardContent>
           </Card>
         </div>
@@ -266,13 +266,7 @@ const InstanceChat = (props: Props): any => {
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
           <Fab className={styles['chatBadge']} color="primary" onClick={() => toggleChatWindow()}>
-            {!chatWindowOpen ? (
-              <MessageButton />
-            ) : (
-              <div className={styles.iconContainer}>
-                <CloseButton onClick={() => toggleChatWindow()} />
-              </div>
-            )}
+            {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
           </Fab>
         </Badge>
       </div>

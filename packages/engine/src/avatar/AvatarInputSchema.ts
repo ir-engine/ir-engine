@@ -379,6 +379,10 @@ export const clickNavMesh: InputBehaviorType = (actorEntity, inputKey, inputValu
   }
 }
 
+export const resetAvatarInput = (entity: Entity, delta: number) => {
+  const inputComponent = getComponent(entity, InputComponent)
+}
+
 // what do we want this to look like?
 // instead of assigning a hardware input to a base input, we want to map them
 
@@ -485,8 +489,8 @@ export const createBehaviorMap = () => {
 }
 
 export const AvatarInputSchema: InputSchema = {
-  onAdded: () => {},
-  onRemove: () => {},
+  onAdded: [],
+  onRemove: [resetAvatarInput],
   inputMap: createAvatarInput(),
   behaviorMap: createBehaviorMap()
 }

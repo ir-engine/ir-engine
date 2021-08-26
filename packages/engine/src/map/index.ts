@@ -1,5 +1,4 @@
 import { Position, Polygon, MultiPolygon } from 'geojson'
-import * as THREE from 'three'
 import { Group } from 'three'
 import { NavMesh } from 'yuka'
 import { Engine } from '../ecs/classes/Engine'
@@ -11,6 +10,7 @@ import {
   createRoads,
   createWater,
   createLandUse,
+  createLabels,
   setGroundScaleAndPosition
 } from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
@@ -21,41 +21,41 @@ import { METERS_PER_DEGREE_LL } from './constants'
 
 let centerCoord = {}
 let centerTile = {}
+let scaleArg
 
-export const create = async function (renderer: THREE.WebGLRenderer, args: MapProps) {
+export const create = async function (args: MapProps) {
   console.log('addmap called with args:', args)
   const center = await getStartCoords(args)
   const vectorTiles = await fetchVectorTiles(center)
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
-  const buildingMesh = createBuildings(vectorTiles, center, renderer)
+  const buildingMesh = createBuildings(vectorTiles, center)
   const groundMesh = createGroundMesh(rasterTiles as any, center[1])
-  const roadsMesh = createRoads(vectorTiles, center, renderer)
-  const waterMesh = createWater(vectorTiles, center, renderer)
-  const landUseMesh = createLandUse(vectorTiles, center, renderer)
+  const roadsMesh = createRoads(vectorTiles, center)
+  const waterMesh = createWater(vectorTiles, center)
+  const landUseMesh = createLandUse(vectorTiles, center)
+  const labels = createLabels(vectorTiles, center)
+
+  ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
+    group.add(mesh)
+  })
 
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
-  group.add(buildingMesh)
-
-  group.add(roadsMesh)
-
-  group.add(groundMesh)
-
-  group.add(waterMesh)
-
-  group.add(landUseMesh)
+  labels.forEach((label) => {
+    label.scale.copy(args.scale)
+    group.add(label.object3d)
+  })
 
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
-  group.position.multiplyScalar(args.scale.x)
-  group.scale.multiplyScalar(args.scale.x)
   group.name = 'MapObject'
   centerCoord = Object.assign(center)
   centerTile = Object.assign(getCenterTile(center))
+  scaleArg = args.scale.x
 
-  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
+  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels }
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
@@ -75,34 +75,37 @@ const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position
   return builder.build()
 }
 
-export const updateMap = async function (
-  renderer: THREE.WebGLRenderer,
-  args: MapProps,
-  longtitude,
-  latitude,
-  position
-) {
+export const update = async function (args: MapProps, longtitude, latitude, position) {
   console.log('addmap called with args:', args)
   const center = [longtitude, latitude]
   const vectorTiles = await fetchVectorTiles(center)
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
+  const buildingMesh = createBuildings(vectorTiles, center)
+  const groundMesh = createGroundMesh(rasterTiles as any, center[1])
+  const roadsMesh = createRoads(vectorTiles, center)
 
-  group.add(createBuildings(vectorTiles, center, renderer))
+  setGroundScaleAndPosition(groundMesh, buildingMesh)
 
-  group.add(createRoads(vectorTiles, center, renderer))
+  group.add(buildingMesh)
+
+  group.add(roadsMesh)
+
+  group.add(groundMesh)
+
+  const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
   group.add(createGroundMesh(rasterTiles as any, center[1]))
 
   group.position.multiplyScalar(args.scale.x)
   group.scale.multiplyScalar(args.scale.x)
+  group.position.set(position.x, 0, position.z)
   group.name = 'MapObject'
-  group.position.set(-position.x, 0, -position.z)
-  console.log(group.position)
-  centerCoord = Object.assign(center)
-  Engine.scene.add(group)
-  return group
+  // centerCoord = Object.assign(center)
+  centerTile = Object.assign(getCenterTile(center))
+
+  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh }
 }
 
 export function getStartCoords(props: MapProps): Promise<Position> {
@@ -122,4 +125,8 @@ export const getCoord = () => {
 
 export const getTile = () => {
   return centerTile
+}
+
+export const getScaleArg = () => {
+  return scaleArg
 }

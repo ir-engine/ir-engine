@@ -16,54 +16,60 @@ import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { parseGeometry } from '../../map/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { delay } from '../../common/functions/delay'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) => {
+  const meshesToProcess = []
+
   res.traverse((mesh: Mesh) => {
-    if (typeof mesh.userData.entity !== 'undefined') {
-      const sceneEntityId = MathUtils.generateUUID()
-      const e = createEntity()
-      addComponent(e, NameComponent, { name: mesh.userData.entity })
-      delete mesh.userData.entity
-      delete mesh.userData.name
-
-      // apply root mesh's world transform to this mesh locally
-      applyTransformToMeshWorld(entity, mesh)
-      addComponent(e, TransformComponent, {
-        position: mesh.getWorldPosition(new Vector3()),
-        rotation: mesh.getWorldQuaternion(new Quaternion()),
-        scale: mesh.getWorldScale(new Vector3())
-      })
-      mesh.removeFromParent()
-      addComponent(e, Object3DComponent, { value: mesh })
-
-      const components = {}
-      const data = Object.entries(mesh.userData)
-
-      // find all components
-      for (const [key, value] of data) {
-        const parts = key.split('.')
-        if (parts.length > 1) {
-          if (typeof components[parts[0]] === 'undefined') {
-            components[parts[0]] = {}
-          }
-          components[parts[0]][parts[1]] = value
-        }
-      }
-      for (const [key, value] of Object.entries(components)) {
-        const component = {
-          name: key,
-          data: value,
-          sceneEntityId
-        } as SceneDataComponent
-        loadComponent(e, component)
-      }
+    if (typeof mesh.userData['xrengine.entity'] !== 'undefined') {
+      meshesToProcess.push(mesh)
     }
   })
+
+  for (const mesh of meshesToProcess) {
+    const sceneEntityId = MathUtils.generateUUID()
+    const e = createEntity()
+    addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] })
+    delete mesh.userData['xrengine.entity']
+    delete mesh.userData.name
+
+    // apply root mesh's world transform to this mesh locally
+    applyTransformToMeshWorld(entity, mesh)
+    addComponent(e, TransformComponent, {
+      position: mesh.getWorldPosition(new Vector3()),
+      rotation: mesh.getWorldQuaternion(new Quaternion()),
+      scale: mesh.getWorldScale(new Vector3())
+    })
+    mesh.removeFromParent()
+    addComponent(e, Object3DComponent, { value: mesh })
+
+    const components = {}
+    const data = Object.entries(mesh.userData)
+
+    // find all components
+    for (const [key, value] of data) {
+      const parts = key.split('.')
+      if (parts[0] === 'xrengine' && parts.length > 2) {
+        if (typeof components[parts[1]] === 'undefined') {
+          components[parts[1]] = {}
+        }
+        components[parts[1]][parts[2]] = value
+        delete mesh.userData[key]
+      }
+    }
+    for (const [key, value] of Object.entries(components)) {
+      const component = {
+        name: key,
+        data: value,
+        sceneEntityId
+      } as SceneDataComponent
+      loadComponent(e, component)
+    }
+  }
 }
 
 export const parseGLTFModel = (
@@ -71,16 +77,20 @@ export const parseGLTFModel = (
   entity: Entity,
   component: SceneDataComponent,
   sceneProperty: ScenePropertyType,
-  res: Mesh
+  scene: Mesh
 ) => {
+  // console.log(sceneLoader, entity, component, sceneProperty, scene)
+
+  addComponent(entity, Object3DComponent, { value: scene })
+
   // legacy physics loader
-  createCollidersFromModel(entity, res)
+  createCollidersFromModel(entity, scene)
 
   // DIRTY HACK TO LOAD NAVMESH
   if (component.data.src.match(/navmesh/)) {
     console.log('generate navmesh')
     let polygons = []
-    res.traverse((child: Mesh) => {
+    scene.traverse((child: Mesh) => {
       child.visible = false
       if (typeof child.geometry !== 'undefined' && child.geometry instanceof BufferGeometry) {
         const childPolygons = parseGeometry({
@@ -101,14 +111,14 @@ export const parseGLTFModel = (
       console.log('navMesh', navMesh)
       addComponent(entity, NavMeshComponent, {
         yukaNavMesh: navMesh,
-        navTarget: res
+        navTarget: scene
       })
       addComponent(entity, DebugNavMeshComponent, null)
     }
   }
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (res.animations && hasComponent(entity, Object3DComponent)) {
+  if (scene.animations && hasComponent(entity, Object3DComponent)) {
     // We only have to update the mixer time for this animations on each frame
     const object3d = getComponent(entity, Object3DComponent)
     const mixer = new AnimationMixer(object3d.value)
@@ -116,7 +126,7 @@ export const parseGLTFModel = (
     addComponent(entity, AnimationComponent, {
       mixer,
       animationSpeed: 1,
-      animations: res.animations
+      animations: scene.animations
     })
   }
 
@@ -143,14 +153,13 @@ export const parseGLTFModel = (
   }
 
   if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
-    applyTransformToMesh(entity, res)
-    res.traverse((child) => {
+    applyTransformToMesh(entity, scene)
+    scene.traverse((child) => {
       child.updateMatrixWorld(true)
       child.matrixAutoUpdate = false
     })
   }
-
-  parseObjectComponents(entity, res, (newEntity: Entity, newComponent: SceneDataComponent) => {
+  parseObjectComponents(entity, scene, (newEntity: Entity, newComponent: SceneDataComponent) => {
     sceneLoader.loadComponent(newEntity, newComponent, sceneProperty)
   })
 }
@@ -170,7 +179,6 @@ export const loadGLTFModel = (
         },
         (res) => {
           parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
-
           sceneLoader._onModelLoaded()
           resolve()
         },

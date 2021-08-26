@@ -159,14 +159,14 @@ const MediaIconsBox = (props) => {
           >
             <VideocamIcon />
           </button>
-          <button
+          {<button
             type="button"
             id="UserFaceTracking"
             className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')}
             onClick={handleFaceClick}
           >
             <FaceIcon />
-          </button>
+          </button>}
         </>
       ) : null}
       {xrSupported ? (

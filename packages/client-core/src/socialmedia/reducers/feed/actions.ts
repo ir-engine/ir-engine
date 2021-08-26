@@ -51,7 +51,17 @@ export interface oneFeedAction {
   feedId: string
 }
 
-export type FeedsAction = FeedsRetrievedAction | FeedRetrievedAction | FetchingFeedsAction | oneFeedAction
+export interface FeedRetrievedItemAction {
+  type: string
+  item: any
+}
+
+export type FeedsAction =
+  | FeedsRetrievedAction
+  | FeedRetrievedAction
+  | FetchingFeedsAction
+  | oneFeedAction
+  | FeedRetrievedItemAction
 
 export function feedsRetrieved(feeds: Feed[]): FeedsRetrievedAction {
   return {

@@ -24,7 +24,7 @@
 .instance-chat-container {
   position: absolute;
   bottom: 0;
-  display: flex;
+  display: grid;
   flex-direction: row;
   right: 0;
   width: 40vw;
@@ -45,7 +45,7 @@
   }
 
   .chat-view {
-    border-radius: 50px;
+    border-radius: 40px;
   }
 
   .chat-box {
@@ -72,6 +72,11 @@
     }
     .messageFieldContainer{
       margin:0px;
+      padding: 0 55px 0 20px;
+
+      label {
+        padding-left: 20px;
+      }
       .PrivateNotchedOutline-root-1{
         border: 0px;
       }
@@ -116,7 +121,7 @@
   .list-container {
     display: flex;
     flex-direction: column;
-    width: 50vw;
+    width: 40vw;
 
     @media (max-width: 768px) {
       width: 96vw;

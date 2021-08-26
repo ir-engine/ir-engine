@@ -8,7 +8,7 @@ import {
 } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import { io as ioclient, Socket } from 'socket.io-client'
 import {
   createDataProducer,
@@ -30,6 +30,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
     PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
     INSTANCE_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
+    INSTANCE_WEBGL_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
     INSTANCE_KICKED: 'CORE_INSTANCE_KICKED',
     INSTANCE_RECONNECTED: 'CORE_INSTANCE_RECONNECTED',
     CHANNEL_DISCONNECTED: 'CORE_CHANNEL_DISCONNECTED',

@@ -9,7 +9,7 @@ import { AnimationSystem } from './avatar/AnimationSystem'
 import { AvatarControllerSystem } from './avatar/AvatarControllerSystem'
 import { ClientAvatarSpawnSystem } from './avatar/ClientAvatarSpawnSystem'
 import { ServerAvatarSpawnSystem, SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
-import { setupBotHooks } from './bot/functions/botHookFunctions'
+import { BotHookFunctions, BotHookSystem } from './bot/functions/botHookFunctions'
 import { CameraSystem } from './camera/systems/CameraSystem'
 import { now } from './common/functions/now'
 import { Timer } from './common/functions/Timer'
@@ -44,7 +44,9 @@ import { XRSystem } from './xr/systems/XRSystem'
 import { FontManager } from './xrui/classes/FontManager'
 import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
+import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
+
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
@@ -52,7 +54,7 @@ Quaternion.prototype.toJSON = function () {
 
 // @ts-ignore
 Euler.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z }
+  return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
@@ -100,7 +102,10 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   await FontManager.instance.getDefaultFont()
 
-  setupBotHooks()
+  globalThis.botHooks = BotHookFunctions
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
 
   registerClientSystems(options, canvas)
 }
@@ -169,13 +174,14 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
   })
-  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, ParticleSystem)
   registerSystem(SystemUpdateType.Fixed, DebugHelpersSystem)
   registerSystem(SystemUpdateType.Fixed, AudioSystem)
   registerSystem(SystemUpdateType.Fixed, PositionalAudioSystem)
+  registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
@@ -184,10 +190,10 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
-  registerSystem(SystemUpdateType.Free, TransformSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
+  registerSystem(SystemUpdateType.Free, BotHookSystem)
 }
 
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
@@ -319,7 +325,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })
-  } else {
+  } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.engineTimer.start()
   }
 

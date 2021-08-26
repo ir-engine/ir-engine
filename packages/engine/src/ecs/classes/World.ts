@@ -1,4 +1,4 @@
-import { createWorld } from '../../ecs/bitecs'
+import { createWorld } from 'bitecs'
 import { createEntity } from '../functions/EntityFunctions'
 import { Entity } from './Entity'
 
@@ -24,6 +24,7 @@ export class World {
   ecsWorld: ECSWorld
   entities: Entity[]
   portalEntities: Entity[]
+  isInPortal = false
   pipelines: EnginePipelines
   namedEntities: Map<string, Entity>
 

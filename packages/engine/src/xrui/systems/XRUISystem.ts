@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, System } from 'bitecs'
 import { Engine } from '../../ecs/classes/Engine'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'

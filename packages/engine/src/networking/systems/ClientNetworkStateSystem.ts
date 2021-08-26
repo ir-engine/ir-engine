@@ -13,7 +13,7 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { spawnPrefab } from '../functions/spawnPrefab'
-import { defineSystem, System } from '../../ecs/bitecs'
+import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**
@@ -93,6 +93,8 @@ const forwardVector = new Vector3(0, 0, 1)
 
 export const ClientNetworkStateSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
+    const localAvatarNetworkId = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)?.networkId
+
     // Client logic
     const reliableQueue = Network.instance.incomingMessageQueueReliable
     // For each message, handle and process
@@ -162,11 +164,6 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
               NetworkObjectComponent
             ).networkId = objectToCreate.networkId
 
-            // if it's the local avatar
-            if (objectToCreate.networkId === Network.instance.localAvatarNetworkId) {
-              Network.instance.localAvatarNetworkId = objectToCreate.networkId
-            }
-
             continue
           }
 
@@ -198,7 +195,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
             continue
           }
 
-          if (Network.instance.localAvatarNetworkId === networkId) {
+          if (getComponent(Network.instance.localClientEntity, NetworkObjectComponent).networkId === networkId) {
             console.warn('Can not remove owner...')
             continue
           }
@@ -254,9 +251,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
             }
           }
 
-          const myPlayerTime = transformState.transforms.find(
-            (v) => v.networkId == Network.instance.localAvatarNetworkId
-          )
+          const myPlayerTime = transformState.transforms.find((v) => v.networkId === localAvatarNetworkId)
           const newServerSnapshot = createSnapshot(transformState.transforms)
           // server correction, time when client send inputs
           newServerSnapshot.timeCorrection = myPlayerTime
@@ -297,20 +292,22 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
       }
     }
 
-    const inputSnapshot = Vault.instance?.get()
-    if (inputSnapshot !== undefined) {
-      const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
-      Network.instance.transport.sendReliableData(buffer)
-      Network.instance.clientInputState = {
-        networkId: Network.instance.localAvatarNetworkId,
-        snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-        buttons: [],
-        axes1d: [],
-        axes2d: [],
-        axes6DOF: [],
-        viewVector: Network.instance.clientInputState.viewVector,
-        commands: [],
-        transforms: []
+    if (typeof Network.instance.localClientEntity !== 'undefined') {
+      const inputSnapshot = Vault.instance?.get()
+      if (inputSnapshot !== undefined) {
+        const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
+        Network.instance.transport.sendReliableData(buffer)
+        Network.instance.clientInputState = {
+          networkId: localAvatarNetworkId,
+          snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
+          buttons: [],
+          axes1d: [],
+          axes2d: [],
+          axes6DOF: [],
+          viewVector: Network.instance.clientInputState.viewVector,
+          commands: [],
+          transforms: []
+        }
       }
     }
 

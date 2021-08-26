@@ -211,7 +211,6 @@ export async function configureMediaTransports(
   channelId?: string
 ): Promise<boolean> {
   networkTransport = Network.instance.transport as any
-
   if (mediaTypes.indexOf('video') > -1 && MediaStreams.instance.videoStream == null) {
     await MediaStreams.instance.startCamera()
 

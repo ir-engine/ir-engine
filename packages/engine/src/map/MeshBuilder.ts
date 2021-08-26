@@ -8,7 +8,6 @@ import {
   Shape,
   ShapeGeometry,
   ExtrudeGeometry,
-  WebGLRenderer,
   BufferAttribute,
   Color,
   CanvasTexture,
@@ -18,7 +17,6 @@ import {
   PlaneGeometry,
   MeshLambertMaterialParameters
 } from 'three'
-import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
@@ -27,11 +25,13 @@ import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
 import { METERS_PER_DEGREE_LL } from './constants'
+import { collectFeaturesByLayer } from './util'
+import { GeoLabelNode } from './GeoLabelNode'
 
 // TODO free resources used by canvases, bitmaps etc
 
-export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
-  return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
+export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position, sceneScale = 1): Position {
+  return [(lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale, (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale]
 }
 
 function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
@@ -242,20 +242,11 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildMeshes(
-  layerName: ILayerName,
-  features: Feature[],
-  llCenter: Position,
-  renderer: WebGLRenderer
-): Mesh[] {
+export function buildMeshes(layerName: ILayerName, features: Feature[], llCenter: Position): Mesh[] {
   const geometries = buildGeometries(layerName, features, llCenter)
 
   return geometries.map((g, i) => {
     const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[i].properties.class)
-
-    const texture = new CanvasTexture(generateTextureCanvas())
-    texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
-    texture.needsUpdate = true
 
     const materialParams = {
       color: styles.color?.constant,
@@ -284,27 +275,6 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
   }
 
   return feature.geometry
-}
-
-function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D[] {
-  return features.map((f) => {
-    const myText = new Text()
-
-    const point = llToScene(centerOfMass(f).geometry.coordinates, llCenter)
-
-    // Set properties to configure:
-    myText.text = f.properties.type
-    myText.fontSize = 5
-    myText.position.y = (f.properties.height || 1) + 50
-    myText.position.x = point[0]
-    myText.position.z = point[1]
-    myText.color = 0x000000
-
-    // Update the rendering:
-    myText.sync()
-
-    return myText
-  })
 }
 
 export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
@@ -339,39 +309,47 @@ export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): 
   return mesh
 }
 
-export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Mesh {
-  const features = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
-  const meshes = buildMeshes('building', features, llCenter, renderer)
+export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Mesh {
+  const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
+  const meshes = buildMeshes('building', features, llCenter)
 
   return meshes[0]
 }
 
-function createLayerGroup(
-  layers: ILayerName[],
-  vectorTiles: TileFeaturesByLayer[],
-  llCenter: Position,
-  renderer: WebGLRenderer
-): Group {
+function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
   const meshes = layers.reduce((accMeshes, layerName) => {
-    const featuresInLayer = vectorTiles.reduce((accFeatures, tile) => {
-      return [...accFeatures, ...tile[layerName]]
-    }, [])
+    const featuresInLayer = collectFeaturesByLayer(layerName, vectorTiles)
 
-    const meshes = buildMeshes(layerName, featuresInLayer, llCenter, renderer)
+    const meshes = buildMeshes(layerName, featuresInLayer, llCenter)
     return [...accMeshes, ...meshes]
   }, [])
+  console.log('meshes is')
+  console.log(meshes)
   return new Group().add(...meshes)
 }
 
-export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  return createLayerGroup(['road'], vectorTiles, llCenter, renderer)
+export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+  return createLayerGroup(['road'], vectorTiles, llCenter)
 }
 
-export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter, renderer)
+export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+  return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter)
 }
-export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
-  return createLayerGroup(['landuse'], vectorTiles, llCenter, renderer)
+
+export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): GeoLabelNode[] {
+  const features = collectFeaturesByLayer('road', vectorTiles)
+  return features.reduce((acc, f) => {
+    if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
+      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter))
+
+      acc.push(labelView)
+    }
+    return acc
+  }, [])
+}
+
+export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+  return createLayerGroup(['landuse'], vectorTiles, llCenter)
 }
 
 /** Workaround for until we get the Web Mercator projection math right so that the ground and building meshes line up */

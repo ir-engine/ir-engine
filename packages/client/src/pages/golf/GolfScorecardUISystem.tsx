@@ -1,103 +1,43 @@
-import React from 'react'
-import { Vector3, Quaternion, Matrix4 } from 'three'
-import { useState } from '@hookstate/core'
-
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addComponent, getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { State, useState } from '@hookstate/core'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-
+import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { defineSystem } from 'bitecs'
+import React from 'react'
+import { Matrix4 } from 'three'
+import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
-import { getPlayerNumber } from './functions/golfBotHookFunctions'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { useUserState } from '../../../../client-core/src/user/store/UserState'
 
 export function createScorecardUI() {
-  const ui = createXRUI(GolfScorecardView, GolfState)
-
-  // addComponent(ui.entity, TransformComponent, {
-  //   position: new Vector3(),
-  //   rotation: new Quaternion(),
-  //   scale: new Vector3(1, 1, 1)
-  // })
-
-  return ui
-}
-
-const GolfHoles = () => {
-  const holes = useState(GolfState.holes)
-  return (
-    <div className="holes">
-      <span className="label">Hole</span>
-      {holes.map((_, i) => (
-        <span key={i}>{i}</span>
-      ))}
-    </div>
-  )
-}
-
-const GolfPar = () => {
-  const holes = useState(GolfState.holes)
-  return (
-    <div className="par">
-      <span>Par</span>
-      {holes.map((hole, i) => (
-        <span key={i}>{hole.par.value}</span>
-      ))}
-      <span className="total">{holes.reduce((prev, next) => prev + next.par.value, 0)}</span>
-    </div>
-  )
-}
-
-const GolfScores = () => {
-  const playerNumber = getPlayerNumber()
-  const playerColor = GolfColours[playerNumber]
-  const golfState = useXRUIState() as typeof GolfState
-  if (golfState.players.length === 0) return <div></div>
-  return (
-    <>
-      {golfState.players.map((player, i) => {
-        const scores = player.scores
-        return (
-          <div className="score" key={i}>
-            <span>{'' + player.id.value}</span>
-            {scores.value.map((score) => (
-              <span>{score}</span>
-            ))}
-            <span className="total">{scores.reduce((prev, next) => prev + next.value, 0)}</span>
-          </div>
-        )
-      })}
-    </>
-  )
+  return createXRUI(GolfScorecardView, GolfState)
 }
 
 function getUserById(id: string, userState: ReturnType<typeof useUserState>) {
   return userState.layerUsers.find((user) => user.id.value === id)
 }
 
-const GolfLabelsView = () => {
+const GolfLabelColumn = () => {
   const userState = useUserState()
   const players = useState(GolfState.players)
   return (
     <div
       id="labels"
+      xr-layer="true"
       style={{
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'flex-end',
-        padding: '15px 0px 15px 10px',
+        padding: '15px 10px',
+        gap: '10px',
         position: 'static',
         width: 'fit-content',
         height: 'fit-content',
-        fontFamily: 'Racing Sans One',
-        fontStyle: 'normal',
-        fontWeight: 'normal',
         textAlign: 'right',
         color: '#FFFFFF'
       }}
@@ -116,20 +56,20 @@ const GolfLabelsView = () => {
         style={{
           position: 'static',
           height: '40px',
-          fontSize: '15px',
+          fontSize: '18px',
           lineHeight: '19px'
         }}
       >
         Par
       </div>
       {players.map((p, i) => {
+        console.log('PLAYER ' + p.id.value)
         const color = GolfColours[i]
         return (
           <div
             key={i}
             style={{
               position: 'static',
-              width: '107px',
               height: '40px',
               fontSize: '30px',
               lineHeight: '38px',
@@ -145,10 +85,84 @@ const GolfLabelsView = () => {
   )
 }
 
+const GolfScoreBox = (props: { scoreState: State<number | undefined> }) => {
+  const score = useState(props.scoreState).value
+  return (
+    <div
+      style={{
+        width: '40px',
+        height: '40px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '9px',
+        fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        fontSize: '32px'
+      }}
+    >
+      {score ?? '-'}
+    </div>
+  )
+}
+
+const GolfHoleColumn = (props: { hole: number }) => {
+  const players = useState(GolfState.players)
+  const holeState = useState(GolfState.holes)
+  return (
+    <div
+      className="hole"
+      xr-layer="true"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        textAlign: 'center',
+        padding: '10px',
+        gap: '10px',
+        color: 'white',
+        paddingLeft: '10px'
+      }}
+    >
+      <div
+        style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #FFFFFF',
+          boxSizing: 'border-box',
+          borderRadius: '20px',
+          lineHeight: '32px',
+          fontSize: '20px'
+        }}
+      >
+        {props.hole}
+      </div>
+      <div
+        style={{
+          width: '40px',
+          height: '40px',
+          fontSize: '18px',
+          lineHeight: '30px'
+        }}
+      >
+        {holeState[props.hole].par.value}
+      </div>
+      {players.map((p, i) => (
+        <GolfScoreBox key={i} scoreState={p.scores[props.hole]}></GolfScoreBox>
+      ))}
+    </div>
+  )
+}
+
+const GolfFinalScoreColumn = () => {
+  return <></>
+}
+
 const GolfScorecardView = () => {
+  const holes = useState(GolfState.holes)
   return (
     <>
-      {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link> */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></link>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
       <div
         id="scorecard"
         style={{
@@ -160,36 +174,49 @@ const GolfScorecardView = () => {
           width: 'fit-content',
           height: 'fit-content',
           background: ' rgba(0, 0, 0, 0.51)',
-          border: '10px solid #FFFFFF',
+          border: '8px solid #FFFFFF',
           boxSizing: 'border-box',
-          boxShadow: '0px 4px 80px rgba(0, 0, 0, 0.57)',
-          borderRadius: '60px'
+          filter: 'drop-shadow(0 0 20px rgba(0, 0, 0, 0.57))',
+          borderRadius: '60px',
+          margin: '80px',
+          fontFamily: 'Racing Sans One',
+          fontStyle: 'normal',
+          fontWeight: 'normal'
         }}
       >
-        <GolfLabelsView />
+        <GolfLabelColumn />
+        {holes.map((h, i) => (
+          <GolfHoleColumn key={i} hole={i}></GolfHoleColumn>
+        ))}
+        <GolfFinalScoreColumn></GolfFinalScoreColumn>
       </div>
     </>
   )
 }
 
+const mat4 = new Matrix4()
+
 export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
   return defineSystem((world) => {
-    return world
+    // return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    const cameraMatrix = Engine.camera.matrix
-    // const uiTransform = getComponent(ui.entity, TransformComponent)
+    const cameraTransform = getHeadTransform(Network.instance.localClientEntity)
+    mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
 
+    // const uiTransform = getComponent(ui.entity, TransformComponent)
     const layer = uiComponent.layer
-    layer.position.set(0, 0, -1)
+    layer.position.set(0, 0, -0.5)
     layer.quaternion.set(0, 0, 0, 1)
     layer.scale.setScalar(1)
-    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(cameraMatrix)
+    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
+
+    // uiComponent.layer.querySelector()
 
     // uiTransform.rotation.copy(cameraTransform.rotation)
     // uiTransform.position.copy(cameraTransform.position)
