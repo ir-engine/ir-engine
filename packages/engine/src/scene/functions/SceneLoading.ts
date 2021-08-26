@@ -45,6 +45,7 @@ import { Water } from '../classes/Water'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
+import { Interior } from '../classes/Interior'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -329,6 +330,10 @@ export class WorldScene {
       case 'water':
         isClient && addObject3DComponent(entity, new Water(), component.data)
         isClient && addComponent(entity, UpdatableComponent, {})
+        break
+
+      case 'interior':
+        isClient && addObject3DComponent(entity, new Interior(), component.data)
         break
 
       case 'postprocessing':
