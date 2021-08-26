@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
+import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { FORWARD, UP } from '../constants/Vector3Constants'
 
 const boneWorldPosition = new Vector3(),
@@ -33,14 +34,14 @@ export class Chain {
     return this.chainBones[i].index
   }
 
-  setOffsets(fwd, up, tpose) {
+  setOffsets(fwd: Vector3, up: Vector3, tpose: Pose) {
     // ORIGINAL CODE
     // 	let b = tpose.bones[ this.bones[ 0 ].idx ],
     // 	q = Quat.invert( b.world.rot );	// Invert World Space Rotation
 
     // this.alt_fwd.from_quat( q, fwd );	// Use invert to get direction that will Recreate the real direction
     // this.alt_up.from_quat( q, up );
-    const b = tpose.bones[this.chainBones[0].index]
+    const b = tpose.bones[this.chainBones[0].index].bone
 
     const boneWorldQuaternion = new Quaternion()
     b.getWorldQuaternion(boneWorldQuaternion)
@@ -51,7 +52,7 @@ export class Chain {
     return this
   }
 
-  computeLengthFromBones(bones) {
+  computeLengthFromBones(bones: PoseBoneLocalState[]) {
     const end = this.cnt - 1
     let sum = 0,
       b,
@@ -71,7 +72,7 @@ export class Chain {
 
     // If End Point exists, Can calculate the final bone's length
     if (this.end_idx != null) {
-      bones[this.end_idx].getWorldPosition(boneWorldPosition)
+      bones[this.end_idx].bone.getWorldPosition(boneWorldPosition)
       this.chainBones[i].ref.getWorldPosition(childWorldPosition)
       b.length = boneWorldPosition.distanceTo(childWorldPosition)
       sum += b.length

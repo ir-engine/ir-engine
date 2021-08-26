@@ -6,6 +6,26 @@ import { IKObj } from '../components/IKObj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
 import { spin_bone_forward, align_chain, align_bone_forward } from '../functions/IKFunctions'
 
+export type PoseBoneLocalState = {
+  bone: Bone
+  parent: Bone | null
+  chg_state: number // If Local Has Been Updated
+  idx: number // Bone Index in Armature
+  p_idx: number | null // Parent Bone Index in Armature
+  length: number // Length of Bone
+  name: string
+  local: {
+    position: Vector3
+    quaternion: Quaternion
+    scale: Vector3
+  } // Local Transform, use Bind pose as default
+  world: {
+    position: Vector3
+    quaternion: Quaternion
+    scale: Vector3
+  } // Model Space Transform
+}
+
 class Pose {
   static ROTATION: any = 1
   static POSITION: any = 2
@@ -13,7 +33,7 @@ class Pose {
 
   entity: any
   skeleton: Skeleton
-  bones: Bone[]
+  bones: PoseBoneLocalState[]
   rootOffset = {
     quaternion: new Quaternion(),
     position: new Vector3(0, 0, 0),
@@ -51,24 +71,60 @@ class Pose {
 
   constructor(entity, clone) {
     this.entity = entity
+    this.bones = []
     const armature = getComponent(entity, IKObj).ref
     this.skeleton = clone
       ? SkeletonUtils.clone(armature.parent).children.find((skin) => skin.skeleton != null).skeleton
       : armature.parent.children.find((skin) => skin.skeleton != null).skeleton // Recreation of Bone Hierarchy
 
-    this.bones = this.skeleton.bones
+    // this.bones = this.skeleton.bones
     this.rootOffset = new Object3D() // Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Create Bone Transform Hierarchy to do transformations
+    // without changing the actual armature.
     for (let i = 0; i < this.skeleton.bones.length; i++) {
-      const b = this.skeleton.bones[i] as any
-      b['index'] = i
+      const b = this.skeleton.bones[i]
+      let p_idx, boneParent
+      if (b.parent && b.parent instanceof Bone) {
+        p_idx = this.skeleton.bones.indexOf(b.parent)
+        boneParent = b.parent
+      }
+
+      this.bones[i] = {
+        bone: b,
+        parent: boneParent,
+        chg_state: 0, // If Local Has Been Updated
+        idx: i, // Bone Index in Armature
+        p_idx: p_idx, // Parent Bone Index in Armature
+        length: 0, // Length of Bone
+        name: b.name,
+        local: {
+          position: b.position.clone(),
+          quaternion: b.quaternion.clone(),
+          scale: b.scale.clone()
+        }, // Local Transform, use Bind pose as default
+        world: {
+          position: new Vector3(),
+          quaternion: new Quaternion(),
+          scale: new Vector3()
+        } // Model Space Transform
+      }
+
+      b.getWorldPosition(this.bones[i].world.position)
+      b.getWorldQuaternion(this.bones[i].world.quaternion)
+      b.getWorldScale(this.bones[i].world.scale)
+
+      //b['index'] = i
       if (b.children.length > 0) {
         const bWorldPosition = new Vector3()
         const bChildWorldPosition = new Vector3()
         b.getWorldPosition(bWorldPosition)
         b.children[0].getWorldPosition(bChildWorldPosition)
-        b.length = bWorldPosition.distanceTo(bChildWorldPosition)
+        this.bones[i].length = bWorldPosition.distanceTo(bChildWorldPosition)
       }
     }
+
     this.skeleton.update()
   }
 
@@ -80,9 +136,10 @@ class Pose {
   }
 
   setBone(index: number, quaternion?: Quaternion, position?: Vector3, scale?: Vector3) {
-    if (quaternion) this.bones[index].quaternion.copy(quaternion)
-    if (position) this.bones[index].position.copy(position)
-    if (scale) this.bones[index].scale.copy(scale)
+    // TODO: check this out, they store this in separate structure that does not change original bone data
+    if (quaternion) this.bones[index].local.quaternion.copy(quaternion)
+    if (position) this.bones[index].local.position.copy(position)
+    if (scale) this.bones[index].local.scale.copy(scale)
     return this
   }
 
@@ -148,7 +205,7 @@ class Pose {
     // 	let cbone = this.bones[ b_idx ];
     // 	q = q || new Quat();
 
-    const bone = this.bones[boneIndex]
+    const bone = this.skeleton.bones[this.bones[boneIndex].idx]
     const q = new Quaternion()
 
     // ORIGINAL CODE

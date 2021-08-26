@@ -20,11 +20,12 @@ import {
   Skeleton,
   SkeletonHelper,
   SkinnedMesh,
+  Vector3,
   WebGLRenderer
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import Debug from '../../components/Debug'
-import { defineQuery, defineSystem, System } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, System } from 'bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { initRig, setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
@@ -113,11 +114,12 @@ async function initExample(world) {
 
   const ANIM_FILE = 'ikrig/anim/Walking.glb'
   const MODEL_A_FILE = 'ikrig/models/vegeta.glb'
+  const MODEL_B_FILE = 'ikrig/anim/Walking.glb'
   const ANIMATION_INDEX = 12
 
   // LOAD SOURCE
   let model = await LoadGLTF(ANIM_FILE)
-  console.log('Model is', model)
+  console.log('Animations model is', model)
   console.log('Animations:')
   model.animations.forEach((a, i) => console.log(i, a.name))
   // Set up skinned meshes
@@ -128,24 +130,26 @@ async function initExample(world) {
     if (node.children)
       node.children.forEach((n) => {
         if (n.type === 'SkinnedMesh') skinnedMeshes.push(n)
-        n.visible = false
+        // n.visible = false
       })
   })
   let skinnedMesh = skinnedMeshes.sort((a, b) => {
     return a.skeleton.bones.length - b.skeleton.bones.length
   })[0]
-  // if (!skinnedMesh) {
-  //   // try to create skinnedmesh with skeleton from what we have
-  //   const hipsBone = model.scene.getObjectByName('Hips')
-  //   console.log('hipBone', hipsBone)
-  //   const bones = []
-  //   hipsBone.traverse((b) => (b.type === 'Bone' ? bones.push(b) : null))
-  //   console.log('bones', bones)
-  //   skinnedMesh = new SkinnedMesh()
-  //   const skeleton = new Skeleton(bones)
-  //   skinnedMesh.bind(skeleton)
-  //   model.scene.add(skinnedMesh)
-  // }
+  console.log('skinnedMesh', skinnedMesh)
+  if (!skinnedMesh) {
+    // try to create skinnedmesh with skeleton from what we have
+    const hipsBone = model.scene.getObjectByName('Hips')
+    console.log('hipBone', hipsBone)
+    const bones = []
+    hipsBone.traverse((b) => (b.type === 'Bone' ? bones.push(b) : null))
+    console.log('bones', bones)
+    skinnedMesh = new SkinnedMesh()
+    // model.scene.add(skinnedMesh)
+    hipsBone.parent.add(skinnedMesh)
+    const skeleton = new Skeleton(bones)
+    skinnedMesh.bind(skeleton)
+  }
 
   // Set up entity
   let sourceEntity = createEntity(world.ecsWorld)
@@ -178,8 +182,24 @@ async function initExample(world) {
   ////////////////////////////////////////////////////////////////////////////
 
   // LOAD MESH A
-  let targetModel = await LoadGLTF(MODEL_A_FILE)
-  targetModel.scene.position.set(1, 0, 0)
+  loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0)).then((rig) => {
+    sourcePose.targetRigs.push(rig)
+    rig.tpose.apply()
+  })
+  loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(2, 0, 0)).then((rig) => {
+    sourcePose.targetRigs.push(rig)
+    rig.tpose.apply()
+  })
+
+  // // TODO: Fix me
+  // targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
+
+  ////////////////////////////////////////////////////////////////////////////
+}
+
+async function loadAndSetupModel(filename, sourceEntity, position) {
+  let targetModel = await LoadGLTF(filename)
+  targetModel.scene.position.copy(position)
   Engine.scene.add(targetModel.scene)
   // Engine.scene.add(new SkeletonHelper(targetModel.scene));
   let targetSkinnedMeshes = []
@@ -228,7 +248,7 @@ async function initExample(world) {
     targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale)
   }
 
-  const helper = new SkeletonHelper(targetRig.pose.bones[0])
+  const helper = new SkeletonHelper(targetRig.pose.bones[0].bone)
   Engine.scene.add(helper)
 
   // targetRig.tpose.align_leg(['LeftUpLeg', 'LeftLeg'])
@@ -239,14 +259,7 @@ async function initExample(world) {
   // targetRig.tpose.align_foot('RightFoot')
   //targetRig.tpose.build()
 
-  sourcePose.targetRigs.push(targetRig)
-
-  targetRig.tpose.apply()
-
-  // // TODO: Fix me
-  // targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
-
-  ////////////////////////////////////////////////////////////////////////////
+  return targetRig
 }
 
 async function initThree() {
