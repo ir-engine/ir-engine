@@ -24,6 +24,7 @@ import { getCreator } from '../../reducers/creator/service'
 import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { clearCreatorFeatured } from '../../reducers/feed/service'
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -36,7 +37,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getCreator: bindActionCreators(getCreator, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
   updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
-  clearCreatorFeatured: bindActionCreators(clearCreatorFeatured, dispatch)
+  clearCreatorFeatured: bindActionCreators(clearCreatorFeatured, dispatch),
+
   // followCreator: bindActionCreators(followCreator, dispatch),
   // unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
   // getFollowersList: bindActionCreators(getFollowersList, dispatch),
@@ -67,6 +69,10 @@ const CreatorCard = ({
 }: Props) => {
   const isMe = creator?.id === creatorState?.get('currentCreator').id
   const { t } = useTranslation()
+  const [openReport, setOpenReport] = React.useState(false)
+  const [openBlock, setOpenBlock] = React.useState(false)
+  const [reported, setReported] = React.useState(false)
+  
 
   // const [openFiredModal, setOpenFiredModal] = useState(false);
   // const [creatorsType, setCreatorsType] = useState('followers');
@@ -119,8 +125,29 @@ const CreatorCard = ({
   )
 
   const handleReportUser = () => {
-    alert('Uesr Reported')
+    setOpenReport(true)
+    console.log(creator.username)
+   
   }
+
+  const handleCloseReport = () => {
+    setOpenReport(false)
+  }
+
+  const handleAddReport = () => {
+    // addReportToUser()
+    // setReported(true)
+  }
+
+  const handleBlockUser = () => {
+    setOpenBlock(true)
+  }
+
+  const handleCloseBlock = () => {
+    setOpenBlock(false)
+  }
+
+  
 
   return creator ? (
     <>
@@ -154,7 +181,57 @@ const CreatorCard = ({
           <Typography className={styles.titleContainer}>{creator.name}</Typography>
           <Typography className={styles.tags}>{creator.tags}</Typography>
           <Typography>{creator.bio}</Typography>
-          {isMe ? ' ' : <Button onClick={handleReportUser}>REPORT USER</Button>}
+          {isMe ? ' ' : <Button onClick={handleReportUser}>Report</Button>}
+          <br/>
+          {isMe ? ' ' : <Button onClick={handleBlockUser}>Block User</Button>}
+          <Dialog
+        open={openReport}
+        onClose={handleCloseReport}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Let Google help apps determine location. This means sending anonymous location data to
+            Google, even when no apps are running.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseReport} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleAddReport} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openBlock} onClose={handleCloseBlock} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            To subscribe to this website, please enter your email address here. We will send updates
+            occasionally.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Email Address"
+            type="email"
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseBlock} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleCloseBlock} color="primary">
+            Subscribe
+          </Button>
+        </DialogActions>
+      </Dialog>
 
           {/* {!isMe && creator.followed === false && <Button variant={'contained'} color='primary' className={styles.followButton} 
                             onClick={()=>handleFollowCreator(creator.id)}>Follow</Button>}

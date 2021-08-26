@@ -34,6 +34,9 @@ export default {
         },
         policy: {
           type: 'boolean'
+        },
+        isBlocked: {
+          type: 'boolean'
         }
       }
     },

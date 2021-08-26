@@ -12,6 +12,7 @@ import {
   PerspectiveCamera,
   Quaternion,
   Scene,
+  sRGBEncoding,
   Vector3,
   WebGLRenderer
 } from 'three'
@@ -335,6 +336,7 @@ export const WebXRPlugin = ({
       }
       const renderer = rendererRef.current
 
+      renderer.outputEncoding = sRGBEncoding
       renderer.setSize(window.innerWidth, window.innerHeight)
       renderer.domElement.style.position = 'fixed'
       renderer.domElement.style.width = '100vw'

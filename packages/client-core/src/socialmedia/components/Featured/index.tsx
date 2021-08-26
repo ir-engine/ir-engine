@@ -151,6 +151,7 @@ const Featured = ({
     <section className={styles.feedContainer}>
       {feedsList && feedsList.length > 0 ? (
         feedsList.map((item, itemIndex) => {
+          console.log(itemIndex)
           const sizeIndex =
             itemIndex === 0 || itemIndex % 8 === 0 || itemIndex % 8 === 2 || itemIndex % 8 === 5
               ? 'listItem_width2'

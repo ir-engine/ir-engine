@@ -32,6 +32,7 @@ import mockupIPhone from '/static/images/mockupIPhone.jpg'
 import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import TermsAndPolicy from '../../../client-core/src/socialmedia/components/TermsandPolicy'
+import Blocked from '../../../client-core/src/socialmedia/components/Blocked'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -97,13 +98,23 @@ const Home = ({
   const platformClass = isIOS ? styles.isIos : ''
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
-  if ((!currentCreator || currentCreator === null) || splashTimeout) {
+  if ((!currentCreator || currentCreator === null) || splashTimeout && currentCreator.isBlocked == false) {
     //add additional duration Splash after initialized user
     const splash = setTimeout(()=>{
       setSplashTimeout(false);
       clearTimeout(splash);
     }, 5000)
     return <Splash />
+  }
+
+  if (currentCreator.isBlocked == true) {
+    return (
+    <div>
+      <Splash />
+      <Blocked />
+    </div>
+    ) 
+  
   }
 
   if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
@@ -116,6 +127,7 @@ const Home = ({
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
+        {/* <Blocked /> */}
         {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
         <ArMediaPopup />
         <WebXRStart

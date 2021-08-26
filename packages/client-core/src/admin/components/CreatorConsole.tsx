@@ -30,6 +30,7 @@ import CreatorForm from '../../socialmedia/components/CreatorForm'
 import SharedModal from './SharedModal'
 import CreatorCard from '../../socialmedia/components/CreatorCard'
 import { updateCreator } from '../../socialmedia/reducers/creator/service'
+import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -172,6 +173,8 @@ const CreatorConsole = (props: Props) => {
   const handleUpdateCreator = (creator) => {
     updateCreator(creator)
   }
+ 
+
   return (
     <div>
       <Typography variant="h1" color="primary">
@@ -228,6 +231,10 @@ const CreatorConsole = (props: Props) => {
                       <TableCell className={styles.tcell} align="right">
                         {row.createdAt}
                       </TableCell>
+                      <Typography variant="h3" color="textPrimary">
+                            <ReportOutlinedIcon htmlColor="#FF0000" />
+                            {row.reports}
+                          </Typography>
                       <TableCell className={styles.tcell + ' ' + styles.actionCell}>
                         {row.verified === 1 ? (
                           <Button
@@ -244,6 +251,23 @@ const CreatorConsole = (props: Props) => {
                             onClick={() => handleUpdateCreator({ id: row.id.toString(), verified: 1 })}
                           >
                             Verify
+                          </Button>
+                        )}
+                        {row.isBlocked === 1 ? (
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleUpdateCreator({ id: row.id.toString(), isBlocked: 0 })}
+                          >
+                           unBlock User
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleUpdateCreator({ id: row.id.toString(), isBlocked: 1 })}
+                          >
+                            Block User
                           </Button>
                         )}
                         <Button

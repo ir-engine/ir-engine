@@ -22,6 +22,10 @@ export default (app: Application): any => {
         type: DataTypes.BOOLEAN,
         defaultValue: (): boolean => false
       },
+      isBlocked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: (): boolean => false
+      },
       terms: {
         type: DataTypes.BOOLEAN,
         defaultValue: (): boolean => false

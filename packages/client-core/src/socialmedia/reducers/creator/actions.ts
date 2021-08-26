@@ -32,7 +32,7 @@ export interface CreatorsNotificationsRetrievedAction {
   notifications: any[]
 }
 
-export type CreatorsAction = CreatorRetrievedAction | FetchingCreatorAction | CreatorsRetrievedAction
+export type CreatorsAction = CreatorRetrievedAction | FetchingCreatorAction | CreatorsRetrievedAction 
 
 export function creatorLoggedRetrieved(creator: Creator): CreatorRetrievedAction {
   return {
@@ -104,3 +104,4 @@ export function creatorFollowing(creators: CreatorShort[]): CreatorsRetrievedAct
     creators
   }
 }
+
