@@ -67,7 +67,7 @@
     "@google-cloud/agones-sdk": "1.16.0",
     "@xrengine/engine": "^0.3.37",
     "@xrengine/server-core": "^0.3.37",
-    "aws-sdk": "2.975.0",
+    "aws-sdk": "2.976.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "comlink": "4.3.1",
@@ -124,7 +124,7 @@
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
     "no-master-commits": "1.1.1",
-    "semantic-release": "17.4.6",
+    "semantic-release": "17.4.7",
     "semantic-release-monorepo": "7.0.5",
     "typedoc": "0.21.6",
     "typescript": "4.3.5"
