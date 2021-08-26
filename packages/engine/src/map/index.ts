@@ -38,7 +38,6 @@ export const create = async function (args: MapProps) {
   const labels = createLabels(vectorTiles, center, args.scale.x)
 
   ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
-    mesh.scale.copy(args.scale)
     group.add(mesh)
   })
 
