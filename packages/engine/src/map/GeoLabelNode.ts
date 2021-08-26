@@ -57,7 +57,7 @@ export class GeoLabelNode {
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
 
-    this.object3d.position.y = 15
+    this.object3d.position.y = 15 / this.scale.x
     this.object3d.position.x = x1
     // for some reason the positions are mirrored along the X-axis
     this.object3d.position.z = y1 * -1
@@ -78,7 +78,7 @@ export class GeoLabelNode {
       this.object3d.visible = this.object3d.position.distanceTo(camera.position) < visibleDistanceMax
     }
 
-    this.object3d.fontSize = DEFAULT_FONT_SIZE * this.scale.x
+    // this.object3d.fontSize = DEFAULT_FONT_SIZE * this.scale.x
     this.object3d.sync()
   }
 }
