@@ -9,7 +9,7 @@ interface VideoProps {
 export const VideoRecording = ({ timeLimit = 5000 }: VideoProps) => {
   return (
     <section style={{ height: '100vh', width: '100vw' }}>
-      <AppHeader logo="/assets/logoBlack.png" />
+      <AppHeader title={"CREATOR"} />
       <VideoRecorder
         timeLimit={timeLimit}
         isOnInitially
