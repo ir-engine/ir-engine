@@ -336,9 +336,11 @@ function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer
     const meshes = buildMeshes(layerName, featuresInLayer, llCenter)
     return [...accMeshes, ...meshes]
   }, [])
-  console.log('meshes is')
-  console.log(meshes)
-  return new Group().add(...meshes)
+  const group = new Group()
+  if (meshes.length) {
+    group.add(...meshes)
+  }
+  return group
 }
 
 export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {

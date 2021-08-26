@@ -83,9 +83,9 @@ async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitma
   return createImageBitmap(blob)
 }
 
-function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, tileY: number) => void) {
-  const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
-  const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
+function forEachSurroundingTile(llPosition: Position, callback: (tileX: number, tileY: number) => void) {
+  const tileX0 = long2tile(llPosition[0], TILE_ZOOM)
+  const tileY0 = lat2tile(llPosition[1], TILE_ZOOM)
   const startIndex = -WHOLE_NUMBER_OF_TILES_FROM_CENTER
   const endIndex = NUMBER_OF_TILES_IS_ODD ? WHOLE_NUMBER_OF_TILES_FROM_CENTER : WHOLE_NUMBER_OF_TILES_FROM_CENTER - 1
   for (let i = startIndex; i <= endIndex; i++) {
@@ -97,10 +97,10 @@ function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, ti
   }
 }
 
-export function getCenterTile(llCenter: Position) {
-  const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
-  const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
-  return [tileX0, tileY0]
+export function llToTile(llPosition: Position) {
+  const tileX = long2tile(llPosition[0], TILE_ZOOM)
+  const tileY = lat2tile(llPosition[1], TILE_ZOOM)
+  return [tileX, tileY]
 }
 
 /**
