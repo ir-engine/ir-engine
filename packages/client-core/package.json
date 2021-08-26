@@ -47,7 +47,7 @@
     "@types/react-infinite-scroller": "1.2.2",
     "@types/react-redux": "7.1.18",
     "@types/react-router-dom": "5.1.8",
-    "@types/styled-components": "5.1.12",
+    "@types/styled-components": "5.1.13",
     "@typescript-eslint/eslint-plugin": "4.29.3",
     "@typescript-eslint/parser": "4.29.3",
     "@xrengine/common": "^0.3.37",
