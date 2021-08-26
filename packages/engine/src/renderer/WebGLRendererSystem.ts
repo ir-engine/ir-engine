@@ -145,6 +145,13 @@ export class EngineRenderer {
     const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
+    if (!context) {
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.ERROR,
+        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+      })
+    }
+
     this.renderContext = context
     const options: any = {
       canvas,
