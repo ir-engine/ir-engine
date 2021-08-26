@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/editor",
-  "version": "0.3.37",
+  "version": "0.4.0",
   "module": "dist/editor.es.js",
   "repository": {
     "type": "git",
@@ -50,8 +50,8 @@
     "@types/styled-components": "5.1.13",
     "@typescript-eslint/eslint-plugin": "4.29.2",
     "@typescript-eslint/parser": "4.29.2",
-    "@xrengine/common": "^0.3.37",
-    "@xrengine/engine": "^0.3.37",
+    "@xrengine/common": "^0.4.0",
+    "@xrengine/engine": "^0.4.0",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.3.2",
