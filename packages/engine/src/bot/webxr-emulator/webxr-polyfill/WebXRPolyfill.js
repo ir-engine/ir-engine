@@ -55,7 +55,6 @@ export default class WebXRPolyfill {
     this.global = this.config.global;
     this.nativeWebXR = 'xr' in this.global.navigator;
     this.injected = false;
-    console.log(this.nativeWebXR)
 
     // If no native WebXR implementation found, inject one
     if (!this.nativeWebXR) {

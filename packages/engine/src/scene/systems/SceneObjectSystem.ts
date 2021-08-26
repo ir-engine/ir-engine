@@ -40,8 +40,6 @@ export const SceneObjectSystem = async (): Promise<System> => {
   const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
   const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
 
-  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
-
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
   const persistAddQuery = enterQuery(persistQuery)
 
@@ -94,7 +92,7 @@ export const SceneObjectSystem = async (): Promise<System> => {
               )
             ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
             if (obj.receiveShadow) {
-              Engine.csm?.setupMaterial(material)
+              Engine.csm?.setupMaterial(obj)
             }
           }
         }
