@@ -113,14 +113,13 @@ export const teleportToScene = async (
   createAvatarController(Network.instance.localClientEntity)
   addComponent(Network.instance.localClientEntity, LocalInputReceiverComponent, {})
 
-  const fadeOut = hyperspaceEffect.fadeOut(delta)
-
   await delay(250)
 
   Engine.camera.layers.enable(CameraLayers.Scene)
   light.removeFromParent()
+  light.dispose()
 
-  await fadeOut
+  await hyperspaceEffect.fadeOut(delta)
 
   playerObj.value.traverse((obj) => {
     obj.layers.enable(CameraLayers.Scene)

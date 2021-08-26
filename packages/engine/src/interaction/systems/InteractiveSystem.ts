@@ -28,6 +28,7 @@ import { createBoxComponent } from '../functions/createBoxComponent'
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 
 const upVec = new Vector3(0, 1, 0)
 
@@ -61,6 +62,7 @@ export const InteractiveSystem = async (): Promise<System> => {
   const textGroup = new Group().add(text)
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
   Engine.scene.add(textGroup)
+  addComponent(interactTextEntity, PersistTagComponent, {})
   const transformComponent = addComponent(interactTextEntity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
