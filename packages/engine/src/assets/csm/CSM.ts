@@ -71,7 +71,6 @@ export class CSM {
   materials: Map<Mesh, Material> = new Map()
 
   constructor(data: CSMParams) {
-    console.log('===CSM', data, this)
     this.camera = data.camera
     this.parent = data.parent
     this.cascades = data.cascades || 3
@@ -95,6 +94,8 @@ export class CSM {
     this.createLights(data.lights)
     this.updateFrustums()
     this.injectInclude()
+
+    console.log('===CSM', data, this)
   }
 
   createLights(lights?: DirectionalLight[]): void {
@@ -360,8 +361,10 @@ export class CSM {
       for (const lights of this.lights) {
         this.parent.remove(lights[i])
         this.parent.remove(lights[i].target)
+        lights[i].dispose()
       }
     }
+    this.lights = []
   }
 
   dispose(): void {
