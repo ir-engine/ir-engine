@@ -13,7 +13,7 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { spawnPrefab } from '../functions/spawnPrefab'
-import { defineSystem, System } from '../../ecs/bitecs'
+import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**

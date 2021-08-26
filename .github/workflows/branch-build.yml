@@ -4,6 +4,7 @@ on:
     branches-ignore:
       - dev
       - master
+      - 'version-increment-*'
 jobs:
   compile-codebase:
     runs-on: ubuntu-latest

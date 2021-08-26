@@ -7,6 +7,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { provisionInstanceServer } from '../../reducers/instanceConnection/service'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 type GameServerWarningsProps = {
   isTeleporting: boolean
@@ -27,7 +28,8 @@ enum WarningModalTypes {
   NO_GAME_SERVER_PROVISIONED,
   INSTANCE_DISCONNECTED,
   USER_KICKED,
-  INVALID_LOCATION
+  INVALID_LOCATION,
+  INSTANCE_WEBGL_DISCONNECTED
 }
 
 const mapStateToProps = (state: any) => {
@@ -47,6 +49,10 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
     EngineEvents.instance.addEventListener(
       SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
       () => updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+    )
+
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () =>
+      updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
     )
 
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () =>
@@ -95,6 +101,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
+        if (!Network.instance.userId) return
         if ((Network.instance.transport as SocketWebRTCClientTransport).left || props.isTeleporting) return
 
         setModalValues({
@@ -103,6 +110,18 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
           action: async () => window.location.reload(),
           timeout: 30000
+        })
+        break
+
+      case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED:
+        if ((Network.instance.transport as SocketWebRTCClientTransport).left || props.isTeleporting) return
+
+        setModalValues({
+          open: true,
+          title: 'WebGL not enabled',
+          body: 'Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.',
+          action: async () => window.location.reload(),
+          timeout: 3600000
         })
         break
 

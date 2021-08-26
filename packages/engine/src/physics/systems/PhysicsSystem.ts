@@ -14,7 +14,7 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -93,7 +93,7 @@ export const PhysicsSystem = async (
 
     for (const entity of colliderRemoveQuery(world)) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
-      if (colliderComponent) {
+      if (colliderComponent?.body) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }
     }

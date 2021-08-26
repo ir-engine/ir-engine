@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Scene, WebGLRenderer, Color, DirectionalLight, PerspectiveCamera, HemisphereLight } from 'three'
+import { Scene, WebGLRenderer, Color, DirectionalLight, Camera, PerspectiveCamera, HemisphereLight } from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import MapNode from '@xrengine/editor/src/nodes/MapNode'
 import MapNodeEditor from '@xrengine/editor/src/components/properties/MapNodeEditor'
@@ -10,6 +10,7 @@ const scene = new Scene()
 const LOCAL_STORAGE_KEY = 'xrengine:map-test:editor:object'
 
 class EditorMock {
+  camera: Camera
   renderer: {
     renderer: WebGLRenderer
   }
@@ -66,10 +67,10 @@ async function init(): Promise<any> {
   scene.add(new DirectionalLight())
   scene.add(editor.object as any)
 
-  let camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
-  camera.position.set(1, 2, 5)
+  editor.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
+  editor.camera.position.set(1, 2, 5)
 
-  let controls = new OrbitControls(camera, renderer.domElement)
+  let controls = new OrbitControls(editor.camera, renderer.domElement)
   controls.minDistance = 1
   controls.maxDistance = 2000
   controls.target.set(0, 0, 0)
@@ -81,7 +82,9 @@ async function init(): Promise<any> {
     requestAnimationFrame(animate)
 
     controls.update()
-    renderer.render(scene, camera)
+
+    editor.object.onUpdate(editor.camera)
+    renderer.render(scene, editor.camera)
   }
   requestAnimationFrame(animate)
 }

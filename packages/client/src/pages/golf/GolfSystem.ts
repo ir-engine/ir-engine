@@ -1,6 +1,12 @@
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @author Josh Field <github.com/hexafield>
+ * @author Gheric Speiginer <github.com/speigg>
+ */
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System, pipe } from '@xrengine/engine/src/ecs/bitecs'
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -26,7 +32,6 @@ import {
 } from './prefab/GolfBallPrefab'
 import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { SpawnNetworkObjectComponent } from '@xrengine/engine/src/scene/components/SpawnNetworkObjectComponent'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { setupPlayerInput } from './functions/setupPlayerInput'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
@@ -44,12 +49,6 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './functions/setupPlayerAvatar'
 import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
-
-/**
- * @author HydraFire <github.com/HydraFire>
- * @author Josh Field <github.com/hexafield>
- * @author Gheric Speiginer <github.com/speigg>
- */
 
 export function getHole(world: ECSWorld, i: number) {
   return world.world.namedEntities.get(`GolfHole-${i}`)
@@ -258,8 +257,8 @@ export const GolfSystem = async (): Promise<System> => {
         case 'puttclub.NEXT_TURN': {
           const currentPlayerNumber = s.currentPlayer.value
           const currentPlayer = s.players[currentPlayerNumber]
+          const currentHole = s.currentHole.value
           const entityBall = getBall(world, currentPlayerNumber)
-          const currentHole = GolfState.currentHole.value
           const entityHole = getHole(world, currentHole)
 
           // if hole in ball or player has had too many shots, finish their round
@@ -268,7 +267,10 @@ export const GolfSystem = async (): Promise<System> => {
             currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
           ) {
             console.log('=== PLAYER FINISHED HOLE')
-            currentPlayer.scores.set([...currentPlayer.scores.value, currentPlayer.stroke.value])
+            currentPlayer.scores.set([
+              ...currentPlayer.scores.value,
+              currentPlayer.stroke.value - s.holes[currentHole].par.value
+            ])
           }
 
           setBallState(entityBall, BALL_STATES.INACTIVE)
@@ -342,7 +344,7 @@ export const GolfSystem = async (): Promise<System> => {
           //     }
           //   }
           // }
-          s.currentHole.set(s.currentHole.value + 1)
+          s.currentHole.set((s.currentHole.value + 1) % s.holes.length)
           // Set all player strokes to 0
           for (const [i, p] of s.players.entries()) {
             p.stroke.set(0)

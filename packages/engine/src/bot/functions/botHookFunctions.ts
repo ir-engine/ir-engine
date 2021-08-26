@@ -1,7 +1,9 @@
+import { defineSystem, System } from 'bitecs'
 import { MathUtils, Quaternion, Vector3 } from 'three'
 import { DebugHelpers } from '../../debug/systems/DebugHelpersSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -11,6 +13,7 @@ import {
   moveControllerStick,
   overrideXR,
   pressControllerButton,
+  sendXRInputData,
   startXR,
   tweenXRInputSource,
   updateController,
@@ -19,11 +22,14 @@ import {
   xrSupported
 } from './xrBotHookFunctions'
 
-export const setupBotHooks = (): void => {
-  globalThis.botHooks = BotHookFunctions
-  globalThis.Engine = Engine
-  globalThis.EngineEvents = EngineEvents
-  globalThis.Network = Network
+export const BotHookSystem = async (): Promise<System> => {
+  return defineSystem((world: ECSWorld) => {
+    if (Engine.isBot && Boolean(Engine.xrSession)) {
+      sendXRInputData()
+    }
+
+    return world
+  })
 }
 
 export const BotHookFunctions = {

@@ -26,7 +26,7 @@ export class DissolveEffect {
     if (this.time <= this.maxHeight) {
       this.object.traverse((child) => {
         if (child['material'] && child.name !== 'light_obj' && child.name !== 'plate_obj') {
-          child.material.uniforms.time.value = this.time
+          if (child.material.uniforms) child.material.uniforms.time.value = this.time
         }
       })
 

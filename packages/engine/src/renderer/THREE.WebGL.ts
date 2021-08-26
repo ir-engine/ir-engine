@@ -1,3 +1,5 @@
+import { SocketWebRTCClientTransport } from '../../../client/src/transports/SocketWebRTCClientTransport'
+
 export default class WEBGL {
   static isWebGLAvailable() {
     try {
@@ -9,12 +11,18 @@ export default class WEBGL {
   }
 
   static isWebGL2Available() {
+    var support = true
     try {
-      return true
       const canvas = document.createElement('canvas')
+      document.body.appendChild(canvas)
+      if (canvas.getContext('webgl') == null || canvas.getContext('experimental-webgl') == null) {
+        EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
+        return
+      }
       return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'))
     } catch (e) {
-      return false
+      EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
+      return
     }
   }
 
