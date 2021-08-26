@@ -16,7 +16,7 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build": "rimraf dist && mkdir dist && node build.js",
+    "build": "rimraf dist && mkdir dist && cti entrypoint ./src -o index.ts && node build.js",
     "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
     "buildx": "esbuild",
     "test": "jest",
@@ -50,6 +50,7 @@
     "@types/styled-components": "5.1.13",
     "@typescript-eslint/eslint-plugin": "4.29.2",
     "@typescript-eslint/parser": "4.29.2",
+    "@xrengine/client-core": "^0.3.37",
     "@xrengine/common": "^0.3.37",
     "@xrengine/engine": "^0.3.37",
     "app-root-path": "3.0.0",

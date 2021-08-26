@@ -1,4 +1,5 @@
 import { SocketWebRTCClientTransport } from '../../../client/src/transports/SocketWebRTCClientTransport'
+import { EngineEvents } from '../ecs/classes/EngineEvents'
 
 export default class WEBGL {
   static isWebGLAvailable() {

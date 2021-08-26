@@ -29,7 +29,9 @@
     "**/node_modules/**",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "**/*.test.js"
+    "**/*.test.js",
+    "tests/*",
+    "tests old/*"
   ],
   "include": [
     "./**/*.ts",

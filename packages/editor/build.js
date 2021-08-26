@@ -2,7 +2,7 @@ const esbuild = require('esbuild');
 const sassPlugin = require('esbuild-plugin-sass')
 
 esbuild.build({
-    entryPoints: ['index.ts'],
+    entryPoints: ['./src/index.ts'],
     bundle: true,
     outfile: 'dist/editor.es.js',
     plugins: [sassPlugin()],

@@ -22,7 +22,7 @@ import {
 } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import styles from '@xrengine/client-core/src/admin/components/Admin.module.scss'
+import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'

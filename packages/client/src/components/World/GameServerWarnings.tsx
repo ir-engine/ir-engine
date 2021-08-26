@@ -7,7 +7,6 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { provisionInstanceServer } from '../../reducers/instanceConnection/service'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 type GameServerWarningsProps = {
   isTeleporting: boolean
