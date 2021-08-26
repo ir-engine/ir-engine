@@ -13,9 +13,7 @@
  * limitations under the License.
  */
 
-import EventTarget from '../lib/EventTarget';
-import XRReferenceSpace from '../api/XRReferenceSpace';
-
+import EventTarget from '../EventTarget.js'
 export default class XRDevice extends EventTarget {
   /**
    * Takes a VRDisplay object from the WebVR 1.1 spec.

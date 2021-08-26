@@ -1,5 +1,5 @@
 export const PRIVATE = Symbol('@@webxr-polyfill/XRRay');
-import XRRigidTransform from 'webxr-polyfill/src/api/XRRigidTransform';
+import XRRigidTransform from '../webxr-polyfill/api/XRRigidTransform';
 import {
   vec3,
   vec4,

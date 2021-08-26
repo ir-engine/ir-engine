@@ -41,14 +41,15 @@ export const MapUpdateSystem = async (): Promise<System> => {
         if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
           console.log('in center')
         } else {
-          updateMap(
-            {
-              scale: new Vector3(scaleArg, scaleArg, scaleArg)
-            },
-            longtitude,
-            latitude,
-            position
-          )
+          // NOTE: commenting this out for now since this was detrimenting player experience
+          // updateMap(
+          //   {
+          //     scale: new Vector3(scaleArg, scaleArg, scaleArg)
+          //   },
+          //   longtitude,
+          //   latitude,
+          //   position
+          // )
           updateStatus = true
         }
       } else {

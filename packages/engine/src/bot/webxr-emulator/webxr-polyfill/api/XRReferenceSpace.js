@@ -14,7 +14,9 @@
  */
 
 import XRSpace from './XRSpace';
-import * as mat4 from 'gl-matrix/src/gl-matrix/mat4';
+import {
+  mat4
+} from 'gl-matrix';
 
 const DEFAULT_EMULATION_HEIGHT = 1.6;
 

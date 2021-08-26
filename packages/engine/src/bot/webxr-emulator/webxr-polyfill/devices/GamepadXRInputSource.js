@@ -15,10 +15,12 @@
 
 import GamepadMappings from './GamepadMappings';
 import XRInputSource from '../api/XRInputSource';
-import OrientationArmModel from '../lib/OrientationArmModel';
-import * as mat4 from 'gl-matrix/src/gl-matrix/mat4';
-import * as vec3 from 'gl-matrix/src/gl-matrix/vec3';
-import * as quat from 'gl-matrix/src/gl-matrix/quat';
+import OrientationArmModel from './OrientationArmModel';
+import {
+  vec3,
+  quat,
+  mat4
+} from 'gl-matrix';
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XRRemappedGamepad');
 

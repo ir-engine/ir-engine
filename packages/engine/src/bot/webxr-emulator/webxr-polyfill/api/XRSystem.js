@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-import EventTarget from '../lib/EventTarget';
-import { XRReferenceSpaceTypes } from './XRReferenceSpace';
+import EventTarget from '../EventTarget.js'
 
 export const PRIVATE = Symbol('@@webxr-polyfill/XR');
 

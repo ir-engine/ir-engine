@@ -1,5 +1,5 @@
 export const PRIVATE = Symbol('@@webxr-polyfill/XRHitTestResult');
-import XRSpace from 'webxr-polyfill/src/api/XRSpace';
+import XRSpace from '../webxr-polyfill/api/XRSpace';
 import {
   mat4
 } from 'gl-matrix';

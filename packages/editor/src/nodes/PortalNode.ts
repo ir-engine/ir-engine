@@ -1,5 +1,14 @@
 import Model from '@xrengine/engine/src/scene/classes/Model'
-import { BoxBufferGeometry, ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import {
+  BoxBufferGeometry,
+  ConeGeometry,
+  CylinderGeometry,
+  Euler,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Vector3
+} from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 
 export default class PortalNode extends EditorNodeMixin(Model) {
@@ -34,10 +43,15 @@ export default class PortalNode extends EditorNodeMixin(Model) {
 
       node.spawnPosition = new Vector3()
       if (portalComponent.props.spawnPosition) {
-        node.spawnPosition.set(
-          portalComponent.props.spawnPosition.x - node.position.x, // Have to convert from global space to local space
-          portalComponent.props.spawnPosition.y - node.position.y,
-          portalComponent.props.spawnPosition.z - node.position.z
+        ;(node as any as Object3D).updateMatrixWorld(true)
+        node.spawnPosition.copy(
+          (node as any as Object3D).worldToLocal(
+            new Vector3(
+              portalComponent.props.spawnPosition.x,
+              portalComponent.props.spawnPosition.y,
+              portalComponent.props.spawnPosition.z
+            )
+          )
         )
       }
       node.spawnRotation = new Euler()
@@ -50,8 +64,6 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       }
       node.updateSpawnPositionOnScene()
       node.updateSpawnRotationOnScene()
-
-      console.log(portalComponent.props.triggerRotation)
 
       if (portalComponent.props.triggerPosition) node.triggerPosition.copy(portalComponent.props.triggerPosition)
       if (portalComponent.props.triggerRotation)
@@ -124,6 +136,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       y: this.spawnRotation.y + this.rotation.y,
       z: this.spawnRotation.z + this.rotation.z
     }
+    const pos = this.spawnCylinder.getWorldPosition(new Vector3())
 
     const components = {
       portal: {
@@ -132,14 +145,13 @@ export default class PortalNode extends EditorNodeMixin(Model) {
         modelUrl: this.modelUrl,
         displayText: this.displayText,
         cubemapBakeId: this.cubemapBakeId,
-        spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
+        spawnPosition: pos,
         spawnRotation: rotation,
         triggerPosition: this.triggerPosition,
         triggerRotation: { x: this.triggerRotation.x, y: this.triggerRotation.y, z: this.triggerRotation.z },
         triggerScale: this.triggerScale
       }
     } as any
-    console.log(components.portal, this.triggerRotation)
     return await super.serialize(projectID, components)
   }
   prepareForExport() {
@@ -152,6 +164,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       y: this.spawnRotation.y + this.rotation.y,
       z: this.spawnRotation.z + this.rotation.z
     }
+    const pos = this.spawnCylinder.getWorldPosition(new Vector3())
 
     this.addGLTFComponent('portal', {
       locationName: this.locationName,
@@ -159,7 +172,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       modelUrl: this.modelUrl,
       displayText: this.displayText,
       cubemapBakeId: this.cubemapBakeId,
-      spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
+      spawnPosition: pos,
       spawnRotation: rotation,
       triggerPosition: this.triggerPosition,
       triggerRotation: { x: this.triggerRotation.x, y: this.triggerRotation.y, z: this.triggerRotation.z },

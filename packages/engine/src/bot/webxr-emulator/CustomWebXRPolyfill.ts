@@ -1,14 +1,14 @@
-import WebXRPolyfill from './webxr-polyfill//WebXRPolyfill'
-import { XR_COMPATIBLE } from './webxr-polyfill//constants'
-import XRSystem from './webxr-polyfill//api/XRSystem'
-import XRSession, { PRIVATE as XRSESSION_PRIVATE } from './webxr-polyfill//api/XRSession'
-import XRFrame from './webxr-polyfill//api/XRFrame'
-import XRRigidTransform from './webxr-polyfill//api/XRRigidTransform'
+import WebXRPolyfill from './webxr-polyfill/WebXRPolyfill'
+import { XR_COMPATIBLE } from './webxr-polyfill/constants'
+import XRSystem from './webxr-polyfill/api/XRSystem'
+import XRSession, { PRIVATE as XRSESSION_PRIVATE } from './webxr-polyfill/api/XRSession'
+import XRFrame from './webxr-polyfill/api/XRFrame'
+import XRRigidTransform from './webxr-polyfill/api/XRRigidTransform'
 import XRHitTestSource from './api/XRHitTestSource'
 import XRHitTestResult from './api/XRHitTestResult'
 import XRTransientInputHitTestSource from './api/XRTransientInputHitTestSource'
 import XRTransientInputHitTestResult from './api/XRTransientInputHitTestResult'
-import API from './webxr-polyfill//api/index'
+import API from './webxr-polyfill/api/index'
 import EX_API from './api/index'
 import EmulatedXRDevice from './EmulatedXRDevice'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -67,21 +67,18 @@ export class XREngineWebXRPolyfill extends WebXRPolyfill {
     })
 
     // Extending XRSession and XRFrame for AR hitting test API.
-
     ;(XRSession.prototype as any).requestHitTestSource = function (options) {
       const source = new XRHitTestSource(this, options)
       const device = this[XRSESSION_PRIVATE].device
       device.addHitTestSource(source)
       return Promise.resolve(source)
     }
-
     ;(XRSession.prototype as any).requestHitTestSourceForTransientInput = function (options) {
       const source = new XRTransientInputHitTestSource(this, options)
       const device = this[XRSESSION_PRIVATE].device
       device.addHitTestSourceForTransientInput(source)
       return Promise.resolve(source)
     }
-
     ;(XRFrame.prototype as any).getHitTestResults = function (hitTestSource) {
       const device = this.session[XRSESSION_PRIVATE].device
       const hitTestResults = device.getHitTestResults(hitTestSource)
@@ -91,7 +88,6 @@ export class XREngineWebXRPolyfill extends WebXRPolyfill {
       }
       return results
     }
-
     ;(XRFrame.prototype as any).getHitTestResultsForTransientInput = function (hitTestSource) {
       const device = this.session[XRSESSION_PRIVATE].device
       const hitTestResults = device.getHitTestResultsForTransientInput(hitTestSource)

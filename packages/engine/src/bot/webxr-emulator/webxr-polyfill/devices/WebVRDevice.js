@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-import * as mat4 from 'gl-matrix/src/gl-matrix/mat4';
+import {
+  mat4
+} from 'gl-matrix';
 import XRDevice from './XRDevice';
 import GamepadXRInputSource from './GamepadXRInputSource';
 import {
