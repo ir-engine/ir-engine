@@ -336,15 +336,11 @@ export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Positi
   return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter)
 }
 
-export function createLabels(
-  vectorTiles: TileFeaturesByLayer[],
-  llCenter: Position,
-  sceneScale: number
-): GeoLabelNode[] {
+export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): GeoLabelNode[] {
   const features = collectFeaturesByLayer('road', vectorTiles)
   return features.reduce((acc, f) => {
     if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
-      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter, sceneScale))
+      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter))
 
       acc.push(labelView)
     }

@@ -35,7 +35,7 @@ export const create = async function (args: MapProps) {
   const roadsMesh = createRoads(vectorTiles, center)
   const waterMesh = createWater(vectorTiles, center)
   const landUseMesh = createLandUse(vectorTiles, center)
-  const labels = createLabels(vectorTiles, center, args.scale.x)
+  const labels = createLabels(vectorTiles, center)
 
   ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
     group.add(mesh)
@@ -50,8 +50,6 @@ export const create = async function (args: MapProps) {
 
   const navMesh = generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
-  group.position.multiplyScalar(args.scale.x)
-  group.scale.multiplyScalar(args.scale.x)
   group.name = 'MapObject'
   centerCoord = Object.assign(center)
   centerTile = Object.assign(getCenterTile(center))
