@@ -41,8 +41,6 @@ export const create = async function (args: MapProps) {
     group.add(mesh)
   })
 
-  buildingMesh.scale.copy(args.scale)
-
   setGroundScaleAndPosition(groundMesh, buildingMesh)
 
   labels.forEach((label) => {
