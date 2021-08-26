@@ -20,6 +20,8 @@ function createTextObject(textString: string): Text {
   object3d.outlineWidth = '2%'
   object3d.outlineColor = 'white'
 
+  object3d.position.y = 0
+
   return object3d
 }
 
@@ -57,7 +59,6 @@ export class GeoLabelNode {
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
 
-    this.object3d.position.y = 15 / this.scale.x
     this.object3d.position.x = x1
     // for some reason the positions are mirrored along the X-axis
     this.object3d.position.z = y1 * -1
@@ -70,15 +71,8 @@ export class GeoLabelNode {
       axisY,
       angleDiff < Math.PI / 2 || angleDiff > (Math.PI * 3) / 2 ? angle + Math.PI : angle
     )
+    this.object3d.rotateX(-Math.PI / 2)
 
-    // TODO MAP-48
-    if (this.scale.x === 1) {
-      const visibleDistanceMax = 150 * this.scale.length()
-
-      this.object3d.visible = this.object3d.position.distanceTo(camera.position) < visibleDistanceMax
-    }
-
-    // this.object3d.fontSize = DEFAULT_FONT_SIZE * this.scale.x
     this.object3d.sync()
   }
 }
