@@ -40,8 +40,6 @@ export const SceneObjectSystem = async (): Promise<System> => {
   const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
   const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
 
-  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
-
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
   const persistAddQuery = enterQuery(persistQuery)
 

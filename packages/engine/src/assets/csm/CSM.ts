@@ -94,8 +94,6 @@ export class CSM {
     this.createLights(data.lights)
     this.updateFrustums()
     this.injectInclude()
-
-    console.log('===CSM', data, this)
   }
 
   createLights(lights?: DirectionalLight[]): void {
@@ -357,13 +355,13 @@ export class CSM {
   }
 
   remove(): void {
-    for (let i = 0; i < this.lights.length; i++) {
-      for (const lights of this.lights) {
-        this.parent.remove(lights[i])
-        this.parent.remove(lights[i].target)
-        lights[i].dispose()
-      }
-    }
+    this.lights.forEach((light) => {
+      light.forEach((cascade) => {
+        cascade.removeFromParent()
+        cascade.target.removeFromParent()
+        cascade.dispose()
+      })
+    })
     this.lights = []
   }
 

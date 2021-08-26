@@ -93,7 +93,7 @@ export const PhysicsSystem = async (
 
     for (const entity of colliderRemoveQuery(world)) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
-      if (colliderComponent) {
+      if (colliderComponent?.body) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }
     }
