@@ -16,9 +16,10 @@ function createTextObject(textString: string): Text {
   object3d.text = textString
   object3d.fontSize = DEFAULT_FONT_SIZE
   object3d.color = 0x000000
+  object3d.fillOpacity = 0.5
   object3d.anchorX = '50%'
-  object3d.outlineWidth = '2%'
-  object3d.outlineColor = 'white'
+  object3d.anchorY = '50%'
+  object3d.opacity = 0.5
 
   object3d.position.y = 0
 
