@@ -15,12 +15,6 @@ const timeoutMS = 3 * 60 * 1000
 process.env.CI = process.env.CI === 'true'
 process.env.HEADLESS = process.env.CI
 
-if(process.env.CI) {
-  fs.copyFile('.env.local.default', '.env.local', (err) => {
-    if (err) throw err
-  })
-}
-
 const killPorts = () => {
   if (process.platform.includes('darwin') === 'macOS') return // killing ports causes testing to fail on macOS
   [
