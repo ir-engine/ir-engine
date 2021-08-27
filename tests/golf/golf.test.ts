@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { XREngineBot } from '@xrengine/bot'
+import { XREngineBot } from '@xrengine/bot/src/bot'
 import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import { teleportToBall } from './actions/teleportToBallTest'
