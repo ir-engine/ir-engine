@@ -27,24 +27,11 @@ import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFuncti
 import { METERS_PER_DEGREE_LL } from './constants'
 import { collectFeaturesByLayer } from './util'
 import { GeoLabelNode } from './GeoLabelNode'
-import { PI } from '../common/constants/MathConstants'
 
 // TODO free resources used by canvases, bitmaps etc
 
 export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position, sceneScale = 1): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale, (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale]
-}
-
-export function llToScene2([lng, lat]: Position, [lngCenter, latCenter]: Position, scale = 1): Position {
-  const x = (lng - lngCenter) * 111134.861111 * scale
-  const z = (lat - latCenter) * (Math.cos((latCenter * PI) / 180) * 111321.377778) * scale
-  return [x, z]
-}
-
-export function sceneToLl(position: Position, [lngCenter, latCenter]: Position, scale = 1): Position {
-  const longtitude = position[0] / (111134.861111 * scale) + lngCenter
-  const latitude = -position[1] / (Math.cos((latCenter * PI) / 180) * 111321.377778 * scale) + latCenter
-  return [longtitude, latitude]
 }
 
 function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
@@ -336,11 +323,9 @@ function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer
     const meshes = buildMeshes(layerName, featuresInLayer, llCenter)
     return [...accMeshes, ...meshes]
   }, [])
-  const group = new Group()
-  if (meshes.length) {
-    group.add(...meshes)
-  }
-  return group
+  console.log('meshes is')
+  console.log(meshes)
+  return new Group().add(...meshes)
 }
 
 export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
