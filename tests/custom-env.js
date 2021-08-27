@@ -34,7 +34,7 @@ killPorts()
 let dev 
 let running = false
 beforeAll(async () => {
-  dev = spawn("npm", ["run", "dev"])
+  dev = spawn("cross-env", [`VITE_WEBGL_DISABLED=${process.env.HEADLESS}`, "npm", "run", "dev"])
   let timeout
   
 

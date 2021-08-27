@@ -433,7 +433,7 @@ export class XREngineBot {
    */
   async enterLocation(roomUrl) {
     await this.navigate(roomUrl)
-    await this.page.waitForFunction("document.querySelector('canvas')", { timeout: 100000 })
+    await this.page.waitForFunction("document.querySelector('canvas')", { timeout: 1000000 })
     console.log('selected sucessfully')
     await this.page.mouse.click(0, 0)
     await this.setFocus('canvas')
