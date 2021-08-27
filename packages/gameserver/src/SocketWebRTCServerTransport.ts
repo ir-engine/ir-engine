@@ -167,7 +167,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       protocol: 'raw',
       appData: { peerID: 'outgoingProducer' }
     }
-    this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options)
+    console.log('Producing data from outgoingDataTransport', this.outgoingDataTransport)
+    try {
+      this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options)
+    } catch (err) {
+      console.log('outgoingDataTransport produceData error', err)
+      throw err
+    }
 
     const currentRouter = this.routers.instance[0]
 
