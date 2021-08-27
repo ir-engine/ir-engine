@@ -403,7 +403,14 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
     appData: { ...(appData || {}), peerID: userId, transportId }
   }
   if (transport != null) {
-    const dataProducer = await transport.produceData(options)
+    console.log('handleWebRtcProduceData', transport)
+    let dataProducer
+    try {
+      dataProducer = await transport.produceData(options)
+    } catch (err) {
+      console.log('Error with transport produceData', err)
+      throw err
+    }
     networkTransport.dataProducers.push(dataProducer)
     logger.info(`user ${userId} producing data`)
     if (Network.instance.clients[userId] != null) {
