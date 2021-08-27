@@ -51,7 +51,7 @@ const WarningRetryModal = ({
     } else {
       clearInterval(countdown as any)
     }
-  }, [open])
+  }, [open, noCountdown])
 
   useEffect(() => {
     if (timeRemaining === 0) {

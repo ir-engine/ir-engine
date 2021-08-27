@@ -22,9 +22,7 @@ export default (app: Application): void => {
   }
 
   app.on('connection', async (connection) => {
-    console.log('New connection', connection)
     await awaitEngineLoaded()
-    console.log('Engine has been loaded')
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.NODE_ENV === 'development' ||
