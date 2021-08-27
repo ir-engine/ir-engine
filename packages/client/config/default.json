@@ -27,7 +27,6 @@
     "alert": {
       "timeout": 10000
     },
-    "offlineMode": false,
-    "disableRenderer": "${VITE_WEBGL_DISABLED}"
+    "offlineMode": false
   }
 }

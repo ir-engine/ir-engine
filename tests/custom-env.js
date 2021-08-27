@@ -14,8 +14,6 @@ const timeoutMS = 3 * 60 * 1000
 
 process.env.HEADLESS = process.env.HEADLESS === 'true'
 
-console.log('process.env.HEADLESS', process.env.HEADLESS)
-
 const killPorts = () => {
   if (process.platform.includes('darwin') === 'macOS') return // killing ports causes testing to fail on macOS
   [
@@ -34,10 +32,9 @@ killPorts()
 let dev 
 let running = false
 beforeAll(async () => {
-  dev = spawn("cross-env", [`VITE_WEBGL_DISABLED=${process.env.HEADLESS}`, "npm", "run", "dev"])
+  dev = spawn("npm", ["run", "dev"])
   let timeout
   
-
   /**
    * TODO: add checks to see if any errors occur while launching the stack to save time
    */

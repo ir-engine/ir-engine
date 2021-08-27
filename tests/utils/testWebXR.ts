@@ -25,7 +25,6 @@ export const testWebXR = (bot: XREngineBot) => {
       const { headInputValue, leftControllerInputValue, rightControllerInputValue } = await bot.runHook(
         XRBotHooks.GetXRInputPosition
       )
-      console.log(headInputValue, leftControllerInputValue, rightControllerInputValue)
 
       compareArrays([headInputValue.x, headInputValue.y, headInputValue.z], [0, 1.6, 0], 0.01)
       compareArrays(

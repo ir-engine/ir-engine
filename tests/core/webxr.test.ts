@@ -15,17 +15,12 @@ describe('WebXR Bot Tests', () => {
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterLocation(`https://${domain}/location/${locationName}`)
-    console.log('entered location')
     await bot.awaitHookPromise(BotHooks.LocationLoaded)
-    console.log('location loaded')
     await setupXR(bot)
-    console.log('xr initalised')
     await bot.runHook(BotHooks.InitializeBot)
-    console.log('bot initalised')
   }, maxTimeout)
 
   afterAll(async () => {
-    console.log('Tests finished, bot is now quitting!')
     await bot.delay(1500)
     await bot.quit()
   }, maxTimeout)
