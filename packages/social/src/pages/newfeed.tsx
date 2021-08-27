@@ -9,7 +9,7 @@ import styles from './index.module.scss'
 export default function NewFeedPage() {
   return (
     <div className={styles.viewport}>
-      <AppHeader logo="/assets/logoBlack.png" />
+      <AppHeader title={"CREATOR"} />
       <FeedForm />
       <AppFooter />
     </div>

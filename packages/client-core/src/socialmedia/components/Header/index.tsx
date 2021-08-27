@@ -42,7 +42,7 @@ const AppHeader = ({ creatorState, getLoggedCreator, logo, authState, updateCrea
 
   return (
     <nav className={styles.headerContainer}>
-      {logo && <img src={logo} className="header-logo" alt="ARC" />}
+      {logo && <img src={logo} className="header-logo" alt="CREATOR" />}
       {creator &&
         {
           /*!checkGuest*/
