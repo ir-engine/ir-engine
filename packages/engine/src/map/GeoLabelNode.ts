@@ -34,8 +34,7 @@ export class GeoLabelNode {
   geoMiddleSlice: Position[]
   transformGeoPosition: (position: Position) => Position
 
-  object3d: Object3D & { sync(): void; fontSize: number }
-  scale: Vector3
+  object3d: Object3D & { sync(): void }
 
   constructor(feature: Feature<LineString>, transformGeoPosition: (position: Position) => Position) {
     this.geoFeature = feature
@@ -45,8 +44,6 @@ export class GeoLabelNode {
 
     // Update the rendering:
     this.object3d.sync()
-
-    this.scale = new Vector3(1, 1, 1)
 
     this.geoLength = length(this.geoFeature)
     this.geoMiddleSlice = lineSliceAlong(
@@ -73,9 +70,6 @@ export class GeoLabelNode {
       angleDiff < Math.PI / 2 || angleDiff > (Math.PI * 3) / 2 ? angle + Math.PI : angle
     )
     this.object3d.rotateX(-Math.PI / 2)
-
-    this.object3d.fontSize = Math.max(...this.scale.toArray()) * DEFAULT_FONT_SIZE
-    this.object3d.position.multiply(this.scale)
 
     this.object3d.sync()
   }
