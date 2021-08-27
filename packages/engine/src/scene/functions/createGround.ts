@@ -52,7 +52,6 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   }
 
   addComponent(entity, ColliderComponent, { body })
-  console.log('created navmesh for gorund plane')
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {

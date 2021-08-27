@@ -1,30 +1,46 @@
 import { getComponent, addComponent } from '../../../engine/src/ecs/functions/EntityFunctions'
 import { Vector2 } from 'three'
-import { InputComponent } from '../../../engine/src/input/components/InputComponent'
-import { BaseInput } from '../../../engine/src/input/enums/BaseInput'
 import { AutoPilotClickRequestComponent } from '../../../engine/src/navigation/component/AutoPilotClickRequestComponent'
-import { AvatarInputSchema } from '../../../engine/src/avatar/AvatarInputSchema'
-import { Dispatch } from 'redux'
-import { BotAction } from '../../../bot/src/bot-action'
-import Command from '../../../engine/src/editor/commands/Command'
-import {
-  AutoPilotComponent,
-  createAutoPilotComponent
-} from '../../../engine/src/navigation/component/AutoPilotComponent'
-import { createTransformComponent } from '../../../engine/src/scene/functions/createTransformComponent'
 import { LocalInputReceiverComponent } from '../../../engine/src/input/components/LocalInputReceiverComponent'
 
+//The values the commands that must have in the start
+export const commandStarters = ['/', '//']
+
+//Checks if a text (string) is a command
+export function isCommand(text: string): boolean {
+  for (var i = 0; i < commandStarters.length; i++) {
+    if (text.startsWith(commandStarters[i])) return true
+  }
+
+  return false
+}
+//Get the count of the command init value
+export function getStarterCount(text: string): number {
+  for (var i = 0; i < commandStarters.length; i++) {
+    if (text.startsWith(commandStarters[i])) return commandStarters[i].length
+  }
+
+  return 0
+}
+
 /**
+ * Handles a command, the input is sent both from server and client, each one can handle it differently
+ * The return value is boolean (true/false), if it returns true the caller function will terminate, otherwise it will continue
+ * First it is called in the server and then in the client
+ * The eid in the server is the UserId, while in the client is the EntityId
  * @author Alex Titonis
  */
-export function handleCommand(cmd: string, eid: any, isServer: boolean) {
-  if (!cmd.startsWith('/')) return false
+export function handleCommand(cmd: string, eid: any, isServer: boolean): boolean {
+  //It checks for all messages, the default
+  if (!isCommand(cmd)) return false
 
-  cmd = cmd.substring(1)
+  //Remove the command starter, get the data (the base which is the command and the parameters if exist, parameters are separated by , (commas))
+  cmd = cmd.substring(getStarterCount(cmd))
   var data = cmd.split(' ')
   var base = data[0]
   var params = data.length == 2 ? data[1].split(',') : ''
 
+  //Handle the command according to the base
   switch (base) {
     case 'move':
       if (params.length < 3) {
@@ -42,22 +58,21 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean) {
       }
 
       if (!isServer) {
-        console.log('handling movement cmd')
         handleMoveCommand(x, y, z, eid)
       }
 
       if (!isServer) return true
       else return false
     default:
-      console.log('uknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
+      console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
 
       if (!isServer) return true
       else return false
   }
 }
 
+//Create fake input on the map (like left click) with the coordinates written and implement the auto pilot click request component to the player
 function handleMoveCommand(x: number, y: number, z: number, eid: any) {
-  console.log('handle movement command: ' + x + ' ' + y + ' ' + z)
   var linput = getComponent(eid, LocalInputReceiverComponent)
   if (linput === undefined) linput = addComponent(eid, LocalInputReceiverComponent, {})
   addComponent(eid, AutoPilotClickRequestComponent, { coords: new Vector2(x, y) })

@@ -61,7 +61,6 @@ export class WorldScene {
   loaders: Promise<void>[] = []
   static callbacks: any
   static isLoading = false
-  static mapEid: number
 
   mapEntity: number
 
@@ -183,7 +182,6 @@ export class WorldScene {
         break
 
       case 'ground-plane':
-        WorldScene.mapEid = entity
         createGround(entity, component.data, isClient)
         break
 
@@ -207,7 +205,6 @@ export class WorldScene {
         break
 
       case 'map':
-        WorldScene.mapEid = entity
         if (isClient) createMap(entity, component.data)
         break
 

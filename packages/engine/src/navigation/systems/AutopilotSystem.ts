@@ -50,7 +50,6 @@ export const AutopilotSystem = async (): Promise<System> => {
     for (const entity of navClickAddQuery(world)) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       raycaster.setFromCamera(coords, Engine.camera)
-      console.log('handled player with eid: ' + entity + ' coords: ' + coords.x + ', ' + coords.y)
 
       const raycasterResults = []
 
@@ -75,7 +74,6 @@ export const AutopilotSystem = async (): Promise<System> => {
         },
         { distance: Infinity, point: null, entity: null }
       )
-      console.log('click result: ' + clickResult.point)
 
       if (clickResult.point) {
         addComponent(entity, AutoPilotRequestComponent, {
