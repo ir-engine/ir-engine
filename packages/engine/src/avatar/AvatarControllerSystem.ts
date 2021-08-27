@@ -169,6 +169,13 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       vector3.subVectors(Engine.camera.position, transform.position)
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
+
+      console.log(
+        'XR_HEAD',
+        xrInputSourceComponent.head.position.x,
+        xrInputSourceComponent.head.position.y,
+        xrInputSourceComponent.head.position.z
+      )
     }
     return world
   })

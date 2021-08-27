@@ -89,7 +89,7 @@ export class XREngineBot {
   constructor(args: BotProps = {}) {
     this.verbose = args.verbose
     this.headless = args.headless ?? true
-    this.gpu = args.gpu !== false ?? !process.env.HEADLESS
+    this.gpu = !process.env.HEADLESS
     console.log(this.gpu)
     this.name = args.name ?? 'Bot'
     this.fakeMediaPath = args.fakeMediaPath ?? ''
@@ -226,7 +226,7 @@ export class XREngineBot {
     )
   }
 
-  async awaitPromise(fn, period = 1000 / 6, ...args) {
+  async awaitPromise(fn, period = 100, ...args) {
     return await new Promise<void>((resolve) => {
       const interval = setInterval(async () => {
         if (await this.page.evaluate(fn, ...args)) {
@@ -237,10 +237,22 @@ export class XREngineBot {
     })
   }
 
-  async awaitHookPromise(hook, period = 1000 / 6, ...args) {
+  async awaitHookPromise(hook, period = 100, ...args) {
+    console.log('[XR-BOT]: awaiting', hook, ...args)
     return await new Promise<void>((resolve) => {
       const interval = setInterval(async () => {
-        if (await this.runHook(hook, ...args)) {
+        if (
+          await this.page.evaluate(
+            async (hook, ...args) => {
+              if (!globalThis.botHooks) {
+                return
+              }
+              return globalThis.botHooks[hook](...args)
+            },
+            hook,
+            ...args
+          )
+        ) {
           resolve()
           clearInterval(interval)
         }
@@ -301,8 +313,7 @@ export class XREngineBot {
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
-        // '--enable-webgl',
-
+        '--enable-webgl',
         '--enable-features=NetworkService',
         '--ignore-certificate-errors',
         `--no-sandbox`,
@@ -317,28 +328,37 @@ export class XREngineBot {
         //     '--use-fake-device-for-media-stream',
         //     '--use-file-for-fake-video-capture=/Users/apple/Downloads/football_qcif_15fps.y4m',
         //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
-        '--allow-file-access=1'
+        '--allow-file-access=1',
+        '--mute-audio'
       ],
       defaultViewport: this.windowSize,
-      ignoreDefaultArgs: ['--mute-audio'],
+      ignoreDefaultArgs: true, //['--mute-audio'],
       ...this.detectOsOption()
     }
     if (!this.gpu) {
       console.log('Starting puppeteer without gpu...')
       options.args.push(
-        '--enable-precise-memory-info',
-        '--enable-begin-frame-control',
-        '--enable-surface-synchronization',
-        '--run-all-compositor-stages-before-draw',
-        '--disable-threaded-animation',
-        '--disable-threaded-scrolling',
-        '--disable-checker-imaging',
-        '--use-gl=swiftshader',
-        '--enable-gpu-rasterization',
-        '--use-cmd-decoder=passthrough'
+        '--no-zygote',
+        '--headless',
+        // '--override-use-software-gl-for-tests',
+        // '--disable-gl-drawing-for-tests',
+        // '--disable-gpu',
+        // '--enable-precise-memory-info',
+        // '--enable-begin-frame-control',
+        // '--enable-surface-synchronization',
+        // '--run-all-compositor-stages-before-draw',
+        // '--disable-threaded-animation',
+        // '--disable-threaded-scrolling',
+        // '--disable-checker-imaging',
+        '--use-gl=swiftshader'
+        // '--enable-gpu-rasterization',
+        // '--use-cmd-decoder=passthrough'
       )
     }
-    // if (this.headless) options.args.push('--disable-gpu', '--disable-software-rasterizer', '--headless')
+    // if (this.headless) options.args.push(
+    //   // '--disable-gpu',
+    //   // '--disable-software-rasterizer',
+    // )
 
     this.browser = await puppeteer.launch(options)
 
