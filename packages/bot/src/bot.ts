@@ -9,7 +9,7 @@ class PageUtils {
     this.bot = bot
   }
   async clickSelectorClassRegex(selector, classRegex) {
-    if (this.bot.autoLog) console.log(`Clicking for a ${selector} matching ${classRegex}`)
+    if (this.bot.verbose) console.log(`Clicking for a ${selector} matching ${classRegex}`)
 
     await this.bot.page.evaluate(
       (selector, classRegex) => {
@@ -23,7 +23,7 @@ class PageUtils {
     )
   }
   async clickSelectorId(selector, id) {
-    if (this.bot.autoLog) console.log(`Clicking for a ${selector} matching ${id}`)
+    if (this.bot.verbose) console.log(`Clicking for a ${selector} matching ${id}`)
 
     await this.bot.page.evaluate(
       (selector, id) => {
@@ -49,7 +49,7 @@ class PageUtils {
     )
   }
   async clickSelectorFirstMatch(selector) {
-    if (this.bot.autoLog) console.log(`Clicking for first ${selector}`)
+    if (this.bot.verbose) console.log(`Clicking for first ${selector}`)
 
     await this.bot.page.evaluate((selector) => {
       let matches = Array.from(document.querySelectorAll(selector))
@@ -60,9 +60,10 @@ class PageUtils {
 }
 
 type BotProps = {
+  verbose?: boolean
   headless?: boolean
+  gpu?: boolean
   name?: string
-  autoLog?: boolean
   fakeMediaPath?: string
   windowSize?: { width: number; height: number }
 }
@@ -73,8 +74,9 @@ type BotProps = {
 export class XREngineBot {
   activeChannel
   headless: boolean
+  gpu: boolean
+  verbose: boolean
   name: string
-  autoLog: boolean
   fakeMediaPath: string
   windowSize: {
     width: number
@@ -85,11 +87,13 @@ export class XREngineBot {
   pageUtils: PageUtils
 
   constructor(args: BotProps = {}) {
+    this.verbose = args.verbose
     this.headless = args.headless ?? true
+    this.gpu = !process.env.HEADLESS
+    console.log(this.gpu)
     this.name = args.name ?? 'Bot'
-    this.autoLog = args.autoLog ?? true
     this.fakeMediaPath = args.fakeMediaPath ?? ''
-    this.windowSize = args.windowSize ?? { width: 1920, height: 1080 }
+    this.windowSize = args.windowSize ?? { width: 640, height: 480 }
 
     // for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
     // {
@@ -222,7 +226,7 @@ export class XREngineBot {
     )
   }
 
-  async awaitPromise(fn, period = 1000 / 60, ...args) {
+  async awaitPromise(fn, period = 100, ...args) {
     return await new Promise<void>((resolve) => {
       const interval = setInterval(async () => {
         if (await this.page.evaluate(fn, ...args)) {
@@ -233,10 +237,22 @@ export class XREngineBot {
     })
   }
 
-  async awaitHookPromise(hook, period = 1000 / 60, ...args) {
+  async awaitHookPromise(hook, period = 100, ...args) {
+    console.log('[XR-BOT]: awaiting', hook, ...args)
     return await new Promise<void>((resolve) => {
       const interval = setInterval(async () => {
-        if (await this.runHook(hook, ...args)) {
+        if (
+          await this.page.evaluate(
+            async (hook, ...args) => {
+              if (!globalThis.botHooks) {
+                return
+              }
+              return globalThis.botHooks[hook](...args)
+            },
+            hook,
+            ...args
+          )
+        ) {
           resolve()
           clearInterval(interval)
         }
@@ -292,10 +308,17 @@ export class XREngineBot {
   async launchBrowser() {
     console.log('Launching browser')
     const options = {
+      dumpio: this.verbose,
       headless: this.headless,
       devtools: !this.headless,
       ignoreHTTPSErrors: true,
       args: [
+        '--enable-webgl',
+        '--enable-features=NetworkService',
+        '--ignore-certificate-errors',
+        `--no-sandbox`,
+        `--disable-dev-shm-usage`,
+        '--shm-size=4gb',
         `--window-size=${this.windowSize.width},${this.windowSize.height}`,
         '--use-fake-ui-for-media-stream=1',
         '--use-fake-device-for-media-stream=1',
@@ -305,20 +328,43 @@ export class XREngineBot {
         //     '--use-fake-device-for-media-stream',
         //     '--use-file-for-fake-video-capture=/Users/apple/Downloads/football_qcif_15fps.y4m',
         //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
-        '--allow-file-access=1'
+        '--allow-file-access=1',
+        '--mute-audio'
       ],
       defaultViewport: this.windowSize,
-      ignoreDefaultArgs: ['--mute-audio'],
+      ignoreDefaultArgs: true, //['--mute-audio'],
       ...this.detectOsOption()
     }
-
-    if (this.headless) options.args.push('--disable-gpu')
+    if (!this.gpu) {
+      console.log('Starting puppeteer without gpu...')
+      options.args.push(
+        '--no-zygote',
+        '--headless',
+        // '--override-use-software-gl-for-tests',
+        // '--disable-gl-drawing-for-tests',
+        // '--disable-gpu',
+        // '--enable-precise-memory-info',
+        // '--enable-begin-frame-control',
+        // '--enable-surface-synchronization',
+        // '--run-all-compositor-stages-before-draw',
+        // '--disable-threaded-animation',
+        // '--disable-threaded-scrolling',
+        // '--disable-checker-imaging',
+        '--use-gl=swiftshader'
+        // '--enable-gpu-rasterization',
+        // '--use-cmd-decoder=passthrough'
+      )
+    }
+    // if (this.headless) options.args.push(
+    //   // '--disable-gpu',
+    //   // '--disable-software-rasterizer',
+    // )
 
     this.browser = await puppeteer.launch(options)
 
     this.page = await this.browser.newPage()
 
-    if (this.autoLog) {
+    if (this.verbose) {
       this.page.on('console', (consoleObj) => console.log('>> ', consoleObj.text()))
     }
 
@@ -387,7 +433,7 @@ export class XREngineBot {
    */
   async enterLocation(roomUrl) {
     await this.navigate(roomUrl)
-    await this.page.waitForFunction("document.querySelector('canvas')", { timeout: 100000 })
+    await this.page.waitForFunction("document.querySelector('canvas')", { timeout: 1000000 })
     console.log('selected sucessfully')
     await this.page.mouse.click(0, 0)
     await this.setFocus('canvas')

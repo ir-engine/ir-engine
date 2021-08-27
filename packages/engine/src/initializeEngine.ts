@@ -83,7 +83,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     Engine.hasJoinedWorld = true
   })
 
-  if (options.renderer.disabled !== true) {
+  if (options.scene.disabled !== true) {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
     Engine.camera.layers.enableAll()
     Engine.scene.add(Engine.camera)
@@ -155,7 +155,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
-  if (options.renderer.disabled) return
+  if (options.scene.disabled) return
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
@@ -191,7 +191,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
-  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
+  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas, enabled: !options.renderer.disabled })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
   registerSystem(SystemUpdateType.Free, BotHookSystem)
 }

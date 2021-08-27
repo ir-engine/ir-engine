@@ -102,7 +102,7 @@ const Home = ({
     <div className={platformClass + ' ' + hideContentOnRecord}>
       {!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}
       <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-      <AppHeader title={"CREATOR"} />
+        <AppHeader title={'CREATOR'} />
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
