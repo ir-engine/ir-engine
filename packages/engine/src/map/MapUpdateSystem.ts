@@ -60,6 +60,10 @@ export const MapUpdateSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     const maps = mapsQuery(world)
+    if (!maps.length) {
+      return
+    }
+    
     for (const playerEntity of moveQuery(world)) {
       const mapEntity = maps[0] // TODO: iterate all maps
       const map = getComponent(mapEntity, MapComponent)
