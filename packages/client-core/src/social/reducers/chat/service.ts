@@ -20,6 +20,8 @@ import Store from '../../../store'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 
 import { Config } from '../../../helper'
+import { handleCommand } from '../../../../../common/src/utils/commandHandler'
+import { Network } from '../../../../../engine/src/networking/classes/Network'
 
 const store = Store.store
 
@@ -174,7 +176,8 @@ export function updateMessageScrollInit(value: boolean) {
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('message').on('created', (params) => {
     const selfUser = (store.getState() as any).get('auth').get('user') as User
-    store.dispatch(createdMessage(params.message, selfUser))
+    const msg = createdMessage(params.message, selfUser)
+    if (msg != undefined) store.dispatch(msg)
   })
 
   client.service('message').on('patched', (params) => {

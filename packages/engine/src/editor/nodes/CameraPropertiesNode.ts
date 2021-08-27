@@ -26,7 +26,7 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
     } = json.components.find((c) => c.name === CameraPropertiesNode.legacyComponentName).props
     node.name = name
     node.fov = fov ?? 50
-    node.cameraNearClip = cameraNearClip ?? .01
+    node.cameraNearClip = cameraNearClip ?? 0.01
     node.cameraFarClip = cameraFarClip ?? 100
     node.projectionType = projectionType ?? ProjectionType.Perspective
     node.minCameraDistance = minCameraDistance ?? 1
@@ -52,7 +52,7 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
       cameraproperties: {
         name: this.name,
         fov: this.fov ?? 50,
-        cameraNearClip: this.cameraNearClip ?? .01,
+        cameraNearClip: this.cameraNearClip ?? 0.01,
         cameraFarClip: this.cameraFarClip ?? 100,
         projectionType: this.projectionType ?? ProjectionType.Perspective,
         minCameraDistance: this.minCameraDistance ?? 1,

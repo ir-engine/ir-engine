@@ -12,11 +12,12 @@ import {
   createAutoPilotComponent
 } from '../../../engine/src/navigation/component/AutoPilotComponent'
 import { createTransformComponent } from '../../../engine/src/scene/functions/createTransformComponent'
+import { LocalInputReceiverComponent } from '../../../engine/src/input/components/LocalInputReceiverComponent'
 
 /**
  * @author Alex Titonis
  */
-export function handleCommand(cmd: string, userId: number, isServer: boolean) {
+export function handleCommand(cmd: string, eid: any, isServer: boolean) {
   if (!cmd.startsWith('/')) return false
 
   cmd = cmd.substring(1)
@@ -42,7 +43,7 @@ export function handleCommand(cmd: string, userId: number, isServer: boolean) {
 
       if (!isServer) {
         console.log('handling movement cmd')
-        handleMoveCommand(x, y, z, userId)
+        handleMoveCommand(x, y, z, eid)
       }
 
       if (!isServer) return true
@@ -55,8 +56,9 @@ export function handleCommand(cmd: string, userId: number, isServer: boolean) {
   }
 }
 
-function handleMoveCommand(x: number, y: number, z: number, userId: any) {
-  var autoPilot = getComponent(userId, AutoPilotComponent)
-  if (autoPilot === undefined) autoPilot = createAutoPilotComponent(userId, x, y, z)
-  console.log(autoPilot)
+function handleMoveCommand(x: number, y: number, z: number, eid: any) {
+  console.log('handle movement command: ' + x + ' ' + y + ' ' + z)
+  var linput = getComponent(eid, LocalInputReceiverComponent)
+  if (linput === undefined) linput = addComponent(eid, LocalInputReceiverComponent, {})
+  addComponent(eid, AutoPilotClickRequestComponent, { coords: new Vector2(x, y) })
 }
