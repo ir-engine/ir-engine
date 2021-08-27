@@ -21,6 +21,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -74,6 +75,9 @@ export const createAvatar = (
     isGrounded: false,
     viewVector: new Vector3(0, 0, 1)
   })
+  addComponent(entity, NameComponent, {
+    name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
+  })
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -96,7 +100,7 @@ export const createAvatar = (
       origin: new Vector3(0, avatarHalfHeight, 0),
       direction: new Vector3(0, -1, 0),
       maxDistance: avatarHalfHeight + 0.05,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Portal
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
     })
   )
   addComponent(entity, RaycastComponent, { raycastQuery })
@@ -141,7 +145,7 @@ export const createAvatarController = (entity: Entity) => {
     new Controller({
       isCapsule: true,
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: DefaultCollisionMask,
+      collisionMask: DefaultCollisionMask | CollisionGroups.Trigger,
       height: capsuleHeight,
       contactOffset: 0.01,
       stepOffset: 0.25,

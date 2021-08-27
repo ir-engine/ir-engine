@@ -9,7 +9,7 @@ import { InputAlias } from '../types/InputAlias'
 import { Engine } from '../../ecs/classes/Engine'
 import { processInput } from '../functions/processInput'
 import { handleGamepads } from '../functions/GamepadInput'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
@@ -74,14 +74,20 @@ export const ClientInputSystem = async (): Promise<System> => {
     for (const entity of localClientInputAddQuery(world)) {
       // Get component reference
       const input = getComponent(entity, InputComponent)
-      input.schema.onAdded(entity, delta)
+      for (const call of input.schema.onAdded) {
+        call(entity, delta)
+      }
     }
 
     // Called when input component is removed from entity
     for (const entity of localClientInputRemoveQuery(world)) {
       // Get component reference
       const input = getComponent(entity, InputComponent, true)
-      input.schema.onRemove(entity, delta)
+      for (const call of input.schema.onRemove) {
+        call(entity, delta)
+      }
+      input.prevData.clear()
+      input.data.clear()
     }
 
     return world

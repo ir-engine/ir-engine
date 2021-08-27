@@ -16,10 +16,24 @@ export default function (app: Application): typeof Model {
         primaryKey: true
       },
       videoEnabled: {
-        type: DataTypes.BOOLEAN
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      audioEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      screenSharingEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      faceStreamingEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       },
       instanceMediaChatEnabled: {
-        type: DataTypes.BOOLEAN
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       }
     },
     {

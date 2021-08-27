@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import ProtectedRoute from './protected'
 import homePage from '../pages/index'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -95,13 +95,12 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           {/* Editor Routes */}
           <Route
             path="/editor/projects/:projectId"
-            component={React.lazy(() => import('../pages/editor/projects/[projectId]'))}
+            component={React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))}
           />
-          <Route path="/editor/projects" component={React.lazy(() => import('../pages/editor/projects'))} />
-          <Route path="/editor/create" component={React.lazy(() => import('../pages/editor/create'))} />
+          <Route path="/editor/projects" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
+          <Route path="/editor/create" component={React.lazy(() => import('@xrengine/editor/src/pages/create'))} />
           <Redirect path="/editor" to="/editor/projects" />
 
-          <Route path="/workerTest" component={React.lazy(() => import('../pages/WorkerTest'))} />
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
         </Switch>
       </Suspense>

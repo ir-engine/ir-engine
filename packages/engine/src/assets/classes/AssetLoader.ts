@@ -3,12 +3,10 @@ import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLT
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
-import { LOADER_STATUS, LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
+import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
@@ -40,18 +38,6 @@ export const processModelAsset = (asset: any, params: AssetLoaderParamType): voi
 
   if (asset.children.length) {
     asset.children.forEach((child) => handleLODs(child))
-  }
-
-  if (params.parent) {
-    params.parent.add(asset)
-  } else if (params.entity) {
-    if (hasComponent(params.entity, Object3DComponent)) {
-      if (getComponent(params.entity, Object3DComponent).value !== undefined)
-        getComponent(params.entity, Object3DComponent).value.add(asset)
-      else getComponent(params.entity, Object3DComponent).value = asset
-    } else {
-      addComponent(params.entity, Object3DComponent, { value: asset })
-    }
   }
 }
 
@@ -146,8 +132,6 @@ const getLoader = (assetType: AssetType) => {
 }
 
 type AssetLoaderParamType = {
-  entity?: Entity
-  parent?: Object3D
   url: string
   castShadow?: boolean
   receiveShadow?: boolean
@@ -164,31 +148,29 @@ const load = (
     onError(new Error('URL is empty'))
     return
   }
+  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
-  if (AssetLoader.Cache.has(params.url)) {
-    return AssetLoader.Cache.get(params.url)
+  if (AssetLoader.Cache.has(url)) {
+    onLoad(AssetLoader.Cache.get(url))
   }
 
-  const assetType = getAssetType(params.url)
-  const assetClass = getAssetClass(params.url)
+  const assetType = getAssetType(url)
+  const assetClass = getAssetClass(url)
 
   const loader = getLoader(assetType)
-  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
   loader.load(
     url,
     (asset) => {
       if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
         loadExtentions(asset)
-        // result = response.scene
-        // result.animations = response.animations
       }
 
       if (assetClass === AssetClass.Model) {
         processModelAsset(asset.scene, params)
       }
 
-      AssetLoader.Cache.set(params.url, asset)
+      AssetLoader.Cache.set(url, asset)
 
       onLoad(asset)
     },
@@ -223,6 +205,6 @@ export class AssetLoader {
 
   // TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
   static getFromCache(url: string) {
-    return AssetLoader.Cache.get(url)
+    return AssetLoader.Cache.get(isAbsolutePath(url) ? url : Engine.publicPath + url)
   }
 }

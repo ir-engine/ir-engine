@@ -113,7 +113,6 @@ export const EnginePage = (props: Props) => {
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
-
   let sceneId = null
 
   const userState = useUserState()
@@ -127,6 +126,7 @@ export const EnginePage = (props: Props) => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
+    addUIEvents()
     if (!engineInitializeOptions.networking) {
       init(props.locationName)
     } else {
@@ -244,22 +244,11 @@ export const EnginePage = (props: Props) => {
 
   const init = async (sceneId: string): Promise<any> => {
     initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
-
-    addUIEvents()
-
     setIsTeleporting(false)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
-    if (slugifiedName === portalComponent.location) {
-      // teleportPlayer(
-      //   Network.instance.localClientEntity,
-      //   portalComponent.remoteSpawnPosition,
-      //   portalComponent.remoteSpawnRotation
-      // )
-      return
-    }
 
     teleportToLocation(portalComponent, slugifiedName, () => {
       setIsTeleporting(true)
@@ -278,11 +267,6 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
-  }
-
-  const handleTouchStartEvent = (e: TouchEvent) => {
-    handleTouch(e)
-    handleTouchMove(e)
   }
 
   if (isUserBanned) return <div className="banned">You have been banned from this location</div>

@@ -1,4 +1,4 @@
-import { ReflectionProbeSettings } from '../../editor/nodes/ReflectionProbeNode'
+import { CubemapBakeSettings } from '@xrengine/engine/src/scene/types/CubemapBakeSettings'
 
 export const enum EnvMapSourceType {
   'Default',
@@ -17,5 +17,5 @@ export type EnvMapProps = {
   envMapSourceURL?: string
   envMapTextureType?: EnvMapTextureType
   envMapSourceColor?: string
-  envMapReflectionProbe?: ReflectionProbeSettings
+  envMapCubemapBake?: CubemapBakeSettings
 }

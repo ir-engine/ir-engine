@@ -30,6 +30,19 @@ export const useStyles = makeStyles((theme: Theme) =>
       flex: 1,
       color: '#f1f1f1'
     },
+    paperHeight: {
+      height: '20vh',
+      background: '#111',
+      color: '#f1f1f1',
+      backgroundColor: '#343b41'
+    },
+    center: {
+      margin: '4rem auto 0 auto',
+      textAlign: 'center'
+    },
+    typo: {
+      textTransform: 'capitalize'
+    },
     iconButton: {
       padding: 10,
       color: '#f1f1f1'
@@ -75,6 +88,21 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     marginBottm: {
       marginBottom: '15px'
+    },
+    mb10: {
+      marginBottom: '10%'
+    },
+    space: {
+      padding: '1.2rem'
+    },
+    mb40px: {
+      marginBottom: '40px'
+    },
+    mt10: {
+      marginTop: '10%'
+    },
+    marginTop: {
+      marginTop: '7%'
     }
   })
 )
@@ -116,6 +144,10 @@ export const useStyle = makeStyles({
     color: '#808080'
   },
   spanWhite: {
+    color: '#f1f1f1'
+  },
+  alert: {
+    background: '#343b41',
     color: '#f1f1f1'
   }
 })

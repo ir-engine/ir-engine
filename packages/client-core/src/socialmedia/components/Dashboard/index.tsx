@@ -202,14 +202,6 @@ export default function Dashboard({ children }) {
               <ListItemText primary={t('social:dashboard.arMedia')} />
             </ListItem>
           </Link>
-          <Link style={{ textDecoration: 'none' }} to="/admin/tips-and-tricks">
-            <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
-              <ListItemIcon>
-                <SettingsSystemDaydreamIcon style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary="Tips&Tricks" />
-            </ListItem>
-          </Link>
 
           <Link style={{ textDecoration: 'none' }} to="/admin/thefeeds">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
