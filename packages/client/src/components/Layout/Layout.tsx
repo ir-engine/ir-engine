@@ -162,7 +162,7 @@ const Layout = (props: Props): any => {
 
   const toggleExpanded = () => setExpanded(!expanded)
 
-  const iOS = () => {
+  const iOS = (): boolean => {
     return (
       ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
       // iPad on iOS 13 detection
@@ -203,7 +203,7 @@ const Layout = (props: Props): any => {
               )}
             </header>
 
-            {iOS() === false && (
+            {!iOS() && (
               <>
                 {props.hideFullscreen ? null : fullScreenActive && harmonyOpen !== true ? (
                   <button type="button" className={styles.fullScreen} onClick={handle.exit}>
