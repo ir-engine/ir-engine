@@ -107,6 +107,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   public async initialize(): Promise<void> {
+    let listenersSetUp = false
     // Set up our gameserver according to our current environment
     const localIp = await getLocalServerIp()
     let stringSubdomainNumber, gsResult
@@ -167,13 +168,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       protocol: 'raw',
       appData: { peerID: 'outgoingProducer' }
     }
-    console.log('Producing data from outgoingDataTransport', this.outgoingDataTransport)
-    try {
-      this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options)
-    } catch (err) {
-      console.log('outgoingDataTransport produceData error', err)
-      throw err
-    }
+    this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options)
 
     const currentRouter = this.routers.instance[0]
 
@@ -232,9 +227,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
               }
             })
             .catch((error) => {
-              // They weren't found in the dabase, so send the client an error message and return
+              // They weren't found in the database, so send the client an error message and return
               callback({ success: false, message: error })
-              return console.warn('Failed to authorize user')
+              return console.warn('User avatar not found')
             })
 
           const avatar = {
@@ -251,95 +246,98 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           // TODO: Check that they are supposed to be in this instance
           // TODO: Check that token is valid (to prevent users hacking with a manipulated user ID payload)
 
-          // Return an authorization success messaage to client
+          // Return an authorization success message to client
           callback({ success: true })
 
-          socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
-            // console.log('Got ConnectToWorld:');
-            // console.log(data);
-            // console.log(userId);
-            // console.log("Avatar", avatar)
-            handleConnectToWorld(socket, data, callback, userId, user, avatar)
-          })
+          if (!listenersSetUp) {
+            listenersSetUp = true
+            socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
+              // console.log('Got ConnectToWorld:');
+              // console.log(data);
+              // console.log(userId);
+              // console.log("Avatar", avatar)
+              handleConnectToWorld(socket, data, callback, userId, user, avatar)
+            })
 
-          socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
-            handleJoinWorld(socket, data, callback, userId, user)
-          )
+            socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
+              handleJoinWorld(socket, data, callback, userId, user)
+            )
 
-          socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
+            socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
 
-          // If a reliable message is received, add it to the queue
-          socket.on(MessageTypes.ReliableMessage.toString(), (data) => handleIncomingMessage(socket, data))
+            // If a reliable message is received, add it to the queue
+            socket.on(MessageTypes.ReliableMessage.toString(), (data) => handleIncomingMessage(socket, data))
 
-          socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(socket))
+            socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(socket))
 
-          socket.on('disconnect', () => handleDisconnect(socket))
+            socket.on('disconnect', () => handleDisconnect(socket))
 
-          socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) => handleLeaveWorld(socket, data, callback))
+            socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) => handleLeaveWorld(socket, data, callback))
 
-          socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
-            handleWebRtcTransportCreate(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
+              handleWebRtcTransportCreate(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
-            handleWebRtcProduceData(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
+              handleWebRtcProduceData(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) =>
-            handleWebRtcTransportConnect(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) =>
+              handleWebRtcTransportConnect(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) =>
-            handleWebRtcTransportClose(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) =>
+              handleWebRtcTransportClose(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) =>
-            handleWebRtcCloseProducer(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) =>
+              handleWebRtcCloseProducer(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) =>
-            handleWebRtcSendTrack(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) =>
+              handleWebRtcSendTrack(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) =>
-            handleWebRtcReceiveTrack(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) =>
+              handleWebRtcReceiveTrack(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
-            handleWebRtcPauseConsumer(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
+              handleWebRtcPauseConsumer(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) =>
-            handleWebRtcResumeConsumer(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) =>
+              handleWebRtcResumeConsumer(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) =>
-            handleWebRtcCloseConsumer(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) =>
+              handleWebRtcCloseConsumer(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) =>
-            handleWebRtcConsumerSetLayers(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) =>
+              handleWebRtcConsumerSetLayers(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) =>
-            handleWebRtcResumeProducer(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) =>
+              handleWebRtcResumeProducer(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
-            handleWebRtcPauseProducer(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
+              handleWebRtcPauseProducer(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
-            handleWebRtcRequestCurrentProducers(socket, data, callback)
-          )
+            socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
+              handleWebRtcRequestCurrentProducers(socket, data, callback)
+            )
 
-          socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) =>
-            handleNetworkStateUpdate(socket, data, true)
-          )
+            socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) =>
+              handleNetworkStateUpdate(socket, data, true)
+            )
 
-          socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
-            handleWebRtcInitializeRouter(socket, data, callback)
-          )
+            socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
+              handleWebRtcInitializeRouter(socket, data, callback)
+            )
+          }
         })
       })
   }
