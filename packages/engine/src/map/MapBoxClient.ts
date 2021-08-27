@@ -4,30 +4,22 @@ import { Position } from 'geojson'
 import { TileFeaturesByLayer } from './types'
 import { vectors } from './vectors'
 
-export const TILE_ZOOM = 16
+const TILE_ZOOM = 16
 export const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
 export const RASTER_TILE_SIZE_HDPI = 256
 
-export function long2tile(lon: number, zoom: number) {
+function long2tile(lon: number, zoom: number) {
   return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom))
 }
 
-export function lat2tile(lat: number, zoom: number) {
+function lat2tile(lat: number, zoom: number) {
   return Math.floor(
     ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) *
       Math.pow(2, zoom)
   )
-}
-
-export function tile2long(tileX: number, zoom: number) {
-  return (tileX / Math.pow(2, zoom)) * 360 - 180
-}
-
-export function tile2lat(tileY: number, zoom: number) {
-  return Math.atan(Math.sinh(Math.PI * (1 - (2 * tileY) / Math.pow(2, zoom)))) * (180 / Math.PI)
 }
 
 /**
@@ -83,9 +75,9 @@ async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitma
   return createImageBitmap(blob)
 }
 
-function forEachSurroundingTile(llPosition: Position, callback: (tileX: number, tileY: number) => void) {
-  const tileX0 = long2tile(llPosition[0], TILE_ZOOM)
-  const tileY0 = lat2tile(llPosition[1], TILE_ZOOM)
+function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, tileY: number) => void) {
+  const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
+  const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
   const startIndex = -WHOLE_NUMBER_OF_TILES_FROM_CENTER
   const endIndex = NUMBER_OF_TILES_IS_ODD ? WHOLE_NUMBER_OF_TILES_FROM_CENTER : WHOLE_NUMBER_OF_TILES_FROM_CENTER - 1
   for (let i = startIndex; i <= endIndex; i++) {
@@ -97,10 +89,10 @@ function forEachSurroundingTile(llPosition: Position, callback: (tileX: number, 
   }
 }
 
-export function llToTile(llPosition: Position) {
-  const tileX = long2tile(llPosition[0], TILE_ZOOM)
-  const tileY = lat2tile(llPosition[1], TILE_ZOOM)
-  return [tileX, tileY]
+export function getCenterTile(llCenter: Position) {
+  const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
+  const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
+  return [tileX0, tileY0]
 }
 
 /**
