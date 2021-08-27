@@ -11,7 +11,7 @@ interface MediaRecord {
   logo: string
 }
 interface Props {
-  media: MediaRecord
+  media?: MediaRecord
 }
 
 const Splash = ({ media }: Props) => {

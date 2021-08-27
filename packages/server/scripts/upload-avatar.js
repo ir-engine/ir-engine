@@ -72,7 +72,6 @@ const AVATAR_LIST = [
     // 'Geoff',
     // 'Jace',
     // 'Karthik'
-    'Sonny',
     'Razer1',
     'Razer2',
     'Razer3',

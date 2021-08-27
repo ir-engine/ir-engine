@@ -1,6 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useCreatorStyles = makeStyles((theme: Theme) =>
   createStyles({
     marginBottom: {
       marginBottom: '10px'
@@ -29,6 +29,19 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginLeft: theme.spacing(1),
       flex: 1,
       color: '#f1f1f1'
+    },
+    paperHeight: {
+      height: '20vh',
+      background: '#111',
+      color: '#f1f1f1',
+      backgroundColor: '#343b41'
+    },
+    center: {
+      margin: '4rem auto 0 auto',
+      textAlign: 'center'
+    },
+    typo: {
+      textTransform: 'capitalize'
     },
     iconButton: {
       padding: 10,
@@ -75,11 +88,26 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     marginBottm: {
       marginBottom: '15px'
+    },
+    mb10: {
+      marginBottom: '10%'
+    },
+    space: {
+      padding: '1.2rem'
+    },
+    mb40px: {
+      marginBottom: '40px'
+    },
+    mt10: {
+      marginTop: '10%'
+    },
+    marginTop: {
+      marginTop: '7%'
     }
   })
 )
 
-export const useStyle = makeStyles({
+export const useCreatorStyle = makeStyles({
   paper: {
     width: '40%',
     backgroundColor: '#43484F',
@@ -116,6 +144,10 @@ export const useStyle = makeStyles({
     color: '#808080'
   },
   spanWhite: {
+    color: '#f1f1f1'
+  },
+  alert: {
+    background: '#343b41',
     color: '#f1f1f1'
   }
 })

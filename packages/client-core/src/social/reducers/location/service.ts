@@ -2,11 +2,11 @@ import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import {
-  fetchingCurrentLocation,
-  locationsRetrieved,
-  locationRetrieved,
-  locationBanCreated,
-  locationNotFound
+  fetchingCurrentSocialLocation,
+  socialLocationsRetrieved,
+  socialLocationRetrieved,
+  socialLocationBanCreated,
+  socialLocationNotFound
 } from './actions'
 
 export function getLocations(skip?: number, limit?: number) {
@@ -19,7 +19,7 @@ export function getLocations(skip?: number, limit?: number) {
           joinableLocations: true
         }
       })
-      dispatch(locationsRetrieved(locationResults))
+      dispatch(socialLocationsRetrieved(locationResults))
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
@@ -30,9 +30,9 @@ export function getLocations(skip?: number, limit?: number) {
 export function getLocation(locationId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      dispatch(fetchingCurrentLocation())
+      dispatch(fetchingCurrentSocialLocation())
       const location = await client.service('location').get(locationId)
-      dispatch(locationRetrieved(location))
+      dispatch(socialLocationRetrieved(location))
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
@@ -54,9 +54,9 @@ export function getLocationByName(locationName: string) {
         console.log("Couldn't get location by name", error)
       })
     if (locationResult && locationResult.total > 0) {
-      dispatch(locationRetrieved(locationResult.data[0]))
+      dispatch(socialLocationRetrieved(locationResult.data[0]))
     } else {
-      dispatch(locationNotFound())
+      dispatch(socialLocationNotFound())
     }
   }
 }
@@ -86,7 +86,7 @@ export function banUserFromLocation(userId: string, locationId: string) {
         userId: userId,
         locationId: locationId
       })
-      dispatch(locationBanCreated())
+      dispatch(socialLocationBanCreated())
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)

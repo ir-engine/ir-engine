@@ -31,17 +31,17 @@ const Party = () => {
         <Grid item xs={9}>
           <Search typeName="party" />
         </Grid>
-        <Grid item xs={3}>
-          <Button
-            className={styles.createLocation}
-            type="submit"
-            variant="contained"
-            color="primary"
-            onClick={openModalCreate}
-          >
-            Create New Party
-          </Button>
-        </Grid>
+        {/*<Grid item xs={3}>*/}
+        {/*  <Button*/}
+        {/*    className={styles.createLocation}*/}
+        {/*    type="submit"*/}
+        {/*    variant="contained"*/}
+        {/*    color="primary"*/}
+        {/*    onClick={openModalCreate}*/}
+        {/*  >*/}
+        {/*    Create New Party*/}
+        {/*  </Button>*/}
+        {/*</Grid>*/}
       </Grid>
       <PartyTable />
 

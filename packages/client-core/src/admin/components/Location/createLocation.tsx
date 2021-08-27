@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { createLocation as createLocationAction } from '../../reducers/admin/location/service'
-import { formValid } from '../Users/validation'
+import { validateUserForm } from '../Users/validation'
 import { selectAlertState } from '../../../common/reducers/alert/selector'
 
 const Alert = (props) => {
@@ -64,6 +64,9 @@ const CreateLocation = (props: Props) => {
     scene: '',
     type: 'private',
     videoEnabled: false,
+    audioEnabled: false,
+    screenSharingEnabled: false,
+    faceStreamingEnabled: false,
     globalMediaEnabled: false,
     isLobby: false,
     isFeatured: false,
@@ -92,6 +95,9 @@ const CreateLocation = (props: Props) => {
         scene: '',
         type: 'private',
         videoEnabled: false,
+        audioEnabled: false,
+        screenSharingEnabled: false,
+        faceStreamingEnabled: false,
         globalMediaEnabled: false,
         isLobby: false,
         isFeatured: false
@@ -146,6 +152,9 @@ const CreateLocation = (props: Props) => {
       location_setting: {
         locationType: state.type,
         instanceMediaChatEnabled: state.globalMediaEnabled,
+        audioEnabled: state.audioEnabled,
+        screenSharingEnabled: state.screenSharingEnabled,
+        faceStreamingEnabled: state.faceStreamingEnabled,
         videoEnabled: state.videoEnabled
       },
       isLobby: state.isLobby,
@@ -162,7 +171,7 @@ const CreateLocation = (props: Props) => {
       temp.scene = "Scene can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateUserForm(state, state.formErrors)) {
       createLocationAction(data)
       //  closeViewModel(false)
     } else {
@@ -280,6 +289,21 @@ const CreateLocation = (props: Props) => {
                     color="primary"
                     control={
                       <Switch
+                        checked={state.audioEnabled}
+                        onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
+                        name="audioEnabled"
+                      />
+                    }
+                    label={t('admin:components.locationModel.lbl-ae')}
+                  />
+                </FormControl>
+              </FormGroup>
+              <FormGroup>
+                <FormControl>
+                  <FormControlLabel
+                    color="primary"
+                    control={
+                      <Switch
                         checked={state.globalMediaEnabled}
                         onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
                         name="globalMediaEnabled"
@@ -289,9 +313,39 @@ const CreateLocation = (props: Props) => {
                   />
                 </FormControl>
               </FormGroup>
+              <FormGroup>
+                <FormControl>
+                  <FormControlLabel
+                    color="primary"
+                    control={
+                      <Switch
+                        checked={state.screenSharingEnabled}
+                        onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+                        name="screenSharingEnabled"
+                      />
+                    }
+                    label={t('admin:components.locationModel.lbl-se')}
+                  />
+                </FormControl>
+              </FormGroup>
             </Grid>
             <Grid item xs={6} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
+                <FormGroup>
+                  <FormControl>
+                    <FormControlLabel
+                      color="primary"
+                      control={
+                        <Switch
+                          checked={state.faceStreamingEnabled}
+                          onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                          name="faceStreamingEnabled"
+                        />
+                      }
+                      label={t('admin:components.locationModel.lbl-fe')}
+                    />
+                  </FormControl>
+                </FormGroup>
                 <FormGroup>
                   <FormControl>
                     <FormControlLabel

@@ -17,7 +17,7 @@ body{
     margin: auto;
     text-align: -webkit-center;
     overflow: hidden;
-    transition: height 800ms linear;
+    transition: height 50ms linear;
 
     .avatarBlock {
         width: 130px;
@@ -137,45 +137,7 @@ body{
           }
         }
 
-        .locationFieldContainer{
-          margin:0px;
-        
-          input{
-              padding: 7px 10px; 
-          }
-          label{
-            padding: 0px 10px;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 1;
-            display: -webkit-box;
-            text-overflow: ellipsis;
-            overflow: hidden;
-          }
-
-          .PrivateNotchedOutline-root-1{
-            border: 0px;
-          }
-    
-          :global(.MuiInputLabel-formControl) {
-            transform: translate(0, 16px) scale(1);
-          }
-    
-          :global(.MuiInput-root) {
-            margin-top: 8px;
-            margin-bottom: 7px;
-          }
-    
-          :global(.MuiFormLabel-root.Mui-focused):not(.MuiFormLabel-filled),
-          :global(.MuiFormLabel-root.MuiFormLabel-filled):not(.Mui-focused){
-            display: none;
-          }
-    
-          :global(.MuiInput-underline:before),
-          :global(.MuiInput-underline:after){
-            border-bottom: none
-          }
-    
-        }
+      
         .searchIcon{
             margin: 10px;
         }
@@ -250,6 +212,10 @@ body{
             height: 90px;
             width: 90px;
           }
+          svg{
+            height: 90px;
+            width: 90px;
+          }
         }
       }
       .profileButton{
@@ -264,17 +230,12 @@ body{
         
       }
 
-      .map-view{
+      .mapView{
         border-radius: 10px;
-        background-color: #FFFFFF;
-        width: 85%;
+        width: 88%;
         margin-top: 30px;
-        box-shadow: 2px 2px 10px gray !important;
       }
-      
-      .map-box{
-          height:50px;
-      }
+    
       .avatarPagination{
         margin-bottom: 20px;
       .iconBlock {

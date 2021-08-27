@@ -1,8 +1,7 @@
-export interface Props {
+export interface PartyProps {
   open: boolean
   handleClose: any
   fetchAdminLocations?: any
-  adminState?: any
   authState?: any
   fetchAdminInstances?: any
   createAdminParty?: any
@@ -10,21 +9,20 @@ export interface Props {
   adminLocationState?: any
 }
 
-export interface PropsTable {
+export interface PartyPropsTable {
   fetchAdminParty?: any
-  adminState?: any
   authState?: any
   adminPartyState?: any
 }
 
-export interface Column {
+export interface PartyColumn {
   id: 'instance' | 'location' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
 }
 
-export const columns: Column[] = [
+export const partyColumns: PartyColumn[] = [
   { id: 'instance', label: 'Instance', minWidth: 170 },
   { id: 'location', label: 'Location', minWidth: 100 },
   {
@@ -35,7 +33,7 @@ export const columns: Column[] = [
   }
 ]
 
-export interface Data {
+export interface PartyData {
   id: string
   instance: string
   location: string

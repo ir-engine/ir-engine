@@ -10,7 +10,7 @@ type GroundProps = {
   color: string
 }
 
-export const createGround = (entity: Entity, args: GroundProps) => {
+export const createGround = (entity: Entity, args: GroundProps): Mesh => {
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
     new MeshStandardMaterial({
@@ -36,4 +36,6 @@ export const createGround = (entity: Entity, args: GroundProps) => {
   )
 
   addComponent(entity, ColliderComponent, { body })
+
+  return mesh
 }

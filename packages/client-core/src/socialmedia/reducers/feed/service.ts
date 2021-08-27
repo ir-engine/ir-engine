@@ -4,7 +4,7 @@
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import { client } from '../../../feathers'
-import Api from '../../../world/components/editor/Api'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import {
   fetchingFeeds,
   feedsRetrieved,
@@ -80,13 +80,16 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         })
         dispatch(feedsMyFeaturedRetrieved(feedsResults.data))
       } else if (type && type === 'admin') {
-        dispatch(fetchingAdminFeeds())
-        const feedsResults = await client.service('feed').find({
-          query: {
-            action: 'admin'
-          }
-        })
-        dispatch(feedsAdminRetrieved(feedsResults.data))
+        const user = getState().get('auth').get('user')
+        if (user.userRole === 'admin') {
+          dispatch(fetchingAdminFeeds())
+          const feedsResults = await client.service('feed').find({
+            query: {
+              action: 'admin'
+            }
+          })
+          dispatch(feedsAdminRetrieved(feedsResults))
+        }
       } else {
         const feedsResults = await client.service('feed').find({ query: { action: type || '' } })
         dispatch(feedsRetrieved(feedsResults.data))
@@ -127,9 +130,8 @@ export function createFeed({ title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds())
-      const api = new Api()
-      const storedVideo = await api.upload(video, null)
-      const storedPreview = await api.upload(preview, null)
+      const storedVideo = (await upload(video, null)) as any
+      const storedPreview = (await upload(preview, null)) as any
 
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
       if (storedVideo && storedPreview) {
@@ -153,15 +155,13 @@ export function updateFeedAsAdmin(feedId: string, feed: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       if (feed.video) {
-        const api = new Api()
-        const storedVideo = await api.upload(feed.video, null)
+        const storedVideo = await upload(feed.video, null)
         //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
         feed.videoId = storedVideo.file_id
         delete feed.video
       }
       if (feed.preview) {
-        const api = new Api()
-        const storedPreview = await api.upload(feed.preview, null)
+        const storedPreview = await upload(feed.preview, null)
         //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
         feed.previewId = storedPreview.file_id
         delete feed.preview

@@ -19,7 +19,7 @@ import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { columns, Props } from './variable'
+import { locationColumns, LocationProps } from './variable'
 import Chip from '@material-ui/core/Chip'
 import Avatar from '@material-ui/core/Avatar'
 import TablePagination from '@material-ui/core/TablePagination'
@@ -50,7 +50,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removeLocation: bindActionCreators(removeLocation, dispatch)
 })
 
-const LocationTable = (props: Props) => {
+const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const {
@@ -201,7 +201,7 @@ const LocationTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {locationColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -217,7 +217,7 @@ const LocationTable = (props: Props) => {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {locationColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
@@ -248,7 +248,7 @@ const LocationTable = (props: Props) => {
         aria-describedby="alert-dialog-description"
         classes={{ paper: classes.paperDialog }}
       >
-        <DialogTitle id="alert-dialog-title">Confirm to delete this location!</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Confirm location deletion</DialogTitle>
         <DialogActions>
           <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
             Cancel

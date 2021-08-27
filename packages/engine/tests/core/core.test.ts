@@ -1,7 +1,7 @@
 /**
  * tests
  */
-import { initializeEngineTest } from "./core.initialiseEngine.test";
+import { initializeEngineTest } from "./core.initialiseEngine";
 
 /**
  * engine utils & polyfills
@@ -35,6 +35,7 @@ const options: InitializeOptions = {
     } as any as NetworkSchema
   },
   physics: {
+    //@ts-ignore
     physxWorker: () => new Worker(currentPath + '/physx/loadPhysXNode.ts')
   },
   systems: []
@@ -46,6 +47,6 @@ const options: InitializeOptions = {
 describe('Core', () => {
 
   // force close until we can reset the engine properly
-  afterAll(() => setTimeout(() => process.exit(), 1000))
+  afterAll(() => setTimeout(() => process.exit(0), 1000))
   initializeEngineTest(options)
 })

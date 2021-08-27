@@ -26,8 +26,7 @@ interface Props {
 
 const FeedsPage = ({ feedsState, getFeeds }: Props) => {
   useEffect(() => getFeeds('admin'), [])
-  const feedsList =
-    feedsState.get('fetching') === false && feedsState?.get('feedsAdmin') ? feedsState.get('feedsAdmin') : null
+  const feedsList = feedsState && feedsState.get('fetching') === false ? feedsState.get('feedsAdmin') : null
   return (
     <>
       <div>

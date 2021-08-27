@@ -1,4 +1,4 @@
-import { PARTY_ADMIN_CREATED, PARTY_ADMIN_DISPLAYED, USER_ADMIN_REMOVED } from '../../actions'
+import { PARTY_ADMIN_CREATED, PARTY_ADMIN_DISPLAYED } from '../../actions'
 
 export interface partyAdminCreatedResponse {
   type: string

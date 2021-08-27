@@ -13,7 +13,10 @@
             "lbl-create": "Create",
             "lbl-cancel": "Cancel",
             "lbl-delete": "Delete",
-            "tooltipCanNotBeDeleted": "Lobby can't be deleted"
+            "tooltipCanNotBeDeleted": "Lobby can't be deleted",
+            "lbl-ae": "Audio Enabled",
+            "lbl-se": "Screen Sharing Enabled",
+            "lbl-fe": "Face Streaming Enabled"
         },
         "index": {
             "col-id": "ID",

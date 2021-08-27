@@ -32,7 +32,6 @@ interface Props {
   handleClose: any
   scenes?: any
   avatars?: any
-  adminState?: any
   contentPackState?: any
   addScenesToContentPack?: any
   addAvatarsToContentPack?: any

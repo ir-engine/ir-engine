@@ -7,12 +7,12 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 import querystring from 'querystring'
 import { Dispatch } from 'redux'
 import { v1 } from 'uuid'
 import { client } from '../../../feathers'
-import { validateEmail, validatePhoneNumber } from '../../../helper'
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
 import { UserAction } from '../../store/UserAction'
@@ -644,8 +644,8 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
           thumbnailData.append('skipStaticResource', 'true')
         }
 
-        const modelCloudfrontURL = `https://${modelURL.cloudfrontDomain}/${modelURL.fields.Key}`
-        const thumbnailCloudfrontURL = `https://${thumbnailURL.cloudfrontDomain}/${thumbnailURL.fields.Key}`
+        const modelCloudfrontURL = `https://${modelURL.cacheDomain}/${modelURL.fields.Key}`
+        const thumbnailCloudfrontURL = `https://${thumbnailURL.cacheDomain}/${thumbnailURL.fields.Key}`
         const selfUser = (store.getState() as any).get('auth').get('user')
         const existingModel = await client.service('static-resource').find({
           query: {
@@ -918,7 +918,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     if (Network.instance != null) await loadAvatarForUpdatedUser(user)
 
     if (selfUser.id === user.id) {
-      if (selfUser.instanceId !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
+      store.dispatch(UserAction.clearLayerUsers())
       if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(UserAction.clearChannelLayerUsers())
       store.dispatch(userUpdated(user))
       if (user.partyId) {

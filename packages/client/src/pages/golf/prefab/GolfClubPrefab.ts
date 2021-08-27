@@ -154,6 +154,7 @@ export const updateClub = (entityClub: Entity): void => {
   vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
 
   golfClubComponent.velocity.copy(vector0)
+  // console.log(golfClubComponent.velocity.clone().lengthSq())
 
   collider.body.transform.linearVelocity.x = vector0.x
   collider.body.transform.linearVelocity.y = vector0.y

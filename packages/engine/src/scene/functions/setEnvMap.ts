@@ -11,8 +11,8 @@ import {
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { convertEquiToCubemap } from '../../editor/nodes/helper/ImageUtils'
-import { ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode'
+import { convertEquiToCubemap } from '../classes/ImageUtils'
+import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTypes'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { SceneOptions } from '../systems/SceneObjectSystem'
 
@@ -82,32 +82,32 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
       break
 
     case EnvMapSourceType.Default:
-      const options = args.envMapReflectionProbe
+      const options = args.envMapCubemapBake
       if (!options) return
-      SceneOptions.instance.bpcemOptions.probeScale = options.probeScale
-      SceneOptions.instance.bpcemOptions.probePositionOffset = options.probePositionOffset
+      SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale
+      SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset
 
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
-        switch (options.reflectionType) {
-          case ReflectionProbeTypes.Baked:
+        switch (options.bakeType) {
+          case CubemapBakeTypes.Baked:
             new TextureLoader().load(options.envMapOrigin, (texture) => {
               Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
               texture.dispose()
             })
 
             break
-          case ReflectionProbeTypes.Realtime:
+          case CubemapBakeTypes.Realtime:
             // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
-            // const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture
+            // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
             // Engine.scene.environment = EnvMap
             break
         }
       })
-      const offset = args.envMapReflectionProbe.probePositionOffset
+      const offset = args.envMapCubemapBake.bakePositionOffset
       const position = new Vector3(offset.x, offset.y, offset.z)
-      SceneOptions.instance.boxProjection = args.envMapReflectionProbe.boxProjection
-      SceneOptions.instance.bpcemOptions.probePositionOffset = position
-      SceneOptions.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
+      SceneOptions.instance.boxProjection = args.envMapCubemapBake.boxProjection
+      SceneOptions.instance.bpcemOptions.bakePositionOffset = position
+      SceneOptions.instance.bpcemOptions.bakeScale = args.envMapCubemapBake.bakeScale
       break
   }
 

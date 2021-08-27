@@ -50,7 +50,7 @@ export const initialChatState = {
   instanceChannelFetched: false
 }
 
-const immutableState = Immutable.fromJS(initialChatState)
+const immutableState = Immutable.fromJS(initialChatState) as any
 
 const chatReducer = (state = immutableState, action: ChatAction): any => {
   let updateMap, localAction, updateMapChannels, updateMapChannelsChild, returned

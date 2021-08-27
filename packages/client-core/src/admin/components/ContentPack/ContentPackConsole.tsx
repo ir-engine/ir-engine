@@ -8,7 +8,6 @@ import ListItemText from '@material-ui/core/ListItemText'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import DownloadModal from './DownloadModal'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { selectAdminState } from '../../reducers/admin/selector'
 import { selectContentPackState } from '../../reducers/contentPack/selector'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { fetchContentPacks } from '../../reducers/contentPack/service'
@@ -16,7 +15,6 @@ import ContentPackDetailsModal from './ContentPackDetailsModal'
 import styles from './ContentPack.module.scss'
 
 interface Props {
-  adminState?: any
   authState?: any
   contentPackState?: any
   fetchContentPacks?: any
@@ -24,7 +22,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminState: selectAdminState(state),
     authState: selectAuthState(state),
     contentPackState: selectContentPackState(state)
   }

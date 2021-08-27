@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { fetchUserRole, createUserRoleAction } from '../../reducers/admin/user/service'
-import { useStyles, useStyle } from './styles'
+import { useUserStyles, useUserStyle } from './styles'
 interface Props {
   open: boolean
   handleClose: any
@@ -22,8 +22,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const createUser = (props: Props) => {
   const { open, handleClose, createUserRoleAction } = props
-  const classes = useStyles()
-  const classx = useStyle()
+  const classes = useUserStyles()
+  const classx = useUserStyle()
   const [role, setRole] = React.useState('')
 
   const createUserRole = async () => {

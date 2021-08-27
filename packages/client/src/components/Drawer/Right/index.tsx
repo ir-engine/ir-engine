@@ -28,7 +28,7 @@ import {
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
 import { getFriends } from '@xrengine/client-core/src/social/reducers/friend/service'
-import { selectGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
+import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
 import { getInvitableGroups } from '@xrengine/client-core/src/social/reducers/group/service'
 import { selectInviteState } from '@xrengine/client-core/src/social/reducers/invite/selector'
 import {
@@ -58,7 +58,7 @@ const mapStateToProps = (state: any): any => {
     authState: selectAuthState(state),
     friendState: selectFriendState(state),
     inviteState: selectInviteState(state),
-    groupState: selectGroupState(state),
+    groupState: selectSocialGroupState(state),
     partyState: selectPartyState(state),
     locationState: selectLocationState(state)
   }

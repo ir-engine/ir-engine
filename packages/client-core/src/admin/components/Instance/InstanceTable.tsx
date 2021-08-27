@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -7,16 +7,14 @@ import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { selectAdminState } from '../../reducers/admin/selector'
-import { fetchAdminInstances, removeInstance } from '../../reducers/admin/instance/service'
+import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { columns, Data } from './variables'
+import { instanceColumns, InstanceData } from './variables'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { useInstanceStyle, useInstanceStyles } from './styles'
 
 interface Props {
-  adminState?: any
   authState?: any
   fetchAdminState?: any
   fetchAdminInstances?: any
@@ -26,7 +24,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
-    adminState: selectAdminState(state),
     adminInstanceState: selectAdminInstanceState(state)
   }
 }
@@ -48,6 +45,7 @@ const InstanceTable = (props: Props) => {
   const classex = useInstanceStyles()
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [refetch, setRefetch] = React.useState(false)
 
   const user = authState.get('user')
   const adminInstances = adminInstanceState.get('instances')
@@ -59,11 +57,23 @@ const InstanceTable = (props: Props) => {
     setPage(0)
   }
 
+  const fetchTick = () => {
+    setTimeout(() => {
+      setRefetch(true)
+      fetchTick()
+    }, 5000)
+  }
+
+  useEffect(() => {
+    fetchTick()
+  }, [])
+
   React.useEffect(() => {
-    if (user.id && adminInstances.get('updateNeeded')) {
-      fetchAdminInstances()
-    }
-  }, [user, adminInstanceState])
+    console.log('Checking for refetch')
+    console.log('refetch', refetch)
+    if ((user.id && adminInstances.get('updateNeeded')) || refetch === true) fetchAdminInstances()
+    setRefetch(false)
+  }, [user, adminInstanceState, refetch])
 
   const createData = (
     id: string,
@@ -71,7 +81,7 @@ const InstanceTable = (props: Props) => {
     currentUsers: Number,
     locationId: any,
     channelId: string
-  ): Data => {
+  ): InstanceData => {
     return {
       id,
       ipAddress,
@@ -89,6 +99,7 @@ const InstanceTable = (props: Props) => {
     }
   }
 
+  console.log('adminInstances', adminInstances.get('instances'))
   const rows = adminInstances
     .get('instances')
     .map((el: any) => createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || ''))
@@ -99,7 +110,7 @@ const InstanceTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {instanceColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -115,7 +126,7 @@ const InstanceTable = (props: Props) => {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {instanceColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>

@@ -11,7 +11,8 @@ import {
   SET_CREATOR_NOT_FOLLOWED,
   CREATOR_FOLLOWERS_RETRIEVED,
   CREATORS_FETCH,
-  CURRENT_CREATOR_FETCH
+  CURRENT_CREATOR_FETCH,
+  CREATOR_REMOVED
 } from '../actions'
 import { Creator, CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 
@@ -30,6 +31,11 @@ export interface FetchingCreatorAction {
 export interface CreatorsNotificationsRetrievedAction {
   type: string
   notifications: any[]
+}
+
+export interface CreatorRemoveAction {
+  type: string
+  id: string
 }
 
 export type CreatorsAction = CreatorRetrievedAction | FetchingCreatorAction | CreatorsRetrievedAction
@@ -102,5 +108,12 @@ export function creatorFollowing(creators: CreatorShort[]): CreatorsRetrievedAct
   return {
     type: CREATOR_FOLLOWERS_RETRIEVED,
     creators
+  }
+}
+
+export function removeCreator(id: string): CreatorRemoveAction {
+  return {
+    type: CREATOR_REMOVED,
+    id
   }
 }

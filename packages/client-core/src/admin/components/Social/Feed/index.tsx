@@ -1,13 +1,13 @@
 import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
-import { useStyle, useStyles } from './styles'
+import { useFeedStyles } from './styles'
 import SearchFeed from './SearchFeed'
 import FeedTable from './FeedTable'
 import FeedModel from './CreateFeed'
 
 const Feed = () => {
-  const classes = useStyles()
+  const classes = useFeedStyles()
   const [mediaModalOpen, setMediaModalOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {

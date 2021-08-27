@@ -41,9 +41,11 @@ import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { Water } from '../classes/Water'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
+import { Interior } from '../classes/Interior'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -67,6 +69,7 @@ export class WorldScene {
     WorldScene.isLoading = true
 
     // reset renderer settings for if we are teleporting and the new scene does not have an override
+    configureCSM(null, true)
     handleRendererSettings(null, true)
 
     const sceneProperty: ScenePropertyType = {
@@ -324,6 +327,15 @@ export class WorldScene {
         isClient && addComponent(entity, UpdatableComponent, {})
         break
 
+      case 'water':
+        isClient && addObject3DComponent(entity, new Water(), component.data)
+        isClient && addComponent(entity, UpdatableComponent, {})
+        break
+
+      case 'interior':
+        isClient && addObject3DComponent(entity, new Interior(), component.data)
+        break
+
       case 'postprocessing':
         EngineRenderer.instance?.configurePostProcessing(component.data.options)
         break
@@ -349,8 +361,8 @@ export class WorldScene {
         break
 
       /* intentionally empty - these are only for the editor */
-      case 'reflectionprobestatic':
-      case 'reflectionprobe':
+      case 'includeInCubemapBake':
+      case 'cubemapbake':
       case 'group':
         break
 

@@ -1,7 +1,9 @@
 import { Dispatch } from 'redux'
-import { instancesRetrievedAction, instanceRemoved } from './actions'
+import { instancesRetrievedAction, instanceRemoved, instanceRemovedAction } from './actions'
 import { client } from '../../../../feathers'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import Store from '../../../../store'
+import { Config } from '@xrengine/common/src/config'
 
 export function fetchAdminInstances() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -32,4 +34,10 @@ export function removeInstance(id: string) {
     const result = await client.service('instance').remove(id)
     dispatch(instanceRemoved(result))
   }
+}
+
+if (!Config.publicRuntimeConfig.offlineMode) {
+  client.service('instance').on('removed', (params) => {
+    Store.store.dispatch(instanceRemovedAction(params.instance))
+  })
 }

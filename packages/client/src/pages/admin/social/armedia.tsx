@@ -6,9 +6,8 @@ import React, { useEffect } from 'react'
 import ArMediaDashboard from '@xrengine/client-core/src/admin/components/Social/Armedia'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-
-import { selectArMediaState } from '@xrengine/client-core/src/admin/reducers/admin/Social/arMedia/selector'
-import { getArMediaService } from '@xrengine/client-core/src/admin/reducers/admin/Social/arMedia/service'
+import { selectArMediaState } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/selector'
+import { getArMediaService } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/service'
 
 const mapStateToProps = (state: any): any => {
   return {

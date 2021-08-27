@@ -4,9 +4,9 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarsFetchedAction, AVATARS_RETRIEVED } from './actions'
 
-export const PAGE_LIMIT = 100
+export const AVATART_PAGE_LIMIT = 100
 
-export const initialAdminState = {
+export const initialAvatarAdminState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -26,7 +26,7 @@ export const initialAdminState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialAdminState)
+const immutableState = Immutable.fromJS(initialAvatarAdminState) as any
 
 const adminReducer = (state = immutableState, action: any): any => {
   let result: any, updateMap: any

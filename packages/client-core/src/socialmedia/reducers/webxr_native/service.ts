@@ -3,8 +3,6 @@
  */
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
-// import { client } from '../../../feathers';
-// import Api from '../../../world/components/editor/Api';
 import { tougleWebXrNative, setWebXrNative } from './actions'
 
 export function getWebXrNative() {

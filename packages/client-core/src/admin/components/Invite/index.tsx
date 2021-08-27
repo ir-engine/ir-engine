@@ -65,7 +65,6 @@ interface Props {
   retrieveSentInvites?: any
   sendInvite?: any
   sentInvites?: any
-  adminState?: any
   fetchUsersAsAdmin?: any
   authState?: any
   adminUserState?: any
@@ -75,7 +74,6 @@ const mapStateToProps = (state: any): any => {
   return {
     receivedInvites: selectInviteState(state),
     sentInvites: selectInviteState(state),
-    adminState: selectAdminState(state),
     authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state)
   }
@@ -89,15 +87,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const InvitesConsole = (props: Props) => {
-  const {
-    adminState,
-    authState,
-    fetchUsersAsAdmin,
-    sentInvites,
-    retrieveSentInvites,
-    retrieveReceivedInvites,
-    adminUserState
-  } = props
+  const { authState, fetchUsersAsAdmin, sentInvites, retrieveSentInvites, retrieveReceivedInvites, adminUserState } =
+    props
   const classes = useStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
@@ -162,7 +153,7 @@ const InvitesConsole = (props: Props) => {
               color="primary"
               onClick={openModelInvite}
             >
-              Sent Invite
+              Send Invite
             </Button>
           </Grid>
         </Grid>

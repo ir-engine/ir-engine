@@ -51,7 +51,7 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
   const { t } = useTranslation()
 
   const handleClickOpen = () => {
-    if (XRPlugin.accessPermission !== undefined) {
+    if ((XRPlugin as any).accessPermission !== undefined) {
       // @ts-ignore
       XRPlugin.accessPermission({})
     }

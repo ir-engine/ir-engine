@@ -26,8 +26,6 @@ import WebXRStart from '@xrengine/client-core/src/socialmedia/components/popups/
 import FeedOnboarding from '@xrengine/client-core/src/socialmedia/components/FeedOnboarding'
 import styles from './index.module.scss'
 
-import image from '/static/images/image.jpg'
-import mockupIPhone from '/static/images/mockupIPhone.jpg'
 import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 
@@ -96,13 +94,20 @@ const Home = ({
 
   if (!currentCreator || currentCreator === null) return <Splash />
 
-  if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
+  if (!onborded)
+    return (
+      <Onboard
+        setOnborded={changeOnboarding}
+        image="/static/images/image.jpg"
+        mockupIPhone="/static/images/mockupIPhone.jpg"
+      />
+    )
 
   return (
     <div className={platformClass + ' ' + hideContentOnRecord}>
       {!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}
       <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-        <AppHeader logo="/assets/logoBlack.png" />
+        <AppHeader title={'CREATOR'} />
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
