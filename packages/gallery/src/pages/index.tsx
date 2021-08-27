@@ -21,10 +21,6 @@ import styles from './index.module.scss'
 import image from '/static/images/image.jpg'
 import mockupIPhone from '/static/images/mockupIPhone.jpg'
 
-
-
-
-
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),
@@ -37,12 +33,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createCreator: bindActionCreators(createCreator, dispatch)
 })
 
-const Home = ({
-  createCreator,
-  doLoginAuto,
-  auth,
-  creatorsState
-}) => {
+const Home = ({ createCreator, doLoginAuto, auth, creatorsState }) => {
   /*hided for now*/
 
   useEffect(() => {
