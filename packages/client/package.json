@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.3.37",
+  "version": "0.4.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,9 +14,9 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "vite",
-    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js dist/server.js",
-    "preview": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite preview && cp src/server.js dist/server.js",
-    "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js dist/server.js",
+    "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview && cp src/server.js dist/server.js",
+    "offline": "cross-env NODE_ENV=offline node --max_old_space-size=6144 ./index.js --port 3000",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run test",
     "test": "jest",
@@ -49,9 +49,9 @@
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.13",
-    "@xrengine/client-core": "^0.3.37",
-    "@xrengine/editor": "^0.3.37",
-    "@xrengine/engine": "^0.3.37",
+    "@xrengine/client-core": "^0.4.0",
+    "@xrengine/editor": "^0.4.0",
+    "@xrengine/engine": "^0.4.0",
     "axios": "0.21.1",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",

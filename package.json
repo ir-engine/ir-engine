@@ -53,7 +53,9 @@
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-nginx": "",
     "cleanup-tests": "node tests/cleanup-tests.js",
-    "test": "jest --detectOpenHandles && lerna run test",
+    "test": "jest && lerna run test",
+    "test-packages": "lerna run test",
+    "test-ci": "cross-env CI=true jest && lerna run test",
     "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
     "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
@@ -66,7 +68,7 @@
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
     "build": "lerna run build --parallel",
-    "build-publish": "lerna run --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
+    "build-publish": "lerna run --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/gallery --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
     "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
@@ -76,7 +78,10 @@
   "pre-commit": [
     "format-staged"
   ],
-  "pre-push": [],
+  "pre-push": [
+    "test-packages",
+    "build-docker"
+  ],
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
@@ -111,13 +116,14 @@
     "terser": "^5.6.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.15.0",
     "@babel/plugin-transform-runtime": "7.15.0",
+    "@babel/preset-env": "7.15.0",
     "@hookstate/core": "3.0.8",
     "@typescript-eslint/parser": "4.29.3",
     "babel-jest": "27.0.6",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
+    "cpy-cli": "3.1.1",
     "concurrently": "6.2.1",
     "esbuild": "0.12.23",
     "esbuild-plugin-sass": "0.6.0",
@@ -132,6 +138,7 @@
     "puppeteer": "9.1.1",
     "react-router-dom": "5.2.0",
     "supertest": "6.1.6",
+    "trace-unhandled": "2.0.1",
     "yuka": "0.7.6"
   }
 }

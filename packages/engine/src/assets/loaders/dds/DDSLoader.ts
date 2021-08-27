@@ -13,7 +13,7 @@ class DDSLoader extends CompressedTextureLoader {
   }
 
   parse(buffer, loadMipmaps) {
-    const dds = { mipmaps: [], width: 0, height: 0, format: null, mipmapCount: 1 }
+    const dds: any = { mipmaps: [], width: 0, height: 0, format: null, mipmapCount: 1 }
 
     // Adapted from @toji's DDS utils
     // https://github.com/toji/webgl-texture-utils/blob/master/texture-util/dds.js
@@ -132,7 +132,7 @@ class DDSLoader extends CompressedTextureLoader {
       return dds
     }
 
-    if (!header[off_pfFlags] & DDPF_FOURCC) {
+    if (!(header[off_pfFlags] & DDPF_FOURCC)) {
       console.error('THREE.DDSLoader.parse: Unsupported format, must contain a FourCC code.')
       return dds
     }

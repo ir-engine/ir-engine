@@ -34,7 +34,7 @@
     "generate-doc": "node_modules/.bin/typedoc",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
-  "version": "0.3.37",
+  "version": "0.4.0",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1"
@@ -46,8 +46,8 @@
     "@pixiv/three-vrm": "^0.6.4",
     "@turf/turf": "^6.5.0",
     "@tweenjs/tween.js": "^18.6.4",
-    "@xrengine/bot": "^0.3.37",
-    "@xrengine/common": "^0.3.37",
+    "@xrengine/bot": "^0.4.0",
+    "@xrengine/common": "^0.4.0",
     "bitecs": "^0.3.18-1",
     "browserfs": "^1.4.3",
     "cross-env": "^7.0.3",
@@ -56,7 +56,7 @@
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "earcut": "^2.2.3",
-    "ethereal": "^2.0.13",
+    "ethereal": "^2.0.31",
     "gl-matrix": "^3.0.0",
     "hls.js": "^1.0.7",
     "idb-keyval": "^5.0.5",
@@ -102,7 +102,7 @@
     "rollup-plugin-scss": "3.0.0",
     "ts-jest": "27.0.5",
     "typedoc": "0.21.6",
-    "typescript": "4.3.5"
+    "typescript": "4.4.2"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }
