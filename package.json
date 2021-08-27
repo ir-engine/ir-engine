@@ -55,7 +55,7 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "test": "jest && lerna run test",
     "test-packages": "lerna run test",
-    "test-ci": "cross-env HEADLESS=true jest && lerna run test",
+    "test-ci": "cross-env CI=true jest && lerna run test",
     "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
     "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",

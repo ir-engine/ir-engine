@@ -398,6 +398,7 @@ export class XREngineBot {
     await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60 * 1000 })
 
     const granted = await this.page.evaluate(async () => {
+      // @ts-ignore
       return (await navigator.permissions.query({ name: 'camera' })).state
     })
     console.log('Granted:', granted)
