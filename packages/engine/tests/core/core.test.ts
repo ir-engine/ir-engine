@@ -47,6 +47,6 @@ const options: InitializeOptions = {
 describe('Core', () => {
 
   // force close until we can reset the engine properly
-  afterAll(() => setTimeout(() => process.exit(), 1000))
+  afterAll(() => setTimeout(() => process.exit(0), 1000))
   initializeEngineTest(options)
 })

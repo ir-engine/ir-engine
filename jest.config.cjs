@@ -20,6 +20,7 @@ module.exports = {
   moduleDirectories: ["node_modules", "src"],
   setupFiles: [],
   maxWorkers: 1,
+  verbose: true,
   transform: {
     ".(ts|tsx)": "ts-jest"
   },

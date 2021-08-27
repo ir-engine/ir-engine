@@ -9,7 +9,7 @@ import styles from './index.module.scss'
 export default function NotificationsPage() {
   return (
     <div className={styles.viewport}>
-      <AppHeader logo="/assets/logoBlack.png" />
+      <AppHeader title={'CREATOR'} />
       <NotificationList />
       <AppFooter />
     </div>

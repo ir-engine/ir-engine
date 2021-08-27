@@ -56,7 +56,7 @@
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "earcut": "^2.2.3",
-    "ethereal": "^2.0.19",
+    "ethereal": "^2.0.31",
     "gl-matrix": "^3.0.0",
     "hls.js": "^1.0.7",
     "idb-keyval": "^5.0.5",
@@ -102,7 +102,7 @@
     "rollup-plugin-sass": "1.2.6",
     "ts-jest": "27.0.5",
     "typedoc": "0.21.6",
-    "typescript": "4.3.5"
+    "typescript": "4.4.2"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

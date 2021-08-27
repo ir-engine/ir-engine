@@ -11,7 +11,7 @@ export class BotManager {
    * BotManager constructor
    * @param options:
    *      - headless
-   *      - autoLog
+   *      - verbose
    *      - onError
    */
   constructor(options = {}) {

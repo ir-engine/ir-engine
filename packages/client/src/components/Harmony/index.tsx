@@ -848,7 +848,7 @@ const Harmony = (props: Props): any => {
             transport: SocketWebRTCClientTransport
           } as NetworkSchema
         },
-        renderer: {
+        scene: {
           disabled: true
         }
       }
