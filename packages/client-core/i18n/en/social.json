@@ -90,8 +90,7 @@
     "feedMenu": {
         "featured": "Featured",
         "creators": "Creators",
-        "feed": "The Feed",
-        "tips": "Tips & Tricks"
+        "feed": "The Feed"
     },
     "header": {
         "lbl-volumetric": "Volumetric"
@@ -152,10 +151,6 @@
     },
     "story": {
         "profilePic": "{{user}}'s profile pic"
-    },
-    "tips": {
-        "title": "Created Tips & Tricks",
-        "description": "I recently understood the words of my friend Jacob West about music."
     },
     "view": {
         "cancel": "Cancel",
