@@ -2,7 +2,7 @@ import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 
-const maxTimeout = 60 * 1000
+const maxTimeout = 240 * 1000
 const bot = new XREngineBot({ name: 'bot-1', gpu: !process.env.HEADLESS, headless: true, verbose: true })
 const vector3 = new Vector3()
 
