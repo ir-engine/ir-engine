@@ -80,7 +80,6 @@
     "format-staged"
   ],
   "pre-push": [
-    "lint",
     "test-packages",
     "build-docker"
   ],
