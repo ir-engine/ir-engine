@@ -54,7 +54,7 @@
     "@xrengine/engine": "^0.4.0",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
-    "autoprefixer": "10.3.2",
+    "autoprefixer": "10.3.3",
     "axios": "0.21.1",
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
