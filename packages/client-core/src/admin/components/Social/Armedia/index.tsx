@@ -7,8 +7,8 @@ import { useARMediaStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-import { selectArMediaState } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/selector'
-import { getArMediaService } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/service'
+import { getArMediaService } from '../../../../socialmedia/reducers/arMedia/service'
+import { selectArMediaState } from '../../../../socialmedia/reducers/arMedia/selector'
 
 interface Props {
   list?: any

@@ -35,7 +35,6 @@ export default {
       output: 'dist/index.css',
     }),
     sass({
-      exclude: /node_modules/,
       output: 'dist/index.css',
     }),
     json(),

@@ -1,5 +1,3 @@
-// created from 'create-ts-index'
-
 export * from './assets/testScenePreset'
 export * from './assets/testScenes'
 export * from './config'

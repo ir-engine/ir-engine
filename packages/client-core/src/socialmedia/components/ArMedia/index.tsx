@@ -12,12 +12,12 @@ import { createArMedia, getArMedia } from '../../reducers/arMedia/service'
 import { selectArMediaState } from '../../reducers/arMedia/selector'
 import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service'
 // import {  Plugins } from '@capacitor/core';
-import Preloader from '@xrengine/client-core/src/socialmedia/components/Preloader'
 
 import styles from './ArMedia.module.scss'
 
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
+import Preloader from '../Preloader'
 
 const mapStateToProps = (state: any): any => {
   return {

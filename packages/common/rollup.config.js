@@ -4,7 +4,7 @@ import replace from '@rollup/plugin-replace';
 import camelCase from 'lodash.camelcase';
 import livereload from 'rollup-plugin-livereload';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import scss from 'rollup-plugin-scss';
+import sass from 'rollup-plugin-sass';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 
@@ -21,7 +21,7 @@ export default {
   inlineDynamicImports: true,
   plugins: [
     nodePolyfills(),
-    scss({
+    sass({
       exclude: /node_modules/,
       output: 'dist/index.css',
     }),
