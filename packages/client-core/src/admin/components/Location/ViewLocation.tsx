@@ -26,6 +26,7 @@ import { patchLocation } from '../../reducers/admin/location/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 interface Props {
   openView: any
@@ -39,7 +40,8 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     adminSceneState: selectAdminSceneState(state),
-    adminLocationState: selectAdminLocationState(state)
+    adminLocationState: selectAdminLocationState(state),
+    authState: selectAuthState(state)
   }
 }
 
@@ -52,7 +54,8 @@ const Alert = (props) => {
 }
 
 const ViewLocation = (props: Props) => {
-  const { openView, closeViewModel, adminSceneState, adminLocationState, patchLocation, locationAdmin } = props
+  const { openView, closeViewModel, adminSceneState, adminLocationState, patchLocation, locationAdmin, authState } =
+    props
   const classex = useLocationStyle()
   const classes = useLocationStyles()
   const [editMode, setEditMode] = React.useState(false)
@@ -81,6 +84,16 @@ const ViewLocation = (props: Props) => {
   const { t } = useTranslation()
   const adminScenes = adminSceneState.get('scenes').get('scenes')
   const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
+  const user = authState.get('user') // user initialized by getting value from authState object.
+  const scopes = user.scopes || []
+  let isLocationWrite = false
+
+  for (const scope of scopes) {
+    if (scope.type.split(':')[0] === 'location' && scope.type.split(':')[1] === 'write') {
+      isLocationWrite = true
+      break
+    }
+  }
 
   React.useEffect(() => {
     if (locationAdmin) {
@@ -523,6 +536,7 @@ const ViewLocation = (props: Props) => {
           ) : (
             <div className={classes.marginTpM}>
               <Button
+                disabled={!isLocationWrite}
                 className={classes.saveBtn}
                 onClick={() => {
                   setEditMode(true)
