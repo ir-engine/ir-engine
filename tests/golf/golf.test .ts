@@ -16,7 +16,6 @@ const locationName = process.env.TEST_LOCATION_NAME
 const vector3 = new Vector3()
 
 describe.skip('Golf tests', () => {
-
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterLocation(`https://${domain}/golf/${locationName}`)
@@ -42,5 +41,4 @@ describe.skip('Golf tests', () => {
   teleportToBall(bot)
   hitBallTest(bot)
   // resetBall(bot)
-
 })
