@@ -62,7 +62,6 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   physics: {
     settings: {
       bounceThresholdVelocity: 0.5,
-      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
       start: false,
       lengthScale: 1,
       verbose: false,
