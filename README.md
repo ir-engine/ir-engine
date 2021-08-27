@@ -582,3 +582,16 @@ And then you will need to update the ui, in the return function `line 199` insid
  <CompoundNumericInput name="data 2" value={node.data2} onChange={onChangeData2} />=
 </InputGroup>
 ```
+
+## Command System
+
+The engine supports in-game commands from the chat (XREngine/packages/common/src/utils/commandHandler.ts). Commands are handled both in the server and in the client
+
+### Available Commands
+
+1. /move x,y,z -> Move to the destination using Navmesh (used for the DigitalBeings)
+
+### How to create a new Command
+
+All Commands should have a character in the start in order to get handled, right now / and // are used, but new ones can be added/removed/changed easily.
+In order to create a new command, add the hnalder in the switch in the handleCommand function in commandHandler.ts script, there is the example of movement command, which is used to move the player using the chat and navmesh. All parameters are separated by , if they exist.
