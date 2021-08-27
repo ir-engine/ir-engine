@@ -18,7 +18,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SearchIcon } from '../icons/Search'
 import { Close } from '../icons/Close'
 import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage'
-import MapView from '../MapLocationSelection'
+// import MapView from '../MapLocationSelection'
 
 interface Props {
   currentScene?: any
@@ -269,9 +269,9 @@ const UserProfileScreen = (props: Props) => {
           </CardContent>
         </Card>
 */}
-        <div className={styles.mapView}>
+        {/* <div className={styles.mapView}>
           <MapView />
-        </div>
+        </div> */}
         {!isEditProfile && (
           <div className={styles.profileButton}>
             {' '}
