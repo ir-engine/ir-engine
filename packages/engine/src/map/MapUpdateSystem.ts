@@ -63,7 +63,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
     if (!maps.length) {
       return
     }
-    
+
     for (const playerEntity of moveQuery(world)) {
       const mapEntity = maps[0] // TODO: iterate all maps
       const map = getComponent(mapEntity, MapComponent)
