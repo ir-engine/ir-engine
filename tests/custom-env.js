@@ -1,4 +1,4 @@
-
+import fs from 'fs'
 import dotenv from "dotenv"
 import killport from "kill-port"
 import { spawn } from "child_process"
@@ -12,7 +12,8 @@ dotenv.config({
 
 const timeoutMS = 3 * 60 * 1000
 
-process.env.HEADLESS = process.env.HEADLESS === 'true'
+process.env.CI = process.env.CI === 'true'
+process.env.HEADLESS = process.env.CI
 
 const killPorts = () => {
   if (process.platform.includes('darwin') === 'macOS') return // killing ports causes testing to fail on macOS
