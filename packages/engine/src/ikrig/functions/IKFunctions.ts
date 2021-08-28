@@ -154,16 +154,16 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   const bindBoneWorldQuaternion = new Quaternion()
   bindBone.getWorldQuaternion(bindBoneWorldQuaternion)
   const quatInverse = new Quaternion().copy(bindBoneWorldQuaternion).invert(),
-    altForward = new Vector3().copy(FORWARD).applyQuaternion(quatInverse),
-    altUp = new Vector3().copy(UP).applyQuaternion(quatInverse)
+    altForward = FORWARD.clone().applyQuaternion(quatInverse),
+    altUp = UP.clone().applyQuaternion(quatInverse)
 
   const poseBoneForwardWorldQuaternion = new Quaternion()
   poseBone.getWorldQuaternion(poseBoneForwardWorldQuaternion)
   const poseBoneUpWorldQuaternion = new Quaternion()
   poseBone.getWorldQuaternion(poseBoneUpWorldQuaternion)
 
-  const poseForward = new Vector3().copy(altForward).applyQuaternion(poseBoneForwardWorldQuaternion),
-    poseUp = new Vector3().copy(altUp).applyQuaternion(poseBoneForwardWorldQuaternion)
+  const poseForward = altForward.clone().applyQuaternion(poseBoneWorldQuaternion),
+    poseUp = altUp.clone().applyQuaternion(poseBoneWorldQuaternion)
 
   /* VISUAL DEBUG TPOSE AND ANIMATED POSE DIRECTIONS 	*/
 
@@ -189,7 +189,7 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
     .multiply(bindBoneWorldQuaternion) // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
 
   // a new Up direction based on only swing.
-  const swing_up = new Vector3().copy(UP).applyQuaternion(swing)
+  const swing_up = UP.clone().applyQuaternion(swing)
   // TODO: Make sure this isn't flipped
   let twist = swing_up.angleTo(poseUp) // Swing + Pose have same Fwd, Use Angle between both UPs for twist
   let twist2 = poseUp.angleTo(swing_up) // Swing + Pose have same Fwd, Use Angle between both UPs for twist
@@ -203,8 +203,8 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   // let swing_lft = Vec3.cross( swing_up, pose_fwd );
   // // App.Debug.ln( pos, Vec3.scale( swing_lft, 1.5 ).add( pos ), "orange" );
   // if( Vec3.dot( swing_lft, pose_up ) >= 0 ) twist = -twist;
-  const swing_lft = new Vector3().copy(swing_up).cross(poseForward)
-  const vec3Dot = new Vector3().copy(swing_lft).dot(poseUp)
+  const swing_lft = swing_up.clone().cross(poseForward)
+  const vec3Dot = swing_lft.clone().dot(poseUp)
   // Debug.setLine( position, Vector3.scale( swing_lft, 1.5 ).add( position ), "orange" );
   if (vec3Dot >= 0) twist = -twist
 
