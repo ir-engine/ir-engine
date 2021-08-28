@@ -280,12 +280,12 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           }
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
           const { hmd, left, right } = ikTransform
-          xrInputSourceComponent.head.position.set(hmd.x, hmd.y, hmd.z)
-          xrInputSourceComponent.head.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW)
-          xrInputSourceComponent.controllerLeft.position.set(left.x, left.y, left.z)
-          xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW)
-          xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z)
-          xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW)
+          xrInputSourceComponent.head.position.set(hmd[0], hmd[1], hmd[2])
+          xrInputSourceComponent.head.quaternion.set(hmd[3], hmd[4], hmd[5], hmd[6])
+          xrInputSourceComponent.controllerLeft.position.set(left[0], left[1], left[2])
+          xrInputSourceComponent.controllerLeft.quaternion.set(left[3], left[4], left[5], left[6])
+          xrInputSourceComponent.controllerRight.position.set(right[0], right[1], right[2])
+          xrInputSourceComponent.controllerRight.quaternion.set(right[3], right[4], right[5], right[6])
         }
       } catch (e) {
         console.log(e)
@@ -300,10 +300,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
         Network.instance.clientInputState = {
           networkId: localAvatarNetworkId,
           snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-          buttons: [],
-          axes1d: [],
-          axes2d: [],
-          axes6DOF: [],
+          data: [],
           viewVector: Network.instance.clientInputState.viewVector,
           commands: [],
           transforms: []

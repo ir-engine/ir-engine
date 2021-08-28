@@ -160,7 +160,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
 
-  // Input Systems
+  // Avatar Systems
   registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
   registerSystem(SystemUpdateType.Fixed, AvatarLoadingSystem)

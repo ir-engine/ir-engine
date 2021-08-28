@@ -15,7 +15,7 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
 import { PhysXInstance } from 'three-physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { World } from '../../ecs/classes/World'
 import { processLocationChange } from '../../ecs/functions/EngineFunctions'
@@ -39,7 +39,7 @@ export const teleportToScene = async (
   )
   removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
   removeComponent(Network.instance.localClientEntity, InteractorComponent)
-  removeComponent(Network.instance.localClientEntity, LocalInputReceiverComponent)
+  removeComponent(Network.instance.localClientEntity, LocalInputTagComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
@@ -111,7 +111,7 @@ export const teleportToScene = async (
   rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
   createAvatarController(Network.instance.localClientEntity)
-  addComponent(Network.instance.localClientEntity, LocalInputReceiverComponent, {})
+  addComponent(Network.instance.localClientEntity, LocalInputTagComponent, {})
 
   await delay(250)
 

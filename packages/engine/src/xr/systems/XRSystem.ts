@@ -9,13 +9,14 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { addControllerModels } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
+import { XR6DOF } from '../../input/enums/InputEnums'
 
 /**
  * System for XR session and input handling
@@ -26,7 +27,7 @@ import { endXR, startWebXR } from '../functions/WebXRFunctions'
 export const XRSystem = async (): Promise<System> => {
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
-  const localXRControllerQuery = defineQuery([InputComponent, LocalInputReceiverComponent, XRInputSourceComponent])
+  const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const localXRControllerAddQuery = enterQuery(localXRControllerQuery)
 
   // TEMPORARY - precache controller model
@@ -62,13 +63,14 @@ export const XRSystem = async (): Promise<System> => {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
           source.gamepad?.buttons.forEach((button, index) => {
-            // TODO : support button.touched and button.value
-            button.pressed && console.log(index, mapping.buttons[index])
-            Engine.inputState.set(mapping.buttons[index], {
-              type: InputType.BUTTON,
-              value: button.pressed ? BinaryValue.ON : BinaryValue.OFF,
-              lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
-            })
+            if (typeof mapping.buttons[index] !== 'undefined') {
+              // TODO : support button.touched and button.value
+              Engine.inputState.set(mapping.buttons[index], {
+                type: InputType.BUTTON,
+                value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
+                lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+              })
+            }
           })
           if (source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
@@ -93,45 +95,44 @@ export const XRSystem = async (): Promise<System> => {
 
     for (const entity of localXRControllerQuery(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const input = getComponent(entity, InputComponent)
-      input.data.set(BaseInput.XR_HEAD, {
+      Engine.inputState.set(XR6DOF.HMD, {
         type: InputType.SIXDOF,
-        value: {
-          x: xrInputSourceComponent.head.position.x,
-          y: xrInputSourceComponent.head.position.y,
-          z: xrInputSourceComponent.head.position.z,
-          qW: xrInputSourceComponent.head.quaternion.w,
-          qX: xrInputSourceComponent.head.quaternion.x,
-          qY: xrInputSourceComponent.head.quaternion.y,
-          qZ: xrInputSourceComponent.head.quaternion.z
-        },
-        lifecycleState: LifecycleValue.CHANGED
+        value: [
+          xrInputSourceComponent.head.position.x,
+          xrInputSourceComponent.head.position.y,
+          xrInputSourceComponent.head.position.z,
+          xrInputSourceComponent.head.quaternion.x,
+          xrInputSourceComponent.head.quaternion.y,
+          xrInputSourceComponent.head.quaternion.z,
+          xrInputSourceComponent.head.quaternion.w
+        ],
+        lifecycleState: LifecycleValue.CONTINUED
       })
-      input.data.set(BaseInput.XR_CONTROLLER_LEFT_HAND, {
+      Engine.inputState.set(XR6DOF.LeftHand, {
         type: InputType.SIXDOF,
-        value: {
-          x: xrInputSourceComponent.controllerLeft.position.x,
-          y: xrInputSourceComponent.controllerLeft.position.y,
-          z: xrInputSourceComponent.controllerLeft.position.z,
-          qW: xrInputSourceComponent.controllerLeft.quaternion.w,
-          qX: xrInputSourceComponent.controllerLeft.quaternion.x,
-          qY: xrInputSourceComponent.controllerLeft.quaternion.y,
-          qZ: xrInputSourceComponent.controllerLeft.quaternion.z
-        },
-        lifecycleState: LifecycleValue.CHANGED
+        value: [
+          xrInputSourceComponent.controllerLeft.position.x,
+          xrInputSourceComponent.controllerLeft.position.y,
+          xrInputSourceComponent.controllerLeft.position.z,
+          xrInputSourceComponent.controllerLeft.quaternion.x,
+          xrInputSourceComponent.controllerLeft.quaternion.y,
+          xrInputSourceComponent.controllerLeft.quaternion.z,
+          xrInputSourceComponent.controllerLeft.quaternion.w
+        ],
+        lifecycleState: LifecycleValue.CONTINUED
       })
-      input.data.set(BaseInput.XR_CONTROLLER_RIGHT_HAND, {
+      Engine.inputState.set(XR6DOF.RightHand, {
         type: InputType.SIXDOF,
-        value: {
-          x: xrInputSourceComponent.controllerRight.position.x,
-          y: xrInputSourceComponent.controllerRight.position.y,
-          z: xrInputSourceComponent.controllerRight.position.z,
-          qW: xrInputSourceComponent.controllerRight.quaternion.w,
-          qX: xrInputSourceComponent.controllerRight.quaternion.x,
-          qY: xrInputSourceComponent.controllerRight.quaternion.y,
-          qZ: xrInputSourceComponent.controllerRight.quaternion.z
-        },
-        lifecycleState: LifecycleValue.CHANGED
+        value: [
+          xrInputSourceComponent.controllerRight.position.x,
+          xrInputSourceComponent.controllerRight.position.y,
+          xrInputSourceComponent.controllerRight.position.z,
+          xrInputSourceComponent.controllerRight.quaternion.x,
+          xrInputSourceComponent.controllerRight.quaternion.y,
+          xrInputSourceComponent.controllerRight.quaternion.z,
+          xrInputSourceComponent.controllerRight.quaternion.w
+        ],
+        lifecycleState: LifecycleValue.CONTINUED
       })
     }
 
