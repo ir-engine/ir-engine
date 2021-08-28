@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -89,14 +88,6 @@ export function ImageNodeEditor(props) {
     </NodeEditor>
   )
 }
-
-//declairig propTypes for ImageNodeEditor
-ImageNodeEditor.propTypes = {
-  editor: PropTypes.object,
-  node: PropTypes.object,
-  multiEdit: PropTypes.bool
-}
-
 //intailising iconComponent with icon name
 ImageNodeEditor.iconComponent = Image
 

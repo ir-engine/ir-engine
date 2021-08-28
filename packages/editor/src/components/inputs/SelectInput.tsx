@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React from 'react'
-import PropTypes from 'prop-types'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 
@@ -113,30 +111,4 @@ export function SelectInput({ value, options, onChange, placeholder, disabled, e
   )
 }
 
-SelectInput.defaultProps = {
-  value: null,
-  placeholder: 'Select...',
-  optionNotFoundPlaceholder: 'Error',
-  onChange: () => {},
-  styles: {},
-  error: false,
-  disabled: false,
-  creatable: false
-}
-
-SelectInput.propTypes = {
-  value: PropTypes.any,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.any,
-      label: PropTypes.string
-    })
-  ),
-  styles: PropTypes.object,
-  onChange: PropTypes.func,
-  placeholder: PropTypes.string,
-  error: PropTypes.bool,
-  disabled: PropTypes.bool,
-  creatable: PropTypes.bool
-}
 export default SelectInput

@@ -1,5 +1,4 @@
 import React, { useEffect, createContext, useContext } from 'react'
-import PropTypes from 'prop-types'
 import useHover from '../hooks/useHover'
 
 const AudioPreviewContext = createContext(new Audio())
@@ -28,14 +27,4 @@ export function AudioPreview({ src, children }) {
   return <div ref={hoverRef}>{children}</div>
 }
 
-/**
- * Declairing propTypes for AudioPreview.
- *
- * @author Robert Long
- * @type {Object}
- */
-AudioPreview.propTypes = {
-  src: PropTypes.string,
-  children: PropTypes.node
-}
 export default AudioPreview

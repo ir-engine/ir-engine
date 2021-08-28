@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { ThemeProvider } from 'styled-components'
 import { configureStore } from '@xrengine/client-core/src/store'
-import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
 import theme from '../../theme'
 import { Config } from '@xrengine/common/src/config'
@@ -25,9 +24,9 @@ const App = (): any => {
 
     dispatch(restoreState())
 
-    initGA()
+    // initGA()
 
-    logPageView()
+    // logPageView()
   }, [])
 
   useEffect(initApp, [])

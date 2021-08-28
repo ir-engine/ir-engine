@@ -58,7 +58,6 @@ module.exports = {
     // React linting rules
     "react/boolean-prop-naming": "off",
     "react/button-has-type": "error",
-    "react/default-props-match-prop-types": "warn",
     "react/no-danger": "error",
     "react/no-unused-state": "error",
     "react/no-will-update-set-state": "error",
