@@ -50,7 +50,7 @@ export class Vector3Input extends Component {
     uniformEnabled: any
     hideLabels: boolean
   }
-  
+
   constructor(props) {
     super(props)
 
@@ -63,7 +63,6 @@ export class Vector3Input extends Component {
       hideLabels: props.hideLabels ?? false
     }
   }
-
 
   id: number
   newValue: Vector3

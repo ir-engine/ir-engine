@@ -64,7 +64,6 @@ export class Vector2Input extends Component {
     }
   }
 
-
   id: number
   newValue: Vector2
 

@@ -45,7 +45,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
   //setting description and will appears on editor view
   static description = i18n.t('editor:properties.partileEmitter.description')
 
-
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   updateParticles() {
     for (const node of this.props.editor.selected) {

@@ -52,4 +52,3 @@ export function ProgressDialog({ message, onConfirm, cancelable, onCancel, ...pr
     </Dialog>
   )
 }
-

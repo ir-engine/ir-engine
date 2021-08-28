@@ -137,7 +137,6 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
   )
 }
 
-
 /**
  * ViewportPanelContainer used to render viewport.
  *

@@ -15,7 +15,12 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
-import { createProject, getProject, saveProject, serverURL } from '@xrengine/engine/src/scene/functions/projectFunctions'
+import {
+  createProject,
+  getProject,
+  saveProject,
+  serverURL
+} from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'

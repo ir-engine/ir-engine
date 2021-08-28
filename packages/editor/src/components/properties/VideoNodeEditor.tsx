@@ -62,7 +62,7 @@ export function VideoNodeEditor(props) {
         {/* @ts-ignore */}
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
       </InputGroup>
-        {/* @ts-ignore */}
+      {/* @ts-ignore */}
       <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
         <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
