@@ -108,7 +108,7 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
       clientInput.data.forEach((data) => {
         // convert back any numbers to actual numbers - not a great solution but it works
         const num = Number(data.key)
-        if (!isNaN(num)) data.key = num
+        if (!Number.isNaN(num)) data.key = num
 
         const { key, value } = data
         if (inputComponent.schema.inputMap.has(key)) {

@@ -57,15 +57,11 @@ export class ClientInputModel {
   static model: Model = new Model(inputKeyArraySchema)
   /** Convert to buffer. */
   static toBuffer(inputs: NetworkClientInputInterface): Buffer {
-    try {
-      const packetInputs: any = {
-        ...inputs,
-        snapShotTime: inputs.snapShotTime
-      }
-      return Network.instance.packetCompression ? ClientInputModel.model.toBuffer(packetInputs) : packetInputs
-    } catch (e) {
-      console.log(e, inputs)
+    const packetInputs: any = {
+      ...inputs,
+      snapShotTime: inputs.snapShotTime
     }
+    return Network.instance.packetCompression ? ClientInputModel.model.toBuffer(packetInputs) : packetInputs
   }
   /** Read from buffer. */
   static fromBuffer(buffer: Buffer): NetworkClientInputInterface {
