@@ -34,7 +34,7 @@ chrome://version/
     await bot.delay(3000)
     await setupXR(bot)
     await bot.runHook(BotHooks.InitializeBot)
-    await bot.runHook(XRBotHooks.OverrideXR)
+    //await bot.runHook(XRBotHooks.OverrideXR)
 
     await bot2.launchBrowser()
     await bot2.enterLocation(`https://${domain}/golf/${locationName}`)
@@ -42,7 +42,7 @@ chrome://version/
     await bot2.delay(3000)
     await setupXR(bot2)
     await bot2.runHook(BotHooks.InitializeBot)
-    await bot2.runHook(XRBotHooks.OverrideXR)
+    //await bot2.runHook(XRBotHooks.OverrideXR)
   }, maxTimeout)
 
   afterAll(async () => {
@@ -54,12 +54,13 @@ chrome://version/
   }, maxTimeout)
 
   
-  testWebXR(bot)
+ 
   headUpdateTest(bot)
+  testWebXR(bot)
   teleportToBall(bot)
-
-  testWebXR(bot2)
+  //simulateXR()
   headUpdateTest(bot2)
+  testWebXR(bot2)
 
     // Test player ids
   // Test state stuff like score and current hole
@@ -72,22 +73,24 @@ chrome://version/
   teleportOnSpawn(bot2, 'KeyM')
 
 
-  for (let count = 0; count < 30; count++) {
+  checkGoal(bot, testdata)
+  checkGoal(bot2, testdata)
+
+  for (let count = 0; count < 16; count++) {
     if (count%2) {
       teleportToBall(bot)
       hitBallTest(bot)
       teleportOnSpawn(bot, 'KeyJ')
-     // checkGoal(bot, testdata)
     } else {
 
     teleportToBall(bot2)
     hitBallTest(bot2)
     teleportOnSpawn(bot2, 'KeyM')
-  //  checkGoal(bot2, testdata)
     }
-  
+    
   }
-
+  checkGoal(bot, testdata)
+  checkGoal(bot2, testdata)
   // resetBall(bot)
   // resetBall(bot)
 

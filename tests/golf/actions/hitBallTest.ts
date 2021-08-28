@@ -26,9 +26,9 @@ export const hitBallTest = (bot: XREngineBot) => {
           .length()
       ).toBeLessThan(0.3)
 */
-      await bot.keyPress('KeyL', 300)
+      await bot.keyPress('KeyL', 200)
       //await bot.runHook(GolfBotHooks.SwingClub)
-      await bot.delay(1000)
+      await bot.delay(2000)
       //await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
       expect(
         vector3
@@ -46,10 +46,12 @@ export const headUpdateTest = (bot: XREngineBot) => {
   test(
     'Update Head ' + bot.name,
     async () => {
+      /*
       await bot.runHook(XRBotHooks.UpdateHead, {
         position: [0, 2, 1],
         rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
       })
+      */
       // rotate such that hit direction is in line with the hole
       const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
       const holePosition = await bot.runHook(GolfBotHooks.GetHolePosition)
@@ -60,6 +62,10 @@ export const headUpdateTest = (bot: XREngineBot) => {
           .normalize()
           .angleTo(new Vector3().copy(holePosition).setY(0).normalize()) + 90
       await bot.runHook(BotHooks.RotatePlayer, { angle })
+
+      await bot.delay(100)
+      await bot.keyPress('Semicolon', 200)
+      await bot.delay(100)
       expect(0.9).toBeLessThan(1)
     },
     maxTimeout

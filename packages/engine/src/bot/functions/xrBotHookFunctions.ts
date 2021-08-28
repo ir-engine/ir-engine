@@ -168,6 +168,7 @@ export const getInputSourceRotation = (inputSource: InputSource) => {
 const tweens = []
 
 export const sendXRInputData = () => {
+  console.log('sendXRInputData', headPosition)
   tweens.forEach((call) => call())
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-pose',
@@ -235,6 +236,7 @@ export function tweenXRInputSource(args: InputSourceTweenProps) {
 export function updateHead(args: { position?: number[]; rotation?: number[] }) {
   args.position && headPosition.fromArray(args.position)
   args.rotation && headRotation.fromArray(args.rotation)
+  console.log(headPosition)
 }
 
 /**

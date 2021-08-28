@@ -233,12 +233,12 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       swingClubKey,
       (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
+        /*
         updateHead({
           position: [0, 2, 1],
           rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
         })
-
+*/
         // rotatePlayer()
         swingClub()
       }
