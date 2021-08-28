@@ -4,7 +4,6 @@ import { fetchAdminLocations } from '@xrengine/client-core/src/admin/reducers/ad
 import { selectAdminState } from '@xrengine/client-core/src/admin/reducers/admin/selector'
 import { fetchAdminScenes, fetchLocationTypes } from '@xrengine/client-core/src/admin/reducers/admin/service'
 import { cmdOrCtrlString } from '@xrengine/editor/src/functions/utils'
-import PropTypes from 'prop-types'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
@@ -16,7 +15,7 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
-import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
+import { createProject, getProject, saveProject, serverURL } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'
@@ -43,6 +42,8 @@ import PerformanceCheckDialog from './dialogs/PerformanceCheckDialog'
 import PublishDialog from './dialogs/PublishDialog'
 import PublishedSceneDialog from './dialogs/PublishedSceneDialog'
 import i18n from 'i18next'
+import { getToken } from '../../../engine/src/scene/functions/getToken'
+import { upload } from '../../../engine/src/scene/functions/upload'
 
 /**
  * getSceneUrl used to create url for the scene.
@@ -415,10 +416,6 @@ type EditorContainerState = {
  *  @author Robert Long
  */
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
-  static propTypes = {
-    adminState: PropTypes.object
-  }
-
   constructor(props) {
     super(props)
     const { Engine } = props

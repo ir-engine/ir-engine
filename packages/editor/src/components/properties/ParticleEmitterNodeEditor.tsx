@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
@@ -34,12 +33,7 @@ type ParticleEmitterNodeEditorProps = {
  * @type {class component}
  */
 export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEditorProps> {
-  // declaring propTypes for ParticleEmitterNodeEditor
-  static propTypes = {
-    editor: PropTypes.object,
-    node: PropTypes.object
-  }
-
+  declare props: ParticleEmitterNodeEditorProps
   constructor(props: ParticleEmitterNodeEditorProps) {
     super(props)
     this.props = props
@@ -51,7 +45,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
   //setting description and will appears on editor view
   static description = i18n.t('editor:properties.partileEmitter.description')
 
-  props: ParticleEmitterNodeEditorProps
 
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   updateParticles() {

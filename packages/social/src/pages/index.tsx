@@ -71,7 +71,7 @@ const Home = ({
     getWebXrNative()
   }, [])
 
-  const [onborded, setOnborded] = useState(true)
+  const [onboarded, setOnboarded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
 
@@ -80,14 +80,14 @@ const Home = ({
 
   useEffect(() => {
     if (!!currentCreator && !!currentCreator.createdAt) {
-      currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnborded(false)
+      currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnboarded(false)
     }
   }, [currentCreator])
 
   const webxrRecorderActivity = webxrnativeState.get('webxrnative')
 
   const changeOnboarding = () => {
-    setOnborded(true)
+    setOnboarded(true)
     setFeedOnborded(false)
     setFeedHintsOnborded(false)
   }
@@ -96,7 +96,7 @@ const Home = ({
 
   if (!currentCreator || currentCreator === null) return <Splash />
 
-  if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
+  if (!onboarded) return <Onboard setOnboarded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
   return (
     <div className={platformClass + ' ' + hideContentOnRecord}>

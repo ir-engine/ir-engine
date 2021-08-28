@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { InputGroupContainer, InputGroupContent, InputGroupInfo } from './InputGroup'
 import Scrubber from './Scrubber'
 import NumericInput from './NumericInput'
@@ -26,12 +25,4 @@ export function NumericInputGroup({ name, className, info, label, ...rest }) {
   )
 }
 
-/**
- * @author Robert Long
- */
-NumericInputGroup.propTypes = {
-  name: PropTypes.string.isRequired,
-  className: PropTypes.string,
-  info: PropTypes.string
-}
 export default NumericInputGroup

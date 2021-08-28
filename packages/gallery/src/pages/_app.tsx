@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { ThemeProvider } from 'styled-components'
 import { configureStore } from '@xrengine/client-core/src/store'
-import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
 import theme from '../../theme'
 import { Config } from '@xrengine/common/src/config'
@@ -16,21 +15,21 @@ import './styles.scss'
 const App = (): any => {
   const dispatch = useDispatch()
 
-  const initApp = useCallback(() => {
-    if (process.env && process.env.NODE_CONFIG) {
-      ;(window as any).env = process.env.NODE_CONFIG
-    } else {
-      ;(window as any).env = ''
-    }
+  // const initApp = useCallback(() => {
+  //   if (process.env && process.env.NODE_CONFIG) {
+  //     ;(window as any).env = process.env.NODE_CONFIG
+  //   } else {
+  //     ;(window as any).env = ''
+  //   }
 
-    dispatch(restoreState())
+  //   dispatch(restoreState())
 
-    initGA()
+  //   // initGA()
 
-    logPageView()
-  }, [])
+  //   // logPageView()
+  // }, [])
 
-  useEffect(initApp, [])
+  // useEffect(initApp, [])
 
   return (
     <>
@@ -43,7 +42,7 @@ const App = (): any => {
       </Helmet>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <RouterComp />
+        {/* <RouterComp /> */}
       </ThemeProvider>
     </>
   )

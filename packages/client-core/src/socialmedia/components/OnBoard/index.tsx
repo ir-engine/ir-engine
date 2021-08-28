@@ -7,14 +7,14 @@ import styles from './index.module.scss'
 import { isIOS } from '../../../util/platformCheck'
 
 interface Props {
-  setOnborded?: any
+  setOnboarded?: any
   image?: any
   mockupIPhone?: any
 }
 
 const Onboard = (props: Props) => {
   const [screen, setScreen] = useState(1)
-  const { setOnborded, image, mockupIPhone } = props
+  const { setOnboarded, image, mockupIPhone } = props
   useEffect(() => {
     console.log('IsIos', isIOS)
   })
@@ -65,7 +65,7 @@ const Onboard = (props: Props) => {
           <button
             type="button"
             onClick={() => {
-              setOnborded(true)
+              setOnboarded(true)
             }}
           >
             {' '}

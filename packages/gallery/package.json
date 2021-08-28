@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/gallery",
-  "version": "0.3.37",
+  "version": "0.4.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
   "jest": "ts-jest",
   "scripts": {
     "dev": "vite --host",
-    "build": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js www/server.js",
+    "build": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js www/server.js",
     "validate": "npm run test",
     "start": "cp src/server.js www/server.js && node www/server.js"
   },
@@ -28,19 +28,26 @@
     "socket.io": "4.1.3"
   },
   "dependencies": {
+    "@capacitor-community/http": "1.2.0",
+    "@capacitor/android": "3.2.0",
+    "@capacitor/app": "1.0.2",
+    "@capacitor/cli": "3.2.0",
+    "@capacitor/filesystem": "1.0.2",
+    "@capacitor/ios": "3.2.0",
+    "@capacitor/share": "1.0.3",
     "@material-ui/core": "4.12.3",
     "@types/react-redux": "7.1.18",
-    "@xrengine/client-core": "^0.3.37",
-    "@xrengine/common": "^0.3.37",
-    "@xrengine/editor": "^0.3.37",
-    "@xrengine/engine": "^0.3.37",
+    "@xrengine/client-core": "^0.4.0",
+    "@xrengine/common": "^0.4.0",
+    "@xrengine/editor": "^0.4.0",
+    "@xrengine/engine": "^0.4.0",
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "formik": "2.2.9",
-    "prop-types": "15.7.2",
-    "react": "17.0.2",
+    "react": "^17.0.0",
     "react-dom": "17.0.2",
     "react-redux": "7.2.4",
+    "react-video-recorder": "3.19.1",
     "redux": "4.1.1",
     "sass": "1.38.1",
     "styled-components": "5.3.1"
@@ -51,7 +58,7 @@
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
-    "typescript": "4.3.5",
+    "typescript": "4.4.2",
     "vite": "2.5.1"
   },
   "browser": {

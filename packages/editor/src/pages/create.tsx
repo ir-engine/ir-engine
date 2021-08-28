@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 const CreateProjectPage = React.lazy(() => import('@xrengine/editor/src/components/projects/CreateProjectPage'))
 
 /**
- * Declairing Props interface having two props.
+ * Declaring Props interface having two props.
  *@authState can be of any type.
  *@doLoginAuto can be of type doLoginAuto component.
  *

@@ -49,7 +49,7 @@ const Home = ({ createCreator, doLoginAuto, auth, creatorsState }) => {
     doLoginAuto(true)
   }, [])
 
-  const [onborded, setOnborded] = useState(true)
+  const [onborded, setOnboarded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
 
@@ -58,12 +58,12 @@ const Home = ({ createCreator, doLoginAuto, auth, creatorsState }) => {
 
   useEffect(() => {
     if (!!currentCreator && !!currentCreator.createdAt) {
-      currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnborded(false)
+      currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnboarded(false)
     }
   }, [currentCreator])
 
   const changeOnboarding = () => {
-    setOnborded(true)
+    setOnboarded(true)
     setFeedOnborded(false)
     setFeedHintsOnborded(false)
   }
@@ -71,7 +71,7 @@ const Home = ({ createCreator, doLoginAuto, auth, creatorsState }) => {
 
   if (!currentCreator || currentCreator === null) return <Splash />
 
-  if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
+  if (!onborded) return <Onboard setOnboarded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
   return (
     <div className={platformClass + ' '}>
@@ -79,8 +79,6 @@ const Home = ({ createCreator, doLoginAuto, auth, creatorsState }) => {
       <div className={styles.viewport}>
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
-
-        <ArMediaPopup />
         <CreatorPopup />
         <FeedPopup />
         <CreatorFormPopup />

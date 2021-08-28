@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -64,8 +62,8 @@ export function VideoNodeEditor(props) {
         {/* @ts-ignore */}
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
       </InputGroup>
-      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
         {/* @ts-ignore */}
+      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
         <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
       {/* @ts-ignore */}
@@ -76,13 +74,6 @@ export function VideoNodeEditor(props) {
       <AudioSourceProperties {...props} />
     </NodeEditor>
   )
-}
-
-// declaring propTypes for VideoNodeEditor
-VideoNodeEditor.propTypes = {
-  editor: PropTypes.object,
-  node: PropTypes.object,
-  multiEdit: PropTypes.bool
 }
 
 // setting iconComponent with icon name

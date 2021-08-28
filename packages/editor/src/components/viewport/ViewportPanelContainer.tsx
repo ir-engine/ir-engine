@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -138,13 +137,6 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
   )
 }
 
-// Declairing properties for IconToggle
-IconToggle.propTypes = {
-  icon: PropTypes.elementType,
-  value: PropTypes.bool,
-  onClick: PropTypes.func,
-  tooltip: PropTypes.string
-}
 
 /**
  * ViewportPanelContainer used to render viewport.
