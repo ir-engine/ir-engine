@@ -12,9 +12,10 @@ const { authenticate } = hooks
 export default {
   before: {
     all: [],
-    find: [collectAnalytics()],
-    get: [],
+    find: [verifyScope('static_resource', 'read'), collectAnalytics()],
+    get: [verifyScope('statisc_resource', 'read')],
     create: [
+      verifyScope('static_resource', 'write'),
       authenticate('jwt'),
       (context: HookContext): HookContext => {
         if (!context.data.uri && context.params.file) {
@@ -30,9 +31,14 @@ export default {
         return context
       }
     ],
-    update: [authenticate('jwt')],
-    patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId'), removeOwnedFile()]
+    update: [verifyScope('static_resource', 'write'), authenticate('jwt')],
+    patch: [verifyScope('static_resource', 'write'), authenticate('jwt'), replaceThumbnailLink()],
+    remove: [
+      verifyScope('static_resource', 'write'),
+      authenticate('jwt'),
+      attachOwnerIdInQuery('userId'),
+      removeOwnedFile()
+    ]
   },
 
   after: {

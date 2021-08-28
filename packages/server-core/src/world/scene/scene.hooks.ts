@@ -6,12 +6,12 @@ import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
 export default {
   before: {
     all: [collectAnalytics()],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    find: [verifyScope('scene', 'read')],
+    get: [verifyScope('scene', 'read')],
+    create: [verifyScope('scene', 'write')],
+    update: [verifyScope('scene', 'write')],
+    patch: [verifyScope('scene', 'write')],
+    remove: [verifyScope('scene', 'write')]
   },
 
   after: {

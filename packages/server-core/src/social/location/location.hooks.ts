@@ -9,6 +9,7 @@ export default {
   before: {
     all: [authenticate('jwt')],
     find: [
+      verifyScope('location', 'read'),
       addAssociations({
         models: [
           {
@@ -18,24 +19,10 @@ export default {
             model: 'location-settings'
           }
         ]
-      }),
-      async (context: HookContext) => {
-        const userId = context.params['identity-provider']?.userId
-        const scope = await context.app.service('scope').Model.findOne({
-          where: {
-            userId
-          },
-          raw: true,
-          nest: true
-        })
-        // if(scope){
-        //   throw new Error("scope is not defined")
-        // }
-        console.log(scope)
-        return context
-      }
+      })
     ],
     get: [
+      verifyScope('location', 'read'),
       addAssociations({
         models: [
           {

@@ -1,16 +1,17 @@
 import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
 import logger from '../../logger'
+import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
 
 export default {
   before: {
     all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [disallow()],
-    patch: [],
-    remove: []
+    find: [verifyScope('bot', 'read')],
+    get: [verifyScope('bot', 'read')],
+    create: [verifyScope('bot', 'write')],
+    update: [verifyScope('bot', 'write'), disallow()],
+    patch: [verifyScope('bot', 'write')],
+    remove: [verifyScope('bot', 'write')]
   },
 
   after: {
