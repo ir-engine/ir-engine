@@ -4,15 +4,17 @@ import dauria from 'dauria'
 import removeOwnedFile from '@xrengine/server-core/src/hooks/remove-owned-file'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
 
 const { authenticate } = hooks
 
 export default {
   before: {
     all: [],
-    find: [],
-    get: [],
+    find: [verifyScope('static_resource', 'read'), collectAnalytics()],
+    get: [verifyScope('statisc_resource', 'read')],
     create: [
+      verifyScope('static_resource', 'write'),
       authenticate('jwt'),
       (context: HookContext): HookContext => {
         if (!context.data.uri && context.params.file) {
@@ -28,9 +30,14 @@ export default {
         return context
       }
     ],
-    update: [authenticate('jwt')],
-    patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId'), removeOwnedFile()]
+    update: [verifyScope('static_resource', 'write'), authenticate('jwt')],
+    patch: [verifyScope('static_resource', 'write'), authenticate('jwt'), replaceThumbnailLink()],
+    remove: [
+      verifyScope('static_resource', 'write'),
+      authenticate('jwt'),
+      attachOwnerIdInQuery('userId'),
+      removeOwnedFile()
+    ]
   },
 
   after: {
