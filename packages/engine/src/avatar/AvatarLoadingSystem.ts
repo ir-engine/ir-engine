@@ -14,7 +14,7 @@ import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { DissolveEffect } from './DissolveEffect'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 
 const lightScale = (y, r) => {
@@ -74,7 +74,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       pt.rotation.x = -0.5 * Math.PI
 
       // if (isEntityLocalClient(entity)) {
-      //   removeComponent(entity, LocalInputReceiverComponent)
+      //   removeComponent(entity, LocalInputTagComponent)
       // }
 
       addComponent(entity, TweenComponent, {
@@ -206,7 +206,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
               removeComponent(entity, AvatarEffectComponent)
 
               // if (isEntityLocalClient(entity)) {
-              //   addComponent(entity, LocalInputReceiverComponent, {})
+              //   addComponent(entity, LocalInputTagComponent, {})
               // }
             })
         })

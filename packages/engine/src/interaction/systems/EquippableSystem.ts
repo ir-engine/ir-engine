@@ -12,7 +12,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**
@@ -20,7 +20,7 @@ import { ECSWorld } from '../../ecs/classes/World'
  */
 
 export const EquippableSystem = async (): Promise<System> => {
-  const networkUserQuery = defineQuery([Not(LocalInputReceiverComponent), AvatarComponent, TransformComponent])
+  const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
   const networkUserAddQuery = enterQuery(networkUserQuery)
 
   const equippableQuery = defineQuery([EquipperComponent])

@@ -30,6 +30,12 @@ export enum XRAxes {
   Right = 23
 }
 
+export enum XR6DOF {
+  HMD = 24,
+  LeftHand = 25,
+  RightHand = 26
+}
+
 export enum GamepadAxis {
   Left = 28,
   Right = 29

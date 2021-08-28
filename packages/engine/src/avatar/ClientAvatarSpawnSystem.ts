@@ -4,7 +4,7 @@ import { CameraMode } from '../camera/types/CameraMode'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { Network } from '../networking/classes/Network'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { CollisionGroups } from '../physics/enums/CollisionGroups'
@@ -31,7 +31,7 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
       if (isLocalPlayer) {
-        addComponent(entity, LocalInputReceiverComponent, {})
+        addComponent(entity, LocalInputTagComponent, {})
         addComponent(entity, FollowCameraComponent, {
           mode: CameraMode.ThirdPerson,
           distance: 5,

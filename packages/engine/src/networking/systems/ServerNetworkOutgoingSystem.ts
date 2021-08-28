@@ -1,7 +1,6 @@
 import { defineQuery, defineSystem, Not, System } from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { SIXDOFType } from '../../common/types/NumericalTypes'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -17,7 +16,7 @@ import { WorldStateModel } from '../schema/worldStateSchema'
 export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
   const networkTransformsQuery = defineQuery([Not(AvatarComponent), NetworkObjectComponent, TransformComponent])
   const avatarTransformsQuery = defineQuery([AvatarComponent, NetworkObjectComponent, TransformComponent])
-  const ikTransformsQuery = defineQuery([XRInputSourceComponent, NetworkObjectComponent, TransformComponent])
+  const ikTransformsQuery = defineQuery([XRInputSourceComponent])
 
   return defineSystem((world: ECSWorld) => {
     const transformState: TransformStateInterface = {
@@ -75,10 +74,9 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
 
       const input = getComponent(entity, InputComponent)
 
-      const hmd = input.data.get(BaseInput.XR_HEAD) as InputValue<SIXDOFType>
-      const left = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND) as InputValue<SIXDOFType>
-      const right = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND) as InputValue<SIXDOFType>
-
+      const hmd = input.data.get(BaseInput.XR_HEAD)
+      const left = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND)
+      const right = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND)
       if (!hmd?.value || !left?.value || !right?.value) continue
 
       transformState.ikTransforms.push({

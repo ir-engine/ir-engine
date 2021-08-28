@@ -1,5 +1,4 @@
 import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
-import { Engine } from '../../ecs/classes/Engine'
 import {
   handleContextMenu,
   handleKey,
@@ -14,7 +13,6 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 const supportsPassive = (function () {
   let supportsPassiveValue = false
