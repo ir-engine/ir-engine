@@ -73,7 +73,7 @@
     "@feathersjs/socketio-client": "5.0.0-pre.9",
     "@feathersjs/transport-commons": "5.0.0-pre.9",
     "@xrengine/server-core": "^0.4.0",
-    "aws-sdk": "2.977.0",
+    "aws-sdk": "2.978.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "comlink": "4.3.1",
