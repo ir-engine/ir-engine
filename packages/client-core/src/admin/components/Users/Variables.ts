@@ -6,36 +6,36 @@ export interface UserColumn {
 }
 
 export const userColumns: UserColumn[] = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'avatar', label: 'Avatar', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 65 },
+  { id: 'avatar', label: 'Avatar', minWidth: 65 },
   {
     id: 'status',
     label: 'Status',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'location',
     label: 'Location',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'inviteCode',
     label: 'Invite code',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'instanceId',
     label: 'Instance',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'action',
     label: 'Action',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   }
 ]

@@ -27,11 +27,17 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
       textAlign: 'center',
       color: theme.palette.text.secondary,
-      height: '40vh'
-      // maxWidth: "1500px"
+      height: '40vh',
+      width: '99.9%'
     },
     mtopp: {
       marginTop: '20px'
+    },
+    btn: {
+      fontSize: '0.875rem',
+      [theme.breakpoints.down('xs')]: {
+        fontSize: '0.6rem'
+      }
     }
   })
 )
@@ -169,7 +175,7 @@ const Analytics = (props: Props) => {
       <Grid container spacing={3}>
         {data.map((el) => {
           return (
-            <Grid item xs={3} key={el.label}>
+            <Grid item xs={12} sm={6} lg={3} key={el.label}>
               <Card data={el} />
             </Grid>
           )
@@ -178,10 +184,10 @@ const Analytics = (props: Props) => {
       <div className={classes.mtopp}>
         <Paper className={classes.paper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
-            <ToggleButton value="activity" onClick={() => setGraphSelector('activity')}>
+            <ToggleButton className={classes.btn} value="activity" onClick={() => setGraphSelector('activity')}>
               Activity
             </ToggleButton>
-            <ToggleButton value="users" onClick={() => setGraphSelector('users')}>
+            <ToggleButton className={classes.btn} value="users" onClick={() => setGraphSelector('users')}>
               Users
             </ToggleButton>
           </ToggleButtonGroup>
