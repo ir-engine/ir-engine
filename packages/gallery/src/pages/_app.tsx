@@ -15,21 +15,21 @@ import './styles.scss'
 const App = (): any => {
   const dispatch = useDispatch()
 
-  // const initApp = useCallback(() => {
-  //   if (process.env && process.env.NODE_CONFIG) {
-  //     ;(window as any).env = process.env.NODE_CONFIG
-  //   } else {
-  //     ;(window as any).env = ''
-  //   }
+  const initApp = useCallback(() => {
+    if (process.env && process.env.NODE_CONFIG) {
+      ;(window as any).env = process.env.NODE_CONFIG
+    } else {
+      ;(window as any).env = ''
+    }
 
-  //   dispatch(restoreState())
+    dispatch(restoreState())
 
-  //   // initGA()
+    // initGA()
 
-  //   // logPageView()
-  // }, [])
+    // logPageView()
+  }, [])
 
-  // useEffect(initApp, [])
+  useEffect(initApp, [])
 
   return (
     <>
@@ -42,7 +42,7 @@ const App = (): any => {
       </Helmet>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        {/* <RouterComp /> */}
+        <RouterComp />
       </ThemeProvider>
     </>
   )

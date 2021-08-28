@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Dashboard from '@xrengine/client-core/src/socialmedia/components/Dashboard'
+import Dashboard from '@xrengine/social/src/components/Dashboard'
 import React from 'react'
 
 const AdminPage = () => {

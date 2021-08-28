@@ -11,7 +11,7 @@ import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvid
 import CardMedia from '@material-ui/core/CardMedia'
 import { Trans, useTranslation } from 'react-i18next'
 
-import styles from '../../../socialmedia/components/Login/Login.module.scss'
+import styles from '@xrengine/social/src/components/Login/Login.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {

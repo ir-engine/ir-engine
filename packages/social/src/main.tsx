@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import { initialize } from './util'
-import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
+import Splash from '@xrengine/social/src/components/Splash'
 
 import('./env-config').then((module) => {
   const envConfig = module.default
