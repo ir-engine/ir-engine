@@ -82,7 +82,6 @@ export class Network {
   private static availableNetworkId = 0
 
   isLocal = (userId) => {
-    console.log('local id: ' + this.userId + ' caller: ' + userId)
     return this.userId === userId
   }
 

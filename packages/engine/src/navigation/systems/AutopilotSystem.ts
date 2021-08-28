@@ -106,7 +106,6 @@ export const AutopilotSystem = async (): Promise<System> => {
 
       const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
       autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate)
-      console.log('autopilotComponent.path', autopilotComponent.path)
 
       // TODO: "mount" player? disable movement, etc.
 

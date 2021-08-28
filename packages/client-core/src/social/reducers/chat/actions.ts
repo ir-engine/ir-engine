@@ -21,6 +21,7 @@ import { TransformComponent } from '../../../../../engine/src/transform/componen
 import { handleCommand, isCommand } from '../../../../../common/src/utils/commandHandler'
 import { Network } from '../../../../../engine/src/networking/classes/Network'
 import { Engine } from '../../../../../engine/src/ecs/classes/Engine'
+import { isBot } from '../../../../../engine/src/common/functions/isBot'
 
 export interface LoadedChannelsAction {
   type: string
@@ -121,10 +122,11 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
 
 export function createdMessage(message: Message, selfUser: User): ChatAction {
   if (message != undefined && message.text != undefined) {
+    console.log('message: ' + message.text)
     if (Network.instance.isLocal(message.senderId)) {
       if (handleCommand(message.text, Network.instance.localClientEntity, false)) return
     } else {
-      if (isCommand(message.text) && !Engine.isBot) return
+      if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
     }
   }
 
