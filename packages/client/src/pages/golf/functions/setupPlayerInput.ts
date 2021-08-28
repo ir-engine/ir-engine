@@ -49,12 +49,12 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
   const inputs = getComponent(entityPlayer, InputComponent)
 
   // override the default mapping and behavior of input schema and interact
-  inputs.schema.inputMap.set('k', GolfInput.TELEPORT)
+  inputs.schema.inputMap.set('KeyK', GolfInput.TELEPORT)
   inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT)
 
   inputs.schema.behaviorMap.set(
     GolfInput.TELEPORT,
-    (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+    (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
       const playerNumber = getGolfPlayerNumber(entity)
       const ballEntity = getBall(world, playerNumber)
@@ -99,12 +99,12 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
     }
   )
 
-  inputs.schema.inputMap.set('y', GolfInput.TOGGLECLUB)
+  inputs.schema.inputMap.set('KeyY', GolfInput.TOGGLECLUB)
   inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
 
   inputs.schema.behaviorMap.set(
     GolfInput.TOGGLECLUB,
-    (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+    (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
 
       const playerNumber = getGolfPlayerNumber(entity)
@@ -123,10 +123,10 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
     if (isClient) {
       const teleportballkey = 130
 
-      inputs.schema.inputMap.set('h', teleportballkey)
+      inputs.schema.inputMap.set('KeyH', teleportballkey)
       inputs.schema.behaviorMap.set(
         teleportballkey,
-        (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
@@ -144,10 +144,10 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       )
 
       const teleportballOut = 140
-      inputs.schema.inputMap.set('b', teleportballOut)
+      inputs.schema.inputMap.set('KeyB', teleportballOut)
       inputs.schema.behaviorMap.set(
         teleportballOut,
-        (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
@@ -182,7 +182,7 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       )
       let xrSetup = false
       const setupBotKey = 141
-      inputs.schema.inputMap.set(';', setupBotKey)
+      inputs.schema.inputMap.set('Semicolon', setupBotKey)
       inputs.schema.behaviorMap.set(setupBotKey, () => {
         if (xrSetup) return
         xrSetup = true
@@ -191,10 +191,10 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
     }
 
     const swingClubKey = 142
-    inputs.schema.inputMap.set('l', swingClubKey)
+    inputs.schema.inputMap.set('KeyL', swingClubKey)
     inputs.schema.behaviorMap.set(
       swingClubKey,
-      (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+      (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
         updateHead({
           position: [0, 2, 1],
