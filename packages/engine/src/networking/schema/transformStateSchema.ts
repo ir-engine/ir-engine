@@ -14,22 +14,12 @@ const transformSchema = new Schema({
   qW: float32
 })
 
-const ikTransformOrientationSchema = new Schema({
-  x: float32,
-  y: float32,
-  z: float32,
-  qX: float32,
-  qY: float32,
-  qZ: float32,
-  qW: float32
-})
-
 const ikTransformSchema = new Schema({
   networkId: uint32,
   snapShotTime: uint32,
-  hmd: ikTransformOrientationSchema,
-  left: ikTransformOrientationSchema,
-  right: ikTransformOrientationSchema
+  hmd: [float32],
+  left: [float32],
+  right: [float32]
 })
 
 const transformStateSchema = new Schema({

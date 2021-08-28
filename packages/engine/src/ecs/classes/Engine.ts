@@ -113,8 +113,8 @@ export class Engine {
 
   static useAudioSystem = false
 
-  static inputState = new Map<any, InputValue<NumericalType>>()
-  static prevInputState = new Map<any, InputValue<NumericalType>>()
+  static inputState = new Map<any, InputValue>()
+  static prevInputState = new Map<any, InputValue>()
 
   static isInitialized = false
 

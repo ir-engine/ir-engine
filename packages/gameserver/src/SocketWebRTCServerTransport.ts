@@ -107,7 +107,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   public async initialize(): Promise<void> {
-    let listenersSetUp = false
     // Set up our gameserver according to our current environment
     const localIp = await getLocalServerIp()
     let stringSubdomainNumber, gsResult
@@ -187,9 +186,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     if (this.socketIO != null)
       (this.socketIO as any).of('/').on('connect', (socket: Socket) => {
+        let listenersSetUp = false
         // Authorize user and make sure everything is valid before allowing them to join the world
         socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-          // console.log('AUTHORIZATION CALL HANDLER', data.userId);
+          console.log('AUTHORIZATION CALL HANDLER', data.userId)
           const userId = data.userId
           const accessToken = data.accessToken
 

@@ -1,5 +1,4 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
@@ -20,8 +19,6 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { TouchInputs } from '../../input/enums/InputEnums'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld, World } from '../../ecs/classes/World'
@@ -82,12 +79,7 @@ const followCamera = (entity: Entity) => {
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraMode.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-  let inputValue =
-    inputComponent.data.get(inputAxes) ||
-    ({
-      type: 0,
-      value: [0, 0] as Vector2Type
-    } as InputValue<NumericalType>)
+  let inputValue = inputComponent.data.get(inputAxes) || ({ type: 0, value: [0, 0] } as InputValue)
 
   let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance
@@ -98,10 +90,10 @@ const followCamera = (entity: Entity) => {
   }
 
   if (followCamera.mode !== CameraMode.Strategic) {
-    followCamera.theta -= inputValue.value[0] * (inputValue.inputAction === TouchInputs.Touch1Movement ? 60 : 100)
+    followCamera.theta -= inputValue.value[0] * 100
     followCamera.theta %= 360
 
-    followCamera.phi -= inputValue.value[1] * (inputValue.inputAction === TouchInputs.Touch1Movement ? 100 : 60)
+    followCamera.phi -= inputValue.value[1] * 100
     followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
   }
 

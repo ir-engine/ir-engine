@@ -104,10 +104,7 @@ export class Network {
 
   clientInputState: NetworkClientInputInterface = {
     networkId: -1,
-    buttons: [],
-    axes1d: [],
-    axes2d: [],
-    axes6DOF: [],
+    data: [],
     viewVector: {
       x: 0,
       y: 0,

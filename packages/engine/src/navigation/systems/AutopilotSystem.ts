@@ -10,7 +10,7 @@ import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { defineQuery, defineSystem, enterQuery, exitQuery, removeQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
@@ -45,7 +45,7 @@ export const AutopilotSystem = async (): Promise<System> => {
   const ongoingQuery = defineQuery([AutoPilotComponent])
   const removedAutopilotsQuery = exitQuery(ongoingQuery)
 
-  const navClickQuery = defineQuery([LocalInputReceiverComponent, AutoPilotClickRequestComponent])
+  const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
   const navClickAddQuery = enterQuery(navClickQuery)
 
   return defineSystem((world: ECSWorld) => {
