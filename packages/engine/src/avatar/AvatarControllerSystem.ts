@@ -1,11 +1,11 @@
 import { Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
 import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -18,6 +18,8 @@ import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { teleportPlayer } from './functions/teleportPlayer'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { Network } from '../networking/classes/Network'
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
@@ -35,11 +37,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
 
-  const localXRInputQuery = defineQuery([
-    LocalInputReceiverComponent,
-    XRInputSourceComponent,
-    AvatarControllerComponent
-  ])
+  const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
   const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
   const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
 
@@ -63,9 +61,16 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       }
     }
 
+    for (const entity of raycastQuery(world)) {
+      const raycastComponent = getComponent(entity, RaycastComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const avatar = getComponent(entity, AvatarComponent)
+      raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
+      avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
+    }
+
     for (const entity of controllerQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent)
-      const raycastComponent = getComponent(entity, RaycastComponent)
 
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
@@ -75,7 +80,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       // reset if vals are invalid
       if (isNaN(controller.controller.transform.translation.x)) {
-        console.warn('WARNING: Character physics data reporting NaN', controller.controller.transform.translation)
+        console.warn('WARNING: Avatar physics data reporting NaN', controller.controller.transform.translation)
         controller.controller.updateTransform({
           translation: { x: 0, y: 10, z: 0 },
           rotation: { x: 0, y: 0, z: 0, w: 1 }
@@ -106,20 +111,14 @@ export const AvatarControllerSystem = async (): Promise<System> => {
         controller.controller.transform.translation.z
       )
 
-      avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0) // || controller.controller.collisions.down)
-
       moveAvatar(entity, delta)
 
       detectUserInPortal(entity)
-    }
 
-    for (const entity of raycastQuery(world)) {
-      const raycastComponent = getComponent(entity, RaycastComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
-      if (!hasComponent(entity, AvatarControllerComponent)) {
-        avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
+      if (isClient) {
+        Network.instance.clientInputState.viewVector.x = avatar.viewVector.x
+        Network.instance.clientInputState.viewVector.y = avatar.viewVector.y
+        Network.instance.clientInputState.viewVector.z = avatar.viewVector.z
       }
     }
 

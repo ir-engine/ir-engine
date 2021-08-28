@@ -15,21 +15,31 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
 import { PhysXInstance } from 'three-physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { InteractorComponent } from '../../interaction/components/InteractorComponent'
+import { World } from '../../ecs/classes/World'
+import { processLocationChange } from '../../ecs/functions/EngineFunctions'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { CameraMode } from '../../camera/types/CameraMode'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
+  World.defaultWorld.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
+
+  switchCameraMode(Network.instance.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
   PhysXInstance.instance.removeController(
     getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
   )
   removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
-  removeComponent(Network.instance.localClientEntity, LocalInputReceiverComponent)
+  removeComponent(Network.instance.localClientEntity, InteractorComponent)
+  removeComponent(Network.instance.localClientEntity, LocalInputTagComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
@@ -78,14 +88,13 @@ export const teleportToScene = async (
   // TODO: add BPCEM of old and new scenes and fade them in and out too
   await hyperspaceEffect.fadeIn(delta)
 
+  await processLocationChange()
   await handleNewScene()
 
-  Engine.portCamera = true
-
   await new Promise<void>((resolve) => {
-    Engine.scene.background = null
     Engine.hasJoinedWorld = true
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
   })
 
   await delay(100)
@@ -102,16 +111,15 @@ export const teleportToScene = async (
   rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
   createAvatarController(Network.instance.localClientEntity)
-  addComponent(Network.instance.localClientEntity, LocalInputReceiverComponent, {})
-
-  const fadeOut = hyperspaceEffect.fadeOut(delta)
+  addComponent(Network.instance.localClientEntity, LocalInputTagComponent, {})
 
   await delay(250)
 
   Engine.camera.layers.enable(CameraLayers.Scene)
   light.removeFromParent()
+  light.dispose()
 
-  await fadeOut
+  await hyperspaceEffect.fadeOut(delta)
 
   playerObj.value.traverse((obj) => {
     obj.layers.enable(CameraLayers.Scene)
@@ -125,7 +133,5 @@ export const teleportToScene = async (
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  Engine.portCamera = false
-
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+  World.defaultWorld.isInPortal = false
 }

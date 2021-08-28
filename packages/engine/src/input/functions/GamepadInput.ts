@@ -7,6 +7,7 @@ import { InputComponent } from '../components/InputComponent'
 import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import { ComponentType } from '../../ecs/functions/EntityFunctions'
 /**
  * @property {Boolean} gamepadConnected Connection a new gamepad
  * @property {Number} gamepadThreshold Threshold value from 0 to 1
@@ -19,7 +20,7 @@ const gamepadButtons: BinaryValue[] = []
 const gamepadInput: number[] = []
 
 const inputPerGamepad = 2
-let input: InputComponent
+let input: ComponentType<typeof InputComponent>
 let gamepads: Gamepad[]
 let gamepad: Gamepad
 let inputBase: number
@@ -81,7 +82,7 @@ const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   // Set input data
   input.data.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
-    value: gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF,
+    value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
     lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.STARTED : LifecycleValue.ENDED
   })
   gamepadButtons[index] = gamepad.buttons[index].touched ? 1 : 0
@@ -160,7 +161,7 @@ export const handleGamepadDisconnected = (event: any): void => {
     if (gamepadButtons[index] === BinaryValue.ON) {
       input.data.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
-        value: BinaryValue.OFF
+        value: [BinaryValue.OFF]
       })
     }
     gamepadButtons[index] = 0

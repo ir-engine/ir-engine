@@ -5,8 +5,8 @@ import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 
 export type InputComponentType = {
-  prevData: Map<InputAlias, InputValue<NumericalType>>
-  data: Map<InputAlias, InputValue<NumericalType>>
+  prevData: Map<InputAlias, InputValue>
+  data: Map<InputAlias, InputValue>
   schema: InputSchema
 }
 

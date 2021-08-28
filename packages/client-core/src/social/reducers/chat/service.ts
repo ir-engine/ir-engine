@@ -19,9 +19,13 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import Store from '../../../store'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 
+<<<<<<< HEAD
 import { Config } from '../../../helper'
 import { handleCommand } from '../../../../../common/src/utils/commandHandler'
 import { Network } from '../../../../../engine/src/networking/classes/Network'
+=======
+import { Config } from '@xrengine/common/src/config'
+>>>>>>> dev
 
 const store = Store.store
 

@@ -24,7 +24,6 @@ interface Props {
   createTheFeedsNew?: any
   deleteTheFeed?: any
   update?: any
-  tipsFeeds?: any
   list?: any
 }
 

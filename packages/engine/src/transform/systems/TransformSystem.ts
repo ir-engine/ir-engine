@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, System } from 'bitecs'
 import { Euler, Quaternion } from 'three'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
@@ -21,11 +21,10 @@ export const TransformSystem = async (): Promise<System> => {
   const copyTransformQuery = defineQuery([CopyTransformComponent])
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
-  const obj3dQuery = defineQuery([TransformComponent, Object3DComponent])
+  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
-
     for (const entity of parentQuery(world)) {
       const parentTransform = getComponent(entity, TransformComponent)
       const parentingComponent = getComponent(entity, TransformParentComponent)
@@ -111,7 +110,7 @@ export const TransformSystem = async (): Promise<System> => {
       tween.tween.update()
     }
 
-    for (const entity of obj3dQuery(world)) {
+    for (const entity of transformObjectQuery(world)) {
       const transform = getComponent(entity, TransformComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 

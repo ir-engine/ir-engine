@@ -1,7 +1,7 @@
 import { PositionalAudio, Audio as AudioObject } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
@@ -13,7 +13,7 @@ import {
 } from '../../scene/components/AudioSettingsComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { AudioTagComponent } from '../components/AudioTagComponent'
 import { AudioComponent } from '../components/AudioComponent'
@@ -53,11 +53,14 @@ export const PositionalAudioSystem = async (): Promise<System> => {
   Engine.useAudioSystem = true
   Engine.spatialAudio = true
 
+  let audioContextSuspended = true
   let startSuspendedContexts = false
   let suspendPositionalAudio = false
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS, () => {
     startSuspendedContexts = true
+    audioContextSuspended = false
+    console.log('starting suspended audio nodes')
   })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO, () => {
@@ -111,7 +114,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
     for (const entity of avatarAudioAddQuery(world)) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
-        const peerId = entityNetworkObject.ownerId
+        const peerId = entityNetworkObject.uniqueId
         const consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
@@ -123,22 +126,46 @@ export const PositionalAudioSystem = async (): Promise<System> => {
         const positionalAudio = addComponent(entity, PositionalAudioComponent, {
           value: new PositionalAudio(Engine.audioListener)
         })
+        positionalAudio.value.matrixAutoUpdate = false
         applyMediaAudioSettings(positionalAudio.value)
         if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
       } else {
         const audio = addComponent(entity, AudioComponent, { value: new AudioObject<GainNode>(Engine.audioListener) })
         if (audio != null) Engine.scene.add(audio.value)
+        audio.value.matrixAutoUpdate = false
+      }
+    }
+
+    for (const entity of avatarAudioRemoveQuery(world)) {
+      avatarAudioStream.delete(entity)
+
+      const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
+      if (positionalAudio != null) Engine.scene.remove(positionalAudio.value)
+
+      const audio = getComponent(entity, AudioComponent, true)
+      if (audio != null) Engine.scene.remove(audio.value)
+    }
+
+    for (const entity of positionalAudioQuery(world)) {
+      const positionalAudio = getComponent(entity, PositionalAudioComponent)
+      const transform = getComponent(entity, TransformComponent)
+
+      positionalAudio.value?.position.copy(transform.position)
+      positionalAudio.value?.rotation.setFromQuaternion(transform.rotation)
+
+      if (!audioContextSuspended) {
+        positionalAudio.value.updateMatrix()
       }
     }
 
     for (const entity of avatarAudioQuery(world)) {
-      if (hasComponent(entity, LocalInputReceiverComponent)) {
+      if (hasComponent(entity, LocalInputTagComponent)) {
         continue
       }
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       let consumer
       if (entityNetworkObject != null) {
-        const peerId = entityNetworkObject.ownerId
+        const peerId = entityNetworkObject.uniqueId
         consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
@@ -165,24 +192,6 @@ export const PositionalAudioSystem = async (): Promise<System> => {
       if (avatarAudio.value.context.state === 'suspended') avatarAudio.value.context.resume()
 
       avatarAudio.value.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
-    }
-
-    for (const entity of avatarAudioRemoveQuery(world)) {
-      avatarAudioStream.delete(entity)
-
-      const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
-      if (positionalAudio != null) Engine.scene.remove(positionalAudio.value)
-
-      const audio = getComponent(entity, AudioComponent, true)
-      if (audio != null) Engine.scene.remove(audio.value)
-    }
-
-    for (const entity of positionalAudioQuery(world)) {
-      const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      const transform = getComponent(entity, TransformComponent)
-
-      positionalAudio.value?.position.copy(transform.position)
-      positionalAudio.value?.rotation.setFromQuaternion(transform.rotation)
     }
 
     return world

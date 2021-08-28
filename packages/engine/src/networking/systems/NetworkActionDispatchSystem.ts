@@ -1,5 +1,5 @@
 import { isClient } from '../../common/functions/isClient'
-import { defineSystem, System } from '../../ecs/bitecs'
+import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { Network } from '../classes/Network'
 import { IncomingActionType } from '../interfaces/NetworkTransport'

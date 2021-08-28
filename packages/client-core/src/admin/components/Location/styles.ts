@@ -1,6 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useLocationStyles = makeStyles((theme: Theme) =>
   createStyles({
     createBtn: {
       height: '50px',
@@ -157,7 +157,7 @@ export const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const useStyle = makeStyles({
+export const useLocationStyle = makeStyles({
   paper: {
     width: '40%',
     backgroundColor: '#43484F',

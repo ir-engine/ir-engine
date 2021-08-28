@@ -13,7 +13,7 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { spawnPrefab } from '../functions/spawnPrefab'
-import { defineSystem, System } from '../../ecs/bitecs'
+import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**
@@ -26,7 +26,7 @@ function searchSameInAnotherId(objectToCreate) {
   if (objectToCreate.prefabType === PrefabType.Player) {
     return Object.keys(Network.instance.networkObjects)
       .map(Number)
-      .find((key) => Network.instance.networkObjects[key]?.ownerId === objectToCreate.ownerId)
+      .find((key) => Network.instance.networkObjects[key]?.uniqueId === objectToCreate.uniqueId)
   } else {
     return Object.keys(Network.instance.networkObjects)
       .map(Number)
@@ -37,11 +37,7 @@ function searchSameInAnotherId(objectToCreate) {
 function syncNetworkObjectsTest(createObjects) {
   createObjects?.forEach((objectToCreate) => {
     if (!Network.instance.networkObjects[objectToCreate.networkId]) return
-    if (
-      objectToCreate.uniqueId === Network.instance.networkObjects[objectToCreate.networkId]?.uniqueId &&
-      objectToCreate.ownerId === Network.instance.networkObjects[objectToCreate.networkId]?.ownerId
-    )
-      return
+    if (objectToCreate.uniqueId === Network.instance.networkObjects[objectToCreate.networkId]?.uniqueId) return
 
     Object.keys(Network.instance.networkObjects)
       .map(Number)
@@ -49,10 +45,7 @@ function syncNetworkObjectsTest(createObjects) {
         if (Network.instance.networkObjects[key].entity == null) {
           console.warn('TRY RESTART SERVER, MAYBE ON SERVER DONT CREATE THIS LOCATION')
         }
-        if (
-          Network.instance.networkObjects[key].uniqueId === objectToCreate.uniqueId &&
-          Network.instance.networkObjects[key].ownerId === objectToCreate.ownerId
-        ) {
+        if (Network.instance.networkObjects[key].uniqueId === objectToCreate.uniqueId) {
           console.warn(
             '*createObjects* Correctiong networkObjects as a server id: ' +
               objectToCreate.networkId +
@@ -77,7 +70,7 @@ function syncPhysicsObjects(objectToCreate) {
   if (
     Object.keys(Network.instance.networkObjects)
       .map(Number)
-      .every((key) => Network.instance.networkObjects[key].ownerId != objectToCreate.ownerId)
+      .every((key) => Network.instance.networkObjects[key].uniqueId != objectToCreate.uniqueId)
   ) {
     Object.keys(Network.instance.networkObjects)
       .map(Number)
@@ -100,6 +93,8 @@ const forwardVector = new Vector3(0, 0, 1)
 
 export const ClientNetworkStateSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
+    const localAvatarNetworkId = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)?.networkId
+
     // Client logic
     const reliableQueue = Network.instance.incomingMessageQueueReliable
     // For each message, handle and process
@@ -169,11 +164,6 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
               NetworkObjectComponent
             ).networkId = objectToCreate.networkId
 
-            // if it's the local avatar
-            if (objectToCreate.networkId === Network.instance.localAvatarNetworkId) {
-              Network.instance.localAvatarNetworkId = objectToCreate.networkId
-            }
-
             continue
           }
 
@@ -185,7 +175,6 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           if (Network.instance.networkObjects[objectToCreate.networkId] === undefined) {
             spawnPrefab(
               objectToCreate.prefabType,
-              objectToCreate.ownerId,
               objectToCreate.uniqueId,
               objectToCreate.networkId,
               objectToCreate.parameters
@@ -206,7 +195,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
             continue
           }
 
-          if (Network.instance.localAvatarNetworkId === networkId) {
+          if (getComponent(Network.instance.localClientEntity, NetworkObjectComponent).networkId === networkId) {
             console.warn('Can not remove owner...')
             continue
           }
@@ -244,7 +233,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           // TODO: minimise quaternions to 3 components
           for (const transform of transformState.transforms) {
             const networkObject = Network.instance.networkObjects[transform.networkId]
-            // for character entities, we are sending the view vector, so we have to apply it and retrieve the rotation
+            // for avatar entities, we are sending the view vector, so we have to apply it and retrieve the rotation
             if (networkObject && hasComponent(networkObject.entity, AvatarComponent)) {
               vector3_0.set(transform.qX, transform.qY, transform.qZ)
               vector3_1.copy(vector3_0).setY(0).normalize()
@@ -262,9 +251,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
             }
           }
 
-          const myPlayerTime = transformState.transforms.find(
-            (v) => v.networkId == Network.instance.localAvatarNetworkId
-          )
+          const myPlayerTime = transformState.transforms.find((v) => v.networkId === localAvatarNetworkId)
           const newServerSnapshot = createSnapshot(transformState.transforms)
           // server correction, time when client send inputs
           newServerSnapshot.timeCorrection = myPlayerTime
@@ -293,32 +280,31 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
           }
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
           const { hmd, left, right } = ikTransform
-          xrInputSourceComponent.head.position.set(hmd.x, hmd.y, hmd.z)
-          xrInputSourceComponent.head.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW)
-          xrInputSourceComponent.controllerLeft.position.set(left.x, left.y, left.z)
-          xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW)
-          xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z)
-          xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW)
+          xrInputSourceComponent.head.position.set(hmd[0], hmd[1], hmd[2])
+          xrInputSourceComponent.head.quaternion.set(hmd[3], hmd[4], hmd[5], hmd[6])
+          xrInputSourceComponent.controllerLeft.position.set(left[0], left[1], left[2])
+          xrInputSourceComponent.controllerLeft.quaternion.set(left[3], left[4], left[5], left[6])
+          xrInputSourceComponent.controllerRight.position.set(right[0], right[1], right[2])
+          xrInputSourceComponent.controllerRight.quaternion.set(right[3], right[4], right[5], right[6])
         }
       } catch (e) {
         console.log(e)
       }
     }
 
-    const inputSnapshot = Vault.instance?.get()
-    if (inputSnapshot !== undefined) {
-      const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
-      Network.instance.transport.sendReliableData(buffer)
-      Network.instance.clientInputState = {
-        networkId: Network.instance.localAvatarNetworkId,
-        snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-        buttons: [],
-        axes1d: [],
-        axes2d: [],
-        axes6DOF: [],
-        viewVector: Network.instance.clientInputState.viewVector,
-        commands: [],
-        transforms: []
+    if (typeof Network.instance.localClientEntity !== 'undefined') {
+      const inputSnapshot = Vault.instance?.get()
+      if (inputSnapshot !== undefined) {
+        const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
+        Network.instance.transport.sendReliableData(buffer)
+        Network.instance.clientInputState = {
+          networkId: localAvatarNetworkId,
+          snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
+          data: [],
+          viewVector: Network.instance.clientInputState.viewVector,
+          commands: [],
+          transforms: []
+        }
       }
     }
 

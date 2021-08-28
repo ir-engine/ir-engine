@@ -1,6 +1,6 @@
 import { Object3D, sRGBEncoding, Box3, Vector3 } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { ECSWorld } from '../ecs/classes/World'
 
 import { getComponent, hasComponent, addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
@@ -14,7 +14,7 @@ import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { DissolveEffect } from './DissolveEffect'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 
 const lightScale = (y, r) => {
@@ -26,6 +26,10 @@ const lightOpacity = (y, r) => {
 }
 
 export const AvatarLoadingSystem = async (): Promise<System> => {
+  // precache dissolve effects
+  await AssetLoader.loadAsync({ url: '/itemLight.png' })
+  await AssetLoader.loadAsync({ url: '/itemPlate.png' })
+
   const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarPendingComponent])
   const growAddQuery = enterQuery(growQuery)
   const growRemoveQuery = exitQuery(growQuery)
@@ -70,7 +74,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       pt.rotation.x = -0.5 * Math.PI
 
       // if (isEntityLocalClient(entity)) {
-      //   removeComponent(entity, LocalInputReceiverComponent)
+      //   removeComponent(entity, LocalInputTagComponent)
       // }
 
       addComponent(entity, TweenComponent, {
@@ -79,7 +83,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
             {
               opacityMultiplier: 1
             },
-            100
+            1000
           )
           .easing(Easing.Exponential.Out)
           .start()
@@ -202,7 +206,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
               removeComponent(entity, AvatarEffectComponent)
 
               // if (isEntityLocalClient(entity)) {
-              //   addComponent(entity, LocalInputReceiverComponent, {})
+              //   addComponent(entity, LocalInputTagComponent, {})
               // }
             })
         })

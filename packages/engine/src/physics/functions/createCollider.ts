@@ -20,8 +20,8 @@ const xVec = new Vector3(1, 0, 0)
 const halfPI = Math.PI / 2
 
 type ColliderData = {
-  type?: ColliderTypes
-  bodytype?: BodyType
+  type?: ColliderTypes // TODO: rename this `shape`
+  bodytype?: BodyType // TODO: rename this `bodyType`
   isTrigger?: boolean
   staticFriction?: number
   dynamicFriction?: number
@@ -40,7 +40,7 @@ export function createCollider(
   scale = new Vector3(1, 1, 1)
 ): Body {
   const userData = mesh.userData as ColliderData
-  // console.log(userData, pos, rot, scale)
+  // console.log(mesh, userData, pos, rot, scale)
 
   if (!userData.type) return
   if (userData.type === 'trimesh' || userData.type === 'convex') {

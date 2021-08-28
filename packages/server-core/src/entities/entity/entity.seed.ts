@@ -84,7 +84,7 @@ export const entitySeed = {
     {
       id: '1A698484-D15A-4DED-9247-03873520DX70',
       entityId: '1A698484-D15A-4DED-9247-03873520DX70',
-      name: 'Reflection Probe',
+      name: 'Cubemap bake',
       parent: '2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC',
       index: 9,
       createdAt: '2020-11-12 13:14:45',

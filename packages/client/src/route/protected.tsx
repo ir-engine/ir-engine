@@ -71,11 +71,6 @@ const ProtectedRoutes = (props: Props) => {
           <PrivateRoute exact path="/admin/feeds" component={feeds} />
           <PrivateRoute exact path="/admin/creator" component={creator} />
           <PrivateRoute exact Path="/admin/users" component={users} />
-
-          {/* <Route path="/admin/tips-and-tricks" component={React.lazy(() => import('./pages/admin/tips-and-tricks'))} />
-        <Route path="/admin/thefeeds" component={React.lazy(() => import('./pages/admin/thefeeds'))} />
-        <Route path="/admin/feeds" component={React.lazy(() => import('./pages/admin/feeds'))} />
-        <Route path="/admin/users" component={React.lazy(() => import('./pages/admin/users'))} /> */}
         </Switch>
       </Suspense>
     </Fragment>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "name": "xrengine",
   "description": "Game Engine, Server & Devops powering The XREngine",
@@ -130,3 +131,149 @@
     "yuka": "0.7.6"
   }
 }
+=======
+{
+  "name": "xrengine",
+  "description": "Game Engine, Server & Devops powering The XREngine. Please support XRFoundation https://opencollective.com/xrengine",
+  "version": "0.2.5",
+  "homepage": "xrengine.io",
+  "private": true,
+  "workspaces": {
+    "nohoist": [
+      "packages/docs"
+    ],
+    "packages": [
+      "packages/!(docs)"
+    ]
+  },
+  "keywords": [
+    "three",
+    "three.js",
+    "ecs",
+    "webgl",
+    "mmo",
+    "game engine",
+    "webrtc",
+    "productivity",
+    "xr",
+    "vr"
+  ],
+  "author": {
+    "name": "XR Engine - XR Foundation",
+    "email": "info@xrengine.io"
+  },
+  "entrypoint": {},
+  "contributors": [],
+  "bugs": {},
+  "directories": {
+    "lib": "packages/server-core/src/user",
+    "config": "config/"
+  },
+  "engines": {
+    "node": ">= 16.3.0"
+  },
+  "npmClient": "npm",
+  "jest": "ts-jest",
+  "scripts": {
+    "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
+    "start": "npm run dev",
+    "dev": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server npm:dev-client",
+    "golf": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-golf npm:dev-client",
+    "dev-docker": "cd scripts && docker-compose up -d",
+    "dev-agones": "cd scripts && ./start-agones.sh",
+    "dev-server": "cd packages/server && npm run dev",
+    "dev-server-golf": "cd packages/server && npm run golf",
+    "dev-client": "cd packages/client && npm run dev",
+    "dev-reinit": "cd packages/server && npm run dev-reinit-db",
+    "dev-nginx": "",
+    "cleanup-tests": "node tests/cleanup-tests.js",
+    "test": "jest && lerna run test",
+    "test-packages": "lerna run test",
+    "test-ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true jest && lerna run test",
+    "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
+    "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
+    "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
+    "format-staged": "lint-staged",
+    "version-increment": "lerna version --conventional-commits --yes",
+    "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
+    "publish": "lerna publish from-package --yes",
+    "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
+    "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
+    "validate": "npm run lint && lerna run validate",
+    "build": "lerna run build --parallel",
+    "build-publish": "lerna run --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/gallery --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
+    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
+    "update-name-gh-package": "lerna run update-name-gh-package",
+    "diff": "lerna diff",
+    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json"
+  },
+  "types": "lib/",
+  "pre-commit": [
+    "format-staged"
+  ],
+  "pre-push": [
+    "test-packages",
+    "build-docker"
+  ],
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "resolutions": {
+    "socket.io": "4.1.3",
+    "terser": "^5.6.1",
+    "@typescript-eslint/eslint-plugin": "4.29.3",
+    "@typescript-eslint/parser": "4.29.3"
+  },
+  "peerDependencies": {
+    "@feathersjs/authentication": "^5.0.0-pre.9",
+    "@feathersjs/authentication-local": "^5.0.0-pre.9",
+    "@feathersjs/authentication-oauth": "^5.0.0-pre.9",
+    "@feathersjs/cli": "^4.5.0",
+    "@feathersjs/commons": "5.0.0-pre.9",
+    "@feathersjs/configuration": "^5.0.0-pre.9",
+    "@feathersjs/errors": "5.0.0-pre.9",
+    "@feathersjs/express": "^5.0.0-pre.9",
+    "@feathersjs/feathers": "5.0.0-pre.9",
+    "@feathersjs/hooks": "0.6.5",
+    "@feathersjs/rest-client": "5.0.0-pre.9",
+    "@feathersjs/socketio": "5.0.0-pre.9",
+    "@feathersjs/socketio-client": "^5.0.0-pre.9",
+    "@feathersjs/transport-commons": "^5.0.0-pre.9",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.16.1",
+    "chokidar": "^3.4.2",
+    "socket.io": "4.1.3",
+    "terser": "^5.6.1"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "7.15.0",
+    "@babel/preset-env": "7.15.0",
+    "@hookstate/core": "3.0.8",
+    "@typescript-eslint/parser": "4.29.3",
+    "babel-jest": "27.1.0",
+    "bcrypt": "5.0.1",
+    "cli": "1.0.1",
+    "cpy-cli": "3.1.1",
+    "concurrently": "6.2.1",
+    "esbuild": "0.12.24",
+    "esbuild-plugin-sass": "0.6.0",
+    "jest": "27.1.0",
+    "jest-puppeteer": "5.0.4",
+    "kill-port": "1.6.1",
+    "lerna": "4.0.0",
+    "lint-staged": "11.1.2",
+    "pre-commit": "1.2.2",
+    "pre-push": "0.1.1",
+    "prettier": "2.3.2",
+    "puppeteer": "9.1.1",
+    "react-router-dom": "5.2.1",
+    "supertest": "6.1.6",
+    "trace-unhandled": "2.0.1",
+    "yuka": "0.7.6"
+  }
+}
+>>>>>>> dev

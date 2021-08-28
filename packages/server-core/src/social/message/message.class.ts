@@ -25,7 +25,7 @@ export class Message extends Service {
     let channel, channelId
     let userIdList = []
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const userId = loggedInUser.userId
+    const userId = loggedInUser?.userId
 
     if (data != undefined && data.text != undefined) {
       if (handleCommand(data.text, userId, true)) return
