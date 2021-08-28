@@ -1,5 +1,5 @@
 import { Feature, LineString, Position } from 'geojson'
-import { Vector3, Camera } from 'three'
+import { Vector3, Camera, Object3D } from 'three'
 import { Text } from 'troika-three-text'
 import { length, lineSliceAlong } from '@turf/turf'
 
@@ -34,14 +34,11 @@ export class GeoLabelNode {
   geoMiddleSlice: Position[]
   transformGeoPosition: (position: Position) => Position
 
-  object3d: Text
-  scale: Vector3
+  object3d: Object3D & { sync(): void }
 
   constructor(feature: Feature<LineString>, transformGeoPosition: (position: Position) => Position) {
     this.geoFeature = feature
     this.transformGeoPosition = transformGeoPosition
-
-    this.scale = new Vector3(1, 1, 1)
 
     this.object3d = createTextObject(feature.properties.name)
 
