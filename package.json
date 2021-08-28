@@ -55,7 +55,7 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "test": "jest && lerna run test",
     "test-packages": "lerna run test",
-    "test-ci": "cross-env HEADLESS=true jest && lerna run test",
+    "test-ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true jest && lerna run test",
     "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
     "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
@@ -72,8 +72,7 @@
     "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
-    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
-    "postinstall": "cpy --no-overwrite --rename=.env.local '.env.local.default' ."
+    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json"
   },
   "types": "lib/",
   "pre-commit": [
@@ -121,14 +120,20 @@
     "@babel/preset-env": "7.15.0",
     "@hookstate/core": "3.0.8",
     "@typescript-eslint/parser": "4.29.3",
-    "babel-jest": "27.0.6",
+    "babel-jest": "27.1.0",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
+<<<<<<< HEAD
     "concurrently": "6.2.1",
     "cpy-cli": "^3.1.1",
     "esbuild": "0.12.23",
+=======
+    "cpy-cli": "3.1.1",
+    "concurrently": "6.2.1",
+    "esbuild": "0.12.24",
+>>>>>>> dev
     "esbuild-plugin-sass": "0.6.0",
-    "jest": "27.0.6",
+    "jest": "27.1.0",
     "jest-puppeteer": "5.0.4",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
@@ -137,7 +142,7 @@
     "pre-push": "0.1.1",
     "prettier": "2.3.2",
     "puppeteer": "9.1.1",
-    "react-router-dom": "5.2.0",
+    "react-router-dom": "5.2.1",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
     "yuka": "0.7.6"
