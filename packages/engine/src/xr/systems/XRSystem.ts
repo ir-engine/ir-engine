@@ -101,10 +101,10 @@ export const XRSystem = async (): Promise<System> => {
           xrInputSourceComponent.head.position.x,
           xrInputSourceComponent.head.position.y,
           xrInputSourceComponent.head.position.z,
-          xrInputSourceComponent.head.quaternion.w,
           xrInputSourceComponent.head.quaternion.x,
           xrInputSourceComponent.head.quaternion.y,
-          xrInputSourceComponent.head.quaternion.z
+          xrInputSourceComponent.head.quaternion.z,
+          xrInputSourceComponent.head.quaternion.w
         ],
         lifecycleState: LifecycleValue.CONTINUED
       })
@@ -114,10 +114,10 @@ export const XRSystem = async (): Promise<System> => {
           xrInputSourceComponent.controllerLeft.position.x,
           xrInputSourceComponent.controllerLeft.position.y,
           xrInputSourceComponent.controllerLeft.position.z,
-          xrInputSourceComponent.controllerLeft.quaternion.w,
           xrInputSourceComponent.controllerLeft.quaternion.x,
           xrInputSourceComponent.controllerLeft.quaternion.y,
-          xrInputSourceComponent.controllerLeft.quaternion.z
+          xrInputSourceComponent.controllerLeft.quaternion.z,
+          xrInputSourceComponent.controllerLeft.quaternion.w
         ],
         lifecycleState: LifecycleValue.CONTINUED
       })
@@ -127,10 +127,10 @@ export const XRSystem = async (): Promise<System> => {
           xrInputSourceComponent.controllerRight.position.x,
           xrInputSourceComponent.controllerRight.position.y,
           xrInputSourceComponent.controllerRight.position.z,
-          xrInputSourceComponent.controllerRight.quaternion.w,
           xrInputSourceComponent.controllerRight.quaternion.x,
           xrInputSourceComponent.controllerRight.quaternion.y,
-          xrInputSourceComponent.controllerRight.quaternion.z
+          xrInputSourceComponent.controllerRight.quaternion.z,
+          xrInputSourceComponent.controllerRight.quaternion.w
         ],
         lifecycleState: LifecycleValue.CONTINUED
       })

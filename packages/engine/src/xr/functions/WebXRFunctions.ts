@@ -11,7 +11,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 
 /**
  * @author Josh Field <github.com/HexaField>
- * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
+ * @returns {void}
  */
 
 export const startWebXR = (): void => {
