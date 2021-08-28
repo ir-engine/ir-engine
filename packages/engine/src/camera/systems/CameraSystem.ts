@@ -60,19 +60,11 @@ const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCamera = (entity: Entity) => {
-<<<<<<< HEAD
-  if (typeof entity === 'undefined') return console.log('undefined')
-
-  const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
-
-  if (!cameraDesiredTransform && !Engine.portCamera) return console.log('!cameraDesiredTransform && !Engine.portCamera')
-=======
   if (typeof entity === 'undefined') return
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
   if (!cameraDesiredTransform) return
->>>>>>> dev
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
@@ -87,7 +79,7 @@ const followCamera = (entity: Entity) => {
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraMode.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-  let inputValue = inputComponent.data.get(inputAxes) || ({ type: 0, value: [0, 0] } as InputValue)
+  let inputValue = inputComponent.data.get(inputAxes) || ({ type: 0, value: [0, 0] } as InputValue<any>)
 
   let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance
@@ -212,10 +204,6 @@ export const CameraSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of followCameraAddQuery(world)) {
-<<<<<<< HEAD
-      console.log('      const cameraFollow = getComponent(entity, FollowCameraComponent)      ')
-=======
->>>>>>> dev
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({

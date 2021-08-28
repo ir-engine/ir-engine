@@ -1,17 +1,32 @@
 import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createEntity, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
-import { NameComponent } from '../components/NameComponent'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createCollider } from '../../physics/functions/createCollider'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Clouds } from '../classes/Clouds'
+import Image from '../classes/Image'
+import { Interior } from '../classes/Interior'
+import { Ocean } from '../classes/Ocean'
+import { Water } from '../classes/Water'
+import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
+import { NameComponent } from '../components/NameComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { PersistTagComponent } from '../components/PersistTagComponent'
+import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+import { ShadowComponent } from '../components/ShadowComponent'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { UpdatableComponent } from '../components/UpdatableComponent'
+import { UserdataComponent } from '../components/UserdataComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
+import { WalkableTagComponent } from '../components/Walkable'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { createDirectionalLight } from '../functions/createDirectionalLight'
 import { createGround } from '../functions/createGround'
@@ -27,25 +42,9 @@ import { loadModelAnimation } from '../functions/loadModelAnimation'
 import { setCameraProperties } from '../functions/setCameraProperties'
 import { setEnvMap } from '../functions/setEnvMap'
 import { setFog } from '../functions/setFog'
-import { Clouds } from '../classes/Clouds'
-import Image from '../classes/Image'
-import { Ocean } from '../classes/Ocean'
-import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
-import { PersistTagComponent } from '../components/PersistTagComponent'
-import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
-import { ShadowComponent } from '../components/ShadowComponent'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
-import { UpdatableComponent } from '../components/UpdatableComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { Water } from '../classes/Water'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { UserdataComponent } from '../components/UserdataComponent'
-import { Interior } from '../classes/Interior'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -126,30 +125,13 @@ export class WorldScene {
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     switch (name) {
       case 'mtdata':
-<<<<<<< HEAD
-        if (isClient && isBot(window) === 'true') {
-          const { meta_data } = component.data
-          WorldScene.sceneMetadata = meta_data
-=======
         if (isClient && Engine.isBot) {
           const { meta_data } = component.data
->>>>>>> dev
           console.log('scene_metadata|' + meta_data)
         }
         break
 
       case '_metadata':
-<<<<<<< HEAD
-        addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
-
-        if (isClient && isBot(window) === 'true') {
-          const { _data } = component.data
-          const { x, y, z } = getComponent(entity, TransformComponent).position
-          WorldScene.worldMetadata.push({ key: x + ',' + y + ',' + z, value: _data })
-          console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
-        }
-        break
-=======
         {
           addObject3DComponent(entity, new Object3D(), component.data)
           addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
@@ -166,7 +148,6 @@ export class WorldScene {
       case 'userdata':
         addComponent(entity, UserdataComponent, { data: component.data })
         break
->>>>>>> dev
 
       case 'ambient-light':
         addObject3DComponent(entity, new AmbientLight(), component.data)
@@ -208,7 +189,7 @@ export class WorldScene {
         break
 
       case 'ground-plane':
-        createGround(entity, component.data, isClient)
+        createGround(entity, component.data)
         break
 
       case 'image':

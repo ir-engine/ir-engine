@@ -166,11 +166,7 @@ export const handleTouch = (event: TouchEvent): void => {
         if (timeNow - lastTap < tapLength) {
           Engine.inputState.set(doubleTapInput, {
             type: InputType.BUTTON,
-<<<<<<< HEAD
-            value: BinaryValue.ON,
-=======
             value: [BinaryValue.ON],
->>>>>>> dev
             lifecycleState: Engine.inputState.has(doubleTapInput) ? LifecycleValue.CONTINUED : LifecycleValue.STARTED
           })
         } else if (Engine.inputState.has(doubleTapInput)) {

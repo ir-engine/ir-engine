@@ -19,13 +19,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import Store from '../../../store'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 
-<<<<<<< HEAD
-import { Config } from '../../../helper'
-import { handleCommand } from '../../../../../common/src/utils/commandHandler'
-import { Network } from '../../../../../engine/src/networking/classes/Network'
-=======
 import { Config } from '@xrengine/common/src/config'
->>>>>>> dev
 
 const store = Store.store
 
@@ -47,40 +41,6 @@ export function getChannels(skip?: number, limit?: number) {
   }
 }
 
-// export function getUserChannels(skip?: number, limit?: number) {
-//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-//     try {
-//       const channelResult = await client.service('channel').find({
-//         query: {
-//           channelType: 'user',
-//           $limit: limit != null ? limit : getState().get('chat').get('channels').get('user').get('limit'),
-//           $skip: skip != null ? skip : getState().get('chat').get('channels').get('user').get('skip')
-//         }
-//       })
-//       dispatch(loadedUserChannels(channelResult))
-//     } catch(err) {
-//       dispatchAlertError(dispatch, err.message)
-//     }
-//   }
-// }
-//
-// export function getGroupChannels(skip?: number, limit?: number) {
-//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-//     try {
-//       const channelResult = await client.service('channel').find({
-//         query: {
-//           channelType: 'group',
-//           $limit: limit != null ? limit : getState().get('chat').get('channels').get('group').get('limit'),
-//           $skip: skip != null ? skip : getState().get('chat').get('channels').get('group').get('skip')
-//         }
-//       })
-//       dispatch(loadedGroupChannels(channelResult))
-//     } catch(err) {
-//       dispatchAlertError(dispatch, err.message)
-//     }
-//   }
-// }
-//
 export function getInstanceChannel() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
