@@ -67,6 +67,9 @@ export const IKRigSystem = async (): Promise<System> => {
     for (const entity of ikposeQuery(world)) {
       const ikPose = getComponent(entity, IKPose)
       const rig = getComponent(entity, IKRig)
+      if (!ikPose.targetRigs) {
+        return
+      }
 
       // // COMPUTE
       computeHip(rig, ikPose)
