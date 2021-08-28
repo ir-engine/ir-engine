@@ -6,7 +6,7 @@ import InputBase from '@material-ui/core/InputBase'
 import { DialogActions } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { updateCreatorService } from '../../../reducers/admin/Social/creator/service'
+import { updateCreatorService } from '../../../reducers/admin/creator/service'
 import { formValid } from './validation'
 
 interface Props {

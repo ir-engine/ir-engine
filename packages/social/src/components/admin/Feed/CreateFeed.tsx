@@ -12,7 +12,7 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { formValid } from './validation'
-import { createFeed } from '../../../reducers/admin/Social/feeds/service'
+import { createFeed } from '../../../reducers/admin/feeds/service'
 
 interface Props {
   open: boolean

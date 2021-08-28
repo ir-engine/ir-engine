@@ -1,7 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { removeArMedia } from '../../../reducers/admin/Social/arMedia/service'
 import Card from '@material-ui/core/Card'
 import CardActionArea from '@material-ui/core/CardActionArea'
 import CardActions from '@material-ui/core/CardActions'
@@ -17,10 +16,11 @@ import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
 import { useStyles } from './styles'
 import Grid from '@material-ui/core/Grid'
+import { removeArMedia } from '@xrengine/social/src/reducers/arMedia/service'
 
 interface Props {
   list?: any
-  removeArMedia?: typeof removeArMedia
+  removeArMedia?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({

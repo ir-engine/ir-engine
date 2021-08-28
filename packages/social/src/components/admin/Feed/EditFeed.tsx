@@ -16,7 +16,7 @@ import { formValid } from './validation'
 import { Save } from '@material-ui/icons'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { updateFeed } from '../../../reducers/admin/Social/feeds/service'
+import { updateFeed } from '../../../reducers/admin/feeds/service'
 
 interface Props {
   adminFeed: any

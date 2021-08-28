@@ -16,7 +16,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { formValid } from './validation'
-import { createArMedia } from '../../../reducers/admin/Social/arMedia/service'
+import { createArMedia } from '../../../reducers/admin/arMedia/service'
 
 interface Props {
   open: boolean
