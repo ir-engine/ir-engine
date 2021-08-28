@@ -1,4 +1,16 @@
-import { Color, Group, Material, MathUtils, Mesh, MeshBasicMaterial, Quaternion, Vector3, Vector4 } from 'three'
+import {
+  Color,
+  Group,
+  Material,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  Quaternion,
+  Vector3,
+  Vector4,
+  ConeGeometry
+} from 'three'
 import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
@@ -23,6 +35,7 @@ import { getTee, GolfState } from '../GolfSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
+import { OffScreenIndicator } from '@xrengine/engine/src/scene/classes/OffScreenIndicator'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -40,6 +53,9 @@ interface BallGroupType extends Group {
   userData: {
     meshObject: Mesh
     trailObject: TrailRenderer
+    indicatorMesh: Mesh
+    offscreenIndicatorMesh: Mesh
+    offscreenIndicator: OffScreenIndicator
     lastTrailUpdateTime: number
   }
 }
@@ -65,6 +81,9 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
         ballGroup.userData.trailObject.visible = false
         ballGroup.userData.meshObject.scale.set(0.5, 0.01, 0.5)
         ballGroup.userData.meshObject.position.y = -(golfBallRadius * 0.5)
+
+        ballGroup.userData.indicatorMesh.visible = false
+        ballGroup.userData.offscreenIndicatorMesh.visible = false
         return
       }
       case BALL_STATES.WAITING: {
@@ -73,15 +92,19 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
         ballGroup.userData.trailObject.visible = true
         ballGroup.userData.meshObject.scale.setScalar(1)
         ballGroup.userData.meshObject.position.y = 0
+
+        ballGroup.userData.indicatorMesh.visible = true
         return
       }
       case BALL_STATES.MOVING: {
+        ballGroup.userData.indicatorMesh.visible = false
         return
       }
       case BALL_STATES.IN_HOLE: {
         return
       }
       case BALL_STATES.STOPPED: {
+        ballGroup.userData.indicatorMesh.visible = true
         return
       }
     }
@@ -131,6 +154,35 @@ export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHo
 }
 
 /**
+ * @author Mohsen Heydari <github.com/mohsenheydari>
+ */
+
+const updateOSIndicator = (ballGroup: BallGroupType): void => {
+  if (!ballGroup.visible) {
+    return
+  }
+
+  const indicator = ballGroup.userData.offscreenIndicator
+  const mesh = ballGroup.userData.offscreenIndicatorMesh
+
+  const xr = Engine.renderer.xr
+  const camera = xr.enabled && xr.isPresenting ? xr.getCamera(null) : Engine.camera
+
+  indicator.camera = camera
+  indicator.borderScale = 0.9 + 0.1 * Math.abs(Math.sin(Date.now() / 600))
+  indicator.update()
+
+  if (indicator.inside) {
+    mesh.visible = false
+  } else {
+    const pos = indicator.getWorldPos(0.0)
+    mesh.position.copy(pos)
+    mesh.quaternion.setFromAxisAngle(pos.set(0, 0, 1), indicator.rotation - Math.PI / 2).premultiply(camera.quaternion)
+    mesh.visible = true
+  }
+}
+
+/**
  * @author Josh Field <github.com/HexaField>
  */
 
@@ -151,6 +203,12 @@ export const updateBall = (entityBall: Entity): void => {
     } else {
       trail.updateHead()
     }
+
+    const indicatorPos = ballGroup.userData.indicatorMesh.position.copy(ballGroup.position)
+    indicatorPos.y += 0.15 + 0.1 * Math.abs(Math.sin(time / 400))
+
+    // Offscreen indicator
+    updateOSIndicator(ballGroup)
   }
 }
 
@@ -198,6 +256,29 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   Engine.scene.add(trailObject)
   ballGroup.userData.trailObject = trailObject
   ballGroup.userData.lastTrailUpdateTime = Date.now()
+
+  // Add ball indicator cone
+  const coneGeometry = new ConeGeometry(0.1, 0.15)
+  const coneMesh = new Mesh(coneGeometry, new MeshPhongMaterial({ color: 'yellow', opacity: 0.75, transparent: true }))
+  coneMesh.rotation.x = Math.PI
+  Engine.scene.add(coneMesh)
+  ballGroup.userData.indicatorMesh = coneMesh
+
+  // Offscreen ball indicator
+  const osIndicatorMesh = new Mesh(coneGeometry, new MeshPhongMaterial({ color: 'yellow' }))
+  osIndicatorMesh.scale.setScalar(0.07)
+  osIndicatorMesh.scale.z *= 0.1
+  Engine.scene.add(osIndicatorMesh)
+  ballGroup.userData.offscreenIndicatorMesh = osIndicatorMesh
+  const osIndicator = new OffScreenIndicator()
+  ballGroup.userData.offscreenIndicator = osIndicator
+  osIndicator.camera = Engine.camera
+  osIndicator.target = ballGroup.position
+  osIndicator.margin = 0.05
+  osIndicator.setViewportSize(window.innerWidth, window.innerHeight)
+  window.addEventListener('resize', () => {
+    osIndicator.setViewportSize(window.innerWidth, window.innerHeight)
+  })
 }
 
 type GolfBallSpawnParameters = {
