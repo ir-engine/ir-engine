@@ -1,7 +1,7 @@
 import { getComponent, addComponent } from '../../../engine/src/ecs/functions/EntityFunctions'
 import { Vector2, Vector3 } from 'three'
 import { AutoPilotClickRequestComponent } from '../../../engine/src/navigation/component/AutoPilotClickRequestComponent'
-import { LocalInputReceiverComponent } from '../../../engine/src/input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../../engine/src/input/components/LocalInputTagComponent'
 import { TransformComponent } from '../../../engine/src/transform/components/TransformComponent'
 import { WorldScene } from '../../../engine/src/scene/functions/SceneLoading'
 import { Engine } from '../../../engine/src/ecs/classes/Engine'
@@ -94,8 +94,8 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean): boolean
 
 //Create fake input on the map (like left click) with the coordinates written and implement the auto pilot click request component to the player
 function handleMoveCommand(x: number, y: number, z: number, eid: any) {
-  var linput = getComponent(eid, LocalInputReceiverComponent)
-  if (linput === undefined) linput = addComponent(eid, LocalInputReceiverComponent, {})
+  var linput = getComponent(eid, LocalInputTagComponent)
+  if (linput === undefined) linput = addComponent(eid, LocalInputTagComponent, {})
   addComponent(eid, AutoPilotClickRequestComponent, { coords: new Vector2(x, y) })
 }
 
