@@ -1,9 +1,10 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Button, MediumButton } from '../inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '../layout/ContextMenu'
+import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
+
 import {
   ErrorMessage,
   ProjectGrid,
@@ -87,10 +88,6 @@ const contextMenuId = 'project-menu'
  * @author Robert Long
  */
 class ProjectsPage extends Component<{ t: Function }> {
-  static propTypes = {
-    history: PropTypes.object.isRequired
-  }
-
   constructor(props) {
     super(props)
 

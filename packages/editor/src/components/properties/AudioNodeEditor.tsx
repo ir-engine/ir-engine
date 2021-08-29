@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import AudioInput from '../inputs/AudioInput'
@@ -33,18 +32,6 @@ export function AudioNodeEditor(props) {
       <AudioSourceProperties {...props} />
     </NodeEditor>
   )
-}
-
-/**
- * PropTypes Defining properties for AudioNodeEditor component.
- *
- * @author Robert Long
- * @type {Object}
- */
-AudioNodeEditor.propTypes = {
-  editor: PropTypes.object,
-  node: PropTypes.object,
-  multiEdit: PropTypes.bool
 }
 
 //setting icon component name

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
 import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
 import ImageInput from '@xrengine/editor/src/components/inputs/ImageInput'
@@ -24,12 +23,6 @@ type CloudsNodeEditorProps = {
  * @type {class component}
  */
 export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
-  // declaring propTypes for CloudsNodeEditor
-  static propTypes = {
-    editor: PropTypes.object,
-    node: PropTypes.object
-  }
-
   constructor(props: CloudsNodeEditorProps) {
     super(props)
     this.props = props

@@ -1,10 +1,10 @@
 import React from 'react'
 
-import AppFooter from '@xrengine/client-core/src/socialmedia/components/Footer'
-import Feed from '@xrengine/client-core/src/socialmedia/components/Feed'
+import AppFooter from '@xrengine/social/src/components/Footer'
+import Feed from '@xrengine/social/src/components/Feed'
 
 import { useLocation } from 'react-router-dom'
-import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
+import AppHeader from '@xrengine/social/src/components/Header'
 
 import styles from './index.module.scss'
 

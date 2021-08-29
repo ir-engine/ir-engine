@@ -10,7 +10,7 @@ import { Lightbulb } from '@styled-icons/fa-solid/Lightbulb'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 
-//Declairing properties for PointLightNodeEditor
+//Declaring properties for PointLightNodeEditor
 type PointLightNodeEditorProps = {
   editor?: object
   node?: object

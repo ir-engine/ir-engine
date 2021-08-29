@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback, memo, Fragment } from 'react'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import DefaultNodeEditor from '../properties/DefaultNodeEditor'
 import { ContextMenu, MenuItem, ContextMenuTrigger } from '../layout/ContextMenu'
 import { cmdOrCtrlString } from '@xrengine/editor/src/functions/utils'
@@ -708,40 +707,6 @@ function TreeNode({
       </ContextMenuTrigger>
     </TreeDepthContainer>
   )
-}
-
-/**
- * [declaring propTypes for TreeNode]
- * @type {Object}
- */
-TreeNode.propTypes = {
-  data: PropTypes.shape({
-    nodes: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.any.isRequired,
-        object: PropTypes.object.isRequired,
-        isLeaf: PropTypes.bool,
-        depth: PropTypes.number,
-        selected: PropTypes.bool,
-        active: PropTypes.bool,
-        iconComponent: PropTypes.object,
-        isCollapsed: PropTypes.bool,
-        childIndex: PropTypes.number.isRequired,
-        lastChild: PropTypes.bool.isRequired
-      })
-    ),
-    renamingNode: PropTypes.object,
-    onRenameSubmit: PropTypes.func.isRequired,
-    onChangeName: PropTypes.func.isRequired,
-    onMouseDown: PropTypes.func.isRequired,
-    onClick: PropTypes.func.isRequired,
-    onToggle: PropTypes.func.isRequired,
-    onKeyDown: PropTypes.func.isRequired,
-    onUpload: PropTypes.func.isRequired
-  }),
-  index: PropTypes.number,
-  style: PropTypes.object.isRequired,
-  isScrolling: PropTypes.bool
 }
 
 /**

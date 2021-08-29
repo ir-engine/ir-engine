@@ -16,8 +16,8 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build": "rimraf dist && mkdir dist && node build.js",
-    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
+    "build": "rimraf dist && mkdir dist",
+    "build-publish": "rimraf dist && ctix entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
     "buildx": "esbuild",
     "test": "jest",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
@@ -59,6 +59,7 @@
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
     "cross-env": "7.0.3",
+    "ctix": "0.3.1",
     "device-detector-js": "2.2.10",
     "dompurify": "2.3.1",
     "emailjs-com": "3.2.0",
@@ -74,7 +75,6 @@
     "material-ui-confirm": "2.1.3",
     "moment": "2.29.1",
     "nipplejs": "0.9.0",
-    "prop-types": "15.7.2",
     "rc-dock": "3.0.19",
     "rc-slider": "9.7.2",
     "react": "17.0.2",

@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 import { Vector3 } from 'three'
@@ -48,20 +46,9 @@ let uniqueId = 0
  * @author Robert Long
  */
 export class Vector3Input extends Component {
-  static propTypes = {
-    uniformScaling: PropTypes.bool,
-    hideLabels: PropTypes.bool,
-    value: PropTypes.object,
-    onChange: PropTypes.func,
-    smallStep: PropTypes.number,
-    mediumStep: PropTypes.number,
-    largeStep: PropTypes.number
-  }
-
-  static defaultProps = {
-    value: new Vector3(),
-    hideLabels: false,
-    onChange: () => {}
+  declare state: {
+    uniformEnabled: any
+    hideLabels: boolean
   }
 
   constructor(props) {
@@ -77,10 +64,6 @@ export class Vector3Input extends Component {
     }
   }
 
-  state: {
-    uniformEnabled: any
-    hideLabels: boolean
-  }
   id: number
   newValue: Vector3
   hideLabels: boolean
