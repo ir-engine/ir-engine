@@ -89,7 +89,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
                 raycastComponent.raycastQuery.hits[0]?.body.userData !== triggerComponent
               ) {
                 triggerComponent.active = false
-                triggerComponent.onTriggerExit()
+                triggerComponent.onTriggerExit(triggerComponent.args)
                 console.log('********* TRIGGER DEACTIVATED')
                 clearInterval(interval)
               }

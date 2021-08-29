@@ -81,10 +81,34 @@ export const createTriggerVolume = (
       }
     }
 
-    console.log('handleTriggerEnter', targetObj)
+    console.log('handleTriggerEnter')
   }
 
-  const handleTriggerExit = () => {
+  const handleTriggerExit = (args) => {
+    let leaveComponent = args.leaveComponent
+    let leaveProperty = args.leaveProperty
+    let leaveValue = args.leaveValue
+
+    let targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+
+    if (leaveComponent === 'video' || leaveComponent === 'volumteric') {
+      if (leaveProperty === 'paused') {
+        if (leaveValue) {
+          targetObj.pause()
+        } else {
+          targetObj.play()
+        }
+      }
+    } else if (leaveComponent === 'loop-animation') {
+      if (leaveProperty === 'paused') {
+        if (leaveValue) {
+          targetObj.stopAnimation()
+        } else {
+          targetObj.playAnimation()
+        }
+      }
+    }
+
     console.log('handleTriggerExit')
   }
 
