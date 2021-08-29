@@ -2,9 +2,9 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { avatarCorrection } from '../../avatar/functions/avatarCorrection'
 import { interpolateAvatar } from '../../avatar/functions/interpolateAvatar'
-import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, Not, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -14,11 +14,10 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
-import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent'
-import { correctRigidBody } from '../functions/correctRigidBody'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
 import { interpolateRigidBody } from '../functions/interpolateRigidBody'
 import { updateRigidBody } from '../functions/updateRigidBody'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -26,11 +25,18 @@ import { updateRigidBody } from '../functions/updateRigidBody'
  */
 
 export const InterpolationSystem = async (): Promise<System> => {
-  const localCharacterInterpolationQuery = defineQuery([
+  /**
+   * Local avatar
+   */
+  const localAvatarCorrectionQuery = defineQuery([
     AvatarControllerComponent,
     InterpolationComponent,
     NetworkObjectComponent
   ])
+
+  /**
+   * Remote avatars
+   */
   const networkClientInterpolationQuery = defineQuery([
     Not(AvatarControllerComponent),
     ColliderComponent,
@@ -38,31 +44,48 @@ export const InterpolationSystem = async (): Promise<System> => {
     InterpolationComponent,
     NetworkObjectComponent
   ])
-  const localObjectInterpolationQuery = defineQuery([
-    Not(AvatarComponent),
-    LocalInterpolationComponent,
-    InterpolationComponent,
-    ColliderComponent,
-    NetworkObjectComponent
-  ])
+
+  /**
+   * Server controlled rigidbody with interpolation
+   */
   const networkObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
-    Not(LocalInterpolationComponent),
     Not(ClientAuthoritativeComponent),
     InterpolationComponent,
     ColliderComponent,
     NetworkObjectComponent
   ])
+
+  /**
+   * Server controlled rigidbody without interpolation
+   */
   const correctionFromServerQuery = defineQuery([
+    Not(AvatarComponent),
     Not(InterpolationComponent),
     Not(ClientAuthoritativeComponent),
     ColliderComponent,
     NetworkObjectComponent
   ])
+
+  /**
+   * Server controlled object with interpolation but no collider
+   */
+  const transformInterpolationQuery = defineQuery([
+    Not(ClientAuthoritativeComponent),
+    Not(AvatarComponent),
+    Not(ColliderComponent),
+    InterpolationComponent,
+    TransformComponent,
+    NetworkObjectComponent
+  ])
+
+  /**
+   * Server controlled object with no collider or interpolation
+   */
   const transformUpdateFromServerQuery = defineQuery([
     Not(InterpolationComponent),
     Not(ClientAuthoritativeComponent),
-    Not(AvatarControllerComponent),
+    Not(AvatarComponent),
     Not(ColliderComponent),
     TransformComponent,
     NetworkObjectComponent
@@ -82,7 +105,7 @@ export const InterpolationSystem = async (): Promise<System> => {
     // Create new snapshot position for next frame server correction
     Vault.instance.add(createSnapshot(snapshots.new))
 
-    for (const entity of localCharacterInterpolationQuery(world)) {
+    for (const entity of localAvatarCorrectionQuery(world)) {
       avatarCorrection(entity, snapshots, delta)
     }
 
@@ -90,19 +113,58 @@ export const InterpolationSystem = async (): Promise<System> => {
       interpolateAvatar(entity, snapshots, delta)
     }
 
-    for (const entity of localObjectInterpolationQuery(world)) {
-      correctRigidBody(entity, snapshots, delta)
-    }
-
     for (const entity of networkObjectInterpolationQuery(world)) {
+      // TODO: quick bitecs fix
+      if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
       interpolateRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of correctionFromServerQuery(world)) {
+      // TODO: quick bitecs fix
+      if (
+        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, InterpolationComponent) ||
+        hasComponent(entity, ColliderComponent)
+      )
+        continue
       updateRigidBody(entity, snapshots, delta)
     }
 
+    for (const entity of transformInterpolationQuery(world)) {
+      // TODO: quick bitecs fix
+      if (
+        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, AvatarComponent) ||
+        hasComponent(entity, ColliderComponent)
+      )
+        continue
+
+      const transform = getComponent(entity, TransformComponent)
+      const interpolationSnapshot =
+        findInterpolationSnapshot(entity, snapshots.interpolation) ??
+        findInterpolationSnapshot(entity, Network.instance.snapshot)
+
+      if (interpolationSnapshot == null) return
+
+      transform.position.set(interpolationSnapshot.x, interpolationSnapshot.y, interpolationSnapshot.z)
+      transform.rotation.set(
+        interpolationSnapshot.qX,
+        interpolationSnapshot.qY,
+        interpolationSnapshot.qZ,
+        interpolationSnapshot.qW
+      )
+    }
+
     for (const entity of transformUpdateFromServerQuery(world)) {
+      // TODO: quick bitecs fix
+      if (
+        hasComponent(entity, InterpolationComponent) ||
+        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, AvatarComponent) ||
+        hasComponent(entity, ColliderComponent)
+      )
+        continue
+      console.log(getComponent(entity, NameComponent).name)
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) return
       const transform = getComponent(entity, TransformComponent)

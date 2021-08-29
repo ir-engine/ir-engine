@@ -59,9 +59,6 @@ export class Network {
   /** Outgoing actions */
   outgoingActions = [] as ActionType[]
 
-  /** Game mode mapping schema */
-  loadedGames: Entity[] = [] // its for network
-
   /** Map of Network Objects. */
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
@@ -71,8 +68,6 @@ export class Network {
   channelSocketId: string
   /** User id hosting this network. */
   userId: string
-  /** Network id of the local User. */
-  localAvatarNetworkId: number
   /** Access tocken of the User. */
   accessToken: string
   /** Snapshot of the network. */
@@ -80,6 +75,10 @@ export class Network {
 
   /** ID of last network created. */
   private static availableNetworkId = 0
+
+  isLocal = (userId) => {
+    return this.userId === userId
+  }
 
   /** Get next network id. */
   static getNetworkId(): number {
@@ -109,10 +108,7 @@ export class Network {
 
   clientInputState: NetworkClientInputInterface = {
     networkId: -1,
-    buttons: [],
-    axes1d: [],
-    axes2d: [],
-    axes6DOF: [],
+    data: [],
     viewVector: {
       x: 0,
       y: 0,

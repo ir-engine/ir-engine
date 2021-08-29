@@ -1,5 +1,5 @@
 import '@feathersjs/transport-commons'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { awaitEngineLoaded, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import config from '@xrengine/server-core/src/appconfig'
@@ -9,7 +9,6 @@ import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import path from 'path'
-import Worker from 'web-worker'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
@@ -23,6 +22,7 @@ export default (app: Application): void => {
   }
 
   app.on('connection', async (connection) => {
+    await awaitEngineLoaded()
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.NODE_ENV === 'development' ||
@@ -263,6 +263,7 @@ export default (app: Application): void => {
           } catch (err) {
             if (err.code === 401 && err.data.name === 'TokenExpiredError') {
               const jwtDecoded = decode(token)
+              //@ts-ignore
               const idProvider = await app.service('identityProvider').get(jwtDecoded.sub)
               authResult = {
                 'identity-provider': idProvider

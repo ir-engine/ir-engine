@@ -1,5 +1,4 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
@@ -20,12 +19,9 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { TouchInputs } from '../../input/enums/InputEnums'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
-import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { ECSWorld, World } from '../../ecs/classes/World'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -64,11 +60,11 @@ const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
 const followCamera = (entity: Entity) => {
-  if (typeof entity === 'undefined') return console.log('undefined')
+  if (typeof entity === 'undefined') return
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform && !Engine.portCamera) return console.log('!cameraDesiredTransform && !Engine.portCamera')
+  if (!cameraDesiredTransform) return
 
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
@@ -83,12 +79,7 @@ const followCamera = (entity: Entity) => {
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraMode.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-  let inputValue =
-    inputComponent.data.get(inputAxes) ||
-    ({
-      type: 0,
-      value: [0, 0] as Vector2Type
-    } as InputValue<NumericalType>)
+  let inputValue = inputComponent.data.get(inputAxes) || ({ type: 0, value: [0, 0] } as any)
 
   let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance
@@ -99,25 +90,22 @@ const followCamera = (entity: Entity) => {
   }
 
   if (followCamera.mode !== CameraMode.Strategic) {
-    followCamera.theta -= inputValue.value[0] * (inputValue.inputAction === TouchInputs.Touch1Movement ? 60 : 100)
+    followCamera.theta -= inputValue.value[0] * 100
     followCamera.theta %= 360
 
-    followCamera.phi -= inputValue.value[1] * (inputValue.inputAction === TouchInputs.Touch1Movement ? 100 : 60)
-    followCamera.phi = Math.min(followCamera.maxPhi ?? 85, Math.max(followCamera.minPhi ?? 0.5, followCamera.phi))
+    followCamera.phi -= inputValue.value[1] * 100
+    followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
   }
 
   if (followCamera.mode === CameraMode.FirstPerson) {
     camDist = 0.01
     theta = followCamera.theta
     vec3.set(0, avatar.avatarHeight, 0)
-  }
-  // RTS camera needs to be reconsidered a bit
-  // else if (followCamera.mode === CameraMode.Strategic) {
-  //   vec3.set(0, avatar.avatarHeight * 2, -3)
-  //   theta = 180
-  //   phi = 150
-  // }
-  else {
+  } else if (followCamera.mode === CameraMode.Strategic) {
+    vec3.set(0, avatar.avatarHeight * 2, -3)
+    theta = 180
+    phi = 150
+  } else {
     if (followCamera.mode === CameraMode.ShoulderCam) {
       camDist = followCamera.minDistance
     } else if (followCamera.mode === CameraMode.TopDown) {
@@ -166,7 +154,7 @@ const followCamera = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-  if (followCamera.mode === CameraMode.FirstPerson || Engine.portCamera) {
+  if (followCamera.mode === CameraMode.FirstPerson || World.defaultWorld.isInPortal) {
     cameraTransform.position.copy(cameraDesiredTransform.position)
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
   }
@@ -216,7 +204,6 @@ export const CameraSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of followCameraAddQuery(world)) {
-      console.log('      const cameraFollow = getComponent(entity, FollowCameraComponent)      ')
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
@@ -251,7 +238,6 @@ export const CameraSystem = async (): Promise<System> => {
       }
     }
 
-    // follow camera component should only ever be on the character
     for (const entity of followCameraQuery(world)) {
       followCamera(entity)
     }

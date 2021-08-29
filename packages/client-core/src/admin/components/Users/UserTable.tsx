@@ -7,6 +7,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/user/service'
+import { refetchSingleUserAdmin } from '../../reducers/admin/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
@@ -28,11 +29,12 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removeUserAdmin: bindActionCreators(removeUserAdmin, dispatch),
-  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch)
+  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
+  refetchSingleUserAdmin: bindActionCreators(refetchSingleUserAdmin, dispatch)
 })
 
 const UserTable = (props: Props) => {
-  const { removeUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props
+  const { removeUserAdmin, refetchSingleUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props
   const classes = useStyle()
   const classx = useStyles()
   const [page, setPage] = React.useState(0)
@@ -51,7 +53,6 @@ const UserTable = (props: Props) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-
   React.useEffect(() => {
     const fetchData = async () => {
       await fetchUsersAsAdmin()
@@ -60,6 +61,7 @@ const UserTable = (props: Props) => {
   }, [adminUserState, user, fetchUsersAsAdmin])
 
   const openViewModel = (open: boolean, user: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    refetchSingleUserAdmin()
     if (
       event.type === 'keydown' &&
       ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
@@ -113,15 +115,14 @@ const UserTable = (props: Props) => {
       )
     }
   }
-
   const rows = adminUsers.map((el) => {
-    const loc = el.party.id ? el.party.location : null
+    const loc = el.party?.id ? el.party.location : null
     const loca = loc ? (
       loc.name || <span className={classes.spanNone}>None</span>
     ) : (
       <span className={classes.spanNone}>None</span>
     )
-    const ins = el.party.id ? el.party.instance : null
+    const ins = el.party?.id ? el.party.instance : null
     const inst = ins ? (
       ins.ipAddress || <span className={classes.spanNone}>None</span>
     ) : (

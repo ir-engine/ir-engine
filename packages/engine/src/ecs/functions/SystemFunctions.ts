@@ -1,7 +1,7 @@
 /** Functions to provide system level functionalities. */
 
 import { SystemUpdateType } from '../functions/SystemUpdateType'
-import { pipe, System } from '../../ecs/bitecs'
+import { pipe, System } from 'bitecs'
 import { PipelineType } from '../classes/World'
 
 export type CreateSystemFunctionType<A extends any> = (props: A) => Promise<System>
@@ -57,5 +57,5 @@ export const createPipeline = async (updateType: SystemUpdateType): Promise<Pipe
   for (const { system, args } of pipelines[updateType]) {
     systems.push(await system(args))
   }
-  return pipe(...systems)
+  return pipe(...systems) as any as PipelineType
 }

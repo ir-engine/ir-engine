@@ -6,7 +6,7 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import { useStyles, useStyle } from './styles'
+import { useLocationStyles, useLocationStyle } from './styles'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAppState } from '../../../common/reducers/app/selector'
@@ -51,8 +51,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const LocationTable = (props: Props) => {
-  const classes = useStyles()
-  const classex = useStyle()
+  const classes = useLocationStyles()
+  const classex = useLocationStyle()
   const {
     authState,
     fetchAdminLocations,
@@ -248,7 +248,7 @@ const LocationTable = (props: Props) => {
         aria-describedby="alert-dialog-description"
         classes={{ paper: classes.paperDialog }}
       >
-        <DialogTitle id="alert-dialog-title">Confirm to delete this location!</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Confirm location deletion</DialogTitle>
         <DialogActions>
           <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
             Cancel

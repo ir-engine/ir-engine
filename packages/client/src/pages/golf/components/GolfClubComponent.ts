@@ -19,6 +19,7 @@ export type GolfClubComponentType = {
   swingVelocity: number
   hidden: boolean
   disabledOpacity: number
+  number: number
 }
 
 export const GolfClubComponent = createMappedComponent<GolfClubComponentType>()

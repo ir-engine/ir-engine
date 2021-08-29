@@ -5,7 +5,7 @@ import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dia
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme } from '@xrengine/client-core/src/theme'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'

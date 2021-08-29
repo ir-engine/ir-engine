@@ -14,6 +14,8 @@ import { NetworkInterpolation } from '../classes/NetworkInterpolation'
 import { Network } from '../classes/Network'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ClientNetworkStateSystem } from '../systems/ClientNetworkStateSystem'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 /** Get snapshot factory.
  * @author HydraFire <github.com/HydraFire>
@@ -172,9 +174,11 @@ export function interpolate(
 
   const tmpSnapshot: Snapshot = JSON.parse(JSON.stringify({ ...newer, state: newerState }))
 
+  const localAvatarNetworkId = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)?.networkId
+
   newerState.forEach((e: StateEntity, i: number) => {
     const other: StateEntity | undefined = olderState.find((f: any) => f.networkId === e.networkId)
-    if (e.networkId == Network.instance.localAvatarNetworkId) return
+    if (e.networkId === localAvatarNetworkId) return
     if (!other) return
 
     params.forEach((p) => {
@@ -281,7 +285,6 @@ export function calculateInterpolation(parameters: string, arrayName = ''): Inte
   // find snapshots between which our time goes
   const shots = NetworkInterpolation.instance.get(serverTime)
   if (!shots) {
-    console.log('Skipping network interpolation, are you lagging or disconnected?')
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.CONNECTION_LOST,
       hasLostConnection: true

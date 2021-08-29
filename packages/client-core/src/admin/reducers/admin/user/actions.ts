@@ -9,11 +9,7 @@ import {
   STATIC_RESOURCE_RETRIEVED
 } from '../../actions'
 
-import {
-  USER_ROLE_RETRIEVED,
-  USER_ROLE_CREATED,
-  USER_ROLE_UPDATED
-} from '@xrengine/client-core/src/world/reducers/actions'
+import { USER_ROLE_RETRIEVED, USER_ROLE_CREATED, USER_ROLE_UPDATED } from '../../../../world/reducers/actions'
 
 export interface userRoleRetrievedResponse {
   type: string
@@ -91,7 +87,7 @@ export const searchedUser = (data: any): any => {
   }
 }
 
-export const fetchedSIngleUser = (data: any): any => {
+export const fetchedSingleUser = (data: any): any => {
   return {
     type: SINGLE_USER_ADMIN_LOADED,
     data: data

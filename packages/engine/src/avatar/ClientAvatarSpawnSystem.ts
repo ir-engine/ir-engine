@@ -1,10 +1,10 @@
-import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraMode } from '../camera/types/CameraMode'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { Network } from '../networking/classes/Network'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { CollisionGroups } from '../physics/enums/CollisionGroups'
@@ -31,7 +31,7 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
       if (isLocalPlayer) {
-        addComponent(entity, LocalInputReceiverComponent, {})
+        addComponent(entity, LocalInputTagComponent, {})
         addComponent(entity, FollowCameraComponent, {
           mode: CameraMode.ThirdPerson,
           distance: 5,
@@ -47,7 +47,6 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
         })
         addComponent(entity, PersistTagComponent, {})
 
-        Network.instance.localAvatarNetworkId = networkId
         Network.instance.localClientEntity = entity
       }
 

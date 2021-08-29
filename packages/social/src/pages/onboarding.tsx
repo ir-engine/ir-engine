@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
-import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
-import OnBoardingComponent from '@xrengine/client-core/src/socialmedia/components/OnBoarding'
+import Splash from '@xrengine/social/src/components/Splash'
+import OnBoardingComponent from '@xrengine/social/src/components/OnBoarding'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { connect } from 'react-redux'
 

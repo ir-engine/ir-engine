@@ -1,7 +1,7 @@
 import { AnimationMixer, Object3D } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
 import { AnimationManager } from '../../avatar/AnimationManager'
-import cloneObject3D from '../../editor/functions/cloneObject3D'
+import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 export default class Model extends Object3D {
   model: any
   _src: any
@@ -30,7 +30,7 @@ export default class Model extends Object3D {
     this.load(value).catch(console.error)
   }
   async loadGLTF(src) {
-    console.log("gltf is")
+    console.log('gltf is')
     // const gltf = await new GLTFLoader(src).loadGLTF();
     const gltf = await LoadGLTF(src)
     console.log(gltf)
@@ -56,8 +56,8 @@ export default class Model extends Object3D {
     return this
   }
   getClipOptions() {
-    console.log("CLIP OPTIONS");
-    console.log(this.model);
+    console.log('CLIP OPTIONS')
+    console.log(this.model)
     const clipOptions =
       this.model && this.model.animations
         ? this.model.animations.map((clip, index) => ({

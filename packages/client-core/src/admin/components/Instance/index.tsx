@@ -1,10 +1,10 @@
 import React from 'react'
 import Search from './SearchInstance'
 import InstanceTable from './InstanceTable'
-import { useStyles } from './styles'
+import { useInstanceStyles } from './styles'
 
 const Instance = () => {
-  const classes = useStyles()
+  const classes = useInstanceStyles()
 
   return (
     <div>

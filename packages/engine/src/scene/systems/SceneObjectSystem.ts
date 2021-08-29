@@ -1,16 +1,17 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { beforeMaterialCompile } from '../../editor/nodes/helper/BPCEMShader'
+import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -20,15 +21,15 @@ import { Updatable } from '../interfaces/Updatable'
 // GameManagerSystem already has physics interaction behaviors, these could be made generic and not game dependent
 
 type BPCEMProps = {
-  probeScale: Vector3
-  probePositionOffset: Vector3
+  bakeScale: Vector3
+  bakePositionOffset: Vector3
 }
 
 export class SceneOptions {
   static instance: SceneOptions
   bpcemOptions: BPCEMProps = {
-    probeScale: new Vector3(1, 1, 1),
-    probePositionOffset: new Vector3()
+    bakeScale: new Vector3(1, 1, 1),
+    bakePositionOffset: new Vector3()
   }
   envMapIntensity = 1
   boxProjection = false
@@ -86,12 +87,12 @@ export const SceneObjectSystem = async (): Promise<System> => {
             // BPCEM
             if (SceneOptions.instance.boxProjection)
               material.onBeforeCompile = beforeMaterialCompile(
-                SceneOptions.instance.bpcemOptions.probeScale,
-                SceneOptions.instance.bpcemOptions.probePositionOffset
+                SceneOptions.instance.bpcemOptions.bakeScale,
+                SceneOptions.instance.bpcemOptions.bakePositionOffset
               )
             ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
             if (obj.receiveShadow) {
-              Engine.csm?.setupMaterial(material)
+              Engine.csm?.setupMaterial(obj)
             }
           }
         }

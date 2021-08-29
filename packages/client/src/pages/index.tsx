@@ -5,7 +5,9 @@ import ContactForm from '@xrengine/client-core/src/common/components/ContactForm
 import { useHistory, Redirect } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
 import { useTranslation, Trans } from 'react-i18next'
-import configs from '@xrengine/client-core/src/world/components/editor/configs'
+import { Config } from '@xrengine/common/src/config'
+
+const ROOT_REDIRECT: any = Config.publicRuntimeConfig.rootRedirect
 
 export const HomePage = (): any => {
   const router = useHistory()
@@ -16,10 +18,10 @@ export const HomePage = (): any => {
     }
   }, [])
 
-  if (configs.ROOT_REDIRECT !== false && configs.ROOT_REDIRECT !== 'false') {
-    const redirectParsed = url.parse(configs.ROOT_REDIRECT)
-    if (redirectParsed.protocol == null) return <Redirect to={configs.ROOT_REDIRECT} />
-    else window.location.href = configs.ROOT_REDIRECT
+  if (ROOT_REDIRECT !== false && ROOT_REDIRECT !== 'false') {
+    const redirectParsed = url.parse(ROOT_REDIRECT)
+    if (redirectParsed.protocol == null) return <Redirect to={ROOT_REDIRECT} />
+    else window.location.href = ROOT_REDIRECT
   } else
     return (
       <div className="lander">
@@ -39,8 +41,8 @@ export const HomePage = (): any => {
             <object className="lander-logo" data="static/overlay_mark.svg" />
             <div className="logo-bottom">
               <span className="gray-txt">{t('index.by')}</span>
-              <span className="gradiant-txt">{t('index.laguna')}</span>
-              <span className="white-txt">{t('index.labs')}</span>
+              <span className="gradiant-txt">{t('index.xr')}</span>
+              <span className="white-txt">{t('index.foundation')}</span>
             </div>
           </div>
         </nav>
@@ -65,14 +67,14 @@ export const HomePage = (): any => {
             <a target="_blank" className="icon" href="https://discord.gg/mQ3D4FE">
               <img src="static/discord.svg" />
             </a>
-            <a target="_blank" className="icon" href="https://github.com/XRFoundation/XREngine">
+            <a target="_blank" className="icon" href="https://github.com/XRFoundation">
               <img src="static/github.svg" />
             </a>
           </div>
           <div className="logo-bottom">
             <span className="gray-txt">{t('index.by')}</span>
-            <span className="gradiant-txt">{t('index.laguna')}</span>
-            <span className="white-txt">{t('index.labs')}</span>
+            <span className="gradiant-txt">{t('index.xr')}</span>
+            <span className="white-txt">{t('index.foundation')}</span>
           </div>
         </div>
       </div>

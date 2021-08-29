@@ -1,4 +1,4 @@
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import { client } from '../../../feathers'

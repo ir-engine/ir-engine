@@ -9,8 +9,8 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { showAlert } from '../../../common/reducers/alert/actions'
 import { showDialog } from '../../../common/reducers/dialog/service'
-import MagicLinkEmail from '../../../user/components/Auth/MagicLinkEmail'
-import PasswordLogin from '../../../user/components/Auth/PasswordLogin'
+import MagicLinkEmail from '../Auth/MagicLinkEmail'
+import PasswordLogin from '../Auth/PasswordLogin'
 import { selectAuthState } from '../../reducers/auth/selector'
 import {
   addConnectionByOauth,

@@ -56,6 +56,7 @@ export interface Props {
   authState?: any
   adminUserState?: any
   fetchUsersAsAdmin?: any
+  refetchSingleUserAdmin?: any
 }
 
 export interface TabPanelProps {

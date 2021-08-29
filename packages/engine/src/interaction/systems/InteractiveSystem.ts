@@ -8,7 +8,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -24,10 +24,11 @@ import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
 import { Engine } from '../../ecs/classes/Engine'
-import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { defineQuery, defineSystem, enterQuery, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 
 const upVec = new Vector3(0, 1, 0)
 
@@ -47,7 +48,7 @@ export const InteractiveSystem = async (): Promise<System> => {
   const subfocusAddQuery = enterQuery(subfocusQuery)
   const subfocusRemoveQuery = enterQuery(subfocusQuery)
 
-  const localUserQuery = defineQuery([LocalInputReceiverComponent, AvatarComponent])
+  const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
   const interactedQuery = defineQuery([InteractedComponent])
   const interactedAddQuery = enterQuery(interactedQuery)
 
@@ -61,6 +62,7 @@ export const InteractiveSystem = async (): Promise<System> => {
   const textGroup = new Group().add(text)
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
   Engine.scene.add(textGroup)
+  addComponent(interactTextEntity, PersistTagComponent, {})
   const transformComponent = addComponent(interactTextEntity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
@@ -124,7 +126,7 @@ export const InteractiveSystem = async (): Promise<System> => {
 
     for (const entity of interactedAddQuery(world)) {
       const interactiveComponent = getComponent(entity, InteractableComponent)
-      if (hasComponent(entity, PositionalAudioComponent)) {
+      if (hasComponent(entity, AudioTagComponent)) {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
         mediaObject?.toggle()
       } else {

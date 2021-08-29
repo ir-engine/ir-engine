@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import config from "config";
+import inject from '@rollup/plugin-inject'
 
 const replaceEnvs = (obj, env) => {
   let result = {};
@@ -27,7 +28,7 @@ const replaceEnvs = (obj, env) => {
   return result;
 }
 
-export default defineConfig(() => {
+export default defineConfig((command) => {
   const env = loadEnv('', process.cwd() + '../../');
   const runtime = replaceEnvs(config.get('publicRuntimeConfig'), env);
 
@@ -37,7 +38,7 @@ export default defineConfig(() => {
     publicRuntimeConfig: JSON.stringify(runtime)
   };
 
-  return {
+  const returned = {
     plugins: [
     ],
     server: {
@@ -56,12 +57,9 @@ export default defineConfig(() => {
         'three-physx': 'three-physx/src/index.ts'
       }
     },
-    define: {
-      'process.env': process.env,
-      'process.browser': process.browser,
-    },
     build: {
       sourcemap: 'inline',
+      minify: 'esbuild',
       rollupOptions: {
         output: {
           dir: 'dist',
@@ -74,4 +72,15 @@ export default defineConfig(() => {
       },
     },
   };
+  if (command.command === 'build') {
+   returned.build.rollupOptions.plugins = [
+       inject({
+         process: 'process'
+       })
+   ]
+  } else returned.define = {
+    'process.env': process.env,
+    'process.browser': process.browser,
+  }
+  return returned
 });

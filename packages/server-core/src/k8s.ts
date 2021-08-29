@@ -23,7 +23,7 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { spawn } from 'child_process'
+import ChildProcess from 'child_process'
 import _ from 'lodash'
 import request from 'request'
 import Rx from 'rx'
@@ -65,7 +65,7 @@ class Kubectl {
       ops.push('--context=' + this.context)
     }
 
-    const kube = spawn(this.binary, ops.concat(args)),
+    const kube = ChildProcess.spawn(this.binary, ops.concat(args)),
       stdout = [],
       stderr = []
 
