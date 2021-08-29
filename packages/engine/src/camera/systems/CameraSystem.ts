@@ -79,7 +79,7 @@ const followCamera = (entity: Entity) => {
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraMode.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-  let inputValue = inputComponent.data.get(inputAxes) || ({ type: 0, value: [0, 0] } as InputValue)
+  let inputValue = inputComponent.data.get(inputAxes) || ({ type: 0, value: [0, 0] } as any)
 
   let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance
