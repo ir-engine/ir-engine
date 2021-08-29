@@ -19,7 +19,8 @@ export type AutoPilotComponentType = {
 export function createAutoPilotComponent(entity: Entity, x: number, y: number, z: number) {
   return addComponent(entity, AutoPilotComponent, {
     path: findPath(
-      getComponent(WorldScene.mapEid, NavMeshComponent).yukaNavMesh,
+      // TODO: is this right? was WorldScene.mapEid but that was removed
+      getComponent(entity, NavMeshComponent).yukaNavMesh,
       getComponent(entity, TransformComponent).position,
       new Vector3(x, y, z),
       new Vector3(0, 0, 0)

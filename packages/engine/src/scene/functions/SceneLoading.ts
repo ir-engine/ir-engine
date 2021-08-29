@@ -189,7 +189,7 @@ export class WorldScene {
         break
 
       case 'ground-plane':
-        createGround(entity, component.data)
+        createGround(entity, component.data, isClient)
         break
 
       case 'image':
