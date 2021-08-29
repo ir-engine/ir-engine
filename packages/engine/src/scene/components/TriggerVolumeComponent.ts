@@ -1,7 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 export type TriggerVolumeComponentType = {
-  ref: any
+  args: any
   target: any
   onTriggerEnter: any
   onTriggerExit: any

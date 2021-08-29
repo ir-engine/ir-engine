@@ -75,7 +75,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
         if (triggerComponent) {
           if (!triggerComponent.active) {
             triggerComponent.active = true
-            triggerComponent.onTriggerEnter()
+            triggerComponent.onTriggerEnter(triggerComponent.args)
             console.log('********* TRIGGER ACTIVATED')
             const interval = setInterval(() => {
               if (

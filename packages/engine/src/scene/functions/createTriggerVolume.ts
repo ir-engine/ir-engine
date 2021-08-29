@@ -1,10 +1,13 @@
+import { BoxBufferGeometry, BoxHelper, Material, Mesh } from 'three'
 import { ShapeType, SHAPES, Body, BodyType, Transform, PhysXInstance } from 'three-physx'
-// import { Behavior } from '../../common/interfaces/Behavior'
+import { Engine } from '../../ecs/classes/Engine'
+
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
+import { addObject3DComponent } from './addObject3DComponent'
 
 export const createTriggerVolume = (
   entity,
@@ -12,14 +15,22 @@ export const createTriggerVolume = (
     target: any
   }
 ) => {
-  // console.warn("TODO: create trigger volume, args are", args);
-
   console.log('args are', args)
 
   const transform = getComponent(entity, TransformComponent)
   const pos = transform.position ?? { x: 0, y: 0, z: 0 }
   const rot = transform.rotation ?? { x: 0, y: 0, z: 0, w: 1 }
   const scale = transform.scale ?? { x: 1, y: 1, z: 1 }
+
+  // A visual representation for the trigger
+  const geometry = new BoxBufferGeometry()
+  const material = new Material()
+  const boxMesh = new Mesh(geometry, material)
+  boxMesh.position.set(pos.x, pos.y, pos.z)
+  boxMesh.scale.set(scale.x, scale.y, scale.z)
+  const box = new BoxHelper(boxMesh, 0xffff00)
+  box.layers.set(1)
+  addObject3DComponent(entity, box, {})
 
   const shapeBox: ShapeType = {
     shape: SHAPES.Box,
@@ -45,8 +56,32 @@ export const createTriggerVolume = (
 
   addComponent(entity, ColliderComponent, { body })
 
-  const handleTriggerEnter = () => {
-    console.log('handleTriggerEnter')
+  const handleTriggerEnter = (args) => {
+    let enterComponent = args.enterComponent
+    let enterProperty = args.enterProperty
+    let enterValue = args.enterValue
+
+    let targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+
+    if (enterComponent === 'video' || enterComponent === 'volumteric') {
+      if (enterProperty === 'paused') {
+        if (enterValue) {
+          targetObj.pause()
+        } else {
+          targetObj.play()
+        }
+      }
+    } else if (enterComponent === 'loop-animation') {
+      if (enterProperty === 'paused') {
+        if (enterValue) {
+          targetObj.stopAnimation()
+        } else {
+          targetObj.playAnimation()
+        }
+      }
+    }
+
+    console.log('handleTriggerEnter', targetObj)
   }
 
   const handleTriggerExit = () => {
@@ -54,20 +89,10 @@ export const createTriggerVolume = (
   }
 
   const triggerVolume = addComponent(entity, TriggerVolumeComponent, {
-    ref: null,
+    args: args,
     target: args.target,
     onTriggerEnter: handleTriggerEnter,
     onTriggerExit: handleTriggerExit,
     active: false
   })
-
-  // TODO: this is wrong
-  // how do we capture the trigger target?
-  // const t = args.target
-
-  // triggerVolume.target = t
-
-  // 3. Set it to reference
-  // 4. Create trigger
-  // 5. Add trigger callbacks
 }
