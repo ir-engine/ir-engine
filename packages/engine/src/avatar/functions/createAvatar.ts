@@ -138,8 +138,7 @@ export const createAvatarController = (entity: Entity) => {
 
   addComponent(entity, InputComponent, {
     schema: AvatarInputSchema,
-    data: new Map(),
-    prevData: new Map()
+    data: []
   })
 
   const controller = PhysXInstance.instance.createController(

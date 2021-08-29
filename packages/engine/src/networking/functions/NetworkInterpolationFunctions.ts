@@ -13,7 +13,6 @@ import {
 import { NetworkInterpolation } from '../classes/NetworkInterpolation'
 import { Network } from '../classes/Network'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ClientNetworkStateSystem } from '../systems/ClientNetworkStateSystem'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 

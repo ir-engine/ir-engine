@@ -182,21 +182,21 @@ void Pbr_CreateShadingParameters(const in vec3 viewNormal,
                                  const in mat4 viewInverse,
                                  out ShadingParameters shading) {
   vec3 normalDirection = normalize(viewNormal);
-  vec3 viewDirection = -normalize(viewPosition);
+  vec3 viewVector = -normalize(viewPosition);
   vec3 lightDirection = normalize(viewLightDirection.xyz);
-  vec3 halfwayDirection = normalize(viewDirection + lightDirection);
+  vec3 halfwayDirection = normalize(viewVector + lightDirection);
 
   // Clamping the minimum bound yields better results with values less than or
   // equal to 0, which would otherwise cause discontinuity in the geometry
   // factor. Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline
   // for The Order: 1886"
-  shading.normalDotView = max(dot(normalDirection, viewDirection), 1e-4);
+  shading.normalDotView = max(dot(normalDirection, viewVector), 1e-4);
   shading.normalDotHalfway =
       clamp(dot(normalDirection, halfwayDirection), 0.0, 1.0);
   shading.normalDotLight =
       clamp(dot(normalDirection, lightDirection), 0.0, 1.0);
   shading.viewDotHalfway =
-      clamp(dot(viewDirection, halfwayDirection), 0.0, 1.0);
+      clamp(dot(viewVector, halfwayDirection), 0.0, 1.0);
 
   // The following calculation can be proven as being equivalent to 1-(N.H)^2 by
   // using Lagrange's identity.
@@ -210,7 +210,7 @@ void Pbr_CreateShadingParameters(const in vec3 viewNormal,
   shading.oneMinusNormalDotHalfwaySquared = dot(NxH, NxH);
 
   shading.worldNormalDirection = (viewInverse * vec4(normalDirection, 0.0)).xyz;
-  vec3 reflectDirection = reflect(-viewDirection, normalDirection);
+  vec3 reflectDirection = reflect(-viewVector, normalDirection);
   shading.worldReflectDirection =
       (viewInverse * vec4(reflectDirection, 0.0)).xyz;
 }

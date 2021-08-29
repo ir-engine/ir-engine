@@ -28,7 +28,7 @@ import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
 import { NetworkActionDispatchSystem } from './networking/systems/NetworkActionDispatchSystem'
-import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
+import { ClientNetworkOutgoingSystem } from './networking/systems/ClientNetworkOutgoingSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
@@ -46,6 +46,8 @@ import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
 import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
+import { InputSystem } from './input/systems/InputSystem'
+import { ClientNetworkIncomingSystem } from './networking/systems/ClientNetworkIncomingSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -151,7 +153,7 @@ const configureServer = async (options: Required<InitializeOptions>) => {
 
 const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   // Network Systems
-  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
+  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkIncomingSystem)
 
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
@@ -159,6 +161,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
+  registerSystem(SystemUpdateType.Fixed, InputSystem)
 
   // Avatar Systems
   registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
@@ -186,6 +189,8 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
+
+  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkOutgoingSystem)
 
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
@@ -216,6 +221,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Network Incoming Systems
   registerSystem(SystemUpdateType.Fixed, ServerNetworkIncomingSystem, { ...options.networking }) // first
+  registerSystem(SystemUpdateType.Fixed, InputSystem)
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   // Input Systems

@@ -94,44 +94,21 @@ export const XRSystem = async (): Promise<System> => {
     }
 
     for (const entity of localXRControllerQuery(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      const xrInputs = getComponent(entity, XRInputSourceComponent)
+      console.log(xrInputs.head.quaternion.toArray(), xrInputs.head.quaternion)
       Engine.inputState.set(XR6DOF.HMD, {
         type: InputType.SIXDOF,
-        value: [
-          xrInputSourceComponent.head.position.x,
-          xrInputSourceComponent.head.position.y,
-          xrInputSourceComponent.head.position.z,
-          xrInputSourceComponent.head.quaternion.x,
-          xrInputSourceComponent.head.quaternion.y,
-          xrInputSourceComponent.head.quaternion.z,
-          xrInputSourceComponent.head.quaternion.w
-        ],
+        value: xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray()),
         lifecycleState: LifecycleValue.CONTINUED
       })
       Engine.inputState.set(XR6DOF.LeftHand, {
         type: InputType.SIXDOF,
-        value: [
-          xrInputSourceComponent.controllerLeft.position.x,
-          xrInputSourceComponent.controllerLeft.position.y,
-          xrInputSourceComponent.controllerLeft.position.z,
-          xrInputSourceComponent.controllerLeft.quaternion.x,
-          xrInputSourceComponent.controllerLeft.quaternion.y,
-          xrInputSourceComponent.controllerLeft.quaternion.z,
-          xrInputSourceComponent.controllerLeft.quaternion.w
-        ],
+        value: xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray()),
         lifecycleState: LifecycleValue.CONTINUED
       })
       Engine.inputState.set(XR6DOF.RightHand, {
         type: InputType.SIXDOF,
-        value: [
-          xrInputSourceComponent.controllerRight.position.x,
-          xrInputSourceComponent.controllerRight.position.y,
-          xrInputSourceComponent.controllerRight.position.z,
-          xrInputSourceComponent.controllerRight.quaternion.x,
-          xrInputSourceComponent.controllerRight.quaternion.y,
-          xrInputSourceComponent.controllerRight.quaternion.z,
-          xrInputSourceComponent.controllerRight.quaternion.w
-        ],
+        value: xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray()),
         lifecycleState: LifecycleValue.CONTINUED
       })
     }

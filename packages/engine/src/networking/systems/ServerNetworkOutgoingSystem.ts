@@ -3,9 +3,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
-import { InputValue } from '../../input/interfaces/InputValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -72,19 +69,17 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
       const networkObject = getComponent(entity, NetworkObjectComponent)
       const snapShotTime = networkObject.snapShotTime
 
-      const input = getComponent(entity, InputComponent)
-
-      const hmd = input.data.get(BaseInput.XR_HEAD)
-      const left = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND)
-      const right = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND)
-      if (!hmd?.value || !left?.value || !right?.value) continue
+      const xrInputs = getComponent(entity, XRInputSourceComponent)
+      const hmd = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray())
+      const left = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray())
+      const right = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray())
 
       transformState.ikTransforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        hmd: hmd.value,
-        left: left.value,
-        right: right.value
+        hmd,
+        left,
+        right
       })
     }
 
