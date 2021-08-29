@@ -120,9 +120,7 @@ export const addComponent = <T extends any, S extends bitECS.ISchema>(
     console.warn('[addComponent]: entity is undefined')
     return
   }
-  // console.log('addComponent', component, entity)
   bitECS.addComponent(world, component, entity)
-  // console.log('hasComponent', component.name, entity, _hasComponent(world, component, entity))
   if (component._schema) {
     for (const [key] of Object.entries(component._schema)) {
       component[key][entity] = args[key]

@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { ContextMenuTrigger } from '../layout/ContextMenu'
 
 /**
@@ -20,9 +19,4 @@ export function StylableContextMenuTrigger({ className, attributes, children, ..
   )
 }
 
-StylableContextMenuTrigger.propTypes = {
-  className: PropTypes.string,
-  attributes: PropTypes.object,
-  children: PropTypes.node
-}
 export default StylableContextMenuTrigger

@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import MediaSourcePanel from './MediaSourcePanel'
 import { useTranslation } from 'react-i18next'
 /**
@@ -19,10 +18,4 @@ export function UploadSourcePanel(props) {
   )
 }
 
-/**
- * declaring propTypes for UploadSourcePanel.
- */
-UploadSourcePanel.propTypes = {
-  source: PropTypes.object
-}
 export default UploadSourcePanel

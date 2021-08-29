@@ -71,7 +71,6 @@
     "lodash": "4.17.21",
     "mediasoup-client": "3.6.37",
     "moment": "2.29.1",
-    "prop-types": "15.7.2",
     "rc-dock": "3.0.19",
     "rc-slider": "9.7.2",
     "react": "^17.0.0",

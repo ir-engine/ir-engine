@@ -1,5 +1,4 @@
 import React, { useRef, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import NumericInput from './NumericInput'
 import styled from 'styled-components'
 import { CaretLeft } from '@styled-icons/boxicons-regular/CaretLeft'
@@ -92,14 +91,4 @@ export function NumericStepperInput({ style, className, decrementTooltip, increm
   )
 }
 
-/**
- *
- * @author Robert Long
- */
-NumericStepperInput.propTypes = {
-  style: PropTypes.object,
-  className: PropTypes.string,
-  decrementTooltip: PropTypes.string,
-  incrementTooltip: PropTypes.string
-}
 export default NumericStepperInput

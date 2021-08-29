@@ -17,7 +17,7 @@ import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
 
-const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
+export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
   // TODO: handle scale and rotation of graph object, pass world matrix?
   const graphBaseCoordinate = new YukaVector3(base.x, base.y, base.z)
@@ -108,7 +108,6 @@ export const AutopilotSystem = async (): Promise<System> => {
 
       const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
       autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate)
-      console.log('autopilotComponent.path', autopilotComponent.path)
 
       // TODO: "mount" player? disable movement, etc.
 

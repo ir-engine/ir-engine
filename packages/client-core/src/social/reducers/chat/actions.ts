@@ -16,6 +16,12 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
+import { getComponent } from '../../../../../engine/src/ecs/functions/EntityFunctions'
+import { TransformComponent } from '../../../../../engine/src/transform/components/TransformComponent'
+import { handleCommand, isCommand } from '../../../../../common/src/utils/commandHandler'
+import { Network } from '../../../../../engine/src/networking/classes/Network'
+import { Engine } from '../../../../../engine/src/ecs/classes/Engine'
+import { isBot } from '../../../../../engine/src/common/functions/isBot'
 
 export interface LoadedChannelsAction {
   type: string
@@ -115,6 +121,15 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
 }
 
 export function createdMessage(message: Message, selfUser: User): ChatAction {
+  if (message != undefined && message.text != undefined) {
+    console.log('message: ' + message.text)
+    if (Network.instance.isLocal(message.senderId)) {
+      if (handleCommand(message.text, Network.instance.localClientEntity, false)) return
+    } else {
+      if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
+    }
+  }
+
   return {
     type: CREATED_MESSAGE,
     message: message,

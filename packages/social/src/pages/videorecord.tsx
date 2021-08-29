@@ -1,6 +1,6 @@
 import React from 'react'
 import VideoRecorder from 'react-video-recorder'
-import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
+import AppHeader from '@xrengine/social/src/components/Header'
 
 interface VideoProps {
   timeLimit: number

@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import InputGroup from '../inputs/InputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import SelectInput from '../inputs/SelectInput'
@@ -208,9 +207,4 @@ export function AudioSourceProperties({ node, editor, multiEdit }) {
   )
 }
 
-AudioSourceProperties.propTypes = {
-  node: PropTypes.object,
-  editor: PropTypes.object,
-  multiEdit: PropTypes.bool
-}
 export default AudioSourceProperties

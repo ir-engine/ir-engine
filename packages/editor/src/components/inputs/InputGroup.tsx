@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { QuestionCircle } from '@styled-icons/fa-regular/QuestionCircle'
 import { InfoTooltip } from '../layout/Tooltip'
@@ -108,17 +107,4 @@ export function InputGroup({ name, children, disabled, info, label, ...rest }) {
   )
 }
 
-/**
- * Declaring proptoTtypes for InputGroup Component.
- *
- * @author Robert Long
- * @type {Object}
- */
-InputGroup.propTypes = {
-  name: PropTypes.string,
-  children: PropTypes.any,
-  disabled: PropTypes.bool,
-  className: PropTypes.string,
-  info: PropTypes.string
-}
 export default InputGroup

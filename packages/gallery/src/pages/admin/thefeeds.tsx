@@ -2,7 +2,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 import React, { useEffect } from 'react'
-import Dashboard from '@xrengine/client-core/src/socialmedia/components/Dashboard'
+import Dashboard from '@xrengine/social/src/components/Dashboard'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import {
@@ -10,10 +10,10 @@ import {
   getTheFeedsNew,
   removeTheFeeds,
   updateTheFeedsAsAdmin
-} from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/service'
+} from '@xrengine/social/src/reducers/thefeeds/service'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import TheFeedsConsole from '@xrengine/client-core/src/admin/components/Feeds'
-import { selectTheFeedsState } from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/selector'
+import TheFeedsConsole from '@xrengine/social/src/components/admin/Feeds'
+import { selectTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/selector'
 
 // const thefeeds = '';
 // conts Feeds = '';
