@@ -1,16 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { configureStore } from '@xrengine/client-core/src/store'
+import { Config } from '@xrengine/common/src/config'
+import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
+import React, { useEffect, useCallback } from 'react'
+import { Helmet } from 'react-helmet'
 import { Provider, useDispatch } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
-import { Helmet } from 'react-helmet'
 import { ThemeProvider } from 'styled-components'
-import { configureStore } from '@xrengine/client-core/src/store'
-import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
 import theme from '../../theme'
-import { Config } from '@xrengine/common/src/config'
-import { restoreState } from '@xrengine/client-core/src/persisted.store'
-import RouterComp from '../router'
 import reducers from '../reducers'
 import './styles.scss'
+import { restoreState } from '@xrengine/client-core/src/persisted.store'
 
 const App = (): any => {
   const dispatch = useDispatch()
@@ -42,7 +41,7 @@ const App = (): any => {
       </Helmet>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <RouterComp />
+        {/* <RouterComp /> */}
       </ThemeProvider>
     </>
   )
