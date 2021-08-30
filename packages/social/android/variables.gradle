@@ -10,7 +10,7 @@ ext {
     androidxExifInterfaceVersion = '1.2.0'
     firebaseMessagingVersion =  '20.1.2'
     playServicesLocationVersion =  '17.0.0'
-    junitVersion =  '4.12'
+    junitVersion =  '4.13.2'
     androidxJunitVersion =  '1.1.1'
     androidxEspressoCoreVersion =  '3.2.0'
     cordovaAndroidVersion =  '7.0.0'
