@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react'
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { AssetsPanelContainer, Column, Row } from '../layout/Flex'
 import { EditorContext } from '../contexts/EditorContext'
 import AssetDropZone from './AssetDropZone'
@@ -56,8 +56,9 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const currentProject = {
     name: 'Current',
     sid: '',
-    ownedFileIds: ''
+    ownedFileIds: JSON.stringify(globalThis.filesToUpload)
   }
+
   const projects = []
   projects.push(currentProject)
   results.forEach((element) => {
@@ -85,7 +86,10 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
 
+  const projectIDRef = useRef(selectedProjectIndex)
+
   const renderProjectFiles = async (index) => {
+    projects[0].ownedFileIds = JSON.stringify(globalThis.filesToUpload)
     const ownedFileIdsString = projects[index]?.ownedFileIds
     const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
     const returningObjects = []
@@ -117,6 +121,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }
 
   const onChangeSelectedProject = (index) => {
+    projectIDRef.current = index
     setSelectedProjectIndex(index)
   }
 
@@ -124,9 +129,23 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     renderProjectFiles(selectedProjectIndex)
   }, [selectedProjectIndex])
 
+  const onFileUploaded = (index) => {
+    console.log('selectedprojectfiles:' + projectIDRef.current)
+    if (projectIDRef.current === 0) {
+      renderProjectFiles(selectedProjectIndex)
+    }
+  }
+
+  useEffect(() => {
+    editor.addListener('FileUploaded', onFileUploaded)
+    return () => {
+      editor.removeListener('FileUploaded', onFileUploaded)
+    }
+  }, [])
+
   return (
     <>
-      {console.log('RENDERING FILE BROWSER')}
+      {console.log('RENDERING FILE BROWSER:' + selectedProjectIndex)}
       {/* @ts-ignore */}
       <InputGroup name="Project Name" label="Project Name">
         {/* @ts-ignore */}
