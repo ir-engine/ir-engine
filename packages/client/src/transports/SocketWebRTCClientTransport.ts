@@ -180,18 +180,25 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
 
     socket.on('connect', async () => {
+      console.log('connect')
       if (this.reconnecting === true) {
         this.reconnecting = false
         return
       }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken }
-      const { success } = await request(MessageTypes.Authorization.toString(), payload)
+
+      const { success } = await new Promise<any>((resolve) => {
+        const interval = setInterval(async () => {
+          const response = await request(MessageTypes.Authorization.toString(), payload)
+          clearInterval(interval)
+          resolve(response)
+        }, 1000)
+      })
 
       if (!success) return console.error('Unable to connect with credentials')
 
       let ConnectToWorldResponse
-
       try {
         ConnectToWorldResponse = await Promise.race([
           await request(MessageTypes.ConnectToWorld.toString()),

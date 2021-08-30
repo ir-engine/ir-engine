@@ -27,6 +27,7 @@ const GolfLabelColumn = () => {
   return (
     <div
       id="labels"
+      xr-layer="true"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -109,6 +110,8 @@ const GolfHoleColumn = (props: { hole: number }) => {
   const holeState = useState(GolfState.holes)
   return (
     <div
+      className="hole"
+      xr-layer="true"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -134,7 +137,6 @@ const GolfHoleColumn = (props: { hole: number }) => {
         {props.hole}
       </div>
       <div
-        id="data"
         style={{
           width: '40px',
           height: '40px',
@@ -171,12 +173,12 @@ const GolfScorecardView = () => {
           position: 'relative',
           width: 'fit-content',
           height: 'fit-content',
-          background: ' rgba(0, 0, 0, 0.51)',
-          border: '10px solid #FFFFFF',
+          backgroundColor: '#000000dd',
+          border: '8px solid #FFFFFF',
           boxSizing: 'border-box',
-          filter: 'drop-shadow(0 0 20px rgba(0, 0, 0, 0.57))',
+          filter: 'drop-shadow(0 0 30px #fff2)',
           borderRadius: '60px',
-          margin: '50px',
+          margin: '80px',
           fontFamily: 'Racing Sans One',
           fontStyle: 'normal',
           fontWeight: 'normal'
@@ -208,11 +210,13 @@ export const GolfScorecardUISystem = async () => {
 
     // const uiTransform = getComponent(ui.entity, TransformComponent)
     const layer = uiComponent.layer
-    layer.position.set(0, 0, -1)
+    layer.position.set(0, 0, -0.5)
     layer.quaternion.set(0, 0, 0, 1)
     layer.scale.setScalar(1)
     layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
+
+    // uiComponent.layer.querySelector()
 
     // uiTransform.rotation.copy(cameraTransform.rotation)
     // uiTransform.position.copy(cameraTransform.position)

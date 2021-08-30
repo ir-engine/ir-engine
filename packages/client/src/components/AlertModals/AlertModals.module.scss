@@ -37,7 +37,9 @@
       }
 
       .closeButton {
+        background-color: lightgrey;
         &:hover {
+          background-color: lighten(lightgrey, 5%);
           cursor: pointer;
           color: red;
         }

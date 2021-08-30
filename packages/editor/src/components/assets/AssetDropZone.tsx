@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { EditorContext } from '../contexts/EditorContext'
 import { useDrop } from 'react-dnd'
@@ -77,9 +76,4 @@ export function AssetDropZone({ afterUpload, uploadOptions }) {
   )
 }
 
-//creating propTypes for AssetDropZone
-AssetDropZone.propTypes = {
-  afterUpload: PropTypes.func,
-  uploadOptions: PropTypes.object
-}
 export default AssetDropZone

@@ -17,7 +17,7 @@ body{
     margin: auto;
     text-align: -webkit-center;
     overflow: hidden;
-    transition: height 800ms linear;
+    transition: height 50ms linear;
 
     .avatarBlock {
         width: 130px;
@@ -209,6 +209,10 @@ body{
           background: white;
           border-radius: 15px;
           img{
+            height: 90px;
+            width: 90px;
+          }
+          svg{
             height: 90px;
             width: 90px;
           }
