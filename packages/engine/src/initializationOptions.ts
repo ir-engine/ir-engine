@@ -20,6 +20,9 @@ export type InitializeOptions = {
     schema: NetworkSchema
     app?: any
   }
+  scene?: {
+    disabled?: boolean
+  }
   renderer?: {
     disabled?: boolean
     canvasId?: string
@@ -49,6 +52,9 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   networking: {
     schema: DefaultNetworkSchema
   },
+  scene: {
+    disabled: false
+  },
   renderer: {
     disabled: false,
     postProcessing: true
@@ -56,7 +62,6 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   physics: {
     settings: {
       bounceThresholdVelocity: 0.5,
-      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
       start: false,
       lengthScale: 1,
       verbose: false,

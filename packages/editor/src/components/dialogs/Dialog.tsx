@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
 import { Button, SecondaryButton } from '../inputs/Button'
 import styled from 'styled-components'
 import i18n from 'i18next'
@@ -167,39 +166,5 @@ export function Dialog(props: Props) {
     </DialogContainer>
   )
 }
-/**
- * propTypes declared for Dialog component.
- *
- * @author Robert Long
- * @param {string} tag
- * @param {string} title
- * @param {func} onCancel
- * @param {string} cancelLabel
- * @param {func} onConfirm
- * @param {string} confirmLabel
- * @param {node} bottomNav
- * @param {node} children
- */
-Dialog.propTypes = {
-  tag: PropTypes.string,
-  title: PropTypes.string,
-  onCancel: PropTypes.func,
-  cancelLabel: PropTypes.string,
-  onConfirm: PropTypes.func,
-  confirmLabel: PropTypes.string,
-  bottomNav: PropTypes.node,
-  children: PropTypes.node
-}
 
-/**
- * defaultProps defined for  Dialog component
- *
- * @author Robert Long
- */
-Dialog.defaultProps = {
-  tag: 'form',
-  title: i18n.t('editor:dialog.title') || 'Editor',
-  confirmLabel: i18n.t('editor:dialog.lbl-confirm') || 'Ok',
-  cancelLabel: i18n.t('editor:dialog.lbl-cancel') || 'Cancel'
-}
 export default Dialog

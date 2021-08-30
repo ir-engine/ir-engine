@@ -5,7 +5,7 @@ import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
 import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
@@ -19,6 +19,7 @@ import { detectUserInPortal } from './functions/detectUserInPortal'
 import { teleportPlayer } from './functions/teleportPlayer'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { Network } from '../networking/classes/Network'
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
@@ -36,11 +37,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
 
-  const localXRInputQuery = defineQuery([
-    LocalInputReceiverComponent,
-    XRInputSourceComponent,
-    AvatarControllerComponent
-  ])
+  const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
   const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
   const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
 
@@ -62,6 +59,59 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       if (avatar) {
         avatar.isGrounded = false
       }
+    }
+
+    for (const entity of xrInputQueryAddQuery(world)) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent)
+
+      xrInputSourceComponent.container.add(
+        xrInputSourceComponent.controllerLeft,
+        xrInputSourceComponent.controllerGripLeft,
+        xrInputSourceComponent.controllerRight,
+        xrInputSourceComponent.controllerGripRight
+      )
+
+      xrInputSourceComponent.container.applyQuaternion(rotate180onY)
+      object3DComponent.value.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+    }
+
+    for (const entity of localXRInputQueryAddQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
+
+      // TODO: Temporarily make rig invisible until rig is fixed
+      avatar.modelContainer?.traverse((child) => {
+        if (child.visible) {
+          child.visible = false
+        }
+      })
+    }
+
+    for (const entity of localXRInputQueryRemoveQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
+      // TODO: Temporarily make rig invisible until rig is fixed
+      avatar?.modelContainer?.traverse((child) => {
+        if (child.visible) {
+          child.visible = true
+        }
+      })
+    }
+
+    for (const entity of localXRInputQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
+      const transform = getComponent(entity, TransformComponent)
+
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+
+      quat.copy(transform.rotation).invert()
+      quat2.copy(Engine.camera.quaternion).premultiply(quat)
+      xrInputSourceComponent.head.quaternion.copy(quat2)
+
+      vector3.subVectors(Engine.camera.position, transform.position)
+      vector3.applyQuaternion(quat)
+      xrInputSourceComponent.head.position.copy(vector3)
+
+      avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
     }
 
     for (const entity of raycastQuery(world)) {
@@ -117,58 +167,12 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       moveAvatar(entity, delta)
 
       detectUserInPortal(entity)
-    }
 
-    for (const entity of xrInputQueryAddQuery(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
-
-      xrInputSourceComponent.controllerGroup.add(
-        xrInputSourceComponent.controllerLeft,
-        xrInputSourceComponent.controllerGripLeft,
-        xrInputSourceComponent.controllerRight,
-        xrInputSourceComponent.controllerGripRight
-      )
-
-      xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY)
-      object3DComponent.value.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head)
-    }
-
-    for (const entity of localXRInputQueryAddQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
-
-      // TODO: Temporarily make rig invisible until rig is fixed
-      avatar.modelContainer?.traverse((child) => {
-        if (child.visible) {
-          child.visible = false
-        }
-      })
-    }
-
-    for (const entity of localXRInputQueryRemoveQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
-      // TODO: Temporarily make rig invisible until rig is fixed
-      avatar?.modelContainer?.traverse((child) => {
-        if (child.visible) {
-          child.visible = true
-        }
-      })
-    }
-
-    for (const entity of localXRInputQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
-      const transform = getComponent(entity, TransformComponent)
-      avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
-
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-
-      quat.copy(transform.rotation).invert()
-      quat2.copy(Engine.camera.quaternion).premultiply(quat)
-      xrInputSourceComponent.head.quaternion.copy(quat2)
-
-      vector3.subVectors(Engine.camera.position, transform.position)
-      vector3.applyQuaternion(quat)
-      xrInputSourceComponent.head.position.copy(vector3)
+      if (isClient) {
+        Network.instance.clientInputState.viewVector.x = avatar.viewVector.x
+        Network.instance.clientInputState.viewVector.y = avatar.viewVector.y
+        Network.instance.clientInputState.viewVector.z = avatar.viewVector.z
+      }
     }
     return world
   })

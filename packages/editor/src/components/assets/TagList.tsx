@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useRef, useContext, useEffect } from 'react'
-import PropTypes from 'prop-types'
 import styled, { ThemeContext } from 'styled-components'
 import { Column, Row } from '../layout/Flex'
 import { useSelectionHandler } from './useSelection'
@@ -204,21 +203,7 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
     </TreeListItem>
   )
 }
-/**
- * declare TagListItem propTypes
- */
-TagListItem.propTypes = {
-  tag: PropTypes.object.isRequired,
-  onClick: PropTypes.func,
-  depth: PropTypes.number,
-  expanded: PropTypes.object,
-  onToggleExpanded: PropTypes.func,
-  selectedTags: PropTypes.arrayOf(PropTypes.object)
-}
-// declare tagList Default props
-TagListItem.defaultProps = {
-  depth: 0
-}
+
 /**
  * define and export TagList component
  * @param       {array} tags
@@ -288,30 +273,4 @@ export function TagList({ tags, selectedTags, onChange, multiselect, initialExpa
   )
 }
 
-/**
- * declaring TagList propTypes
- *
- * @author Robert Long
- * @type {Object} propTypes
- */
-TagList.propTypes = {
-  selectedTags: PropTypes.arrayOf(PropTypes.object).isRequired,
-  tags: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onChange: PropTypes.func.isRequired,
-  multiselect: PropTypes.bool,
-  initialExpandedTags: PropTypes.object,
-  onChangeExpandedTags: PropTypes.func
-}
-/**
- * declaring TagList Default Props
- *
- * @author Robert Long
- */
-TagList.defaultProps = {
-  tags: [],
-  selectedTags: [],
-  onSelect: () => {},
-  initialExpandedTags: {},
-  onChangeExpandedTags: () => {}
-}
 export default TagList

@@ -44,5 +44,5 @@ export type ActionType = {
 }
 
 export type IncomingActionType = ActionType & {
-  senderId: string
+  userId: string
 }

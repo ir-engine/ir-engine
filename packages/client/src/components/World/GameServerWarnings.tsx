@@ -7,7 +7,6 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { provisionInstanceServer } from '../../reducers/instanceConnection/service'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 type GameServerWarningsProps = {
   isTeleporting: boolean
@@ -43,7 +42,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 const GameServerWarnings = (props: GameServerWarningsProps) => {
+  const { locationState } = props
   const [modalValues, setModalValues] = useState(initialModalValues)
+  const invalidLocationState = locationState.get('invalidLocation')
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
@@ -71,12 +72,12 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   }, [])
 
   useEffect(() => {
-    if (props.locationState.invalidLocation) {
+    if (invalidLocationState) {
       updateWarningModal(WarningModalTypes.INVALID_LOCATION)
     } else {
       reset()
     }
-  }, [props.locationState.invalidLocation])
+  }, [invalidLocationState])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
     switch (type) {
@@ -96,7 +97,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
           action: async () => provisionInstanceServer(),
-          parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId]
+          parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId],
+          noCountdown: false
         })
         break
 
@@ -109,7 +111,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           title: 'World disconnected',
           body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
           action: async () => window.location.reload(),
-          timeout: 30000
+          timeout: 30000,
+          noCountdown: false
         })
         break
 
@@ -121,7 +124,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           title: 'WebGL not enabled',
           body: 'Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.',
           action: async () => window.location.reload(),
-          timeout: 3600000
+          noCountdown: true
         })
         break
 

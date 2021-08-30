@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React from 'react'
-import PropTypes from 'prop-types'
 import StringInput from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
@@ -31,7 +29,7 @@ export function AudioInput({ onChange, ...rest }) {
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Audio, ItemTypes.File],
     drop(item) {
-      if (item.type === ItemTypes.Audio) {
+      if ((item as any).type === ItemTypes.Audio) {
         onChange((item as any).value.url, (item as any).value.initialProps || {})
       } else {
         onUpload((item as any).files).then((assets) => {
@@ -64,13 +62,4 @@ export function AudioInput({ onChange, ...rest }) {
   )
 }
 
-/**
- * Declairing propTypes for AudioInput.
- *
- * @author Robert Long
- * @type {Object}
- */
-AudioInput.propTypes = {
-  onChange: PropTypes.func.isRequired
-}
 export default AudioInput

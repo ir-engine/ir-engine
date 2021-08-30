@@ -45,6 +45,7 @@ async function run() {
   botManager.addAction('bot1', BotAction.keyPress('KeyS', moveDuration))
   botManager.addAction('bot1', BotAction.keyPress('KeyA', moveDuration))
   botManager.addAction('bot1', BotAction.sendMessage('Hello World! This is bot1.'))
+  botManager.addAction('bot1', BotAction.sendMessage('/move 0.1,0.1,0.1'))
 
   // botManager.addAction("bot2", BotAction.connect());
   // botManager.addAction("bot2", BotAction.enterRoom(domaiin, locationName));

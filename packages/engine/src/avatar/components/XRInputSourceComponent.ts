@@ -22,7 +22,7 @@ export type XRInputSourceComponentType = {
    * @property {Group} controllerGroup is the group that holds all the controller groups,
    * so they can be transformed together
    */
-  controllerGroup: Group
+  container: Group
 
   /**
    * @property {Group} head

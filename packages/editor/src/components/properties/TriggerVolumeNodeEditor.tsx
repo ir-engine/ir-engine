@@ -41,7 +41,7 @@ const componentOptions = [
   }
 ]
 
-//Declairing TriggerVolumeNodeEditor properties
+//Declaring TriggerVolumeNodeEditor properties
 type TriggerVolumeNodeEditorProps = {
   editor?: object
   node?: object
@@ -49,7 +49,7 @@ type TriggerVolumeNodeEditorProps = {
   t: Function
 }
 
-//Declairing TriggerVolumeNodeEditor state
+//Declaring TriggerVolumeNodeEditor state
 type TriggerVolumeNodeEditorState = {
   options: any[]
 }

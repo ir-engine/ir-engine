@@ -13,7 +13,6 @@ import {
 import { NetworkInterpolation } from '../classes/NetworkInterpolation'
 import { Network } from '../classes/Network'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ClientNetworkStateSystem } from '../systems/ClientNetworkStateSystem'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
@@ -285,7 +284,6 @@ export function calculateInterpolation(parameters: string, arrayName = ''): Inte
   // find snapshots between which our time goes
   const shots = NetworkInterpolation.instance.get(serverTime)
   if (!shots) {
-    console.log('Skipping network interpolation, are you lagging or disconnected?')
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.CONNECTION_LOST,
       hasLostConnection: true

@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 /**
@@ -38,17 +37,6 @@ const MediaGridItemContainer = (styled as any).div`
     border-color: ${(props) => props.theme.selected};
   }
 `
-
-MediaGridItemContainer.propTypes = {
-  aspectRatio: PropTypes.number.isRequired,
-  borderRadius: PropTypes.number.isRequired,
-  selected: PropTypes.bool
-}
-
-MediaGridItemContainer.defaultProps = {
-  aspectRatio: 1,
-  borderRadius: 6
-}
 
 /**
  *
@@ -151,11 +139,6 @@ export function VideoMediaGridItem({ label, src, ...rest }) {
   )
 }
 
-VideoMediaGridItem.propTypes = {
-  src: PropTypes.string,
-  label: PropTypes.string
-}
-
 /**
  *
  * @author Robert Long
@@ -177,11 +160,6 @@ export function ImageMediaGridItem({ label, src, ...rest }) {
       </MediaGridItemLabelContainer>
     </>
   )
-}
-
-ImageMediaGridItem.propTypes = {
-  src: PropTypes.string,
-  label: PropTypes.string
 }
 
 /**
@@ -209,11 +187,6 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest
   )
 }
 
-IconMediaGridItem.propTypes = {
-  iconComponent: PropTypes.object,
-  label: PropTypes.string
-}
-
 /**
  *
  *  @author Robert Long
@@ -225,13 +198,3 @@ export const MediaGrid = (styled as any).div`
   grid-template-columns: repeat(auto-fill, minmax(${(props) => props.minWidth}, 1fr));
   padding: ${(props) => props.gap};
 `
-
-MediaGrid.propTypes = {
-  gap: PropTypes.string.isRequired,
-  minWidth: PropTypes.string.isRequired
-}
-
-MediaGrid.defaultProps = {
-  gap: '20px',
-  minWidth: '100px'
-}
