@@ -1,4 +1,4 @@
-import { sRGBEncoding } from 'three'
+import { sRGBEncoding, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
@@ -10,7 +10,6 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
@@ -20,7 +19,6 @@ import { XR6DOF } from '../../input/enums/InputEnums'
 
 /**
  * System for XR session and input handling
- *
  * @author Josh Field <github.com/hexafield>
  */
 

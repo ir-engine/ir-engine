@@ -169,9 +169,13 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       detectUserInPortal(entity)
 
       if (isClient) {
-        Network.instance.clientInputState.viewVector.x = avatar.viewVector.x
-        Network.instance.clientInputState.viewVector.y = avatar.viewVector.y
-        Network.instance.clientInputState.viewVector.z = avatar.viewVector.z
+        Network.instance.clientInputState.headPose.x = transform.position.x
+        Network.instance.clientInputState.headPose.y = transform.position.y
+        Network.instance.clientInputState.headPose.z = transform.position.z
+        Network.instance.clientInputState.headPose.qX = transform.rotation.x
+        Network.instance.clientInputState.headPose.qY = transform.rotation.y
+        Network.instance.clientInputState.headPose.qZ = transform.rotation.z
+        Network.instance.clientInputState.headPose.qW = transform.rotation.w
       }
     }
     return world

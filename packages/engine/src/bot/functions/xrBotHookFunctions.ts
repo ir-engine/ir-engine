@@ -5,8 +5,6 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 import { Network } from '../../networking/classes/Network'
 
 export async function overrideXR() {

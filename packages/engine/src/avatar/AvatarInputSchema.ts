@@ -128,12 +128,6 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
-  const inputComponent = getComponent(entity, InputComponent)
-
-  if (!inputComponent.data[0].has(inputKey)) {
-    return
-  }
-
   const cameraFollow = getComponent(entity, FollowCameraComponent)
   if (cameraFollow === undefined || cameraFollow.mode === CameraMode.Strategic) return //console.warn("cameraFollow is undefined")
 
@@ -364,17 +358,17 @@ const lookByInputAxis: InputBehaviorType = (
 
 const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   const input = getComponent(entity, InputComponent)
-  const data = input.data[0]?.get(BaseInput.GAMEPAD_STICK_RIGHT)
+  const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
   // TODO: fix this
   console.log('gamepadLook', data)
   if (data.type === InputType.TWODIM) {
-    input.data[0]?.set(BaseInput.LOOKTURN_PLAYERONE, {
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
       value: [data.value[0], data.value[1]],
       lifecycleState: LifecycleValue.CHANGED
     })
   } else if (data.type === InputType.THREEDIM) {
-    input.data[0]?.set(BaseInput.LOOKTURN_PLAYERONE, {
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
       value: [data.value[0], data.value[2]],
       lifecycleState: LifecycleValue.CHANGED
@@ -387,9 +381,9 @@ export const clickNavMesh: InputBehaviorType = (entity, inputKey, inputValue): v
     return
   }
   const input = getComponent(entity, InputComponent)
-  const coords = input.data[0]?.get(BaseInput.SCREENXY)?.value
+  const coords = input.data.get(BaseInput.SCREENXY)?.value
   if (coords) {
-    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+    // addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
   }
 }
 

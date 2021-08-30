@@ -8,7 +8,6 @@ import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { TransformStateInterface } from '../interfaces/WorldState'
 import { TransformStateModel } from '../schema/transformStateSchema'
-import { WorldStateModel } from '../schema/worldStateSchema'
 
 export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
   const networkTransformsQuery = defineQuery([Not(AvatarComponent), NetworkObjectComponent, TransformComponent])
@@ -28,16 +27,15 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
     for (const entity of networkTransformsQuery(world)) {
       const transformComponent = getComponent(entity, TransformComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
-      const currentPosition = transformComponent.position
       const snapShotTime = networkObject.snapShotTime
 
+      // TODO: reduce quaternions over network to three components
       transformState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        x: currentPosition.x,
-        y: currentPosition.y,
-        z: currentPosition.z,
-        // TODO: reduce quaternions over network to three components
+        x: transformComponent.position.x,
+        y: transformComponent.position.y,
+        z: transformComponent.position.z,
         qX: transformComponent.rotation.x,
         qY: transformComponent.rotation.y,
         qZ: transformComponent.rotation.z,
@@ -47,21 +45,20 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
 
     for (const entity of avatarTransformsQuery(world)) {
       const transformComponent = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
-      const currentPosition = transformComponent.position
       const snapShotTime = networkObject.snapShotTime
 
+      // TODO: reduce quaternions over network to three components
       transformState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        x: currentPosition.x,
-        y: currentPosition.y,
-        z: currentPosition.z,
-        qX: avatar.viewVector.x,
-        qY: avatar.viewVector.y,
-        qZ: avatar.viewVector.z,
-        qW: 0 // TODO: reduce quaternions over network to three components
+        x: transformComponent.position.x,
+        y: transformComponent.position.y,
+        z: transformComponent.position.z,
+        qX: transformComponent.rotation.x,
+        qY: transformComponent.rotation.y,
+        qZ: transformComponent.rotation.z,
+        qW: transformComponent.rotation.w
       })
     }
 
@@ -84,24 +81,6 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
     }
 
     try {
-      if (
-        Network.instance.worldState.clientsConnected.length ||
-        Network.instance.worldState.clientsDisconnected.length ||
-        Network.instance.worldState.createObjects.length ||
-        Network.instance.worldState.editObjects.length ||
-        Network.instance.worldState.destroyObjects.length
-      ) {
-        console.log('Sending world state', JSON.stringify(Network.instance.worldState))
-        const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState)
-        if (!bufferReliable) {
-          console.warn('World state buffer is null')
-          // console.warn(Network.instance.worldState)
-        } else {
-          if (Network.instance.transport && typeof Network.instance.transport.sendReliableData === 'function')
-            Network.instance.transport.sendReliableData(bufferReliable)
-        }
-      }
-
       const bufferUnreliable = TransformStateModel.toBuffer(transformState)
       if (!bufferUnreliable) {
         console.warn('Transform buffer is null')
@@ -111,14 +90,8 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
           Network.instance.transport.sendData(bufferUnreliable)
       }
     } catch (e) {
-      console.error(Network.instance.worldState)
+      console.error(transformState)
     }
-
-    Network.instance.worldState.clientsConnected = []
-    Network.instance.worldState.clientsDisconnected = []
-    Network.instance.worldState.createObjects = []
-    Network.instance.worldState.editObjects = []
-    Network.instance.worldState.destroyObjects = []
 
     return world
   })

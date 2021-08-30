@@ -19,7 +19,6 @@ import {
   subscribeToTrack
 } from './SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
 //@ts-ignore
@@ -214,11 +213,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         })
         return
       }
-      const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any
-      Network.instance.incomingMessageQueueReliable.add(worldState)
+      const { connectedClients, routerRtpCapabilities } = ConnectToWorldResponse as any
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        worldState: WorldStateModel.fromBuffer(worldState),
+        connectedClients,
         instance: instance === true
       })
 

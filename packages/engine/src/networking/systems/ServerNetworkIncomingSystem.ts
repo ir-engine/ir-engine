@@ -1,21 +1,15 @@
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkClientInputInterface } from '../interfaces/WorldState'
 import { ClientInputModel } from '../schema/clientInputSchema'
-import { WorldStateModel } from '../schema/worldStateSchema'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { Group, Vector3 } from 'three'
 import { executeCommands } from '../functions/executeCommands'
-import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { XR6DOF } from '../../input/enums/InputEnums'
 
 export const ServerNetworkIncomingSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
@@ -31,14 +25,8 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
       try {
         clientInput = ClientInputModel.fromBuffer(buffer)
       } catch (error) {
-        try {
-          WorldStateModel.fromBuffer(buffer)
-          console.warn('Server is sending receiving its own outgoing messages...', error, buffer)
-          continue
-        } catch (error) {
-          console.warn('Unknown or corrupt data is entering the incoming server message stream', error, buffer)
-          continue
-        }
+        console.warn('Unknown or corrupt data is entering the incoming server message stream', error, buffer)
+        continue
       }
       if (!clientInput) continue
 
@@ -59,48 +47,30 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
         executeCommands(entity, clientInput.commands)
       }
 
-      updatePlayerRotationFromViewVector(
-        entity,
-        new Vector3(clientInput.viewVector.x, clientInput.viewVector.y, clientInput.viewVector.z)
+      const transform = getComponent(entity, TransformComponent)
+      transform.position.set(clientInput.headPose.x, clientInput.headPose.y, clientInput.headPose.z)
+      transform.rotation.set(
+        clientInput.headPose.qX,
+        clientInput.headPose.qY,
+        clientInput.headPose.qZ,
+        clientInput.headPose.qW
       )
-
       const userNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (userNetworkObject != null) {
         userNetworkObject.snapShotTime = clientInput.snapShotTime
         if (userNetworkObject.snapShotTime > clientInput.snapShotTime) continue
       }
 
-      // Get input component
-      const inputComponent = getComponent(entity, InputComponent)
-      if (!inputComponent) {
-        continue
-      }
-
-      clientInput.data.forEach((data) => {
-        // convert back any numbers to actual numbers - not a great solution but it works
-        const num = Number(data.key)
-        if (!Number.isNaN(num)) data.key = num
-
-        const newDataState = new Map()
-
-        const { key, value } = data
-        if (inputComponent.schema.inputMap.has(key)) {
-          newDataState.set(inputComponent.schema.inputMap.get(key), JSON.parse(JSON.stringify(value)))
-        }
-
-        inputComponent.data.push(newDataState)
-
-        if (key === XR6DOF.HMD && !hasComponent(entity, XRInputSourceComponent)) {
-          addComponent(entity, XRInputSourceComponent, {
-            controllerLeft: new Group(),
-            controllerRight: new Group(),
-            controllerGripLeft: new Group(),
-            controllerGripRight: new Group(),
-            container: new Group(),
-            head: new Group()
-          })
-        }
-      })
+      // if (key === XR6DOF.HMD && !hasComponent(entity, XRInputSourceComponent)) {
+      //   addComponent(entity, XRInputSourceComponent, {
+      //     controllerLeft: new Group(),
+      //     controllerRight: new Group(),
+      //     controllerGripLeft: new Group(),
+      //     controllerGripRight: new Group(),
+      //     container: new Group(),
+      //     head: new Group()
+      //   })
+      // }
 
       for (const transform of clientInput.transforms) {
         const networkObject = Network.instance.networkObjects[transform.networkId]

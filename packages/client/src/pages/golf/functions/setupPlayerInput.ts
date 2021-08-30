@@ -47,6 +47,7 @@ const rotate90onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math
 
 export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
   const inputs = getComponent(entityPlayer, InputComponent)
+  if (!inputs) return
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('KeyK', GolfInput.TELEPORT)
