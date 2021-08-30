@@ -29,7 +29,7 @@ export const SnapMode = {
   Disabled: 'Disabled',
   Grid: 'Grid'
 }
-const viewVector = new Vector3()
+const viewDirection = new Vector3()
 function sortDistance(a, b) {
   return a.distance - b.distance
 }
@@ -467,7 +467,7 @@ export default class EditorControls extends EventEmitter {
           scaleFactor =
             1 +
             this.camera
-              .getWorldDirection(viewVector)
+              .getWorldDirection(viewDirection)
               .applyQuaternion(this.transformGizmo.quaternion)
               .dot(this.deltaDragVector)
         } else {

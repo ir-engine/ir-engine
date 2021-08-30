@@ -61,7 +61,7 @@ void main() {
   float averagePixelIntensity = u_ColorCorrection.a;
 
   // Normalize directional vectors.
-  vec3 viewVector = -normalize(v_ViewPosition);
+  vec3 viewDirection = -normalize(v_ViewPosition);
   vec3 viewNormal = normalize(v_ViewNormal);
   vec3 viewLightDirection = normalize(u_ViewLightDirection.xyz);
 
@@ -76,7 +76,7 @@ void main() {
                       (1.0 - hemisphereFactor) * u_LowerDiffuseIntensity;
 
   // Compute specular term (Blinn-Phong)
-  vec3 halfwayDirection = normalize(viewVector + viewLightDirection);
+  vec3 halfwayDirection = normalize(viewDirection + viewLightDirection);
   float specularBase = max(0.0, dot(viewNormal, halfwayDirection));
   float specularTerm = u_SpecularIntensity * pow(specularBase, u_SpecularPower);
 
