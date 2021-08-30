@@ -95,11 +95,7 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (
-      user?.id !== null &&
-      adminLocationState.get('locations').get('updateNeeded') &&
-      !adminScopeReadErrMsg === true
-    ) {
+    if (user?.id !== null && adminLocationState.get('locations').get('updateNeeded') && !adminScopeReadErrMsg) {
       fetchAdminLocations()
     }
     if (user?.id != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
