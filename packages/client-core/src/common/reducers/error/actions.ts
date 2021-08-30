@@ -7,9 +7,7 @@ export interface ErrorAction {
 }
 
 export function setScopeError(message: string, statusCode: number, type: string): ErrorAction {
-  if (type === 'read') {
-    return { type: SET_SCOPE_READ_ERROR, message, statusCode }
-  } else {
-    return { type: SET_SCOPE_READ_ERROR, message, statusCode }
-  }
+  return type === 'read'
+    ? { type: SET_SCOPE_READ_ERROR, message, statusCode }
+    : { type: SET_SCOPE_READ_ERROR, message, statusCode }
 }
