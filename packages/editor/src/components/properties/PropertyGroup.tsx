@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React, { Fragment } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 // styled component used as root element for property group
@@ -60,13 +58,6 @@ function PropertyGroup(props) {
       <PropertyGroupContent>{children}</PropertyGroupContent>
     </StyledPropertyGroup>
   )
-}
-
-// propTypes for property groups
-PropertyGroup.propTypes = {
-  name: PropTypes.string,
-  description: PropTypes.string,
-  children: PropTypes.node
 }
 
 export default PropertyGroup

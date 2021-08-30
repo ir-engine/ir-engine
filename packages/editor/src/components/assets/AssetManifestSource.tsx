@@ -16,7 +16,7 @@ function hasTags(result, tags) {
 }
 
 /**
- * Declairing assetTypeToNodeClass that contains types of node classes.
+ * Declaring assetTypeToNodeClass that contains types of node classes.
  *
  * @author Robert Long
  * @type {Object}

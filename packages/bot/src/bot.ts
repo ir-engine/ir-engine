@@ -127,6 +127,7 @@ export class XREngineBot {
   }
 
   async sendMessage(message) {
+    console.log('send message: ' + message)
     await this.clickElementByClass('button', 'openChat')
     await this.clickElementById('input', 'newMessage')
     await this.typeMessage(message)
@@ -465,6 +466,7 @@ export class XREngineBot {
   }
 
   async typeMessage(message) {
+    console.log('typing using keyboard')
     await this.page.keyboard.type(message)
   }
 

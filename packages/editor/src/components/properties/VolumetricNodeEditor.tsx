@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { Video } from '@styled-icons/fa-solid/Video'
-import PropTypes from 'prop-types'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'
 import VolumetricInput from '../inputs/VolumetricInput'
@@ -35,12 +34,6 @@ export function VolumetricNodeEditor(props) {
       <AudioSourceProperties {...props} />
     </NodeEditor>
   )
-}
-
-VolumetricNodeEditor.propTypes = {
-  editor: PropTypes.object,
-  node: PropTypes.object,
-  multiEdit: PropTypes.bool
 }
 
 //setting iconComponent with icon name

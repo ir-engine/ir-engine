@@ -2,12 +2,12 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import CreatorConsole from '@xrengine/client-core/src/admin/components/CreatorConsole'
+import CreatorConsole from '@xrengine/social/src/components/admin/CreatorConsole'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectCreatorsState } from '@xrengine/client-core/src/socialmedia/reducers/creator/selector'
-import { getCreators } from '@xrengine/client-core/src/socialmedia/reducers/creator/service'
-import Dashboard from '@xrengine/client-core/src/socialmedia/components/Dashboard'
+import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+import { getCreators } from '@xrengine/social/src/reducers/creator/service'
+import Dashboard from '@xrengine/social/src/components/Dashboard'
 
 const mapStateToProps = (state: any): any => {
   return {

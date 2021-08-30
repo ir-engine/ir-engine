@@ -1,35 +1,28 @@
+// import {Stories} from '@xrengine/social/src/components/Stories';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
+import FeedMenu from '@xrengine/social/src/components/FeedMenu'
+import FeedOnboarding from '@xrengine/social/src/components/FeedOnboarding'
+import AppFooter from '@xrengine/social/src/components/Footer'
+import AppHeader from '@xrengine/social/src/components/Header'
+import Onboard from '@xrengine/social/src/components/OnBoard'
+import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
+import CreatorFormPopup from '@xrengine/social/src/components/popups/CreatorFormPopup'
+import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
+import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
+import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
+import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
+import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
+import Splash from '@xrengine/social/src/components/Splash'
+import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+import { createCreator } from '@xrengine/social/src/reducers/creator/service'
+import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
+import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-
-import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
-import FeedMenu from '@xrengine/client-core/src/socialmedia/components/FeedMenu'
-import AppFooter from '@xrengine/client-core/src/socialmedia/components/Footer'
-import { selectCreatorsState } from '@xrengine/client-core/src/socialmedia/reducers/creator/selector'
-// import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { selectWebXrNativeState } from '@xrengine/client-core/src/socialmedia/reducers/webxr_native/selector'
-
-import { User } from '@xrengine/common/src/interfaces/User'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { createCreator } from '@xrengine/client-core/src/socialmedia/reducers/creator/service'
-import { getWebXrNative, changeWebXrNative } from '@xrengine/client-core/src/socialmedia/reducers/webxr_native/service'
-
-import CreatorPopup from '@xrengine/client-core/src/socialmedia/components/popups/CreatorPopup'
-import FeedPopup from '@xrengine/client-core/src/socialmedia/components/popups/FeedPopup'
-import CreatorFormPopup from '@xrengine/client-core/src/socialmedia/components/popups/CreatorFormPopup'
-import ArMediaPopup from '@xrengine/client-core/src/socialmedia/components/popups/ArMediaPopup'
-import FeedFormPopup from '@xrengine/client-core/src/socialmedia/components/popups/FeedFormPopup'
-import SharedFormPopup from '@xrengine/client-core/src/socialmedia/components/popups/SharedFormPopup'
-import Onboard from '@xrengine/client-core/src/socialmedia/components/OnBoard'
-import WebXRStart from '@xrengine/client-core/src/socialmedia/components/popups/WebXR'
-import FeedOnboarding from '@xrengine/client-core/src/socialmedia/components/FeedOnboarding'
 import styles from './index.module.scss'
-
-import image from '/static/images/image.jpg'
-import mockupIPhone from '/static/images/mockupIPhone.jpg'
-import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
-import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -71,7 +64,7 @@ const Home = ({
     getWebXrNative()
   }, [])
 
-  const [onborded, setOnborded] = useState(true)
+  const [onboarded, setOnboarded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
 
@@ -80,14 +73,14 @@ const Home = ({
 
   useEffect(() => {
     if (!!currentCreator && !!currentCreator.createdAt) {
-      currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnborded(false)
+      currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnboarded(false)
     }
   }, [currentCreator])
 
   const webxrRecorderActivity = webxrnativeState.get('webxrnative')
 
   const changeOnboarding = () => {
-    setOnborded(true)
+    setOnboarded(true)
     setFeedOnborded(false)
     setFeedHintsOnborded(false)
   }
@@ -96,7 +89,14 @@ const Home = ({
 
   if (!currentCreator || currentCreator === null) return <Splash />
 
-  if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
+  if (!onboarded)
+    return (
+      <Onboard
+        setOnboarded={changeOnboarding}
+        image={'/static/images/image.jpg'}
+        mockupIPhone={'/static/images/mockupIPhone.jpg'}
+      />
+    )
 
   return (
     <div className={platformClass + ' ' + hideContentOnRecord}>

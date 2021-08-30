@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import styled, { ThemeContext } from 'styled-components'
 import { ExclamationTriangle } from '@styled-icons/fa-solid/ExclamationTriangle'
 import Tooltip from '../layout/Tooltip'
@@ -107,8 +106,4 @@ export function NodeIssuesIcon({ node }) {
   )
 }
 
-//declaring propTypes for NodeIssuesIcon
-NodeIssuesIcon.propTypes = {
-  node: PropTypes.object.isRequired
-}
 export default NodeIssuesIcon

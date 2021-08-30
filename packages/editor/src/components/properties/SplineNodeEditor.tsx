@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import TimelineIcon from '@material-ui/icons/Timeline'
 import i18n from 'i18next'
@@ -7,7 +6,7 @@ import { useTranslation, withTranslation } from 'react-i18next'
 import { PropertiesPanelButton } from '../inputs/Button'
 
 /**
- * PropTypes Defining properties for SplineNodeEditor component.
+ * Define properties for SplineNodeEditor component.
  *
  * @author Hamza Mushtaq
  * @type {Object}

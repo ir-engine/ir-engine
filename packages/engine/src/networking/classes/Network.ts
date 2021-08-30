@@ -76,6 +76,10 @@ export class Network {
   /** ID of last network created. */
   private static availableNetworkId = 0
 
+  isLocal = (userId) => {
+    return this.userId === userId
+  }
+
   /** Get next network id. */
   static getNetworkId(): number {
     return ++this.availableNetworkId

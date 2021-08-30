@@ -48,7 +48,7 @@ $size: 50px;
   
   @for $i from 1 through 4 {
     &:nth-of-type(#{$i}) {
-      animation-delay: $ani-dur * ($i / 4 - 4);
+      animation-delay: $ani-dur * (($i * .25) - 4);
     }
   }
   

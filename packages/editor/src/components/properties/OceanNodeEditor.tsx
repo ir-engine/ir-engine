@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
@@ -24,12 +23,6 @@ type OceanNodeEditorProps = {
  * @type {class component}
  */
 export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
-  // declaring propTypes for OceanNodeEditor
-  static propTypes = {
-    editor: PropTypes.object,
-    node: PropTypes.object
-  }
-
   constructor(props: OceanNodeEditorProps) {
     super(props)
     this.props = props

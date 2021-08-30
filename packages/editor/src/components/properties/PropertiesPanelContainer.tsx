@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { withEditor } from '../contexts/EditorContext'
 import DefaultNodeEditor from './DefaultNodeEditor'
 import styled from 'styled-components'
@@ -108,10 +107,6 @@ const NoNodeSelectedMessage = (styled as any).div`
  * @extends Component
  */
 class PropertiesPanelContainer extends Component<{ t: Function }> {
-  static propTypes = {
-    editor: PropTypes.object
-  }
-
   //setting the props and state
   constructor(props) {
     super(props)
