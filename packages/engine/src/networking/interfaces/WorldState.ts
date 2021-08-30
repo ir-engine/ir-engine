@@ -24,7 +24,7 @@ export interface NetworkInputInterface {
     value: InputValue
   }>
   /** Viewport vector of the client. */
-  viewVector: { x: number; y: number; z: number }
+  viewVector: { x: number; y: number; z: number; w: number }
   snapShotTime: number
   commands: CommandType[]
   transforms: StateEntityClientMovingGroup

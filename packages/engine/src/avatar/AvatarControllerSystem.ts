@@ -61,6 +61,59 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       }
     }
 
+    for (const entity of xrInputQueryAddQuery(world)) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent)
+
+      xrInputSourceComponent.container.add(
+        xrInputSourceComponent.controllerLeft,
+        xrInputSourceComponent.controllerGripLeft,
+        xrInputSourceComponent.controllerRight,
+        xrInputSourceComponent.controllerGripRight
+      )
+
+      xrInputSourceComponent.container.applyQuaternion(rotate180onY)
+      object3DComponent.value.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+    }
+
+    for (const entity of localXRInputQueryAddQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
+
+      // TODO: Temporarily make rig invisible until rig is fixed
+      avatar.modelContainer?.traverse((child) => {
+        if (child.visible) {
+          child.visible = false
+        }
+      })
+    }
+
+    for (const entity of localXRInputQueryRemoveQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
+      // TODO: Temporarily make rig invisible until rig is fixed
+      avatar?.modelContainer?.traverse((child) => {
+        if (child.visible) {
+          child.visible = true
+        }
+      })
+    }
+
+    for (const entity of localXRInputQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
+      const transform = getComponent(entity, TransformComponent)
+
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+
+      quat.copy(transform.rotation).invert()
+      quat2.copy(Engine.camera.quaternion).premultiply(quat)
+      xrInputSourceComponent.head.quaternion.copy(quat2)
+
+      vector3.subVectors(Engine.camera.position, transform.position)
+      vector3.applyQuaternion(quat)
+      xrInputSourceComponent.head.position.copy(vector3)
+
+      avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
+    }
+
     for (const entity of raycastQuery(world)) {
       const raycastComponent = getComponent(entity, RaycastComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -120,58 +173,6 @@ export const AvatarControllerSystem = async (): Promise<System> => {
         Network.instance.clientInputState.viewVector.y = avatar.viewVector.y
         Network.instance.clientInputState.viewVector.z = avatar.viewVector.z
       }
-    }
-
-    for (const entity of xrInputQueryAddQuery(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
-
-      xrInputSourceComponent.controllerGroup.add(
-        xrInputSourceComponent.controllerLeft,
-        xrInputSourceComponent.controllerGripLeft,
-        xrInputSourceComponent.controllerRight,
-        xrInputSourceComponent.controllerGripRight
-      )
-
-      xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY)
-      object3DComponent.value.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head)
-    }
-
-    for (const entity of localXRInputQueryAddQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
-
-      // TODO: Temporarily make rig invisible until rig is fixed
-      avatar.modelContainer?.traverse((child) => {
-        if (child.visible) {
-          child.visible = false
-        }
-      })
-    }
-
-    for (const entity of localXRInputQueryRemoveQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
-      // TODO: Temporarily make rig invisible until rig is fixed
-      avatar?.modelContainer?.traverse((child) => {
-        if (child.visible) {
-          child.visible = true
-        }
-      })
-    }
-
-    for (const entity of localXRInputQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
-      const transform = getComponent(entity, TransformComponent)
-      avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
-
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-
-      quat.copy(transform.rotation).invert()
-      quat2.copy(Engine.camera.quaternion).premultiply(quat)
-      xrInputSourceComponent.head.quaternion.copy(quat2)
-
-      vector3.subVectors(Engine.camera.position, transform.position)
-      vector3.applyQuaternion(quat)
-      xrInputSourceComponent.head.position.copy(vector3)
     }
     return world
   })

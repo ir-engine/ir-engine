@@ -37,7 +37,7 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
           distance: 5,
           minDistance: 2,
           maxDistance: 7,
-          theta: 0,
+          theta: Math.PI,
           phi: 0,
           shoulderSide: true,
           locked: true,

@@ -74,26 +74,12 @@ const followCamera = (entity: Entity) => {
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
-  const inputComponent = getComponent(entity, InputComponent)
-
-  // this is for future integration of MMO style pointer lock controls
-  // const inputAxes = followCamera.mode === CameraMode.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
-  const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-  let inputValue = inputComponent.data.get(inputAxes) || ({ type: 0, value: [0, 0] } as any)
-
   let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance
   let phi = followCamera.phi
 
-  if (followCamera.locked) {
-    followCamera.theta = (theta * 180) / Math.PI + 180
-  }
-
   if (followCamera.mode !== CameraMode.Strategic) {
-    followCamera.theta -= inputValue.value[0] * 100
     followCamera.theta %= 360
-
-    followCamera.phi -= inputValue.value[1] * 100
     followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
   }
 

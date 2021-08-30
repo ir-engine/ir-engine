@@ -36,6 +36,7 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
   velocity.velocity.copy(newVelocity)
+  // console.log(avatar.viewVector, transform.rotation)
 
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {

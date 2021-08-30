@@ -112,7 +112,8 @@ export class Network {
     viewVector: {
       x: 0,
       y: 0,
-      z: 0
+      z: 0,
+      w: 0
     },
     snapShotTime: 0,
     commands: [],

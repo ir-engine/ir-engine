@@ -5,8 +5,6 @@ import { NetworkObjectUpdateMap } from '../templates/NetworkObjectUpdates'
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { PrefabType } from '../templates/PrefabType'
-import { ClientInputModel } from '../schema/clientInputSchema'
-import { Vault } from '../classes/Vault'
 import { Group, Quaternion, Vector3 } from 'three'
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
@@ -91,7 +89,7 @@ const vector3_1 = new Vector3()
 const quat = new Quaternion()
 const forwardVector = new Vector3(0, 0, 1)
 
-export const ClientNetworkStateSystem = async (): Promise<System> => {
+export const ClientNetworkIncomingSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     const localAvatarNetworkId = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)?.networkId
 
@@ -274,37 +272,21 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
               controllerRight: new Group(),
               controllerGripLeft: new Group(),
               controllerGripRight: new Group(),
-              controllerGroup: new Group(),
+              container: new Group(),
               head: new Group()
             })
           }
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
           const { hmd, left, right } = ikTransform
-          xrInputSourceComponent.head.position.set(hmd[0], hmd[1], hmd[2])
-          xrInputSourceComponent.head.quaternion.set(hmd[3], hmd[4], hmd[5], hmd[6])
-          xrInputSourceComponent.controllerLeft.position.set(left[0], left[1], left[2])
-          xrInputSourceComponent.controllerLeft.quaternion.set(left[3], left[4], left[5], left[6])
-          xrInputSourceComponent.controllerRight.position.set(right[0], right[1], right[2])
-          xrInputSourceComponent.controllerRight.quaternion.set(right[3], right[4], right[5], right[6])
+          xrInputSourceComponent.head.position.fromArray(hmd)
+          xrInputSourceComponent.head.quaternion.fromArray(hmd, 3)
+          xrInputSourceComponent.controllerLeft.position.fromArray(left)
+          xrInputSourceComponent.controllerLeft.quaternion.fromArray(left, 3)
+          xrInputSourceComponent.controllerRight.position.fromArray(right)
+          xrInputSourceComponent.controllerRight.quaternion.fromArray(right, 3)
         }
       } catch (e) {
         console.log(e)
-      }
-    }
-
-    if (typeof Network.instance.localClientEntity !== 'undefined') {
-      const inputSnapshot = Vault.instance?.get()
-      if (inputSnapshot !== undefined) {
-        const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
-        Network.instance.transport.sendReliableData(buffer)
-        Network.instance.clientInputState = {
-          networkId: localAvatarNetworkId,
-          snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-          data: [],
-          viewVector: Network.instance.clientInputState.viewVector,
-          commands: [],
-          transforms: []
-        }
       }
     }
 
