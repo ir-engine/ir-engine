@@ -1,10 +1,11 @@
 import { HookContext } from '@feathersjs/feathers'
+import { UnauthorizedException, NotFoundException, UnauthenticatedException } from '../util/exceptions/exception'
 import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext) => {
     const loggedInUser = extractLoggedInUserFromParams(context.params)
-    if (!loggedInUser) throw new Error('No logged in user')
+    if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
     const scopes = await context.app.service('scope').Model.findAll({
       where: {
         userId: loggedInUser.userId
@@ -13,7 +14,7 @@ export default (currentType: string, scopeToVerify: string) => {
       nest: true
     })
     if (!scopes) {
-      throw new Error('No scope available for the current user.')
+      throw new NotFoundException('No scope available for the current user.')
     }
     const currentScopes = scopes.reduce((result, sc) => {
       if (sc.type.split(':')[0] === currentType) {
@@ -21,7 +22,8 @@ export default (currentType: string, scopeToVerify: string) => {
       }
       return result
     }, [])
-    if (!currentScopes.includes(scopeToVerify)) throw new Error(`Unauthorised action on ${currentType}`)
+    if (!currentScopes.includes(scopeToVerify))
+      throw new UnauthorizedException(`Unauthorised ${scopeToVerify} action on ${currentType}`)
     return context
   }
 }
