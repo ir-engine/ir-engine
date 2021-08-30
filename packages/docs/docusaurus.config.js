@@ -1,5 +1,11 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 
+const commonExludePaths = [
+  '**/node_modules/**',
+  '**/dist/**',
+  '**/tests/**'
+];
+
 /**
  *
  * @author Abhinav Shah
@@ -22,9 +28,14 @@ module.exports = {
       {
         id: 'client-core',
         entryPoints: ['../client-core'],
-        exclude: '../client-core/components/ui/InteractableModal',
         tsconfig: '../client-core/tsconfig.json',
-        exclude: ['**/node_modules/**'],
+        exclude: [
+          ...commonExludePaths,
+          '../client-core/build.js',
+          '../client-core/rollup.config.js',
+          '../client-core/jest.config.js',
+          '../client-core/scripts/**',
+        ],
         out: 'docs-client-core',
         readme: 'none',
         sidebar: {
@@ -38,7 +49,14 @@ module.exports = {
         id: 'client',
         entryPoints: ['../client'],
         tsconfig: '../client/tsconfig.json',
-        exclude: ['**/node_modules/**'],
+        exclude: [
+          ...commonExludePaths,
+          '../client/vite.config.js',
+          '../client/jest.config.js',
+          '../client/public/**',
+          '../client/lib/**',
+          '../client/scripts/**'
+        ],
         out: 'docs-client',
         readme: 'none',
         sidebar: {
@@ -52,7 +70,15 @@ module.exports = {
         id: 'server',
         entryPoints: ['../server'],
         tsconfig: '../server/tsconfig.json',
-        exclude: ['**/node_modules/**'],
+        exclude: [
+          ...commonExludePaths,
+          '../server/.eslintrc.js',
+          '../server/vite.config.js',
+          '../server/jest.config.js',
+          '../server/public/**',
+          '../server/scripts/**',
+          '../server/tests old/**'
+        ],
         out: 'docs-server',
         readme: 'none',
         sidebar: {
@@ -66,7 +92,11 @@ module.exports = {
         id: 'common',
         entryPoints: ['../common'],
         tsconfig: '../common/tsconfig.json',
-        exclude: ['**/node_modules/**'],
+        exclude: [
+          ...commonExludePaths,
+          '../common/rollup.config.js',
+          '../common/scripts/**'
+        ],
         out: 'docs-common',
         readme: 'none',
         sidebar: {
@@ -80,7 +110,10 @@ module.exports = {
         id: 'engine',
         entryPoints: ['../engine/src/'],
         tsconfig: '../engine/tsconfig.json',
-        exclude: ['**/node_modules/**'],
+        exclude: [
+          ...commonExludePaths,
+          '../engine/src/physics/functions/physx.release.cjs.js',
+        ],
         out: 'docs-engine',
         readme: 'none',
         sidebar: {
@@ -94,7 +127,11 @@ module.exports = {
         id: 'gameserver',
         entryPoints: ['../gameserver/src/'],
         tsconfig: '../gameserver/tsconfig.json',
-        exclude: ['**/node_modules/**'],
+        exclude: [
+          ...commonExludePaths,
+          '../gameserver/src/physx/physx.release.cjs.js',
+          '../gameserver/src/physx/physx.release.esm.js',
+        ],
         out: 'docs-gameserver',
         readme: 'none',
         sidebar: {
@@ -108,7 +145,7 @@ module.exports = {
         id: 'server-core',
         entryPoints: ['../server-core/src/'],
         tsconfig: '../server-core/tsconfig.json',
-        exclude: ['**/node_modules/**'],
+        exclude: [ ...commonExludePaths ],
         out: 'docs-server-core',
         readme: 'none',
         sidebar: {
