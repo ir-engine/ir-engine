@@ -8,6 +8,9 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { dispatchFromClient } from '../../networking/functions/dispatch'
+import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -35,6 +38,9 @@ export const startWebXR = (): void => {
     controllerGripLeft,
     controllerGripRight
   })
+
+  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
+  dispatchFromClient(NetworkWorldAction.enterVR(networkId, true))
 }
 
 /**
@@ -46,8 +52,12 @@ export const endXR = (): void => {
   Engine.xrSession.end()
   Engine.xrSession = null
   Engine.scene.add(Engine.camera)
+
   addComponent(Network.instance.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
+
+  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
+  dispatchFromClient(NetworkWorldAction.enterVR(networkId, false))
 }
 
 /**

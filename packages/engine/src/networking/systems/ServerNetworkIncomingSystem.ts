@@ -55,22 +55,6 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
         clientInput.headPose.qZ,
         clientInput.headPose.qW
       )
-      const userNetworkObject = getComponent(entity, NetworkObjectComponent)
-      if (userNetworkObject != null) {
-        userNetworkObject.snapShotTime = clientInput.snapShotTime
-        if (userNetworkObject.snapShotTime > clientInput.snapShotTime) continue
-      }
-
-      // if (key === XR6DOF.HMD && !hasComponent(entity, XRInputSourceComponent)) {
-      //   addComponent(entity, XRInputSourceComponent, {
-      //     controllerLeft: new Group(),
-      //     controllerRight: new Group(),
-      //     controllerGripLeft: new Group(),
-      //     controllerGripRight: new Group(),
-      //     container: new Group(),
-      //     head: new Group()
-      //   })
-      // }
 
       for (const transform of clientInput.transforms) {
         const networkObject = Network.instance.networkObjects[transform.networkId]

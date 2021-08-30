@@ -50,17 +50,7 @@ export const ClientNetworkIncomingSystem = async (): Promise<System> => {
           if (!Network.instance.networkObjects[ikTransform.networkId]) continue
           const entity = Network.instance.networkObjects[ikTransform.networkId].entity
           // ignore our own transform
-          if (entity === Network.instance.localClientEntity) continue
-          if (!hasComponent(entity, XRInputSourceComponent)) {
-            addComponent(entity, XRInputSourceComponent, {
-              controllerLeft: new Group(),
-              controllerRight: new Group(),
-              controllerGripLeft: new Group(),
-              controllerGripRight: new Group(),
-              container: new Group(),
-              head: new Group()
-            })
-          }
+          if (entity === Network.instance.localClientEntity || !hasComponent(entity, XRInputSourceComponent)) continue
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
           const { hmd, left, right } = ikTransform
           xrInputSourceComponent.head.position.fromArray(hmd)

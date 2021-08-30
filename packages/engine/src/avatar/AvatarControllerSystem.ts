@@ -1,10 +1,10 @@
-import { Quaternion, Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
-import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
 import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
@@ -18,14 +18,16 @@ import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { teleportPlayer } from './functions/teleportPlayer'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { Network } from '../networking/classes/Network'
+import { NetworkWorldActionType } from '../networking/interfaces/NetworkWorldActions'
+
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
   runSpeed = 5
   jumpHeight = 4
 }
+
 export const AvatarControllerSystem = async (): Promise<System> => {
   const vector3 = new Vector3()
   const quat = new Quaternion()
@@ -44,8 +46,33 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
   const xrInputQueryAddQuery = enterQuery(xrInputQuery)
 
+  function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
+    switch (action.type) {
+      case 'network.ENTER_VR': {
+        const entity = Network.instance.networkObjects[action.networkId]?.entity
+        if (typeof entity !== 'undefined') {
+          if (action.enter) {
+            if (hasComponent(entity, XRInputSourceComponent))
+              addComponent(entity, XRInputSourceComponent, {
+                controllerLeft: new Group(),
+                controllerRight: new Group(),
+                controllerGripLeft: new Group(),
+                controllerGripRight: new Group(),
+                container: new Group(),
+                head: new Group()
+              })
+          } else {
+            removeComponent(entity, XRInputSourceComponent)
+          }
+        }
+      }
+    }
+  }
+
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
+
+    for (const action of Network.instance.incomingActions) avatarActionReceptor(world, action as any)
 
     for (const entity of avatarControllerRemovedQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent, true)

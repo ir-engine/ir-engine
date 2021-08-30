@@ -1,6 +1,13 @@
 import { AvatarProps } from './WorldState'
 
 export const NetworkWorldAction = {
+  enterVR(networkId: number, enter: boolean) {
+    return {
+      type: 'network.ENTER_VR' as const,
+      networkId,
+      enter
+    }
+  },
   createClient(userId: string, avatarDetail?: AvatarProps) {
     return {
       type: 'network.CREATE_CLIENT' as const,

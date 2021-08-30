@@ -387,22 +387,6 @@ export const clickNavMesh: InputBehaviorType = (entity, inputKey, inputValue): v
   }
 }
 
-export const updateIKPosition: InputBehaviorType = (entity, inputKey, inputValue): void => {
-  const xrInputs = getComponent(entity, XRInputSourceComponent)
-  const extentObj =
-    inputKey === BaseInput.XR_HEAD
-      ? xrInputs.head
-      : inputKey === BaseInput.XR_CONTROLLER_LEFT_HAND
-      ? xrInputs.controllerLeft
-      : xrInputs.controllerRight
-  extentObj.position.fromArray(inputValue.value)
-  extentObj.quaternion.fromArray(inputValue.value, 3)
-  if (inputKey === BaseInput.XR_HEAD) console.log(inputValue.value, extentObj.quaternion)
-}
-
-// what do we want this to look like?
-// instead of assigning a hardware input to a base input, we want to map them
-
 export const createAvatarInput = () => {
   const map: Map<InputAlias, InputAlias> = new Map()
 
@@ -472,6 +456,7 @@ export const createAvatarInput = () => {
 
   return map
 }
+
 export const createBehaviorMap = () => {
   const map = new Map<InputAlias, InputBehaviorType>()
 
@@ -496,18 +481,10 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.XR_AXIS_LOOK, lookFromXRInputs)
   map.set(BaseInput.XR_AXIS_MOVE, moveFromXRInputs)
 
-  // Camera only needs to run on the client
-  if (isClient) {
-    map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
-    map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)
-    map.set(BaseInput.SWITCH_SHOULDER_SIDE, switchShoulderSide)
-    map.set(BaseInput.CAMERA_SCROLL, changeCameraDistanceByDelta)
-  } else {
-    // ik input only needs to be updated on the server, the client will already have this data
-    map.set(BaseInput.XR_HEAD, updateIKPosition)
-    map.set(BaseInput.XR_CONTROLLER_LEFT_HAND, updateIKPosition)
-    map.set(BaseInput.XR_CONTROLLER_RIGHT_HAND, updateIKPosition)
-  }
+  map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
+  map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)
+  map.set(BaseInput.SWITCH_SHOULDER_SIDE, switchShoulderSide)
+  map.set(BaseInput.CAMERA_SCROLL, changeCameraDistanceByDelta)
 
   map.set(BaseInput.PRIMARY, clickNavMesh)
 
