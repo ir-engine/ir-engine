@@ -1,6 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-const useStyles = makeStyles((theme: Theme) =>
+export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paperDialog: {
       background: 'rgb(58, 65, 73) !important',
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const useStyle = makeStyles({
+export const useStyle = makeStyles({
   spanDange: {
     color: '#FF8C00'
   },
@@ -29,5 +29,3 @@ const useStyle = makeStyles({
     color: '#f1f1f1'
   }
 })
-
-export { useStyle, useStyles }
