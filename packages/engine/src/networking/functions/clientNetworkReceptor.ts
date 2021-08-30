@@ -14,15 +14,9 @@ import { NetworkWorldActionType } from '../interfaces/NetworkWorldActions'
  */
 
 function searchSameInAnotherId(objectToCreate) {
-  if (objectToCreate.prefabType === PrefabType.Player) {
-    return Object.keys(Network.instance.networkObjects)
-      .map(Number)
-      .find((key) => Network.instance.networkObjects[key]?.uniqueId === objectToCreate.uniqueId)
-  } else {
-    return Object.keys(Network.instance.networkObjects)
-      .map(Number)
-      .find((key) => Network.instance.networkObjects[key]?.uniqueId === objectToCreate.uniqueId)
-  }
+  return Object.keys(Network.instance.networkObjects)
+    .map(Number)
+    .find((key) => Network.instance.networkObjects[key]?.uniqueId === objectToCreate.uniqueId)
 }
 
 function syncNetworkObjectsTest(objectToCreate) {
