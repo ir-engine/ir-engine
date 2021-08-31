@@ -37,7 +37,7 @@
     position: relative;
     color:black;
     border: 0 !important;
-    height: 66px;
+    min-height: 66px;
     margin: 5px !important;
 }
 
@@ -45,7 +45,7 @@
     position: absolute;
     border: 0 !important;
     padding: 0 !important;
-    height: 66px;
+    min-height: 66px;
     left: 65px;
     top: 0px;	
     height: 66px;
@@ -54,8 +54,6 @@
     padding-top: 10px !important;
     padding-left: 10px !important;
     background-color:white !important;
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
 }
 
 .svgiconsuccess{
@@ -89,12 +87,4 @@
 .alerttitle{
 	font-size:14px;
 	font-weight: bold;
-}
-
-.MuiIconButton-sizeSmall{
-	padding : 1px !important;
-}
-
-:global(.MuiIconButton-sizeSmall){
-	background-color: orange !important
 }
