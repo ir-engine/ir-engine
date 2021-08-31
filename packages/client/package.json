@@ -43,7 +43,7 @@
     "@mui-treasury/components": "1.10.1",
     "@rollup/plugin-inject": "4.0.2",
     "@styled-icons/boxicons-regular": "10.37.0",
-    "@styled-icons/boxicons-solid": "10.37.0",
+    "@styled-icons/boxicons-solid": "10.38.0",
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
     "@types/react-redux": "7.1.18",
