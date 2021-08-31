@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import PreviewDialog from './PreviewDialog'
 import { Button } from '../inputs/Button'
@@ -28,16 +27,4 @@ export function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, screenshot
   )
 }
 
-/**
- * Declairing propTypes for PublishedSceneDialog.
- *
- * @author Robert Long
- * @type {Object}
- */
-PublishedSceneDialog.propTypes = {
-  onCancel: PropTypes.func.isRequired,
-  sceneName: PropTypes.string.isRequired,
-  sceneUrl: PropTypes.string.isRequired,
-  screenshotUrl: PropTypes.string.isRequired
-}
 export default PublishedSceneDialog

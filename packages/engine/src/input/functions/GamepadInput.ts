@@ -80,9 +80,9 @@ export const handleGamepads = () => {
 const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   if (gamepad.buttons[index].touched === (gamepadButtons[index] === BinaryValue.ON)) return
   // Set input data
-  input.data.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
+  input.data[0].set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
-    value: gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF,
+    value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
     lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.STARTED : LifecycleValue.ENDED
   })
   gamepadButtons[index] = gamepad.buttons[index].touched ? 1 : 0
@@ -159,9 +159,9 @@ export const handleGamepadDisconnected = (event: any): void => {
 
   for (let index = 0; index < gamepadButtons.length; index++) {
     if (gamepadButtons[index] === BinaryValue.ON) {
-      input.data.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
+      input.data[0].set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
-        value: BinaryValue.OFF
+        value: [BinaryValue.OFF]
       })
     }
     gamepadButtons[index] = 0

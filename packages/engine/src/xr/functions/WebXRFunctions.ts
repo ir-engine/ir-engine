@@ -11,7 +11,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 
 /**
  * @author Josh Field <github.com/HexaField>
- * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
+ * @returns {void}
  */
 
 export const startWebXR = (): void => {
@@ -19,17 +19,17 @@ export const startWebXR = (): void => {
   const controllerRight = Engine.xrRenderer.getController(0) as any
   const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1)
   const controllerGripRight = Engine.xrRenderer.getControllerGrip(0)
-  const controllerGroup = new Group()
+  const container = new Group()
 
   Engine.scene.remove(Engine.camera)
-  controllerGroup.add(Engine.camera)
+  container.add(Engine.camera)
   const head = new Group()
 
   removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
 
   addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
     head,
-    controllerGroup,
+    container,
     controllerLeft,
     controllerRight,
     controllerGripLeft,

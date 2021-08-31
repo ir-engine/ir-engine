@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
 import styled, { ThemeContext } from 'styled-components'
 import Dialog from './Dialog'
 import { bytesToSize } from '@xrengine/editor/src/functions/utils'
@@ -100,21 +99,6 @@ function PerformanceCheckItem({ score, scoreColor, title, description, learnMore
       </div>
     </PerformanceItemContainer>
   )
-}
-
-/**
- * declaring propTypes for PerformanceCheckItem.
- *
- * @author Robert Long
- * @type {Object}
- */
-PerformanceCheckItem.propTypes = {
-  score: PropTypes.string.isRequired,
-  scoreColor: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node,
-  description: PropTypes.string.isRequired,
-  learnMoreUrl: PropTypes.string.isRequired
 }
 
 /**
@@ -220,18 +204,4 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
   )
 }
 
-// declaring propTypes for PerformanceCheckDialog.
-PerformanceCheckDialog.propTypes = {
-  scores: PropTypes.object.isRequired,
-  tag: PropTypes.string.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  confirmLabel: PropTypes.string.isRequired
-}
-
-// initializing defaultProps for PerformanceCheckDialog
-PerformanceCheckDialog.defaultProps = {
-  tag: 'div',
-  title: i18n.t('editor:dialog.performance.info-fileSize') || 'Performance Check',
-  confirmLabel: i18n.t('editor:dialog.performance.info-fileSize') || 'Publish Scene'
-}
 export default PerformanceCheckDialog

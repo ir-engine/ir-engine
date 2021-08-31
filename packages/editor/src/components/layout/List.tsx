@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 /**
@@ -59,11 +58,6 @@ export function IconListItem({ iconComponent, children, ...rest }) {
       {children}
     </ListItem>
   )
-}
-
-IconListItem.propTypes = {
-  iconComponent: PropTypes.object.isRequired,
-  children: PropTypes.node
 }
 
 export const List = (styled as any).ul`

@@ -1,9 +1,7 @@
 import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
-import { useAssetSearch } from './useAssetSearch'
-import { AssetsPanelToolbar, AssetPanelContentContainer } from './AssetsPanel'
 import AssetGrid from './AssetGrid'
-import FileInput from '../inputs/FileInput'
+import { AssetPanelContentContainer } from './AssetsPanel'
+import { useAssetSearch } from './useAssetSearch'
 import useUpload from './useUpload'
 
 /**
@@ -73,9 +71,4 @@ export function MediaSourcePanel({ editor, source }) {
   )
 }
 
-//declaring properties for MediaSourcePanel
-MediaSourcePanel.propTypes = {
-  editor: PropTypes.object,
-  source: PropTypes.object
-}
 export default MediaSourcePanel

@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Column, Row } from '../layout/Flex'
 import { EditorContext } from '../contexts/EditorContext'
@@ -65,17 +64,6 @@ export function AssetsPanelToolbar({ title, children, ...rest }) {
       <AssetPanelToolbarContent>{children}</AssetPanelToolbarContent>
     </AssetsPanelToolbarContainer>
   )
-}
-
-/**
- * Declairing propTypes for AssetsPanelToolbar.
- *
- * @author Robert Long
- * @type {Object}
- */
-AssetsPanelToolbar.propTypes = {
-  title: PropTypes.string,
-  children: PropTypes.node
 }
 
 /**

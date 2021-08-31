@@ -1,4 +1,4 @@
-import { Group, Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 export type AvatarComponentType = {

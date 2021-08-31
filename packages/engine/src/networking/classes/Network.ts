@@ -76,6 +76,10 @@ export class Network {
   /** ID of last network created. */
   private static availableNetworkId = 0
 
+  isLocal = (userId) => {
+    return this.userId === userId
+  }
+
   /** Get next network id. */
   static getNetworkId(): number {
     return ++this.availableNetworkId
@@ -104,14 +108,12 @@ export class Network {
 
   clientInputState: NetworkClientInputInterface = {
     networkId: -1,
-    buttons: [],
-    axes1d: [],
-    axes2d: [],
-    axes6DOF: [],
+    data: [],
     viewVector: {
       x: 0,
       y: 0,
-      z: 0
+      z: 0,
+      w: 0
     },
     snapShotTime: 0,
     commands: [],

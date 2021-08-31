@@ -61,7 +61,7 @@ export default function DragLayer() {
     return null
   }
 
-  // Declairing variable preview
+  // Declaring variable preview
   let preview
 
   //check if itemType of Node item type

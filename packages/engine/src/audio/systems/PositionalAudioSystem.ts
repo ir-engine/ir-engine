@@ -1,7 +1,7 @@
 import { PositionalAudio, Audio as AudioObject } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
@@ -159,7 +159,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
     }
 
     for (const entity of avatarAudioQuery(world)) {
-      if (hasComponent(entity, LocalInputReceiverComponent)) {
+      if (hasComponent(entity, LocalInputTagComponent)) {
         continue
       }
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)

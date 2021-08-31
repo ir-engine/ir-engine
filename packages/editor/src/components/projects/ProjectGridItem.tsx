@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { showMenu } from '../layout/ContextMenu'
 import { MenuButton } from '../inputs/Button'
@@ -117,11 +116,6 @@ const Col = styled.div`
  * @author Robert Long
  */
 export class ProjectGridItem extends Component<{ contextMenuId: string; project: any }> {
-  static propTypes = {
-    contextMenuId: PropTypes.string,
-    project: PropTypes.object.isRequired
-  }
-
   onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()

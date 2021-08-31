@@ -1,5 +1,6 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes'
+import { NumericalType } from '../../common/types/NumericalTypes'
+import { InputValue } from '../../input/interfaces/InputValue'
 import { InputAlias } from '../../input/types/InputAlias'
 import { StateEntityClientMovingGroup, StateEntityGroup, StateEntityIKGroup } from '../types/SnapshotDataTypes'
 
@@ -18,31 +19,12 @@ export type CommandType = {
 export interface NetworkInputInterface {
   /** network ID of user. */
   networkId: number
-  /** Button input received over the network. */
-  buttons: Array<{
-    input: InputAlias
-    value: NumericalType
-    lifecycleState: LifecycleValue
-  }>
-  /** Axes 1D input received over the network. */
-  axes1d: Array<{
-    input: InputAlias
-    value: NumericalType
-    lifecycleState: LifecycleValue
-  }>
-  /** Axes 2D input received over the network. */
-  axes2d: Array<{
-    input: InputAlias
-    value: NumericalType
-    lifecycleState: LifecycleValue
-  }>
-  /** Axes 2D input received over the network. */
-  axes6DOF: Array<{
-    input: InputAlias
-    value: SIXDOFType
+  data: Array<{
+    key: InputAlias
+    value: InputValue
   }>
   /** Viewport vector of the client. */
-  viewVector: { x: number; y: number; z: number }
+  viewVector: { x: number; y: number; z: number; w: number }
   snapShotTime: number
   commands: CommandType[]
   transforms: StateEntityClientMovingGroup
@@ -50,12 +32,6 @@ export interface NetworkInputInterface {
 
 /** Interface for handling client network input. */
 export interface NetworkClientInputInterface extends NetworkInputInterface {
-  /** Time of the snapshot. */
-  snapShotTime: number
-}
-
-/** Interface for network client input packet. */
-export interface PacketNetworkClientInputInterface extends PacketNetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number
 }
@@ -81,10 +57,6 @@ export interface NetworkObjectEditInterface {
   type: number
   values: number[]
   data: string[]
-  // state: number,
-  // currentId: number,
-  // value: number,
-  // whoIsItFor: string
 }
 
 /** Interface for creation of network object. */
@@ -133,40 +105,4 @@ export interface TransformStateInterface {
   transforms: StateEntityGroup
   /** transform of ik avatars. */
   ikTransforms: StateEntityIKGroup
-}
-/** Interface for handling packet network input. */
-export interface PacketNetworkInputInterface {
-  /** ID of the network. */
-  networkId: number
-  /** Button input received over the network. */
-  buttons: Array<{
-    input: InputAlias
-    value: NumericalType
-    lifecycleState: LifecycleValue
-  }>
-  /** Axes 1D input received over the network. */
-  axes1d: Array<{
-    input: InputAlias
-    value: NumericalType
-    lifecycleState: LifecycleValue
-  }>
-  /** Axes 2D input received over the network. */
-  axes2d: Array<{
-    input: InputAlias
-    value: NumericalType
-    lifecycleState: LifecycleValue
-  }>
-  /** Axes 2D input received over the network. */
-  axes6DOF: Array<{
-    input: InputAlias
-    x: number
-    y: number
-    z: number
-    qX: number
-    qY: number
-    qZ: number
-    qW: number
-  }>
-  /** Viewport vector of the client. */
-  viewVector: { x: number; y: number; z: number }
 }

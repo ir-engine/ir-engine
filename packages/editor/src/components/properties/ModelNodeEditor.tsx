@@ -36,7 +36,7 @@ const InteractableOption = [
 ]
 
 /**
- * Declairing properties for ModalNodeEditor component.
+ * Declaring properties for ModalNodeEditor component.
  *
  * @author Robert Long
  * @type {Object}
@@ -48,7 +48,7 @@ type ModelNodeEditorProps = {
   t: Function
 }
 
-//Declairing TriggerVolumeNodeEditor state
+//Declaring TriggerVolumeNodeEditor state
 type ModelNodeEditorState = {
   options: any[]
 }

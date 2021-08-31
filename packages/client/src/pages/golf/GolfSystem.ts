@@ -1,6 +1,12 @@
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @author Josh Field <github.com/hexafield>
+ * @author Gheric Speiginer <github.com/speigg>
+ */
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System, pipe } from 'bitecs'
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GolfAction, GolfActionType } from './GolfAction'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -26,7 +32,6 @@ import {
 } from './prefab/GolfBallPrefab'
 import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { SpawnNetworkObjectComponent } from '@xrengine/engine/src/scene/components/SpawnNetworkObjectComponent'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { setupPlayerInput } from './functions/setupPlayerInput'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
@@ -44,12 +49,6 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './functions/setupPlayerAvatar'
 import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
-
-/**
- * @author HydraFire <github.com/HydraFire>
- * @author Josh Field <github.com/hexafield>
- * @author Gheric Speiginer <github.com/speigg>
- */
 
 export function getHole(world: ECSWorld, i: number) {
   return world.world.namedEntities.get(`GolfHole-${i}`)

@@ -22,6 +22,7 @@ COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
+COPY packages/gallery/package.json ./gallery/social/
 COPY packages/bot/package.json ./packages/bot/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds

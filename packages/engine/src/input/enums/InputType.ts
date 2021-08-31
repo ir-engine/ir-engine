@@ -4,9 +4,9 @@
 // THREEDIM -- Three dimensional value, just in case
 // SIXDOF -- Six dimensional input, three for pose and three for rotation (in euler?), i.e. for VR controllers
 export enum InputType {
-  BUTTON,
-  ONEDIM,
-  TWODIM,
-  THREEDIM,
-  SIXDOF
+  BUTTON = 0,
+  ONEDIM = 1,
+  TWODIM = 2,
+  THREEDIM = 3,
+  SIXDOF = 4
 }

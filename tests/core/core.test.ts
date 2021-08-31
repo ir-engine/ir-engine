@@ -2,25 +2,30 @@ import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 
-const maxTimeout = 10 * 1000
-const bot = new XREngineBot({ name: 'bot-1', headless: true, autoLog: false })
+const maxTimeout = 60 * 1000
+const bot = new XREngineBot({ name: 'bot-1', verbose: true })
 const vector3 = new Vector3()
 
 const domain = process.env.APP_HOST
 const locationName = 'test'
 const sqrt2 = Math.sqrt(2)
+console.log('process.env.HEADLESS', process.env.HEADLESS)
 
 describe('My Bot Tests', () => {
 
   beforeAll(async () => {
-    await bot.launchBrowser()
-    await bot.enterLocation(`https://${domain}/location/${locationName}`)
-    await bot.awaitHookPromise(BotHooks.LocationLoaded)
-    await bot.runHook(BotHooks.InitializeBot)
-  }, maxTimeout)
+    try {
+      await bot.launchBrowser()
+      await bot.enterLocation(`https://${domain}/location/${locationName}`)
+      await bot.awaitHookPromise(BotHooks.LocationLoaded)
+      await bot.runHook(BotHooks.InitializeBot)
+    } catch (e) {
+      console.error(e)
+    }
+  }, 2 * maxTimeout)
 
   afterAll(async () => {
-    await bot.delay(1000)
+    await bot.delay(1500)
     await bot.quit()
   }, maxTimeout)
 

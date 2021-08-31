@@ -77,16 +77,20 @@ export const parseGLTFModel = (
   entity: Entity,
   component: SceneDataComponent,
   sceneProperty: ScenePropertyType,
-  res: Mesh
+  scene: Mesh
 ) => {
+  // console.log(sceneLoader, entity, component, sceneProperty, scene)
+
+  addComponent(entity, Object3DComponent, { value: scene })
+
   // legacy physics loader
-  createCollidersFromModel(entity, res)
+  createCollidersFromModel(entity, scene)
 
   // DIRTY HACK TO LOAD NAVMESH
   if (component.data.src.match(/navmesh/)) {
     console.log('generate navmesh')
     let polygons = []
-    res.traverse((child: Mesh) => {
+    scene.traverse((child: Mesh) => {
       child.visible = false
       if (typeof child.geometry !== 'undefined' && child.geometry instanceof BufferGeometry) {
         const childPolygons = parseGeometry({
@@ -107,14 +111,14 @@ export const parseGLTFModel = (
       console.log('navMesh', navMesh)
       addComponent(entity, NavMeshComponent, {
         yukaNavMesh: navMesh,
-        navTarget: res
+        navTarget: scene
       })
       addComponent(entity, DebugNavMeshComponent, null)
     }
   }
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (res.animations && hasComponent(entity, Object3DComponent)) {
+  if (scene.animations && hasComponent(entity, Object3DComponent)) {
     // We only have to update the mixer time for this animations on each frame
     const object3d = getComponent(entity, Object3DComponent)
     const mixer = new AnimationMixer(object3d.value)
@@ -122,7 +126,7 @@ export const parseGLTFModel = (
     addComponent(entity, AnimationComponent, {
       mixer,
       animationSpeed: 1,
-      animations: res.animations
+      animations: scene.animations
     })
   }
 
@@ -149,13 +153,13 @@ export const parseGLTFModel = (
   }
 
   if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
-    applyTransformToMesh(entity, res)
-    res.traverse((child) => {
+    applyTransformToMesh(entity, scene)
+    scene.traverse((child) => {
       child.updateMatrixWorld(true)
       child.matrixAutoUpdate = false
     })
   }
-  parseObjectComponents(entity, res, (newEntity: Entity, newComponent: SceneDataComponent) => {
+  parseObjectComponents(entity, scene, (newEntity: Entity, newComponent: SceneDataComponent) => {
     sceneLoader.loadComponent(newEntity, newComponent, sceneProperty)
   })
 }
@@ -175,7 +179,6 @@ export const loadGLTFModel = (
         },
         (res) => {
           parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
-
           sceneLoader._onModelLoaded()
           resolve()
         },
