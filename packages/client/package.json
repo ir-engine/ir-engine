@@ -60,7 +60,7 @@
     "draco3dgltf": "1.4.1",
     "eslint-plugin-react-hooks": "4.2.0",
     "eventemitter3": "4.0.7",
-    "@vladmandic/face-api": "1.4.1",
+    "@vladmandic/face-api": "1.4.2",
     "faker": "5.5.3",
     "file-regex": "3.1.0",
     "fuse.js": "6.4.6",
