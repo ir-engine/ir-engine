@@ -57,7 +57,7 @@ const Page = () => {
       //initializeEngine()
       // Register our systems to do stuff
       registerSystem(SystemUpdateType.Fixed, AnimationSystem)
-      registerSystem(SystemUpdateType.Network, IKRigSystem)
+      registerSystem(SystemUpdateType.Fixed, IKRigSystem)
       registerSystem(SystemUpdateType.Free, RenderSystem)
 
       const fixedPipeline = await createPipeline(SystemUpdateType.Fixed)
@@ -80,11 +80,11 @@ const Page = () => {
       // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
 
       const networkExecute = executePipeline(world, networkPipeline)
-      window['execute'] = networkExecute
+      // window['execute'] = networkExecute
 
       Engine.engineTimer = Timer(
         {
-          networkUpdate: () => {},
+          networkUpdate: networkExecute,
           fixedUpdate: executePipeline(world, fixedPipeline),
           update: executePipeline(world, freePipeline)
         },
@@ -178,7 +178,7 @@ async function initExample(world) {
   rig.sourceRig = skinnedMesh
   rig.sourcePose = sourcePose
 
-  ac.mixer.clipAction(model.animations[ANIMATION_INDEX]).setEffectiveTimeScale(0).play()
+  ac.mixer.clipAction(model.animations[ANIMATION_INDEX]).setEffectiveTimeScale(0.2).play()
   console.log('CLIP', ac.mixer.clipAction(model.animations[ANIMATION_INDEX]))
   window['CLIP'] = ac.mixer.clipAction(model.animations[ANIMATION_INDEX])
 
@@ -187,10 +187,10 @@ async function initExample(world) {
   ////////////////////////////////////////////////////////////////////////////
 
   // LOAD MESH A
-  // loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0)).then((rig) => {
-  //   sourcePose.targetRigs.push(rig)
-  //   rig.tpose.apply()
-  // })
+  loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0)).then((rig) => {
+    sourcePose.targetRigs.push(rig)
+    rig.tpose.apply()
+  })
   loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(-1, 0, 0)).then((rig) => {
     sourcePose.targetRigs.push(rig)
     rig.tpose.apply()

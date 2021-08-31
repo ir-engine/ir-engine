@@ -52,7 +52,6 @@ export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRig.ge
   // TODO:Fix
 
   addPoint(entity, 'hip', 'Hips')
-  addPoint(entity, 'hip', 'Hips')
   addPoint(entity, 'head', 'Head')
   addPoint(entity, 'neck', 'Neck')
   addPoint(entity, 'chest', 'Spine2')
@@ -157,10 +156,8 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
     altForward = FORWARD.clone().applyQuaternion(quatInverse),
     altUp = UP.clone().applyQuaternion(quatInverse)
 
-  const poseBoneForwardWorldQuaternion = new Quaternion()
-  poseBone.getWorldQuaternion(poseBoneForwardWorldQuaternion)
-  const poseBoneUpWorldQuaternion = new Quaternion()
-  poseBone.getWorldQuaternion(poseBoneUpWorldQuaternion)
+  const poseBoneWorldQuaternion = new Quaternion()
+  poseBone.getWorldQuaternion(poseBoneWorldQuaternion)
 
   const poseForward = altForward.clone().applyQuaternion(poseBoneWorldQuaternion),
     poseUp = altUp.clone().applyQuaternion(poseBoneWorldQuaternion)
