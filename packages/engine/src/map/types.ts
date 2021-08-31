@@ -8,3 +8,6 @@ export interface TileFeaturesByLayer {
   landuse: Feature[]
 }
 export type ILayerName = keyof TileFeaturesByLayer
+
+/** Memnonic drop-in replacement for geojson.Position */
+export type LongLat = number[]

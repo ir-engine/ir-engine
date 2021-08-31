@@ -1,63 +1,35 @@
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
-import * as mapIndex from '../../src/map/index'
-// import * as MapBoxClient from '../../src/map/MapBoxClient'
-// import vectors from '../../src/map/vectors'
-import { Group, Object3D, Quaternion, Vector3 } from 'three'
-import { lat2tile, llToTile, long2tile, tile2lat, tile2long, TILE_ZOOM } from '../../src/map/MapBoxClient'
-import { llToScene, llToScene2, sceneToLl } from '../../src/map/MeshBuilder'
-import { expect } from '@jest/globals'
+import { PipelineType, World } from '@xrengine/engine/src/ecs/classes/World'
+import { Object3D, Quaternion, Vector3 } from 'three'
+import { llToTile, tile2lat, tile2long, TILE_ZOOM } from '../../src/map/MapBoxClient'
+import { llToScene } from '../../src/map/MeshBuilder'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { createPipeline, registerSystem, unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { MapUpdateSystem } from '../../src/map/MapUpdateSystem'
 import { addComponent, createEntity, getComponent } from '../../src/ecs/functions/EntityFunctions'
-import { LocalInputTagComponent } from '../../src/input/components/LocalInputTagComponent'
-import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
 import { MapComponent } from '../../src/map/MapComponent'
-import * as createMap from '../../src/scene/functions/createMap'
-import { MapProps } from '../../src'
 import { atlantaGeoCoord, atlantaGeoCoord2, atlantaTileCoord } from './constants'
-import { Position } from 'geojson'
+import { createMapObjects as createMapObjectsMock } from '../../src/map'
+import { Entity } from '../../src/ecs/classes/Entity'
+import {Object3DComponent} from '../../src/scene/components/Object3DComponent'
 
-let fetchRasterTiles: jest.SpyInstance
-let fetchVectorTiles: jest.SpyInstance
-let vectorsMock: jest.SpyInstance
-let world
+// decouple this "loader" from the concept of tiles. Tiles are a Web map storage convention, no reason other than expedience that we have to jam into the scene entire, fairly large, tiles all at once. Instead, drawing on the work of @xiani_zp and @alexmz, there can be a service (worker/backend) that fetches tiles and bakes the Object3Ds (neglecting navigation stuff for now.) Then a GeographicObjectSystem (formerly MapUpdateSystem) uses the value of the player entity's TransformComponent to request "geographic objects" within a certain radius of the player. These would contain an Object3D created by the service. The system then creates one entity for each object, assigning an Object3DComponent, handled by the SceneObjectSystem. When the player moves a certain amount, the system makes a new request to the service. The GeographicObjectSystem also maintains an associative array of these geographic objects so that it knows not to create redundant entities. The system also regularly checks if any of these geographic objects are outside of a certain radius of the player, in which case the geographic object's resources are freed and removed from the associative array (automatically if implemented with a WeakMap). Besides an Object3D, geographic objects would also contain the data for a TransformComponent so the Object3Ds are correctly positioned, rotated etc the scene. The service would be responsible for deriving a latlong given the scene coords, making a request to Mapbox's API, caching, baking Object3Ds etc. Humbly awaiting your comments. This is very off the cuff, just wanted to start the conversation.
 
-// beforeAll(() => {
-//     console.log('before everything')
-//
-//     if (!world) {
-//         world = new World()
-//     }
-//
-//     // fetchRasterTiles, fetchVectorTiles, getCenterTile
-//     fetchRasterTiles = jest.spyOn(MapBoxClient, 'fetchRasterTiles')
-//     fetchVectorTiles = jest.spyOn(MapBoxClient, 'fetchVectorTiles'); //.mockImplementation((args => {
-//         // return null
-//     // }))
-//     // vectorsMock = jest.spyOn(vectors, 'vectors')
-//     vectors.vectors = jest.fn(async (blob) => {
-//          return {}
-//     })
-//
-//     // @ts-ignore
-//     global.fetch = jest.fn(() => {
-//         //const res = new Response()
-//         return Promise.resolve({
-//             blob: () => null
-//         })
-//     });
-//
-//     vectorsMock = jest
-//         .spyOn(vectors, 'vectors')
-//         .mockImplementation((blob, cb) =>
-//             cb(null)
-//         )
-// })
 
-const executePipeline = (world: World, pipeline) => {
-  return (delta, elapsedTime) => {
+jest.mock('../../src/map', () => {
+  return {
+    createMapObjects: jest.fn(() => {
+      return {
+        mapMesh: new Object3D(),
+        navMesh: new Object3D(),
+        groundMesh: new Object3D()
+      }
+    })
+  }
+})
+
+const executePipeline = (world: World, pipeline: PipelineType) => {
+  return (delta: number, elapsedTime: number) => {
     world.ecsWorld.delta = delta
     world.ecsWorld.time = elapsedTime
     pipeline(world.ecsWorld)
@@ -65,115 +37,104 @@ const executePipeline = (world: World, pipeline) => {
   }
 }
 
+const triggerRefreshRadius = 20 // meters
+
 describe('check MapUpdateSystem', () => {
   const mapCenter = [...atlantaGeoCoord]
   const nearTileGeoCoords = [tile2long(atlantaTileCoord[0] + 2, TILE_ZOOM), tile2lat(atlantaTileCoord[1], TILE_ZOOM)]
   const nearTileSceneCoords = llToScene(nearTileGeoCoords, mapCenter)
-  let actor, world: ECSWorld, theWorld: World, freePipeline, execute: (delta, elapsedTime) => void
-  let createMapObjectsMock
-  beforeAll(async () => {
-    theWorld = new World()
-    world = theWorld.ecsWorld
+  let world: World,
+    execute: (delta: number, elapsedTime: number) => void,
+    freePipeline: PipelineType,
+    viewer: Entity,
+    map: Entity
+
+  beforeEach(async () => {
+    world = new World()
     registerSystem(SystemUpdateType.Free, MapUpdateSystem)
     freePipeline = await createPipeline(SystemUpdateType.Free)
-    execute = executePipeline(theWorld, freePipeline)
+    execute = executePipeline(world, freePipeline)
 
-    createMapObjectsMock = jest
-      .spyOn(mapIndex, 'createMapObjects')
-      .mockImplementation((center: Position, currentCenter: Position, args: MapProps) => {
-        console.log('MOCKED createMapObjects', center, currentCenter, args)
-        return Promise.resolve({
-          mapMesh: new Group(),
-          buildingMesh: null,
-          groundMesh: null,
-          roadsMesh: null,
-          navMesh: null,
-          labels: null
-        })
-      })
+    viewer = createEntity(world.ecsWorld)
+    addComponent(
+      viewer,
+      TransformComponent,
+      {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3().setScalar(1)
+      },
+      world.ecsWorld
+    )
 
-    actor = createEntity(world)
-    addComponent(actor, LocalInputTagComponent, {})
-    addComponent(actor, Object3DComponent, {
-      value: new Object3D()
-    })
-    addComponent(actor, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3().setScalar(1)
-    })
-
-    const map = createEntity(world)
-    addComponent(map, MapComponent, {
-      center: mapCenter,
-      currentTile: llToTile(mapCenter),
-      loading: false,
-      args: {}
-    })
-    addComponent(map, TransformComponent, {
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      scale: new Vector3().setScalar(1)
-    })
-
-    jest.spyOn(mapIndex, 'getTile').mockImplementation(() => {
-      console.log('MOCKED getTile', atlantaTileCoord)
-      return atlantaTileCoord
-    })
-    jest.spyOn(mapIndex, 'getCoord').mockImplementation(() => {
-      console.log('MOCKED getCoords', atlantaGeoCoord)
-      return [...atlantaGeoCoord]
-    })
-    jest.spyOn(mapIndex, 'getScaleArg').mockImplementation(() => {
-      console.log('MOCKED getScaleArg', 1)
-      return 1
-    })
+    map = createEntity(world.ecsWorld)
+    addComponent(
+      map,
+      MapComponent,
+      {
+        center: [0, 0],
+        triggerRefreshRadius,
+        viewer,
+        args: {}
+      },
+      world.ecsWorld
+    )
+    addComponent(
+      map,
+      Object3DComponent,
+      { value: new Object3D()},
+      world.ecsWorld
+    )
+    addComponent(
+      map,
+      TransformComponent,
+      {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3().setScalar(1)
+      },
+      world.ecsWorld
+    )
   })
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('not call update if player moves inside of original tile', async () => {
-    // const updateMock = jest.spyOn(mapIndex, "update").mockImplementation(async (args, longtitude, latitude, position) => {
-    //     console.log('MAP UPDATE MOCKED')
-    //     return { mapMesh: new Group(), buildingMesh: null, groundMesh: null, roadsMesh: null, navMesh: null }
-    // })
+  afterEach(() => {
+    unregisterSystem(SystemUpdateType.Free, MapUpdateSystem)
+  })
 
-    //// ---- end or prepare - do test
-    const sceneCoordinates = llToScene(atlantaGeoCoord2, mapCenter)
-    const actorTransform = getComponent(actor, TransformComponent)
-    actorTransform.position.set(sceneCoordinates[0], 0, sceneCoordinates[1])
+  it('does not update when player moves within update boundary', async () => {
+    const actorTransform = getComponent(viewer, TransformComponent, false, world.ecsWorld)
 
+    actorTransform.position.set(triggerRefreshRadius / 2, 0, 0)
     execute(1, 1)
 
-    //expect(updateMock.mock.calls.length).toBe(0)
-    expect(createMapObjectsMock.mock.calls.length).toBe(0)
+    expect(createMapObjectsMock).toHaveBeenCalledTimes(0)
   })
 
-  it('calls update if player moves out', async () => {
-    const actorTransform = getComponent(actor, TransformComponent)
-    // move actor out of center tile
-    actorTransform.position.set(nearTileSceneCoords[0], 0, nearTileSceneCoords[1])
+  it('updates when player crosses update boundary', async () => {
+    const actorTransform = getComponent(viewer, TransformComponent, false, world.ecsWorld)
 
-    // update should be triggered
-    execute(1, 2)
-    //expect(updateMock.mock.calls.length).toBe(1)
-    expect(createMapObjectsMock.mock.calls.length).toBe(1)
+    actorTransform.position.set(triggerRefreshRadius, 0, 0)
+    execute(1, 1)
+
+    expect(createMapObjectsMock).toHaveBeenCalledTimes(1)
   })
 
-  it('if update is in progress - ignore movement?', async () => {
-    const actorTransform = getComponent(actor, TransformComponent)
-    // move actor out of center tile
-    actorTransform.position.set(nearTileSceneCoords[0], 0, nearTileSceneCoords[1])
+  // it('if update is in progress - ignore movement?', async () => {
+  //   const actorTransform = getComponent(actor, TransformComponent)
+  //   // move actor out of center tile
+  //   actorTransform.position.set(nearTileSceneCoords[0], 0, nearTileSceneCoords[1])
 
-    // update should be triggered
-    execute(1, 2)
+  //   // update should be triggered
+  //   execute(1, 2)
 
-    createMapObjectsMock.mockClear()
+  //   createMapObjectsMock.mockClear()
 
-    // check that update is not triggered second time
-    execute(1, 3)
-    expect(createMapObjectsMock.mock.calls.length).toBe(0)
-  })
+  //   // check that update is not triggered second time
+  //   execute(1, 3)
+  //   expect(createMapObjectsMock.mock.calls.length).toBe(0)
+  // })
 })
