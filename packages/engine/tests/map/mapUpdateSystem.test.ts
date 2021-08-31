@@ -9,24 +9,13 @@ import { addComponent, createEntity, getComponent } from '../../src/ecs/function
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
 import { MapComponent } from '../../src/map/MapComponent'
 import { atlantaGeoCoord, atlantaGeoCoord2, atlantaTileCoord } from './constants'
-import { createMapObjects as createMapObjectsMock } from '../../src/map'
 import { Entity } from '../../src/ecs/classes/Entity'
-import {Object3DComponent} from '../../src/scene/components/Object3DComponent'
+import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
+import { refreshSceneObjects } from '../../src/map'
 
-// decouple this "loader" from the concept of tiles. Tiles are a Web map storage convention, no reason other than expedience that we have to jam into the scene entire, fairly large, tiles all at once. Instead, drawing on the work of @xiani_zp and @alexmz, there can be a service (worker/backend) that fetches tiles and bakes the Object3Ds (neglecting navigation stuff for now.) Then a GeographicObjectSystem (formerly MapUpdateSystem) uses the value of the player entity's TransformComponent to request "geographic objects" within a certain radius of the player. These would contain an Object3D created by the service. The system then creates one entity for each object, assigning an Object3DComponent, handled by the SceneObjectSystem. When the player moves a certain amount, the system makes a new request to the service. The GeographicObjectSystem also maintains an associative array of these geographic objects so that it knows not to create redundant entities. The system also regularly checks if any of these geographic objects are outside of a certain radius of the player, in which case the geographic object's resources are freed and removed from the associative array (automatically if implemented with a WeakMap). Besides an Object3D, geographic objects would also contain the data for a TransformComponent so the Object3Ds are correctly positioned, rotated etc the scene. The service would be responsible for deriving a latlong given the scene coords, making a request to Mapbox's API, caching, baking Object3Ds etc. Humbly awaiting your comments. This is very off the cuff, just wanted to start the conversation.
+// decouple this "loader" from the concept of tiles. Tiles are a Web map storage convention, no reason other than expedience that we have to jam into the scene entire, fairly large, tiles all at once. Instead, drawing on the work of @xiani_zp and @alexmz, there can be a service (worker/backend) that fetches tiles and bakes the Object3Ds (neglecting navigation stuff for now.) Then a GeographicObjectSystem (formerly MapUpdateSystem) uses the value of the player entity's TransformComponent to request "geographic objects" within a certain radius of the player. These would contain an Object3D created by the service. The system then creates one entity for each object, assigning an Object3DComponent, handled by the SceneObjectSystem. When the player moves a certain amount, the system makes a new request to the service. The GeographicObjectSystem also maintains an associative array of these geographic objects so that it knows not to create redundant entities. The system also regularly checks if any of these geographic objects are outside of a certain radius of the player, in which case the geographic object's resources are freed and removed from the associative array (automatically if implemented with a WeakMap). Besides an Object3D, geographic objects would also contain the data for a TransformComponent so the Object3Ds are correctly positioned, rotated etc the scene. The service would be responsible for deriving a latlong given the scene coords, making a request to Mapbox's API, caching, baking Object3Ds etc.
 
-
-jest.mock('../../src/map', () => {
-  return {
-    createMapObjects: jest.fn(() => {
-      return {
-        mapMesh: new Object3D(),
-        navMesh: new Object3D(),
-        groundMesh: new Object3D()
-      }
-    })
-  }
-})
+jest.mock('../../src/map')
 
 const executePipeline = (world: World, pipeline: PipelineType) => {
   return (delta: number, elapsedTime: number) => {
@@ -79,12 +68,7 @@ describe('check MapUpdateSystem', () => {
       },
       world.ecsWorld
     )
-    addComponent(
-      map,
-      Object3DComponent,
-      { value: new Object3D()},
-      world.ecsWorld
-    )
+    addComponent(map, Object3DComponent, { value: new Object3D() }, world.ecsWorld)
     addComponent(
       map,
       TransformComponent,
@@ -111,7 +95,7 @@ describe('check MapUpdateSystem', () => {
     actorTransform.position.set(triggerRefreshRadius / 2, 0, 0)
     execute(1, 1)
 
-    expect(createMapObjectsMock).toHaveBeenCalledTimes(0)
+    expect(refreshSceneObjects).toHaveBeenCalledTimes(0)
   })
 
   it('updates when player crosses update boundary', async () => {
@@ -120,21 +104,6 @@ describe('check MapUpdateSystem', () => {
     actorTransform.position.set(triggerRefreshRadius, 0, 0)
     execute(1, 1)
 
-    expect(createMapObjectsMock).toHaveBeenCalledTimes(1)
+    expect(refreshSceneObjects).toHaveBeenCalledTimes(1)
   })
-
-  // it('if update is in progress - ignore movement?', async () => {
-  //   const actorTransform = getComponent(actor, TransformComponent)
-  //   // move actor out of center tile
-  //   actorTransform.position.set(nearTileSceneCoords[0], 0, nearTileSceneCoords[1])
-
-  //   // update should be triggered
-  //   execute(1, 2)
-
-  //   createMapObjectsMock.mockClear()
-
-  //   // check that update is not triggered second time
-  //   execute(1, 3)
-  //   expect(createMapObjectsMock.mock.calls.length).toBe(0)
-  // })
 })

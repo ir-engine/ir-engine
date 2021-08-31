@@ -95,3 +95,5 @@ export const getTile = () => {
 export const getScaleArg = () => {
   return scaleArg
 }
+
+export function refreshSceneObjects() {}

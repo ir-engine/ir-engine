@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
-import { createMapObjects, getCoord, getScaleArg, getTile } from '.'
+import { refreshSceneObjects, getCoord, getScaleArg, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
@@ -12,15 +12,12 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { NavMeshComponent } from '../navigation/component/NavMeshComponent'
 
 export async function refreshMap(entity, world, longtitude, latitude): Promise<void> {
-  const map = getComponent(entity, MapComponent)
+  // const map = getComponent(entity, MapComponent)
   // map.loading = true
   // const loadingTile = llToTile([longtitude, latitude])
   // console.log('updateMap to tile', loadingTile)
-
-  const { mapMesh, navMesh, groundMesh } = await createMapObjects(map.center, [longtitude, latitude], map.args)
-
+  // const { mapMesh, navMesh, groundMesh } = await createMapObjects(map.center, [longtitude, latitude], map.args)
   // map.currentTile = loadingTile
-
   // /*
   // // TODO: it does not work this way, but probably should
   // removeComponent(entity, Object3DComponent)
@@ -31,14 +28,11 @@ export async function refreshMap(entity, world, longtitude, latitude): Promise<v
   // mapMesh.position.copy(prevMapMesh.position)
   // mapMesh.rotation.copy(prevMapMesh.rotation)
   // mapMesh.scale.copy(prevMapMesh.scale)
-
   // prevMapMesh.parent.add(mapMesh)
   // prevMapMesh.removeFromParent()
   // mapObjectComponent.value = mapMesh
-
   // // getComponent(currentEnt, Object3DComponent).value.clear()
   // // getComponent(currentEnt, Object3DComponent).value.add(mapMesh)
-
   // // TODO check and fix
   // removeComponent(entity, NavMeshComponent)
   // if (navMesh && groundMesh) {
@@ -47,7 +41,6 @@ export async function refreshMap(entity, world, longtitude, latitude): Promise<v
   //     navTarget: groundMesh
   //   })
   // }
-
   // map.loading = false
 }
 
@@ -79,7 +72,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
       const mapScale = getComponent(mapEntity, TransformComponent).scale.x
       const longtitude = viewerPosition.x / (111134.861111 * mapScale) + startLong
       const latitude = -viewerPosition.z / (Math.cos((startLat * PI) / 180) * 111321.377778 * mapScale) + startLat
-      refreshMap(mapEntity, world, longtitude, latitude)
+      refreshSceneObjects()
     }
 
     // // TODO: use sceneToLl
