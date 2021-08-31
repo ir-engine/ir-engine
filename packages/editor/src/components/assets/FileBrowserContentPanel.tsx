@@ -53,10 +53,18 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   const { params, setParams, isLoading, loadMore, hasMore, results } = useAssetSearch(selectedSource)
 
+  const getOwnedFilesID = () => {
+    const fileIDs = {}
+    Object.keys(globalThis.filesToUpload).forEach((element) => {
+      fileIDs[element] = globalThis.filesToUpload[element].file_id
+    })
+    return JSON.stringify(fileIDs)
+  }
+
   const currentProject = {
     name: 'Current',
     sid: '',
-    ownedFileIds: JSON.stringify(globalThis.filesToUpload)
+    ownedFileIds: getOwnedFilesID()
   }
 
   const projects = []
@@ -89,7 +97,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const projectIDRef = useRef(selectedProjectIndex)
 
   const renderProjectFiles = async (index) => {
-    projects[0].ownedFileIds = JSON.stringify(globalThis.filesToUpload)
+    projects[0].ownedFileIds = getOwnedFilesID()
     const ownedFileIdsString = projects[index]?.ownedFileIds
     const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
     const returningObjects = []
