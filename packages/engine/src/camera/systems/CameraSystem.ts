@@ -73,7 +73,7 @@ const followCamera = (entity: Entity, delta: number) => {
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
-  let theta // = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
+  let theta
   let camDist = followCamera.distance
   let phi = followCamera.phi
 
@@ -147,9 +147,6 @@ const followCamera = (entity: Entity, delta: number) => {
   if (followCamera.locked || followCamera.mode === CameraMode.FirstPerson) {
     const newTheta = MathUtils.degToRad(followCamera.theta + 180) % (Math.PI * 2)
     avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 2)
-    // avatarTransform.rotation.copy(cameraTransform.rotation)
-    // TODO: move this to an avatar controller
-    // avatar.headPoseRotation.copy(cameraTransform.rotation)
   }
 }
 

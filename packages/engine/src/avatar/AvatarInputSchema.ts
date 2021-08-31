@@ -345,13 +345,6 @@ const lookByInputAxis: InputBehaviorType = (
 ): void => {
   const followCamera = getComponent(entity, FollowCameraComponent)
   if (followCamera && followCamera.mode !== CameraMode.Strategic) {
-    if (followCamera.locked) {
-      const avatar = getComponent(entity, AvatarComponent)
-      // TODO: get theta from head quaternion
-      // let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
-      // followCamera.theta = (theta * 180) / Math.PI + 180
-    }
-
     followCamera.theta -= inputValue.value[0] * 100
     followCamera.phi -= inputValue.value[1] * 100
   }

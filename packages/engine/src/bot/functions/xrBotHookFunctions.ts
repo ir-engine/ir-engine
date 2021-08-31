@@ -76,7 +76,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
@@ -85,7 +84,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
@@ -94,7 +92,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
 }
 
 /**
