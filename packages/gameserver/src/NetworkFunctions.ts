@@ -1,14 +1,12 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, hasComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { Quaternion, Vector3 } from 'three'
 import { getNewNetworkId } from '@xrengine/engine/src/networking/functions/getNewNetworkId'
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
@@ -16,6 +14,9 @@ import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPref
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { dispatchFromServer } from '../../engine/src/networking/functions/dispatch'
+import { NetworkWorldAction, NetworkWorldActionType } from '../../engine/src/networking/interfaces/NetworkWorldActions'
+import { XRInputSourceComponent } from '../../engine/src/avatar/components/XRInputSourceComponent'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -137,7 +138,8 @@ export async function validateNetworkObjects(): Promise<void> {
 
       const disconnectedClient = Object.assign({}, Network.instance.clients[userId])
 
-      Network.instance.worldState.clientsDisconnected.push({ userId })
+      dispatchFromServer(NetworkWorldAction.destroyClient(userId))
+
       console.log('Disconnected Client:', disconnectedClient.userId)
       if (disconnectedClient?.instanceRecvTransport) {
         console.log('Closing instanceRecvTransport')
@@ -175,8 +177,7 @@ export async function validateNetworkObjects(): Promise<void> {
       networkObjectsClientOwns.forEach((obj) => {
         // Get the entity attached to the NetworkObjectComponent and remove it
         console.log('Removing entity ', obj.entity, ' for user ', userId)
-        const removeMessage = { networkId: obj.networkId }
-        Network.instance.worldState.destroyObjects.push(removeMessage)
+        dispatchFromServer(NetworkWorldAction.destroyObject(obj.networkId))
         removeEntity(obj.entity)
         delete Network.instance.networkObjects[obj.id]
         console.log('Removed entity ', obj.entity, ' for user ', userId)
@@ -199,8 +200,7 @@ export async function validateNetworkObjects(): Promise<void> {
     console.log('Culling ownerless object: ', key, 'owned by ', networkObject.uniqueId)
 
     // If it does, tell clients to destroy it
-    const removeMessage = { networkId: Number(key) }
-    Network.instance.worldState.destroyObjects.push(removeMessage)
+    dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
 
     // get network object
     const entity = networkObject.entity
@@ -244,26 +244,10 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
       dataProducers: new Map<string, DataProducer>() // Key => label of data channel
     }
 
-  // Push to our worldstate to send out to other users
-  Network.instance.worldState.clientsConnected.push({ userId, avatarDetail })
-  // Create a new worldtate object that we can fill
-  const worldState: WorldStateInterface = {
-    clientsConnected: [],
-    clientsDisconnected: [],
-    createObjects: [],
-    destroyObjects: [],
-    editObjects: []
-  }
-
-  // Get all clients and add to clientsConnected and push to world state frame
-  Object.keys(Network.instance.clients).forEach((userId) => {
-    const client = Network.instance.clients[userId]
-    worldState.clientsConnected.push({ userId: client.userId, avatarDetail: client.avatarDetail })
-  })
+  dispatchFromServer(NetworkWorldAction.createClient(userId, avatarDetail))
 
   // Return initial world state to client to set things up
   callback({
-    worldState: WorldStateModel.toBuffer(worldState),
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
 }
@@ -287,7 +271,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
 
     // If it does, tell clients to destroy it
     if (typeof getComponent(networkObject.entity, NetworkObjectComponent).networkId === 'number') {
-      Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })
+      dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
     } else {
       logger.error('networkId is invalid')
       logger.error(networkObject)
@@ -316,23 +300,20 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
       }
     : SpawnPoints.instance.getRandomSpawnPoint()
 
-  // Create a new worldState object that we can fill
-  const worldState: WorldStateInterface = {
-    clientsConnected: [],
-    clientsDisconnected: [],
-    createObjects: [],
-    destroyObjects: [],
-    editObjects: []
-  }
-
+  const worldState: NetworkWorldActionType[] = []
   // Get all network objects and add to createObjects
   Object.keys(Network.instance.networkObjects).forEach((networkId) => {
-    worldState.createObjects.push({
-      prefabType: Network.instance.networkObjects[networkId].prefabType,
-      networkId: Number(networkId),
-      uniqueId: Network.instance.networkObjects[networkId].uniqueId,
-      parameters: Network.instance.networkObjects[networkId].parameters
-    })
+    worldState.push(
+      NetworkWorldAction.createObject(
+        Number(networkId),
+        Network.instance.networkObjects[networkId].uniqueId,
+        Network.instance.networkObjects[networkId].prefabType,
+        Network.instance.networkObjects[networkId].parameters
+      )
+    )
+    if (hasComponent(Network.instance.networkObjects[networkId].entity, XRInputSourceComponent)) {
+      worldState.push(NetworkWorldAction.enterVR(Number(networkId), true))
+    }
   })
 
   const networkId = getNewNetworkId(userId)
@@ -351,12 +332,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
   // Get all clients and add to clientsConnected and push to world state frame
   Object.keys(Network.instance.clients).forEach((userId) => {
     const client = Network.instance.clients[userId]
-    worldState.clientsConnected.push({ userId: client.userId, avatarDetail: client.avatarDetail })
+    worldState.push(NetworkWorldAction.createClient(client.userId, client.avatarDetail))
   })
 
   // Return initial world state to client to set things up
   callback({
-    worldState: WorldStateModel.toBuffer(worldState),
+    worldState,
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
 }
@@ -403,7 +384,7 @@ export async function handleDisconnect(socket): Promise<any> {
       logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.uniqueId)
 
       // If it does, tell clients to destroy it
-      Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })
+      dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
 
       // get network object
       const entity = Network.instance.networkObjects[key].entity
@@ -415,7 +396,8 @@ export async function handleDisconnect(socket): Promise<any> {
       delete Network.instance.networkObjects[key]
     })
 
-    Network.instance.worldState.clientsDisconnected.push({ userId })
+    dispatchFromServer(NetworkWorldAction.destroyClient(userId))
+
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()

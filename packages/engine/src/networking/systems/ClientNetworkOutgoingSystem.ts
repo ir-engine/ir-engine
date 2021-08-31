@@ -17,8 +17,10 @@ export const ClientNetworkOutgoingSystem = async (): Promise<System> => {
         Network.instance.clientInputState = {
           networkId: getComponent(Network.instance.localClientEntity, NetworkObjectComponent).networkId,
           snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-          data: [],
-          viewVector: Network.instance.clientInputState.viewVector,
+          pose: Network.instance.clientInputState.pose,
+          head: Network.instance.clientInputState.head,
+          leftHand: Network.instance.clientInputState.leftHand,
+          rightHand: Network.instance.clientInputState.rightHand,
           commands: [],
           transforms: []
         }

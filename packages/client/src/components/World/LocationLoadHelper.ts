@@ -22,6 +22,8 @@ import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportTo
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { EngineCallbacks } from './'
+import { clientNetworkReceptor } from '@xrengine/engine/src/networking/functions/clientNetworkReceptor'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -118,7 +120,10 @@ export const initEngine = async (
       MessageTypes.JoinWorld.toString(),
       { spawnTransform }
     )
-    Network.instance.incomingMessageQueueReliable.add(worldState)
+    worldState.forEach((action) => {
+      // TODO: send the correct world when we support multiple worlds
+      clientNetworkReceptor(World.defaultWorld.ecsWorld, action)
+    })
     resolve()
   })
 

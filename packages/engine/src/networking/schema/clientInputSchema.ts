@@ -6,27 +6,12 @@ import { NetworkClientInputInterface } from '../interfaces/WorldState'
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const inputSchema = new Schema({
-  key: string,
-  value: new Schema({
-    type: uint8,
-    value: [float32],
-    lifecycleState: uint8
-  })
-})
-
-export const viewVectorSchema = new Schema({
-  x: float32,
-  y: float32,
-  z: float32
-})
-
 export const commandSchema = new Schema({
   type: uint8,
   args: string
 })
 
-export const transformSchema = new Schema({
+export const objectTransformSchema = new Schema({
   networkId: uint32,
   snapShotTime: uint32,
   x: float32,
@@ -44,11 +29,13 @@ export const transformSchema = new Schema({
 /** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
-  data: [inputSchema],
-  viewVector: viewVectorSchema,
+  pose: [float32],
+  head: [float32],
+  leftHand: [float32],
+  rightHand: [float32],
   snapShotTime: uint32,
   commands: [commandSchema],
-  transforms: [transformSchema]
+  transforms: [objectTransformSchema]
 })
 
 /** Class for client input. */

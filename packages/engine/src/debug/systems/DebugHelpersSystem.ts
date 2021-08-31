@@ -4,6 +4,7 @@ import {
   Box3Helper,
   Color,
   ConeBufferGeometry,
+  DoubleSide,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -126,10 +127,10 @@ export const DebugHelpersSystem = async (): Promise<System> => {
         console.warn('avatar.viewVector is null')
         continue
       }
-      const arrowHelper = new ArrowHelper(avatar.viewVector.clone().normalize(), origin, length, hex)
-      arrowHelper.visible = DebugHelpers.avatarDebugEnabled
-      Engine.scene.add(arrowHelper)
-      DebugHelpers.helpersByEntity.viewVector.set(entity, arrowHelper)
+      // const arrowHelper = new ArrowHelper(avatar.viewVector.clone().normalize(), origin, length, hex)
+      // arrowHelper.visible = DebugHelpers.avatarDebugEnabled
+      // Engine.scene.add(arrowHelper)
+      // DebugHelpers.helpersByEntity.viewVector.set(entity, arrowHelper)
 
       // velocity
       const velocityColor = 0x0000ff
@@ -141,9 +142,9 @@ export const DebugHelpersSystem = async (): Promise<System> => {
 
     for (const entity of avatarDebugRemoveQuery(world)) {
       // view vector
-      const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as Object3D
-      Engine.scene.remove(arrowHelper)
-      DebugHelpers.helpersByEntity.viewVector.delete(entity)
+      // const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as Object3D
+      // Engine.scene.remove(arrowHelper)
+      // DebugHelpers.helpersByEntity.viewVector.delete(entity)
 
       // velocity
       const velocityArrowHelper = DebugHelpers.helpersByEntity.velocityArrow.get(entity) as Object3D
@@ -156,12 +157,12 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       const avatar = getComponent(entity, AvatarComponent)
       const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
-      const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as ArrowHelper
+      // const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as ArrowHelper
 
-      if (arrowHelper != null) {
-        arrowHelper.setDirection(vector3.copy(avatar.viewVector).setY(0).normalize())
-        arrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
-      }
+      // if (arrowHelper != null) {
+      //   arrowHelper.setDirection(vector3.copy(avatar.viewVector).setY(0).normalize())
+      //   arrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
+      // }
 
       // velocity
       const velocityArrowHelper = DebugHelpers.helpersByEntity.velocityArrow.get(entity) as ArrowHelper
