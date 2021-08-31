@@ -11,23 +11,14 @@ export type CommandType = {
   args: string
 }
 
-export type TransformPose = {
-  x: number
-  y: number
-  z: number
-  qX: number
-  qY: number
-  qZ: number
-  qW: number
-}
-
 /** Interface for handling network input. */
 export interface NetworkInputInterface {
   /** network ID of user. */
   networkId: number
-  pose: TransformPose
-  headPose: TransformPose
-  handPose: TransformPose[]
+  pose: number[]
+  head: number[]
+  leftHand: number[]
+  rightHand: number[]
   snapShotTime: number
   commands: CommandType[]
   transforms: StateEntityClientMovingGroup

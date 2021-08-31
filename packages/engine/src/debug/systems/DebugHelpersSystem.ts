@@ -174,7 +174,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
     }
 
     for (const entity of ikAvatarAddQuery(world)) {
-      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
+      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
       const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
       const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
       debugHead.visible = DebugHelpers.avatarDebugEnabled
@@ -193,15 +193,8 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       debugHead.quaternion.copy(xrInputSourceComponent.head.getWorldQuaternion(quat))
       debugLeft.position.copy(xrInputSourceComponent.controllerLeft.getWorldPosition(vector3))
       debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
-      console.log(
-        xrInputSourceComponent.container,
-        xrInputSourceComponent.controllerLeft,
-        vector3,
-        xrInputSourceComponent.controllerLeft.position
-      )
       debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
       debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
-      // console.log(vector3)
     }
 
     for (const entity of ikAvatarRemoveQuery(world)) {

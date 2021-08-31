@@ -143,37 +143,17 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
 
-      Network.instance.clientInputState.headPose = {
-        x: xrInputSourceComponent.head.position.x,
-        y: xrInputSourceComponent.head.position.y,
-        z: xrInputSourceComponent.head.position.z,
-        qX: xrInputSourceComponent.head.quaternion.x,
-        qY: xrInputSourceComponent.head.quaternion.y,
-        qZ: xrInputSourceComponent.head.quaternion.z,
-        qW: xrInputSourceComponent.head.quaternion.w
-      }
+      Network.instance.clientInputState.head = xrInputSourceComponent.head.position
+        .toArray()
+        .concat(xrInputSourceComponent.head.quaternion.toArray())
 
-      Network.instance.clientInputState.handPose = []
+      Network.instance.clientInputState.leftHand = xrInputSourceComponent.controllerLeft.position
+        .toArray()
+        .concat(xrInputSourceComponent.controllerLeft.quaternion.toArray())
 
-      Network.instance.clientInputState.handPose.push({
-        x: xrInputSourceComponent.controllerLeft.position.x,
-        y: xrInputSourceComponent.controllerLeft.position.y,
-        z: xrInputSourceComponent.controllerLeft.position.z,
-        qX: xrInputSourceComponent.controllerLeft.quaternion.x,
-        qY: xrInputSourceComponent.controllerLeft.quaternion.y,
-        qZ: xrInputSourceComponent.controllerLeft.quaternion.z,
-        qW: xrInputSourceComponent.controllerLeft.quaternion.w
-      })
-
-      Network.instance.clientInputState.handPose.push({
-        x: xrInputSourceComponent.controllerLeft.position.x,
-        y: xrInputSourceComponent.controllerLeft.position.y,
-        z: xrInputSourceComponent.controllerLeft.position.z,
-        qX: xrInputSourceComponent.controllerLeft.quaternion.x,
-        qY: xrInputSourceComponent.controllerLeft.quaternion.y,
-        qZ: xrInputSourceComponent.controllerLeft.quaternion.z,
-        qW: xrInputSourceComponent.controllerLeft.quaternion.w
-      })
+      Network.instance.clientInputState.rightHand = xrInputSourceComponent.controllerRight.position
+        .toArray()
+        .concat(xrInputSourceComponent.controllerRight.quaternion.toArray())
     }
 
     for (const entity of raycastQuery(world)) {
@@ -231,13 +211,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       detectUserInPortal(entity)
 
       if (isClient) {
-        Network.instance.clientInputState.pose.x = transform.position.x
-        Network.instance.clientInputState.pose.y = transform.position.y
-        Network.instance.clientInputState.pose.z = transform.position.z
-        Network.instance.clientInputState.pose.qX = transform.rotation.x
-        Network.instance.clientInputState.pose.qY = transform.rotation.y
-        Network.instance.clientInputState.pose.qZ = transform.rotation.z
-        Network.instance.clientInputState.pose.qW = transform.rotation.w
+        Network.instance.clientInputState.pose = transform.position.toArray().concat(transform.rotation.toArray())
       }
     }
     return world

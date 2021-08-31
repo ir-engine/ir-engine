@@ -46,7 +46,6 @@ import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
 import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
-import { InputSystem } from './input/systems/InputSystem'
 import { ClientNetworkIncomingSystem } from './networking/systems/ClientNetworkIncomingSystem'
 
 // @ts-ignore

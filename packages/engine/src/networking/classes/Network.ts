@@ -99,25 +99,10 @@ export class Network {
 
   clientInputState: NetworkClientInputInterface = {
     networkId: -1,
-    pose: {
-      x: 0,
-      y: 0,
-      z: 0,
-      qX: 0,
-      qY: 0,
-      qZ: 0,
-      qW: 1
-    },
-    headPose: {
-      x: 0,
-      y: 0,
-      z: 0,
-      qX: 0,
-      qY: 0,
-      qZ: 0,
-      qW: 1
-    },
-    handPose: [],
+    pose: [],
+    head: [],
+    leftHand: [],
+    rightHand: [],
     snapShotTime: 0,
     commands: [],
     transforms: []

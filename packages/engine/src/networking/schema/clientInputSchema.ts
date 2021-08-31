@@ -6,16 +6,6 @@ import { NetworkClientInputInterface } from '../interfaces/WorldState'
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const poseSchema = new Schema({
-  x: float32,
-  y: float32,
-  z: float32,
-  qX: float32,
-  qY: float32,
-  qZ: float32,
-  qW: float32
-})
-
 export const commandSchema = new Schema({
   type: uint8,
   args: string
@@ -39,9 +29,10 @@ export const objectTransformSchema = new Schema({
 /** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
-  pose: poseSchema,
-  headPose: poseSchema,
-  handPose: [poseSchema],
+  pose: [float32],
+  head: [float32],
+  leftHand: [float32],
+  rightHand: [float32],
   snapShotTime: uint32,
   commands: [commandSchema],
   transforms: [objectTransformSchema]
