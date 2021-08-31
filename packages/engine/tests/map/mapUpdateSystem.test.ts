@@ -10,7 +10,7 @@ import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdat
 import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { MapUpdateSystem } from '../../src/map/MapUpdateSystem'
 import { addComponent, createEntity, getComponent } from '../../src/ecs/functions/EntityFunctions'
-import { LocalInputReceiverComponent } from '../../src/input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../src/input/components/LocalInputTagComponent'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
 import { MapComponent } from '../../src/map/MapComponent'
@@ -93,7 +93,7 @@ describe('check MapUpdateSystem', () => {
       })
 
     actor = createEntity(world)
-    addComponent(actor, LocalInputReceiverComponent, {})
+    addComponent(actor, LocalInputTagComponent, {})
     addComponent(actor, Object3DComponent, {
       value: new Object3D()
     })
