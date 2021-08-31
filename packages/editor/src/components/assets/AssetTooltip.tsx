@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 /**
@@ -81,7 +80,4 @@ export function AssetTooltip({ item }) {
   )
 }
 
-AssetTooltip.propTypes = {
-  item: PropTypes.object
-}
 export default AssetTooltip

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 
 /**
  *
@@ -70,13 +69,6 @@ export const PanelContent = (styled as any).div`
  *  @author Robert Long
  */
 export class Panel extends Component {
-  static propTypes = {
-    icon: PropTypes.object,
-    title: PropTypes.string,
-    children: PropTypes.node,
-    toolbarContent: PropTypes.node
-  }
-
   render() {
     const { icon, title, children, toolbarContent, ...rest } = this.props as any
 

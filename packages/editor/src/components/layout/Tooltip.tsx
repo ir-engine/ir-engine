@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
 import Portal from './Portal'
 import Positioner from './Positioner'
 import useHover from '../hooks/useHover'
@@ -45,14 +44,6 @@ export function Tooltip({ children, padding, position, renderContent, disabled, 
   )
 }
 
-Tooltip.propTypes = {
-  disabled: PropTypes.bool,
-  children: PropTypes.node,
-  padding: PropTypes.number,
-  position: PropTypes.string,
-  renderContent: PropTypes.func.isRequired
-}
-
 /**
  *
  * @author Robert Long
@@ -94,8 +85,4 @@ export function InfoTooltip({ info, children, ...rest }) {
   )
 }
 
-InfoTooltip.propTypes = {
-  children: PropTypes.node,
-  info: PropTypes.string
-}
 export default Tooltip

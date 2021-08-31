@@ -1,6 +1,4 @@
-// @ts-ignore
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 /**
@@ -55,14 +53,4 @@ export function FormField({ inline, children, ...rest }) {
   return <BlockFormField {...rest}>{children}</BlockFormField>
 }
 
-/**
- * Declairing propTypes for component.
- *
- * @author Robert Long
- * @type {Object}
- */
-FormField.propTypes = {
-  inline: PropTypes.bool,
-  children: PropTypes.node
-}
 export default FormField

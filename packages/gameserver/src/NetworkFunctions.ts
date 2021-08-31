@@ -363,9 +363,14 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
 export function handleIncomingActions(socket, message) {
   if (!message) return
+
+  const userIdMap = {} as { [socketId: string]: string }
+  for (const id in Network.instance.clients) userIdMap[Network.instance.clients[id].socketId] = id
+
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as IncomingActionType[]
-  for (const a of actions) a.senderId = socket.id
+  for (const a of actions) a.userId = userIdMap[socket.id]
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
+
   Network.instance.incomingActions.push(...actions)
 }
 

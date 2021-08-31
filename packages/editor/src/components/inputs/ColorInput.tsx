@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
 import SketchPicker from 'react-color/lib/Sketch'
 import Input from './Input'
 import { Color } from 'three'
@@ -109,26 +108,4 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
   )
 }
 
-/**
- * Declairing propTypes for ColorInput.
- *
- * @author Robert Long
- * @type {Object}
- */
-// ColorInput.propTypes = {
-//   disabled: PropTypes.bool,
-//   value: PropTypes.object.isRequired,
-//   onChange: PropTypes.func
-// };
-
-/**
- * Initializing defaultProps for ColorInput.
- *
- * @author Robert Long
- * @type {Object}
- */
-ColorInput.defaultProps = {
-  value: new Color(),
-  onChange: () => {}
-}
 export default ColorInput

@@ -3,7 +3,6 @@ import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/sc
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import i18n from 'i18next'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -571,12 +570,6 @@ export function SceneNodeEditor(props) {
       )}
     </NodeEditor>
   )
-}
-
-// declaring property types for sceneNode
-SceneNodeEditor.propTypes = {
-  editor: PropTypes.object,
-  node: PropTypes.object
 }
 
 // setting icon component with icon name

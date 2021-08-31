@@ -24,4 +24,5 @@ jobs:
           key: ${{ runner.os }}-branch-${{ hashFiles('**/package-lock.json') }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
+      - run: npm run test-ci
       - run: npm run build-docker

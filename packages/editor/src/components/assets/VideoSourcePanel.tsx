@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import MediaSourcePanel from './MediaSourcePanel'
 import { useTranslation } from 'react-i18next'
 
@@ -20,13 +19,4 @@ export function VideoSourcePanel(props) {
   )
 }
 
-/**
- * declaring propTypes for VideoSourcePanel.
- *
- * @author Robert Long
- * @type {Object}
- */
-VideoSourcePanel.propTypes = {
-  source: PropTypes.object
-}
 export default VideoSourcePanel
