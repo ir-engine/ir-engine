@@ -181,8 +181,9 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   // 									// a new Up direction based on only swing.
   // 	let swing_up	= Vec3.transform_quat( Vec3.UP, swing ),
   // 		twist		= Vec3.angle( swing_up, pose_up );		// Swing + Pose have same Fwd, Use Angle between both UPs for twist
+  const bind_fwd = FORWARD.clone().applyQuaternion(bindBoneWorldQuaternion)
   const swing = new Quaternion()
-    .setFromUnitVectors(FORWARD, poseForward) // First we create a swing rotation from one dir to the other.
+    .setFromUnitVectors(bind_fwd, poseForward) // First we create a swing rotation from one dir to the other.
     .multiply(bindBoneWorldQuaternion) // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
 
   // a new Up direction based on only swing.
