@@ -1,14 +1,5 @@
 // TODO: Remove / move to NullableNumericalType
 export type Value = number | string | Quat | undefined
-export interface Orientation {
-  x: number
-  y: number
-  z: number
-  qX: number
-  qY: number
-  qZ: number
-  qW: number
-}
 
 // TODO: Conslidate me
 export interface StateEntity {
@@ -26,9 +17,9 @@ export interface StateEntity {
 export interface StateEntityIK {
   networkId: number
   snapShotTime: number
-  hmd: Orientation
-  left: Orientation
-  right: Orientation
+  hmd: number[]
+  left: number[]
+  right: number[]
 }
 
 export interface StateInterEntity {

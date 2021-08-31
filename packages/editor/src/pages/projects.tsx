@@ -43,7 +43,7 @@ import {
 const contextMenuId = 'project-menu'
 
 /**
- *Declairing Props component.
+ *Declaring Props component.
  * @history is of type object.
  * @router is of type Router
  */
@@ -176,7 +176,7 @@ const ProjectsPage = (props: Props) => {
    */
   const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu)
 
-  // Declairing an array
+  // Declaring an array
   const topTemplates = []
 
   // Adding first four templates of tamplates array to topTemplate array.

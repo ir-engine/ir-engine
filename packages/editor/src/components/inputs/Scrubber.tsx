@@ -1,5 +1,4 @@
 import React, { Component, createRef } from 'react'
-import PropTypes from 'prop-types'
 import Portal from '../layout/Portal'
 import { getStepSize, toPrecision } from '@xrengine/editor/src/functions/utils'
 import styled from 'styled-components'
@@ -40,34 +39,6 @@ const Cursor = (styled as any)(ArrowsAltH).attrs(({ x, y }) => ({
  * @author Robert Long
  */
 class Scrubber extends Component {
-  static propTypes = {
-    tag: PropTypes.string,
-    children: PropTypes.node,
-    className: PropTypes.string,
-    smallStep: PropTypes.number.isRequired,
-    mediumStep: PropTypes.number.isRequired,
-    largeStep: PropTypes.number.isRequired,
-    sensitivity: PropTypes.number.isRequired,
-    min: PropTypes.number.isRequired,
-    max: PropTypes.number.isRequired,
-    precision: PropTypes.number,
-    value: PropTypes.number.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onCommit: PropTypes.func,
-    convertFrom: PropTypes.func.isRequired,
-    convertTo: PropTypes.func.isRequired
-  }
-  static defaultProps = {
-    tag: 'label',
-    smallStep: 0.025,
-    mediumStep: 0.1,
-    largeStep: 0.25,
-    sensitivity: 5,
-    min: -Infinity,
-    max: Infinity,
-    convertFrom: (value) => value,
-    convertTo: (value) => value
-  }
   constructor(props) {
     super(props)
     this.scrubberEl = createRef()

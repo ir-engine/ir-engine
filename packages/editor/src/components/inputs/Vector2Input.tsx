@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 import { Vector2 } from 'three'
@@ -52,17 +51,6 @@ type StateType = {
  * @author Robert Long
  */
 export class Vector2Input extends Component<{}, StateType> {
-  static propTypes = {
-    uniformScaling: PropTypes.bool,
-    value: PropTypes.object,
-    onChange: PropTypes.func
-  }
-
-  static defaultProps = {
-    value: new Vector2(),
-    onChange: () => {}
-  }
-
   constructor(props) {
     super(props)
 

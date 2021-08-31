@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
 import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
 import ImageInput from '@xrengine/editor/src/components/inputs/ImageInput'
@@ -23,12 +22,6 @@ type InteriorNodeEditorProps = {
  * @type {class component}
  */
 export class InteriorNodeEditor extends Component<InteriorNodeEditorProps> {
-  // declaring propTypes for InteriorNodeEditor
-  static propTypes = {
-    editor: PropTypes.object,
-    node: PropTypes.object
-  }
-
   constructor(props: InteriorNodeEditorProps) {
     super(props)
     this.props = props

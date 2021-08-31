@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, Children, cloneElement } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 /**
@@ -452,7 +451,6 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
       const viewportHeight = document.documentElement.clientHeight
       const viewportWidth = document.documentElement.clientWidth
 
-      // @ts-ignore
       const { rect, position: finalPosition } = getPosition({
         position,
         targetRect,
@@ -490,15 +488,4 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
   )
 }
 
-Positioner.propTypes = {
-  children: PropTypes.node,
-  position: PropTypes.string,
-  padding: PropTypes.number,
-  getTargetRef: PropTypes.func
-}
-
-Positioner.defaultProps = {
-  padding: 8,
-  position: 'bottom'
-}
 export default Positioner

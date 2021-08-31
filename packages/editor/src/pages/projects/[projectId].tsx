@@ -16,7 +16,7 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 /**
- * Declairing Props interface having two props.
+ * Declaring Props interface having two props.
  *@authState can be of any type.
  *@doLoginAuto can be of type doLoginAuto component.
  *

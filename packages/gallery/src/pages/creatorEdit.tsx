@@ -1,4 +1,4 @@
-import CreatorForm from '@xrengine/client-core/src/socialmedia/components/CreatorForm'
+import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import React from 'react'
 import styles from './index.module.scss'
 

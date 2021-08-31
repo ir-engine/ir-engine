@@ -10,7 +10,6 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { NumericalType } from '../../common/types/NumericalTypes'
 
-const touchSensitive = 2
 let prevTouchPosition: [number, number] = [0, 0]
 let lastTap = Date.now()
 const tapLength = 200 // 100ms between doubletaps
@@ -58,8 +57,8 @@ export const handleTouchMove = (event: TouchEvent): void => {
 
     const touchMovement: [number, number] = [0, 0]
     if (!movementStart && prevTouchPosition) {
-      touchMovement[0] = (touchPosition[0] - prevTouchPosition[0]) * touchSensitive
-      touchMovement[1] = (touchPosition[1] - prevTouchPosition[1]) * touchSensitive
+      touchMovement[0] = touchPosition[0] - prevTouchPosition[0]
+      touchMovement[1] = touchPosition[1] - prevTouchPosition[1]
     }
 
     prevTouchPosition = touchPosition
@@ -96,10 +95,10 @@ export const handleTouchMove = (event: TouchEvent): void => {
 
     if (usingStick) {
       if (Engine.inputState.has(scaleMappedInputKey)) {
-        const oldValue = Engine.inputState.get(scaleMappedInputKey).value as number
+        const [oldValue] = Engine.inputState.get(scaleMappedInputKey).value
         Engine.inputState.set(scaleMappedInputKey, {
           type: InputType.ONEDIM,
-          value: oldValue,
+          value: [oldValue],
           lifecycleState: LifecycleValue.ENDED
         })
       }
@@ -135,14 +134,14 @@ export const handleTouchMove = (event: TouchEvent): void => {
     if (!Engine.inputState.has(scaleMappedInputKey)) {
       Engine.inputState.set(scaleMappedInputKey, {
         type: InputType.ONEDIM,
-        value: signVal,
+        value: [signVal],
         lifecycleState: LifecycleValue.STARTED
       })
     } else {
-      const oldValue = Engine.inputState.get(scaleMappedInputKey).value as number
+      const [oldValue] = Engine.inputState.get(scaleMappedInputKey).value as number[]
       Engine.inputState.set(scaleMappedInputKey, {
         type: InputType.ONEDIM,
-        value: oldValue + signVal,
+        value: [oldValue + signVal],
         lifecycleState: LifecycleValue.CHANGED
       })
     }
@@ -167,13 +166,13 @@ export const handleTouch = (event: TouchEvent): void => {
         if (timeNow - lastTap < tapLength) {
           Engine.inputState.set(doubleTapInput, {
             type: InputType.BUTTON,
-            value: BinaryValue.ON,
+            value: [BinaryValue.ON],
             lifecycleState: Engine.inputState.has(doubleTapInput) ? LifecycleValue.CONTINUED : LifecycleValue.STARTED
           })
         } else if (Engine.inputState.has(doubleTapInput)) {
           Engine.inputState.set(doubleTapInput, {
             type: InputType.BUTTON,
-            value: BinaryValue.OFF,
+            value: [BinaryValue.OFF],
             lifecycleState: LifecycleValue.ENDED
           })
         }
@@ -181,11 +180,11 @@ export const handleTouch = (event: TouchEvent): void => {
       }
 
       // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-      if (Engine.inputState.has(mappedInputKey) && Engine.inputState.get(mappedInputKey).value === BinaryValue.ON) {
+      if (Engine.inputState.has(mappedInputKey) && Engine.inputState.get(mappedInputKey).value[0] === BinaryValue.ON) {
         if (Engine.inputState.get(mappedInputKey).lifecycleState !== LifecycleValue.CONTINUED) {
           Engine.inputState.set(mappedInputKey, {
             type: InputType.BUTTON,
-            value: BinaryValue.ON,
+            value: [BinaryValue.ON],
             lifecycleState: LifecycleValue.CONTINUED
           })
         }
@@ -195,13 +194,13 @@ export const handleTouch = (event: TouchEvent): void => {
       // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
-        value: BinaryValue.ON,
+        value: [BinaryValue.ON],
         lifecycleState: LifecycleValue.STARTED
       })
     } else {
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
-        value: BinaryValue.OFF,
+        value: [BinaryValue.OFF],
         lifecycleState: LifecycleValue.ENDED
       })
     }
@@ -210,7 +209,7 @@ export const handleTouch = (event: TouchEvent): void => {
   if (Engine.inputState.has(TouchInputs.Touch)) {
     Engine.inputState.set(TouchInputs.Touch, {
       type: InputType.BUTTON,
-      value: BinaryValue.OFF,
+      value: [BinaryValue.OFF],
       lifecycleState: LifecycleValue.ENDED
     })
   }
@@ -218,7 +217,7 @@ export const handleTouch = (event: TouchEvent): void => {
   if (Engine.inputState.has(TouchInputs.DoubleTouch)) {
     Engine.inputState.set(TouchInputs.DoubleTouch, {
       type: InputType.BUTTON,
-      value: BinaryValue.OFF,
+      value: [BinaryValue.OFF],
       lifecycleState: LifecycleValue.ENDED
     })
   }
@@ -286,11 +285,11 @@ export function handleTouchGamepadButton(event: CustomEvent): any {
 
   if (value) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-    if (Engine.inputState.has(key) && Engine.inputState.get(key).value === BinaryValue.ON) {
+    if (Engine.inputState.has(key) && Engine.inputState.get(key).value[0] === BinaryValue.ON) {
       if (Engine.inputState.get(key).lifecycleState !== LifecycleValue.CONTINUED) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
-          value: BinaryValue.ON,
+          value: [BinaryValue.ON],
           lifecycleState: LifecycleValue.CONTINUED
         })
       }
@@ -299,13 +298,13 @@ export function handleTouchGamepadButton(event: CustomEvent): any {
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: BinaryValue.ON,
+      value: [BinaryValue.ON],
       lifecycleState: LifecycleValue.STARTED
     })
   } else {
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: BinaryValue.OFF,
+      value: [BinaryValue.OFF],
       lifecycleState: LifecycleValue.ENDED
     })
   }
@@ -329,22 +328,22 @@ export const handleMouseWheel = (event: WheelEvent): void => {
   if (!Engine.inputState.has(MouseInput.MouseScroll)) {
     Engine.inputState.set(MouseInput.MouseScroll, {
       type: InputType.ONEDIM,
-      value: Math.sign(value),
+      value: [Math.sign(value)],
       lifecycleState: LifecycleValue.STARTED
     })
   } else {
-    const oldValue = Engine.inputState.get(MouseInput.MouseScroll).value as number
+    const oldValue = Engine.inputState.get(MouseInput.MouseScroll).value[0] as number
     if (oldValue === value) {
       Engine.inputState.set(MouseInput.MouseScroll, {
         type: InputType.ONEDIM,
-        value: value,
+        value: [value],
         lifecycleState: LifecycleValue.UNCHANGED
       })
       return
     }
     Engine.inputState.set(MouseInput.MouseScroll, {
       type: InputType.ONEDIM,
-      value: oldValue + Math.sign(value),
+      value: [oldValue + Math.sign(value)],
       lifecycleState: LifecycleValue.CHANGED
     })
   }
@@ -464,7 +463,7 @@ export const handleMouseButton = (event: MouseEvent): void => {
     // Set type to BUTTON and value to up or down
     Engine.inputState.set(event.button, {
       type: InputType.BUTTON,
-      value: BinaryValue.ON,
+      value: [BinaryValue.ON],
       lifecycleState: LifecycleValue.STARTED
     })
 
@@ -479,7 +478,7 @@ export const handleMouseButton = (event: MouseEvent): void => {
     // Removed mouse Engine.inputState data
     Engine.inputState.set(event.button, {
       type: InputType.BUTTON,
-      value: BinaryValue.OFF,
+      value: [BinaryValue.OFF],
       lifecycleState: LifecycleValue.ENDED
     })
     Engine.inputState.set(MouseInput.MouseClickDownPosition, {
@@ -520,15 +519,15 @@ export const handleKey = (event: KeyboardEvent): any => {
     return
   }
   // const mappedKey = Engine.inputState.schema.keyboardInputMap[];
-  const key = event.key.toLowerCase()
+  const key = event.code
 
   if (keydown) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-    if (Engine.inputState.has(key) && Engine.inputState.get(key).value === BinaryValue.ON) {
+    if (Engine.inputState.has(key) && Engine.inputState.get(key).value[0] === BinaryValue.ON) {
       if (Engine.inputState.get(key).lifecycleState !== LifecycleValue.CONTINUED) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
-          value: BinaryValue.ON,
+          value: [BinaryValue.ON],
           lifecycleState: LifecycleValue.CONTINUED
         })
       }
@@ -537,13 +536,13 @@ export const handleKey = (event: KeyboardEvent): any => {
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: BinaryValue.ON,
+      value: [BinaryValue.ON],
       lifecycleState: LifecycleValue.STARTED
     })
   } else {
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: BinaryValue.OFF,
+      value: [BinaryValue.OFF],
       lifecycleState: LifecycleValue.ENDED
     })
   }
@@ -552,10 +551,10 @@ export const handleKey = (event: KeyboardEvent): any => {
 export const handleWindowFocus = (event: FocusEvent) => {
   if (event.type === 'focus')
     Engine.inputState.forEach((value, key) => {
-      if (value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
+      if (value.type === InputType.BUTTON && value.value[0] === BinaryValue.ON) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
-          value: BinaryValue.OFF,
+          value: [BinaryValue.OFF],
           lifecycleState: LifecycleValue.ENDED
         })
       }
@@ -565,10 +564,10 @@ export const handleWindowFocus = (event: FocusEvent) => {
 export const handleVisibilityChange = (event: Event) => {
   if (document.visibilityState === 'hidden') {
     Engine.inputState.forEach((value, key) => {
-      if (value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
+      if (value.type === InputType.BUTTON && value.value[0] === BinaryValue.ON) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
-          value: BinaryValue.OFF,
+          value: [BinaryValue.OFF],
           lifecycleState: LifecycleValue.ENDED
         })
       }
@@ -603,7 +602,7 @@ export const handleMouseLeave = (event: MouseEvent): void => {
     }
     Engine.inputState.set(button, {
       type: InputType.BUTTON,
-      value: BinaryValue.OFF,
+      value: [BinaryValue.OFF],
       lifecycleState: LifecycleValue.ENDED
     })
   })

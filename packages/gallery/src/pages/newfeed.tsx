@@ -1,7 +1,7 @@
 import React from 'react'
 
-import AppFooter from '@xrengine/client-core/src/socialmedia/components/Footer'
-import FeedForm from '@xrengine/client-core/src/socialmedia/components/FeedForm'
+import AppFooter from '@xrengine/social/src/components/Footer'
+import FeedForm from '@xrengine/social/src/components/FeedForm'
 
 import styles from './index.module.scss'
 

@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { ControlledStringInput } from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
@@ -53,7 +52,4 @@ export function ModelInput({ onChange, ...rest }) {
   )
 }
 
-ModelInput.propTypes = {
-  onChange: PropTypes.func.isRequired
-}
 export default ModelInput

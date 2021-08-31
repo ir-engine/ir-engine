@@ -8,7 +8,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -48,7 +48,7 @@ export const InteractiveSystem = async (): Promise<System> => {
   const subfocusAddQuery = enterQuery(subfocusQuery)
   const subfocusRemoveQuery = enterQuery(subfocusQuery)
 
-  const localUserQuery = defineQuery([LocalInputReceiverComponent, AvatarComponent])
+  const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
   const interactedQuery = defineQuery([InteractedComponent])
   const interactedAddQuery = enterQuery(interactedQuery)
 

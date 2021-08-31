@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { InfoTooltip } from '../layout/Tooltip'
 
@@ -52,15 +51,4 @@ export function ToolButton({ id, icon, onClick, isSelected, tooltip }) {
   )
 }
 
-/**
- *
- * @author Robert Long
- */
-ToolButton.propTypes = {
-  id: PropTypes.string,
-  icon: PropTypes.object,
-  onClick: PropTypes.func,
-  isSelected: PropTypes.bool,
-  tooltip: PropTypes.string
-}
 export default ToolButton

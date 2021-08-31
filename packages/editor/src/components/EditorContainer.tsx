@@ -5,7 +5,6 @@ import {
   fetchAdminLocations,
   fetchLocationTypes
 } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
-import PropTypes from 'prop-types'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
@@ -16,7 +15,11 @@ import Modal from 'react-modal'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
-import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
+import {
+  createProject,
+  getProject,
+  saveProject,
+} from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'
@@ -48,8 +51,8 @@ import { Config } from '@xrengine/common/src/config'
 import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
 import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
 import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
-import { getToken } from '../../../engine/src/scene/functions/getToken'
-import { upload } from '../../../engine/src/scene/functions/upload'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 
 const maxUploadSize = 25
 
@@ -425,10 +428,6 @@ type EditorContainerState = {
  *  @author Robert Long
  */
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
-  static propTypes = {
-    api: PropTypes.object.isRequired
-  }
-
   constructor(props) {
     super(props)
     const { Engine } = props

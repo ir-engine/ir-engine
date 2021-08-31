@@ -1,6 +1,4 @@
-// @ts-ignore
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import Input from './Input'
 import styled from 'styled-components'
 import { Check } from '@styled-icons/fa-solid'
@@ -57,18 +55,6 @@ const BooleanCheck = (styled as any)(Check)`
  * @type {class component}
  */
 export class BooleanInput extends Component {
-  // declaring propTypes for BooleanInput
-  static propTypes = {
-    value: PropTypes.bool,
-    onChange: PropTypes.func
-  }
-
-  // initializing defaultProps  for BooleanInput
-  static defaultProps = {
-    value: false,
-    onChange: () => {}
-  }
-
   //initializing checkboxId for BooleanInput
   constructor(props) {
     super(props)

@@ -1,4 +1,4 @@
-import Creator from '@xrengine/client-core/src/socialmedia/components/Creator'
+import Creator from '@xrengine/social/src/components/Creator'
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 

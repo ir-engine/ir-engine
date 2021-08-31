@@ -70,7 +70,6 @@ if(typeof ImageData === 'undefined') {
 if(typeof CanvasRenderingContext2D === 'undefined') {
 	console.warn("Check failed: CanvasRenderingContext2D");
 }
-
 self.window = window;
 self.document = document;
 self.HTMLImageElement = HTMLImageElement;
@@ -87,4 +86,6 @@ const isBrowserCheck = typeof window === 'object'
 ;
 if(!isBrowserCheck) {
 	throw new Error("Failed to monkey patch for face-api, face-api will fail");
+} else {
+  console.log('face api patched yo')
 }
