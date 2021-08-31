@@ -1,6 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import Alert from '@material-ui/lab/Alert'
+import AlertTitle from '@material-ui/lab/AlertTitle'
+import SvgIcon from '@material-ui/core/SvgIcon'
 import { selectAlertState } from '../reducers/alert/selector'
 import { alertCancel } from '../reducers/alert/service'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -31,15 +33,45 @@ const AlertsComponent = (props: Props): any => {
   }
   const type = alert.get('type')
   const message = alert.get('message')
+  let svgtypeicon = ''
+  let svgtypeclass = ''
+  let alertBoxContainerclass = ''
+  let alerttitle = ''
+
+  if (type == 'success') {
+    svgtypeicon = '/Notification_Success.svg'
+    svgtypeclass = styles.svgiconsuccess
+    alertBoxContainerclass = styles.alertBoxContainersuccess
+    alerttitle = 'Event was successful'
+  } else if (type == 'error') {
+    svgtypeicon = '/Notification_Error.svg'
+    svgtypeclass = styles.svgiconerror
+    alertBoxContainerclass = styles.alertBoxContainererror
+    alerttitle = 'An error was encountered'
+  } else {
+    svgtypeicon = '/Notification_InProgress.svg'
+    svgtypeclass = styles.svgiconprogress
+    alertBoxContainerclass = styles.alertBoxContainerprogress
+    alerttitle = 'Event in progress'
+  }
 
   return (
     <div className={styles.alertContainer}>
       {type === 'none' || message === '' ? (
         <Box />
       ) : (
-        <Box m={1}>
-          <Alert variant="filled" severity={alert.get('type')} icon={false} onClose={(e) => handleClose(e)}>
-            {alert.get('message')}
+        <Box m={1} className={styles.BoxContainer}>
+          <Alert
+            className={alertBoxContainerclass}
+            variant="filled"
+            severity={alert.get('type')}
+            icon={<img src={svgtypeicon} className={svgtypeclass}></img>}
+            onClose={(e) => handleClose(e)}
+          >
+            <div className={styles.divalertContainer}>
+              <AlertTitle className={styles.alerttitle}>{alerttitle}</AlertTitle>
+              {alert.get('message')}
+            </div>
           </Alert>
         </Box>
       )}
