@@ -1,7 +1,3 @@
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { NumericalType } from '../../common/types/NumericalTypes'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { InputAlias } from '../../input/types/InputAlias'
 import { StateEntityClientMovingGroup, StateEntityGroup, StateEntityIKGroup } from '../types/SnapshotDataTypes'
 
 export interface AvatarProps {
@@ -29,7 +25,7 @@ export type TransformPose = {
 export interface NetworkInputInterface {
   /** network ID of user. */
   networkId: number
-  /** Viewport vector of the client. */
+  pose: TransformPose
   headPose: TransformPose
   handPose: TransformPose[]
   snapShotTime: number

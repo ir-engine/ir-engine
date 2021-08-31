@@ -1,4 +1,4 @@
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -10,6 +10,7 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 
 export const ServerNetworkIncomingSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
@@ -48,13 +49,47 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
       }
 
       const transform = getComponent(entity, TransformComponent)
-      transform.position.set(clientInput.headPose.x, clientInput.headPose.y, clientInput.headPose.z)
-      transform.rotation.set(
-        clientInput.headPose.qX,
-        clientInput.headPose.qY,
-        clientInput.headPose.qZ,
-        clientInput.headPose.qW
-      )
+      transform.position.set(clientInput.pose.x, clientInput.pose.y, clientInput.pose.z)
+      transform.rotation.set(clientInput.pose.qX, clientInput.pose.qY, clientInput.pose.qZ, clientInput.pose.qW)
+
+      const xrInput = getComponent(entity, XRInputSourceComponent)
+      if (xrInput) {
+        if (clientInput.handPose) {
+          xrInput.head.position.set(clientInput.headPose.x, clientInput.headPose.y, clientInput.headPose.z)
+          xrInput.head.quaternion.set(
+            clientInput.headPose.qX,
+            clientInput.headPose.qY,
+            clientInput.headPose.qZ,
+            clientInput.headPose.qW
+          )
+        }
+        if (clientInput.handPose.length) {
+          xrInput.controllerLeft.position.set(
+            clientInput.handPose[0].x,
+            clientInput.handPose[0].y,
+            clientInput.handPose[0].z
+          )
+          xrInput.controllerLeft.quaternion.set(
+            clientInput.handPose[0].qX,
+            clientInput.handPose[0].qY,
+            clientInput.handPose[0].qZ,
+            clientInput.handPose[0].qW
+          )
+        }
+        if (clientInput.handPose.length > 1) {
+          xrInput.controllerRight.position.set(
+            clientInput.handPose[1].x,
+            clientInput.handPose[1].y,
+            clientInput.handPose[1].z
+          )
+          xrInput.controllerRight.quaternion.set(
+            clientInput.handPose[1].qX,
+            clientInput.handPose[1].qY,
+            clientInput.handPose[1].qZ,
+            clientInput.handPose[1].qW
+          )
+        }
+      }
 
       for (const transform of clientInput.transforms) {
         const networkObject = Network.instance.networkObjects[transform.networkId]

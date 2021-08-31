@@ -1,6 +1,6 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, hasComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
@@ -16,6 +16,7 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { dispatchFromServer } from '../../engine/src/networking/functions/dispatch'
 import { NetworkWorldAction, NetworkWorldActionType } from '../../engine/src/networking/interfaces/NetworkWorldActions'
+import { XRInputSourceComponent } from '../../engine/src/avatar/components/XRInputSourceComponent'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -310,6 +311,9 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         Network.instance.networkObjects[networkId].parameters
       )
     )
+    if (hasComponent(Network.instance.networkObjects[networkId].entity, XRInputSourceComponent)) {
+      worldState.push(NetworkWorldAction.enterVR(Number(networkId), true))
+    }
   })
 
   const networkId = getNewNetworkId(userId)
@@ -372,25 +376,25 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    // Object.keys(Network.instance.networkObjects).forEach((key: string) => {
-    //   const networkObject = Network.instance.networkObjects[key]
-    //   // Validate that the object belonged to disconnecting user
-    //   if (networkObject.uniqueId !== userId) return
+    Object.keys(Network.instance.networkObjects).forEach((key: string) => {
+      const networkObject = Network.instance.networkObjects[key]
+      // Validate that the object belonged to disconnecting user
+      if (networkObject.uniqueId !== userId) return
 
-    //   logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.uniqueId)
+      logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.uniqueId)
 
-    //   // If it does, tell clients to destroy it
-    //   dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
+      // If it does, tell clients to destroy it
+      dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
 
-    //   // get network object
-    //   const entity = Network.instance.networkObjects[key].entity
+      // get network object
+      const entity = Network.instance.networkObjects[key].entity
 
-    //   // Remove the entity and all of it's components
-    //   removeEntity(entity)
+      // Remove the entity and all of it's components
+      removeEntity(entity)
 
-    //   // Remove network object from list
-    //   delete Network.instance.networkObjects[key]
-    // })
+      // Remove network object from list
+      delete Network.instance.networkObjects[key]
+    })
 
     dispatchFromServer(NetworkWorldAction.destroyClient(userId))
 

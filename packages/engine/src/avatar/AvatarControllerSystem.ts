@@ -1,4 +1,4 @@
-import { Group, Quaternion, Vector3 } from 'three'
+import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
@@ -32,6 +32,8 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const vector3 = new Vector3()
   const quat = new Quaternion()
   const quat2 = new Quaternion()
+  const scale = new Vector3()
+  const mat4 = new Matrix4()
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
   const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -52,7 +54,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
         const entity = Network.instance.networkObjects[action.networkId]?.entity
         if (typeof entity !== 'undefined') {
           if (action.enter) {
-            if (hasComponent(entity, XRInputSourceComponent))
+            if (!hasComponent(entity, XRInputSourceComponent))
               addComponent(entity, XRInputSourceComponent, {
                 controllerLeft: new Group(),
                 controllerRight: new Group(),
@@ -62,7 +64,9 @@ export const AvatarControllerSystem = async (): Promise<System> => {
                 head: new Group()
               })
           } else {
-            removeComponent(entity, XRInputSourceComponent)
+            if (hasComponent(entity, XRInputSourceComponent)) {
+              removeComponent(entity, XRInputSourceComponent)
+            }
           }
         }
       }
@@ -125,10 +129,11 @@ export const AvatarControllerSystem = async (): Promise<System> => {
     }
 
     for (const entity of localXRInputQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const transform = getComponent(entity, TransformComponent)
 
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      xrInputSourceComponent.container.updateWorldMatrix(true, true)
+      xrInputSourceComponent.container.updateMatrixWorld(true)
 
       quat.copy(transform.rotation).invert()
       quat2.copy(Engine.camera.quaternion).premultiply(quat)
@@ -138,7 +143,37 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
 
-      avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
+      Network.instance.clientInputState.headPose = {
+        x: xrInputSourceComponent.head.position.x,
+        y: xrInputSourceComponent.head.position.y,
+        z: xrInputSourceComponent.head.position.z,
+        qX: xrInputSourceComponent.head.quaternion.x,
+        qY: xrInputSourceComponent.head.quaternion.y,
+        qZ: xrInputSourceComponent.head.quaternion.z,
+        qW: xrInputSourceComponent.head.quaternion.w
+      }
+
+      Network.instance.clientInputState.handPose = []
+
+      Network.instance.clientInputState.handPose.push({
+        x: xrInputSourceComponent.controllerLeft.position.x,
+        y: xrInputSourceComponent.controllerLeft.position.y,
+        z: xrInputSourceComponent.controllerLeft.position.z,
+        qX: xrInputSourceComponent.controllerLeft.quaternion.x,
+        qY: xrInputSourceComponent.controllerLeft.quaternion.y,
+        qZ: xrInputSourceComponent.controllerLeft.quaternion.z,
+        qW: xrInputSourceComponent.controllerLeft.quaternion.w
+      })
+
+      Network.instance.clientInputState.handPose.push({
+        x: xrInputSourceComponent.controllerLeft.position.x,
+        y: xrInputSourceComponent.controllerLeft.position.y,
+        z: xrInputSourceComponent.controllerLeft.position.z,
+        qX: xrInputSourceComponent.controllerLeft.quaternion.x,
+        qY: xrInputSourceComponent.controllerLeft.quaternion.y,
+        qZ: xrInputSourceComponent.controllerLeft.quaternion.z,
+        qW: xrInputSourceComponent.controllerLeft.quaternion.w
+      })
     }
 
     for (const entity of raycastQuery(world)) {
@@ -196,13 +231,13 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       detectUserInPortal(entity)
 
       if (isClient) {
-        Network.instance.clientInputState.headPose.x = transform.position.x
-        Network.instance.clientInputState.headPose.y = transform.position.y
-        Network.instance.clientInputState.headPose.z = transform.position.z
-        Network.instance.clientInputState.headPose.qX = transform.rotation.x
-        Network.instance.clientInputState.headPose.qY = transform.rotation.y
-        Network.instance.clientInputState.headPose.qZ = transform.rotation.z
-        Network.instance.clientInputState.headPose.qW = transform.rotation.w
+        Network.instance.clientInputState.pose.x = transform.position.x
+        Network.instance.clientInputState.pose.y = transform.position.y
+        Network.instance.clientInputState.pose.z = transform.position.z
+        Network.instance.clientInputState.pose.qX = transform.rotation.x
+        Network.instance.clientInputState.pose.qY = transform.rotation.y
+        Network.instance.clientInputState.pose.qZ = transform.rotation.z
+        Network.instance.clientInputState.pose.qW = transform.rotation.w
       }
     }
     return world

@@ -73,7 +73,6 @@ const vec3 = new Vector3()
 const v3 = new Vector3()
 const uniformScale = new Vector3(1, 1, 1)
 const quat = new Quaternion()
-const forward = new Vector3(0, 0, -1)
 
 /**
  * Gets the hand position in world space
@@ -118,7 +117,7 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
       return rigHand.getWorldQuaternion(quat)
     }
   }
-  return quat.setFromUnitVectors(forward, avatar.viewVector)
+  return avatar.headPoseRotation
 }
 
 /**
@@ -150,7 +149,7 @@ export const getHandTransform = (
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position),
-    rotation: quat.setFromUnitVectors(forward, avatar.viewVector)
+    rotation: avatar.headPoseRotation
   }
 }
 

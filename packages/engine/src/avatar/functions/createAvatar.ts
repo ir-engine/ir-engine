@@ -67,9 +67,9 @@ export const createAvatar = (
     avatarHalfHeight,
     avatarHeight,
     modelContainer,
-    isGrounded: false,
-    viewVector: new Vector3(0, 0, 1)
+    isGrounded: false
   })
+
   addComponent(entity, NameComponent, {
     name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
   })

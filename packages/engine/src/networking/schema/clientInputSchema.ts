@@ -39,6 +39,7 @@ export const objectTransformSchema = new Schema({
 /** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
+  pose: poseSchema,
   headPose: poseSchema,
   handPose: [poseSchema],
   snapShotTime: uint32,
