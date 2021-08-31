@@ -1,7 +1,9 @@
 import React, { useImperativeHandle, useState } from 'react'
 import { ViewportContainer } from '../viewport/ViewportPanelContainer'
+import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
+import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  *
@@ -42,6 +44,21 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
         usePreviewPanel(imagePreviewPanel)
+        break
+
+      case 'video/mp4':
+        const vedioPreviewPanel = {
+          PreviewSource: VedioPreviewPanel,
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+        }
+        usePreviewPanel(vedioPreviewPanel)
+        break
+      case 'audio/mpeg':
+        const audioPreviewPanel = {
+          PreviewSource: AudioPreviewPanel,
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+        }
+        usePreviewPanel(audioPreviewPanel)
         break
     }
   }
