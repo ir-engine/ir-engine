@@ -41,40 +41,6 @@ export function getChannels(skip?: number, limit?: number) {
   }
 }
 
-// export function getUserChannels(skip?: number, limit?: number) {
-//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-//     try {
-//       const channelResult = await client.service('channel').find({
-//         query: {
-//           channelType: 'user',
-//           $limit: limit != null ? limit : getState().get('chat').get('channels').get('user').get('limit'),
-//           $skip: skip != null ? skip : getState().get('chat').get('channels').get('user').get('skip')
-//         }
-//       })
-//       dispatch(loadedUserChannels(channelResult))
-//     } catch(err) {
-//       dispatchAlertError(dispatch, err.message)
-//     }
-//   }
-// }
-//
-// export function getGroupChannels(skip?: number, limit?: number) {
-//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-//     try {
-//       const channelResult = await client.service('channel').find({
-//         query: {
-//           channelType: 'group',
-//           $limit: limit != null ? limit : getState().get('chat').get('channels').get('group').get('limit'),
-//           $skip: skip != null ? skip : getState().get('chat').get('channels').get('group').get('skip')
-//         }
-//       })
-//       dispatch(loadedGroupChannels(channelResult))
-//     } catch(err) {
-//       dispatchAlertError(dispatch, err.message)
-//     }
-//   }
-// }
-//
 export function getInstanceChannel() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
@@ -174,7 +140,8 @@ export function updateMessageScrollInit(value: boolean) {
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('message').on('created', (params) => {
     const selfUser = (store.getState() as any).get('auth').get('user') as User
-    store.dispatch(createdMessage(params.message, selfUser))
+    const msg = createdMessage(params.message, selfUser)
+    if (msg != undefined) store.dispatch(msg)
   })
 
   client.service('message').on('patched', (params) => {

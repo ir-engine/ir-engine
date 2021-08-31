@@ -42,7 +42,6 @@ export const createMapObjects = async function (center: Position, currentCenter:
   await setGroundScaleAndPosition(groundMesh, buildingMesh)
 
   labels.forEach((label) => {
-    label.scale.copy(args.scale)
     group.add(label.object3d)
   })
 

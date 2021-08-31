@@ -1,7 +1,6 @@
 import { Water } from '@styled-icons/fa-solid/Water'
 import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
 import i18n from 'i18next'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 
@@ -19,12 +18,6 @@ type WaterNodeEditorProps = {
  * @type {class component}
  */
 export class WaterNodeEditor extends Component<WaterNodeEditorProps> {
-  // declairing propTypes for WaterNodeEditor
-  static propTypes = {
-    editor: PropTypes.object,
-    node: PropTypes.object
-  }
-
   constructor(props: WaterNodeEditorProps) {
     super(props)
     this.props = props

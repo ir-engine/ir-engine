@@ -12,7 +12,7 @@ export const NetworkActionDispatchSystem = async (): Promise<System> => {
       Network.instance.transport.sendActions(Network.instance.incomingActions)
       // outgoing actions are dispatched back to self as incoming actions (handled in next frame)
       const serverActions = Network.instance.outgoingActions as IncomingActionType[]
-      for (const a of serverActions) if (!a.senderId) a.senderId = 'server'
+      for (const a of serverActions) if (!a.userId) a.userId = 'server'
       Network.instance.incomingActions = serverActions
       Network.instance.outgoingActions = []
     } else {

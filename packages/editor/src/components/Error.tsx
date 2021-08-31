@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { ThemeContext } from './theme'
 import { withTranslation } from 'react-i18next'
@@ -30,11 +29,6 @@ const StyledError = (styled as any).div`
  * @type {component class}
  */
 export class Error extends Component<{ t: Function }> {
-  static propTypes = {
-    message: PropTypes.node,
-    t: PropTypes.func
-  }
-
   static contextType = ThemeContext
 
   // rendering error message

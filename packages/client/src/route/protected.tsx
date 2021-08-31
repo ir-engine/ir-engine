@@ -16,9 +16,6 @@ const scenes = React.lazy(() => import('../pages/admin/scenes'))
 const users = React.lazy(() => import('../pages/admin/users'))
 const party = React.lazy(() => import('../pages/admin/party'))
 const botSetting = React.lazy(() => import('../pages/admin/bot'))
-const arMedia = React.lazy(() => import('../pages/admin/social/armedia'))
-const feeds = React.lazy(() => import('../pages/admin/social/feeds'))
-const creator = React.lazy(() => import('../pages/admin/social/creator'))
 
 interface Props {
   authState?: any

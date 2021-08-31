@@ -7,7 +7,7 @@ import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, getComponent, removeComponent } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { llToTile } from './MapBoxClient'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -55,7 +55,8 @@ export async function updateMap(entity, longtitude, latitude): Promise<void> {
 
 export const MapUpdateSystem = async (): Promise<System> => {
   const mapsQuery = defineQuery([MapComponent])
-  const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
+  const moveQuery = defineQuery([Object3DComponent, LocalInputTagComponent])
+  const moveAddQuery = enterQuery(moveQuery)
   const labelsQuery = defineQuery([GeoLabelSetComponent])
 
   return defineSystem((world: ECSWorld) => {

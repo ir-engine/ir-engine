@@ -32,12 +32,12 @@ const LocationPage = (props) => {
         type: SystemUpdateType.Fixed,
         system: GolfSystem,
         after: EquippableSystem
-      },
-      {
-        type: SystemUpdateType.Free,
-        system: GolfXRUISystem,
-        after: XRUISystem
       }
+      // {
+      //   type: SystemUpdateType.Free,
+      //   system: GolfXRUISystem,
+      //   after: XRUISystem
+      // }
     ]
   }
 

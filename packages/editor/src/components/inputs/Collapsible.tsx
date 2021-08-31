@@ -1,6 +1,5 @@
 // @ts-ignore
 import React, { useState, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
 import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
@@ -86,25 +85,4 @@ export function Collapsible({ label, open, children }) {
   )
 }
 
-/**
- * Initializing defaultProps for component.
- *
- * @author Robert Long
- * @type {Object}
- */
-Collapsible.defaultProps = {
-  open: false
-}
-
-/**
- * Declaring propTypes for component.
- *
- * @author Robert Long
- * @type {Object}
- */
-Collapsible.propTypes = {
-  open: PropTypes.bool,
-  label: PropTypes.string.isRequired,
-  children: PropTypes.node
-}
 export default Collapsible

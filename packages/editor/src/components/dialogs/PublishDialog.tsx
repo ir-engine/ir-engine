@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import FormField from '../inputs/FormField'
@@ -12,22 +11,6 @@ import PreviewDialog from './PreviewDialog'
  * @type {class component}
  */
 export class PublishDialog extends Component<{ t: Function }> {
-  /**
-   * Declairing propTypes for publishDialog component.
-   *
-   * @author Robert Long
-   * @type {Object}
-   */
-  static propTypes = {
-    onCancel: PropTypes.func,
-    screenshotUrl: PropTypes.string,
-    onPublish: PropTypes.func,
-    isPublished: PropTypes.bool,
-    sceneUrl: PropTypes.string,
-    initialSceneParams: PropTypes.object,
-    t: PropTypes.func
-  }
-
   //initializing state when object of class get invoked.
   constructor(props) {
     super(props)

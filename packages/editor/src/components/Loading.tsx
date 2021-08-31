@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withTranslation } from 'react-i18next'
 
@@ -30,12 +29,6 @@ const StyledLoading = (styled as any).div`
  * @type {component class}
  */
 export class Loading extends Component<{ t: Function }> {
-  static propTypes = {
-    message: PropTypes.string,
-    isFullscreen: PropTypes.bool,
-    t: PropTypes.func
-  }
-
   //creating and rendering loading view
   render() {
     return (

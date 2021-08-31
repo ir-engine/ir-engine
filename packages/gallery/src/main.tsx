@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import { initialize } from './util'
-import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
 
 import('./env-config').then((module) => {
   const envConfig = module.default
@@ -12,8 +11,7 @@ import('./env-config').then((module) => {
     .then((_) => {
       const StoreProvider = React.lazy(() => import('./pages/_app'))
       ReactDOM.render(
-        <Suspense fallback={<Splash />}>
-          {/* @ts-ignore */}
+        <Suspense fallback={<></>}>
           <StoreProvider />
         </Suspense>,
         document.getElementById('root')

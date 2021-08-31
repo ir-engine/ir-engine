@@ -46,11 +46,6 @@ export const createAvatar = (
     scale: new Vector3(1, 1, 1)
   })
 
-  addComponent(entity, InputComponent, {
-    schema: AvatarInputSchema,
-    data: new Map(),
-    prevData: new Map()
-  })
   addComponent(entity, VelocityComponent, {
     velocity: new Vector3()
   })
@@ -140,6 +135,11 @@ export const createAvatar = (
 export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
+
+  addComponent(entity, InputComponent, {
+    schema: AvatarInputSchema,
+    data: []
+  })
 
   const controller = PhysXInstance.instance.createController(
     new Controller({

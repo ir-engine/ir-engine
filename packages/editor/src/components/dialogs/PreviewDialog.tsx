@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import Dialog from './Dialog'
 import styled from 'styled-components'
 
@@ -54,14 +53,4 @@ export function PreviewDialog({ imageSrc, children, ...props }) {
   )
 }
 
-/**
- * declaring propTypes for PreviewDialog.
- *
- * @author Robert Long
- * @type {Object}
- */
-PreviewDialog.propTypes = {
-  imageSrc: PropTypes.string,
-  children: PropTypes.node
-}
 export default PreviewDialog
