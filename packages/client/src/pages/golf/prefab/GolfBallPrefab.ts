@@ -105,12 +105,13 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
         return
       }
       case BALL_STATES.MOVING: {
-        addComponent(entityBall, PlaySoundEffect, { index: BALL_SFX.HIT })
+        // TODO: Fine tune volume
+        playVelocityBasedSFX(entityBall, BALL_SFX.HIT, 1, 3.5, 0.2, 1)
         ballGroup.userData.indicatorMesh.visible = false
         return
       }
       case BALL_STATES.IN_HOLE: {
-        addComponent(entityBall, PlaySoundEffect, { index: BALL_SFX.IN_HOLE })
+        addComponent(entityBall, PlaySoundEffect, { index: BALL_SFX.IN_HOLE, volume: 1 })
         return
       }
       case BALL_STATES.STOPPED: {
@@ -196,7 +197,26 @@ const updateOSIndicator = (ballGroup: BallGroupType): void => {
  * @author Mohsen Heydari <github.com/mohsenheydari>
  */
 
-const playWallHitSFX = (entityBall: Entity) => {
+const playVelocityBasedSFX = (
+  entity: Entity,
+  index: number,
+  minVel: number,
+  maxVel: number,
+  minVol: number,
+  maxVol: number
+) => {
+  const collider = getComponent(entity, ColliderComponent)
+  const body = collider.body
+  const vel = body.transform.linearVelocity.length()
+  const volume = Math.max(Math.min((vel - minVel) / (maxVel - minVel), maxVol), minVol)
+  addComponent(entity, PlaySoundEffect, { index, volume })
+}
+
+/**
+ * @author Mohsen Heydari <github.com/mohsenheydari>
+ */
+
+const wallHitSFX = (entityBall: Entity) => {
   const collider = getComponent(entityBall, ColliderComponent)
   const body = collider.body
 
@@ -206,9 +226,8 @@ const playWallHitSFX = (entityBall: Entity) => {
 
     // Hitting vertical surface
     if (Math.abs(dot) < 0.1) {
-      console.log('Ball velocity: ' + body.transform.linearVelocity.length())
-
-      addComponent(entityBall, PlaySoundEffect, { index: BALL_SFX.HIT_WALL })
+      // TODO: Fine tune the volume
+      playVelocityBasedSFX(entityBall, BALL_SFX.HIT_WALL, 1, 3, 0.2, 1)
     }
   }
 }
@@ -241,7 +260,7 @@ export const updateBall = (entityBall: Entity): void => {
     // Offscreen indicator
     updateOSIndicator(ballGroup)
 
-    playWallHitSFX(entityBall)
+    wallHitSFX(entityBall)
   }
 }
 
@@ -345,8 +364,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
         Engine.publicPath + '/audio/golf/golf_ball_drop.wav',
         Engine.publicPath + '/audio/golf/golf_ball_hit_wall.wav'
       ],
-      audio: [],
-      volume: []
+      audio: []
     })
   }
 

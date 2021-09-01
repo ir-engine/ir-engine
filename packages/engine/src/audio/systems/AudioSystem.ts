@@ -102,7 +102,9 @@ export const AudioSystem = async (): Promise<System> => {
   const playSoundEffect = (ent): void => {
     const sound = getComponent(ent, SoundEffect)
     const playTag = getComponent(ent, PlaySoundEffect)
-    sound.audio[playTag.index].play()
+    const audio = sound.audio[playTag.index]
+    audio.volume = Math.min(Math.max(playTag.volume, 0), 1)
+    audio.play()
     removeComponent(ent, PlaySoundEffect)
   }
 
@@ -121,9 +123,6 @@ export const AudioSystem = async (): Promise<System> => {
 
           const audio = new Audio()
           effect.audio[i] = audio
-          audio.addEventListener('loadeddata', () => {
-            audio.volume = effect.volume[i] !== undefined ? effect.volume[i] : 0.5
-          })
           audio.src = src
         })
       }
