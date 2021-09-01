@@ -13,7 +13,7 @@ export const hitBallTest = (bot: XREngineBot) => {
     async () => {
       const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
       //  await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
-      await bot.delay(100)
+      await bot.delay(1000)
 
       const positionPlayer = await bot.runHook(GolfBotHooks.GetPlayerPosition)
       // await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
@@ -67,34 +67,6 @@ export const headUpdateTest = (bot: XREngineBot) => {
       await bot.keyPress('Semicolon', 200)
       await bot.delay(100)
       expect(0.9).toBeLessThan(1)
-    },
-    maxTimeout
-  )
-}
-
-export const checkGoal = (bot: XREngineBot, testdata) => {
-  test(
-    'CheckGoal ' + bot.name,
-    async () => {
-      const newTeePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
-      if (vector3.copy(testdata[bot.name].teeLastPosition).sub(newTeePosition).length() < 0.01) {
-        testdata[bot.name].teeLastPosition.copy(newTeePosition)
-      } else {
-        const positionPlayer = await bot.runHook(GolfBotHooks.GetPlayerPosition)
-        //TODO: check Ball and Hole positions
-      }
-      /*
-      const expectScore = 0 + 1;
-      const realScore = await bot.runHook(GolfBotHooks.GetPlayerScore)
-      console.log('realScore',realScore)
-      // rotate such that hit direction is in line with the hole
-     // const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
-      const holePosition = await bot.runHook(GolfBotHooks.GetHolePosition)
-      expect(realScore).toBe(expectScore)
-*/
-      //await bot.delay(1000)
-
-      expect(vector3.copy(testdata[bot.name].teeLastPosition).sub(newTeePosition).length()).toBeGreaterThan(1)
     },
     maxTimeout
   )

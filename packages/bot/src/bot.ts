@@ -318,6 +318,7 @@ export class XREngineBot {
         '--enable-features=NetworkService',
         '--ignore-certificate-errors',
         `--no-sandbox`,
+        `--no-first-run`,
         `--disable-dev-shm-usage`,
         '--shm-size=4gb',
         `--window-size=${this.windowSize.width},${this.windowSize.height}`,
