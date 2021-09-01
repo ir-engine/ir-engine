@@ -26,15 +26,6 @@ import { NameComponent } from '../../scene/components/NameComponent'
 
 export const InterpolationSystem = async (): Promise<System> => {
   /**
-   * Local avatar
-   */
-  const localAvatarCorrectionQuery = defineQuery([
-    AvatarControllerComponent,
-    InterpolationComponent,
-    NetworkObjectComponent
-  ])
-
-  /**
    * Remote avatars
    */
   const networkClientInterpolationQuery = defineQuery([
@@ -104,10 +95,6 @@ export const InterpolationSystem = async (): Promise<System> => {
 
     // Create new snapshot position for next frame server correction
     Vault.instance.add(createSnapshot(snapshots.new))
-
-    for (const entity of localAvatarCorrectionQuery(world)) {
-      avatarCorrection(entity, snapshots, delta)
-    }
 
     for (const entity of networkClientInterpolationQuery(world)) {
       interpolateAvatar(entity, snapshots, delta)

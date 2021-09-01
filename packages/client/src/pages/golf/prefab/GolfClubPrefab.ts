@@ -50,14 +50,6 @@ export const spawnClub = (entityPlayer: Entity): void => {
 
   // this spawns the club on the server
   spawnPrefab(GolfPrefabTypes.Club, uuid, networkId, parameters)
-
-  // this sends the club to the clients
-  Network.instance.worldState.createObjects.push({
-    networkId,
-    uniqueId: uuid,
-    prefabType: GolfPrefabTypes.Club,
-    parameters
-  })
 }
 
 export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {

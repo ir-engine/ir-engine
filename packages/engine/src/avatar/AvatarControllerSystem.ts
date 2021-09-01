@@ -1,10 +1,10 @@
-import { Quaternion, Vector3 } from 'three'
+import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
-import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
 import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
@@ -18,18 +18,22 @@ import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { teleportPlayer } from './functions/teleportPlayer'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { Network } from '../networking/classes/Network'
+import { NetworkWorldActionType } from '../networking/interfaces/NetworkWorldActions'
+
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   walkSpeed = 1.5
   runSpeed = 5
   jumpHeight = 4
 }
+
 export const AvatarControllerSystem = async (): Promise<System> => {
   const vector3 = new Vector3()
   const quat = new Quaternion()
   const quat2 = new Quaternion()
+  const scale = new Vector3()
+  const mat4 = new Matrix4()
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
   const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -44,8 +48,35 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
   const xrInputQueryAddQuery = enterQuery(xrInputQuery)
 
+  function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
+    switch (action.type) {
+      case 'network.ENTER_VR': {
+        const entity = Network.instance.networkObjects[action.networkId]?.entity
+        if (typeof entity !== 'undefined') {
+          if (action.enter) {
+            if (!hasComponent(entity, XRInputSourceComponent))
+              addComponent(entity, XRInputSourceComponent, {
+                controllerLeft: new Group(),
+                controllerRight: new Group(),
+                controllerGripLeft: new Group(),
+                controllerGripRight: new Group(),
+                container: new Group(),
+                head: new Group()
+              })
+          } else {
+            if (hasComponent(entity, XRInputSourceComponent)) {
+              removeComponent(entity, XRInputSourceComponent)
+            }
+          }
+        }
+      }
+    }
+  }
+
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
+
+    for (const action of Network.instance.incomingActions) avatarActionReceptor(world, action as any)
 
     for (const entity of avatarControllerRemovedQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent, true)
@@ -98,10 +129,11 @@ export const AvatarControllerSystem = async (): Promise<System> => {
     }
 
     for (const entity of localXRInputQuery(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const transform = getComponent(entity, TransformComponent)
 
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      xrInputSourceComponent.container.updateWorldMatrix(true, true)
+      xrInputSourceComponent.container.updateMatrixWorld(true)
 
       quat.copy(transform.rotation).invert()
       quat2.copy(Engine.camera.quaternion).premultiply(quat)
@@ -111,7 +143,17 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
 
-      avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
+      Network.instance.clientInputState.head = xrInputSourceComponent.head.position
+        .toArray()
+        .concat(xrInputSourceComponent.head.quaternion.toArray())
+
+      Network.instance.clientInputState.leftHand = xrInputSourceComponent.controllerLeft.position
+        .toArray()
+        .concat(xrInputSourceComponent.controllerLeft.quaternion.toArray())
+
+      Network.instance.clientInputState.rightHand = xrInputSourceComponent.controllerRight.position
+        .toArray()
+        .concat(xrInputSourceComponent.controllerRight.quaternion.toArray())
     }
 
     for (const entity of raycastQuery(world)) {
@@ -169,9 +211,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       detectUserInPortal(entity)
 
       if (isClient) {
-        Network.instance.clientInputState.viewVector.x = avatar.viewVector.x
-        Network.instance.clientInputState.viewVector.y = avatar.viewVector.y
-        Network.instance.clientInputState.viewVector.z = avatar.viewVector.z
+        Network.instance.clientInputState.pose = transform.position.toArray().concat(transform.rotation.toArray())
       }
     }
     return world

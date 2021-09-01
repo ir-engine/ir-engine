@@ -38,7 +38,7 @@ const avatarHalfHeight = avatarHeight / 2
 export const createAvatar = (
   entity: Entity,
   spawnTransform: { position: Vector3; rotation: Quaternion },
-  isRemotePlayer = false
+  isRemotePlayer = true
 ): void => {
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
@@ -67,9 +67,9 @@ export const createAvatar = (
     avatarHalfHeight,
     avatarHeight,
     modelContainer,
-    isGrounded: false,
-    viewVector: new Vector3(0, 0, 1)
+    isGrounded: false
   })
+
   addComponent(entity, NameComponent, {
     name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
   })
@@ -138,7 +138,7 @@ export const createAvatarController = (entity: Entity) => {
 
   addComponent(entity, InputComponent, {
     schema: AvatarInputSchema,
-    data: []
+    data: new Map()
   })
 
   const controller = PhysXInstance.instance.createController(
