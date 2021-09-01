@@ -29,5 +29,8 @@ export function ConfirmDialog(props: Props) {
   const { message } = props
   return <Dialog {...props}>{message}</Dialog>
 }
-
+ConfirmDialog.defaultProps = {
+  title: 'Confirm',
+  message: 'Confirm action?'
+}
 export default ConfirmDialog
