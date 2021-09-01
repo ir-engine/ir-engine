@@ -5,7 +5,7 @@ import { addComponent, createEntity, getComponent } from '../../../src/ecs/funct
 import { Object3DComponent } from '../../../src/scene/components/Object3DComponent'
 import { World } from '../../../src/ecs/classes/World'
 import { Entity } from '../../../src/ecs/classes/Entity'
-import {MapComponent} from '../../../src/map/MapComponent'
+import { MapComponent } from '../../../src/map/MapComponent'
 
 const createMapObjectsMock = createMapObjects as jest.Mock
 
@@ -32,13 +32,19 @@ describe('refreshSceneObjects', () => {
     const oldObject3DComponent = getComponent(mapEntity, Object3DComponent, false, world.ecsWorld)
     const center = [0, 0]
     const args = {}
-    addComponent(mapEntity, MapComponent, {
-      center,
-      viewer: 0,
-      triggerRefreshRadius: 20,
-      minimumSceneRadius: 80,
-      args
-    }, world.ecsWorld)
+    addComponent(
+      mapEntity,
+      MapComponent,
+      {
+        center,
+        viewer: 0,
+        triggerRefreshRadius: 20,
+        minimumSceneRadius: 80,
+        args
+      },
+      world.ecsWorld
+    )
+
     await refreshSceneObjects(mapEntity, world.ecsWorld)
 
     const newObject3DComponent = getComponent(mapEntity, Object3DComponent, false, world.ecsWorld)
@@ -46,8 +52,6 @@ describe('refreshSceneObjects', () => {
     expect(createMapObjects).toHaveBeenCalledWith(center, args)
     // Test it was removed then added to trigger SceneObjectSystem enter/exit queries
     expect(newObject3DComponent).not.toBe(oldObject3DComponent)
-    expect(newObject3DComponent.value).toBe(
-      createMapObjectsMock.mock.results[0].value.mapMesh
-    )
+    expect(newObject3DComponent.value).toBe(createMapObjectsMock.mock.results[0].value.mapMesh)
   })
 })
