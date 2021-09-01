@@ -4,6 +4,7 @@ import killport from "kill-port"
 import { spawn } from "child_process"
 import kill from 'tree-kill'
 import { register } from 'trace-unhandled'
+import { getOS } from '@xrengine/common/src/utils/getOS'
 register()
 
 dotenv.config({
@@ -11,12 +12,13 @@ dotenv.config({
 })
 
 const timeoutMS = 3 * 60 * 1000
+// setting up and tearing down the engine causes testing to fail on Apple M1 systems
+const skipEngineSetup = getOS() === 'macOS' && process.arch.includes('arm') 
 
 process.env.CI = process.env.CI === 'true'
-process.env.HEADLESS = process.env.CI
 
 const killPorts = () => {
-  if (process.platform.includes('darwin') === 'macOS') return // killing ports causes testing to fail on macOS
+  if (skipEngineSetup) return
   [
     process.env.APP_PORT, // vite
     process.env.MYSQL_PORT, // docker
@@ -33,6 +35,12 @@ killPorts()
 let dev 
 let running = false
 beforeAll(async () => {
+  
+  if (skipEngineSetup)  {
+    console.log("Skipping engine setup")
+    return
+  }
+
   dev = spawn("npm", ["run", "dev"])
   let timeout
   
@@ -69,6 +77,7 @@ beforeAll(async () => {
 }, timeoutMS)
 
 afterAll(async () => {
+  if (!dev) return
   await new Promise((resolve) => {
     dev.once(('exit'), resolve)
     dev.once(('error'), resolve)
