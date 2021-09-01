@@ -14,20 +14,16 @@ export const MapUpdateSystem = async (): Promise<System> => {
   const labelsQuery = defineQuery([GeoLabelSetComponent])
 
   return defineSystem((world: ECSWorld) => {
-    const maps = mapsQuery(world)
-    if (!maps.length) {
-      return
-    }
+    for (const mapEntity of mapsQuery(world)) {
+      const map = getComponent(mapEntity, MapComponent)
 
-    const mapEntity = maps[0] // TODO: iterate all maps
-    const map = getComponent(mapEntity, MapComponent)
+      const viewerPosition = vector3ToPosition(getComponent(map.viewer as number, TransformComponent).position)
 
-    const viewerPosition = vector3ToPosition(getComponent(map.viewer as number, TransformComponent).position)
-
-    const viewerDistanceFromCenter = Math.hypot(...viewerPosition)
-    if (viewerDistanceFromCenter >= map.triggerRefreshRadius) {
-      map.center = sceneToLl(viewerPosition, map.center)
-      refreshSceneObjects(mapEntity, world)
+      const viewerDistanceFromCenter = Math.hypot(...viewerPosition)
+      if (viewerDistanceFromCenter >= map.triggerRefreshRadius) {
+        map.center = sceneToLl(viewerPosition, map.center)
+        refreshSceneObjects(mapEntity, world)
+      }
     }
 
     // TODO test
