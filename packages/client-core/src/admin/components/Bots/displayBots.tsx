@@ -25,6 +25,7 @@ import { createBotCammand, removeBots, removeBotsCommand } from '../../reducers/
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import UpdateBot from './updateBot'
+import { PAGE_LIMIT } from '../../reducers/admin/bots/reducers'
 
 interface Props {
   fetchBotAsAdmin?: any
@@ -92,7 +93,7 @@ const DisplayBots = (props: Props) => {
     setOpen(false)
   }
 
-  const sudmitCommandBot = (id: string) => {
+  const submitCommandBot = (id: string) => {
     const data = {
       name: name,
       description: description,
@@ -193,7 +194,7 @@ const DisplayBots = (props: Props) => {
                   style={{ color: '#fff', background: '#3a4149', marginBottom: '20px' }}
                   onClick={() => {
                     if (name) {
-                      sudmitCommandBot(bot.id)
+                      submitCommandBot(bot.id)
                     } else {
                       setOpen(true)
                     }

@@ -17,9 +17,9 @@ export interface BotsCreatedResponse {
   bot: any
 }
 
-export interface BotCammondCreatedResponse {
+export interface botCommandCreatedResponse {
   type: string
-  botCammond: any[]
+  botCommand: any[]
 }
 
 export const fetchedBot = (bots: any): BotsRetrievedResponse => {
@@ -36,10 +36,10 @@ export const botCreated = (bot: any): BotsCreatedResponse => {
   }
 }
 
-export const botCammandCreated = (botCommand: any): BotCammondCreatedResponse => {
+export const botCammandCreated = (botCommand: any): botCommandCreatedResponse => {
   return {
     type: BOT_COMMAND_ADMIN_CREATE,
-    botCammond: botCommand
+    botCommand: botCommand
   }
 }
 

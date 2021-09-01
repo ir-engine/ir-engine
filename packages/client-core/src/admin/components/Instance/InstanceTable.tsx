@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { columns, Data } from './variables'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { useInstanceStyle, useInstanceStyles } from './styles'
+import { PAGE_LIMIT } from '../../reducers/admin/instance/reducers'
 
 interface Props {
   adminState?: any
@@ -47,12 +48,14 @@ const InstanceTable = (props: Props) => {
   const classes = useInstanceStyle()
   const classex = useInstanceStyles()
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
   const [refetch, setRefetch] = React.useState(false)
 
   const user = authState.get('user')
   const adminInstances = adminInstanceState.get('instances')
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchAdminInstances(incDec)
     setPage(newPage)
   }
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,8 +75,6 @@ const InstanceTable = (props: Props) => {
   }, [])
 
   React.useEffect(() => {
-    console.log('Checking for refetch')
-    console.log('refetch', refetch)
     if ((user.id && adminInstances.get('updateNeeded')) || refetch === true) fetchAdminInstances()
     setRefetch(false)
   }, [user, adminInstanceState, refetch])
@@ -102,7 +103,6 @@ const InstanceTable = (props: Props) => {
     }
   }
 
-  console.log('adminInstances', adminInstances.get('instances'))
   const rows = adminInstances
     .get('instances')
     .map((el: any) => createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || ''))
@@ -126,7 +126,7 @@ const InstanceTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            {rows.map((row) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                   {columns.map((column) => {
@@ -144,7 +144,7 @@ const InstanceTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[PAGE_LIMIT]}
         component="div"
         count={adminInstances.get('total')}
         rowsPerPage={rowsPerPage}

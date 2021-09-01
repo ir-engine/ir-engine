@@ -5,7 +5,7 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from '../../../social/reducers/invite/service'
+import { retrieveReceivedInvites } from '../../../social/reducers/invite/service'
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles'
 import { selectInviteState } from '../../../social/reducers/invite/selector'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -18,26 +18,22 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
+import { PAGE_LIMIT } from '../../../social/reducers/invite/reducers'
 
 interface Props {
-  receivedInvites?: any
   retrieveReceivedInvites?: any
-  sendInvite?: any
-  sentInvites?: any
+  inviteState?: any
   invites: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    receivedInvites: selectInviteState(state),
-    sentInvites: selectInviteState(state)
+    inviteState: selectInviteState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
-  sendInvite: bindActionCreators(sendInvite, dispatch),
-  retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch)
+  retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch)
 })
 
 const useStyles = makeStyles({
@@ -46,8 +42,8 @@ const useStyles = makeStyles({
   }
 })
 
-function createData(id: string, name: string, userRole: string, passcode: string, type: string) {
-  return { id, name, userRole, passcode, type }
+function createData(id: string, name: string, passcode: string, type: string) {
+  return { id, name, passcode, type }
 }
 
 const useStyles1 = makeStyles((theme: Theme) =>
@@ -113,17 +109,18 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
   )
 }
 
-const RecievedInvite = (props: Props) => {
+const ReceivedInvite = (props: Props) => {
   const classes = useStyles()
-  const { invites } = props
+  const { invites, retrieveReceivedInvites, inviteState } = props
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(5)
+  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
 
-  const rows = invites.map((el, index) => createData(el.id, el.user.name, el.user.userRole, el.passcode, el.inviteType))
-
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
+  const receivedInviteCount = inviteState.get('receivedInvites').get('total')
+  const rows = invites.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    retrieveReceivedInvites(incDec)
     setPage(newPage)
   }
 
@@ -138,41 +135,32 @@ const RecievedInvite = (props: Props) => {
           <TableRow>
             <TableCell>Id </TableCell>
             <TableCell align="right">Name</TableCell>
-            <TableCell align="right">User role</TableCell>
             <TableCell align="right">Passcode</TableCell>
             <TableCell align="right">Type</TableCell>
             <TableCell align="right">Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {(rowsPerPage > 0 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows).map(
-            (row, index) => (
-              <TableRow key={`index_${index}`}>
-                <TableCell component="th" scope="row">
-                  {row.id}
-                </TableCell>
-                <TableCell align="right">{row.name}</TableCell>
-                <TableCell align="right">{row.userRole}</TableCell>
-                <TableCell align="right">{row.passcode}</TableCell>
-                <TableCell align="right">{row.type}</TableCell>
-                <TableCell align="right">
-                  <Delete className="text-danger" />{' '}
-                </TableCell>
-              </TableRow>
-            )
-          )}
-          {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
-              <TableCell colSpan={6} />
+          {rows.map((row, index) => (
+            <TableRow key={`index_${index}`}>
+              <TableCell component="th" scope="row">
+                {row.id}
+              </TableCell>
+              <TableCell align="right">{row.name}</TableCell>
+              <TableCell align="right">{row.passcode}</TableCell>
+              <TableCell align="right">{row.type}</TableCell>
+              <TableCell align="right">
+                <Delete className="text-danger" />{' '}
+              </TableCell>
             </TableRow>
-          )}
+          ))}
         </TableBody>
         <TableFooter>
           <TableRow>
             <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+              rowsPerPageOptions={[PAGE_LIMIT]}
               colSpan={3}
-              count={rows.length}
+              count={receivedInviteCount}
               rowsPerPage={rowsPerPage}
               page={page}
               SelectProps={{
@@ -190,4 +178,4 @@ const RecievedInvite = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(RecievedInvite)
+export default connect(mapStateToProps, mapDispatchToProps)(ReceivedInvite)

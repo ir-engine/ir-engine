@@ -5,7 +5,7 @@ import { GROUP_FETCHING, GROUP_ADMIN_RETRIEVED, ADD_GROUP, GROUP_ADMIN_UPDATE, G
 
 import { GroupAction, GroupRetrieveAction } from './actions'
 
-export const PAGE_LIMIT = 100
+export const PAGE_LIMIT = 10
 
 export const initialGroupState = {
   group: {

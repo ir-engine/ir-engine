@@ -12,7 +12,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 
-export const PAGE_LIMIT = 100
+export const PAGE_LIMIT = 10
 
 export const initialAdminState = {
   isLoggedIn: false,
@@ -31,8 +31,8 @@ export const initialAdminState = {
     updateNeeded: true,
     lastFetched: new Date()
   },
-  botCammond: {
-    botCammond: [],
+  botCommand: {
+    botCommand: [],
     skip: 0,
     limit: PAGE_LIMIT,
     total: 0,

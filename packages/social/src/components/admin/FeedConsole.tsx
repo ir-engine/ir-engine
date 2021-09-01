@@ -177,101 +177,99 @@ const FeedConsole = (props: Props) => {
               headCells={headCells}
             />
             <TableBody className={styles.thead}>
-              {stableSort(list, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  return (
-                    <TableRow
-                      hover
-                      className={styles.trow}
-                      style={{ color: 'black !important' }}
-                      tabIndex={-1}
-                      key={row.id}
-                    >
-                      <TableCell className={styles.tcell} align="center">
+              {stableSort(list, getComparator(order, orderBy)).map((row, index) => {
+                return (
+                  <TableRow
+                    hover
+                    className={styles.trow}
+                    style={{ color: 'black !important' }}
+                    tabIndex={-1}
+                    key={row.id}
+                  >
+                    <TableCell className={styles.tcell} align="center">
+                      <Typography variant="h3" color="textPrimary">
+                        {row.featuredByAdmin ? <StarIcon /> : <StarOutlineIcon />}
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="center">
+                      <CardMedia
+                        className={styles.previewImage}
+                        image={row.previewUrl?.toString()}
+                        title={row.title?.toString()}
+                      />
+                    </TableCell>
+                    <TableCell className={styles.tcell}>
+                      <CardMedia
+                        className={styles.previewImage}
+                        src={row.videoUrl.toString()}
+                        title={row.title.toString()}
+                        component="video"
+                        controls
+                        autoPlay={false}
+                      />
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="left">
+                      <section className={styles.iconsContainer}>
                         <Typography variant="h3" color="textPrimary">
-                          {row.featuredByAdmin ? <StarIcon /> : <StarOutlineIcon />}
+                          {row.featured ? <StarIcon /> : <StarOutlineIcon />}
                         </Typography>
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="center">
-                        <CardMedia
-                          className={styles.previewImage}
-                          image={row.previewUrl?.toString()}
-                          title={row.title?.toString()}
-                        />
-                      </TableCell>
-                      <TableCell className={styles.tcell}>
-                        <CardMedia
-                          className={styles.previewImage}
-                          src={row.videoUrl.toString()}
-                          title={row.title.toString()}
-                          component="video"
-                          controls
-                          autoPlay={false}
-                        />
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="left">
-                        <section className={styles.iconsContainer}>
-                          <Typography variant="h3" color="textPrimary">
-                            {row.featured ? <StarIcon /> : <StarOutlineIcon />}
-                          </Typography>
-                          <Typography variant="h3" color="textPrimary">
-                            <VisibilityIcon style={{ fontSize: '16px' }} />
-                            {row.viewsCount}
-                          </Typography>
-                          <Typography variant="h3" color="textPrimary">
-                            <WhatshotIcon htmlColor="#FF6201" />
-                            {row.fires}
-                          </Typography>
-                          <Typography variant="h3" color="textPrimary">
-                            <BookmarkIcon />
-                            {row.bookmarks}
-                          </Typography>
-                        </section>
-                        <br />
-                        {row.title}
-                        <br />
-                        {row.description}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="left">
-                        <Avatar src={row.avatar?.toString()} />
-                        {row.creatorName + ', ' + row.creatorUserName}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.createdAt}
-                      </TableCell>
-                      <TableCell className={styles.tcell}>
-                        {row.featuredByAdmin === 1 ? (
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            style={{ width: 'fit-content' }}
-                            onClick={() => handleUpdateFeed({ id: row.id.toString(), featuredByAdmin: 0 })}
-                          >
-                            UnFeature
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            style={{ width: 'fit-content' }}
-                            onClick={() => handleUpdateFeed({ id: row.id.toString(), featuredByAdmin: 1 })}
-                          >
-                            Feature
-                          </Button>
-                        )}
+                        <Typography variant="h3" color="textPrimary">
+                          <VisibilityIcon style={{ fontSize: '16px' }} />
+                          {row.viewsCount}
+                        </Typography>
+                        <Typography variant="h3" color="textPrimary">
+                          <WhatshotIcon htmlColor="#FF6201" />
+                          {row.fires}
+                        </Typography>
+                        <Typography variant="h3" color="textPrimary">
+                          <BookmarkIcon />
+                          {row.bookmarks}
+                        </Typography>
+                      </section>
+                      <br />
+                      {row.title}
+                      <br />
+                      {row.description}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="left">
+                      <Avatar src={row.avatar?.toString()} />
+                      {row.creatorName + ', ' + row.creatorUserName}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.createdAt}
+                    </TableCell>
+                    <TableCell className={styles.tcell}>
+                      {row.featuredByAdmin === 1 ? (
                         <Button
                           variant="outlined"
                           color="secondary"
                           style={{ width: 'fit-content' }}
-                          onClick={() => handleView(row.id.toString())}
+                          onClick={() => handleUpdateFeed({ id: row.id.toString(), featuredByAdmin: 0 })}
                         >
-                          <Edit className="text-success" />
+                          UnFeature
                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                      ) : (
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          style={{ width: 'fit-content' }}
+                          onClick={() => handleUpdateFeed({ id: row.id.toString(), featuredByAdmin: 1 })}
+                        >
+                          Feature
+                        </Button>
+                      )}
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        style={{ width: 'fit-content' }}
+                        onClick={() => handleView(row.id.toString())}
+                      >
+                        <Edit className="text-success" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </TableContainer>
