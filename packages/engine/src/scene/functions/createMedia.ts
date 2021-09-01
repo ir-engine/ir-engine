@@ -16,7 +16,6 @@ if (isBrowser()) {
   // import("volumetric").then(imported => {
   //   DracosisPlayer = imported;
   // });
-  // @ts-ignore
   // import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
 }
 

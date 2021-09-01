@@ -10,7 +10,6 @@ import { selectAuthState } from '../../reducers/auth/selector'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import CardMedia from '@material-ui/core/CardMedia'
 import { Trans, useTranslation } from 'react-i18next'
-// @ts-ignore
 import styles from '../Login/Login.module.scss'
 
 const mapStateToProps = (state: any): any => {

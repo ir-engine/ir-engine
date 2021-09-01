@@ -77,7 +77,6 @@ export function createArMedia(mediaItem: any, files: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const file = await uploadFile(files)
-      //@ts-ignore error that this vars are void because upload is defines as void function
       const newItem = await client.service('ar-media').create({
         ...mediaItem,
         ...file

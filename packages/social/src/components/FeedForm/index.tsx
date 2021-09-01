@@ -117,7 +117,6 @@ const FeedForm = ({
       updateFeedAsAdmin(feed.id, newFeed)
     } else {
       const feedMediaLinks = await createFeed(newFeed)
-      // @ts-ignore
       // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
     }
 

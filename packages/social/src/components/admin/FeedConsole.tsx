@@ -4,7 +4,6 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -27,10 +26,11 @@ import StarOutlineIcon from '@material-ui/icons/StarOutline'
 import { Edit } from '@material-ui/icons'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import SharedModal from './SharedModal'
 import FeedForm from '@xrengine/social/src/components/FeedForm'
-import { EnhancedTableHead } from './AdminHelpers'
 import { updateFeedAsAdmin } from '@xrengine/social/src/reducers/feed/service'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
+import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/AdminHelpers'
+import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

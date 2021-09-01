@@ -1,8 +1,7 @@
 import React from 'react'
 import { ResponsiveLine } from '@nivo/line'
-const Graph = ({ data /* see data tab */ }) => {
+const Graph = ({ data }) => {
   return (
-    //@ts-ignore
     <ResponsiveLine
       data={data}
       margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
@@ -12,7 +11,6 @@ const Graph = ({ data /* see data tab */ }) => {
       axisTop={null}
       axisRight={null}
       axisBottom={{
-        orient: 'bottom',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
@@ -21,7 +19,6 @@ const Graph = ({ data /* see data tab */ }) => {
         legendPosition: 'middle'
       }}
       axisLeft={{
-        orient: 'left',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,

@@ -25,7 +25,7 @@ interface Props {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateFeedAsAdmin: bindActionCreators(updateFeed, dispatch)
+  updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch)
 })
 
 const EditFeed = (props: Props) => {

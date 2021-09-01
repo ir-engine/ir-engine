@@ -22,6 +22,8 @@ interface StringInputProp {
   onFocus?: Function
   onBlur?: Function
   onKeyUp?: Function
+  type?: string
+  placeholder?: string
 }
 
 /**

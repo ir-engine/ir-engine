@@ -13,7 +13,6 @@ import('./env-config').then((module) => {
       const StoreProvider = React.lazy(() => import('./pages/_app'))
       ReactDOM.render(
         <Suspense fallback={<Splash />}>
-          {/* @ts-ignore */}
           <StoreProvider />
         </Suspense>,
         document.getElementById('root')

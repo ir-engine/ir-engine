@@ -4,7 +4,6 @@
 import React, { useEffect } from 'react'
 
 import Dashboard from '@xrengine/social/src/components/Dashboard'
-import FeedConsole from '@xrengine/client-core/src/admin/components/FeedConsole'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectFeedsState } from '@xrengine/social/src/reducers/feed/selector'

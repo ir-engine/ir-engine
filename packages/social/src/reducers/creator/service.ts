@@ -97,8 +97,7 @@ export function updateCreator(creator: Creator) {
       dispatch(fetchingCurrentCreator())
       if (creator.newAvatar) {
         const storedAvatar = await upload(creator.newAvatar, null)
-        //@ts-ignore error that this vars are void because upload is defines as void funtion
-        creator.avatarId = storedAvatar.file_id
+        ;(creator as any).avatarId = (storedAvatar as any).file_id
         delete creator.newAvatar
       }
       const updatedCreator = await client.service('creator').patch(creator.id, creator)

@@ -6,8 +6,6 @@ import { updateShareFormState } from '../../../reducers/popupsState/service'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 import ShareForm from '../../ShareForm/ShareForm'
-
-//@ts-ignore
 import styles from './SharedFormPopup.module.scss'
 
 const mapStateToProps = (state: any): any => {

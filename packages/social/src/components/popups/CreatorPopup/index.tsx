@@ -6,8 +6,6 @@ import { updateCreatorPageState } from '../../../reducers/popupsState/service'
 import Creator from '../../Creator'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
-
-//@ts-ignore
 import styles from './CreatorPopup.module.scss'
 
 const mapStateToProps = (state: any): any => {

@@ -7,6 +7,7 @@ import nodePolyfills from 'rollup-plugin-node-polyfills';
 import sass from 'rollup-plugin-sass';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
+import alias from '@rollup/plugin-alias';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
@@ -20,6 +21,11 @@ export default {
   ],
   inlineDynamicImports: true,
   plugins: [
+    alias({
+      entries: [
+        { find: 'postprocessing', replacement: 'postprocessing/build/postprocessing.esm.js'},
+      ]
+    }),
     nodePolyfills(),
     sass({
       exclude: /node_modules/,
