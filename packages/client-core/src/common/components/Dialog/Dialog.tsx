@@ -59,5 +59,10 @@ const DialogComponent = (props: Props): any => {
 }
 
 const DialogWrapper = (props: any): any => <DialogComponent {...props} />
-
+Dialog.defaultProps = {
+  tag: 'form',
+  title: i18n.t('editor:dialog.title') || 'Editor',
+  confirmLabel: i18n.t('editor:dialog.lbl-confirm') || 'Ok',
+  cancelLabel: i18n.t('editor:dialog.lbl-cancel') || 'Cancel'
+}
 export const UIDialog = connect(mapStateToProps, mapDispatchToProps)(DialogWrapper)

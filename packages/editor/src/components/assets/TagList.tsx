@@ -213,6 +213,10 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
   )
 }
 
+TagListItem.defaultProps = {
+  depth: 0
+}
+
 /**
  * define and export TagList component
  * @param       {array} tags
@@ -278,5 +282,11 @@ export function TagList({ tags, selectedTags, onChange, multiselect, initialExpa
     </StyledTagList>
   )
 }
-
+TagList.defaultProps = {
+  tags: [],
+  selectedTags: [],
+  onSelect: () => {},
+  initialExpandedTags: {},
+  onChangeExpandedTags: () => {}
+}
 export default TagList

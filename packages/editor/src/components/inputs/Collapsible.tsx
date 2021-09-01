@@ -84,4 +84,8 @@ export function Collapsible({ label, open, children }) {
   )
 }
 
+Collapsible.defaultProps = {
+  open: false
+}
+
 export default Collapsible

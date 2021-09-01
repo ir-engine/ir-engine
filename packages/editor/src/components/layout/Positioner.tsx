@@ -487,4 +487,9 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
   )
 }
 
+Positioner.defaultProps = {
+  padding: 8,
+  position: 'bottom'
+}
+
 export default Positioner

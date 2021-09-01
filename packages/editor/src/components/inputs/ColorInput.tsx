@@ -114,4 +114,9 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
   )
 }
 
+ColorInput.defaultProps = {
+  value: new Color(),
+  onChange: () => {}
+}
+
 export default ColorInput
