@@ -14,6 +14,7 @@ import { SpawnNetworkObjectComponent } from '../scene/components/SpawnNetworkObj
 import { AvatarTagComponent } from './components/AvatarTagComponent'
 import { createAvatar } from './functions/createAvatar'
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
+import { Quaternion, Vector3 } from 'three'
 
 export const ClientAvatarSpawnSystem = async (): Promise<System> => {
   const spawnQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
@@ -24,7 +25,11 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
 
       const isLocalPlayer = uniqueId === Network.instance.userId
-      createAvatar(entity, parameters, !isLocalPlayer)
+      createAvatar(
+        entity,
+        { position: new Vector3().copy(parameters.position), rotation: new Quaternion().copy(parameters.rotation) },
+        !isLocalPlayer
+      )
 
       addComponent(entity, AudioTagComponent, {})
       addComponent(entity, InterpolationComponent, {})

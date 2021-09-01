@@ -13,6 +13,7 @@ RUN npm install -g lerna cross-env rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
+COPY packages/analytics/package.json ./packages/analytics/
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/common/package.json ./packages/common/

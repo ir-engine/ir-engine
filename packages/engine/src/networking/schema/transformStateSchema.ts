@@ -1,6 +1,6 @@
 import { float32, int32, Model, Schema, string, uint32, uint8 } from '../../assets/superbuffer'
 import { Network } from '../classes/Network'
-import { TransformStateInterface, WorldStateInterface } from '../interfaces/WorldState'
+import { TransformStateInterface } from '../interfaces/WorldState'
 
 const transformSchema = new Schema({
   networkId: uint32,

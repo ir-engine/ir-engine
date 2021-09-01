@@ -72,6 +72,10 @@ export function LoadingProjectGridItem() {
   )
 }
 
+NewProjectGridItem.defaultProps = {
+  label: 'New Project'
+}
+
 /**
  *
  * @author Robert Long

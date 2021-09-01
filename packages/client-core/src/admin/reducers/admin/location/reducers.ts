@@ -12,7 +12,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LocationsRetrievedAction } from './actions'
 
-export const PAGE_LIMIT = 100
+export const PAGE_LIMIT = 10
 
 export const initialAdminState = {
   isLoggedIn: false,

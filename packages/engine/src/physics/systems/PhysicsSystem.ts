@@ -19,6 +19,8 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { dispatchFromServer } from '../../networking/functions/dispatch'
+import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -82,12 +84,7 @@ export const PhysicsSystem = async (
       if (isClient) {
         addComponent(entity, InterpolationComponent, {})
       } else {
-        Network.instance.worldState.createObjects.push({
-          networkId: networkId,
-          prefabType: PrefabType.RigidBody,
-          uniqueId,
-          parameters: parameters
-        })
+        dispatchFromServer(NetworkWorldAction.createObject(networkId, uniqueId, PrefabType.RigidBody, parameters))
       }
     }
 

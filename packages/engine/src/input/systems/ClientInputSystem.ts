@@ -9,7 +9,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { handleGamepads } from '../functions/GamepadInput'
 import { defineQuery, defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { Network } from '../../networking/classes/Network'
 
 export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
   if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
@@ -20,6 +19,8 @@ export const ClientInputSystem = async (): Promise<System> => {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
 
   return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
     if (!Engine.xrSession) {
       handleGamepads()
     }
@@ -43,21 +44,21 @@ export const ClientInputSystem = async (): Promise<System> => {
       }
     })
 
-    // Copy client input state to network
-    Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
-      Network.instance.clientInputState.data.push({ key, value })
-    })
-
     // copy client input state to input component
     for (const entity of localClientInputQuery(world)) {
       const inputComponent = getComponent(entity, InputComponent)
-      const newDataState = new Map()
+      inputComponent.data.clear()
       Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
         if (inputComponent.schema.inputMap.has(key)) {
-          newDataState.set(inputComponent.schema.inputMap.get(key), JSON.parse(JSON.stringify(value)))
+          inputComponent.data.set(inputComponent.schema.inputMap.get(key), JSON.parse(JSON.stringify(value)))
         }
       })
-      inputComponent.data.push(newDataState)
+
+      inputComponent.data.forEach((value: InputValue, key: InputAlias) => {
+        if (inputComponent.schema.behaviorMap.has(key)) {
+          inputComponent.schema.behaviorMap.get(key)(entity, key, value, delta)
+        }
+      })
     }
 
     // if button input has ended, remove it

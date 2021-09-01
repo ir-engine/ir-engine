@@ -1,4 +1,3 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
 import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
 import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
@@ -10,7 +9,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
+    all: [authenticate('jwt')],
     find: [],
     get: [],
     create: [],
