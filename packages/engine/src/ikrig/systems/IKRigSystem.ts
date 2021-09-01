@@ -68,7 +68,7 @@ export const IKRigSystem = async (): Promise<System> => {
       const ikPose = getComponent(entity, IKPose)
       const rig = getComponent(entity, IKRig)
       if (!ikPose.targetRigs) {
-        return
+        continue
       }
 
       // // COMPUTE
