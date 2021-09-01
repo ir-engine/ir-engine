@@ -20,7 +20,11 @@ import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeC
 import { NameComponent } from '../../scene/components/NameComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { dispatchFromServer } from '../../networking/functions/dispatch'
-import { NetworkWorldAction, NetworkWorldActions, NetworkWorldActionType } from '../../networking/interfaces/NetworkWorldActions'
+import {
+  NetworkWorldAction,
+  NetworkWorldActions,
+  NetworkWorldActionType
+} from '../../networking/interfaces/NetworkWorldActions'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Pose } from '../../transform/TransformInterfaces'
 
@@ -71,35 +75,35 @@ export const PhysicsSystem = async (
 
   function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
     switch (action.type) {
-      case NetworkWorldActions.TELEPORT: {
+      case NetworkWorldActions.TELEPORT:
+        {
+          const [x, y, z, qX, qY, qZ, qW] = action.pose
 
-        const [x, y, z, qX, qY, qZ, qW] = action.pose
+          if (!Network.instance.networkObjects[action.networkId])
+            return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
 
-        if (!Network.instance.networkObjects[action.networkId])
-          return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
+          const entity = Network.instance.networkObjects[action.networkId].entity
 
-        const entity = Network.instance.networkObjects[action.networkId].entity
+          const colliderComponent = getComponent(entity, ColliderComponent)
+          if (colliderComponent) {
+            colliderComponent.body.updateTransform({
+              translation: { x, y, z },
+              rotation: { x: qX, y: qY, z: qZ, w: qW }
+            })
+            return
+          }
 
-        const colliderComponent = getComponent(entity, ColliderComponent)
-        if (colliderComponent) {
-          colliderComponent.body.updateTransform({
-            translation: { x, y, z },
-            rotation: { x: qX, y: qY, z: qZ, w: qW }
-          })
-          return
+          const controllerComponent = getComponent(entity, AvatarControllerComponent)
+          if (controllerComponent) {
+            const avatar = getComponent(entity, AvatarComponent)
+            controllerComponent.controller?.updateTransform({
+              translation: { x, y: y + avatar.avatarHalfHeight, z },
+              rotation: { x: qX, y: qY, z: qZ, w: qW }
+            })
+            controllerComponent.controller.velocity.setScalar(0)
+          }
         }
-
-        const controllerComponent = getComponent(entity, AvatarControllerComponent)
-        if (controllerComponent) {
-          const avatar = getComponent(entity, AvatarComponent)
-          controllerComponent.controller?.updateTransform({
-            translation: { x, y: y + avatar.avatarHalfHeight, z },
-            rotation: { x: qX, y: qY, z: qZ, w: qW }
-          })
-          controllerComponent.controller.velocity.setScalar(0)
-        }
-      }
-      break
+        break
     }
   }
 
@@ -171,15 +175,8 @@ export const PhysicsSystem = async (
     }
 
     for (const entity of clientAuthoritativeQuery(world)) {
-      const networkObject = getComponent(entity, NetworkObjectComponent)
       const collider = getComponent(entity, ColliderComponent)
-      if (isClient) {
-        Network.instance.clientInputState.transforms.push({
-          networkId: networkObject.networkId,
-          snapShotTime: networkObject.snapShotTime,
-          pose: collider.body.transform.translation.toArray().concat(collider.body.transform.rotation.toArray()) as Pose
-        })
-      } else {
+      if (!isClient) {
         const transform = getComponent(entity, TransformComponent)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       }

@@ -8,13 +8,11 @@ import { Pose } from '../../transform/TransformInterfaces'
 
 const poseSchema = new Schema({
   networkId: uint32,
-  snapShotTime: uint32,
   pose: [float32]
 })
 
 const ikPoseSchema = new Schema({
   networkId: uint32,
-  snapShotTime: uint32,
   headPose: [float32],
   leftPose: [float32],
   rightPose: [float32]
@@ -23,8 +21,8 @@ const ikPoseSchema = new Schema({
 const networkSchema = new Schema({
   tick: uint32,
   time: uint64,
-  transforms: [poseSchema],
-  ikTransforms: [ikPoseSchema]
+  pose: [poseSchema],
+  ikPose: [ikPoseSchema]
 })
 
 /** Interface for world state. */
@@ -34,15 +32,13 @@ export interface WorldStateInterface {
   /** For interpolation. */
   time: number
   /** transform of world. */
-  transforms: {
+  pose: {
     networkId: number
-    snapShotTime: number
     pose: Pose
   }[]
   /** transform of ik avatars. */
-  ikTransforms: {
+  ikPose: {
     networkId: number
-    snapShotTime: number
     headPose: Pose
     leftPose: Pose
     rightPose: Pose
@@ -53,24 +49,8 @@ export class WorldStateModel {
   static model: Model = new Model(networkSchema)
 
   static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
-    const time = Date.now()
-    const state: any = {
-      tick: worldState.tick,
-      time,
-      transforms: worldState.transforms.map((v) => {
-        return {
-          ...v,
-          snapShotTime: v.snapShotTime
-        }
-      }),
-      ikTransforms: worldState.ikTransforms.map((v) => {
-        return {
-          ...v,
-          snapShotTime: v.snapShotTime
-        }
-      })
-    }
-    return WorldStateModel.model.toBuffer(state)
+    worldState.time = Date.now()
+    return WorldStateModel.model.toBuffer(worldState as any)
   }
 
   static fromBuffer(buffer: any): WorldStateInterface {
@@ -84,14 +64,7 @@ export class WorldStateModel {
 
       return {
         ...state,
-        time: Number(state.time), // cast from bigint to number
-        transforms: state.transforms.map((v) => {
-          const { snapShotTime, ...otherValues } = v
-          return {
-            ...otherValues,
-            snapShotTime: Number(snapShotTime)
-          }
-        })
+        time: Number(state.time) // cast from bigint to number
       }
     } catch (error) {
       console.warn("Couldn't deserialize buffer", buffer, error)

@@ -11,12 +11,10 @@ export interface StateEntity {
   qY: number
   qZ: number
   qW: number
-  snapShotTime: number
 }
 
 export interface StateEntityIK {
   networkId: number
-  snapShotTime: number
   hmd: number[]
   left: number[]
   right: number[]
@@ -35,7 +33,6 @@ export interface StateInterEntity {
   vY: number
   vZ: number
   speed: number
-  snapShotTime: number
 }
 
 export interface StateClientEntity {

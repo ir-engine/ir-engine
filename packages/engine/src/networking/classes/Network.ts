@@ -98,13 +98,6 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
-  worldState: WorldStateInterface = {
-    tick: 0,
-    time: Date.now(),
-    transforms: [],
-    ikTransforms: []
-  }
-
   /** Tick of the network. */
   tick: any = 0
 
