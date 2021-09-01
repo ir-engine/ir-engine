@@ -48,17 +48,6 @@ export const InterpolationSystem = async (): Promise<System> => {
   ])
 
   /**
-   * Server controlled rigidbody without interpolation
-   */
-  const correctionFromServerQuery = defineQuery([
-    Not(AvatarComponent),
-    Not(InterpolationComponent),
-    Not(ClientAuthoritativeComponent),
-    ColliderComponent,
-    NetworkObjectComponent
-  ])
-
-  /**
    * Server controlled object with interpolation but no collider
    */
   const transformInterpolationQuery = defineQuery([
@@ -89,7 +78,6 @@ export const InterpolationSystem = async (): Promise<System> => {
 
     const snapshots: SnapshotData = {
       interpolation: calculateInterpolation('x y z quat velocity'),
-      correction: Vault.instance?.get(Network.instance.snapshot.timeCorrection, true),
       new: []
     }
 
@@ -104,17 +92,6 @@ export const InterpolationSystem = async (): Promise<System> => {
       // TODO: quick bitecs fix
       if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
       interpolateRigidBody(entity, snapshots, delta)
-    }
-
-    for (const entity of correctionFromServerQuery(world)) {
-      // TODO: quick bitecs fix
-      if (
-        hasComponent(entity, ClientAuthoritativeComponent) ||
-        hasComponent(entity, InterpolationComponent) ||
-        hasComponent(entity, ColliderComponent)
-      )
-        continue
-      updateRigidBody(entity, snapshots, delta)
     }
 
     for (const entity of transformInterpolationQuery(world)) {

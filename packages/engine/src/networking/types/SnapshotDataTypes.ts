@@ -75,7 +75,6 @@ export interface Snapshot {
   id: ID
   time: Time
   state: StateEntityGroup
-  timeCorrection: number
 }
 
 export interface InterpolatedSnapshot {
@@ -95,6 +94,5 @@ export interface Quat {
 
 export interface SnapshotData {
   interpolation: InterpolatedSnapshot
-  correction: Snapshot
   new: StateEntityClientGroup
 }

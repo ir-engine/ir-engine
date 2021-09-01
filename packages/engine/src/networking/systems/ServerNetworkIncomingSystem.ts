@@ -1,10 +1,8 @@
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Network } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkClientInputInterface } from '../interfaces/WorldState'
-import { ClientInputModel } from '../schema/clientInputSchema'
-import { executeCommands } from '../functions/executeCommands'
+import { ClientInputModel } from '../schema/networkSchema'
 import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
@@ -44,10 +42,6 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
         continue
       }
 
-      if (clientInput.commands.length > 0) {
-        executeCommands(entity, clientInput.commands)
-      }
-
       const transform = getComponent(entity, TransformComponent)
       transform.position.fromArray(clientInput.pose)
       transform.rotation.fromArray(clientInput.pose, 3)
@@ -79,12 +73,8 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
         ) {
           const transformComponent = getComponent(networkObject.entity, TransformComponent)
           if (transformComponent) {
-            transformComponent.position.set(transform.x, transform.y, transform.z)
-            transformComponent.rotation.set(transform.qX, transform.qY, transform.qZ, transform.qW)
-          }
-          const velocityComponent = getComponent(networkObject.entity, VelocityComponent)
-          if (velocityComponent) {
-            velocityComponent.velocity.set(transform.vX, transform.vY, transform.vZ)
+            transformComponent.position.fromArray(transform.pose)
+            transformComponent.rotation.fromArray(transform.pose, 3)
           }
         }
       }

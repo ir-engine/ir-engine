@@ -1,4 +1,4 @@
-import { Group, Matrix4, Quaternion, Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
@@ -6,8 +6,6 @@ import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
-import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -16,10 +14,13 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
-import { teleportPlayer } from './functions/teleportPlayer'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
 import { Network } from '../networking/classes/Network'
-import { NetworkWorldActionType } from '../networking/interfaces/NetworkWorldActions'
+import { NetworkWorldAction, NetworkWorldActions, NetworkWorldActionType } from '../networking/interfaces/NetworkWorldActions'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { dispatchFromServer } from '../networking/functions/dispatch'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { Pose } from '../transform/TransformInterfaces'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -32,8 +33,6 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const vector3 = new Vector3()
   const quat = new Quaternion()
   const quat2 = new Quaternion()
-  const scale = new Vector3()
-  const mat4 = new Matrix4()
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
   const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -50,7 +49,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
   function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
     switch (action.type) {
-      case 'network.ENTER_VR': {
+      case NetworkWorldActions.ENTER_VR: {
         const entity = Network.instance.networkObjects[action.networkId]?.entity
         if (typeof entity !== 'undefined') {
           if (action.enter) {
@@ -69,7 +68,37 @@ export const AvatarControllerSystem = async (): Promise<System> => {
             }
           }
         }
+        break
       }
+      case NetworkWorldActions.TELEPORT: {
+
+        const [x, y, z, qX, qY, qZ, qW] = action.pose
+
+        if (!Network.instance.networkObjects[action.networkId])
+          return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
+
+        const entity = Network.instance.networkObjects[action.networkId].entity
+
+        const colliderComponent = getComponent(entity, ColliderComponent)
+        if (colliderComponent) {
+          colliderComponent.body.updateTransform({
+            translation: { x, y, z },
+            rotation: { x: qX, y: qY, z: qZ, w: qW }
+          })
+          return
+        }
+
+        const controllerComponent = getComponent(entity, AvatarControllerComponent)
+        if (controllerComponent) {
+          const avatar = getComponent(entity, AvatarComponent)
+          controllerComponent.controller?.updateTransform({
+            translation: { x, y: y + avatar.avatarHalfHeight, z },
+            rotation: { x: qX, y: qY, z: qZ, w: qW }
+          })
+          controllerComponent.controller.velocity.setScalar(0)
+        }
+      }
+      break
     }
   }
 
@@ -145,15 +174,15 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
       Network.instance.clientInputState.head = xrInputSourceComponent.head.position
         .toArray()
-        .concat(xrInputSourceComponent.head.quaternion.toArray())
+        .concat(xrInputSourceComponent.head.quaternion.toArray()) as Pose
 
       Network.instance.clientInputState.leftHand = xrInputSourceComponent.controllerLeft.position
         .toArray()
-        .concat(xrInputSourceComponent.controllerLeft.quaternion.toArray())
+        .concat(xrInputSourceComponent.controllerLeft.quaternion.toArray()) as Pose
 
       Network.instance.clientInputState.rightHand = xrInputSourceComponent.controllerRight.position
         .toArray()
-        .concat(xrInputSourceComponent.controllerRight.quaternion.toArray())
+        .concat(xrInputSourceComponent.controllerRight.quaternion.toArray()) as Pose
     }
 
     for (const entity of raycastQuery(world)) {
@@ -186,17 +215,10 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       if (!isClient && controller.controller.transform.translation.y < -10) {
         const { position, rotation } = SpawnPoints.instance.getRandomSpawnPoint()
 
-        teleportPlayer(entity, position, rotation)
-
-        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [
-          position.x,
-          position.y,
-          position.z,
-          rotation.x,
-          rotation.y,
-          rotation.z,
-          rotation.w
-        ])
+        const networkObject = getComponent(entity, NetworkObjectComponent)
+        dispatchFromServer(NetworkWorldAction.teleportObject(networkObject.networkId, [
+          position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, rotation.w
+        ]))
         continue
       }
 
@@ -211,7 +233,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       detectUserInPortal(entity)
 
       if (isClient) {
-        Network.instance.clientInputState.pose = transform.position.toArray().concat(transform.rotation.toArray())
+        Network.instance.clientInputState.pose = transform.position.toArray().concat(transform.rotation.toArray()) as Pose
       }
     }
     return world

@@ -4,18 +4,18 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Pose } from '../../transform/TransformInterfaces'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { TransformStateInterface } from '../interfaces/WorldState'
-import { TransformStateModel } from '../schema/transformStateSchema'
+import { WorldStateInterface, WorldStateModel } from '../schema/networkSchema'
 
 export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
-  const networkTransformsQuery = defineQuery([Not(AvatarComponent), NetworkObjectComponent, TransformComponent])
+  const networkTransformsQuery = defineQuery([ NetworkObjectComponent, TransformComponent])
   const avatarTransformsQuery = defineQuery([AvatarComponent, NetworkObjectComponent, TransformComponent])
   const ikTransformsQuery = defineQuery([XRInputSourceComponent])
 
   return defineSystem((world: ECSWorld) => {
-    const transformState: TransformStateInterface = {
+    const transformState: WorldStateInterface = {
       tick: Network.instance.tick,
       time: Date.now(),
       transforms: [],
@@ -33,13 +33,7 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
       transformState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        x: transformComponent.position.x,
-        y: transformComponent.position.y,
-        z: transformComponent.position.z,
-        qX: transformComponent.rotation.x,
-        qY: transformComponent.rotation.y,
-        qZ: transformComponent.rotation.z,
-        qW: transformComponent.rotation.w
+        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
       })
     }
 
@@ -52,13 +46,7 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
       transformState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        x: transformComponent.position.x,
-        y: transformComponent.position.y,
-        z: transformComponent.position.z,
-        qX: transformComponent.rotation.x,
-        qY: transformComponent.rotation.y,
-        qZ: transformComponent.rotation.z,
-        qW: transformComponent.rotation.w
+        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
       })
     }
 
@@ -67,21 +55,21 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
       const snapShotTime = networkObject.snapShotTime
 
       const xrInputs = getComponent(entity, XRInputSourceComponent)
-      const hmd = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray())
-      const left = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray())
-      const right = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray())
+      const headPose = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray()) as Pose
+      const leftPose = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray()) as Pose
+      const rightPose = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray()) as Pose
 
       transformState.ikTransforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        hmd,
-        left,
-        right
+        headPose,
+        leftPose,
+        rightPose
       })
     }
 
     try {
-      const bufferUnreliable = TransformStateModel.toBuffer(transformState)
+      const bufferUnreliable = WorldStateModel.toBuffer(transformState)
       if (!bufferUnreliable) {
         console.warn('Transform buffer is null')
         console.warn(transformState)

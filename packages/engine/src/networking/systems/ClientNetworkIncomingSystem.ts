@@ -1,10 +1,9 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
-import { Group } from 'three'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { TransformStateModel } from '../schema/transformStateSchema'
+import { WorldStateModel } from '../schema/networkSchema'
 import { defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { clientNetworkReceptor } from '../functions/clientNetworkReceptor'
@@ -19,7 +18,7 @@ export const ClientNetworkIncomingSystem = async (): Promise<System> => {
     while (unreliableQueue.getBufferLength() > 0) {
       const buffer = unreliableQueue.pop()
       try {
-        const transformState = TransformStateModel.fromBuffer(buffer)
+        const transformState = WorldStateModel.fromBuffer(buffer)
         if (!transformState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one")
 
         if (Network.instance.tick < transformState.tick - 1) {
@@ -35,11 +34,20 @@ export const ClientNetworkIncomingSystem = async (): Promise<System> => {
 
         if (transformState.transforms.length) {
           const myPlayerTime = transformState.transforms.find((v) => v.networkId === localAvatarNetworkId)
-          const newServerSnapshot = createSnapshot(transformState.transforms)
-          // server correction, time when client send inputs
-          newServerSnapshot.timeCorrection = myPlayerTime
-            ? myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection
-            : 0
+          
+          const newServerSnapshot = createSnapshot(transformState.transforms.map((transform) => {
+            return {
+              networkId: transform.networkId,
+              x: transform.pose[0],
+              y: transform.pose[1],
+              z: transform.pose[2],
+              qX: transform.pose[3],
+              qY: transform.pose[4],
+              qZ: transform.pose[5],
+              qW: transform.pose[6],
+            }
+          }))
+
           // interpolation, time when server send transforms
           newServerSnapshot.time = transformState.time
           Network.instance.snapshot = newServerSnapshot
@@ -52,13 +60,13 @@ export const ClientNetworkIncomingSystem = async (): Promise<System> => {
           // ignore our own transform
           if (entity === Network.instance.localClientEntity || !hasComponent(entity, XRInputSourceComponent)) continue
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-          const { hmd, left, right } = ikTransform
-          xrInputSourceComponent.head.position.fromArray(hmd)
-          xrInputSourceComponent.head.quaternion.fromArray(hmd, 3)
-          xrInputSourceComponent.controllerLeft.position.fromArray(left)
-          xrInputSourceComponent.controllerLeft.quaternion.fromArray(left, 3)
-          xrInputSourceComponent.controllerRight.position.fromArray(right)
-          xrInputSourceComponent.controllerRight.quaternion.fromArray(right, 3)
+          const { headPose, leftPose, rightPose } = ikTransform
+          xrInputSourceComponent.head.position.fromArray(headPose)
+          xrInputSourceComponent.head.quaternion.fromArray(headPose, 3)
+          xrInputSourceComponent.controllerLeft.position.fromArray(leftPose)
+          xrInputSourceComponent.controllerLeft.quaternion.fromArray(leftPose, 3)
+          xrInputSourceComponent.controllerRight.position.fromArray(rightPose)
+          xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPose, 3)
         }
       } catch (e) {
         console.log(e)
