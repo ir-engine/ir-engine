@@ -84,6 +84,130 @@ export class Network {
   isLocal = (userId) => {
     return this.userId === userId
   }
+  isEntityLocal = (eid) => {
+    return this.localClientEntity === eid
+  }
+
+  getUserId = (eid) => {
+    for (let e in this.networkObjects) {
+      if (this.networkObjects[e].entity === eid) {
+        return this.networkObjects[e].uniqueId
+      }
+    }
+  }
+
+  //sends a chat message in the current channel
+  async sendMessage(text: string) {
+    const user = (Store.store.getState() as any).get('auth').get('user') as User
+    await sendChatMessage({
+      targetObjectId: user.instanceId,
+      targetObjectType: 'instance',
+      text: text
+    })
+  }
+
+  //updates the client list with the right username for the user
+  async updateUsername(userId, username) {
+    for (let p in this.clients) {
+      if (this.clients[p].userId === userId) {
+        this.clients[p].name = username
+        return
+      }
+    }
+  }
+
+  //returns the client for a player
+  getPlayer = (player) => {
+    for (var p in this.clients) {
+      if (this.clients[p].name === player) {
+        return this.clients[p]
+      }
+    }
+
+    return undefined
+  }
+  //returns the entity for a player
+  getPlayerEntity = (player): number => {
+    for (let p in this.clients) {
+      if (this.clients[p].name === player) {
+        for (let e in this.networkObjects) {
+          if (this.clients[p].userId === this.networkObjects[e].uniqueId) return this.networkObjects[e].entity
+        }
+      }
+    }
+
+    return undefined
+  }
+
+  //checks if a player has subscribed to a chat system
+  hasSubscribedToChatSystem = (userId, system: string): boolean => {
+    if (system === undefined || system === '' || userId === undefined) return false
+
+    for (let p in this.clients) {
+      if (this.clients[p].userId === userId) {
+        return this.clients[p].subscribedChatUpdates.includes(system)
+      }
+    }
+
+    return false
+  }
+  //subscribe a player to a chat system
+  subscribeToChatSystem = (userId, system: string) => {
+    if (system === undefined || system === '' || userId === undefined) return
+
+    for (let p in this.clients) {
+      if (this.clients[p].userId === userId) {
+        if (system !== 'all' && !this.clients[p].subscribedChatUpdates.includes(system)) {
+          this.clients[p].subscribedChatUpdates.push(system)
+          return
+        } else if (system === 'all') {
+          this.clients[p].subscribedChatUpdates.push('emotions_system')
+          //add all chat systems
+          return
+        }
+      }
+    }
+  }
+  //unsubscribe a player from a chat system
+  unsubscribeFromChatSystem = (userId, system: string) => {
+    if (system === undefined || system === '' || userId === undefined) return
+
+    for (let p in this.clients) {
+      if (this.clients[p].userId === userId) {
+        if (system !== 'all' && this.clients[p].subscribedChatUpdates.includes(system)) {
+          this.clients[p].subscribedChatUpdates.splice(this.clients[p].subscribedChatUpdates.indexOf(system), 1)
+          return
+        } else if (system === 'all') {
+          this.clients[p].subscribedChatUpdates = []
+          return
+        }
+      }
+    }
+  }
+  //gets all the systems that a user has subscribed to
+  getSubscribedChatSystems = (userId): string[] => {
+    if (userId === undefined) return undefined
+
+    for (let p in this.clients) {
+      if (this.clients[p].userId === userId) {
+        return this.clients[p].subscribedChatUpdates
+      }
+    }
+
+    return undefined
+  }
+
+  //gets the chat system from a chat message
+  getChatMessageSystem = (text: string): string => {
+    if (text.startsWith('[emotions]')) return 'emotions_system'
+
+    return 'none'
+  }
+
+  //removes the chat system command from a chat message
+  removeMessageSystem = (text: string): string => {
+    return text.substring(text.indexOf(']', 0) + 1)
+  }
 
   //sends a chat message in the current channel
   async sendMessage(text: string) {

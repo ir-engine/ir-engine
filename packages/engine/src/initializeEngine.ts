@@ -48,6 +48,7 @@ import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
 import { InputSystem } from './input/systems/InputSystem'
 import { ClientNetworkIncomingSystem } from './networking/systems/ClientNetworkIncomingSystem'
+import { ProximityCheckerSystem } from './proximityChecker/systems/ProximityCheckerSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -189,6 +190,8 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
+
+  registerSystem(SystemUpdateType.Fixed, ProximityCheckerSystem)
 
   !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkOutgoingSystem)
 

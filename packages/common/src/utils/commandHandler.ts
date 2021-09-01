@@ -315,7 +315,6 @@ function handleUnsubscribeFromChatSystemCommand(system: string, userId: any) {
 async function handleGetSubscribedChatSystemsCommand(userId: any) {
   const systems: string[] = Network.instance.getSubscribedChatSystems(userId)
   console.log(systems)
-  await Network.instance.sendMessage('testi test ' + systems)
 }
 
 function handleFaceCommand(face: string, eid: any) {

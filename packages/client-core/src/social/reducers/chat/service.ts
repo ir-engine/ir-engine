@@ -70,6 +70,7 @@ export function createMessage(values: any) {
     }
   }
 }
+
 export async function sendChatMessage(values: any) {
   try {
     await client.service('message').create({
