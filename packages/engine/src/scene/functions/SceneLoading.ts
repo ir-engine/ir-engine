@@ -61,7 +61,7 @@ export class WorldScene {
   static callbacks: any
   static isLoading = false
   static sceneMetadata: string
-  static worldMetadata = []
+  static worldMetadata: { [key: string]: string } = {}
 
   constructor(private onProgress?: Function) {}
 
@@ -125,23 +125,24 @@ export class WorldScene {
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     switch (name) {
       case 'mtdata':
-        if (isClient && Engine.isBot) {
-          const { meta_data } = component.data
-          console.log('scene_metadata|' + meta_data)
-        }
+        //if (isClient && Engine.isBot) {
+        const { meta_data } = component.data
+        WorldScene.sceneMetadata = meta_data
+        console.log('scene_metadata|' + meta_data)
+        //}
         break
 
       case '_metadata':
         {
-          addObject3DComponent(entity, new Object3D(), component.data)
           addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
           const transform = getComponent(entity, TransformComponent)
 
-          if (isClient && Engine.isBot) {
-            const { _data } = component.data
-            const { x, y, z } = transform.data['position']
-            console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
-          }
+          // if (isClient && Engine.isBot) {
+          const { _data } = component.data
+          const { x, y, z } = transform.position
+          WorldScene.worldMetadata[_data] = x + ',' + y + ',' + z
+          console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
+          //}
         }
         break
 

@@ -1,4 +1,8 @@
 import * as Comlink from 'comlink'
+import { Network } from '../..'
+import { createMessage, sendChatMessage } from '../../../../client-core/src/social/reducers/chat/service'
+import Store from '../../../../client-core/src/store'
+import { User } from '../../../../common/src/interfaces/User'
 import { Engine } from '../../ecs/classes/Engine'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { CameraInput } from '../enums/InputEnums'
@@ -67,9 +71,25 @@ const nameToInputValue = {
   surprised: CameraInput.Surprised
 }
 
+var prevExp: string = ''
+
 export async function faceToInput(detection) {
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
+      if (prevExp !== expression && detection.expressions[expression] >= EXPRESSION_THRESHOLD) {
+        console.log(
+          expression +
+            ' ' +
+            (detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression])
+        )
+        prevExp = expression
+        const user = (Store.store.getState() as any).get('auth').get('user') as User
+        await sendChatMessage({
+          targetObjectId: user.instanceId,
+          targetObjectType: 'instance',
+          text: '[emotions]' + prevExp
+        })
+      }
       // If the detected value of the expression is more than 1/3rd-ish of total, record it
       // This should allow up to 3 expressions but usually 1-2
       const inputKey = nameToInputValue[expression]

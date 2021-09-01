@@ -81,12 +81,14 @@ const MediaIconsBox = (props) => {
 
   const handleFaceClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await configureMediaTransports(['video', 'audio'], partyId)) {
+    if (await configureMediaTransports(['video', 'audio'], partyId, !isFaceTrackingEnabled)) {
       changeFaceTrackingState(!isFaceTrackingEnabled)
       if (!isFaceTrackingEnabled) {
+        console.log('starting face tracking')
         startFaceTracking()
         startLipsyncTracking()
       } else {
+        console.log('stopping face tracking')
         stopFaceTracking()
         stopLipsyncTracking()
       }
@@ -104,7 +106,7 @@ const MediaIconsBox = (props) => {
   }
   const handleMicClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await configureMediaTransports(['audio'], partyId)) {
+    if (await configureMediaTransports(['audio'], partyId, true)) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
@@ -118,7 +120,7 @@ const MediaIconsBox = (props) => {
 
   const handleCamClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await configureMediaTransports(['video'], partyId)) {
+    if (await configureMediaTransports(['video'], partyId, true)) {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(partyId)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()

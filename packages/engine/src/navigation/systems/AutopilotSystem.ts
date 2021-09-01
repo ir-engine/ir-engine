@@ -50,7 +50,7 @@ export const AutopilotSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of navClickAddQuery(world)) {
-      const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
+      const { coords, overrideCoords, overridePosition } = getComponent(entity, AutoPilotClickRequestComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
@@ -78,6 +78,7 @@ export const AutopilotSystem = async (): Promise<System> => {
       )
 
       if (clickResult.point) {
+        if (overrideCoords) clickResult.point = overridePosition
         addComponent(entity, AutoPilotRequestComponent, {
           point: clickResult.point,
           navEntity: clickResult.entity

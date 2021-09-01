@@ -107,7 +107,8 @@ export const ClientNetworkIncomingSystem = async (): Promise<System> => {
           const newClient = worldState.clientsConnected[connectingClient]
           Network.instance.clients[newClient.userId] = {
             userId: newClient.userId,
-            avatarDetail: newClient.avatarDetail
+            avatarDetail: newClient.avatarDetail,
+            subscribedChatUpdates: []
           }
         }
 

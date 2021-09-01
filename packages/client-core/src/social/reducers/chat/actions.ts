@@ -122,11 +122,21 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
 
 export function createdMessage(message: Message, selfUser: User): ChatAction {
   if (message != undefined && message.text != undefined) {
-    console.log('message: ' + message.text)
     if (Network.instance.isLocal(message.senderId)) {
-      if (handleCommand(message.text, Network.instance.localClientEntity, false)) return
+      if (handleCommand(message.text, Network.instance.localClientEntity, false, message.senderId)) return
+      else {
+        const system = Network.instance.getChatMessageSystem(message.text)
+        if (system !== 'none') {
+          message.text = Network.instance.removeMessageSystem(message.text)
+          if (!Network.instance.hasSubscribedToChatSystem(selfUser.id, system)) return
+        }
+      }
     } else {
-      if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
+      const system = Network.instance.getChatMessageSystem(message.text)
+      if (system !== 'none') {
+        message.text = Network.instance.removeMessageSystem(message.text)
+        if (!Network.instance.hasSubscribedToChatSystem(selfUser.id, system)) return
+      } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
     }
   }
 

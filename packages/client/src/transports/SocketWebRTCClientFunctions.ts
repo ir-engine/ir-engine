@@ -208,8 +208,11 @@ export async function initRouter(channelType: string, channelId?: string): Promi
 export async function configureMediaTransports(
   mediaTypes: string[],
   channelType: string,
+  faceTrackingEnabled: boolean,
   channelId?: string
 ): Promise<boolean> {
+  if (!faceTrackingEnabled) return true
+
   networkTransport = Network.instance.transport as any
   if (mediaTypes.indexOf('video') > -1 && MediaStreams.instance.videoStream == null) {
     await MediaStreams.instance.startCamera()
