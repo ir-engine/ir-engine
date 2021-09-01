@@ -7,7 +7,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 
-export const PAGE_LIMIT = 100
+export const PAGE_LIMIT = 10
 
 export const initialAdminState = {
   isLoggedIn: false,

@@ -36,5 +36,12 @@ export function CompoundNumericInput({ value, onChange, ...extras }) {
     </StyledCompoundNumericInput>
   )
 }
+CompoundNumericInput.defaultProps = {
+  value: 0,
+  onChange: () => {},
+  min: 0,
+  max: 1,
+  step: 0.01
+}
 
 export default CompoundNumericInput

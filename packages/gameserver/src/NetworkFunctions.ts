@@ -78,7 +78,10 @@ export async function cleanupOldGameservers(): Promise<void> {
   const transport = Network.instance.transport as any
   const instances = await (transport.app.service('instance') as any).Model.findAndCountAll({
     offset: 0,
-    limit: 1000
+    limit: 1000,
+    where: {
+      ended: false
+    }
   })
   const gameservers = await (transport.app as any).k8AgonesClient.get('gameservers')
   const gsIds = gameservers.items.map((gs) =>
@@ -93,7 +96,11 @@ export async function cleanupOldGameservers(): Promise<void> {
         const inputPort = gs.status.ports.find((port) => port.name === 'default')
         return gs.status.address === ip && inputPort.port.toString() === port
       })
-      return match == null ? transport.app.service('instance').remove(instance.id) : Promise.resolve()
+      return match == null
+        ? transport.app.service('instance').patch(instance.id, {
+            ended: true
+          })
+        : Promise.resolve()
     })
   )
 

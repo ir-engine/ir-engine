@@ -148,7 +148,8 @@ export default (app: Application): any => {
         if (data.instance == null) {
           data.instance = await (app.service('instance') as any).Model.findOne({
             where: {
-              id: data.instanceId
+              id: data.instanceId,
+              ended: false
             }
           })
         }
@@ -308,7 +309,8 @@ export default (app: Application): any => {
         if (data.instance == null) {
           data.instance = await (app.service('instance') as any).Model.findOne({
             where: {
-              id: data.instanceId
+              id: data.instanceId,
+              ended: false
             }
           })
         }

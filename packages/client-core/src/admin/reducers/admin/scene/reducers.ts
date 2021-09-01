@@ -5,7 +5,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { CollectionsFetchedAction } from '../../../../world/reducers/scenes/actions'
 
-export const PAGE_LIMIT = 100
+export const PAGE_LIMIT = 10
 
 export const initialAdminState = {
   isLoggedIn: false,
@@ -17,7 +17,7 @@ export const initialAdminState = {
   scenes: {
     scenes: [],
     skip: 0,
-    limit: 1000,
+    limit: PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
