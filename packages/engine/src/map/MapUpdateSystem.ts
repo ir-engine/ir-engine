@@ -6,6 +6,8 @@ import { getComponent } from '../ecs/functions/EntityFunctions'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { sceneToLl } from './MeshBuilder'
+import { vector3ToPosition } from './util'
 
 export const MapUpdateSystem = async (): Promise<System> => {
   const mapsQuery = defineQuery([MapComponent])
@@ -20,10 +22,11 @@ export const MapUpdateSystem = async (): Promise<System> => {
     const mapEntity = maps[0] // TODO: iterate all maps
     const map = getComponent(mapEntity, MapComponent)
 
-    const viewerPosition = getComponent(map.viewer as number, TransformComponent).position
+    const viewerPosition = vector3ToPosition(getComponent(map.viewer as number, TransformComponent).position)
 
-    const viewerDistanceFromCenter = Math.hypot(viewerPosition.x, viewerPosition.z)
+    const viewerDistanceFromCenter = Math.hypot(...viewerPosition)
     if (viewerDistanceFromCenter >= map.triggerRefreshRadius) {
+      map.center = sceneToLl(viewerPosition, map.center)
       refreshSceneObjects(mapEntity, world)
     }
 

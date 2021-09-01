@@ -1,7 +1,7 @@
 import { PipelineType, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Object3D, Quaternion, Vector3 } from 'three'
 import { llToTile, tile2lat, tile2long, TILE_ZOOM } from '../../src/map/MapBoxClient'
-import { llToScene } from '../../src/map/MeshBuilder'
+import { llToScene, sceneToLl } from '../../src/map/MeshBuilder'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { createPipeline, registerSystem, unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { MapUpdateSystem } from '../../src/map/MapUpdateSystem'
@@ -98,12 +98,16 @@ describe('check MapUpdateSystem', () => {
   })
 
   it('updates when player crosses update boundary', async () => {
-    const actorTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
+    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
+    const previousCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center.slice()
 
-    actorTransform.position.set(triggerRefreshRadius, 0, 0)
+    viewerTransform.position.set(triggerRefreshRadius, 0, 0)
     execute(1, 1)
+
+    const newCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center
 
     expect(refreshSceneObjects).toHaveBeenCalledTimes(1)
     expect(refreshSceneObjects).toHaveBeenCalledWith(mapEntity, world.ecsWorld)
+    expect(newCenter).toEqual(sceneToLl([triggerRefreshRadius, 0], previousCenter))
   })
 })
