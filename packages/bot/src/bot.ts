@@ -74,7 +74,7 @@ type BotProps = {
 export class XREngineBot {
   activeChannel
   headless: boolean
-  gpu: boolean
+  ci: boolean
   verbose: boolean
   name: string
   fakeMediaPath: string
@@ -89,8 +89,7 @@ export class XREngineBot {
   constructor(args: BotProps = {}) {
     this.verbose = args.verbose
     this.headless = args.headless ?? true
-    this.gpu = !process.env.HEADLESS
-    console.log(this.gpu)
+    this.ci = !!process.env.CI
     this.name = args.name ?? 'Bot'
     this.fakeMediaPath = args.fakeMediaPath ?? ''
     this.windowSize = args.windowSize ?? { width: 640, height: 480 }
@@ -333,10 +332,10 @@ export class XREngineBot {
         '--mute-audio'
       ],
       defaultViewport: this.windowSize,
-      ignoreDefaultArgs: true, //['--mute-audio'],
+      ignoreDefaultArgs: this.ci, //['--mute-audio'],
       ...this.detectOsOption()
     }
-    if (!this.gpu) {
+    if (!this.ci) {
       console.log('Starting puppeteer without gpu...')
       options.args.push(
         '--no-zygote',
