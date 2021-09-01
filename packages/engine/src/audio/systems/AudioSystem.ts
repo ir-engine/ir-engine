@@ -1,7 +1,7 @@
 import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -100,9 +100,10 @@ export const AudioSystem = async (): Promise<System> => {
    * @param ent Entity to get the {@link audio/components/PlaySoundEffect.PlaySoundEffect | PlaySoundEffect} Component.
    */
   const playSoundEffect = (ent): void => {
-    const sound = ent.getComponent(SoundEffect)
-    sound.audio.play()
-    ent.removeComponent(PlaySoundEffect)
+    const sound = getComponent(ent, SoundEffect)
+    const playTag = getComponent(ent, PlaySoundEffect)
+    sound.audio[playTag.index].play()
+    removeComponent(ent, PlaySoundEffect)
   }
 
   window.addEventListener('touchstart', startAudio, true)
@@ -112,12 +113,19 @@ export const AudioSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const entity of soundEffectAddQuery(world)) {
       const effect = getComponent(entity, SoundEffect)
-      if (effect.src && !audio) {
-        effect.audio = new Audio()
-        effect.audio.addEventListener('loadeddata', () => {
-          effect.audio.volume = effect.volume
+      if (!audio) {
+        effect.src.forEach((src, i) => {
+          if (!src) {
+            return
+          }
+
+          const audio = new Audio()
+          effect.audio[i] = audio
+          audio.addEventListener('loadeddata', () => {
+            audio.volume = effect.volume[i] !== undefined ? effect.volume[i] : 0.5
+          })
+          audio.src = src
         })
-        effect.audio.src = effect.src
       }
     }
 

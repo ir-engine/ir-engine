@@ -95,7 +95,7 @@ export const XRSystem = async (): Promise<System> => {
 
     for (const entity of localXRControllerQuery(world)) {
       const xrInputs = getComponent(entity, XRInputSourceComponent)
-      console.log(xrInputs.head.quaternion.toArray(), xrInputs.head.quaternion)
+      //console.log(xrInputs.head.quaternion.toArray(), xrInputs.head.quaternion)
       Engine.inputState.set(XR6DOF.HMD, {
         type: InputType.SIXDOF,
         value: xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray()),
