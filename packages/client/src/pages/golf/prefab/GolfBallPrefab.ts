@@ -154,14 +154,6 @@ export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHo
 
   // this spawns the ball on the server
   spawnPrefab(GolfPrefabTypes.Ball, uuid, networkId, parameters)
-
-  // this sends the ball to the clients
-  Network.instance.worldState.createObjects.push({
-    networkId,
-    uniqueId: uuid,
-    prefabType: GolfPrefabTypes.Ball,
-    parameters
-  })
 }
 
 /**

@@ -50,6 +50,10 @@ export class Vector2Input extends Component {
     uniformEnabled: any
     value: any
   }
+  static defaultProps = {
+    value: new Vector2(),
+    onChange: () => {}
+  }
 
   constructor(props) {
     super(props)

@@ -51,6 +51,11 @@ export class Vector3Input extends Component {
     hideLabels: boolean
   }
 
+  static defaultProps = {
+    value: new Vector3(),
+    hideLabels: false,
+    onChange: () => {}
+  }
   constructor(props) {
     super(props)
 
@@ -136,4 +141,5 @@ export class Vector3Input extends Component {
     )
   }
 }
+
 export default Vector3Input

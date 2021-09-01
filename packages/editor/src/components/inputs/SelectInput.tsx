@@ -110,5 +110,14 @@ export function SelectInput({ value, options, onChange, placeholder, disabled, e
     />
   )
 }
-
+SelectInput.defaultProps = {
+  value: null,
+  placeholder: 'Select...',
+  optionNotFoundPlaceholder: 'Error',
+  onChange: () => {},
+  styles: {},
+  error: false,
+  disabled: false,
+  creatable: false
+}
 export default SelectInput

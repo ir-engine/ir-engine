@@ -18,6 +18,13 @@ const StringInput = React.forwardRef(({ onChange, ...rest }, ref) => (
 ))
 
 StringInput.displayName = 'StringInput'
+StringInput.defaultProps = {
+  value: '',
+  onChange: () => {},
+  type: 'text',
+  required: false,
+  placeholder: ''
+}
 
 export default StringInput
 
@@ -55,6 +62,13 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
     },
     [setTempValue]
   )
+
+  ControlledStringInput.defaultProps = {
+    value: '',
+    onChange: () => {},
+    type: 'text',
+    required: false
+  }
 
   return (
     <DropContainer ref={ref}>
