@@ -8,8 +8,10 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { defineSystem } from 'bitecs'
 import React from 'react'
-import { Matrix4 } from 'three'
+import { Matrix4, MathUtils } from 'three'
+import { ECSWorld } from '../../../../engine/src/ecs/classes/World'
 import { getPlayerNumber } from './functions/golfBotHookFunctions'
+import { getGolfPlayerNumber } from './functions/golfFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
 
@@ -176,7 +178,7 @@ const GolfScorecardView = () => {
           backgroundColor: '#000000dd',
           border: '8px solid #FFFFFF',
           boxSizing: 'border-box',
-          filter: 'drop-shadow(0 0 30px #fff2)',
+          boxShadow: '#fff2 0 0 30px',
           borderRadius: '60px',
           margin: '80px',
           fontFamily: 'Racing Sans One',
@@ -199,7 +201,7 @@ const mat4 = new Matrix4()
 export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
-  return defineSystem((world) => {
+  return defineSystem((world: ECSWorld) => {
     // return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)
@@ -215,6 +217,19 @@ export const GolfScorecardUISystem = async () => {
     layer.scale.setScalar(1)
     layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
+
+    const localPlayerNumber = getGolfPlayerNumber()
+    const viewingScorecard = GolfState.players[localPlayerNumber]?.viewingScorecard.value
+
+    const targetOpacity = viewingScorecard ? 1 : 0
+    layer.rootLayer.traverseLayersPreOrder((layer) => {
+      layer.contentMesh.material.opacity = MathUtils.lerp(
+        layer.contentMesh.material.opacity,
+        targetOpacity,
+        world.delta * 10
+      )
+      layer.contentMesh.material.needsUpdate = true
+    })
 
     // uiComponent.layer.querySelector()
 

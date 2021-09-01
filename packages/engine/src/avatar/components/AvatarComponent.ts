@@ -13,16 +13,6 @@ export type AvatarComponentType = {
   avatarURL: string
   avatarHeight: number
   avatarHalfHeight: number
-
-  /**
-   * The direction this client is looking.
-   * As TransformComponent.rotation is locked to XZ plane,
-   * this allows the actor to have pitch independent of the collider & model.
-   *
-   * On the local client viewVector is controlled by TransformComponent.rotation
-   * On the server and other clients this controls TransformComponent.rotation
-   */
-  viewVector: Vector3
 }
 
 export const AvatarComponent = createMappedComponent<AvatarComponentType>()

@@ -26,10 +26,10 @@ export const getCurrentGolfPlayerEntity = () => {
 }
 
 export const getPlayerEntityFromNumber = (number: number) => {
-  const player = GolfState.players[number].value
+  const player = GolfState.players[number]
   if (!player) return undefined
   const entity = Object.values(Network.instance.networkObjects).find(
-    (obj: NetworkObjectType) => obj.uniqueId === player.id
+    (obj: NetworkObjectType) => obj.uniqueId === player.value.id
   )?.entity
   if (entity < 0) return undefined
   return entity

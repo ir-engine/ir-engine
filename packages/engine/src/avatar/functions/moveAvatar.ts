@@ -1,13 +1,13 @@
 import { Vector3, Matrix4, Quaternion } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
+import { Engine } from '../../ecs/classes/Engine'
+import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -24,7 +24,6 @@ const multiplier = 1 / 60
 export const moveAvatar = (entity: Entity, deltaTime): void => {
   const avatar = getComponent(entity, AvatarComponent)
   const velocity = getComponent(entity, VelocityComponent)
-  const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   if (!controller.movementEnabled) return
@@ -36,17 +35,13 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
   velocity.velocity.copy(newVelocity)
-  // console.log(avatar.viewVector, transform.rotation)
 
-  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-  if (xrInputSourceComponent) {
-    // if in VR follow look direction
-    xrInputSourceComponent.head.getWorldQuaternion(quat)
-    newVelocity.applyQuaternion(quat)
-  } else {
-    // otherwise ppply direction from avatar orientation
-    newVelocity.applyQuaternion(transform.rotation)
-  }
+  quat.copy(Engine.camera.quaternion)
+
+  // threejs camera is weird, when not in VR we have to invert the direction
+  if (!hasComponent(entity, XRInputSourceComponent)) newVelocity.multiplyScalar(-1)
+
+  newVelocity.applyQuaternion(quat)
 
   controller.controller.velocity.x = newVelocity.x
   controller.controller.velocity.z = newVelocity.z

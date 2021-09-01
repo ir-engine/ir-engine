@@ -18,4 +18,13 @@ export function RadianNumericInputGroup({ convertTo, convertFrom, ...rest }) {
   return <NumericInputGroup {...rest} convertFrom={radToDeg} convertTo={degToRad} />
 }
 
+RadianNumericInputGroup.defaultProps = {
+  min: 0,
+  max: 360,
+  smallStep: 1,
+  mediumStep: 5,
+  largeStep: 15,
+  unit: '°'
+}
+
 export default RadianNumericInputGroup

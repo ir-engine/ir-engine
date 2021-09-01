@@ -1,7 +1,6 @@
-import { Raycaster, Vector3 } from 'three'
+import { Quaternion, Raycaster, Vector3 } from 'three'
 import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
@@ -32,6 +31,9 @@ export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vec
   }
   return path
 }
+
+const quat = new Quaternion()
+const forward = new Vector3(0, 0, 1)
 
 export const AutopilotSystem = async (): Promise<System> => {
   const stick = GamepadAxis.Left
@@ -151,8 +153,7 @@ export const AutopilotSystem = async (): Promise<System> => {
           continue
         }
 
-        const avatar = getComponent(entity, AvatarComponent)
-        const avatarViewRotation = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
+        const transform = getComponent(entity, TransformComponent)
         const speedModifier = Math.min(
           1,
           Math.max(MIN_SPEED, targetFlatDistance < ARRIVING_DISTANCE ? targetFlatDistance / ARRIVING_DISTANCE : 1)
@@ -160,7 +161,7 @@ export const AutopilotSystem = async (): Promise<System> => {
         const direction = targetFlatPosition
           .clone()
           .sub(actorPosition.clone().setY(0))
-          .applyAxisAngle(new Vector3(0, -1, 0), avatarViewRotation)
+          .applyQuaternion(transform.rotation)
           .normalize()
         const targetAngle = Math.atan2(direction.x, direction.z)
         const stickValue = direction.clone().multiplyScalar(speedModifier) // speed
@@ -202,7 +203,7 @@ export const AutopilotSystem = async (): Promise<System> => {
         // }
         {
           // way 2
-          updatePlayerRotationFromViewVector(entity, targetDirection)
+          transform.rotation.copy(quat.setFromUnitVectors(forward, targetDirection))
         }
       }
     }

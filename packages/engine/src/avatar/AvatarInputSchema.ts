@@ -128,12 +128,6 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
-  const inputComponent = getComponent(entity, InputComponent)
-
-  if (!inputComponent.data[0].has(inputKey)) {
-    return
-  }
-
   const cameraFollow = getComponent(entity, FollowCameraComponent)
   if (cameraFollow === undefined || cameraFollow.mode === CameraMode.Strategic) return //console.warn("cameraFollow is undefined")
 
@@ -351,12 +345,6 @@ const lookByInputAxis: InputBehaviorType = (
 ): void => {
   const followCamera = getComponent(entity, FollowCameraComponent)
   if (followCamera && followCamera.mode !== CameraMode.Strategic) {
-    if (followCamera.locked) {
-      const avatar = getComponent(entity, AvatarComponent)
-      let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
-      followCamera.theta = (theta * 180) / Math.PI + 180
-    }
-
     followCamera.theta -= inputValue.value[0] * 100
     followCamera.phi -= inputValue.value[1] * 100
   }
@@ -364,17 +352,17 @@ const lookByInputAxis: InputBehaviorType = (
 
 const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   const input = getComponent(entity, InputComponent)
-  const data = input.data[0]?.get(BaseInput.GAMEPAD_STICK_RIGHT)
+  const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
   // TODO: fix this
   console.log('gamepadLook', data)
   if (data.type === InputType.TWODIM) {
-    input.data[0]?.set(BaseInput.LOOKTURN_PLAYERONE, {
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
       value: [data.value[0], data.value[1]],
       lifecycleState: LifecycleValue.CHANGED
     })
   } else if (data.type === InputType.THREEDIM) {
-    input.data[0]?.set(BaseInput.LOOKTURN_PLAYERONE, {
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
       value: [data.value[0], data.value[2]],
       lifecycleState: LifecycleValue.CHANGED
@@ -387,27 +375,11 @@ export const clickNavMesh: InputBehaviorType = (entity, inputKey, inputValue): v
     return
   }
   const input = getComponent(entity, InputComponent)
-  const coords = input.data[0]?.get(BaseInput.SCREENXY)?.value
+  const coords = input.data.get(BaseInput.SCREENXY)?.value
   if (coords) {
-    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+    // addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
   }
 }
-
-export const updateIKPosition: InputBehaviorType = (entity, inputKey, inputValue): void => {
-  const xrInputs = getComponent(entity, XRInputSourceComponent)
-  const extentObj =
-    inputKey === BaseInput.XR_HEAD
-      ? xrInputs.head
-      : inputKey === BaseInput.XR_CONTROLLER_LEFT_HAND
-      ? xrInputs.controllerLeft
-      : xrInputs.controllerRight
-  extentObj.position.fromArray(inputValue.value)
-  extentObj.quaternion.fromArray(inputValue.value, 3)
-  if (inputKey === BaseInput.XR_HEAD) console.log(inputValue.value, extentObj.quaternion)
-}
-
-// what do we want this to look like?
-// instead of assigning a hardware input to a base input, we want to map them
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias, InputAlias> = new Map()
@@ -478,6 +450,7 @@ export const createAvatarInput = () => {
 
   return map
 }
+
 export const createBehaviorMap = () => {
   const map = new Map<InputAlias, InputBehaviorType>()
 
@@ -502,18 +475,10 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.XR_AXIS_LOOK, lookFromXRInputs)
   map.set(BaseInput.XR_AXIS_MOVE, moveFromXRInputs)
 
-  // Camera only needs to run on the client
-  if (isClient) {
-    map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
-    map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)
-    map.set(BaseInput.SWITCH_SHOULDER_SIDE, switchShoulderSide)
-    map.set(BaseInput.CAMERA_SCROLL, changeCameraDistanceByDelta)
-  } else {
-    // ik input only needs to be updated on the server, the client will already have this data
-    map.set(BaseInput.XR_HEAD, updateIKPosition)
-    map.set(BaseInput.XR_CONTROLLER_LEFT_HAND, updateIKPosition)
-    map.set(BaseInput.XR_CONTROLLER_RIGHT_HAND, updateIKPosition)
-  }
+  map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
+  map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)
+  map.set(BaseInput.SWITCH_SHOULDER_SIDE, switchShoulderSide)
+  map.set(BaseInput.CAMERA_SCROLL, changeCameraDistanceByDelta)
 
   map.set(BaseInput.PRIMARY, clickNavMesh)
 

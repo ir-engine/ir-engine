@@ -61,6 +61,12 @@ export const GolfAction = {
     return {
       type: 'puttclub.NEXT_HOLE' as const
     }
+  },
+
+  toggleScorecard() {
+    return {
+      type: 'puttclub.TOGGLE_SCORECARD' as const
+    }
   }
 }
 
