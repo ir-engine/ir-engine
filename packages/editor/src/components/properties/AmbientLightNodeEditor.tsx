@@ -6,9 +6,10 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Sun } from '@styled-icons/fa-solid/Sun'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+
 type AmbientLightNodeEditorProps = {
   editor?: object
-  node?: object
+  node?: any
   t: Function
 }
 
@@ -45,15 +46,11 @@ export class AmbientLightNodeEditor extends Component<AmbientLightNodeEditorProp
     return (
       <NodeEditor
         {...this.props}
-        /* @ts-ignore */
         description={AmbientLightNodeEditor.description}
       >
-        {/* @ts-ignore */}
         <InputGroup name="Color" label={this.props.t('editor:properties.ambientLight.lbl-color')}>
-          {/* @ts-ignore */}
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Intensity"
           label={this.props.t('editor:properties.ambientLight.lbl-intensity')}
@@ -61,7 +58,6 @@ export class AmbientLightNodeEditor extends Component<AmbientLightNodeEditorProp
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          /* @ts-ignore */
           value={node.intensity}
           onChange={this.onChangeIntensity}
           unit="cd"

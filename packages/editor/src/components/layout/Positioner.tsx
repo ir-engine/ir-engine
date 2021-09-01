@@ -434,7 +434,7 @@ const PositionerContainer = (styled as any).div.attrs(({ transform, transformOri
  * @returns
  */
 export function Positioner({ children, position, padding, getTargetRef, ...rest }) {
-  const positionerContainerRef = useRef()
+  const positionerContainerRef = useRef<any>()
 
   const [transformProps, setTransformProps] = useState({
     finalPosition: position,
@@ -445,7 +445,6 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
 
   useEffect(() => {
     const onReposition = () => {
-      /* @ts-ignore */
       const positionerContainerRect = positionerContainerRef.current.getBoundingClientRect()
       const targetRect = getTargetRef().current.getBoundingClientRect()
       const viewportHeight = document.documentElement.clientHeight

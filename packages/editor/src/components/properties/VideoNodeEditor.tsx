@@ -49,26 +49,19 @@ export function VideoNodeEditor(props) {
   //editor view for VideoNode
   return (
     <NodeEditor description={VideoNodeEditor.description} {...props}>
-      {/* @ts-ignore */}
       <InputGroup name="Livestream" label={t('editor:properties.video.lbl-islivestream')}>
         <BooleanInput value={node.isLivestream} onChange={onChangeIsLivestream} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
         <VideoInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
-        {/* @ts-ignore */}
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
         <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>
-        {/* @ts-ignore */}
         <ControlledStringInput value={node.elementId} onChange={onChangeId} />
       </InputGroup>
       <AudioSourceProperties {...props} />

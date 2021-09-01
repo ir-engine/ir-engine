@@ -1264,4 +1264,4 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
 })
 
-export default withTranslation()(withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorContainer as any)))
+export default withTranslation()(withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorContainer)))

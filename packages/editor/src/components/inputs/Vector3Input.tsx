@@ -41,16 +41,26 @@ const UniformButtonContainer = (styled as any).div`
 
 let uniqueId = 0
 
+interface Vector3InputProp {
+  uniformScaling?: boolean
+  smallStep?: number
+  mediumStep?: number
+  largeStep?: number
+  value: any
+  onChange: Function
+  hideLabels?: boolean
+}
+
+interface Vector3InputState {
+  uniformEnabled: any
+  hideLabels: boolean
+}
+
 /**
  *
  * @author Robert Long
  */
-export class Vector3Input extends Component {
-  declare state: {
-    uniformEnabled: any
-    hideLabels: boolean
-  }
-
+export class Vector3Input extends Component<Vector3InputProp, Vector3InputState> {
   constructor(props) {
     super(props)
 

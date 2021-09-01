@@ -10,7 +10,6 @@ import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/
 import { updateMessageScrollInit } from '@xrengine/client-core/src/social/reducers/chat/service'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
-// @ts-ignore
 import styles from './DrawerControls.module.scss'
 
 const mapStateToProps = (state: any): any => {

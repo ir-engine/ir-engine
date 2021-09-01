@@ -154,7 +154,6 @@ export class ProjectGridItem extends Component<{ contextMenuId: string; project:
     if (contextMenuId) {
       return (
         <StyledProjectGridItem as="a" href={project.url}>
-          {/* @ts-ignore */}
           <StyledContextMenuTrigger id={contextMenuId} project={project} collect={collectMenuProps} holdToDisplay={-1}>
             {content}
           </StyledContextMenuTrigger>

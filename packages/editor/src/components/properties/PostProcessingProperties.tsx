@@ -132,7 +132,6 @@ export const PostProcessingProperties = (props: Props) => {
       else address += element
     })
     {
-      /* @ts-ignore */
     }
     onChangeFunction(address, event)
   }
@@ -143,19 +142,16 @@ export const PostProcessingProperties = (props: Props) => {
   }
 
   {
-    /* @ts-ignore */
   }
   if (value.keys === '') return <></>
 
   let renderVal = <></>
   {
-    /* @ts-ignore */
   }
   switch (value.propertyType) {
     case PostProcessingPropertyTypes.Number:
       renderVal = (
         <>
-          {/* @ts-ignore */}
           <CompoundNumericInput
             min={value.min}
             max={value.max}
@@ -177,7 +173,6 @@ export const PostProcessingProperties = (props: Props) => {
     case PostProcessingPropertyTypes.BlendFunction:
       renderVal = (
         <>
-          {/* @ts-ignore */}
           <SelectInput options={BlendFunctionSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
         </>
       )
@@ -186,7 +181,6 @@ export const PostProcessingProperties = (props: Props) => {
     case PostProcessingPropertyTypes.Color:
       renderVal = (
         <>
-          {/* @ts-ignore */}
           <ColorInput value={getPropertyValue()} onChange={onPropertyValueChanged} isValueAsInteger={true} />
         </>
       )
@@ -195,7 +189,6 @@ export const PostProcessingProperties = (props: Props) => {
     case PostProcessingPropertyTypes.KernelSize:
       renderVal = (
         <>
-          {/* @ts-ignore */}
           <SelectInput options={KernelSizeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
         </>
       )
@@ -212,7 +205,6 @@ export const PostProcessingProperties = (props: Props) => {
         alignItems: 'center'
       }}
     >
-      {/* @ts-ignore */}
       <InputGroup name={value.name} label={value.name}>
         {renderVal}
       </InputGroup>

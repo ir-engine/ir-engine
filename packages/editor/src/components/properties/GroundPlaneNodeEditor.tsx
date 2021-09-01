@@ -16,7 +16,7 @@ import { withTranslation } from 'react-i18next'
 
 type GroundPlaneNodeEditorProps = {
   editor?: object
-  node?: object
+  node?: any
   t: Function
 }
 
@@ -55,23 +55,17 @@ export class GroundPlaneNodeEditor extends Component<GroundPlaneNodeEditorProps,
     return (
       <NodeEditor
         {...this.props}
-        /* @ts-ignore */
         description={GroundPlaneNodeEditor.description}
       >
-        {/* @ts-ignore */}
         <InputGroup name="Color" label={this.props.t('editor:properties.groundPlane.lbl-color')}>
-          {/* @ts-ignore */}
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.groundPlane.lbl-receiveShadow')}>
           <BooleanInput
-            /* @ts-ignore */
             value={node.receiveShadow}
             onChange={this.onChangeReceiveShadow}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Walkable" label={this.props.t('editor:properties.groundPlane.lbl-walkable')}>
           <BooleanInput value={(this.props.node as any).walkable} onChange={this.onChangeWalkable} />
         </InputGroup>

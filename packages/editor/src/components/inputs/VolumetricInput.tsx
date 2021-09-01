@@ -10,7 +10,6 @@ import { ControlledStringInput } from './StringInput'
 export function VolumetricInput({ onChange, ...rest }) {
   return (
     <ControlledStringInput
-      // @ts-ignore
       onChange={onChange}
       {...rest}
     />

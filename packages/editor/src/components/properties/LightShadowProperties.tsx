@@ -37,7 +37,7 @@ const ShadowMapResolutionOptions = [
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
   editor?: object
-  node?: object
+  node?: any
   t?: Function
 }
 
@@ -74,23 +74,19 @@ export class LightShadowProperties extends Component<LightShadowPropertiesProps,
     const node = this.props.node
     return (
       <Fragment>
-        {/* @ts-ignore */}
         <InputGroup name="Cast Shadow" label={this.props.t('editor:properties.directionalLight.lbl-castShadow')}>
           <BooleanInput value={(node as any).castShadow} onChange={this.onChangeCastShadow} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup
           name="Shadow Map Resolution"
           label={this.props.t('editor:properties.directionalLight.lbl-shadowmapResolution')}
         >
-          {/* @ts-ignore */}
           <SelectInput
             options={ShadowMapResolutionOptions}
             value={(node as any).shadowMapResolution}
             onChange={this.onChangeShadowMapResolution}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Shadow Bias"
           label={this.props.t('editor:properties.directionalLight.lbl-shadowBias')}
@@ -98,11 +94,9 @@ export class LightShadowProperties extends Component<LightShadowPropertiesProps,
           smallStep={0.0001}
           largeStep={0.001}
           displayPrecision={0.000001}
-          /* @ts-ignore */
           value={node.shadowBias}
           onChange={this.onChangeShadowBias}
         />
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Shadow Radius"
           label={this.props.t('editor:properties.directionalLight.lbl-shadowRadius')}
@@ -110,7 +104,6 @@ export class LightShadowProperties extends Component<LightShadowPropertiesProps,
           smallStep={0.1}
           largeStep={1}
           displayPrecision={0.0001}
-          /* @ts-ignore */
           value={node.shadowRadius}
           onChange={this.onChangeShadowRadius}
         />

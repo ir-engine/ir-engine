@@ -167,7 +167,6 @@ export default function AssetsPanel() {
   //creating view for asset penal
   return (
     <AssetsPanelContainer id="assets-panel" className={styles.assetsPanel}>
-      {/* @ts-ignore */}
       {/* <AssetsPanelColumn flex>
         <AssetsPanelToolbar title="Assets" />
         <List>

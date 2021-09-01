@@ -16,9 +16,7 @@ export function MetadataNodeEditor(props: { editor?: any; node?: any; t: any }) 
 
   return (
     <NodeEditor {...props} description={description}>
-      {/* @ts-ignore */}
       <InputGroup name="Data" label="Data">
-        {/* @ts-ignore */}
         <StringInput value={node._data} onChange={onChangeData} />
       </InputGroup>
     </NodeEditor>

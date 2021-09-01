@@ -62,11 +62,9 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
       onCancel={onCancelCallback}
       confirmLabel={t('editor:dialog.saveNewProject.lbl-confirm')}
     >
-      {/* @ts-ignore */}
       <FormField>
         <label htmlFor="name">{t('editor:dialog.saveNewProject.lbl-name')}</label>
         <StringInput
-          /* @ts-ignore */
           id="name"
           required
           pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}

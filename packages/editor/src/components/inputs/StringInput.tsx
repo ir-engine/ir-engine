@@ -10,10 +10,24 @@ const StyledStringInput = (styled as any)(Input)`
   width: 100%;
 `
 
+interface StringInputProp {
+  id?: string
+  value?: any
+  onChange?: Function
+  required?: boolean
+  pattern?: string
+  title?: string
+  error?: boolean
+  canDrop?: boolean
+  onFocus?: Function
+  onBlur?: Function
+  onKeyUp?: Function
+}
+
 /**
  * @author Robert Long
  */
-const StringInput = React.forwardRef(({ onChange, ...rest }, ref) => (
+const StringInput = React.forwardRef<{}, StringInputProp>(({ onChange, ...rest }, ref) => (
   <StyledStringInput onChange={(e) => onChange(e.target.value, e)} {...rest} ref={ref} />
 ))
 
@@ -29,7 +43,7 @@ const DropContainer = (styled as any).div`
 /**
  * @author Robert Long
  */
-export const ControlledStringInput = React.forwardRef((values, ref) => {
+export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((values, ref) => {
   const { onChange, value, ...rest } = values as any
   const inputRef = useRef()
 
@@ -37,7 +51,7 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
 
   const onKeyUp = useCallback((e) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
-      inputRef.current.blur()
+      (inputRef as any).current.blur()
     }
   }, [])
 

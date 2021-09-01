@@ -38,7 +38,6 @@ export class SplineNodeEditor extends Component<SplineNodeEditorProps, {}> {
     //returning view to customize properties
     return (
       <NodeEditor description={SplineNodeEditor.description} {...this.props}>
-        {/* @ts-ignore */}
         <PropertiesPanelButton onClick={this.onAddNode}>
           {this.props.t('editor:properties.spline.lbl-addNode')}
         </PropertiesPanelButton>

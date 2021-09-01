@@ -50,7 +50,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { provisionInstanceServer } from '../../../reducers/instanceConnection/service'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
-//@ts-ignore
 import styles from './Right.module.scss'
 
 const mapStateToProps = (state: any): any => {

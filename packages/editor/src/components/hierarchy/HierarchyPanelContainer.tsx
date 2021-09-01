@@ -643,7 +643,6 @@ function TreeNode({
   //returning tree view for hierarchy panel
   return (
     <TreeDepthContainer style={style}>
-      {/* @ts-ignore */}
       <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" node={node} collect={collectNodeMenuProps}>
         <TreeNodeContainer
           ref={drag}
@@ -1200,7 +1199,6 @@ export default function HierarchyPanel() {
 
   //returning hierarchy penal view
   return (
-    /* @ts-ignore */
     <Fragment>
       <PanelContainer>
         {editor.scene && (
@@ -1232,7 +1230,6 @@ export default function HierarchyPanel() {
           </AutoSizer>
         )}
       </PanelContainer>
-      {/* @ts-ignore */}
       <ContextMenu id="hierarchy-node-menu">
         <MenuItem onClick={onRenameNode}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <MenuItem onClick={onDuplicateNode}>

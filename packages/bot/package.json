@@ -15,6 +15,7 @@
   "jest": "ts-jest",
   "main": "src/bot.ts",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "validate": "npm run test",
     "dev": "node -r ts-eager/register src/run-bot.ts",
     "test": "jest",

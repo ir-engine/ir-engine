@@ -1,4 +1,3 @@
-// @ts-ignore
 import React, { Component, createRef } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
@@ -87,10 +86,18 @@ const NumericInputUnit = (styled as any).div`
   height: 22px;
 `
 
+interface NumericInputProp {
+  value?: any
+  convertFrom?: any
+  precision?: any
+  mediumStep?: number
+  onChange?: Function
+}
+
 /**
  * @author Robert Long
  */
-export class NumericInput extends Component {
+export class NumericInput extends Component<NumericInputProp, {}> {
   constructor(props) {
     super(props)
 

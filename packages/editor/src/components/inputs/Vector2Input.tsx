@@ -46,11 +46,16 @@ type StateType = {
   value: any
 }
 
+interface Vector2InputProp {
+  value?: any
+  onChange?: Function
+}
+
 /**
  *
  * @author Robert Long
  */
-export class Vector2Input extends Component<{}, StateType> {
+export class Vector2Input extends Component<Vector2InputProp, StateType> {
   constructor(props) {
     super(props)
 

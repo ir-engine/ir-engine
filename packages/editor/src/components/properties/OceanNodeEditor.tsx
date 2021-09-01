@@ -47,26 +47,21 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
     OceanNodeEditor.description = this.props.t('editor:properties.ocean.description')
     return (
       <NodeEditor {...this.props} description={OceanNodeEditor.description}>
-        {/* @ts-ignore */}
         <InputGroup name="Normal Map" label={this.props.t('editor:properties.ocean.lbl-normalMap')}>
           <ImageInput value={this.props.node.normalMap} onChange={this.onChangeProperty('normalMap')} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Distortion Map" label={this.props.t('editor:properties.ocean.lbl-distortionMap')}>
           <ImageInput value={this.props.node.distortionMap} onChange={this.onChangeProperty('distortionMap')} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Environment Map" label={this.props.t('editor:properties.ocean.lbl-envMap')}>
           <ImageInput value={this.props.node.envMap} onChange={this.onChangeProperty('envMap')} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Color" label={this.props.t('editor:properties.ocean.lbl-color')}>
           <ColorInput value={this.props.node.color} onChange={this.onChangeProperty('color')} disabled={false} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Shallow Color" label={this.props.t('editor:properties.ocean.lbl-shallowWaterColor')}>
           <ColorInput
             value={this.props.node.shallowWaterColor}
@@ -74,7 +69,6 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
             disabled={false}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Shallow to Deep Distance"
           label={this.props.t('editor:properties.ocean.lbl-shallowToDeepDistance')}
@@ -85,7 +79,6 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
           value={this.props.node.shallowToDeepDistance}
           onChange={this.onChangeProperty('shallowToDeepDistance')}
         />
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Opacity Fade Distance"
           label={this.props.t('editor:properties.ocean.lbl-opacityFadeDistance')}
@@ -96,11 +89,9 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
           value={this.props.node.opacityFadeDistance}
           onChange={this.onChangeProperty('opacityFadeDistance')}
         />
-        {/* @ts-ignore */}
         <InputGroup name="Opacity Range" label={this.props.t('editor:properties.ocean.lbl-opacityRange')}>
           <Vector2Input value={this.props.node.opacityRange} onChange={this.onChangeProperty('opacityRange')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Shininess"
           label={this.props.t('editor:properties.ocean.lbl-shininess')}
@@ -111,7 +102,6 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
           value={this.props.node.shininess}
           onChange={this.onChangeProperty('shininess')}
         />
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Reflectivity"
           label={this.props.t('editor:properties.ocean.lbl-reflectivity')}
@@ -123,7 +113,6 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
           value={this.props.node.reflectivity}
           onChange={this.onChangeProperty('reflectivity')}
         />
-        {/* @ts-ignore */}
         <InputGroup name="Foam Color" label={this.props.t('editor:properties.ocean.lbl-foamColor')}>
           <ColorInput
             value={this.props.node.foamColor}
@@ -131,11 +120,9 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
             disabled={false}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Foam Speed" label={this.props.t('editor:properties.ocean.lbl-foamSpeed')}>
           <Vector2Input value={this.props.node.foamSpeed} onChange={this.onChangeProperty('foamSpeed')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Foam Tiling"
           label={this.props.t('editor:properties.ocean.lbl-foamTiling')}
@@ -146,15 +133,12 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
           value={this.props.node.foamTiling}
           onChange={this.onChangeProperty('foamTiling')}
         />
-        {/* @ts-ignore */}
         <InputGroup name="Big Wave Tiling" label={this.props.t('editor:properties.ocean.lbl-bigWaveTiling')}>
           <Vector2Input value={this.props.node.bigWaveTiling} onChange={this.onChangeProperty('bigWaveTiling')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Big Wave Speed" label={this.props.t('editor:properties.ocean.lbl-bigWaveSpeed')}>
           <Vector2Input value={this.props.node.bigWaveSpeed} onChange={this.onChangeProperty('bigWaveSpeed')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Big Wave Height"
           label={this.props.t('editor:properties.ocean.lbl-bigWaveHeight')}
@@ -165,15 +149,12 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
           value={this.props.node.bigWaveHeight}
           onChange={this.onChangeProperty('bigWaveHeight')}
         />
-        {/* @ts-ignore */}
         <InputGroup name="Wave Speed" label={this.props.t('editor:properties.ocean.lbl-waveSpeed')}>
           <Vector2Input value={this.props.node.waveSpeed} onChange={this.onChangeProperty('waveSpeed')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Wave Scale" label={this.props.t('editor:properties.ocean.lbl-waveScale')}>
           <Vector2Input value={this.props.node.waveScale} onChange={this.onChangeProperty('waveScale')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Wave Tiling"
           label={this.props.t('editor:properties.ocean.lbl-waveTiling')}
@@ -184,7 +165,6 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
           value={this.props.node.waveTiling}
           onChange={this.onChangeProperty('waveTiling')}
         />
-        {/* @ts-ignore */}
         <InputGroup
           name="Wave Distortion Speed"
           label={this.props.t('editor:properties.ocean.lbl-waveDistortionSpeed')}
@@ -194,7 +174,6 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
             onChange={this.onChangeProperty('waveDistortionSpeed')}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Wave Distortion Tiling"
           label={this.props.t('editor:properties.ocean.lbl-waveDistortionTiling')}

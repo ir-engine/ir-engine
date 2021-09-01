@@ -42,9 +42,8 @@ export default class SplineNode extends EditorNodeMixin(Object3D) {
     this.editor.nodes.push(splineHelperObject)
   }
 
-  // @ts-ignore
-  copy(source, recursive?: boolean): void {
-    super.copy(source, false)
+  copy(source): this {
+    return super.copy(source, false)
   }
   async serialize(projectID) {
     const splineExportInfo = this.helper.exportSpline()

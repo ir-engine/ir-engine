@@ -128,6 +128,15 @@ const TreeLeafSpacer = (styled as any).div`
   width: 16px;
 `
 
+interface TagListItemProp {
+  tag?: any
+  depth?: any
+  onClick?: Function
+  expanded?: any
+  onToggleExpanded?: Function
+  selectedTags?: any
+}
+
 /**
  * TagListItem used to render tag list item.
  *
@@ -141,7 +150,7 @@ const TreeLeafSpacer = (styled as any).div`
  * @param       {any} rest
  * @constructor
  */
-function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selectedTags, ...rest }) {
+function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selectedTags, ...rest }: TagListItemProp) {
   const onClickItem = useCallback(
     (e) => {
       e.stopPropagation()
@@ -234,7 +243,6 @@ export function TagList({ tags, selectedTags, onChange, multiselect, initialExpa
 
   useEffect(() => {
     ;(tagListContainerRef as any).current.querySelectorAll('li').forEach((el, index) => {
-      /* @ts-ignore */
       el.style.backgroundColor = index % 2 === 0 ? theme.panel : theme.panel2
     })
   }, [tagListContainerRef, theme, expanded, tags])
@@ -247,7 +255,6 @@ export function TagList({ tags, selectedTags, onChange, multiselect, initialExpa
       <TagListHeader>Tags</TagListHeader>
       <TagListContainer ref={tagListContainerRef}>
         <TagChildrenList>
-          {/* @ts-ignore */}
           <TagListItem
             key="All"
             onClick={clearSelection}
@@ -257,7 +264,6 @@ export function TagList({ tags, selectedTags, onChange, multiselect, initialExpa
             tag={{ label: 'All', value: 'All' }}
           />
           {tags.map((tag) => (
-            /* @ts-ignore */
             <TagListItem
               key={tag.value}
               onClick={onSelect}

@@ -44,11 +44,9 @@ export function ImageNodeEditor(props) {
   //creating image customization view
   return (
     <NodeEditor description={ImageNodeEditor.description} {...props}>
-      {/* @ts-ignore */}
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
         <ImageInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup
         name="Controls"
         label={t('editor:properties.image.lbl-controls')}
@@ -56,17 +54,14 @@ export function ImageNodeEditor(props) {
       >
         <BooleanInput value={node.controls} onChange={onChangeControls} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup
         name="Transparency Mode"
         label={t('editor:properties.image.lbl-transparency')}
         info={t('editor:properties.image.info-transparency')}
       >
-        {/* @ts-ignore */}
         <SelectInput options={imageTransparencyOptions} value={node.alphaMode} onChange={onChangeTransparencyMode} />
       </InputGroup>
       {node.alphaMode === ImageAlphaMode.Mask && (
-        /* @ts-ignore */
         <NumericInputGroup
           name="Alpha Cutoff"
           label={t('editor:properties.image.lbl-alphaCutoff')}
@@ -80,9 +75,7 @@ export function ImageNodeEditor(props) {
           onChange={onChangeAlphaCutoff}
         />
       )}
-      {/* @ts-ignore */}
       <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')}>
-        {/* @ts-ignore */}
         <SelectInput options={imageProjectionOptions} value={node.projection} onChange={onChangeProjection} />
       </InputGroup>
     </NodeEditor>

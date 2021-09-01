@@ -24,7 +24,6 @@ export class GroupNodeEditor extends Component<GroupNodeEditorProps, {}> {
   render() {
     GroupNodeEditor.description = this.props.t('editor:properties.group.description')
     return (
-      /* @ts-ignore */
       <NodeEditor {...this.props} description={GroupNodeEditor.description} />
     )
   }

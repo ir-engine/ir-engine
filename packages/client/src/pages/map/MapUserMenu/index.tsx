@@ -216,8 +216,7 @@ const UserMenu = (props: UserMenuProps): any => {
         return null
     }
 
-    const Panel = menuPanel[currentActiveMenu.id]
-    // @ts-ignore
+    const Panel = menuPanel[currentActiveMenu.id] as any
     return <Panel {...args} />
   }
 

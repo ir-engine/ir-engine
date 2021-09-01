@@ -16,7 +16,6 @@ export const MenuItem = _MenuItem
 export const showMenu = _showMenu
 export const SubMenu = _SubMenu
 export const ContextMenuTrigger = _ContextMenuTrigger
-// @ts-ignore
 
 /**
  *

@@ -32,7 +32,6 @@ export class SpawnPointNodeEditor extends Component<SpawnPointNodeEditorProps, {
     SpawnPointNodeEditor.description = this.props.t('editor:properties.spawnPoint.description')
     return (
       <NodeEditor
-        /* @ts-ignore */
         description={SpawnPointNodeEditor.description}
         {...this.props}
       />
