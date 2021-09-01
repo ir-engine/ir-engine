@@ -44,6 +44,17 @@ class Scrubber extends Component {
     this.scrubberEl = createRef()
     this.state = { isDragging: false, startValue: null, delta: null, mouseX: null, mouseY: null }
   }
+  static defaultProps = {
+    tag: 'label',
+    smallStep: 0.025,
+    mediumStep: 0.1,
+    largeStep: 0.25,
+    sensitivity: 5,
+    min: -Infinity,
+    max: Infinity,
+    convertFrom: (value) => value,
+    convertTo: (value) => value
+  }
 
   componentWillUnmount() {
     window.removeEventListener('mousemove', this.handleMouseMove)
@@ -142,6 +153,7 @@ class Scrubber extends Component {
     )
   }
 }
+
 /**
  *
  * @author Robert Long

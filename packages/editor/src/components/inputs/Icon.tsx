@@ -11,4 +11,8 @@ export function Icon(props) {
   return <img src={props.src} style={{ color: props.color, width: props.size, height: props.size }} />
 }
 
+Icon.defaultProps = {
+  color: 'white',
+  size: 32
+}
 export default Icon
