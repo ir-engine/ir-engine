@@ -1,7 +1,3 @@
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { NumericalType } from '../../common/types/NumericalTypes'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { InputAlias } from '../../input/types/InputAlias'
 import { StateEntityClientMovingGroup, StateEntityGroup, StateEntityIKGroup } from '../types/SnapshotDataTypes'
 
 export interface AvatarProps {
@@ -19,12 +15,10 @@ export type CommandType = {
 export interface NetworkInputInterface {
   /** network ID of user. */
   networkId: number
-  data: Array<{
-    key: InputAlias
-    value: InputValue
-  }>
-  /** Viewport vector of the client. */
-  viewVector: { x: number; y: number; z: number; w: number }
+  pose: number[]
+  head: number[]
+  leftHand: number[]
+  rightHand: number[]
   snapShotTime: number
   commands: CommandType[]
   transforms: StateEntityClientMovingGroup
@@ -54,7 +48,7 @@ export interface NetworkObjectEditInterface {
   /** Id of the network. */
   networkId: number
   /* NetworkObjectUpdateType */
-  type: number
+  updateType: number
   values: number[]
   data: string[]
 }
@@ -79,20 +73,6 @@ export interface WorldStateSnapshot {
   id: string
   /** State of the world while this snapshot is taken. */
   state: any[]
-}
-
-/** Interface for world state. */
-export interface WorldStateInterface {
-  /** List of connected clients. */
-  clientsConnected: NetworkClientDataInterface[]
-  /** List of disconnected clients. */
-  clientsDisconnected: NetworkClientDataInterface[]
-  /** List of created objects. */
-  createObjects: NetworkObjectCreateInterface[]
-  /** List of created objects. */
-  editObjects: NetworkObjectEditInterface[]
-  /** List of destroyed objects. */
-  destroyObjects: NetworkObjectRemoveInterface[]
 }
 
 /** Interface for world state. */
