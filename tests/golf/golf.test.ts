@@ -1,20 +1,10 @@
-import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot/src/bot'
 import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
-import { teleportOnSpawn, teleportToBall } from './actions/teleportToBallTest'
+import { teleportToBall } from './actions/teleportToBallTest'
 import { headUpdateTest, hitBallTest } from './actions/hitBallTest'
-import { checkGoalOnePlayer, checkGoalTwoPlayers } from './actions/checkGoal'
+import { canOnePlayerFinishedFirstHole, canTwoPlayerFinishedFirstHole } from './actions/multiPlayerPlayingTest'
 import { resetBall } from './actions/resetBallTest'
-
-const testdata = {
-  'bot-1': {
-    teeLastPosition: new Vector3()
-  },
-  'bot-2': {
-    teeLastPosition: new Vector3()
-  }
-}
 
 const maxTimeout = 60 * 1000
 const bot = new XREngineBot({ name: 'bot-1', headless: false, verbose: false })
@@ -24,9 +14,7 @@ const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently
 const locationName = process.env.TEST_LOCATION_NAME
 
-const vector3 = new Vector3()
-
-describe('Golf tests', () => {
+describe.skip('Golf tests', () => {
   //version/
   chrome: beforeAll(async () => {
     await bot.launchBrowser()
@@ -35,7 +23,7 @@ describe('Golf tests', () => {
     await bot.delay(3000)
     await setupXR(bot)
     await bot.runHook(BotHooks.InitializeBot)
-    //await bot.runHook(XRBotHooks.OverrideXR)
+    await bot.runHook(XRBotHooks.OverrideXR)
 
     await bot2.launchBrowser()
     await bot2.enterLocation(`https://${domain}/golf/${locationName}`)
@@ -43,8 +31,7 @@ describe('Golf tests', () => {
     await bot2.delay(3000)
     await setupXR(bot2)
     await bot2.runHook(BotHooks.InitializeBot)
-    
-    //await bot2.runHook(XRBotHooks.OverrideXR)
+    await bot2.runHook(XRBotHooks.OverrideXR)
   }, maxTimeout)
 
   afterAll(async () => {
@@ -62,33 +49,20 @@ describe('Golf tests', () => {
   headUpdateTest(bot2)
   testWebXR(bot2)
 
+  hitBallTest(bot)
+  // resetBall(bot) // Out fo course
   // Test player ids
   // Test state stuff like score and current hole
-
-  //hitBallTest(bot)
- // teleportOnSpawn(bot, 'KeyJ')
-
-  //teleportToBall(bot2)
-  //hitBallTest(bot2)
-  //teleportOnSpawn(bot2, 'KeyM')
-
-  //checkGoal(bot, testdata)
-  //checkGoal(bot2, testdata)
 /*
-  for (let count = 0; count < 2; count++) {
-    if (count % 2) {
-      teleportToBall(bot)
-      hitBall(bot)
-      teleportOnSpawn(bot, 'KeyJ')
-    } else {
-     // teleportToBall(bot2)
-     // hitBallTest(bot2)
-     // teleportOnSpawn(bot2, 'KeyM')
-    }
-  }
-*/
-  //checkGoalOnePlayer(bot, testdata)
-  checkGoalTwoPlayers(bot, bot2, testdata)
-  // resetBall(bot)
-  // resetBall(bot)
+- add following tests:
+  - multiple players
+  - multiple hits
+  - multiple holes
+  - ball out of bounds
+  - player disconnect and reconnect
+  */
+  //canOnePlayerFinishedFirstHole(bot)
+  canTwoPlayerFinishedFirstHole(bot, bot2)
+  
+
 })

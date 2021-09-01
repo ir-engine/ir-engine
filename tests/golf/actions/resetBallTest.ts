@@ -11,13 +11,9 @@ export const resetBall = (bot: XREngineBot) => {
     async () => {
       const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
 
-      await bot.delay(1000)
-      await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
-      await bot.delay(1000)
+      await bot.delay(500)
       await bot.keyPress('KeyB', 200)
-      await bot.delay(1000)
-      await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
-      await bot.delay(1000)
+      await bot.delay(3000)
 
       expect(
         vector3

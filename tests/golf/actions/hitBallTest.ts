@@ -9,27 +9,15 @@ const vector3 = new Vector3()
 
 export const hitBallTest = (bot: XREngineBot) => {
   test(
-    bot.name + ' can hit ball',
+    'Can hit ball',
     async () => {
-      const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
-      //  await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
       await bot.delay(1000)
 
       const positionPlayer = await bot.runHook(GolfBotHooks.GetPlayerPosition)
-      // await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
-      // ball should be at spawn position
-      /*
-      expect(
-        vector3
-          .copy(await bot.runHook(GolfBotHooks.GetBallPosition))
-          .sub(positionPlayer)
-          .length()
-      ).toBeLessThan(0.3)
-*/
+
       await bot.keyPress('KeyL', 200)
       //await bot.runHook(GolfBotHooks.SwingClub)
-      await bot.delay(2000)
-      //await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+      await bot.delay(3000)
       expect(
         vector3
           .copy(await bot.runHook(GolfBotHooks.GetBallPosition))

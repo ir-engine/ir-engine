@@ -189,43 +189,6 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
         simulateXR()
       })
     }
-    const setupBotTeleportToSpawnKey = 143
-    inputs.schema.inputMap.set('j', setupBotTeleportToSpawnKey)
-    inputs.schema.behaviorMap.set(
-      setupBotTeleportToSpawnKey,
-      (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
-        if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
-        const controller = getComponent(entity, AvatarControllerComponent)
-        const actor = getComponent(entity, AvatarComponent)
-        const playerPosition = getComponent(entity, TransformComponent).position
-        const pos = new Vector3(playerPosition.x - 1, playerPosition.y, playerPosition.z)
-        pos.y += actor.avatarHalfHeight
-        controller.controller.updateTransform({
-          translation: pos
-        })
-        controller.controller.velocity.setScalar(0)
-      }
-    )
-
-    const setupBotTeleportToSpawnKeyBot2 = 144
-    inputs.schema.inputMap.set('m', setupBotTeleportToSpawnKeyBot2)
-    inputs.schema.behaviorMap.set(
-      setupBotTeleportToSpawnKeyBot2,
-      (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
-        if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
-        const controller = getComponent(entity, AvatarControllerComponent)
-        const actor = getComponent(entity, AvatarComponent)
-        const playerPosition = getComponent(entity, TransformComponent).position
-        const pos = new Vector3(playerPosition.x - 2, playerPosition.y, playerPosition.z)
-        pos.y += actor.avatarHalfHeight
-        controller.controller.updateTransform({
-          translation: pos
-        })
-        controller.controller.velocity.setScalar(0)
-      }
-    )
 
     const swingClubKey = 142
     inputs.schema.inputMap.set('KeyL', swingClubKey)
@@ -233,12 +196,6 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       swingClubKey,
       (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-        /*
-        updateHead({
-          position: [0, 2, 1],
-          rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
-        })
-*/
         // rotatePlayer()
         swingClub()
       }

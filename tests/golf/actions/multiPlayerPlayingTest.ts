@@ -7,70 +7,76 @@ import { XRBotHooks } from '../../../packages/engine/src/bot/enums/BotHooks'
 const maxTimeout = 60 * 1000
 const vector3 = new Vector3()
 
-export const checkGoalOnePlayer = (bot: XREngineBot, testdata) => {
+const testData = {
+  'bot-1': {
+    teeLastPosition: new Vector3()
+  },
+  'bot-2': {
+    teeLastPosition: new Vector3()
+  }
+}
+
+export const canOnePlayerFinishedFirstHole = (bot: XREngineBot) => {
   test(
     'checkGoalOnePlayer',
     async () => {
-      await prepareCheck(bot, testdata)
-      await tryMoreHit(bot, testdata)
+      await prepareCheck(bot)
+      await tryMoreHit(bot)
       //TODO: check Ball and Hole positions
-      expect(await check(bot, testdata)).toBeGreaterThan(1)
+      expect(await check(bot)).toBeGreaterThan(1)
     },
     maxTimeout
   )
 }
 
-export const checkGoalTwoPlayers = (bot1: XREngineBot, bot2: XREngineBot, testdata) => {
+export const canTwoPlayerFinishedFirstHole = (bot1: XREngineBot, bot2: XREngineBot) => {
   test(
-    'checkGoalTwoPlayers', //  + bot.name
+    'Can Two Player Finished First Hole (playing)',
     async () => {
-      await prepareCheck(bot1, testdata)
-      await prepareCheck(bot2, testdata)
+      await prepareCheck(bot1)
+      await prepareCheck(bot2)
       let turn = bot1.name
-      await tryMoreHitTwoPlayer(bot1, bot2, turn, testdata)
+      await tryMoreHitTwoPlayer(bot1, bot2, turn)
       //TODO: check Ball and Hole positions
-      expect(2).toBeGreaterThan(1)
+      expect(await check(bot1)).toBeGreaterThan(1)
+      expect(await check(bot2)).toBeGreaterThan(1)
     },
-    maxTimeout
+    maxTimeout * 2 // for this test need more time
   )
 }
 
-async function tryMoreHit(bot: XREngineBot, testdata) {
-  await teleportToBallOrStepBack(bot, 'KeyK')
+async function tryMoreHit(bot: XREngineBot) {
+  await teleportToBall(bot)
   await hitBall(bot)
-  await teleportToBallOrStepBack(bot, 'KeyJ')
+  await teleportToBall(bot)
   // distanceFromLastTeeToNew its simple way to check goal with out hook to deep stuff
   // when you get bot.runHook(GolfBotHooks.GetTeePosition) and prev try result
   // you can understand when tee position change (on golf we change Tee number after goal)
-  const distanceFromLastTeeToNew = await check(bot, testdata)
+  const distanceFromLastTeeToNew = await check(bot)
   if (distanceFromLastTeeToNew < 1) {
-    await tryMoreHit(bot, testdata)
+    await tryMoreHit(bot)
   }
 }
 
-async function tryMoreHitTwoPlayer(bot1: XREngineBot, bot2: XREngineBot, turn, testdata) {
+async function tryMoreHitTwoPlayer(bot1: XREngineBot, bot2: XREngineBot, turn) {
   const bot = turn === bot1.name ? bot1 : bot2
-  const pressKeyToStepBack = turn === bot1.name ? 'KeyJ' : 'KeyM'
-  await teleportToBallOrStepBack(bot, 'KeyK')
+  await teleportToBall(bot)
   await hitBall(bot)
-  await teleportToBallOrStepBack(bot, pressKeyToStepBack)
+  await teleportToBall(bot)
   // distanceFromLastTeeToNew its simple way to check goal with out hook to deep stuff
   // when you get bot.runHook(GolfBotHooks.GetTeePosition) and prev try result
   // you can understand when tee position change (on golf we change Tee number after goal)
-  const distanceFromLastTeeToNew = await check(bot, testdata)
   const nextTurn = turn === bot1.name ? bot2.name : bot1.name
-  if (distanceFromLastTeeToNew < 1) {
-    await tryMoreHitTwoPlayer(bot1, bot2, nextTurn, testdata)
+  if ((await check(bot1)) < 1 || (await check(bot2)) < 1) {
+    await tryMoreHitTwoPlayer(bot1, bot2, nextTurn)
   }
 }
 
-async function teleportToBallOrStepBack(bot: XREngineBot, keyPress) {
-  await bot.delay(100)
-  await bot.keyPress(keyPress, 200)
-  await bot.delay(300)
-
+async function teleportToBall(bot: XREngineBot) {
+  //await bot.delay(100)
+  await bot.keyPress('KeyK', 200)
+  //await bot.delay(300)
   const ballPosition = await bot.runHook(GolfBotHooks.GetBallPosition)
-
   await bot.runHook(XRBotHooks.UpdateHead, {
     position: [ballPosition.x - 1, 2, ballPosition.z],
     rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
@@ -82,15 +88,15 @@ async function hitBall(bot: XREngineBot) {
   await bot.delay(3000)
 }
 
-async function prepareCheck(bot: XREngineBot, testdata) {
+async function prepareCheck(bot: XREngineBot) {
   const newTeePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
-  testdata[bot.name].teeLastPosition.copy(newTeePosition)
+  testData[bot.name].teeLastPosition.copy(newTeePosition)
 }
 
-async function check(bot: XREngineBot, testdata) {
+async function check(bot: XREngineBot) {
   const newTeePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
-  if (vector3.copy(testdata[bot.name].teeLastPosition).sub(newTeePosition).length() < 0.01) {
-    testdata[bot.name].teeLastPosition.copy(newTeePosition)
+  if (vector3.copy(testData[bot.name].teeLastPosition).sub(newTeePosition).length() < 0.01) {
+    testData[bot.name].teeLastPosition.copy(newTeePosition)
   }
-  return vector3.copy(testdata[bot.name].teeLastPosition).sub(newTeePosition).length()
+  return vector3.copy(testData[bot.name].teeLastPosition).sub(newTeePosition).length()
 }
