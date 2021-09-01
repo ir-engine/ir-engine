@@ -15,11 +15,7 @@ import Modal from 'react-modal'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
-import {
-  createProject,
-  getProject,
-  saveProject,
-} from '@xrengine/engine/src/scene/functions/projectFunctions'
+import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'

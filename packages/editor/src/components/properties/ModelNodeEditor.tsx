@@ -212,34 +212,19 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
         return (
           <>
             <InputGroup name="Name" label={this.props.t('editor:properties.model.lbl-name')}>
-              <StringInput
-                value={node.payloadName}
-                onChange={this.onChangePayloadName}
-              />
+              <StringInput value={node.payloadName} onChange={this.onChangePayloadName} />
             </InputGroup>
             <InputGroup name="Url" label={this.props.t('editor:properties.model.lbl-url')}>
-              <StringInput
-                value={node.payloadUrl}
-                onChange={this.onChangePayloadUrl}
-              />
+              <StringInput value={node.payloadUrl} onChange={this.onChangePayloadUrl} />
             </InputGroup>
             <InputGroup name="BuyUrl" label={this.props.t('editor:properties.model.lbl-buy')}>
-              <StringInput
-                value={node.payloadBuyUrl}
-                onChange={this.onChangePayloadBuyUrl}
-              />
+              <StringInput value={node.payloadBuyUrl} onChange={this.onChangePayloadBuyUrl} />
             </InputGroup>
             <InputGroup name="LearnMoreUrl" label={this.props.t('editor:properties.model.lbl-learnMore')}>
-              <StringInput
-                value={node.payloadLearnMoreUrl}
-                onChange={this.onChangePayloadLearnMoreUrl}
-              />
+              <StringInput value={node.payloadLearnMoreUrl} onChange={this.onChangePayloadLearnMoreUrl} />
             </InputGroup>
             <InputGroup name="HtmlContent" label={this.props.t('editor:properties.model.lbl-htmlContent')}>
-              <StringInput
-                value={node.payloadHtmlContent}
-                onChange={this.onChangePayloadHtmlContent}
-              />
+              <StringInput value={node.payloadHtmlContent} onChange={this.onChangePayloadHtmlContent} />
             </InputGroup>
           </>
         )
@@ -255,10 +240,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
         return (
           <Fragment>
             <InputGroup name="Interaction Text" label={this.props.t('editor:properties.model.lbl-interactionText')}>
-              <StringInput
-                value={node.interactionText}
-                onChange={this.onChangeInteractionText}
-              />
+              <StringInput value={node.interactionText} onChange={this.onChangeInteractionText} />
             </InputGroup>
             <InputGroup name="Interaction Type" label={this.props.t('editor:properties.model.lbl-interactionType')}>
               <SelectInput

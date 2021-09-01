@@ -190,10 +190,7 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
   renderTextureSettings = (value, onChange) => (
     <>
       <InputGroup name="Texture" label={this.props.t('editor:properties.skybox.lbl-texture')}>
-        <ControlledStringInput
-          value={value}
-          onChange={onChange}
-        />
+        <ControlledStringInput value={value} onChange={onChange} />
       </InputGroup>
     </>
   )

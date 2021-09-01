@@ -60,7 +60,7 @@ export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((valu
 
   const onKeyUp = useCallback((e) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
-      (inputRef as any).current.blur()
+      ;(inputRef as any).current.blur()
     }
   }, [])
 

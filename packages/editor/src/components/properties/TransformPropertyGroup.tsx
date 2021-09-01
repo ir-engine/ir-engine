@@ -98,11 +98,7 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
           />
         </InputGroup>
         <InputGroup name="Rotation" label={this.props.t('editor:properties.transform.lbl-rotation')}>
-          <EulerInput
-            value={node.rotation}
-            onChange={this.onChangeRotation}
-            unit="°"
-          />
+          <EulerInput value={node.rotation} onChange={this.onChangeRotation} unit="°" />
         </InputGroup>
         <InputGroup name="Scale" label={this.props.t('editor:properties.transform.lbl-scale')}>
           <Vector3Input

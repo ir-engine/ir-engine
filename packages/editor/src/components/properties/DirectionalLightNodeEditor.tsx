@@ -58,10 +58,7 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
     DirectionalLightNodeEditor.description = this.props.t('editor:properties.directionalLight.description')
     const { node, editor } = this.props as any
     return (
-      <NodeEditor
-        {...this.props}
-        description={DirectionalLightNodeEditor.description}
-      >
+      <NodeEditor {...this.props} description={DirectionalLightNodeEditor.description}>
         <InputGroup name="Color" label={this.props.t('editor:properties.directionalLight.lbl-color')}>
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>

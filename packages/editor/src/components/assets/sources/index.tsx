@@ -1,9 +1,9 @@
 import EventEmitter from 'eventemitter3'
 
 export type SearchResult = {
-  results: any[],
-  suggestions?: any[],
-  nextCursor?: number,
+  results: any[]
+  suggestions?: any[]
+  nextCursor?: number
   hasMore?: boolean
 }
 

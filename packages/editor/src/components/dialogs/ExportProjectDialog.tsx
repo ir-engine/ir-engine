@@ -77,11 +77,7 @@ export function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
       <FormContainer>
         <FormField>
           <label htmlFor="combineMeshes">{t('editor:dialog.exportProject.lbl-combineMesh')}</label>
-          <BooleanInput
-            id="combineMeshes"
-            value={options.combineMeshes}
-            onChange={onChangeCombineMeshes}
-          />
+          <BooleanInput id="combineMeshes" value={options.combineMeshes} onChange={onChangeCombineMeshes} />
         </FormField>
         <FormField>
           <label htmlFor="removeUnusedObjects">{t('editor:dialog.exportProject.lbl-removeUnused')}</label>

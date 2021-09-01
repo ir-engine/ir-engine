@@ -44,10 +44,7 @@ export class AmbientLightNodeEditor extends Component<AmbientLightNodeEditorProp
     AmbientLightNodeEditor.description = this.props.t('editor:properties.ambientLight.description')
     const node = this.props.node
     return (
-      <NodeEditor
-        {...this.props}
-        description={AmbientLightNodeEditor.description}
-      >
+      <NodeEditor {...this.props} description={AmbientLightNodeEditor.description}>
         <InputGroup name="Color" label={this.props.t('editor:properties.ambientLight.lbl-color')}>
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>

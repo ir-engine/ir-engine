@@ -89,7 +89,17 @@ interface SelectInputProp {
  * @param {any} rest
  * @returns
  */
-export function SelectInput({ value, options, onChange, placeholder, disabled, error, styles, creatable, ...rest }: SelectInputProp) {
+export function SelectInput({
+  value,
+  options,
+  onChange,
+  placeholder,
+  disabled,
+  error,
+  styles,
+  creatable,
+  ...rest
+}: SelectInputProp) {
   const selectedOption =
     options.find((o) => {
       if (o === null) {

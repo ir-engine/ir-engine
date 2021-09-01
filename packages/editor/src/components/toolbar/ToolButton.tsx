@@ -32,10 +32,10 @@ const Icon = (styled as any).div`
 `
 
 interface ToolButtonProp {
-  id: string | number,
+  id: string | number
   icon?: any
-  onClick: Function,
-  isSelected?: boolean,
+  onClick: Function
+  isSelected?: boolean
   tooltip?: string
 }
 

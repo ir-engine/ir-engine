@@ -11,12 +11,12 @@ import serializeColor from '../functions/serializeColor'
 import ErrorIcon from '../classes/ErrorIcon'
 
 type SerializedComponents = {
-  name: string,
+  name: string
   props: any
 }
 
 export type SerializedNode = {
-  name: string,
+  name: string
   components: SerializedComponents[]
 }
 
@@ -40,7 +40,8 @@ export default function EditorNodeMixin(Object3DClass) {
     static shouldDeserialize(entityJson) {
       return !!entityJson.components.find((c) => c.name === this.legacyComponentName)
     }
-    static async deserialize(editor, json, loadAsync?, onError?) {  // Unused params used in derived class methods
+    static async deserialize(editor, json, loadAsync?, onError?) {
+      // Unused params used in derived class methods
       const node = new this(editor)
       node.name = json.name
       if (json.components) {

@@ -45,10 +45,7 @@ export class HemisphereLightNodeEditor extends Component<HemisphereLightNodeEdit
     HemisphereLightNodeEditor.description = this.props.t('editor:properties.hemisphere.description')
     const node = this.props.node
     return (
-      <NodeEditor
-        {...this.props}
-        description={HemisphereLightNodeEditor.description}
-      >
+      <NodeEditor {...this.props} description={HemisphereLightNodeEditor.description}>
         <InputGroup name="Sky Color" label={this.props.t('editor:properties.hemisphere.lbl-skyColor')}>
           <ColorInput value={node.skyColor} onChange={this.onChangeSkyColor} />
         </InputGroup>

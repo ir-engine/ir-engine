@@ -49,16 +49,10 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
         <BooleanInput value={node.useDeviceGeolocation} onChange={onChangeUseGeolocation} />
       </InputGroup>
       <InputGroup name="Start Latitude" label={t('editor:properties.map.lbl-startLatitude')}>
-        <StringInput
-          value={node.startLatitude}
-          onChange={onChangeStartLatitude}
-        />
+        <StringInput value={node.startLatitude} onChange={onChangeStartLatitude} />
       </InputGroup>
       <InputGroup name="Start Longitude" label={t('editor:properties.map.lbl-startLongitude')}>
-        <StringInput
-          value={node.startLongitude}
-          onChange={onChangeStartLongitude}
-        />
+        <StringInput value={node.startLongitude} onChange={onChangeStartLongitude} />
       </InputGroup>
       <InputGroup
         name="Show Raster Tiles?"

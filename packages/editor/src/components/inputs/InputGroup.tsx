@@ -85,7 +85,6 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
  * @type {Object}
  */
 
-
 interface InputGroupProp {
   name: string
   children: any

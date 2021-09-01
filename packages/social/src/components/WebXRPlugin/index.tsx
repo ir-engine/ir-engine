@@ -391,8 +391,7 @@ export const WebXRPlugin = ({
           setContentHidden()
         })
         .catch((error) => console.log(error.message))
-
-        ;(XRPlugin as any).addListener('poseDataReceived', (data: any) => {
+      ;(XRPlugin as any).addListener('poseDataReceived', (data: any) => {
         const camera = cameraRef.current
         const anchor = anchorRef.current
 
@@ -487,7 +486,6 @@ export const WebXRPlugin = ({
           // }
         }
       })
-
       ;(XRPlugin as any).addListener('cameraIntrinsicsReceived', (data: any) => {
         setCameraIntrinsicsState(
           JSON.stringify({
