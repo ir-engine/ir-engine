@@ -325,6 +325,7 @@ export class XREngineBot {
         `--use-file-for-fake-video-capture=${this.fakeMediaPath}/video.y4m`,
         `--use-file-for-fake-audio-capture=${this.fakeMediaPath}/audio.wav`,
         '--disable-web-security=1',
+        '--no-first-run',
         //     '--use-fake-device-for-media-stream',
         //     '--use-file-for-fake-video-capture=/Users/apple/Downloads/football_qcif_15fps.y4m',
         //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
@@ -332,7 +333,7 @@ export class XREngineBot {
         '--mute-audio'
       ],
       defaultViewport: this.windowSize,
-      ignoreDefaultArgs: this.ci, //['--mute-audio'],
+      ignoreDefaultArgs: true, //['--mute-audio'],
       ...this.detectOsOption()
     }
     if (!this.ci) {
