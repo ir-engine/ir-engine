@@ -24,7 +24,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     args
   })
 
-  const { mapMesh, navMesh, groundMesh, labels } = await createMapObjects(center, center, args)
+  const { mapMesh, navMesh, groundMesh, labels } = await createMapObjects(center, args)
 
   mapComponent.loading = false
 

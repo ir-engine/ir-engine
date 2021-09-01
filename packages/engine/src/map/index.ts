@@ -22,14 +22,14 @@ let centerCoord = {}
 let centerTile = {}
 let scaleArg
 
-export const createMapObjects = async function (center: Position, currentCenter: Position, args: MapProps) {
-  console.log('createMapObjects called with args:', center, currentCenter, args)
-  const vectorTiles = await fetchVectorTiles(currentCenter)
-  const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(currentCenter) : []
+export const createMapObjects = async function (center: Position, args: MapProps) {
+  console.log('createMapObjects called with args:', center, args)
+  const vectorTiles = await fetchVectorTiles(center)
+  const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
   const buildingMesh = createBuildings(vectorTiles, center)
-  const groundMesh = createGroundMesh(rasterTiles as any, currentCenter[1])
+  const groundMesh = createGroundMesh(rasterTiles as any, center[1])
   const roadsMesh = createRoads(vectorTiles, center)
   const waterMesh = createWater(vectorTiles, center)
   const landUseMesh = createLandUse(vectorTiles, center)
@@ -95,5 +95,3 @@ export const getTile = () => {
 export const getScaleArg = () => {
   return scaleArg
 }
-
-export function refreshSceneObjects() {}
