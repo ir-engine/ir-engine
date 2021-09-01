@@ -17,13 +17,15 @@ export function createScope(scopeItem: any) {
   }
 }
 
-export function getScopeService(type?: string, limit: Number = 12) {
-  return async (dispatch: Dispatch): Promise<any> => {
+export function getScopeService(incDec: string | null) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const skip = getState().get('scope').get('scope').get('skip')
+    const limit = getState().get('scope').get('scope').get('limit')
     try {
       dispatch(fetchingScope())
       const list = await client.service('scope').find({
         query: {
-          action: type,
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit
         }
       })
@@ -61,12 +63,14 @@ export function removeScope(scopeId: string) {
   }
 }
 
-export function getScopeTypeService(type?: string, limit: Number = 12) {
-  return async (dispatch: Dispatch): Promise<any> => {
+export function getScopeTypeService(incDec: string | null) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const skip = getState().get('scope').get('scopeType').get('skip')
+    const limit = getState().get('scope').get('scopeType').get('limit')
     try {
       const result = await client.service('scope-type').find({
         query: {
-          action: type,
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit
         }
       })
