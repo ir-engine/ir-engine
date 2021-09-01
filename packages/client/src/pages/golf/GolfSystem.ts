@@ -431,9 +431,11 @@ export const GolfSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of playerEnterQueryResults) {
-      if (isClient) setupPlayerAvatar(entity)
-      setupPlayerInput(world, entity)
+    if (isClient) {
+      for (const entity of playerEnterQueryResults) {
+        setupPlayerAvatar(entity)
+        setupPlayerInput(world, entity)
+      }
     }
 
     for (const entity of namedComponentEnterQuery(world)) {

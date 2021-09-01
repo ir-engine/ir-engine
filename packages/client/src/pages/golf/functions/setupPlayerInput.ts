@@ -28,7 +28,6 @@ import {
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
-import { rotateViewVectorXZ } from '@xrengine/engine/src/camera/systems/CameraSystem'
 import { BALL_STATES, setBallState } from '../prefab/GolfBallPrefab'
 import { dispatchFromClient } from '@xrengine/engine/src/networking/functions/dispatch'
 import { GolfAction } from '../GolfAction'
@@ -47,6 +46,7 @@ const rotate90onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math
 
 export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
   const inputs = getComponent(entityPlayer, InputComponent)
+  if (!inputs) return
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('KeyK', GolfInput.TELEPORT)
@@ -89,7 +89,7 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       controller.controller.updateTransform({
         translation: pos
       })
-      rotateViewVectorXZ(actor.viewVector, angle)
+      // rotateViewVectorXZ(actor.viewVector, angle)
 
       const transform = getComponent(entity, TransformComponent)
       const quat = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), angle)

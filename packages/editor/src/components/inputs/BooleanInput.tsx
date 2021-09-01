@@ -60,6 +60,10 @@ export class BooleanInput extends Component {
     super(props)
     this.checkboxId = `boolean-input-${uniqueId++}`
   }
+  static defaultProps = {
+    value: false,
+    onChange: () => {}
+  }
 
   // declaring checkboxId
   checkboxId: string
@@ -82,4 +86,5 @@ export class BooleanInput extends Component {
     )
   }
 }
+
 export default BooleanInput

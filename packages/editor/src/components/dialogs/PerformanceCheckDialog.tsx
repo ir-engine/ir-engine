@@ -204,4 +204,10 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
   )
 }
 
+PerformanceCheckDialog.defaultProps = {
+  tag: 'div',
+  title: i18n.t('editor:dialog.performance.info-fileSize') || 'Performance Check',
+  confirmLabel: i18n.t('editor:dialog.performance.info-fileSize') || 'Publish Scene'
+}
+
 export default PerformanceCheckDialog

@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectList } from '../interfaces/NetworkObjectList'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
 import { NetworkTransport, IncomingActionType, ActionType } from '../interfaces/NetworkTransport'
-import { AvatarProps, NetworkClientInputInterface, WorldStateInterface } from '../interfaces/WorldState'
+import { AvatarProps, NetworkClientInputInterface } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
 
@@ -97,24 +97,12 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
-  /** State of the world. */
-  worldState: WorldStateInterface = {
-    clientsConnected: [],
-    clientsDisconnected: [],
-    createObjects: [],
-    editObjects: [],
-    destroyObjects: []
-  }
-
   clientInputState: NetworkClientInputInterface = {
     networkId: -1,
-    data: [],
-    viewVector: {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 0
-    },
+    pose: [],
+    head: [],
+    leftHand: [],
+    rightHand: [],
     snapShotTime: 0,
     commands: [],
     transforms: []

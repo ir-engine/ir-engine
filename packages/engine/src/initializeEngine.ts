@@ -46,7 +46,6 @@ import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
 import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
-import { InputSystem } from './input/systems/InputSystem'
 import { ClientNetworkIncomingSystem } from './networking/systems/ClientNetworkIncomingSystem'
 
 // @ts-ignore
@@ -161,7 +160,6 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
-  registerSystem(SystemUpdateType.Fixed, InputSystem)
 
   // Avatar Systems
   registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
@@ -221,7 +219,6 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Network Incoming Systems
   registerSystem(SystemUpdateType.Fixed, ServerNetworkIncomingSystem, { ...options.networking }) // first
-  registerSystem(SystemUpdateType.Fixed, InputSystem)
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   // Input Systems

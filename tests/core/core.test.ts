@@ -9,7 +9,6 @@ const vector3 = new Vector3()
 const domain = process.env.APP_HOST
 const locationName = 'test'
 const sqrt2 = Math.sqrt(2)
-console.log('process.env.HEADLESS', process.env.HEADLESS)
 
 describe('My Bot Tests', () => {
 
