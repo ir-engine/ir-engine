@@ -1,4 +1,5 @@
 import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
+import { World } from '../../ecs/classes/World'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -60,8 +61,6 @@ export class WorldScene {
   loaders: Promise<void>[] = []
   static callbacks: any
   static isLoading = false
-  static sceneMetadata: string
-  static worldMetadata: { [key: string]: string } = {}
 
   constructor(private onProgress?: Function) {}
 
@@ -127,7 +126,7 @@ export class WorldScene {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
         const { meta_data } = component.data
-        WorldScene.sceneMetadata = meta_data
+        World.sceneMetadata = meta_data
         console.log('scene_metadata|' + meta_data)
         //}
         break
@@ -140,7 +139,7 @@ export class WorldScene {
           // if (isClient && Engine.isBot) {
           const { _data } = component.data
           const { x, y, z } = transform.position
-          WorldScene.worldMetadata[_data] = x + ',' + y + ',' + z
+          World.worldMetadata[_data] = x + ',' + y + ',' + z
           console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
           //}
         }

@@ -39,6 +39,7 @@ import {
   userUpdated
 } from './actions'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { _updateUsername } from '../../../../../engine/src/networking/utils/chatSystem'
 
 const store = Store.store
 
@@ -917,7 +918,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     console.log('User patched', user)
     if (Network.instance != null) {
       await loadAvatarForUpdatedUser(user)
-      Network.instance.updateUsername(user.id, user.name)
+      _updateUsername(user.id, user.name)
     }
 
     if (selfUser.id === user.id) {

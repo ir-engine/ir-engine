@@ -13,6 +13,13 @@ import { AvatarAnimations, AvatarStates } from '../../../engine/src/avatar/anima
 import { stopAutopilot } from '../../../engine/src/navigation/functions/stopAutopilot'
 import { Network } from '../../../engine/src/networking/classes/Network'
 import { isNumber } from '@turf/helpers'
+import { getPlayerEntity } from '../../../engine/src/networking/utils/getUser'
+import {
+  subscribeToChatSystem,
+  unsubscribeFromChatSystem,
+  getSubscribedChatSystems
+} from '../../../engine/src/networking/utils/chatSystem'
+import { World } from '../../../engine/src/ecs/classes/World'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -226,15 +233,15 @@ function handleMoveCommand(x: number, y: number, z: number, eid: any) {
 
 function handleMetadataCommand(params: any, eid: any) {
   if (params[0] === 'scene') {
-    console.log('scene_metadata|' + WorldScene.sceneMetadata)
+    console.log('scene_metadata|' + World.sceneMetadata)
   } else {
     const position = getComponent(eid, TransformComponent).position
     const maxDistance: number = parseFloat(params[1])
     var vector: Vector3
     var distance: number = 0
 
-    for (let i in WorldScene.worldMetadata) {
-      vector = getMetadataPosition(WorldScene.worldMetadata[i])
+    for (let i in World.worldMetadata) {
+      vector = getMetadataPosition(World.worldMetadata[i])
 
       distance = position.distanceTo(vector)
       if (distance > maxDistance) continue
@@ -250,9 +257,9 @@ function handleGoToCommand(landmark: string, eid: any) {
   var cDistance: number = 0
   var vector: Vector3
 
-  for (let i in WorldScene.worldMetadata) {
+  for (let i in World.worldMetadata) {
     if (i === landmark) {
-      vector = getMetadataPosition(WorldScene.worldMetadata[i])
+      vector = getMetadataPosition(World.worldMetadata[i])
       cDistance = position.distanceTo(vector)
 
       if (cDistance < distance) {
@@ -307,13 +314,13 @@ function handleEmoteCommand(emote: string, eid: any) {
   }
 }
 function handleSubscribeToChatSystemCommand(system: string, userId: any) {
-  Network.instance.subscribeToChatSystem(userId, system)
+  subscribeToChatSystem(userId, system)
 }
 function handleUnsubscribeFromChatSystemCommand(system: string, userId: any) {
-  Network.instance.unsubscribeFromChatSystem(userId, system)
+  unsubscribeFromChatSystem(userId, system)
 }
 async function handleGetSubscribedChatSystemsCommand(userId: any) {
-  const systems: string[] = Network.instance.getSubscribedChatSystems(userId)
+  const systems: string[] = getSubscribedChatSystems(userId)
   console.log(systems)
 }
 
@@ -343,7 +350,7 @@ function handleFaceCommand(face: string, eid: any) {
 function handleGetPositionCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid: number = Network.instance.getPlayerEntity(player)
+  const eid: number = getPlayerEntity(player)
   if (eid === undefined) {
     console.log('undefiend eid')
     return
@@ -361,7 +368,7 @@ function handleGetPositionCommand(player: string) {
 function handleGetRotationCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = Network.instance.getPlayerEntity(player)
+  const eid = getPlayerEntity(player)
   if (eid === undefined) return
 
   const transform = getComponent(eid, TransformComponent)
@@ -373,7 +380,7 @@ function handleGetRotationCommand(player: string) {
 function handleGetScaleCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = Network.instance.getPlayerEntity(player)
+  const eid = getPlayerEntity(player)
   if (eid === undefined) return
 
   const transform = getComponent(eid, TransformComponent)
@@ -385,7 +392,7 @@ function handleGetScaleCommand(player: string) {
 function handleGetTransformCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = Network.instance.getPlayerEntity(player)
+  const eid = getPlayerEntity(player)
   if (eid === undefined) return
 
   const transform = getComponent(eid, TransformComponent)

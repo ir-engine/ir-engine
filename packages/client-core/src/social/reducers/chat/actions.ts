@@ -22,6 +22,12 @@ import { handleCommand, isCommand } from '../../../../../common/src/utils/comman
 import { Network } from '../../../../../engine/src/networking/classes/Network'
 import { Engine } from '../../../../../engine/src/ecs/classes/Engine'
 import { isBot } from '../../../../../engine/src/common/functions/isBot'
+import { isPlayerLocal } from '../../../../../engine/src/networking/utils/isPlayerLocal'
+import {
+  getChatMessageSystem,
+  hasSubscribedToChatSystem,
+  removeMessageSystem
+} from '../../../../../engine/src/networking/utils/chatSystem'
 
 export interface LoadedChannelsAction {
   type: string
@@ -122,20 +128,20 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
 
 export function createdMessage(message: Message, selfUser: User): ChatAction {
   if (message != undefined && message.text != undefined) {
-    if (Network.instance.isLocal(message.senderId)) {
+    if (isPlayerLocal(message.senderId)) {
       if (handleCommand(message.text, Network.instance.localClientEntity, false, message.senderId)) return
       else {
-        const system = Network.instance.getChatMessageSystem(message.text)
+        const system = getChatMessageSystem(message.text)
         if (system !== 'none') {
-          message.text = Network.instance.removeMessageSystem(message.text)
-          if (!Network.instance.hasSubscribedToChatSystem(selfUser.id, system)) return
+          message.text = removeMessageSystem(message.text)
+          if (!hasSubscribedToChatSystem(selfUser.id, system)) return
         }
       }
     } else {
-      const system = Network.instance.getChatMessageSystem(message.text)
+      const system = getChatMessageSystem(message.text)
       if (system !== 'none') {
-        message.text = Network.instance.removeMessageSystem(message.text)
-        if (!Network.instance.hasSubscribedToChatSystem(selfUser.id, system)) return
+        message.text = removeMessageSystem(message.text)
+        if (!hasSubscribedToChatSystem(selfUser.id, system)) return
       } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
     }
   }

@@ -5,6 +5,8 @@ import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ProximityCheckerComponent } from '../components/ProximityCheckerComponent'
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '../../../../common/src/utils/mathUtils'
+import { isEntityLocal } from '../../networking/utils/isPlayerLocal'
+import { getUserId } from '../../networking/utils/getUser'
 
 const maxDistance: number = 10
 
@@ -13,8 +15,8 @@ export const ProximityCheckerSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const eid of proximityCheckerQuery(world)) {
-      if (Network.instance.isEntityLocal(eid)) {
-        const userId = Network.instance.getUserId(eid)
+      if (isEntityLocal(eid)) {
+        const userId = getUserId(eid)
         const transform = getComponent(eid, TransformComponent)
         var remoteTransform
         var distance: number = -1
