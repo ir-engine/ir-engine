@@ -10,7 +10,8 @@ export const Views = {
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
   Location: 'Location',
-  NewLocation: 'NewLocation'
+  NewLocation: 'NewLocation',
+  ReadyPlayer: 'ReadyPlayer'
 }
 
 export interface UserMenuProps {

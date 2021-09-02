@@ -1,3 +1,4 @@
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
@@ -616,7 +617,14 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
     modelData.append('acl', 'public-read')
     modelData.append(modelURL.local ? 'media' : 'file', model)
     if (modelURL.local) {
-      modelData.append('uploadPath', 'avatars')
+      var uploadPath = 'avatars'
+
+      if (modelURL.fields.Key) {
+        uploadPath = modelURL.fields.Key
+        uploadPath = uploadPath.substring(0, uploadPath.lastIndexOf('/'))
+      }
+
+      modelData.append('uploadPath', uploadPath)
       modelData.append('id', `${name}.glb`)
       modelData.append('skipStaticResource', 'true')
     }
@@ -639,7 +647,13 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
         thumbnailData.append('acl', 'public-read')
         thumbnailData.append(thumbnailURL.local === true ? 'media' : 'file', thumbnail)
         if (thumbnailURL.local) {
-          thumbnailData.append('uploadPath', 'avatars')
+          var uploadPath = 'avatars'
+
+          if (thumbnailURL.fields.Key) {
+            uploadPath = thumbnailURL.fields.Key
+            uploadPath = uploadPath.substring(0, uploadPath.lastIndexOf('/'))
+          }
+          thumbnailData.append('uploadPath', uploadPath)
           thumbnailData.append('name', `${name}.png`)
           thumbnailData.append('skipStaticResource', 'true')
         }
