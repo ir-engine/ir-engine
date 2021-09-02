@@ -50,6 +50,8 @@ const RenderSystem = async (): Promise<System> => {
   })
 }
 
+const STEP_BY_STEP_MODE = false
+
 // This is a functional React component
 const Page = () => {
   useEffect(() => {
@@ -57,7 +59,7 @@ const Page = () => {
       //initializeEngine()
       // Register our systems to do stuff
       registerSystem(SystemUpdateType.Fixed, AnimationSystem)
-      registerSystem(SystemUpdateType.Fixed, IKRigSystem)
+      registerSystem(SystemUpdateType.Network, IKRigSystem)
       registerSystem(SystemUpdateType.Free, RenderSystem)
 
       const fixedPipeline = await createPipeline(SystemUpdateType.Fixed)
@@ -80,11 +82,11 @@ const Page = () => {
       // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
 
       const networkExecute = executePipeline(world, networkPipeline)
-      // window['execute'] = networkExecute
+      window['execute'] = networkExecute
 
       Engine.engineTimer = Timer(
         {
-          networkUpdate: networkExecute,
+          networkUpdate: STEP_BY_STEP_MODE ? () => {} : networkExecute,
           fixedUpdate: executePipeline(world, fixedPipeline),
           update: executePipeline(world, freePipeline)
         },
@@ -118,6 +120,7 @@ async function initExample(world) {
   const ANIM_FILE = 'ikrig/anim/Walking.glb'
   const MODEL_A_FILE = 'ikrig/models/vegeta.glb'
   const MODEL_B_FILE = 'ikrig/anim/Walking.glb'
+  const MODEL_C_FILE = 'ikrig/models/robo_trex.gltf'
   const ANIMATION_INDEX = 12
 
   // LOAD SOURCE
@@ -178,7 +181,10 @@ async function initExample(world) {
   rig.sourceRig = skinnedMesh
   rig.sourcePose = sourcePose
 
-  ac.mixer.clipAction(model.animations[ANIMATION_INDEX]).setEffectiveTimeScale(0.2).play()
+  ac.mixer
+    .clipAction(model.animations[ANIMATION_INDEX])
+    .setEffectiveTimeScale(STEP_BY_STEP_MODE ? 0 : 0.2)
+    .play()
   console.log('CLIP', ac.mixer.clipAction(model.animations[ANIMATION_INDEX]))
   window['CLIP'] = ac.mixer.clipAction(model.animations[ANIMATION_INDEX])
 
