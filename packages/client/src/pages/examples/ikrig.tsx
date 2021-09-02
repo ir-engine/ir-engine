@@ -28,7 +28,7 @@ import Debug from '../../components/Debug'
 import { defineQuery, defineSystem, System } from 'bitecs'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { initRig, setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
+import { initRig } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
 import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
 
 const AnimationSystem = async (): Promise<System> => {

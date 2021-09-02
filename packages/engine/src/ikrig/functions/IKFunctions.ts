@@ -1,7 +1,7 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { IKRig, IKRigComponentType } from '../components/IKRig'
 import { Bone, Object3D, Quaternion, Vector3 } from 'three'
-import { IKPose } from '../components/IKPose'
+import { IKPose, IKPoseLimbData } from '../components/IKPose'
 import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
 import { addChain, addPoint } from './RigFunctions'
 import { Entity } from '../../ecs/classes/Entity'
