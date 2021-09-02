@@ -56,12 +56,6 @@ export class WorldStateModel {
   static fromBuffer(buffer: any): WorldStateInterface {
     try {
       const state = WorldStateModel.model.fromBuffer(buffer) as any
-
-      if (!state.transforms) {
-        console.warn('Packet not from this, will ignored', state)
-        return
-      }
-
       return {
         ...state,
         time: Number(state.time) // cast from bigint to number

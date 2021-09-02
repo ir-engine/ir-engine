@@ -13,6 +13,7 @@ import { AvatarControllerComponent } from '../../avatar/components/AvatarControl
 import { isClient } from '../../common/functions/isClient'
 import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
 import { getLocalNetworkId } from '../functions/getLocalNetworkId'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 export const OutgoingNetworkSystem = async (): Promise<System> => {
   /**
@@ -24,8 +25,6 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
   const networkTransformsQuery = isClient
     ? defineQuery([ClientAuthoritativeComponent, NetworkObjectComponent, TransformComponent])
     : defineQuery([NetworkObjectComponent, TransformComponent])
-
-  const avatarTransformsQuery = defineQuery([AvatarComponent])
 
   const ikTransformsQuery = isClient
     ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
@@ -40,7 +39,8 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
         !hasComponent(Network.instance.localClientEntity, NetworkObjectComponent))
     )
       return world
-    const transformState: WorldStateInterface = {
+
+    const newWorldState: WorldStateInterface = {
       tick: Network.instance.tick,
       time: Date.now(),
       pose: [],
@@ -51,7 +51,8 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
       const transformComponent = getComponent(entity, TransformComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
 
-      transformState.pose.push({
+      // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
+      newWorldState.pose.push({
         networkId: networkObject.networkId,
         pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
       })
@@ -59,21 +60,10 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
 
     if (isClient) {
       const transformComponent = getComponent(Network.instance.localClientEntity, TransformComponent)
-      transformState.pose.push({
+      newWorldState.pose.push({
         networkId: getLocalNetworkId(),
         pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
       })
-    } else {
-      for (const entity of avatarTransformsQuery(world)) {
-        const transformComponent = getComponent(entity, TransformComponent)
-        const networkObject = getComponent(entity, NetworkObjectComponent)
-
-        // TODO: reduce quaternions over network to three components
-        transformState.pose.push({
-          networkId: networkObject.networkId,
-          pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
-        })
-      }
     }
 
     for (const entity of ikTransformsQuery(world)) {
@@ -88,7 +78,7 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
         .toArray()
         .concat(xrInputs.controllerRight.quaternion.toArray()) as Pose
 
-      transformState.ikPose.push({
+      newWorldState.ikPose.push({
         networkId: networkObject.networkId,
         headPose,
         leftPose,
@@ -97,10 +87,10 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
     }
 
     try {
-      // console.log(transformState)
-      Network.instance.transport.sendData(WorldStateModel.toBuffer(transformState))
+      const buffer = WorldStateModel.toBuffer(newWorldState)
+      Network.instance.transport.sendData(buffer)
     } catch (e) {
-      console.error(transformState)
+      console.error(e, newWorldState)
     }
 
     return world

@@ -13,12 +13,15 @@ import { ClientAuthoritativeComponent } from '../../physics/components/ClientAut
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
 
 export const IncomingNetworkSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
-    for (const action of Network.instance.incomingActions) clientNetworkReceptor(world, action as any)
-
-    if (!isClient) {
+    if (isClient) {
+      for (const action of Network.instance.incomingActions) clientNetworkReceptor(world, action as any)
+    } else {
+      // Progress server to next tick
       Network.instance.tick++
     }
 
@@ -26,9 +29,21 @@ export const IncomingNetworkSystem = async (): Promise<System> => {
 
     while (unreliableQueue.getBufferLength() > 0) {
       const buffer = unreliableQueue.pop()
+
+      const userId = Network.instance.incomingMessageQueueUnreliableIDs.pop()
+
+      // TODO: ensure networkId is always defined on Network.instance.clients instead of this
+      const networkObj = Object.values(Network.instance.networkObjects).find((networkObject) => {
+        return networkObject.uniqueId === userId
+      })
+
+      if (!isClient && !networkObj) return
+      const incomingNetworkId = isClient ? 'server' : getComponent(networkObj.entity, NetworkObjectComponent).networkId
+      //
+
       try {
         const newWorldState = WorldStateModel.fromBuffer(buffer)
-        console.log(newWorldState)
+
         if (isClient) {
           Network.instance.tick = newWorldState.tick
 
@@ -56,25 +71,28 @@ export const IncomingNetworkSystem = async (): Promise<System> => {
           for (const pose of newWorldState.pose) {
             const networkObject = Network.instance.networkObjects[pose.networkId]
             if (!networkObject) continue
-            console.log(pose)
+
             if (hasComponent(networkObject.entity, AvatarComponent)) {
               if (hasComponent(networkObject.entity, AvatarControllerComponent)) continue
               const transformComponent = getComponent(networkObject.entity, TransformComponent)
-              console.log(pose.pose)
               transformComponent.position.fromArray(pose.pose)
               transformComponent.rotation.fromArray(pose.pose, 3)
               continue
             }
             const clientAuthoritativeComponent = getComponent(networkObject.entity, ClientAuthoritativeComponent)
-            if (
-              networkObject &&
-              clientAuthoritativeComponent &&
-              clientAuthoritativeComponent.ownerNetworkId === pose.networkId
-            ) {
+            // console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, clientAuthoritativeComponent?.ownerNetworkId, incomingNetworkId)
+            if (clientAuthoritativeComponent && clientAuthoritativeComponent.ownerNetworkId === incomingNetworkId) {
               const transform = getComponent(networkObject.entity, TransformComponent)
               if (transform) {
                 transform.position.fromArray(pose.pose)
                 transform.rotation.fromArray(pose.pose, 3)
+              }
+              const collider = getComponent(networkObject.entity, ColliderComponent)
+              if (collider) {
+                collider.body.updateTransform({
+                  translation: { x: pose.pose[0], y: pose.pose[1], z: pose.pose[2] },
+                  rotation: { x: pose.pose[3], y: pose.pose[4], z: pose.pose[5], w: pose.pose[6] }
+                })
               }
             }
           }

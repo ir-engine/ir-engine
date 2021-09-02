@@ -213,8 +213,6 @@ const registerEditorSystems = (options: Required<InitializeOptions>) => {
 }
 
 const registerServerSystems = (options: Required<InitializeOptions>) => {
-  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
-
   // Network Incoming Systems
   registerSystem(SystemUpdateType.Fixed, IncomingNetworkSystem, { ...options.networking }) // first
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
@@ -224,8 +222,9 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
+  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Free, TransformSystem)
+  registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker

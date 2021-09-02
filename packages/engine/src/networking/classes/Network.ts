@@ -90,6 +90,9 @@ export class Network {
   static _schemas: Map<string, Schema> = new Map()
 
   /** Buffer holding all incoming Messages. */
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+
+  /** Buffer holding all incoming Messages. */
   incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
 
   /** Buffer holding all incoming Messages. */

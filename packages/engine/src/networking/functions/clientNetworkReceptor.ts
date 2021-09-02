@@ -68,6 +68,7 @@ function syncPhysicsObjects(objectToCreate) {
 }
 
 export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActionType) => {
+  console.log('clientNetworkReceptor', action)
   switch (action.type) {
     case NetworkWorldActions.CREATE_CLIENT: {
       Network.instance.clients[action.userId] = {
