@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { SkinnedMesh, Vector3 } from 'three'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Chain } from '../components/Chain'
 import { IKObj } from '../components/IKObj'
@@ -70,38 +70,44 @@ function initMixamoRig(armature, rig) {
   console.error('initMixamoRig NOT IMPLEMENTED')
 }
 
-export function addPoint(entity, name, boneName) {
+export function addPoint(entity: Entity, name: string, boneName: string): void {
   const armature = getComponent(entity, IKObj).ref
   const rig = getComponent(entity, IKRig)
   rig.points[name] = {
     index: armature.skeleton.bones.findIndex((bone) => bone.name.includes(boneName))
   }
 }
-export function addChain(entity, name, nameArray, end_name = null) {
+export function addChain(entity: Entity, name: string, nameArray: string[], end_name: string | null = null) {
   //  axis="z",
-  let i, b
+  let boneName: string, b
   const armature = getComponent(entity, IKObj).ref
   const rig = getComponent(entity, IKRig)
 
   const chain = new Chain() // axis
-  for (i of nameArray) {
-    const index = armature.skeleton.bones.findIndex((bone) => bone.name.includes(i))
+  for (boneName of nameArray) {
+    const index = armature.skeleton.bones.findIndex((bone) => bone.name.includes(boneName))
+    // TODO: skip the bone? or skip the chain? or throw error?
+    if (index === -1) {
+      console.warn('addChain: Bone [%s] not found in armature', boneName, armature)
+      continue
+    }
     const bone = armature.skeleton.bones[index]
-    bone.index = index
 
     const boneWorldPosition = new Vector3()
     bone.getWorldPosition(boneWorldPosition)
 
-    const boneChildWorldPosition = new Vector3()
-    bone.children[0].getWorldPosition(boneChildWorldPosition)
+    let length = 0
 
-    bone.length = bone.children.length > 0 ? boneWorldPosition.distanceTo(boneChildWorldPosition) : 0
-
-    const o = { index, ref: bone, length: bone.length }
+    if (bone.children.length > 0) {
+      const boneChildWorldPosition = new Vector3()
+      bone.children[0].getWorldPosition(boneChildWorldPosition)
+      length = boneWorldPosition.distanceTo(boneChildWorldPosition)
+    }
+    const o = { index, ref: bone, length }
 
     chain.chainBones.push(o)
     chain.cnt++
-    chain.length += bone.length
+    chain.length += length
   }
 
   if (end_name) {
@@ -113,12 +119,12 @@ export function addChain(entity, name, nameArray, end_name = null) {
   rig.chains[name] = chain
 }
 
-export function setPosition(entity, ...p) {
+export function setPosition(entity: Entity, ...p: number[]) {
   const { ref } = getComponent(entity, IKObj)
   if (p.length == 3) ref.position.fromArray(p)
 }
 
-export function getRigTransform(entity) {
+export function getRigTransform(entity: Entity) {
   const { ref } = getComponent(entity, IKObj)
   const p = ref.position,
     q = ref.quaternion,
@@ -130,7 +136,7 @@ export function getRigTransform(entity) {
   }
 }
 
-export function setReference(entity, o) {
+export function setReference(entity: Entity, o: SkinnedMesh) {
   getComponent(entity, IKObj).ref = o
   // Engine.scene.add( o );
 }

@@ -1,16 +1,18 @@
-import { Quaternion, Vector3 } from 'three'
+import { Bone, Quaternion, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { FORWARD, UP } from '../constants/Vector3Constants'
+
+type ChainBoneData = { index: number; ref: Bone; length: number }
 
 const boneWorldPosition = new Vector3(),
   childWorldPosition = new Vector3()
 export class Chain {
-  end_idx: any
-  chainBones: any[]
+  end_idx: number | null
+  chainBones: ChainBoneData[]
   length: number
   cnt: number
-  altForward: any
-  altUp: any
+  altForward: Vector3
+  altUp: Vector3
   constructor() {
     this.chainBones = [] // Index to a bone in an armature / pose
     this.length = 0 // Chain Length
