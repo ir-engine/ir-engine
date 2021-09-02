@@ -42,6 +42,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
   renderer = null
   maxBB = new THREE.Vector3(2, 2, 2)
   camera = null
+  controls = null
 
   constructor(props) {
     super(props)
@@ -86,18 +87,19 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
     this.renderer.domElement.id = 'avatarCanvas'
     container.appendChild(this.renderer.domElement)
 
-    const controls = getOrbitControls(this.camera, this.renderer.domElement)
-    ;(controls as any).addEventListener('change', this.renderScene) // use if there is no animation loop
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
-    controls.update()
+    this.controls = getOrbitControls(this.camera, this.renderer.domElement)
+    ;(this.controls as any).addEventListener('change', this.renderScene) // use if there is no animation loop
+    this.controls.minDistance = 0.1
+    this.controls.maxDistance = 10
+    this.controls.target.set(0, 1.25, 0)
+    this.controls.update()
 
     window.addEventListener('resize', this.onWindowResize)
     window.addEventListener('message', this.handleMessageEvent)
   }
 
   componentWillUnmount() {
+    ;(this.controls as any).removeEventListener('change', this.renderScene)
     window.removeEventListener('resize', this.onWindowResize)
     window.removeEventListener('message', this.handleMessageEvent)
   }
@@ -137,6 +139,8 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
             })
             .then((response) => response.blob())
             .then((blob) => resolve(blob))
+        }).catch((error) => {
+          return
         })
 
         var avatarArrayBuffer = await new Response(avatarResult).arrayBuffer()
@@ -196,7 +200,6 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
   uploadAvatar = () => {
     const error = this.validate(this.state.obj)
     if (error) {
-      this.setState({ error })
       return
     }
 
