@@ -17,7 +17,7 @@ export const initialSceneAdminState = {
   scenes: {
     scenes: [],
     skip: 0,
-    limit: 1000,
+    limit: SCENE_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,

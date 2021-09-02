@@ -13,6 +13,7 @@ import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
 import { selectAdminPartyState } from '../../reducers/admin/party/selector'
+import { PAGE_LIMIT } from '../../reducers/admin/party/reducers'
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
@@ -31,13 +32,16 @@ const PartyTable = (props: PartyPropsTable) => {
   const { fetchAdminParty, authState, adminPartyState } = props
 
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
 
   const user = authState.get('user')
   const adminParty = adminPartyState.get('parties')
   const adminPartyData = adminParty.get('parties').data ? adminParty.get('parties').data : []
+  const adminPartyCount = adminParty.get('total')
 
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchAdminParty(incDec)
     setPage(newPage)
   }
 
@@ -98,7 +102,7 @@ const PartyTable = (props: PartyPropsTable) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            {rows.map((row) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                   {partyColumns.map((column) => {
@@ -116,9 +120,9 @@ const PartyTable = (props: PartyPropsTable) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[PAGE_LIMIT]}
         component="div"
-        count={rows.length}
+        count={adminPartyCount}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

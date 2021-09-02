@@ -290,53 +290,51 @@ function InstanceConsole(props: Props) {
             />
 
             <TableBody className={styles.thead}>
-              {stableSort(displayInstances, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  return (
-                    <TableRow className={styles.trow} style={{ color: 'black !important' }} tabIndex={-1} key={row.id}>
-                      <TableCell
-                        className={styles.tcell}
-                        component="th"
-                        id={row.id.toString()}
-                        align="right"
-                        scope="row"
-                        padding="none"
-                      >
-                        {row.id}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.ipAddress}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.gsId}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.serverAddress}
-                      </TableCell>
-                      <TableCell
-                        className={styles.tcellSelectable}
-                        align="center"
-                        onClick={(event) => handleInstanceClick(event, row.id.toString())}
-                      >
-                        <p className={styles.currentUser}>{row.currentUsers}</p>
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.locationId}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        <a href="#h" onClick={(event) => handleInstanceUpdateClick(row.id.toString())}>
-                          {' '}
-                          <Edit className="text-success" />{' '}
-                        </a>
-                        <a href="#h" onClick={() => handleClickOpen(row)}>
-                          {' '}
-                          <Delete className="text-danger" />{' '}
-                        </a>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+              {stableSort(displayInstances, getComparator(order, orderBy)).map((row, index) => {
+                return (
+                  <TableRow className={styles.trow} style={{ color: 'black !important' }} tabIndex={-1} key={row.id}>
+                    <TableCell
+                      className={styles.tcell}
+                      component="th"
+                      id={row.id.toString()}
+                      align="right"
+                      scope="row"
+                      padding="none"
+                    >
+                      {row.id}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.ipAddress}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.gsId}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.serverAddress}
+                    </TableCell>
+                    <TableCell
+                      className={styles.tcellSelectable}
+                      align="center"
+                      onClick={(event) => handleInstanceClick(event, row.id.toString())}
+                    >
+                      <p className={styles.currentUser}>{row.currentUsers}</p>
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.locationId}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      <a href="#h" onClick={(event) => handleInstanceUpdateClick(row.id.toString())}>
+                        {' '}
+                        <Edit className="text-success" />{' '}
+                      </a>
+                      <a href="#h" onClick={() => handleClickOpen(row)}>
+                        {' '}
+                        <Delete className="text-danger" />{' '}
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </TableContainer>

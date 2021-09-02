@@ -5,8 +5,10 @@ import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 import Store from '../../../../store'
 import { Config } from '@xrengine/common/src/config'
 
-export function fetchAdminInstances() {
+export function fetchAdminInstances(incDec: string | null) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const skip = getState().get('adminInstance').get('instances').get('skip')
+    const limit = getState().get('adminInstance').get('instances').get('limit')
     const user = getState().get('auth').get('user')
     try {
       if (user.userRole === 'admin') {
@@ -15,8 +17,8 @@ export function fetchAdminInstances() {
             $sort: {
               createdAt: -1
             },
-            $skip: getState().get('adminUser').get('users').get('skip'),
-            $limit: getState().get('adminUser').get('users').get('limit'),
+            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+            $limit: limit,
             action: 'admin'
           }
         })
@@ -31,7 +33,9 @@ export function fetchAdminInstances() {
 
 export function removeInstance(id: string) {
   return async (dispatch: Dispatch): Promise<any> => {
-    const result = await client.service('instance').remove(id)
+    const result = await client.service('instance').patch(id, {
+      ended: true
+    })
     dispatch(instanceRemoved(result))
   }
 }

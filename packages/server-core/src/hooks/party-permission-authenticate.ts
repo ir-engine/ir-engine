@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
+import _ from 'lodash'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -25,8 +26,9 @@ export default () => {
       params.query.partyId = partyId
     }
     const userId = path === 'party' ? loggedInUser?.userId : params.query?.userId || loggedInUser?.userId || partyId
-    const partyResult = await app.service('party').find(params.query)
-    const party = partyResult[0]
+    const paramsCopy = _.cloneDeep(params.query)
+    const partyResult = await app.service('party').find(paramsCopy.query)
+    const party = partyResult.data[0]
     if ((path === 'party-user' || path === 'party') && method === 'create' && party.locationId != null) {
       const user = await app.service('user').get(userId)
       const isAdmin = user.location_admins.find((locationAdmin) => locationAdmin.locationId === party.locationId)

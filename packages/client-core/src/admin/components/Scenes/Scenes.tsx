@@ -208,47 +208,45 @@ const Scenes = (props: Props) => {
               rowCount={adminScenesCount || 0}
             />
             <TableBody className={styles.thead}>
-              {stableSort(adminScenes, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  return (
-                    <TableRow
-                      hover
-                      className={styles.trowHover}
-                      style={{ color: 'black !important' }}
-                      // onClick={(event) => handleLocationClick(event, row.id.toString())}
-                      tabIndex={-1}
-                      key={row.id}
+              {stableSort(adminScenes, getComparator(order, orderBy)).map((row, index) => {
+                return (
+                  <TableRow
+                    hover
+                    className={styles.trowHover}
+                    style={{ color: 'black !important' }}
+                    // onClick={(event) => handleLocationClick(event, row.id.toString())}
+                    tabIndex={-1}
+                    key={row.id}
+                  >
+                    <TableCell
+                      className={styles.tcell}
+                      component="th"
+                      id={row.id.toString()}
+                      align="right"
+                      scope="row"
+                      padding="none"
                     >
-                      <TableCell
-                        className={styles.tcell}
-                        component="th"
-                        id={row.id.toString()}
-                        align="right"
-                        scope="row"
-                        padding="none"
-                      >
-                        {row.sid}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.name}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.description}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {user.userRole === 'admin' && (
-                          <Checkbox
-                            className={styles.checkbox}
-                            onChange={(e) => handleCheck(e, row)}
-                            name="stereoscopic"
-                            color="primary"
-                          />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                      {row.sid}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.name}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.description}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole === 'admin' && (
+                        <Checkbox
+                          className={styles.checkbox}
+                          onChange={(e) => handleCheck(e, row)}
+                          name="stereoscopic"
+                          color="primary"
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </TableContainer>

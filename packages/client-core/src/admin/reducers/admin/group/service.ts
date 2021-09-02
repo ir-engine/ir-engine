@@ -9,13 +9,15 @@ import { dispatchAlertError } from '../../../../common/reducers/alert/service'
  * @returns URL
  * @author KIMENYI Kevin <kimenyikevin@gmail.com>
  */
-export function getGroupService(type?: string, limit: Number = 12) {
-  return async (dispatch: Dispatch): Promise<any> => {
+export function getGroupService(incDec: string | null) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const skip = getState().get('group').get('group').get('skip')
+    const limit = getState().get('group').get('group').get('limit')
     try {
       dispatch(fetchingGroup())
       const list = await client.service('group').find({
         query: {
-          action: type,
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit
         }
       })

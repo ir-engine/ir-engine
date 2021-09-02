@@ -100,15 +100,17 @@ export function sendInvite(data: any) {
   }
 }
 
-export function retrieveReceivedInvites(skip?: number, limit?: number) {
+export function retrieveReceivedInvites(incDec: string | null) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingReceivedInvites())
+    const skip = getState().get('invite').get('receivedInvites').get('skip')
+    const limit = getState().get('invite').get('receivedInvites').get('limit')
     try {
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'received',
-          $limit: limit != null ? limit : getState().get('invite').get('receivedInvites').get('limit'),
-          $skip: skip != null ? skip : getState().get('invite').get('receivedInvites').get('skip')
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
         }
       })
       dispatch(retrievedReceivedInvites(inviteResult))
@@ -119,15 +121,17 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
   }
 }
 
-export function retrieveSentInvites(skip?: number, limit?: number) {
+export function retrieveSentInvites(incDec: string | null) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingSentInvites())
+    const skip = getState().get('invite').get('sentInvites').get('skip')
+    const limit = getState().get('invite').get('sentInvites').get('limit')
     try {
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'sent',
-          $limit: limit != null ? limit : getState().get('invite').get('sentInvites').get('limit'),
-          $skip: skip != null ? skip : getState().get('invite').get('sentInvites').get('skip')
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
         }
       })
       dispatch(retrievedSentInvites(inviteResult))

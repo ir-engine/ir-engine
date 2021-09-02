@@ -1,4 +1,3 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import generateInvitePasscode from '@xrengine/server-core/src/hooks/generate-invite-passcode'
@@ -14,7 +13,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [collectAnalytics()],
+    all: [],
     find: [authenticate('jwt'), attachOwnerIdInQuery('userId')],
     get: [
       commonHooks.iff(

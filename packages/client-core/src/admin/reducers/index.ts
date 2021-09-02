@@ -7,6 +7,10 @@ import adminLocationReducer from './admin/location/reducers'
 import adminPartyReducer from './admin/party/reducers'
 import adminSceneReducer from './admin/scene/reducers'
 import adminBotsReducer from './admin/bots/reducers'
+import adminAnalyticsReducer from './admin/analytics/reducers'
+import arMediaReducer from '@xrengine/social/src/reducers/arMedia/reducers'
+import feedsReducer from '@xrengine/social/src/reducers/feed/reducers'
+import creatorReducer from '@xrengine/social/src/reducers/creator/reducers'
 import groupReducer from './admin/group/reducers'
 import scopeReducer from './admin/scope/reducers'
 
@@ -26,6 +30,10 @@ export default {
   adminParty: adminPartyReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,
+  adminAnalytics: adminAnalyticsReducer,
+  arMedia: arMediaReducer,
+  feedsAdmin: feedsReducer,
+  adminCreator: creatorReducer,
   group: groupReducer,
   scope: scopeReducer
 }

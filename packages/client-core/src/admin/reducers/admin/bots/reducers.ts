@@ -31,8 +31,8 @@ export const initialBotAdminState = {
     updateNeeded: true,
     lastFetched: new Date()
   },
-  botCammond: {
-    botCammond: [],
+  botCommand: {
+    botCommand: [],
     skip: 0,
     limit: BOTS_PAGE_LIMIT,
     total: 0,

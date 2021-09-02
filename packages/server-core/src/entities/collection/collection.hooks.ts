@@ -1,7 +1,6 @@
 // import * as authentication from '@feathersjs/authentication'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import { HookContext } from '@feathersjs/feathers'
 import * as authentication from '@feathersjs/authentication'
 
@@ -46,7 +45,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [collectAnalytics(), authenticate('jwt')] /* authenticate('jwt') */,
+    all: [authenticate('jwt')] /* authenticate('jwt') */,
     find: [
       attachOwnerIdInQuery('userId'),
       addAssociations({

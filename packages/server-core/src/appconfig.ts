@@ -114,6 +114,15 @@ const gameserver = {
 }
 
 /**
+ * Analytics generator
+ */
+const analytics = {
+  enabled: process.env.ANALYTICS_ENABLED === 'true',
+  port: process.env.ANALYTICS_PORT,
+  processInterval: process.env.ANALYTICS_PROCESS_INTERVAL_SECONDS
+}
+
+/**
  * Email / SMTP
  */
 const email = {
@@ -248,6 +257,7 @@ const redis = {
  */
 const config = {
   deployStage: process.env.DEPLOY_STAGE,
+  analytics,
   authentication,
   aws,
   chargebee,

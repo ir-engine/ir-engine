@@ -1,10 +1,8 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
-
 import { disallow } from 'feathers-hooks-common'
 
 export default {
   before: {
-    all: [collectAnalytics()],
+    all: [],
     find: [disallow()],
     get: [disallow()],
     create: [],

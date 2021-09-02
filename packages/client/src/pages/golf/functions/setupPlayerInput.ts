@@ -205,4 +205,15 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       }
     )
   }
+
+  const showScorecardKey = 143
+  inputs.schema.inputMap.set('KeyI', showScorecardKey)
+  inputs.schema.behaviorMap.set(
+    showScorecardKey,
+    (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
+      if (inputValue.lifecycleState !== LifecycleValue.ENDED) return
+      console.log('SHOW SCORECARD')
+      dispatchFromClient(GolfAction.toggleScorecard())
+    }
+  )
 }

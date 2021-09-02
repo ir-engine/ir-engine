@@ -1,27 +1,36 @@
 import React from 'react'
 import { ResponsiveLine } from '@nivo/line'
-const Graph = ({ data }) => {
+const UserGraph = ({ data /* see data tab */ }) => {
   return (
+    //@ts-ignore
     <ResponsiveLine
       data={data}
-      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-      xScale={{ type: 'point' }}
-      yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: true, reverse: false }}
+      margin={{ top: 50, right: 110, bottom: 100, left: 60 }}
+      xScale={{ type: 'time', reverse: true }}
+      yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
       yFormat=" >-.2f"
       axisTop={null}
       axisRight={null}
       axisBottom={{
+        orient: 'bottom',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: 'transportation',
+        tickValues: 'every day',
+        legend: 'Datetime',
         legendOffset: 36,
-        legendPosition: 'middle'
+        legendPosition: 'middle',
+        format: '%Y-%m-%d'
       }}
       axisLeft={{
+        orient: 'left',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
+        tickValues: data
+          .find((series) => series.id === 'Daily Users')
+          .data?.map((item) => item.y)
+          .filter((value, index, self) => self.indexOf(value) === index),
         legend: 'count',
         legendOffset: -40,
         legendPosition: 'middle'
@@ -62,4 +71,4 @@ const Graph = ({ data }) => {
   )
 }
 
-export default Graph
+export default UserGraph
