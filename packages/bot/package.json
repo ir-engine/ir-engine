@@ -22,7 +22,7 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
-    "@google-cloud/agones-sdk": "1.16.0",
+    "@google-cloud/agones-sdk": "1.17.0",
     "chai": "4.3.4",
     "cross-env": "7.0.3",
     "jest": "27.1.0",
