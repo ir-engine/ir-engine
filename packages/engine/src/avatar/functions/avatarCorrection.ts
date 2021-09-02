@@ -38,10 +38,12 @@ export const avatarCorrection = (entity: Entity, snapshots: SnapshotData, delta:
     qW: 1
   })
 
-  const correction = findInterpolationSnapshot(entity, snapshots.correction)
+  // TODO: check for correction logic
+  const correction = findInterpolationSnapshot(entity, (snapshots as any).correction)
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
 
-  if (correction == null || currentSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return
+  // TODO: Checks for timecorrection logic
+  if (correction == null || currentSnapshot == null || (Network.instance.snapshot as any).timeCorrection === 0) return
 
   const offsetX = correction.x - currentSnapshot.x
   const offsetY = correction.y - currentSnapshot.y
