@@ -16,8 +16,10 @@ export const MapUpdateSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const mapEntity of mapsQuery(world)) {
       const map = getComponent(mapEntity, MapComponent)
-
-      const viewerPosition = vector3ToPosition(getComponent(map.viewer as number, TransformComponent).position)
+      const mapTransform = getComponent(mapEntity, TransformComponent, false, world)
+      const viewerPosition = vector3ToPosition(
+        getComponent(map.viewer as number, TransformComponent).position.sub(mapTransform.position)
+      )
 
       const viewerDistanceFromCenter = Math.hypot(...viewerPosition)
       if (viewerDistanceFromCenter >= map.triggerRefreshRadius) {

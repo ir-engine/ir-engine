@@ -99,15 +99,29 @@ describe('check MapUpdateSystem', () => {
 
   it('updates when player crosses update boundary', async () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
-    const previousCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center.slice()
+    let previousCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center.slice()
 
     viewerTransform.position.set(triggerRefreshRadius, 0, 0)
     execute(1, 1)
 
-    const newCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center
+    let newCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center
 
     expect(refreshSceneObjects).toHaveBeenCalledTimes(1)
     expect(refreshSceneObjects).toHaveBeenCalledWith(mapEntity, world.ecsWorld)
     expect(newCenter).toEqual(sceneToLl([triggerRefreshRadius, 0], previousCenter))
+  })
+
+  it('does not update again if player does not cross boundary again', () => {
+    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
+    const mapTransform = getComponent(mapEntity, TransformComponent, false, world.ecsWorld)
+
+    // player moves
+    viewerTransform.position.set(triggerRefreshRadius, 0, 0)
+    // Simulate a refresh, movement has already been handled
+    mapTransform.position.copy(viewerTransform.position)
+
+    execute(1, 1)
+
+    expect(refreshSceneObjects).toHaveBeenCalledTimes(0)
   })
 })
