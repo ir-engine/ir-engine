@@ -24,7 +24,6 @@ import {
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { dispatchFromServer } from '../networking/functions/dispatch'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { Pose } from '../transform/TransformInterfaces'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -42,7 +41,11 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const avatarControllerRemovedQuery = exitQuery(controllerQuery)
 
+  const avatarQuery = defineQuery([AvatarComponent, ColliderComponent])
+  const avatarRemovedQuery = exitQuery(avatarQuery)
+
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
+  const raycastRemovedQuery = exitQuery(raycastQuery)
 
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
   const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
@@ -114,7 +117,6 @@ export const AvatarControllerSystem = async (): Promise<System> => {
     for (const entity of avatarControllerRemovedQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent, true)
 
-      // may get cleaned up already, eg. portals
       if (controller?.controller) {
         PhysXInstance.instance.removeController(controller.controller)
       }
@@ -122,6 +124,22 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       const avatar = getComponent(entity, AvatarComponent)
       if (avatar) {
         avatar.isGrounded = false
+      }
+    }
+
+    for (const entity of avatarRemovedQuery(world)) {
+      const collider = getComponent(entity, ColliderComponent, true)
+
+      if (collider?.body) {
+        PhysXInstance.instance.removeBody(collider.body)
+      }
+    }
+
+    for (const entity of raycastRemovedQuery(world)) {
+      const raycast = getComponent(entity, RaycastComponent, true)
+
+      if (raycast?.raycastQuery) {
+        PhysXInstance.instance.removeRaycastQuery(raycast.raycastQuery)
       }
     }
 
@@ -198,7 +216,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       if (isNaN(controller.controller.transform.translation.x)) {
         console.warn('WARNING: Avatar physics data reporting NaN', controller.controller.transform.translation)
         controller.controller.updateTransform({
-          translation: { x: 0, y: 10, z: 0 },
+          translation: { x: 0, y: 0, z: 0 },
           rotation: { x: 0, y: 0, z: 0, w: 1 }
         })
       }
