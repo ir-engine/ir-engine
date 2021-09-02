@@ -8,5 +8,5 @@ export function getOS() {
   } else if (platform.includes('linux')) {
     return 'Linux'
   }
-  return ''
+  return 'other'
 }

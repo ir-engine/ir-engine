@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import Dialog from './Dialog'
 import { Trans, useTranslation } from 'react-i18next'
 
@@ -41,13 +40,4 @@ export function SupportDialog({ onCancel, ...props }) {
   )
 }
 
-/**
- * declaring propTypes for SupportDialog.
- *
- * @author Robert Long
- * @type {Object}
- */
-SupportDialog.propTypes = {
-  onCancel: PropTypes.func
-}
 export default SupportDialog

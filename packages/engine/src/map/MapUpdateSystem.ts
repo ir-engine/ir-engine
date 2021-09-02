@@ -7,12 +7,12 @@ import { ECSWorld } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { updateMap } from '../scene/functions/createMap'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 
 export const MapUpdateSystem = async (): Promise<System> => {
-  const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
+  const moveQuery = defineQuery([Object3DComponent, LocalInputTagComponent])
   const moveAddQuery = enterQuery(moveQuery)
   const labelsQuery = defineQuery([GeoLabelSetComponent])
   let updateStatus = false
@@ -41,14 +41,15 @@ export const MapUpdateSystem = async (): Promise<System> => {
         if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
           console.log('in center')
         } else {
-          updateMap(
-            {
-              scale: new Vector3(scaleArg, scaleArg, scaleArg)
-            },
-            longtitude,
-            latitude,
-            position
-          )
+          // NOTE: commenting this out for now since this was detrimenting player experience
+          // updateMap(
+          //   {
+          //     scale: new Vector3(scaleArg, scaleArg, scaleArg)
+          //   },
+          //   longtitude,
+          //   latitude,
+          //   position
+          // )
           updateStatus = true
         }
       } else {

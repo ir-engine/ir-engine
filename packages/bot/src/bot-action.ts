@@ -1,3 +1,5 @@
+import { KeyInput } from 'puppeteer'
+
 export const BotActionType = {
   None: 'none',
 
@@ -80,7 +82,7 @@ export class BotAction {
     return new BotAction(BotActionType.ReceiveVideo, {})
   }
 
-  static keyPress(key, pressedTime) {
+  static keyPress(key: KeyInput, pressedTime: number) {
     return new BotAction(BotActionType.KeyPress, { key, pressedTime })
   }
 

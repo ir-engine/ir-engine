@@ -4,6 +4,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { Params } from '@feathersjs/feathers'
 import { BadRequest } from '@feathersjs/errors'
 import { Op } from 'sequelize'
+import { handleCommand } from '../../../../common/src/utils/commandHandler'
 
 export class Message extends Service {
   app: Application
@@ -25,6 +26,10 @@ export class Message extends Service {
     let userIdList = []
     const loggedInUser = extractLoggedInUserFromParams(params)
     const userId = loggedInUser?.userId
+
+    if (data != undefined && data.text != undefined) {
+      if (handleCommand(data.text, userId, true)) return
+    }
 
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType

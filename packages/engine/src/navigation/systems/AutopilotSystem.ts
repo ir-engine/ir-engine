@@ -1,7 +1,6 @@
-import { Raycaster, Vector3 } from 'three'
+import { Quaternion, Raycaster, Vector3 } from 'three'
 import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
@@ -10,14 +9,14 @@ import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { defineQuery, defineSystem, enterQuery, exitQuery, removeQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
 
-const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
+export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
   // TODO: handle scale and rotation of graph object, pass world matrix?
   const graphBaseCoordinate = new YukaVector3(base.x, base.y, base.z)
@@ -33,6 +32,9 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): 
   return path
 }
 
+const quat = new Quaternion()
+const forward = new Vector3(0, 0, 1)
+
 export const AutopilotSystem = async (): Promise<System> => {
   const stick = GamepadAxis.Left
   const raycaster = new Raycaster()
@@ -45,7 +47,7 @@ export const AutopilotSystem = async (): Promise<System> => {
   const ongoingQuery = defineQuery([AutoPilotComponent])
   const removedAutopilotsQuery = exitQuery(ongoingQuery)
 
-  const navClickQuery = defineQuery([LocalInputReceiverComponent, AutoPilotClickRequestComponent])
+  const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
   const navClickAddQuery = enterQuery(navClickQuery)
 
   return defineSystem((world: ECSWorld) => {
@@ -108,7 +110,6 @@ export const AutopilotSystem = async (): Promise<System> => {
 
       const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
       autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate)
-      console.log('autopilotComponent.path', autopilotComponent.path)
 
       // TODO: "mount" player? disable movement, etc.
 
@@ -152,8 +153,7 @@ export const AutopilotSystem = async (): Promise<System> => {
           continue
         }
 
-        const avatar = getComponent(entity, AvatarComponent)
-        const avatarViewRotation = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
+        const transform = getComponent(entity, TransformComponent)
         const speedModifier = Math.min(
           1,
           Math.max(MIN_SPEED, targetFlatDistance < ARRIVING_DISTANCE ? targetFlatDistance / ARRIVING_DISTANCE : 1)
@@ -161,7 +161,7 @@ export const AutopilotSystem = async (): Promise<System> => {
         const direction = targetFlatPosition
           .clone()
           .sub(actorPosition.clone().setY(0))
-          .applyAxisAngle(new Vector3(0, -1, 0), avatarViewRotation)
+          .applyQuaternion(transform.rotation)
           .normalize()
         const targetAngle = Math.atan2(direction.x, direction.z)
         const stickValue = direction.clone().multiplyScalar(speedModifier) // speed
@@ -203,7 +203,7 @@ export const AutopilotSystem = async (): Promise<System> => {
         // }
         {
           // way 2
-          updatePlayerRotationFromViewVector(entity, targetDirection)
+          transform.rotation.copy(quat.setFromUnitVectors(forward, targetDirection))
         }
       }
     }

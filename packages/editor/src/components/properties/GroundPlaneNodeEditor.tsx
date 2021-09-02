@@ -8,7 +8,7 @@ import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 
 /**
- * Declairing GroundPlaneNodeEditor properties.
+ * Declaring GroundPlaneNodeEditor properties.
  *
  * @author Robert Long
  * @type {Object}

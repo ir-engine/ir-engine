@@ -77,16 +77,6 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
     for (const entity of spawnPlayerAddQuery(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
       createAvatar(entity, parameters)
-
-      const transform = getComponent(entity, TransformComponent)
-
-      Network.instance.worldState.createObjects.push({
-        networkId,
-        prefabType: PrefabType.Player,
-        uniqueId,
-        parameters: { position: transform.position, rotation: transform.rotation }
-      })
-
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_USER_LOADED, networkId, uniqueId })
     }
 

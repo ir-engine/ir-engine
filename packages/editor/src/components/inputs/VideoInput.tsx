@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React from 'react'
-import PropTypes from 'prop-types'
 import { ControlledStringInput } from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
@@ -24,7 +22,7 @@ export function VideoInput({ onChange, ...rest }) {
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Video, ItemTypes.File],
     drop(item) {
-      if (item.type === ItemTypes.Video) {
+      if ((item as any).type === ItemTypes.Video) {
         onChange((item as any).value.url, (item as any).value.initialProps || {})
       } else {
         onUpload((item as any).files).then((assets) => {
@@ -43,6 +41,7 @@ export function VideoInput({ onChange, ...rest }) {
   return (
     <ControlledStringInput
       ref={dropRef}
+      // @ts-ignore
       onChange={onChange}
       error={isOver && !canDrop}
       canDrop={isOver && canDrop}
@@ -51,7 +50,4 @@ export function VideoInput({ onChange, ...rest }) {
   )
 }
 
-VideoInput.propTypes = {
-  onChange: PropTypes.func.isRequired
-}
 export default VideoInput

@@ -20,34 +20,36 @@ export class Party extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
-    const action = params.query?.action
-    const skip = params.query?.$skip ? params.query.$skip : 0
-    const limit = params.query?.$limit ? params.query.$limit : 10
-
-    const party = await (this.app.service('party') as any).Model.findAndCountAll({
-      offset: skip,
-      limit: limit,
-      include: [
-        {
-          model: (this.app.service('location') as any).Model,
-          required: false
-        },
-        {
-          model: (this.app.service('instance') as any).Model,
-          required: false
-        }
-      ],
-      raw: true,
-      nest: true
-    })
-    return {
-      skip: skip,
-      limit: limit,
-      total: party.count,
-      data: party.rows
-    }
-  }
+  // async find(params: Params): Promise<any> {
+  //   console.log('params.query', params.query)
+  //
+  //   const { action, $skip, $limit, ...query} = params.query
+  //   const skip = $skip ? params.query.$skip : 0
+  //   const limit = $limit ? params.query.$limit : 10
+  //   const party = await (this.app.service('party') as any).Model.findAndCountAll({
+  //     offset: skip,
+  //     limit: limit,
+  //     include: [
+  //       {
+  //         model: (this.app.service('location') as any).Model,
+  //         required: false
+  //       },
+  //       {
+  //         model: (this.app.service('instance') as any).Model,
+  //         required: false
+  //       }
+  //     ],
+  //     where: query,
+  //     raw: true,
+  //     nest: true
+  //   })
+  //   return {
+  //     skip: skip,
+  //     limit: limit,
+  //     total: party.count,
+  //     data: party.rows
+  //   }
+  // }
   /**
    * A function which used to get specific party
    *

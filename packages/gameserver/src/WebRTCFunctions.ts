@@ -299,6 +299,7 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
     })
     consumer.on('message', (message) => {
       Network.instance.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
+      Network.instance.incomingMessageQueueUnreliableIDs.add(userId)
     })
     return consumer
   } catch (err) {

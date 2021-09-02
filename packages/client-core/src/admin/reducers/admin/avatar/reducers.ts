@@ -15,9 +15,8 @@ export const initialAdminState = {
   identityProvider: IdentityProviderSeed,
   avatars: {
     avatars: [],
-    thumbnails: [],
     skip: 0,
-    limit: 1000,
+    limit: PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -34,14 +33,7 @@ const adminReducer = (state = immutableState, action: any): any => {
     case AVATARS_RETRIEVED:
       result = (action as AvatarsFetchedAction).avatars
       updateMap = new Map(state.get('avatars'))
-      updateMap.set(
-        'avatars',
-        (result as any).data.filter((avatar) => avatar.staticResourceType === 'avatar')
-      )
-      updateMap.set(
-        'thumbnails',
-        (result as any).data.filter((avatar) => avatar.staticResourceType === 'user-thumbnail')
-      )
+      updateMap.set('avatars', (result as any).data)
       updateMap.set('skip', (result as any).skip)
       updateMap.set('limit', (result as any).limit)
       updateMap.set('total', (result as any).total)

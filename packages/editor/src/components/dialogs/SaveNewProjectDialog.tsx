@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import StringInput from '../inputs/StringInput'
 import FormField from '../inputs/FormField'
 import PreviewDialog from './PreviewDialog'
@@ -80,16 +79,4 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
   )
 }
 
-/**
- * declaring propTypes for SaveNewProjectDialog.
- *
- * @author Robert Long
- * @type {Object}
- */
-SaveNewProjectDialog.propTypes = {
-  thumbnailUrl: PropTypes.string.isRequired,
-  initialName: PropTypes.string.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired
-}
 export default SaveNewProjectDialog

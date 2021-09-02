@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./lib"
+  },
+  "exclude": [
+    "node_modules",
+    "../../node_modules/k8s/*",
+    "types.d.ts"
+  ],
+}

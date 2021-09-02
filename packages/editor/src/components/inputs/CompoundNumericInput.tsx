@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import Slider from './Slider'
 import NumericInput from './NumericInput'
 import styled from 'styled-components'
@@ -37,14 +36,6 @@ export function CompoundNumericInput({ value, onChange, ...extras }) {
     </StyledCompoundNumericInput>
   )
 }
-
-/**
- * defaultProps used to set default properties for CompoundNumericInput component.
- *
- * @author Robert Long
- * @type {Object}
- */
-
 CompoundNumericInput.defaultProps = {
   value: 0,
   onChange: () => {},
@@ -53,14 +44,4 @@ CompoundNumericInput.defaultProps = {
   step: 0.01
 }
 
-/**
- * Declaring protoTypes for CompoundNumericInput.
- *
- * @author Robert Long
- * @type {Object}
- */
-CompoundNumericInput.propTypes = {
-  value: PropTypes.number,
-  onChange: PropTypes.func
-}
 export default CompoundNumericInput

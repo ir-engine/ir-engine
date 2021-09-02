@@ -2,16 +2,19 @@ import { avatarsFetched } from './actions'
 import { client } from '../../../../feathers'
 import { Dispatch } from 'redux'
 
-export function fetchAdminAvatars() {
-  return async (dispatch: Dispatch): Promise<any> => {
+export function fetchAdminAvatars(incDec: string | null) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const adminAvatarState = getState().get('adminAvatar').get('avatars')
+    const limit = adminAvatarState.get('limit')
+    const skip = adminAvatarState.get('skip')
     const avatars = await client.service('static-resource').find({
       query: {
         $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
-        staticResourceType: {
-          $in: ['avatar', 'user-thumbnail']
-        },
+        staticResourceType: 'avatar',
         userId: null,
-        $limit: 1000
+        $limit: limit,
+        $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+        getAvatarThumbnails: true
       }
     })
     dispatch(avatarsFetched(avatars))

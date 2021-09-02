@@ -1,5 +1,5 @@
 import React from 'react'
-import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
+import AppHeader from '@xrengine/social/src/components/Header'
 import { useTranslation } from 'react-i18next'
 
 export default function Activity() {
