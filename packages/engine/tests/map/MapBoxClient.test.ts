@@ -1,18 +1,5 @@
 import { createTileIterator, createIntersectTestCellCircle } from '../../src/map/MapBoxClient'
-// import { LongLat } from '../../src/map/types'
 
-// function testTilesFetched(fetchTiles: (center: LongLat, minimumSceneRadius: number) => any) {
-//   it('uses center and minimumSceneRadius to determine what tiles to fetch', () => {
-//     const fetchSpy = (globalThis.fetch = jest.fn())
-//     // only fetch center tile
-//     fetchTiles([0, 0], 0)
-//     expect(fetchSpy.mock.calls[0][0]).toEqual(
-//       getMapBoxUrl('mapbox.mapbox-streets-v8', gridSize / 2, gridSize / 2, 'vector.pbf')
-//     )
-//   })
-// }
-
-const circumferenceOfEarth = 40075016.686
 const testCaseSanFrancisco = {
   center: [-122.43931, 37.76492],
   minimumSceneRadius: 2430,
