@@ -96,7 +96,7 @@ export const InterpolationSystem = async (): Promise<System> => {
     for (const entity of networkClientInterpolationQuery(world)) {
       const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
-      if (!interpolation || isNaN(interpolation.vX)) continue
+      if (!interpolation || Number.isNaN(interpolation.vX)) continue
 
       const transform = getComponent(entity, TransformComponent)
       const velocity = getComponent(entity, VelocityComponent)

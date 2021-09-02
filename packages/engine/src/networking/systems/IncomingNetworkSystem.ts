@@ -114,7 +114,7 @@ export const IncomingNetworkSystem = async (): Promise<System> => {
           xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPose, 3)
         }
       } catch (e) {
-        console.log(e)
+        console.log('could not read world state from buffer')
       }
     }
 

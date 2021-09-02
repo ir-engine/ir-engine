@@ -90,7 +90,7 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
       const buffer = WorldStateModel.toBuffer(newWorldState)
       Network.instance.transport.sendData(buffer)
     } catch (e) {
-      console.error(e, newWorldState)
+      console.log('could not convert world state to a buffer')
     }
 
     return world
