@@ -1,9 +1,17 @@
 import React, { useImperativeHandle, useState } from 'react'
-import { ViewportContainer } from '../viewport/ViewportPanelContainer'
+import styled from 'styled-components'
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
+import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
+
+const AssetHeading = styled.div`
+  text-align: center;
+  font-size: 150%;
+  padding-bottom: 20px;
+`
+
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  *
@@ -60,16 +68,24 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
         }
         usePreviewPanel(audioPreviewPanel)
         break
+
+      default:
+        const unavailable = {
+          PreviewSource: PreviewUnavailable,
+          resourceProps: {}
+        }
+        usePreviewPanel(audioPreviewPanel)
+        break
     }
   }
 
   return (
     <>
       {console.log('Rendering Asset Preview Panel')}
-      <h1>{previewPanel.resourceProps.name}</h1>
-      <ViewportContainer>
-        {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
-      </ViewportContainer>
+      <div>
+        <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
+      </div>
+      {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )
 })

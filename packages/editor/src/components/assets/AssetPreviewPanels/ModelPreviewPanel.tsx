@@ -2,7 +2,26 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import Editor from '../../Editor'
-import { Viewport } from '../../viewport/ViewportPanelContainer'
+import styled from 'styled-components'
+
+/**
+ * @author Abhishek Pathak
+ */
+
+const ModelPreview = (styled as any).canvas`
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  height: 100%;
+  position: relative;
+`
+
+/**
+ * @author Abhishek Pathak <abhi.pathak401@gmail.com>
+ * @param props
+ * @returns
+ */
 
 export const ModelPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
@@ -71,7 +90,7 @@ export const ModelPreviewPanel = (props) => {
   return (
     <>
       <div>
-        <Viewport ref={assestPanelRef} />
+        <ModelPreview ref={assestPanelRef} />
       </div>
     </>
   )
