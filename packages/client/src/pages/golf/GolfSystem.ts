@@ -387,10 +387,9 @@ export const GolfSystem = async (): Promise<System> => {
       for (const entity of golfClubQuery(world)) {
         const { number } = getComponent(entity, GolfClubComponent)
         const ownerEntity = getPlayerEntityFromNumber(number)
+        updateClub(entity)
         // we only need to detect hits for our own club
         if (typeof ownerEntity !== 'undefined' && isEntityLocalClient(ownerEntity)) {
-          updateClub(entity)
-
           if (getCurrentGolfPlayerEntity() === ownerEntity) {
             const { uniqueId, networkId } = getComponent(ownerEntity, NetworkObjectComponent)
             const currentPlayerNumber = GolfState.currentPlayer.value

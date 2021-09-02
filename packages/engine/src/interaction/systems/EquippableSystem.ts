@@ -3,17 +3,21 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-import { EquippedStateUpdateSchema } from '../enums/EquippedEnums'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjectUpdates'
-import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate'
 import { BodyType } from 'three-physx'
-import { BinaryValue } from '../../common/enums/BinaryValue'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ECSWorld } from '../../ecs/classes/World'
+import { dispatchFromServer } from '../../networking/functions/dispatch'
+import {
+  NetworkWorldActions,
+  NetworkWorldAction,
+  NetworkWorldActionType
+} from '../../networking/interfaces/NetworkWorldActions'
+import { Network } from '../../networking/classes/Network'
+import { equipEntity, unequipEntity } from '../functions/equippableFunctions'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -27,7 +31,34 @@ export const EquippableSystem = async (): Promise<System> => {
   const equippableAddQuery = enterQuery(equippableQuery)
   const equippableRemoveQuery = exitQuery(equippableQuery)
 
+  function equippableActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
+    switch (action.type) {
+      case NetworkWorldActions.EQUIP_OBJECT: {
+        if (!Network.instance.networkObjects[action.equippedNetworkId])
+          return console.warn(
+            `Equipper entity with id ${action.equippedNetworkId} does not exist! You should probably reconnect...`
+          )
+
+        const entityEquipper = Network.instance.networkObjects[action.equipperNetworkId].entity
+
+        if (action.equip) {
+          // we only care about equipping if we are the user doing so, otherwise network transforms take care of it
+          if (!Network.instance.networkObjects[action.equippedNetworkId])
+            return console.warn(
+              `Equipped entity with id ${action.equippedNetworkId} does not exist! You should probably reconnect...`
+            )
+          const entityEquipped = Network.instance.networkObjects[action.equippedNetworkId].entity
+          equipEntity(entityEquipper, entityEquipped)
+        } else {
+          unequipEntity(entityEquipper)
+        }
+      }
+    }
+  }
+
   return defineSystem((world: ECSWorld) => {
+    for (const action of Network.instance.incomingActions) equippableActionReceptor(world, action as any)
+
     for (const entity of equippableAddQuery(world)) {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       // all equippables must have a collider to grab by in VR
@@ -35,11 +66,11 @@ export const EquippableSystem = async (): Promise<System> => {
       if (collider) collider.body.type = BodyType.KINEMATIC
       // send equip to clients
       if (!isClient) {
-        const networkObject = getComponent(equippedEntity, NetworkObjectComponent)
-        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
-          BinaryValue.TRUE,
-          networkObject.networkId
-        ] as EquippedStateUpdateSchema)
+        const equippedNetworkObject = getComponent(equippedEntity, NetworkObjectComponent)
+        const equipperNetworkObject = getComponent(entity, NetworkObjectComponent)
+        dispatchFromServer(
+          NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, true)
+        )
       }
     }
 
@@ -52,11 +83,11 @@ export const EquippableSystem = async (): Promise<System> => {
       equippableTransform.rotation.copy(rotation)
       if (!isClient) {
         for (const userEntity of networkUserAddQuery(world)) {
-          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
-          sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
-            BinaryValue.TRUE,
-            networkObject.networkId
-          ] as EquippedStateUpdateSchema)
+          const equippedNetworkObject = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
+          const equipperNetworkObject = getComponent(entity, NetworkObjectComponent)
+          dispatchFromServer(
+            NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, true)
+          )
         }
       }
     }
@@ -75,9 +106,11 @@ export const EquippableSystem = async (): Promise<System> => {
       }
       // send unequip to clients
       if (!isClient) {
-        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
-          BinaryValue.FALSE
-        ] as EquippedStateUpdateSchema)
+        const equippedNetworkObject = getComponent(equippedEntity, NetworkObjectComponent)
+        const equipperNetworkObject = getComponent(entity, NetworkObjectComponent)
+        dispatchFromServer(
+          NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, false)
+        )
       }
     }
 

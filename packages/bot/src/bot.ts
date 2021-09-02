@@ -336,7 +336,7 @@ export class XREngineBot {
       ignoreDefaultArgs: true, //['--mute-audio'],
       ...this.detectOsOption()
     }
-    if (!this.ci) {
+    if (this.ci) {
       console.log('Starting puppeteer without gpu...')
       options.args.push(
         '--no-zygote',

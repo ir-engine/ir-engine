@@ -1,11 +1,9 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { NetworkObjectUpdateMap } from '../templates/NetworkObjectUpdates'
 import { Network } from '../classes/Network'
-import { PrefabType } from '../templates/PrefabType'
 import { spawnPrefab } from '../functions/spawnPrefab'
 import { ECSWorld } from '../../ecs/classes/World'
-import { NetworkWorldActionType } from '../interfaces/NetworkWorldActions'
+import { NetworkWorldActions, NetworkWorldActionType } from '../interfaces/NetworkWorldActions'
 
 /**
  * Apply State received over the network to the client.
@@ -70,8 +68,9 @@ function syncPhysicsObjects(objectToCreate) {
 }
 
 export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActionType) => {
+  console.log('clientNetworkReceptor', action)
   switch (action.type) {
-    case 'network.CREATE_CLIENT': {
+    case NetworkWorldActions.CREATE_CLIENT: {
       Network.instance.clients[action.userId] = {
         userId: action.userId,
         avatarDetail: action.avatarDetail
@@ -79,12 +78,12 @@ export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActio
       break
     }
 
-    case 'network.DESTROY_CLIENT': {
+    case NetworkWorldActions.DESTROY_CLIENT: {
       delete Network.instance.clients[action.userId].userId
       break
     }
 
-    case 'network.CREATE_OBJECT': {
+    case NetworkWorldActions.CREATE_OBJECT: {
       if (!Network.instance.schema.prefabs.has(action.prefabType)) {
         console.log('prefabType not found', action.prefabType)
         break
@@ -133,12 +132,7 @@ export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActio
       break
     }
 
-    case 'network.EDIT_OBJECT': {
-      NetworkObjectUpdateMap.get(action.updateType)(action)
-      break
-    }
-
-    case 'network.DESTROY_OBJECT': {
+    case NetworkWorldActions.DESTROY_OBJECT: {
       console.log('Destroying ', action.networkId)
       if (Network.instance.networkObjects[action.networkId] === undefined) {
         console.warn("Can't destroy object as it doesn't appear to exist")
