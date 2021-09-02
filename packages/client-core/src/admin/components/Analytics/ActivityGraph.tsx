@@ -2,17 +2,15 @@ import React from 'react'
 import { ResponsiveLine } from '@nivo/line'
 const ActivityGraph = ({ data /* see data tab */ }) => {
   return (
-    //@ts-ignore
     <ResponsiveLine
       data={data}
       margin={{ top: 50, right: 110, bottom: 100, left: 60 }}
-      xScale={{ type: 'time', reverse: true }}
+      xScale={{ type: 'time', reverse: true } as any}
       yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
       yFormat=" >-.2f"
       axisTop={null}
       axisRight={null}
       axisBottom={{
-        orient: 'bottom',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
@@ -22,7 +20,6 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
         format: '%Y-%m-%d, %I:%M:%S'
       }}
       axisLeft={{
-        orient: 'left',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,

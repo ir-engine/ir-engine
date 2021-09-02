@@ -2,10 +2,10 @@ import React from 'react'
 import { InputBase, IconButton } from '@material-ui/core'
 import Paper from '@material-ui/core/Paper'
 import SearchIcon from '@material-ui/icons/Search'
-import { useStyles } from './styles'
+import { useFeedStyles } from './styles'
 
 const SearchFeed = () => {
-  const classes = useStyles()
+  const classes = useFeedStyles()
 
   return (
     <Paper component="form" className={classes.searchRoot}>

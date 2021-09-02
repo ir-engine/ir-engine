@@ -12,7 +12,7 @@ export const initialFeedsState = {
   thefeeds: {}
 }
 
-const immutableState = Immutable.fromJS(initialFeedsState)
+const immutableState = Immutable.fromJS(initialFeedsState) as any
 
 const thefeedsReducer = (state = immutableState, action: TheFeedsAction): any => {
   switch (action.type) {

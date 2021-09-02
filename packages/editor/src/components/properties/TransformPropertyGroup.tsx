@@ -88,31 +88,21 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
     const { node } = this.props as any
     return (
       <PropertyGroup name={this.props.t('editor:properties.transform.title')}>
-        {/* @ts-ignore */}
         <InputGroup name="Position" label={this.props.t('editor:properties.transform.lbl-postition')}>
           <Vector3Input
             value={node.position}
-            /* @ts-ignore */
             smallStep={0.01}
             mediumStep={0.1}
             largeStep={1}
             onChange={this.onChangePosition}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Rotation" label={this.props.t('editor:properties.transform.lbl-rotation')}>
-          <EulerInput
-            value={node.rotation}
-            onChange={this.onChangeRotation}
-            /* @ts-ignore */
-            unit="°"
-          />
+          <EulerInput value={node.rotation} onChange={this.onChangeRotation} unit="°" />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Scale" label={this.props.t('editor:properties.transform.lbl-scale')}>
           <Vector3Input
             uniformScaling
-            /* @ts-ignore */
             smallStep={0.01}
             mediumStep={0.1}
             largeStep={1}

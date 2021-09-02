@@ -286,8 +286,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.walkable = source.walkable
     return this
   }
-  // @ts-ignore
-  prepareForExport(ctx) {
+
+  prepareForExport(ctx: any): void {
     super.prepareForExport()
     this.addGLTFComponent('shadow', {
       cast: this.castShadow,

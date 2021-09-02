@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js'
-import { BaseSource } from './index'
+import { BaseSource, SearchResult } from './index'
 import { ItemTypes } from '../../dnd'
 import MediaSourcePanel from '../MediaSourcePanel'
 import Editor from '../../Editor'
@@ -15,10 +15,7 @@ import i18n from 'i18next'
 export class ElementsSource extends BaseSource {
   component: typeof MediaSourcePanel
   editor: Editor
-  id: string
-  name: string
   disableUrl: boolean
-  searchDebounceTimeout: number
 
   //initializing variables for this component
   constructor(editor: Editor) {
@@ -44,10 +41,9 @@ export class ElementsSource extends BaseSource {
   }
 
   // function to hanlde the search and to call API if there is any change in search input.
-  // @ts-ignore
-  async search(params) {
+  async search(params): Promise<SearchResult> {
     const editor = this.editor
-    let results = Array.from(editor.nodeTypes).reduce((acc: any, nodeType: any) => {
+    let results = Array.from<any>(editor.nodeTypes).reduce((acc: any, nodeType: any) => {
       if (!nodeType.canAddNode(editor)) {
         return acc
       }

@@ -129,7 +129,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       this.addMap(this.editor)
     }
   }
-  onUpdate(delta: number, time: number) {
+  onUpdate(delta: number, time?: number) {
     void delta
     void time
     this.labels?.forEach((label) => {

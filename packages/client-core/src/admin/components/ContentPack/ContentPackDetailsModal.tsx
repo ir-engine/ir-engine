@@ -3,10 +3,9 @@ import Button from '@material-ui/core/Button'
 import Fade from '@material-ui/core/Fade'
 import Modal from '@material-ui/core/Modal'
 import classNames from 'classnames'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAdminState } from '../../reducers/admin/selector'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import styles from './ContentPack.module.scss'
@@ -20,7 +19,6 @@ interface Props {
   contentPack: any
   open: boolean
   handleClose: any
-  adminState?: any
   uploadAvatar?: any
   downloadContentPack?: any
 }
@@ -28,8 +26,7 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
-    adminState: selectAdminState(state)
+    authState: selectAuthState(state)
   }
 }
 

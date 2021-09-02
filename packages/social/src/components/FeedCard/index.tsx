@@ -3,40 +3,23 @@
  */
 import React, { useState, useEffect } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-
-import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
-
 import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import TelegramIcon from '@material-ui/icons/Telegram'
-// import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
-// import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility'
-import Popover from '@material-ui/core/Popover'
-import Button from '@material-ui/core/Button'
 import CardHeader from '@material-ui/core/CardHeader'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import Avatar from '@material-ui/core/Avatar'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
-import CreatorAsTitle from '../CreatorAsTitle'
 import styles from './FeedCard.module.scss'
-import SimpleModal from '../SimpleModal'
 import { addViewToFeed, removeFeed } from '../../reducers/feed/service'
-// import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector'
-
-// import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service'
-import PopupLogin from '../PopupLogin/PopupLogin'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
-import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import { updateCreatorPageState, updateFeedPageState } from '../../reducers/popupsState/service'
 
@@ -130,6 +113,7 @@ const FeedCard = (props: Props): any => {
 
   const { t } = useTranslation()
   const shareVia = () => {
+    // @ts-ignore TODO: Share is undefined here
     Share.share({
       title: t('social:shareForm.arcMedia'),
       text: t('social:shareForm.videoCreated'),

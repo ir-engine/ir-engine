@@ -17,17 +17,22 @@ import {
   creatorFollowers,
   creatorFollowing,
   fetchingCreators,
-  fetchingCurrentCreator
+  fetchingCurrentCreator,
+  removeCreator
 } from './actions'
 
-export function createCreator() {
+export function createCreator(data?: any) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(fetchingCurrentCreator())
-      let userNumber = Math.floor(Math.random() * 1000) + 1
-      const creator = await client
-        .service('creator')
-        .create({ name: 'User' + userNumber, username: 'user_' + userNumber })
+      if (!data) {
+        data = {}
+        let userNumber = Math.floor(Math.random() * 1000) + 1
+        data.name = 'User' + userNumber
+        data.username = 'user_' + userNumber
+      }
+
+      const creator = await client.service('creator').create(data)
       dispatch(creatorLoggedRetrieved(creator))
     } catch (err) {
       console.log(err)
@@ -48,6 +53,17 @@ export function getLoggedCreator() {
     }
   }
 }
+
+export const fetchCreatorAsAdmin =
+  () =>
+  async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      const result = await client.service('creator').find({ query: { action: 'admin' } })
+      dispatch(creatorLoggedRetrieved(result))
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
 export function getCreators(limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -81,8 +97,7 @@ export function updateCreator(creator: Creator) {
       dispatch(fetchingCurrentCreator())
       if (creator.newAvatar) {
         const storedAvatar = await upload(creator.newAvatar, null)
-        //@ts-ignore error that this vars are void because upload is defines as void funtion
-        creator.avatarId = storedAvatar.file_id
+        ;(creator as any).avatarId = (storedAvatar as any).file_id
         delete creator.newAvatar
       }
       const updatedCreator = await client.service('creator').patch(creator.id, creator)
@@ -152,6 +167,17 @@ export function getFollowingList(creatorId: string) {
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function deleteCreator(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      await client.service('creator').remove(creatorId)
+      dispatch(removeCreator(creatorId))
+    } catch (err) {
+      console.log(err)
     }
   }
 }

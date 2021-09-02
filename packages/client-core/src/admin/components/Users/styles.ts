@@ -1,6 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useUserStyles = makeStyles((theme: Theme) =>
   createStyles({
     large: {
       width: theme.spacing(14),
@@ -121,7 +121,7 @@ export const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const useStyle = makeStyles({
+export const useUserStyle = makeStyles({
   paper: {
     width: '40%',
     backgroundColor: '#43484F',

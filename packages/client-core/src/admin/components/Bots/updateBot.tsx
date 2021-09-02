@@ -14,7 +14,7 @@ import { Save, Autorenew } from '@material-ui/icons'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { connect } from 'react-redux'
-import { formValid } from './validation'
+import { validateForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import { updateBotAsAdmin } from '../../reducers/admin/bots/service'
@@ -155,7 +155,7 @@ const UpdateBot = (props: Props) => {
       temp.location = "Location can't be empty"
     }
     setFormErrors(temp)
-    if (formValid(state, formErrors)) {
+    if (validateForm(state, formErrors)) {
       updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])

@@ -3,10 +3,11 @@ import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectList } from '../interfaces/NetworkObjectList'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
-import { NetworkTransport, IncomingActionType, ActionType } from '../interfaces/NetworkTransport'
-import { AvatarProps, NetworkClientInputInterface } from '../interfaces/WorldState'
+import { NetworkTransport, ActionType } from '../interfaces/NetworkTransport'
+import { AvatarProps } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
+import { WorldStateInterface } from '../schema/networkSchema'
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -89,6 +90,9 @@ export class Network {
   static _schemas: Map<string, Schema> = new Map()
 
   /** Buffer holding all incoming Messages. */
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+
+  /** Buffer holding all incoming Messages. */
   incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
 
   /** Buffer holding all incoming Messages. */
@@ -96,17 +100,6 @@ export class Network {
 
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
-
-  clientInputState: NetworkClientInputInterface = {
-    networkId: -1,
-    pose: [],
-    head: [],
-    leftHand: [],
-    rightHand: [],
-    snapShotTime: 0,
-    commands: [],
-    transforms: []
-  }
 
   /** Tick of the network. */
   tick: any = 0

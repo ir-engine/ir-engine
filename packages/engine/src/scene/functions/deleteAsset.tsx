@@ -2,7 +2,8 @@ import i18n from 'i18next'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import { getToken } from './getToken'
 import { Config } from '@xrengine/common/src/config'
-export const serverURL = Config.publicRuntimeConfig.apiServer
+
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 /**
  * deleteAsset used to delete existing asset using assetId.

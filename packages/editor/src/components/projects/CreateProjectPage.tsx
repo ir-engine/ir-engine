@@ -20,7 +20,8 @@ import { useHistory, useLocation, withRouter } from 'react-router-dom'
 import usePaginatedSearch from './usePaginatedSearch'
 import { useTranslation } from 'react-i18next'
 import { Config } from '@xrengine/common/src/config'
-export const serverURL = Config.publicRuntimeConfig.apiServer
+
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 /**
  *
@@ -102,7 +103,6 @@ function CreateProjectPage() {
       }))
     : []
 
-  //@ts-ignore
   const searchInput = (
     <SearchInput placeholder={t('editor:projects.createProject.ph-search')} value={params.q} onChange={onChangeQuery} />
   )
@@ -140,7 +140,6 @@ function CreateProjectPage() {
                       projects={filteredEntries}
                       newProjectPath="/editor/projects/new"
                       newProjectLabel={t('editor:projects.createProject.newProject')}
-                      /* @ts-ignore */
                       onSelectProject={onSelectScene}
                       loading={loading}
                     />

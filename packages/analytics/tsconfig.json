@@ -6,6 +6,8 @@
   "exclude": [
     "node_modules",
     "../../node_modules/k8s/*",
-    "types.d.ts"
+    "types.d.ts",
+    "../**/tests old/**",
+    "../**/tests/**",
   ],
 }

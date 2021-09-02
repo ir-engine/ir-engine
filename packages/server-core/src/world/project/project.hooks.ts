@@ -77,4 +77,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

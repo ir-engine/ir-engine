@@ -7,6 +7,7 @@ import nodePolyfills from 'rollup-plugin-node-polyfills';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
+import alias from '@rollup/plugin-alias';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx', '.json'];
@@ -21,6 +22,11 @@ export default {
   ],
   inlineDynamicImports: true,
   plugins: [
+    alias({
+      entries: [
+        { find: 'buffer', replacement: 'buffer/'},
+      ]
+    }),
     nodePolyfills(),
     commonjs(),
     json(),

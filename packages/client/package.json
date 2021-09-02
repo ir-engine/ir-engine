@@ -34,7 +34,7 @@
     "socket.io": "4.2.0"
   },
   "dependencies": {
-    "@capacitor/core": "3.2.0",
+    "@capacitor/core": "3.2.1",
     "@feathersjs/client": "5.0.0-pre.9",
     "@hookstate/core": "3.0.8",
     "@material-ui/core": "4.12.3",
@@ -64,7 +64,7 @@
     "faker": "5.5.3",
     "file-regex": "3.1.0",
     "fuse.js": "6.4.6",
-    "i18next": "20.5.0",
+    "i18next": "20.6.0",
     "i18next-browser-languagedetector": "6.1.2",
     "immutable": "4.0.0-rc.14",
     "jwt-decode": "3.1.2",
@@ -100,7 +100,7 @@
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "sass": "1.38.2",
+    "sass": "1.39.0",
     "semantic-ui-react": "2.0.3",
     "shaka-player": "3.2.0",
     "socket.io-client": "4.2.0",
@@ -108,12 +108,12 @@
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
-    "vite": "2.5.2",
+    "vite": "2.5.3",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
-    "@types/node": "14.17.13",
+    "@types/node": "14.17.14",
     "@types/react": "17.0.19",
     "@types/react-dom": "17.0.9",
     "comlink": "4.3.1",

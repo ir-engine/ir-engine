@@ -24,7 +24,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../common/reducers/app/selector'
 import { client } from '../../feathers'
 import { selectAuthState } from '../../user/reducers/auth/selector'
-import { PAGE_LIMIT } from '../reducers/admin/reducers'
+import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
 import { selectAdminLocationState } from '../reducers/admin/location/selector'
 import { fetchAdminScenes } from '../reducers/admin/scene/service'
 import { fetchUsersAsAdmin } from '../reducers/admin/user/service'
@@ -45,7 +45,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  adminState?: any
   authState?: any
   locationState?: any
   fetchAdminLocations?: any
@@ -264,7 +263,7 @@ const AdminConsole = (props: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const [page, setPage] = React.useState(0)
   const [dense, setDense] = React.useState(false)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [selectedTab, setSelectedTab] = React.useState('locations')
   const [userRole, setUserRole] = React.useState('')
   const [selectedUser, setSelectedUser] = React.useState({})
@@ -667,7 +666,7 @@ const AdminConsole = (props: Props) => {
         <div className={styles.tableFooter}>
           {selectedTab !== 'locations' && <div />}
           <TablePagination
-            rowsPerPageOptions={[PAGE_LIMIT]}
+            rowsPerPageOptions={[ADMIN_PAGE_LIMIT]}
             component="div"
             count={selectCount}
             rowsPerPage={rowsPerPage}

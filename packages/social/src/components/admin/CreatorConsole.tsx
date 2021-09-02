@@ -4,7 +4,6 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -29,19 +28,15 @@ import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 import CreatorCard from '@xrengine/social/src/components/CreatorCard'
 import { updateCreator } from '@xrengine/social/src/reducers/creator/service'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
 interface Props {
-  adminState?: any
   authState?: any
   locationState?: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
-  fetchUsersAsAdmin?: any
   fetchAdminInstances?: any
   removeUser?: any
   list?: any
@@ -137,7 +132,7 @@ const CreatorConsole = (props: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const [dense, setDense] = React.useState(false)
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [loading, setLoading] = React.useState(false)
   const [creatorEdit, setCreatorEdit] = React.useState(null)
   const [creatorData, setCreatorData] = React.useState(null)

@@ -13,7 +13,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ImageIcon from '@material-ui/icons/Image'
 import Chip from '@material-ui/core/Chip'
-import { useStyles, useStyle } from './styles'
+import { useGroupStyles, useGroupStyle } from './styles'
 import EditGroup from './EditGroup'
 
 interface Props {
@@ -23,8 +23,8 @@ interface Props {
 }
 
 const ViewGroup = (props: Props) => {
-  const classx = useStyle()
-  const classes = useStyles()
+  const classx = useGroupStyle()
+  const classes = useGroupStyles()
   const { openView, groupAdmin, closeViewModal } = props
   const [editMode, setEditMode] = React.useState(false)
 

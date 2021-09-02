@@ -11,12 +11,10 @@ export interface StateEntity {
   qY: number
   qZ: number
   qW: number
-  snapShotTime: number
 }
 
 export interface StateEntityIK {
   networkId: number
-  snapShotTime: number
   hmd: number[]
   left: number[]
   right: number[]
@@ -35,7 +33,6 @@ export interface StateInterEntity {
   vY: number
   vZ: number
   speed: number
-  snapShotTime: number
 }
 
 export interface StateClientEntity {
@@ -75,7 +72,6 @@ export interface Snapshot {
   id: ID
   time: Time
   state: StateEntityGroup
-  timeCorrection: number
 }
 
 export interface InterpolatedSnapshot {
@@ -95,6 +91,5 @@ export interface Quat {
 
 export interface SnapshotData {
   interpolation: InterpolatedSnapshot
-  correction: Snapshot
   new: StateEntityClientGroup
 }

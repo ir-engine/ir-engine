@@ -12,12 +12,12 @@ import { TableContainer, TableHead, TablePagination, TableRow } from '@material-
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectGroupState } from '../../reducers/admin/group/selector'
-import { getGroupService, deleteGroup } from '../../reducers/admin/group/service'
+import { getGroupService, deleteGroupByAdmin } from '../../reducers/admin/group/service'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { columns, Data } from './Variables'
-import { useStyles, useStyle } from './styles'
+import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
-import { PAGE_LIMIT } from '../../reducers/admin/group/reducers'
+import { GROUP_PAGE_LIMIT } from '../../reducers/admin/group/reducers'
 
 interface Props {
   adminGroupState?: any
@@ -33,19 +33,19 @@ const mapStateToProps = (state: any): any => ({
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminGroup: bindActionCreators(getGroupService, dispatch),
-  deleteGroup: bindActionCreators(deleteGroup, dispatch)
+  deleteGroup: bindActionCreators(deleteGroupByAdmin, dispatch)
 })
 
 const GroupTable = (props: Props) => {
   const { adminGroupState, fetchAdminGroup, authState, deleteGroup } = props
-  const classes = useStyles()
-  const classx = useStyle()
+  const classes = useGroupStyles()
+  const classx = useGroupStyle()
 
   const user = authState.get('user')
   const [viewModel, setViewModel] = React.useState(false)
   const [singleGroup, setSingleGroup] = React.useState('')
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = React.useState('')
   const [showWarning, setShowWarning] = React.useState(false)
   const adminGroups = adminGroupState.get('group').get('group')
@@ -152,7 +152,7 @@ const GroupTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[GROUP_PAGE_LIMIT]}
         component="div"
         count={adminGroupCount}
         rowsPerPage={rowsPerPage}

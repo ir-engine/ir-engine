@@ -4,7 +4,7 @@ import i18n from 'i18next'
 import { fetchContentType } from './fetchContentType'
 import { guessContentType } from './guessContentType'
 
-export const serverURL = Config.publicRuntimeConfig.apiServer
+const serverURL = Config.publicRuntimeConfig.apiServer
 export const resolveMediaCache = new Map()
 
 /**

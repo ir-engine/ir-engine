@@ -35,7 +35,7 @@ export const initialAppState: AppState = {
   userHasInteracted: false
 }
 
-const immutableState = Immutable.fromJS(initialAppState)
+const immutableState = Immutable.fromJS(initialAppState) as any
 
 const appReducer = (state = immutableState, action: AppLoadedAction | SetViewportAction): AppState => {
   switch (action.type) {

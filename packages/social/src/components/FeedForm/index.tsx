@@ -117,7 +117,6 @@ const FeedForm = ({
       updateFeedAsAdmin(feed.id, newFeed)
     } else {
       const feedMediaLinks = await createFeed(newFeed)
-      // @ts-ignore
       // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
     }
 
@@ -367,7 +366,7 @@ const FeedForm = ({
               autoPlay={false}
               loop
               muted={false}
-              playsinline={true}
+              playsInline={true}
               controls={true}
             >
               <source src={videoPath} type="video/mp4" />

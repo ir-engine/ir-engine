@@ -36,6 +36,8 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 import { OffScreenIndicator } from '@xrengine/engine/src/scene/classes/OffScreenIndicator'
+import { SoundEffect } from '../../../../../engine/src/audio/components/SoundEffect'
+import { PlaySoundEffect } from '../../../../../engine/src/audio/components/PlaySoundEffect'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -58,6 +60,12 @@ interface BallGroupType extends Group {
     offscreenIndicator: OffScreenIndicator
     lastTrailUpdateTime: number
   }
+}
+
+enum BALL_SFX {
+  HIT,
+  IN_HOLE,
+  HIT_WALL
 }
 
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
@@ -97,10 +105,13 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
         return
       }
       case BALL_STATES.MOVING: {
+        // TODO: Fine tune volume
+        playVelocityBasedSFX(entityBall, BALL_SFX.HIT, 1, 3.5, 0.2, 1)
         ballGroup.userData.indicatorMesh.visible = false
         return
       }
       case BALL_STATES.IN_HOLE: {
+        addComponent(entityBall, PlaySoundEffect, { index: BALL_SFX.IN_HOLE, volume: 1 })
         return
       }
       case BALL_STATES.STOPPED: {
@@ -175,6 +186,45 @@ const updateOSIndicator = (ballGroup: BallGroupType): void => {
 }
 
 /**
+ * @author Mohsen Heydari <github.com/mohsenheydari>
+ */
+
+const playVelocityBasedSFX = (
+  entity: Entity,
+  index: number,
+  minVel: number,
+  maxVel: number,
+  minVol: number,
+  maxVol: number
+) => {
+  const collider = getComponent(entity, ColliderComponent)
+  const body = collider.body
+  const vel = body.transform.linearVelocity.length()
+  const volume = Math.max(Math.min((vel - minVel) / (maxVel - minVel), maxVol), minVol)
+  addComponent(entity, PlaySoundEffect, { index, volume })
+}
+
+/**
+ * @author Mohsen Heydari <github.com/mohsenheydari>
+ */
+
+const wallHitSFX = (entityBall: Entity) => {
+  const collider = getComponent(entityBall, ColliderComponent)
+  const body = collider.body
+
+  if (body.collisionEvents.length > 0 && body.collisionEvents[0].contacts && body.collisionEvents[0].contacts.length) {
+    const norm = body.collisionEvents[0].contacts[0].normal
+    const dot = norm.y
+
+    // Hitting vertical surface
+    if (Math.abs(dot) < 0.1) {
+      // TODO: Fine tune the volume
+      playVelocityBasedSFX(entityBall, BALL_SFX.HIT_WALL, 1, 3, 0.2, 1)
+    }
+  }
+}
+
+/**
  * @author Josh Field <github.com/HexaField>
  */
 
@@ -201,6 +251,8 @@ export const updateBall = (entityBall: Entity): void => {
 
     // Offscreen indicator
     updateOSIndicator(ballGroup)
+
+    wallHitSFX(entityBall)
   }
 }
 
@@ -297,6 +349,15 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
     // addComponent(ballEntity, InterpolationComponent, {})
     const gltf = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/golf_ball.glb')
     assetLoadCallback(gltf.scene, ballEntity, playerNumber)
+
+    addComponent(ballEntity, SoundEffect, {
+      src: [
+        Engine.publicPath + '/audio/golf/golf_ball_strike.mp3',
+        Engine.publicPath + '/audio/golf/golf_ball_drop.wav',
+        Engine.publicPath + '/audio/golf/golf_ball_hit_wall.wav'
+      ],
+      audio: []
+    })
   }
 
   const shape: ShapeType = {

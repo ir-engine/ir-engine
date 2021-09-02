@@ -41,15 +41,22 @@ const UniformButtonContainer = (styled as any).div`
 
 let uniqueId = 0
 
+type StateType = {
+  uniformEnabled: any
+  value: any
+}
+
+interface Vector2InputProp {
+  value?: any
+  onChange?: Function
+  uniformScaling?: boolean
+}
+
 /**
  *
  * @author Robert Long
  */
-export class Vector2Input extends Component {
-  declare state: {
-    uniformEnabled: any
-    value: any
-  }
+export class Vector2Input extends Component<Vector2InputProp, StateType> {
   static defaultProps = {
     value: new Vector2(),
     onChange: () => {}
@@ -76,7 +83,7 @@ export class Vector2Input extends Component {
   }
 
   onChange = (field, fieldValue) => {
-    const value = (this.props as any).value
+    const value = this.props.value
 
     if (this.state.uniformEnabled) {
       this.newValue.set(fieldValue, fieldValue)
@@ -88,7 +95,9 @@ export class Vector2Input extends Component {
       this.newValue.y = field === 'y' ? fieldValue : y
     }
 
-    ;(this.props as any).onChange(this.newValue)
+    if (typeof this.props.onChange === 'function') {
+      this.props.onChange(this.newValue)
+    }
   }
 
   onChangeX = (x) => this.onChange('x', x)
@@ -96,8 +105,8 @@ export class Vector2Input extends Component {
   onChangeY = (y) => this.onChange('y', y)
 
   render() {
-    const { uniformScaling, value, onChange, ...rest } = this.props as any
-    const { uniformEnabled } = this.state as any
+    const { uniformScaling, value, onChange, ...rest } = this.props
+    const { uniformEnabled } = this.state
     const vx = value ? value.x : 0
     const vy = value ? value.y : 0
     const checkboxId = 'uniform-button-' + this.id

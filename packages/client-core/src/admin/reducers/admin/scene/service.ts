@@ -1,8 +1,8 @@
-import { collectionsFetched } from '../../../../world/reducers/scenes/actions'
 import { client } from '../../../../feathers'
 import { Dispatch } from 'redux'
+import { collectionsFetched } from './actions'
 
-export function fetchAdminScenes(incDec: string | null) {
+export function fetchAdminScenes(incDec?: 'increment' | 'decrement' | 'all') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('adminScene').get('scenes').get('skip')
     const limit = getState().get('adminScene').get('scenes').get('limit')

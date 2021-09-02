@@ -24,7 +24,7 @@ export const initialPartyState = {
   updateNeeded: true
 }
 
-const immutableState = Immutable.fromJS(initialPartyState)
+const immutableState = Immutable.fromJS(initialPartyState) as any
 
 const partyReducer = (state = immutableState, action: PartyAction): any => {
   let newValues, updateMap, partyUser, updateMapPartyUsers

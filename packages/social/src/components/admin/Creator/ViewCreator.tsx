@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 import { DialogActions } from '@material-ui/core'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Grid from '@material-ui/core/Grid'
-import { useStyle, useStyles } from './styles'
+import { useCreatorStyle, useCreatorStyles } from './styles'
 import EditCreator from './EditCreator'
 
 interface Props {
@@ -17,8 +17,8 @@ interface Props {
 const ViewCreator = (props: Props) => {
   const { adminCreator, viewModal, closeViewModal } = props
   const [editMode, setEditMode] = React.useState(false)
-  const classes = useStyles()
-  const classesx = useStyle()
+  const classes = useCreatorStyles()
+  const classesx = useCreatorStyle()
 
   return (
     <React.Fragment>

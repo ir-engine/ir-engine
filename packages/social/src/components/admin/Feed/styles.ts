@@ -1,7 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { deepOrange, green } from '@material-ui/core/colors'
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useFeedStyles = makeStyles((theme: Theme) =>
   createStyles({
     large: {
       width: theme.spacing(14),
@@ -220,7 +219,7 @@ export const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const useStyle = makeStyles({
+export const useFeedStyle = makeStyles({
   paper: {
     maxWidth: '80%',
     minWidth: '40%',

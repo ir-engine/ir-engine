@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { PAGE_LIMIT } from '../../reducers/admin/avatar/reducers'
+import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/reducers'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
 import styles from './Avatars.module.scss'
@@ -142,7 +142,7 @@ const Avatars = (props: Props) => {
   const [orderBy, setOrderBy] = useState<any>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedAvatars, setSelectedAvatars] = useState([])
@@ -307,7 +307,7 @@ const Avatars = (props: Props) => {
 
         <div className={styles.tableFooter}>
           <TablePagination
-            rowsPerPageOptions={[PAGE_LIMIT]}
+            rowsPerPageOptions={[AVATAR_PAGE_LIMIT]}
             component="div"
             count={adminAvatarCount}
             rowsPerPage={rowsPerPage}

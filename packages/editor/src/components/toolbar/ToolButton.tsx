@@ -31,6 +31,14 @@ const Icon = (styled as any).div`
   font-size: 14px;
 `
 
+interface ToolButtonProp {
+  id: string | number
+  icon?: any
+  onClick: Function
+  isSelected?: boolean
+  tooltip?: string
+}
+
 /**
  *
  * @author Robert Long
@@ -41,7 +49,7 @@ const Icon = (styled as any).div`
  * @param {any} tooltip
  * @returns
  */
-export function ToolButton({ id, icon, onClick, isSelected, tooltip }) {
+export function ToolButton({ id, icon, onClick, isSelected, tooltip }: ToolButtonProp) {
   return (
     <InfoTooltip id={id} info={tooltip} position="bottom">
       <StyledToolButton isSelected={isSelected} onClick={onClick}>

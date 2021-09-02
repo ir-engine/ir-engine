@@ -1,5 +1,5 @@
 import Immutable from 'immutable'
-import { LocationsAction, LocationsRetrievedAction, LocationRetrievedAction } from './actions'
+import { SocialLocationsAction, SocialLocationsRetrievedAction, SocialLocationRetrievedAction } from './actions'
 
 import {
   FETCH_CURRENT_LOCATION,
@@ -26,13 +26,13 @@ export const initialLocationState = {
   invalidLocation: false
 }
 
-const immutableState = Immutable.fromJS(initialLocationState)
+const immutableState = Immutable.fromJS(initialLocationState) as any
 
-const locationReducer = (state = immutableState, action: LocationsAction): any => {
+const locationReducer = (state = immutableState, action: SocialLocationsAction): any => {
   let newValues, updateMap, existingLocations
   switch (action.type) {
     case LOCATIONS_RETRIEVED:
-      newValues = (action as LocationsRetrievedAction).locations
+      newValues = (action as SocialLocationsRetrievedAction).locations
       updateMap = new Map()
       existingLocations = state.get('locations').get('locations')
       updateMap.set(
@@ -50,7 +50,7 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
       return state.set('fetchingCurrentLocation', true)
 
     case LOCATION_RETRIEVED:
-      newValues = (action as LocationRetrievedAction).location
+      newValues = (action as SocialLocationRetrievedAction).location
       updateMap = new Map()
       newValues.locationSettings = newValues.location_setting
       delete newValues.location_setting

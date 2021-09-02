@@ -12,9 +12,9 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 
-export const PAGE_LIMIT = 10
+export const BOTS_PAGE_LIMIT = 100
 
-export const initialAdminState = {
+export const initialBotAdminState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -24,7 +24,7 @@ export const initialAdminState = {
   bots: {
     bots: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: BOTS_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -34,7 +34,7 @@ export const initialAdminState = {
   botCommand: {
     botCommand: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: BOTS_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -42,7 +42,7 @@ export const initialAdminState = {
     lastFetched: new Date()
   }
 }
-const immutableState = Immutable.fromJS(initialAdminState)
+const immutableState = Immutable.fromJS(initialBotAdminState) as any
 
 const adminBotReducer = (state = immutableState, action: any): any => {
   let result, updateMap

@@ -23,9 +23,7 @@ export default class DirectionalPlaneHelper extends Object3D {
     addIsHelperFlag(this)
   }
   setColor(color) {
-    // @ts-ignore
     this.plane.material.color.copy(color)
-    // @ts-ignore
     this.directionLine.material.color.copy(color)
   }
   dispose() {

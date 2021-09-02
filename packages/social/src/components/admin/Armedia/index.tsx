@@ -3,17 +3,16 @@ import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { useStyles } from './styles'
+import { useARMediaStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-
-import { selectArMediaState } from '@xrengine/social/src/reducers/arMedia/selector'
-import { getArMediaService } from '@xrengine/social/src/reducers/arMedia/service'
+import { selectArMediaState } from '../../../reducers/arMedia/selector'
+import { getArMediaService } from '../../../reducers/arMedia/service'
 
 interface Props {
   list?: any
-  getArMediaService?: (type?: string, limit?: Number) => void
+  getArMediaService?: typeof getArMediaService
   adminArmediaState?: any
 }
 
@@ -42,7 +41,7 @@ const VideoMedia = (props: Props) => {
       getArMediaService()
     }
   }, [armediaState])
-  const classes = useStyles()
+  const classes = useARMediaStyles()
   const [mediaModalOpen, setMediaModalOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {

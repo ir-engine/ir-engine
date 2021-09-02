@@ -4,10 +4,10 @@ import Button from '@material-ui/core/Button'
 import UserModel from './CreateUser'
 import UserTable from './UserTable'
 import SearchUser from './SearchUser'
-import { useStyles } from './styles'
+import { useUserStyles } from './styles'
 
 const Users = () => {
-  const classes = useStyles()
+  const classes = useUserStyles()
   const [userModalOpen, setUserModalOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {

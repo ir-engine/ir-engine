@@ -21,8 +21,7 @@ import {
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
-//@ts-ignore
-import { encode, decode } from 'msgpackr'
+// import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static EVENTS = {
@@ -86,15 +85,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log('Handling kick: ', socket)
   }
 
-  toBuffer(ab) {
-    const buf = Buffer.alloc(ab.byteLength)
-    const view = new Uint8Array(ab)
-    for (let i = 0; i < buf.length; ++i) {
-      buf[i] = view[i]
-    }
-    return buf
-  }
-
   close() {
     this.instanceRecvTransport?.close()
     this.instanceSendTransport?.close()
@@ -110,14 +100,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         this.instanceDataProducer.closed !== true &&
         this.instanceDataProducer.readyState === 'open'
       )
-        this.instanceDataProducer.send(this.toBuffer(data))
+        this.instanceDataProducer.send(data)
     } else {
       if (
         this.channelDataProducer &&
         this.channelDataProducer.closed !== true &&
         this.channelDataProducer.readyState === 'open'
       )
-        this.channelDataProducer.send(this.toBuffer(data))
+        this.channelDataProducer.send(data)
     }
   }
 
@@ -283,6 +273,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         dataConsumer.on('message', (message: any) => {
           try {
             Network.instance.incomingMessageQueueUnreliable.add(message)
+            Network.instance.incomingMessageQueueUnreliableIDs.add(options.dataProducerId)
           } catch (error) {
             console.warn('Error handling data from consumer:')
             console.warn(error)

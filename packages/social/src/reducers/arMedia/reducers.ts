@@ -28,13 +28,13 @@ import {
   FetchingArMediaItemAction
 } from './actions'
 
-export const PAGE_LIMIT = 100
+export const ARMEDIA_PAGE_LIMIT = 100
 
 export const initialArMediaState = {
   arMedia: {
     arMedia: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: ARMEDIA_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -48,7 +48,7 @@ export const initialArMediaState = {
   fetchingItem: false
 }
 
-const immutableState = Immutable.fromJS(initialArMediaState)
+const immutableState = Immutable.fromJS(initialArMediaState) as any
 
 const arMediaReducer = (state = immutableState, action: ArMediaAction): any => {
   let result: any, updateMap: any

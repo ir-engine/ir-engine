@@ -17,7 +17,7 @@ export function createScope(scopeItem: any) {
   }
 }
 
-export function getScopeService(incDec: string | null) {
+export function getScopeService(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('scope').get('scope').get('skip')
     const limit = getState().get('scope').get('scope').get('limit')
@@ -63,7 +63,7 @@ export function removeScope(scopeId: string) {
   }
 }
 
-export function getScopeTypeService(incDec: string | null) {
+export function getScopeTypeService(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('scope').get('scopeType').get('skip')
     const limit = getState().get('scope').get('scopeType').get('limit')

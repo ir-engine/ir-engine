@@ -4,7 +4,7 @@ import { fetchUrl } from './fetchUrl'
 import { getToken } from './getToken'
 import { upload } from './upload'
 
-export const serverURL = Config.publicRuntimeConfig.apiServer
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 globalThis.filesToUpload = globalThis.filesToUpload ?? {}
 

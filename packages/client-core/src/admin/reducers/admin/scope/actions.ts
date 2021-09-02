@@ -7,7 +7,7 @@ import {
   SCOPE_TYPE_RETRIEVED
 } from '../../actions'
 
-export interface FetchingAction {
+export interface ScopeFetchingAction {
   type: string
 }
 
@@ -28,7 +28,7 @@ export interface FetchingScopeItemAction {
 
 export type ScopeAction = ScopeRetrieveAction | ScopeOneAction | FetchingScopeItemAction
 
-export function fetchingScope(): FetchingAction {
+export function fetchingScope(): ScopeFetchingAction {
   return {
     type: SCOPE_FETCHING
   }

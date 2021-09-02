@@ -4,7 +4,6 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { PAGE_LIMIT } from '../reducers/admin/reducers'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -27,23 +26,19 @@ import StarOutlineIcon from '@material-ui/icons/StarOutline'
 import { Edit } from '@material-ui/icons'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import SharedModal from './SharedModal'
 import FeedForm from '@xrengine/social/src/components/FeedForm'
-import { EnhancedTableHead } from './AdminHelpers'
 import { updateFeedAsAdmin } from '@xrengine/social/src/reducers/feed/service'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
+import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/AdminHelpers'
+import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
 interface Props {
-  adminState?: any
   authState?: any
   locationState?: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
-  fetchUsersAsAdmin?: any
   fetchAdminInstances?: any
   removeUser?: any
   list?: any
@@ -132,11 +127,10 @@ const FeedConsole = (props: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const [dense, setDense] = React.useState(false)
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [loading, setLoading] = React.useState(false)
   const [view, setView] = React.useState(null)
 
-  // const adminUsers = adminState.get('users').get('users');
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')

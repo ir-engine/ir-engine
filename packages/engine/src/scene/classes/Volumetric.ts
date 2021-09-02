@@ -23,7 +23,6 @@ export default class Volumetric extends AudioSource {
   hls: any
   constructor(audioListener) {
     super(audioListener, 'volumetric')
-    // @ts-ignore
     this._videoTexture = new VideoTexture(this.el)
     this._videoTexture.minFilter = LinearFilter
     this._videoTexture.encoding = sRGBEncoding

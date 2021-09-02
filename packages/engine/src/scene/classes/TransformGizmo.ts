@@ -280,7 +280,6 @@ export default class TransformGizmo extends Object3D {
       this.selectedAxis = undefined
     }
   }
-  /** @ts-ignore */
   clone() {
     // You can only have one instance of TransformControls so return a dummy object when cloning.
     return new Object3D().copy(this)

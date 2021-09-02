@@ -243,7 +243,7 @@ const Page = () => {
       let w = window.innerWidth,
         h = window.innerHeight
 
-      let ctx = canvas.getContext('webgl2') //, { alpha: false }
+      let ctx = canvas.getContext('webgl2') as WebGLRenderingContext //, { alpha: false }
       Engine.renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
 
       Engine.renderer.setClearColor(0x3a3a3a, 1)
