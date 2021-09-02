@@ -11,6 +11,7 @@
     "apiServer": "https://${VITE_SERVER_HOST}:${VITE_SERVER_PORT}",
     "gaMeasurementId": "G-8VZ0ZP1QKK",
     "gameserver": "https://${VITE_GAMESERVER_HOST}:${VITE_GAMESERVER_PORT}",
+    "readyPlayerMeUrl":"${VITE_READY_PLAYER_ME_URL}",
     "mediatorServer": "${VITE_MEDIATOR_SERVER}",
     "feathersStoreKey": "TheOverlay-Auth-Store",
     "localStorageKey": "theoverlay-client-store-key-v1",
