@@ -560,9 +560,9 @@ export function applyLimb(
     // ORIGINAL CODE:
     // let rot	= Quat.mul( p_wt.rot, tpose.get_local_rot( chain.first() ) ),	// Get World Space Rotation for Bone
     // dir	= Vec3.transform_quat( chain.alt_fwd, rot );					// Get Bone's WS Forward Dir
-    const rot = new Quaternion().copy(parentWorldQuaternion).multiply(bind_a.bone.quaternion)
+    const rot = parentWorldQuaternion.clone().multiply(bind_a.bone.quaternion)
     //Swing
-    const dir = new Vector3().copy(chain.altForward).applyQuaternion(rot) // Get Bone's WS Forward Dir
+    const dir = chain.altForward.clone().applyQuaternion(rot) // Get Bone's WS Forward Dir
 
     // TODO: Check the original reference and make sure this is valid
     // Swing
