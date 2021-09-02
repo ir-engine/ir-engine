@@ -26,7 +26,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
       }
     }
 
-    // TODO test
+    // TODO use UpdatableComponent
     for (const entity of labelsQuery(world)) {
       const labels = getComponent(entity, GeoLabelSetComponent).value
       for (const label of labels) {

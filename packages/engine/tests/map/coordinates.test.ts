@@ -4,6 +4,17 @@ import { expect } from "@jest/globals";
 import { atlantaGeoCoord, atlantaGeoCoord2, atlantaTileCoord, atlantaTileGeoCoordinate } from "./constants";
 
 describe('coordinates conversions', () => {
+    // See https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#X_and_Y
+  // TODO add tests like this for tile2*
+    test("long2tile", () => {
+      expect(long2tile(-180, 2)).toBe(0)
+      expect(long2tile(180 - 1e-8, 2)).toBe(3)
+    })
+    test("lat2tile", () => {
+      expect(lat2tile(85.0511, 2)).toBe(0)
+      expect(lat2tile(-85.0511, 2)).toBe(3)
+    })
+    // TODO move to MapBoxClient.test?
     it("converts geo to tile", () => {
         const tileX = long2tile(atlantaGeoCoord2[0], TILE_ZOOM)
         const tileY = lat2tile(atlantaGeoCoord2[1], TILE_ZOOM)

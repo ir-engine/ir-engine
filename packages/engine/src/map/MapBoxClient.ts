@@ -1,9 +1,12 @@
 import { VectorTile } from '@mapbox/vector-tile'
+import { degreesToRadians } from '@turf/turf'
 import { Config } from '@xrengine/common/src/config'
 import { Position } from 'geojson'
-import { TileFeaturesByLayer } from './types'
+import { sceneToLl } from './MeshBuilder'
+import { LongLat, TileFeaturesByLayer } from './types'
 import { vectors } from './vectors'
 
+// TODO try higher zoom levels
 export const TILE_ZOOM = 16
 export const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
@@ -16,10 +19,9 @@ export function long2tile(lon: number, zoom: number) {
 }
 
 export function lat2tile(lat: number, zoom: number) {
-  return Math.floor(
-    ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) *
-      Math.pow(2, zoom)
-  )
+  const latRadians = degreesToRadians(lat)
+
+  return Math.floor(((1 - Math.log(Math.tan(latRadians) + 1 / Math.cos(latRadians)) / Math.PI) / 2) * Math.pow(2, zoom))
 }
 
 export function tile2long(tileX: number, zoom: number) {
@@ -58,13 +60,13 @@ function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFea
 /**
  * @param highDpi only applicable to raster tiles
  */
-function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string, highDpi = false) {
+export function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string, highDpi = false) {
   return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}${
     highDpi ? '@2x' : ''
   }.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
 }
 
-async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
+async function fetchTile(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
   const url = getMapBoxUrl('mapbox.mapbox-streets-v8', tileX, tileY, 'vector.pbf')
   const response = await fetch(url)
   const blob = await response.blob()
@@ -81,6 +83,31 @@ async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitma
   const response = await fetch(url)
   const blob = await response.blob()
   return createImageBitmap(blob)
+}
+
+export function* createTileIterator(center: LongLat, minimumSceneRadius: number, zoomLevel: number) {
+  // number of tiles
+  // LongLat for each tile
+  const [startLong, startLat] = sceneToLl([-minimumSceneRadius, -minimumSceneRadius], center)
+  const [endLong, endLat] = sceneToLl([minimumSceneRadius, minimumSceneRadius], center)
+
+  const startTileX = long2tile(startLong, zoomLevel)
+  const endTileX = long2tile(endLong, zoomLevel)
+  const startTileY = lat2tile(startLat, zoomLevel)
+  const endTileY = lat2tile(endLat, zoomLevel)
+
+  const radiusTiles = (endTileX - startTileX) / 2
+  const centerX = startTileX + radiusTiles
+  const centerY = startTileY + radiusTiles
+  const isIntersectCellCircle = createIntersectTestCellCircle(centerX, centerY, radiusTiles)
+
+  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+      if (isIntersectCellCircle(tileX, tileY)) {
+        yield [tileX, tileY]
+      }
+    }
+  }
 }
 
 function forEachSurroundingTile(llPosition: Position, callback: (tileX: number, tileY: number) => void) {
@@ -106,9 +133,9 @@ export function llToTile(llPosition: Position) {
 /**
  * @returns promise resolving to array containing one array of features per tile
  */
-export function fetchVectorTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
+export function fetchVectorTiles(center: LongLat): Promise<TileFeaturesByLayer[]> {
   const promises = []
-  forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchTileFeatures(tileX, tileY)))
+  forEachSurroundingTile(center, (tileX, tileY) => promises.push(fetchTile(tileX, tileY)))
   return Promise.all(promises)
 }
 
@@ -119,4 +146,14 @@ export function fetchRasterTiles(llCenter: Position): Promise<ImageBitmap[]> {
   const promises = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchRasterTile(tileX, tileY)))
   return Promise.all(promises)
+}
+
+export function createIntersectTestCellCircle(centerX: number, centerY: number, radius: number) {
+  return function isIntersectCellCircle(cellX: number, cellY: number): boolean {
+    const cornerX = cellX < centerX ? cellX + 1 : cellX
+    const cornerY = cellY < centerY ? cellY + 1 : cellY
+    const distanceFromCenter = Math.hypot(cornerX - centerX, cornerY - centerY)
+
+    return distanceFromCenter < radius
+  }
 }
