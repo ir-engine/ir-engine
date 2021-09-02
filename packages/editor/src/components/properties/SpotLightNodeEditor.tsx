@@ -67,15 +67,10 @@ export class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}>
     SpotLightNodeEditor.description = this.props.t('editor:properties.spotLight.description')
     const { node, editor } = this.props as any
     return (
-      /* @ts-ignore */
       <NodeEditor {...this.props} description={SpotLightNodeEditor.description}>
-        {/* @ts-ignore */}
         <InputGroup name="Color" label={this.props.t('editor:properties.spotLight.lbl-color')}>
-          {/* @ts-ignore */}
           <ColorInput value={node.color} onChange={this.onChangeColor} />
-          {/* @ts-ignore */}
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Intensity"
           label={this.props.t('editor:properties.spotLight.lbl-intensity')}
@@ -87,7 +82,6 @@ export class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}>
           onChange={this.onChangeIntensity}
           unit="°"
         />
-        {/* @ts-ignore */}
         <RadianNumericInputGroup
           name="Inner Cone Angle"
           label={this.props.t('editor:properties.spotLight.lbl-innerConeAngle')}
@@ -100,7 +94,6 @@ export class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}>
           onChange={this.onChangeInnerConeAngle}
           unit="°"
         />
-        {/* @ts-ignore */}
         <RadianNumericInputGroup
           name="Outer Cone Angle"
           label={this.props.t('editor:properties.spotLight.lbl-outerConeAngle')}
@@ -113,7 +106,6 @@ export class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}>
           onChange={this.onChangeOuterConeAngle}
           unit="°"
         />
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Range"
           label={this.props.t('editor:properties.spotLight.lbl-range')}

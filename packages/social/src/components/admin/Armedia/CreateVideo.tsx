@@ -8,15 +8,15 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { useStyles, useStyle } from './styles'
+import { useARMediaStyles, useARMediaStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
-import { formValid } from './validation'
-import { createArMedia } from '../../../reducers/admin/arMedia/service'
+import { validateARMediaForm } from './validation'
+import { createArMedia } from '../../../reducers/arMedia/service'
 
 interface Props {
   open: boolean
@@ -32,8 +32,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const CreateVideo = (props: Props) => {
   const { t } = useTranslation()
   const { open, handleClose, closeViewModel, createArMedia } = props
-  const classes = useStyles()
-  const classesx = useStyle()
+  const classes = useARMediaStyles()
+  const classesx = useARMediaStyle()
   const [state, setState] = useState({
     title: '',
     type: '',
@@ -103,7 +103,7 @@ const CreateVideo = (props: Props) => {
       temp.preview = 'Preview is required'
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateARMediaForm(state, state.formErrors)) {
       createArMedia({ type, title }, { manifest, audio, dracosis, preview })
       closeViewModel(false)
       setState({

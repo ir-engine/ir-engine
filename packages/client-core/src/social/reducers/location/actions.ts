@@ -10,96 +10,96 @@ import {
 } from '../actions'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
-export interface LocationsRetrievedAction {
+export interface SocialLocationsRetrievedAction {
   type: string
   locations: any[]
 }
 
-export interface LocationRetrievedAction {
+export interface SocialLocationRetrievedAction {
   type: string
   location: any
 }
 
-export interface LocationBanCreatedAction {
+export interface SocialLocationBanCreatedAction {
   type: string
 }
 
-export interface FetchingCurrentLocationAction {
+export interface FetchingCurrentSocialLocationAction {
   type: string
 }
 
-export interface LocationCreatedAction {
-  type: string
-  location: Location
-}
-
-export interface LocationPatchedAction {
+export interface SocialLocationCreatedAction {
   type: string
   location: Location
 }
 
-export interface LocationRemovedAction {
+export interface SocialLocationPatchedAction {
+  type: string
+  location: Location
+}
+
+export interface SocialLocationRemovedAction {
   type: string
 }
-export interface LocationNotFoundAction {
+export interface SocialLocationNotFoundAction {
   type: string
 }
 
-export type LocationsAction =
-  | LocationsRetrievedAction
-  | LocationRetrievedAction
-  | LocationBanCreatedAction
-  | FetchingCurrentLocationAction
-  | LocationNotFoundAction
+export type SocialLocationsAction =
+  | SocialLocationsRetrievedAction
+  | SocialLocationRetrievedAction
+  | SocialLocationBanCreatedAction
+  | FetchingCurrentSocialLocationAction
+  | SocialLocationNotFoundAction
 
-export function locationsRetrieved(locations: any): LocationsRetrievedAction {
+export function socialLocationsRetrieved(locations: any): SocialLocationsRetrievedAction {
   return {
     type: LOCATIONS_RETRIEVED,
     locations: locations
   }
 }
 
-export function locationRetrieved(location: any): LocationRetrievedAction {
+export function socialLocationRetrieved(location: any): SocialLocationRetrievedAction {
   return {
     type: LOCATION_RETRIEVED,
     location: location
   }
 }
 
-export function locationCreated(location: Location): LocationCreatedAction {
+export function socialLocationCreated(location: Location): SocialLocationCreatedAction {
   return {
     type: LOCATION_CREATED,
     location: location
   }
 }
 
-export function locationPatched(location: Location): LocationCreatedAction {
+export function socialLocationPatched(location: Location): SocialLocationCreatedAction {
   return {
     type: LOCATION_PATCHED,
     location: location
   }
 }
 
-export function locationRemoved(location: Location): LocationCreatedAction {
+export function socialLocationRemoved(location: Location): SocialLocationCreatedAction {
   return {
     type: LOCATION_REMOVED,
     location: location
   }
 }
 
-export function locationBanCreated(): LocationBanCreatedAction {
+export function socialLocationBanCreated(): SocialLocationBanCreatedAction {
   return {
     type: LOCATION_BAN_CREATED
   }
 }
 
-export function fetchingCurrentLocation(): FetchingCurrentLocationAction {
+export function fetchingCurrentSocialLocation(): FetchingCurrentSocialLocationAction {
   return {
     type: FETCH_CURRENT_LOCATION
   }
 }
 
-export function locationNotFound(): LocationNotFoundAction {
+export function socialLocationNotFound(): SocialLocationNotFoundAction {
   return {
     type: LOCATION_NOT_FOUND
   }

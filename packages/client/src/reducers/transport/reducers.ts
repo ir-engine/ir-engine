@@ -7,7 +7,7 @@ export const initialTransportState = {
   channelId: ''
 }
 
-const immutableState = Immutable.fromJS(initialTransportState)
+const immutableState = Immutable.fromJS(initialTransportState) as any
 
 export default function transportReducer(state = immutableState, action: any): any {
   switch (action.type) {

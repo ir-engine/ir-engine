@@ -21,8 +21,7 @@ import {
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
-//@ts-ignore
-import { encode, decode } from 'msgpackr'
+// import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static EVENTS = {

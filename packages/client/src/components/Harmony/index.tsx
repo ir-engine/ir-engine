@@ -49,7 +49,7 @@ import {
 } from '@xrengine/client-core/src/social/reducers/chat/service'
 import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
 import { getFriends, unfriend } from '@xrengine/client-core/src/social/reducers/friend/service'
-import { selectGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
+import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
 import {
   createGroup,
   getGroups,
@@ -120,7 +120,7 @@ const mapStateToProps = (state: any): any => {
     chatState: selectChatState(state),
     channelConnectionState: selectChannelConnectionState(state),
     friendState: selectFriendState(state),
-    groupState: selectGroupState(state),
+    groupState: selectSocialGroupState(state),
     locationState: selectLocationState(state),
     partyState: selectPartyState(state),
     transportState: selectTransportState(state),
@@ -679,15 +679,17 @@ const Harmony = (props: Props): any => {
     }
   }
 
-  const checkMediaStream = async (streamType: string, channelType: string, channelId?: string) => {
+  const checkMediaStream = async (streamType: string, channelType: string, channelId?: string): Promise<boolean> => {
     if (streamType === 'video' && !MediaStreams.instance?.videoStream) {
       console.log('Configuring video transport', channelType, channelId)
-      await configureMediaTransports(['video'], channelType, channelId)
+      return configureMediaTransports(['video'], channelType, channelId)
     }
     if (streamType === 'audio' && !MediaStreams.instance?.audioStream) {
       console.log('Configuring audio transport', channelType, channelId)
-      await configureMediaTransports(['audio'], channelType, channelId)
+      return configureMediaTransports(['audio'], channelType, channelId)
     }
+
+    return Promise.resolve(false)
   }
 
   const handleMicClick = async (e: any) => {

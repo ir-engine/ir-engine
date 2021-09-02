@@ -5,12 +5,7 @@
   "homepage": "xrengine.io",
   "private": true,
   "workspaces": {
-    "nohoist": [
-      "packages/docs"
-    ],
-    "packages": [
-      "packages/!(docs)"
-    ]
+    "packages": ["packages/*"]
   },
   "keywords": [
     "three",

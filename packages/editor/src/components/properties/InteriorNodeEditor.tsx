@@ -46,15 +46,12 @@ export class InteriorNodeEditor extends Component<InteriorNodeEditorProps> {
     InteriorNodeEditor.description = this.props.t('editor:properties.interior.description')
     return (
       <NodeEditor {...this.props} description={InteriorNodeEditor.description}>
-        {/* @ts-ignore */}
         <InputGroup name="Cube Map" label={this.props.t('editor:properties.interior.lbl-cubeMap')}>
           <ImageInput value={this.props.node.cubeMap} onChange={this.onChangeProperty('cubeMap')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Size" label={this.props.t('editor:properties.interior.lbl-size')}>
           <Vector2Input value={this.props.node.size} onChange={this.onChangeProperty('size')} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Tiling"
           label={this.props.t('editor:properties.interior.lbl-tiling')}

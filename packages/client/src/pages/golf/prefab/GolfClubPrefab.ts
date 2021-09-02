@@ -54,7 +54,6 @@ export const spawnClub = (entityPlayer: Entity): void => {
 }
 
 export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {
-  //@ts-ignore
   golfClubComponent?.meshGroup?.traverse((obj: Mesh) => {
     if (obj.material) {
       ;(obj.material as Material).opacity = opacity

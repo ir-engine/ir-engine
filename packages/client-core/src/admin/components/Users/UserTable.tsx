@@ -6,20 +6,19 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/user/service'
-import { refetchSingleUserAdmin } from '../../reducers/admin/service'
+import { removeUserAdmin, fetchUsersAsAdmin, refetchSingleUserAdmin } from '../../reducers/admin/user/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
-import { PAGE_LIMIT } from '../../reducers/admin/user/reducers'
+import { USER_PAGE_LIMIT } from '../../reducers/admin/user/reducers'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import ViewUser from './ViewUser'
-import { useStyle, useStyles } from './styles'
-import { columns, Data, Props } from './Variables'
+import { useUserStyle, useUserStyles } from './styles'
+import { userColumns, UserData, UserProps } from './Variables'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -34,12 +33,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   refetchSingleUserAdmin: bindActionCreators(refetchSingleUserAdmin, dispatch)
 })
 
-const UserTable = (props: Props) => {
+const UserTable = (props: UserProps) => {
   const { removeUserAdmin, refetchSingleUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props
-  const classes = useStyle()
-  const classx = useStyles()
+  const classes = useUserStyle()
+  const classx = useUserStyles()
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(USER_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [userId, setUserId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
@@ -89,7 +88,7 @@ const UserTable = (props: Props) => {
     location: string,
     inviteCode: string,
     instanceId: string
-  ): Data => {
+  ): UserData => {
     return {
       id,
       user,
@@ -151,7 +150,7 @@ const UserTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {userColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -167,7 +166,7 @@ const UserTable = (props: Props) => {
             {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {userColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>
@@ -182,7 +181,7 @@ const UserTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[USER_PAGE_LIMIT]}
         component="div"
         count={adminUserCount || 12}
         rowsPerPage={rowsPerPage}

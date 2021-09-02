@@ -42,11 +42,9 @@ export default class PhysicalSpotLight extends SpotLight {
   set shadowBias(value) {
     this.shadow.bias = value
   }
-  // @ts-ignore
   get shadowRadius() {
     return this.shadow.radius
   }
-  // @ts-ignore
   set shadowRadius(value) {
     this.shadow.radius = value
   }

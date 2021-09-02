@@ -10,7 +10,7 @@ import { withTranslation } from 'react-i18next'
 //declaring properties for LinkNodeEditor
 type LinkNodeEditorProps = {
   editor?: Editor
-  node?: object
+  node?: any
   t: Function
 }
 
@@ -37,11 +37,8 @@ export class LinkNodeEditor extends Component<LinkNodeEditorProps, {}> {
     LinkNodeEditor.description = this.props.t('editor:properties.link.description')
     const node = this.props.node
     return (
-      /* @ts-ignore */
       <NodeEditor description={LinkNodeEditor.description} {...this.props}>
-        {/* @ts-ignore */}
         <InputGroup name="Url" label={this.props.t('editor:properties.link.lbl-url')}>
-          {/* @ts-ignore */}
           <StringInput value={node.href} onChange={this.onChangeHref} />
         </InputGroup>
       </NodeEditor>

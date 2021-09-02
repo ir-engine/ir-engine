@@ -7,18 +7,18 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { useStyles, useStyle } from './styles'
+import { useFeedStyles, useFeedStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
-import { formValid } from './validation'
-import { createFeed } from '../../../reducers/admin/feeds/service'
+import { validateFeedForm } from './validation'
+import { createFeed } from '../../../reducers/feed/service'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   closeViewModel: (open: boolean) => void
-  createFeed?: (data: Record<string, string>) => void
+  createFeed?: typeof createFeed
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -27,8 +27,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const CreateFeeds = (props: Props) => {
   const { open, handleClose, createFeed, closeViewModel } = props
-  const classes = useStyles()
-  const classesx = useStyle()
+  const classes = useFeedStyles()
+  const classesx = useFeedStyle()
   const [state, setState] = useState({
     title: '',
     description: '',
@@ -81,7 +81,7 @@ const CreateFeeds = (props: Props) => {
       temp.preview = 'Image is required'
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateFeedForm(state, state.formErrors)) {
       createFeed({ title: state.title, description: state.description, video: state.video, preview: state.preview })
       setState({
         ...state,

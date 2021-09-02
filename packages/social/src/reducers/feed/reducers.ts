@@ -55,7 +55,7 @@ export const initialFeedState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialFeedState)
+const immutableState = Immutable.fromJS(initialFeedState) as any
 
 const feedReducer = (state = immutableState, action: FeedsAction): any => {
   const currentFeed = state.get('feed')
@@ -203,18 +203,26 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
         )
 
     case FEEDS_AS_ADMIN_RETRIEVED:
-      return state.set('feedsAdmin', (action as FeedsRetrievedAction).feeds).set('fetching', false)
+      const result = (action as FeedsRetrievedAction).feeds as any
+      const updateMap = new Map(state.get('feedsAdmin'))
+      updateMap.set('feeds', result.data)
+      updateMap.set('updateNeeded', false)
+      updateMap.set('lastFetched', new Date())
+      return state.set('feedsAdmin', updateMap).set('fetching', false)
 
     case UPDATE_FEED:
       return state
         .set(
           'feedsAdmin',
-          state.get('feedsAdmin').map((feed) => {
-            if (feed.id === (action as FeedRetrievedAction).feed.id) {
-              return { ...feed, ...(action as FeedRetrievedAction).feed }
-            }
-            return { ...feed }
-          })
+          state
+            .get('feedsAdmin')
+            .get('feeds')
+            .map((feed) => {
+              if (feed.id === (action as FeedRetrievedAction).feed.id) {
+                return { ...feed, ...(action as FeedRetrievedAction).feed }
+              }
+              return { ...feed }
+            })
         )
         .set('feedsAdminFetching', false)
 

@@ -2,7 +2,6 @@ import React, { MouseEventHandler } from 'react'
 import Button from '@material-ui/core/Button'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import ScrollableElement from '../ScrollableElement'
-// @ts-ignore
 import defaultStyles from './EmoteMenu.module.scss'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'

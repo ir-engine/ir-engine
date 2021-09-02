@@ -50,7 +50,6 @@ export function MediaSourcePanel({ editor, source }) {
       {/* <AssetsPanelToolbar title={source.name}>
         {source.upload && (
         <FileInput
-        // @ts-ignore
           accept={source.acceptFileTypes || "all"}
           multiple={source.uploadMultiple || false}
           onChange={onUpload}

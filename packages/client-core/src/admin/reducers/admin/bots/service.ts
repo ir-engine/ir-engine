@@ -14,7 +14,7 @@ export const createBotAsAdmin =
   }
 
 export const fetchBotAsAdmin =
-  (incDec: string | null) =>
+  (incDec?: 'increment' | 'decrement') =>
   async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       const user = getState().get('auth').get('user')

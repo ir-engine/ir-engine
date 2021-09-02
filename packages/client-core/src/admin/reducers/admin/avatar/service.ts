@@ -2,7 +2,7 @@ import { avatarsFetched } from './actions'
 import { client } from '../../../../feathers'
 import { Dispatch } from 'redux'
 
-export function fetchAdminAvatars(incDec: string | null) {
+export function fetchAdminAvatars(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const adminAvatarState = getState().get('adminAvatar').get('avatars')
     const limit = adminAvatarState.get('limit')

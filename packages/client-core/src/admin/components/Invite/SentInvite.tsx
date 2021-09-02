@@ -19,7 +19,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
-import { PAGE_LIMIT } from '../../../social/reducers/invite/reducers'
+import { INVITE_PAGE_LIMIT } from '../../../social/reducers/invite/reducers'
 
 interface Props {
   sentInvites?: any
@@ -118,7 +118,7 @@ const SentInvite = (props: Props) => {
   const confirm = useConfirm()
   const { invites, removeInvite, retrieveSentInvites, inviteState } = props
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(INVITE_PAGE_LIMIT)
 
   const sentInviteCount = inviteState.get('sentInvites').get('total')
   const rows = invites.map((el, index) =>
@@ -174,7 +174,7 @@ const SentInvite = (props: Props) => {
         <TableFooter>
           <TableRow>
             <TablePagination
-              rowsPerPageOptions={[PAGE_LIMIT]}
+              rowsPerPageOptions={[INVITE_PAGE_LIMIT]}
               colSpan={3}
               count={sentInviteCount}
               rowsPerPage={rowsPerPage}

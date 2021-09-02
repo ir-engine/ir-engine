@@ -144,6 +144,12 @@ export function VideoMediaGridItem({ label, src, ...rest }) {
   )
 }
 
+interface ImageMediaGridItemProp {
+  label?: string
+  src?: string
+  onClick?: Function
+}
+
 /**
  *
  * @author Robert Long
@@ -152,7 +158,7 @@ export function VideoMediaGridItem({ label, src, ...rest }) {
  * @param {any} rest
  * @returns
  */
-export function ImageMediaGridItem({ label, src, ...rest }) {
+export function ImageMediaGridItem({ label, src, ...rest }: ImageMediaGridItemProp) {
   return (
     <>
       <MediaGridItemContainer {...rest}>

@@ -1,4 +1,4 @@
-import React, { useEffect, createContext, useContext } from 'react'
+import React, { useEffect, createContext, useContext, MutableRefObject } from 'react'
 import useHover from '../hooks/useHover'
 
 const AudioPreviewContext = createContext(new Audio())
@@ -23,8 +23,7 @@ export function AudioPreview({ src, children }) {
       audio.pause()
     }
   }, [isHovered, src, audio])
-  /* @ts-ignore */
-  return <div ref={hoverRef}>{children}</div>
+  return <div ref={hoverRef as MutableRefObject<any>}>{children}</div>
 }
 
 export default AudioPreview

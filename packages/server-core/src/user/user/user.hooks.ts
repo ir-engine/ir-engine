@@ -91,7 +91,7 @@ export default {
         ]
       }),
       async (context: HookContext): Promise<HookContext> => {
-        const foundItem = await context.app.service('scope').Model.findAll({
+        const foundItem = await (context.app.service('scope') as any).Model.findAll({
           where: {
             userId: context.arguments[0]
           }
@@ -249,4 +249,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

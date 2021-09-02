@@ -30,13 +30,7 @@ export class SpawnPointNodeEditor extends Component<SpawnPointNodeEditorProps, {
   static description = i18n.t('editor:properties.spawnPoint.description')
   render() {
     SpawnPointNodeEditor.description = this.props.t('editor:properties.spawnPoint.description')
-    return (
-      <NodeEditor
-        /* @ts-ignore */
-        description={SpawnPointNodeEditor.description}
-        {...this.props}
-      />
-    )
+    return <NodeEditor description={SpawnPointNodeEditor.description} {...this.props} />
   }
 }
 

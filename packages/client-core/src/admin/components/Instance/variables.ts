@@ -1,26 +1,11 @@
-export interface Props {
-  open: boolean
-  handleClose: any
-  adminState?: any
-  createInstance?: any
-  fetchAdminInstances?: any
-  editing?: any
-  instanceEdit?: any
-  patchInstance?: any
-  fetchAdminLocations?: any
-  authState?: any
-  adminInstanceState?: any
-  adminLocationState?: any
-}
-
-export interface Column {
+export interface InstanceColumn {
   id: 'id' | 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
 }
 
-export const columns: Column[] = [
+export const instanceColumns: InstanceColumn[] = [
   { id: 'id', label: 'Instance ID', minWidth: 170 },
   { id: 'ipAddress', label: 'IP Address', minWidth: 170 },
   { id: 'currentUsers', label: 'Current Users', minWidth: 100 },
@@ -44,7 +29,7 @@ export const columns: Column[] = [
   }
 ]
 
-export interface Data {
+export interface InstanceData {
   id: string
   ipAddress: string
   currentUsers: Number

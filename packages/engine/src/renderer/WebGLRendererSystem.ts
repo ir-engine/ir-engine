@@ -148,7 +148,7 @@ export class EngineRenderer {
 
     if (!context) {
       EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.ERROR,
+        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
         message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
       })
     }

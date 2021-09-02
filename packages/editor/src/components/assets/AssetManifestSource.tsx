@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js'
-import { BaseSource } from './sources'
+import { BaseSource, SearchResult } from './sources'
 import { ItemTypes } from '../dnd'
 import ImageNode from '@xrengine/editor/src/nodes/ImageNode'
 import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
@@ -122,8 +122,7 @@ export class AssetManifestSource extends BaseSource {
    * @param  {any}  _abortSignal
    * @return {Promise}
    */
-  /* @ts-ignore */
-  async search(params, _cursor, _abortSignal) {
+  async search(params, _cursor?, _abortSignal?): Promise<SearchResult> {
     //check if component not get loaded then load
     if (!this.loaded) {
       await this.load()

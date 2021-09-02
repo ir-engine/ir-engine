@@ -1,6 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useSceneStyles = makeStyles((theme: Theme) =>
   createStyles({
     marginBottom: {
       marginBottom: '10px'
@@ -114,7 +114,7 @@ export const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const useStyle = makeStyles({
+export const useSceneStyle = makeStyles({
   paper: {
     width: '60%',
     backgroundColor: '#43484F',

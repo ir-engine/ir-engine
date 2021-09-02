@@ -8,7 +8,7 @@ export const initialDialogState: DialogState = {
   content: undefined
 }
 
-const immutableState = Immutable.fromJS(initialDialogState)
+const immutableState = Immutable.fromJS(initialDialogState) as any
 
 const dialogReducer = (state = immutableState, action: DialogAction): any => {
   switch (action.type) {

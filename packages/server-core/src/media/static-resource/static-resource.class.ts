@@ -1,4 +1,4 @@
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 
@@ -34,7 +34,7 @@ export class StaticResource extends Service {
   async find(params?: Params): Promise<any> {
     if (params.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
-      const result = await super.find(params)
+      const result = (await super.find(params)) as Paginated<any>
       for (const item of result.data) {
         item.thumbnail = await super.Model.findOne({
           where: {

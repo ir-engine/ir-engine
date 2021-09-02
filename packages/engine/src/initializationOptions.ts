@@ -67,7 +67,7 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
       verbose: false,
       substeps: 1,
       gravity: { x: 0, y: -9.81, z: 0 }
-    },
+    } as any,
     simulationEnabled: true // start the engine with the physics simulation running
   },
   systems: []

@@ -1,17 +1,16 @@
 import Immutable from 'immutable'
-import { update } from 'lodash'
 
 import { GROUP_FETCHING, GROUP_ADMIN_RETRIEVED, ADD_GROUP, GROUP_ADMIN_UPDATE, GROUP_ADMIN_DELETE } from '../../actions'
 
 import { GroupAction, GroupRetrieveAction } from './actions'
 
-export const PAGE_LIMIT = 10
+export const GROUP_PAGE_LIMIT = 10
 
 export const initialGroupState = {
   group: {
     group: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: GROUP_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -20,7 +19,7 @@ export const initialGroupState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialGroupState)
+const immutableState = Immutable.fromJS(initialGroupState) as any
 
 const groupReducer = (state = immutableState, action: GroupAction): any => {
   let result: any, updateMap: any

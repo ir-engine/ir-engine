@@ -52,6 +52,7 @@ interface Props {
   CloseButton?: any
   SendButton?: any
   newMessageLabel?: string
+  setBottomDrawerOpen?: any
 }
 
 const InstanceChat = (props: Props): any => {

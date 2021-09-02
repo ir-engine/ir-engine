@@ -1,5 +1,5 @@
 import React from 'react'
-import NumericInputGroup from './NumericInputGroup'
+import NumericInputGroup, { NumericInputGroupProp } from './NumericInputGroup'
 import { MathUtils as _Math } from 'three'
 
 const radToDeg = _Math.radToDeg
@@ -13,8 +13,7 @@ const degToRad = _Math.degToRad
  * @param {any} rest
  * @returns
  */
-export function RadianNumericInputGroup({ convertTo, convertFrom, ...rest }) {
-  // @ts-ignore
+export function RadianNumericInputGroup({ convertTo, convertFrom, ...rest }: NumericInputGroupProp) {
   return <NumericInputGroup {...rest} convertFrom={radToDeg} convertTo={degToRad} />
 }
 

@@ -12,8 +12,7 @@ export class TextureLoader extends Loader {
     loader.setCrossOrigin(this.crossOrigin)
     loader.setPath(this.path)
     if (isWebWorker) {
-      //@ts-ignore
-      loader.setOptions({ imageOrientation: 'flipY' })
+      ;(loader as ImageBitmapLoader).setOptions({ imageOrientation: 'flipY' })
     }
     loader.load(
       url,

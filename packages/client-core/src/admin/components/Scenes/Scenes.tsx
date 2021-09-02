@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { PAGE_LIMIT } from '../../reducers/admin/reducers'
+import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import styles from './Scenes.module.scss'
@@ -136,7 +136,7 @@ const Scenes = (props: Props) => {
   const [orderBy, setOrderBy] = useState<any>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedScenes, setSelectedScenes] = useState([])
@@ -253,7 +253,7 @@ const Scenes = (props: Props) => {
 
         <div className={styles.tableFooter}>
           <TablePagination
-            rowsPerPageOptions={[PAGE_LIMIT]}
+            rowsPerPageOptions={[ADMIN_PAGE_LIMIT]}
             component="div"
             count={adminScenesCount}
             rowsPerPage={rowsPerPage}

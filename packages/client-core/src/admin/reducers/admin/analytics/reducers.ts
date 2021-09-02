@@ -1,4 +1,3 @@
-import moment from 'moment'
 import Immutable from 'immutable'
 import {
   ACTIVE_INSTANCES_FETCHED,
@@ -12,9 +11,9 @@ import {
   AnalyticsFetchedAction
 } from './actions'
 
-export const PAGE_LIMIT = 100
+export const ANALYTICS_PAGE_LIMIT = 100
 
-export const initialAdminState = {
+export const initialAnalyticAdminState = {
   activeInstances: [],
   activeParties: [],
   instanceUsers: [],
@@ -25,7 +24,7 @@ export const initialAdminState = {
   dailyNewUsers: []
 }
 
-const immutableState = Immutable.fromJS(initialAdminState)
+const immutableState = Immutable.fromJS(initialAnalyticAdminState) as any
 
 const analyticsReducer = (state = immutableState, action: any): any => {
   let result: any, updateMap: any, date: Date

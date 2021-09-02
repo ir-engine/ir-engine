@@ -1,4 +1,4 @@
-export const formValid = (rest, formErrors) => {
+export const validateCreatorForm = (rest, formErrors) => {
   let valid = true
 
   // validate form errors being empty

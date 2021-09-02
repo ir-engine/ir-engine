@@ -10,23 +10,23 @@ import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Container from '@material-ui/core/Container'
-import { useStyle, useStyles, useStylePlayer } from './styles'
+import { useARMediaStyle, useARMediaStyles, useStylePlayer } from './styles'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import AudioPlayer from 'material-ui-audio-player'
 import { useTranslation } from 'react-i18next'
 import { Save } from '@material-ui/icons'
-import { formValid } from './validation'
-import { updateArMedia } from '../../../reducers/admin/arMedia/service'
+import { validateARMediaForm } from './validation'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
 import Card from '@material-ui/core/Card'
+import { updateArMedia } from '../../../reducers/arMedia/service'
 
 interface Props {
   mediaAdmin: any
   onCloseEdit: () => void
-  updateArMedia?: (mediaItem: any, files: any, id: string) => void
+  updateArMedia?: typeof updateArMedia
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -34,8 +34,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const EditArMedia = (props: Props) => {
-  const classex = useStyle()
-  const classes = useStyles()
+  const classex = useARMediaStyle()
+  const classes = useARMediaStyles()
   const { mediaAdmin, onCloseEdit, updateArMedia } = props
   const { t } = useTranslation()
   const [state, setState] = useState({
@@ -105,7 +105,7 @@ const EditArMedia = (props: Props) => {
       temp.preview = 'Preview is required'
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateARMediaForm(state, state.formErrors)) {
       updateArMedia({ type, title }, { manifest, audio, dracosis, preview }, mediaAdmin.id)
       //   closeViewModel(false)
       //   setState({

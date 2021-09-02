@@ -20,7 +20,7 @@ export const initialFeedBookmarkState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialFeedBookmarkState)
+const immutableState = Immutable.fromJS(initialFeedBookmarkState) as any
 
 const feedFiresReducer = (state = immutableState, action: FeedFiresAction): any => {
   switch (action.type) {

@@ -7,7 +7,7 @@ import instanceAttendanceDocs from './instance-attendance.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    instance: Instance & ServiceAddons<any>
+    'instance-attendance': InstanceAttendance & ServiceAddons<any>
   }
 }
 

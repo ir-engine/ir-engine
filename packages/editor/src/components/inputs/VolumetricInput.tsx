@@ -8,13 +8,7 @@ import { ControlledStringInput } from './StringInput'
  * @returns
  */
 export function VolumetricInput({ onChange, ...rest }) {
-  return (
-    <ControlledStringInput
-      // @ts-ignore
-      onChange={onChange}
-      {...rest}
-    />
-  )
+  return <ControlledStringInput onChange={onChange} {...rest} />
 }
 
 export default VolumetricInput

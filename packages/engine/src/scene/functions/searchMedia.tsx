@@ -4,7 +4,8 @@ import { getAccountId } from './getAccountId'
 import { getToken } from './getToken'
 import { scaledThumbnailUrlFor } from './scaledThumbnailUrlFor'
 import { Config } from '@xrengine/common/src/config'
-export const serverURL = Config.publicRuntimeConfig.apiServer
+
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 /**
  * searchMedia function to search media on the basis of provided params.

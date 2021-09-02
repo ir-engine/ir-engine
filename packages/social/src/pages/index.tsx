@@ -14,7 +14,6 @@ import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import Splash from '@xrengine/social/src/components/Splash'
 import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
 import { createCreator } from '@xrengine/social/src/reducers/creator/service'
 import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
@@ -22,6 +21,7 @@ import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
+import Splash from '../components/Splash'
 import styles from './index.module.scss'
 
 const mapStateToProps = (state: any): any => {

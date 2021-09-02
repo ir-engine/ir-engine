@@ -51,14 +51,7 @@ export function AudioInput({ onChange, ...rest }) {
    * @author Robert Long
    */
   return (
-    <StringInput
-      ref={dropRef}
-      /* @ts-ignore */
-      onChange={onChange}
-      error={isOver && !canDrop}
-      canDrop={isOver && canDrop}
-      {...rest}
-    />
+    <StringInput ref={dropRef} onChange={onChange} error={isOver && !canDrop} canDrop={isOver && canDrop} {...rest} />
   )
 }
 

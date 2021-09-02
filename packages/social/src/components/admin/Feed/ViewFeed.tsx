@@ -12,7 +12,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import Grid from '@material-ui/core/Grid'
 import './PlayerStyles.css' // import css
 import { Player } from 'video-react'
-import { useStyle, useStyles } from './styles'
+import { useFeedStyle, useFeedStyles } from './styles'
 import EditFeed from './EditFeed'
 
 interface Props {
@@ -24,8 +24,8 @@ interface Props {
 const ViewFeed = (props: Props) => {
   const { openModal, viewFeed, closeViewModel } = props
   const [editMode, setEditMode] = React.useState(false)
-  const classex = useStyle()
-  const classes = useStyles()
+  const classex = useFeedStyle()
+  const classes = useFeedStyles()
 
   return (
     <Drawer anchor="right" open={openModal} onClose={() => closeViewModel(false)} classes={{ paper: classex.paper }}>

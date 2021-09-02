@@ -16,8 +16,8 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
-import { Props } from './variables'
-import { useStyles } from './style'
+import { PartyProps } from './variables'
+import { usePartyStyle } from './style'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 
@@ -35,8 +35,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createAdminParty: bindActionCreators(createAdminParty, dispatch)
 })
 
-const CreateParty = (props: Props) => {
-  const classes = useStyles()
+const CreateParty = (props: PartyProps) => {
+  const classes = usePartyStyle()
 
   const {
     open,

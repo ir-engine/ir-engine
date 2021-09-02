@@ -100,7 +100,7 @@ export function sendInvite(data: any) {
   }
 }
 
-export function retrieveReceivedInvites(incDec: string | null) {
+export function retrieveReceivedInvites(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingReceivedInvites())
     const skip = getState().get('invite').get('receivedInvites').get('skip')
@@ -121,7 +121,7 @@ export function retrieveReceivedInvites(incDec: string | null) {
   }
 }
 
-export function retrieveSentInvites(incDec: string | null) {
+export function retrieveSentInvites(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingSentInvites())
     const skip = getState().get('invite').get('sentInvites').get('skip')

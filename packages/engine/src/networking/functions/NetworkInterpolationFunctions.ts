@@ -50,8 +50,7 @@ export function createSnapshot(state: StateEntityClientGroup): Snapshot {
   return {
     id: '' + _id++,
     time: Date.now(),
-    //@ts-ignore
-    state: state
+    state: state as StateEntityGroup
   }
 }
 

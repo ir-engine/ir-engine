@@ -47,7 +47,7 @@ export function createLocation(location: any) {
   }
 }
 
-export function fetchAdminLocations(incDec: string | null) {
+export function fetchAdminLocations(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('adminLocation').get('locations').get('skip')
     const limit = getState().get('adminLocation').get('locations').get('limit')

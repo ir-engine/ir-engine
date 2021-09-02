@@ -19,7 +19,7 @@ import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { columns, Props } from './variable'
+import { locationColumns, LocationProps } from './variable'
 import Chip from '@material-ui/core/Chip'
 import Avatar from '@material-ui/core/Avatar'
 import TablePagination from '@material-ui/core/TablePagination'
@@ -29,7 +29,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
-import { PAGE_LIMIT } from '../../reducers/admin/location/reducers'
+import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -51,7 +51,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removeLocation: bindActionCreators(removeLocation, dispatch)
 })
 
-const LocationTable = (props: Props) => {
+const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const {
@@ -68,7 +68,7 @@ const LocationTable = (props: Props) => {
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [locationId, setLocationId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
@@ -204,7 +204,7 @@ const LocationTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {locationColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -220,7 +220,7 @@ const LocationTable = (props: Props) => {
             {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {locationColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
@@ -235,7 +235,7 @@ const LocationTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[LOCATION_PAGE_LIMIT]}
         component="div"
         count={adminLocationCount}
         rowsPerPage={rowsPerPage}
