@@ -11,7 +11,11 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ECSWorld } from '../../ecs/classes/World'
 import { dispatchFromServer } from '../../networking/functions/dispatch'
-import { NetworkWorldActions, NetworkWorldAction, NetworkWorldActionType } from '../../networking/interfaces/NetworkWorldActions'
+import {
+  NetworkWorldActions,
+  NetworkWorldAction,
+  NetworkWorldActionType
+} from '../../networking/interfaces/NetworkWorldActions'
 import { Network } from '../../networking/classes/Network'
 import { equipEntity, unequipEntity } from '../functions/equippableFunctions'
 
@@ -34,9 +38,9 @@ export const EquippableSystem = async (): Promise<System> => {
           return console.warn(
             `Equipper entity with id ${action.equippedNetworkId} does not exist! You should probably reconnect...`
           )
-      
+
         const entityEquipper = Network.instance.networkObjects[action.equipperNetworkId].entity
-      
+
         if (action.equip) {
           // we only care about equipping if we are the user doing so, otherwise network transforms take care of it
           if (!Network.instance.networkObjects[action.equippedNetworkId])
@@ -53,7 +57,6 @@ export const EquippableSystem = async (): Promise<System> => {
   }
 
   return defineSystem((world: ECSWorld) => {
-    
     for (const action of Network.instance.incomingActions) equippableActionReceptor(world, action as any)
 
     for (const entity of equippableAddQuery(world)) {
@@ -65,7 +68,9 @@ export const EquippableSystem = async (): Promise<System> => {
       if (!isClient) {
         const equippedNetworkObject = getComponent(equippedEntity, NetworkObjectComponent)
         const equipperNetworkObject = getComponent(entity, NetworkObjectComponent)
-        dispatchFromServer(NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, true))
+        dispatchFromServer(
+          NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, true)
+        )
       }
     }
 
@@ -80,7 +85,9 @@ export const EquippableSystem = async (): Promise<System> => {
         for (const userEntity of networkUserAddQuery(world)) {
           const equippedNetworkObject = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
           const equipperNetworkObject = getComponent(entity, NetworkObjectComponent)
-          dispatchFromServer(NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, true))
+          dispatchFromServer(
+            NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, true)
+          )
         }
       }
     }
@@ -101,7 +108,9 @@ export const EquippableSystem = async (): Promise<System> => {
       if (!isClient) {
         const equippedNetworkObject = getComponent(equippedEntity, NetworkObjectComponent)
         const equipperNetworkObject = getComponent(entity, NetworkObjectComponent)
-        dispatchFromServer(NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, false))
+        dispatchFromServer(
+          NetworkWorldAction.equipObject(equipperNetworkObject.networkId, equippedNetworkObject.networkId, false)
+        )
       }
     }
 

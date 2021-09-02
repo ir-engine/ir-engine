@@ -10,7 +10,7 @@ export const NetworkWorldActions = {
   EQUIP_OBJECT: 'network.EQUIP_OBJECT' as const,
   DESTROY_OBJECT: 'network.DESTROY_OBJECT' as const,
   ANIMATION_CHANGE: 'network.ANIMATION_CHANGE' as const,
-  TELEPORT: 'network.TELEPORT' as const,
+  TELEPORT: 'network.TELEPORT' as const
 }
 
 export const NetworkWorldAction = {
@@ -71,7 +71,7 @@ export const NetworkWorldAction = {
       networkId,
       pose
     }
-  },
+  }
 }
 
 export type NetworkWorldActionType = ReturnType<typeof NetworkWorldAction[keyof typeof NetworkWorldAction]>

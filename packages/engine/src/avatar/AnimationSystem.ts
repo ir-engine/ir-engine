@@ -9,7 +9,11 @@ import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { ECSWorld } from '../ecs/classes/World'
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
-import { NetworkWorldAction, NetworkWorldActions, NetworkWorldActionType } from '../networking/interfaces/NetworkWorldActions'
+import {
+  NetworkWorldAction,
+  NetworkWorldActions,
+  NetworkWorldActionType
+} from '../networking/interfaces/NetworkWorldActions'
 import { Network } from '../networking/classes/Network'
 import { AnimationGraph } from './animations/AnimationGraph'
 
@@ -33,7 +37,7 @@ export const AnimationSystem = async (): Promise<System> => {
       }
     }
   }
-  
+
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
