@@ -14,14 +14,22 @@ const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
 export const RASTER_TILE_SIZE_HDPI = 256
 
+export function long2TileFraction(lon: number, zoom: number) {
+  return ((lon + 180) / 360) * Math.pow(2, zoom)
+}
+
+export function lat2TileFraction(lat: number, zoom: number) {
+  const latRadians = degreesToRadians(lat)
+
+  return ((1 - Math.log(Math.tan(latRadians) + 1 / Math.cos(latRadians)) / Math.PI) / 2) * Math.pow(2, zoom)
+}
+
 export function long2tile(lon: number, zoom: number) {
-  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom))
+  return Math.floor(long2TileFraction(lon, zoom))
 }
 
 export function lat2tile(lat: number, zoom: number) {
-  const latRadians = degreesToRadians(lat)
-
-  return Math.floor(((1 - Math.log(Math.tan(latRadians) + 1 / Math.cos(latRadians)) / Math.PI) / 2) * Math.pow(2, zoom))
+  return Math.floor(lat2TileFraction(lat, zoom))
 }
 
 export function tile2long(tileX: number, zoom: number) {
@@ -85,20 +93,34 @@ async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitma
   return createImageBitmap(blob)
 }
 
+export function createIntersectTestCellCircle(centerX: number, centerY: number, radius: number) {
+  return function isIntersectCellCircle(cellX: number, cellY: number): boolean {
+    const nearCornerX = cellX < centerX ? cellX + 1 : cellX
+    const nearCornerY = cellY < centerY ? cellY + 1 : cellY
+    const distanceFromCenter = Math.hypot(nearCornerX - centerX, nearCornerY - centerY)
+
+    return distanceFromCenter < radius
+  }
+}
+
 export function* createTileIterator(center: LongLat, minimumSceneRadius: number, zoomLevel: number) {
-  // number of tiles
-  // LongLat for each tile
   const [startLong, startLat] = sceneToLl([-minimumSceneRadius, -minimumSceneRadius], center)
   const [endLong, endLat] = sceneToLl([minimumSceneRadius, minimumSceneRadius], center)
 
-  const startTileX = long2tile(startLong, zoomLevel)
-  const endTileX = long2tile(endLong, zoomLevel)
-  const startTileY = lat2tile(startLat, zoomLevel)
-  const endTileY = lat2tile(endLat, zoomLevel)
+  const centerX = long2TileFraction(center[0], zoomLevel)
+  const centerY = lat2TileFraction(center[1], zoomLevel)
 
-  const radiusTiles = (endTileX - startTileX) / 2
-  const centerX = startTileX + radiusTiles
-  const centerY = startTileY + radiusTiles
+  const startTileFractionX = long2TileFraction(startLong, zoomLevel)
+  const endTileFractionX = long2TileFraction(endLong, zoomLevel)
+  const startTileFractionY = lat2TileFraction(startLat, zoomLevel)
+  const endTileFractionY = lat2TileFraction(endLat, zoomLevel)
+
+  const startTileX = Math.floor(startTileFractionX)
+  const endTileX = Math.floor(endTileFractionX)
+  const startTileY = Math.floor(startTileFractionY)
+  const endTileY = Math.floor(endTileFractionY)
+
+  const radiusTiles = (endTileFractionX - startTileFractionX) / 2
   const isIntersectCellCircle = createIntersectTestCellCircle(centerX, centerY, radiusTiles)
 
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {
@@ -148,14 +170,4 @@ export function fetchRasterTiles(llCenter: Position): Promise<ImageBitmap[]> {
   const promises = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchRasterTile(tileX, tileY)))
   return Promise.all(promises)
-}
-
-export function createIntersectTestCellCircle(centerX: number, centerY: number, radius: number) {
-  return function isIntersectCellCircle(cellX: number, cellY: number): boolean {
-    const cornerX = cellX < centerX ? cellX + 1 : cellX
-    const cornerY = cellY < centerY ? cellY + 1 : cellY
-    const distanceFromCenter = Math.hypot(cornerX - centerX, cornerY - centerY)
-
-    return distanceFromCenter < radius
-  }
 }
