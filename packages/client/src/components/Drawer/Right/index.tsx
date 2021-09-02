@@ -221,9 +221,9 @@ const Invites = (props: Props): any => {
 
   const previousInvitePage = () => {
     if (inviteTabIndex === 0) {
-      retrieveReceivedInvites(receivedInviteState.get('skip') - receivedInviteState.get('limit'))
+      retrieveReceivedInvites('decrement')
     } else {
-      retrieveSentInvites(sentInviteState.get('skip') - sentInviteState.get('limit'))
+      retrieveSentInvites('decrement')
     }
   }
 

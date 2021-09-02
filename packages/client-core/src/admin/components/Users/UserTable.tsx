@@ -11,7 +11,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
-import { PAGE_LIMIT } from '../../reducers/admin/user/reducers'
+import { USER_PAGE_LIMIT } from '../../reducers/admin/user/reducers'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -38,7 +38,7 @@ const UserTable = (props: UserProps) => {
   const classes = useUserStyle()
   const classx = useUserStyles()
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(USER_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [userId, setUserId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
@@ -181,7 +181,7 @@ const UserTable = (props: UserProps) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[USER_PAGE_LIMIT]}
         component="div"
         count={adminUserCount || 12}
         rowsPerPage={rowsPerPage}

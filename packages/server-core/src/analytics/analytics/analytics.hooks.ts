@@ -6,7 +6,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt'), commonHooks.iff(commonHooks.isProvider('external'), restrictUserRole('admin'))],
+    all: [authenticate('jwt'), commonHooks.iff(commonHooks.isProvider('external'), restrictUserRole('admin') as any)],
     find: [],
     get: [],
     create: [],
@@ -34,4 +34,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

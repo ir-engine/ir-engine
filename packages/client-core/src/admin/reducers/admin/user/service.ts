@@ -15,7 +15,7 @@ import { client } from '../../../../feathers'
 import { loadedUsers } from './actions'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 
-export function fetchUsersAsAdmin(incDec: string) {
+export function fetchUsersAsAdmin(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user')
     const skip = getState().get('adminUser').get('users').get('skip')

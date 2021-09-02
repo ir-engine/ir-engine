@@ -17,7 +17,7 @@ import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { columns, Data } from './Variables'
 import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
-import { PAGE_LIMIT } from '../../reducers/admin/group/reducers'
+import { GROUP_PAGE_LIMIT } from '../../reducers/admin/group/reducers'
 
 interface Props {
   adminGroupState?: any
@@ -45,7 +45,7 @@ const GroupTable = (props: Props) => {
   const [viewModel, setViewModel] = React.useState(false)
   const [singleGroup, setSingleGroup] = React.useState('')
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = React.useState('')
   const [showWarning, setShowWarning] = React.useState(false)
   const adminGroups = adminGroupState.get('group').get('group')
@@ -152,7 +152,7 @@ const GroupTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[GROUP_PAGE_LIMIT]}
         component="div"
         count={adminGroupCount}
         rowsPerPage={rowsPerPage}

@@ -15,7 +15,7 @@ export const createAdminParty = (data) => {
   }
 }
 
-export const fetchAdminParty = (incDec: string | null) => {
+export const fetchAdminParty = (incDec?: 'increment' | 'decrement') => {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user')
     const skip = getState().get('adminParties').get('parties').get('skip')

@@ -25,7 +25,6 @@ import { createBotCammand, removeBots, removeBotsCommand } from '../../reducers/
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import UpdateBot from './updateBot'
-import { PAGE_LIMIT } from '../../reducers/admin/bots/reducers'
 
 interface Props {
   fetchBotAsAdmin?: any

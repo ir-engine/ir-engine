@@ -4,13 +4,13 @@ import { GROUP_FETCHING, GROUP_ADMIN_RETRIEVED, ADD_GROUP, GROUP_ADMIN_UPDATE, G
 
 import { GroupAction, GroupRetrieveAction } from './actions'
 
-export const PAGE_LIMIT = 10
+export const GROUP_PAGE_LIMIT = 10
 
 export const initialGroupState = {
   group: {
     group: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: GROUP_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,

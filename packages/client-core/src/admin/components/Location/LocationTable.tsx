@@ -29,7 +29,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
-import { PAGE_LIMIT } from '../../reducers/admin/location/reducers'
+import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -68,7 +68,7 @@ const LocationTable = (props: LocationProps) => {
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [locationId, setLocationId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
@@ -235,7 +235,7 @@ const LocationTable = (props: LocationProps) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[LOCATION_PAGE_LIMIT]}
         component="div"
         count={adminLocationCount}
         rowsPerPage={rowsPerPage}

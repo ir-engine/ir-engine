@@ -20,7 +20,7 @@ import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import ViewScene from './ViewScene'
-import { PAGE_LIMIT } from '../../reducers/admin/scene/reducers'
+import { SCENE_PAGE_LIMIT } from '../../reducers/admin/scene/reducers'
 
 interface Props {
   fetchSceneAdmin?: any
@@ -52,7 +52,7 @@ const SceneTable = (props: Props) => {
   const [showWarning, setShowWarning] = React.useState(false)
   const [sceneId, setSceneId] = React.useState('')
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(SCENE_PAGE_LIMIT)
 
   React.useEffect(() => {
     if (user.id && scene.get('updateNeeded')) {
@@ -173,7 +173,7 @@ const SceneTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[SCENE_PAGE_LIMIT]}
         component="div"
         count={sceneCount || 12}
         rowsPerPage={rowsPerPage}

@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { instanceColumns, InstanceData } from './variables'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { useInstanceStyle, useInstanceStyles } from './styles'
-import { PAGE_LIMIT } from '../../reducers/admin/instance/reducers'
+import { INSTNCE_PAGE_LIMIT } from '../../reducers/admin/instance/reducers'
 
 interface Props {
   authState?: any
@@ -45,7 +45,7 @@ const InstanceTable = (props: Props) => {
   const classes = useInstanceStyle()
   const classex = useInstanceStyles()
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(INSTNCE_PAGE_LIMIT)
   const [refetch, setRefetch] = React.useState(false)
 
   const user = authState.get('user')
@@ -141,7 +141,7 @@ const InstanceTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[INSTNCE_PAGE_LIMIT]}
         component="div"
         count={adminInstances.get('total')}
         rowsPerPage={rowsPerPage}

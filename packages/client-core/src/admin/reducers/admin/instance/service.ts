@@ -5,7 +5,7 @@ import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 import Store from '../../../../store'
 import { Config } from '@xrengine/common/src/config'
 
-export function fetchAdminInstances(incDec: string | null) {
+export function fetchAdminInstances(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('adminInstance').get('instances').get('skip')
     const limit = getState().get('adminInstance').get('instances').get('limit')

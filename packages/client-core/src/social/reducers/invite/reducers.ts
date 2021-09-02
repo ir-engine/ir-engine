@@ -16,7 +16,7 @@ import {
   FETCHING_SENT_INVITES
 } from '../actions'
 
-export const PAGE_LIMIT = 10
+export const INVITE_PAGE_LIMIT = 10
 
 export const initialInviteState = {
   receivedInvites: {

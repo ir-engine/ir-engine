@@ -13,7 +13,7 @@ import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
 import { selectAdminPartyState } from '../../reducers/admin/party/selector'
-import { PAGE_LIMIT } from '../../reducers/admin/party/reducers'
+import { PARTY_PAGE_LIMIT } from '../../reducers/admin/party/reducers'
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
@@ -32,7 +32,7 @@ const PartyTable = (props: PartyPropsTable) => {
   const { fetchAdminParty, authState, adminPartyState } = props
 
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(PARTY_PAGE_LIMIT)
 
   const user = authState.get('user')
   const adminParty = adminPartyState.get('parties')
@@ -120,7 +120,7 @@ const PartyTable = (props: PartyPropsTable) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[PAGE_LIMIT]}
+        rowsPerPageOptions={[PARTY_PAGE_LIMIT]}
         component="div"
         count={adminPartyCount}
         rowsPerPage={rowsPerPage}

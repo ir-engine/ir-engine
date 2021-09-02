@@ -9,7 +9,7 @@ import { dispatchAlertError } from '../../../../common/reducers/alert/service'
  * @returns URL
  * @author KIMENYI Kevin <kimenyikevin@gmail.com>
  */
-export function getGroupService(incDec: string | null) {
+export function getGroupService(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('group').get('group').get('skip')
     const limit = getState().get('group').get('group').get('limit')
