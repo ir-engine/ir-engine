@@ -12,6 +12,8 @@ import { dispatchFromClient } from '../../networking/functions/dispatch'
 import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
+const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
+
 /**
  * @author Josh Field <github.com/HexaField>
  * @returns {void}
@@ -119,7 +121,7 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
       return rigHand.getWorldQuaternion(quat)
     }
   }
-  return quat.copy(transform.rotation)
+  return quat.copy(transform.rotation).multiply(rotate180onY)
 }
 
 /**
@@ -151,7 +153,7 @@ export const getHandTransform = (
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position),
-    rotation: quat.copy(transform.rotation)
+    rotation: quat.copy(transform.rotation).multiply(rotate180onY)
   }
 }
 
