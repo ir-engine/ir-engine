@@ -8,12 +8,12 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
-import { Config } from '@xrengine/common/src/config'
+
 import querystring from 'querystring'
 import { Dispatch } from 'redux'
 import { v1 } from 'uuid'
 import { client } from '../../../feathers'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
 import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
 import { UserAction } from '../../store/UserAction'
@@ -617,7 +617,7 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
     modelData.append('acl', 'public-read')
     modelData.append(modelURL.local ? 'media' : 'file', model)
     if (modelURL.local) {
-      var uploadPath = 'avatars'
+      let uploadPath = 'avatars'
 
       if (modelURL.fields.Key) {
         uploadPath = modelURL.fields.Key
@@ -647,7 +647,7 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
         thumbnailData.append('acl', 'public-read')
         thumbnailData.append(thumbnailURL.local === true ? 'media' : 'file', thumbnail)
         if (thumbnailURL.local) {
-          var uploadPath = 'avatars'
+          let uploadPath = 'avatars'
 
           if (thumbnailURL.fields.Key) {
             uploadPath = thumbnailURL.fields.Key
