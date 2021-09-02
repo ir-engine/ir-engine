@@ -14,6 +14,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 export const IncomingNetworkSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
@@ -79,8 +80,8 @@ export const IncomingNetworkSystem = async (): Promise<System> => {
               continue
             }
             const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
-            // console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, NetworkObjectOwnerComponent?.ownerNetworkId, incomingNetworkId)
-            if (networkObjectOwnerComponent && networkObjectOwnerComponent.ownerNetworkId === incomingNetworkId) {
+            // networkObjectOwnerComponent && console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
+            if (networkObjectOwnerComponent && networkObjectOwnerComponent.networkId === incomingNetworkId) {
               const transform = getComponent(networkObject.entity, TransformComponent)
               if (transform) {
                 transform.position.fromArray(pose.pose)

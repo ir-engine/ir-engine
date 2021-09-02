@@ -51,6 +51,8 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
       const transformComponent = getComponent(entity, TransformComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
 
+      const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
+      // networkObjectOwnerComponent && console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position)
       // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
       newWorldState.pose.push({
         networkId: networkObject.networkId,

@@ -331,9 +331,8 @@ type GolfBallSpawnParameters = {
 }
 
 export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, parameters: GolfBallSpawnParameters) => {
-  console.log('initializeGolfBall', ballEntity, ownerEntity, parameters)
-  const { spawnPosition, playerNumber } = parameters
-  const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
+  const { spawnPosition, ownerNetworkId, playerNumber } = parameters
+  console.log('initializeGolfBall', ownerNetworkId, ballEntity, ownerEntity, parameters)
 
   const transform = addComponent(ballEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
