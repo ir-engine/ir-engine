@@ -193,11 +193,15 @@ async function initExample(world) {
   ////////////////////////////////////////////////////////////////////////////
 
   // LOAD MESH A
-  loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0)).then((rig) => {
+  loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0), ArmatureType.VEGETA).then((rig) => {
     sourcePose.targetRigs.push(rig)
     rig.tpose.apply()
   })
   loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(-1, 0, 0)).then((rig) => {
+    sourcePose.targetRigs.push(rig)
+    rig.tpose.apply()
+  })
+  loadAndSetupModel(MODEL_C_FILE, sourceEntity, new Vector3(-2, 0, 0), ArmatureType.TREX).then((rig) => {
     sourcePose.targetRigs.push(rig)
     rig.tpose.apply()
   })
@@ -208,7 +212,7 @@ async function initExample(world) {
   ////////////////////////////////////////////////////////////////////////////
 }
 
-async function loadAndSetupModel(filename, sourceEntity, position) {
+async function loadAndSetupModel(filename, sourceEntity, position, armatureType = ArmatureType.MIXAMO) {
   let targetModel = await LoadGLTF(filename)
   targetModel.scene.position.copy(position)
   Engine.scene.add(targetModel.scene)
@@ -254,7 +258,7 @@ async function loadAndSetupModel(filename, sourceEntity, position) {
   targetRig.pose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
   targetRig.tpose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
   //setupIKRig(targetEntity, targetRig)
-  initRig(targetEntity)
+  initRig(targetEntity, null, false, armatureType)
 
   for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
     const bone = targetObj.ref.skeleton.bones[index]

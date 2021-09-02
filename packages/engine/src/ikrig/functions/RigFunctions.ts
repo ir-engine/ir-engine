@@ -6,7 +6,7 @@ import { IKRig } from '../components/IKRig'
 import { ArmatureType } from '../enums/ArmatureType'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose from '../classes/Pose'
-import { setupMixamoIKRig } from './IKFunctions'
+import { setupMixamoIKRig, setupTRexIKRig, setupVegetaIKRig } from './IKFunctions'
 
 export function initRig(
   entity: Entity,
@@ -56,6 +56,12 @@ export function initRig(
   switch (arm_type) {
     case ArmatureType.MIXAMO:
       setupMixamoIKRig(entity, rig)
+      break
+    case ArmatureType.VEGETA:
+      setupVegetaIKRig(entity, rig)
+      break
+    case ArmatureType.TREX:
+      setupTRexIKRig(entity, rig)
       break
     default:
       console.error('Unsupported rig type', arm_type)

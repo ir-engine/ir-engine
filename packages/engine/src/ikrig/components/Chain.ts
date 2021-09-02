@@ -73,7 +73,8 @@ export class Chain {
     }
 
     // If End Point exists, Can calculate the final bone's length
-    if (this.end_idx != null) {
+    if (this.end_idx !== null && this.end_idx > -1) {
+      b = this.chainBones[i]
       bones[this.end_idx].bone.getWorldPosition(boneWorldPosition)
       this.chainBones[i].ref.getWorldPosition(childWorldPosition)
       b.length = boneWorldPosition.distanceTo(childWorldPosition)

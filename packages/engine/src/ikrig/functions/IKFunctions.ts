@@ -44,6 +44,7 @@ export function LawCosinesSSS(aLen, bLen, cLen) {
 }
 
 export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
+  console.log('setupMixamoIKRig', rig)
   rig.points = {}
   rig.chains = {}
   //-----------------------------------------
@@ -73,50 +74,67 @@ export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRig.ge
   rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
 }
 
-function computeSwingAndTwist(target: Object3D, source: Object3D): { swing: Quaternion; twist: number } {
-  const bindBoneWorldQuaternion = new Quaternion()
-  target.getWorldQuaternion(bindBoneWorldQuaternion)
-  const quatInverse = new Quaternion().copy(bindBoneWorldQuaternion).invert(),
-    altForward = new Vector3().copy(FORWARD).applyQuaternion(quatInverse),
-    altUp = new Vector3().copy(UP).applyQuaternion(quatInverse)
+export function setupVegetaIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
+  console.log('setupVegetaIKRig', rig)
+  rig.points = {}
+  rig.chains = {}
+  //-----------------------------------------
+  // Auto Setup the Points and Chains based on
+  // Known Skeleton Structures.
+  // TODO:Fix
 
-  const poseBoneForwardWorldQuaternion = new Quaternion()
-  source.getWorldQuaternion(poseBoneForwardWorldQuaternion)
-  const poseBoneUpWorldQuaternion = new Quaternion()
-  source.getWorldQuaternion(poseBoneUpWorldQuaternion)
+  addPoint(entity, 'hip', 'Hips')
+  addPoint(entity, 'head', 'Head')
+  addPoint(entity, 'neck', 'Neck')
+  addPoint(entity, 'chest', 'Spine2')
+  addPoint(entity, 'foot_l', 'LeftFoot')
+  addPoint(entity, 'foot_r', 'RightFoot')
+  addChain(entity, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
+  addChain(entity, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
+  addChain(entity, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
+  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
+  addChain(entity, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
 
-  const poseForward = new Vector3().copy(altForward).applyQuaternion(poseBoneForwardWorldQuaternion),
-    poseUp = new Vector3().copy(altUp).applyQuaternion(poseBoneForwardWorldQuaternion)
+  rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
+  rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
+  rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
+  rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
+}
 
-  /* VISUAL DEBUG TPOSE AND ANIMATED POSE DIRECTIONS 	*/
+export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
+  console.log('setupVegetaIKRig', rig)
+  rig.points = {}
+  rig.chains = {}
+  //-----------------------------------------
+  // Auto Setup the Points and Chains based on
+  // Known Skeleton Structures.
+  // TODO:Fix
 
-  const poseBoneWorldPosition = new Vector3()
-  source.getWorldPosition(poseBoneWorldPosition)
+  addPoint(entity, 'hip', 'hip')
+  addPoint(entity, 'head', 'face_joint')
+  addPoint(entity, 'foot_l', 'LeftFoot')
+  addPoint(entity, 'foot_r', 'RightFoot')
 
-  // Debug.setLine( poseBoneWorldPosition, new Vector3().copy(poseBoneWorldPosition).add(FORWARD), COLOR.white );
-  // Debug.setLine( poseBoneWorldPosition, new Vector3().copy(poseBoneWorldPosition).add(UP), COLOR.white );
-  // Debug.setLine( poseBoneWorldPosition, new Vector3().copy( poseForward).multiplyScalar(0.8 ).add( poseBoneWorldPosition ), COLOR.orange );
-  // Debug.setLine( poseBoneWorldPosition, new Vector3().copy( poseUp).multiplyScalar(0.8 ).add( poseBoneWorldPosition ), COLOR.orange );
+  addPoint(entity, 'wing_l', 'left_wing')
+  addPoint(entity, 'wing_r', 'right_wing')
 
-  // With our directions known between our TPose and Animated Pose, Next we
-  // start to calculate the Swing and Twist Values to swing our TPose into
-  // The animation direction
-  // ORIGINAL
-  // let swing = Quat.unit_vecs( Vec3.FORWARD, pose_fwd )	// First we create a swing rotation from one dir to the other.
-  // 		.mul( bind.world.rot );		// Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
-  // 									// a new Up direction based on only swing.
-  // 	let swing_up	= Vec3.transform_quat( Vec3.UP, swing ),
-  // 		twist		= Vec3.angle( swing_up, pose_up );		// Swing + Pose have same Fwd, Use Angle between both UPs for twist
-  const swing = new Quaternion()
-    .setFromUnitVectors(FORWARD, poseForward) // First we create a swing rotation from one dir to the other.
-    .multiply(bindBoneWorldQuaternion) // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
+  // addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', 'three_bone') //"z",
+  // addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', 'three_bone') // "z",
+  addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot') //"z",
+  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot') // "z",
+  addChain(entity, 'spine', ['Spine', 'Spine1'])
+  addChain(entity, 'tail', ['tail_1', 'tail_2', 'tail_3', 'tail_4', 'tail_5', 'tail_6', 'tail_7'])
+  // TODO: create set_leg_lmt and apply?
+  // set_leg_lmt(entity, null, -0.1 )
 
-  // a new Up direction based on only swing.
-  const swing_up = new Vector3().copy(UP).applyQuaternion(swing)
-  // TODO: Make sure this isn't flipped
-  let twist = swing_up.angleTo(poseUp)
-
-  return { swing, twist }
+  rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
+  rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
+  rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
 }
 
 export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
@@ -190,7 +208,6 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   const swing_up = UP.clone().applyQuaternion(swing)
   // TODO: Make sure this isn't flipped
   let twist = swing_up.angleTo(poseUp) // Swing + Pose have same Fwd, Use Angle between both UPs for twist
-  let twist2 = poseUp.angleTo(swing_up) // Swing + Pose have same Fwd, Use Angle between both UPs for twist
 
   // The difference between Pose UP and Swing UP is what makes up our twist since they both
   // share the same forward access. The issue is that we do not know if that twist is in the Negative direction
@@ -453,8 +470,21 @@ export function applyHip(pose: ReturnType<typeof IKPose.get>) {
 // 	this.target[ solver ]( chain, rig.tpose, rig.pose, p_tran );
 // }
 
-export function applyLimb(ikPose: ReturnType<typeof IKPose.get>, chain, limb, grounding = 0) {
+export function applyLimb(
+  ikPose: ReturnType<typeof IKPose.get>,
+  chainName: string,
+  limb: IKPoseLimbData,
+  grounding = 0
+) {
   ikPose.targetRigs.forEach((rig) => {
+    const chain = rig.chains[chainName]
+    if (!chain) {
+      return
+    }
+
+    // @ts-ignore
+    console.log('applyLimb', rig.name)
+
     // solve for ik
     // Using law of cos SSS, so need the length of all sides of the triangle
     const bind_a = rig.tpose.bones.find((bone) =>

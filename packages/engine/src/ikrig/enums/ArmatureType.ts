@@ -1,3 +1,5 @@
 export enum ArmatureType {
-  MIXAMO
+  MIXAMO,
+  VEGETA,
+  TREX
 }
