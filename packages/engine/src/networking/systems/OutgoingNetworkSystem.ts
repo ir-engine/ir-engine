@@ -11,7 +11,7 @@ import { WorldStateInterface, WorldStateModel } from '../schema/networkSchema'
 import { Pose } from '../../transform/TransformInterfaces'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
-import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
+import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { getLocalNetworkId } from '../functions/getLocalNetworkId'
 import { NameComponent } from '../../scene/components/NameComponent'
 
@@ -23,7 +23,7 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
    */
 
   const networkTransformsQuery = isClient
-    ? defineQuery([ClientAuthoritativeComponent, NetworkObjectComponent, TransformComponent])
+    ? defineQuery([NetworkObjectOwnerComponent, NetworkObjectComponent, TransformComponent])
     : defineQuery([NetworkObjectComponent, TransformComponent])
 
   const ikTransformsQuery = isClient

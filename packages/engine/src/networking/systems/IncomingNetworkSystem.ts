@@ -9,11 +9,10 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { clientNetworkReceptor } from '../functions/clientNetworkReceptor'
 import { isEntityLocalClient } from '../functions/isEntityLocalClient'
 import { isClient } from '../../common/functions/isClient'
-import { ClientAuthoritativeComponent } from '../../physics/components/ClientAuthoritativeComponent'
+import { NetworkObjectOwnerComponent } from '../components/NetworkObjectOwnerComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 
 export const IncomingNetworkSystem = async (): Promise<System> => {
@@ -79,9 +78,9 @@ export const IncomingNetworkSystem = async (): Promise<System> => {
               transformComponent.rotation.fromArray(pose.pose, 3)
               continue
             }
-            const clientAuthoritativeComponent = getComponent(networkObject.entity, ClientAuthoritativeComponent)
-            // console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, clientAuthoritativeComponent?.ownerNetworkId, incomingNetworkId)
-            if (clientAuthoritativeComponent && clientAuthoritativeComponent.ownerNetworkId === incomingNetworkId) {
+            const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
+            // console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, NetworkObjectOwnerComponent?.ownerNetworkId, incomingNetworkId)
+            if (networkObjectOwnerComponent && networkObjectOwnerComponent.ownerNetworkId === incomingNetworkId) {
               const transform = getComponent(networkObject.entity, TransformComponent)
               if (transform) {
                 transform.position.fromArray(pose.pose)

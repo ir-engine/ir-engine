@@ -89,7 +89,8 @@ export class XREngineBot {
   constructor(args: BotProps = {}) {
     this.verbose = args.verbose
     this.headless = args.headless ?? true
-    this.ci = !!process.env.CI
+    this.ci = typeof process.env.CI === 'string' && process.env.CI === 'true'
+    console.log('CI', process.env.CI, !!process.env.CI, this.ci)
     this.name = args.name ?? 'Bot'
     this.fakeMediaPath = args.fakeMediaPath ?? ''
     this.windowSize = args.windowSize ?? { width: 640, height: 480 }

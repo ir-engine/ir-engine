@@ -9,13 +9,13 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions'
 import { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { BodyType } from 'three-physx'
+import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
+import { isEntityLocalClientOwnerOf } from '../../networking/functions/isEntityLocalClientOwnerOf'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -39,7 +39,7 @@ export const InterpolationSystem = async (): Promise<System> => {
    */
   const networkObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
-    Not(ClientAuthoritativeComponent),
+    Not(NetworkObjectOwnerComponent),
     InterpolationComponent,
     ColliderComponent,
     NetworkObjectComponent
@@ -51,7 +51,7 @@ export const InterpolationSystem = async (): Promise<System> => {
   const correctionFromServerQuery = defineQuery([
     Not(AvatarComponent),
     Not(InterpolationComponent),
-    Not(ClientAuthoritativeComponent),
+    Not(NetworkObjectOwnerComponent),
     ColliderComponent,
     NetworkObjectComponent
   ])
@@ -60,7 +60,7 @@ export const InterpolationSystem = async (): Promise<System> => {
    * Server controlled object with interpolation but no collider
    */
   const transformInterpolationQuery = defineQuery([
-    Not(ClientAuthoritativeComponent),
+    Not(NetworkObjectOwnerComponent),
     Not(AvatarComponent),
     Not(ColliderComponent),
     InterpolationComponent,
@@ -73,7 +73,6 @@ export const InterpolationSystem = async (): Promise<System> => {
    */
   const transformUpdateFromServerQuery = defineQuery([
     Not(InterpolationComponent),
-    Not(ClientAuthoritativeComponent),
     Not(AvatarComponent),
     Not(ColliderComponent),
     TransformComponent,
@@ -125,7 +124,7 @@ export const InterpolationSystem = async (): Promise<System> => {
 
     for (const entity of networkObjectInterpolationQuery(world)) {
       // TODO: quick bitecs fix
-      if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
+      if (hasComponent(entity, NetworkObjectOwnerComponent) || hasComponent(entity, AvatarComponent)) continue
 
       const collider = getComponent(entity, ColliderComponent)
       const interpolationSnapshot =
@@ -152,7 +151,7 @@ export const InterpolationSystem = async (): Promise<System> => {
     for (const entity of transformInterpolationQuery(world)) {
       // TODO: quick bitecs fix
       if (
-        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, NetworkObjectOwnerComponent) ||
         hasComponent(entity, AvatarComponent) ||
         hasComponent(entity, ColliderComponent)
       )
@@ -178,7 +177,7 @@ export const InterpolationSystem = async (): Promise<System> => {
     for (const entity of correctionFromServerQuery(world)) {
       // TODO: quick bitecs fix
       if (
-        hasComponent(entity, ClientAuthoritativeComponent) ||
+        hasComponent(entity, NetworkObjectOwnerComponent) ||
         hasComponent(entity, InterpolationComponent) ||
         hasComponent(entity, ColliderComponent)
       )
@@ -215,11 +214,13 @@ export const InterpolationSystem = async (): Promise<System> => {
       // TODO: quick bitecs fix
       if (
         hasComponent(entity, InterpolationComponent) ||
-        hasComponent(entity, ClientAuthoritativeComponent) ||
         hasComponent(entity, AvatarComponent) ||
         hasComponent(entity, ColliderComponent)
       )
         continue
+
+      // we don't want to accept updates from the server if the local client is in control of this entity
+      if (isEntityLocalClientOwnerOf(entity)) continue
 
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) return

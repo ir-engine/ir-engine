@@ -21,7 +21,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
-import { ClientAuthoritativeComponent } from '@xrengine/engine/src/physics/components/ClientAuthoritativeComponent'
+import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
@@ -34,10 +34,9 @@ import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameCo
 import { getTee, GolfState } from '../GolfSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
-import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
 import { OffScreenIndicator } from '@xrengine/engine/src/scene/classes/OffScreenIndicator'
-import { SoundEffect } from '../../../../../engine/src/audio/components/SoundEffect'
-import { PlaySoundEffect } from '../../../../../engine/src/audio/components/PlaySoundEffect'
+import { SoundEffect } from '@xrengine/engine/src/audio/components/SoundEffect'
+import { PlaySoundEffect } from '@xrengine/engine/src/audio/components/PlaySoundEffect'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -343,7 +342,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
   addComponent(ballEntity, NameComponent, { name: `GolfBall-${playerNumber}` })
-  addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
+  addComponent(ballEntity, NetworkObjectOwnerComponent, { networkId: ownerNetworkId })
 
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
@@ -419,7 +418,4 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
     state: BALL_STATES.INACTIVE,
     number: playerNumber
   })
-  if (!isClient || isMyBall) {
-    addComponent(ballEntity, ClientAuthoritativeComponent, { ownerNetworkId })
-  }
 }
