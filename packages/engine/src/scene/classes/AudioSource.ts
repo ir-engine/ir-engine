@@ -232,6 +232,8 @@ export default class AudioSource extends Object3D {
       }
       this.el.addEventListener('loadeddata', onLoadedData)
       this.el.addEventListener('error', onError)
+      //added resolve here just to make promise fullfill
+      resolve()
     })
   }
   async load(src?: string, contentType?: string): Promise<this> {

@@ -173,7 +173,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
             />
           </AssetPanelContentContainer>
         </Column>
-        <AssetDropZone />
       </AssetsPanelContainer>
     </>
   )

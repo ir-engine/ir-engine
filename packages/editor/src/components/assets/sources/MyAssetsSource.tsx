@@ -23,7 +23,7 @@ export const UploadFileType = {
   'image/png': ImageNode,
   'image/jpeg': ImageNode,
   'application/pdf': null,
-  'video/mp4': AudioNode,
+  'video/mp4': VideoNode,
   'audio/mpeg': AudioNode
 }
 
