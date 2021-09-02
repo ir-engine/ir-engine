@@ -17,7 +17,7 @@ export default () => {
       await context.app.service('party-user').create(
         {
           partyId: result.id,
-          isOwner: result.locationId ? true : ownerUser,
+          isOwner: result.locationId ? ownerUser : true,
           userId: loggedInUser.userId
         },
         context.params

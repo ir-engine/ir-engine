@@ -152,6 +152,13 @@ AssetGridItem.propTypes = {
   }).isRequired
 }
 
+AssetGrid.defaultProps = {
+  onSelect: () => {},
+  items: [],
+  selectedItems: [],
+  tooltip: AssetTooltip
+}
+
 //variable used to create uniqueId
 let lastId = 0
 

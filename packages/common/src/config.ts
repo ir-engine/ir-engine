@@ -23,6 +23,7 @@ export class Config {
     gameserverDomain: '',
     lobbyLocationName: 'lobby',
     siteTitle: 'The Overlay',
+    gaMeasurementId: '',
     siteDescription: 'Connected Worlds for Everyone',
     feathersStoreKey: 'TheOverlay-Auth-Store',
     localStorageKey: 'theoverlay-client-store-key-v1',
@@ -45,7 +46,8 @@ export class Config {
     offlineMode: false,
     staticPages: {
       termsOfService: ''
-    }
+    },
+    disableRenderer: false
   }
 }
 

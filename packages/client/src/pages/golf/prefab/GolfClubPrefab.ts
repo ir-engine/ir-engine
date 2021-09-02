@@ -30,6 +30,7 @@ import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/i
 import { ClientAuthoritativeComponent } from '@xrengine/engine/src/physics/components/ClientAuthoritativeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { getGolfPlayerNumber } from '../functions/golfFunctions'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -50,14 +51,6 @@ export const spawnClub = (entityPlayer: Entity): void => {
 
   // this spawns the club on the server
   spawnPrefab(GolfPrefabTypes.Club, uuid, networkId, parameters)
-
-  // this sends the club to the clients
-  Network.instance.worldState.createObjects.push({
-    networkId,
-    uniqueId: uuid,
-    prefabType: GolfPrefabTypes.Club,
-    parameters
-  })
 }
 
 export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {
@@ -89,7 +82,7 @@ export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): 
 export const updateClub = (entityClub: Entity): void => {
   const ownerNetworkId = getComponent(entityClub, NetworkObjectComponentOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.entity
-  if (!ownerEntity) return
+  if (typeof ownerEntity === 'undefined') return
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   if (!golfClubComponent.raycast) return
@@ -259,9 +252,9 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
     obj.receiveShadow = true
   })
   addComponent(entityClub, Object3DComponent, { value: meshGroup })
-
+  const isLocalOwned = isEntityLocalClient(ownerEntity)
   // since hitting balls are client authored, we only need the club collider on the local client
-  if (isEntityLocalClient(ownerEntity)) {
+  if (isClient) {
     const shapeHead: ShapeType = {
       shape: SHAPES.Box,
       options: { boxExtents: clubColliderSize },
@@ -281,10 +274,12 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
       })
     )
     addComponent(entityClub, ColliderComponent, { body })
+  }
+
+  if (!isClient || isLocalOwned) {
     addComponent(entityClub, ClientAuthoritativeComponent, { ownerNetworkId })
   }
 
-  const velocity = new Vector3()
   addComponent(entityClub, DebugArrowComponent, {
     color: 0xff00ff,
     direction: new Vector3(),

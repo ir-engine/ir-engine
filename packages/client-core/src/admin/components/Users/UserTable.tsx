@@ -12,6 +12,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import { PAGE_LIMIT } from '../../reducers/admin/user/reducers'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -38,14 +39,17 @@ const UserTable = (props: Props) => {
   const classes = useStyle()
   const classx = useStyles()
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [userId, setUserId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
   const [userAdmin, setUserAdmin] = React.useState('')
   const user = authState.get('user')
   const adminUsers = adminUserState.get('users').get('users')
+  const adminUserCount = adminUserState.get('users').get('total')
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchUsersAsAdmin(incDec)
     setPage(newPage)
   }
 
@@ -141,7 +145,6 @@ const UserTable = (props: Props) => {
     )
   })
 
-  const count = rows.size ? rows.size : rows.length
   return (
     <div className={classes.root}>
       <TableContainer className={classes.container}>
@@ -161,7 +164,7 @@ const UserTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+            {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                   {columns.map((column) => {
@@ -179,9 +182,9 @@ const UserTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[PAGE_LIMIT]}
         component="div"
-        count={count || 12}
+        count={adminUserCount || 12}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

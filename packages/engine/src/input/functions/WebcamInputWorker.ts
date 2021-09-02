@@ -1,8 +1,9 @@
+import './faceEnvWorkerPatch.js' // polyfill for face-api in webworker - MUST BE FIRST
 import * as Comlink from 'comlink'
-import { detectSingleFace } from 'face-api.js'
-import { nets } from 'face-api.js'
-import { TinyFaceDetectorOptions } from 'face-api.js'
-import './faceEnvWorkerPatch.js' // polyfill for face-api in webworker
+import { detectSingleFace } from '@vladmandic/face-api'
+import { nets } from '@vladmandic/face-api'
+import { TinyFaceDetectorOptions } from '@vladmandic/face-api'
+
 let canvas
 let imageData
 const faceApiOptions = new TinyFaceDetectorOptions()

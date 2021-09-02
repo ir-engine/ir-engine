@@ -270,5 +270,17 @@ export class NumericInput extends Component {
   convertTo: (value) => value,
   convertFrom: (value) => value
 }
+;(NumericInput as any).defaultProps = {
+  value: 0,
+  smallStep: 0.025,
+  mediumStep: 0.1,
+  largeStep: 0.25,
+  min: -Infinity,
+  max: Infinity,
+  displayPrecision: 0.001,
+  precision: Number.EPSILON,
+  convertTo: (value) => value,
+  convertFrom: (value) => value
+}
 
 export default NumericInput

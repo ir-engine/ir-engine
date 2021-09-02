@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 import { Vector2 } from 'three'
@@ -47,12 +46,10 @@ let uniqueId = 0
  * @author Robert Long
  */
 export class Vector2Input extends Component {
-  static propTypes = {
-    uniformScaling: PropTypes.bool,
-    value: PropTypes.object,
-    onChange: PropTypes.func
+  declare state: {
+    uniformEnabled: any
+    value: any
   }
-
   static defaultProps = {
     value: new Vector2(),
     onChange: () => {}
@@ -71,10 +68,6 @@ export class Vector2Input extends Component {
     }
   }
 
-  state: {
-    uniformEnabled: any
-    value: any
-  }
   id: number
   newValue: Vector2
 

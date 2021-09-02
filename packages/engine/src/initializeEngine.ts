@@ -28,10 +28,7 @@ import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
 import { NetworkActionDispatchSystem } from './networking/systems/NetworkActionDispatchSystem'
-import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
-import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
-import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { PhysicsSystem } from './physics/systems/PhysicsSystem'
@@ -46,6 +43,8 @@ import { XRUISystem } from './xrui/systems/XRUISystem'
 import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
 import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
+import { OutgoingNetworkSystem } from './networking/systems/OutgoingNetworkSystem'
+import { IncomingNetworkSystem } from './networking/systems/IncomingNetworkSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -83,7 +82,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     Engine.hasJoinedWorld = true
   })
 
-  if (options.renderer.disabled !== true) {
+  if (options.scene.disabled !== true) {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
     Engine.camera.layers.enableAll()
     Engine.scene.add(Engine.camera)
@@ -151,16 +150,16 @@ const configureServer = async (options: Required<InitializeOptions>) => {
 
 const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   // Network Systems
-  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
+  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, IncomingNetworkSystem)
 
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
-  if (options.renderer.disabled) return
+  if (options.scene.disabled) return
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
 
-  // Input Systems
+  // Avatar Systems
   registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
   registerSystem(SystemUpdateType.Fixed, AvatarLoadingSystem)
@@ -187,11 +186,13 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
 
+  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
+
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
-  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
+  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas, enabled: !options.renderer.disabled })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
   registerSystem(SystemUpdateType.Free, BotHookSystem)
 }
@@ -212,10 +213,8 @@ const registerEditorSystems = (options: Required<InitializeOptions>) => {
 }
 
 const registerServerSystems = (options: Required<InitializeOptions>) => {
-  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
-
   // Network Incoming Systems
-  registerSystem(SystemUpdateType.Fixed, ServerNetworkIncomingSystem, { ...options.networking }) // first
+  registerSystem(SystemUpdateType.Fixed, IncomingNetworkSystem, { ...options.networking }) // first
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   // Input Systems
@@ -223,8 +222,9 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
+  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Free, TransformSystem)
+  registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
@@ -234,7 +234,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, ServerAvatarSpawnSystem)
 
   // Network Outgoing Systems
-  registerSystem(SystemUpdateType.Fixed, ServerNetworkOutgoingSystem)
+  registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
 }
 

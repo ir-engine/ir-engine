@@ -30,4 +30,20 @@ export class StaticResource extends Service {
       return this.Model.create(data)
     }
   }
+
+  async find(params?: Params): Promise<any> {
+    if (params.query?.getAvatarThumbnails === true) {
+      delete params.query.getAvatarThumbnails
+      const result = await super.find(params)
+      for (const item of result.data) {
+        item.thumbnail = await super.Model.findOne({
+          where: {
+            name: item.name,
+            staticResourceType: 'user-thumbnail'
+          }
+        })
+      }
+      return result
+    } else return super.find(params)
+  }
 }

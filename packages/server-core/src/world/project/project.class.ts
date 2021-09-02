@@ -42,13 +42,16 @@ export class Project implements ServiceMethods<Data> {
    */
   async find(params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const projects = await this.models.collection.findAll({
-      where: {
-        [Op.or]: [{ userId: loggedInUser.userId }, { userId: null }]
-      },
+    const user = await this.app.service('user').get(loggedInUser.userId)
+    const findParams = {
       attributes: ['name', 'id', 'sid', 'url'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
-    })
+    }
+    if (user.userRole !== 'admin')
+      (findParams as any).where = {
+        [Op.or]: [{ userId: loggedInUser.userId }, { userId: null }]
+      }
+    const projects = await this.models.collection.findAll(findParams)
     const processedProjects = projects.map((project: any) => mapProjectDetailData(project.toJSON()))
     return { projects: processedProjects }
   }

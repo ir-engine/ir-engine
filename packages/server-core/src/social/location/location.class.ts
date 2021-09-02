@@ -144,7 +144,8 @@ export class Location extends Service {
             where: {
               currentUsers: {
                 [Op.lt]: Sequelize.col('location.maxUsersPerInstance')
-              }
+              },
+              ended: false
             }
           },
           {

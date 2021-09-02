@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import MediaSourcePanel from './MediaSourcePanel'
 import { useTranslation } from 'react-i18next'
 
@@ -20,8 +19,4 @@ export function ModelSourcePanel(props) {
   )
 }
 
-//declaring properties ModelSourcePanel
-ModelSourcePanel.propTypes = {
-  source: PropTypes.object
-}
 export default ModelSourcePanel

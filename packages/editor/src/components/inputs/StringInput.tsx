@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Input from './Input'
 
@@ -20,25 +18,12 @@ const StringInput = React.forwardRef(({ onChange, ...rest }, ref) => (
 ))
 
 StringInput.displayName = 'StringInput'
-
-/**
- * @author Robert Long
- */
 StringInput.defaultProps = {
   value: '',
   onChange: () => {},
   type: 'text',
   required: false,
   placeholder: ''
-}
-
-StringInput.propTypes = {
-  id: PropTypes.string,
-  className: PropTypes.string,
-  type: PropTypes.string,
-  required: PropTypes.bool,
-  placeholder: PropTypes.string,
-  onChange: PropTypes.func
 }
 
 export default StringInput
@@ -78,6 +63,13 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
     [setTempValue]
   )
 
+  ControlledStringInput.defaultProps = {
+    value: '',
+    onChange: () => {},
+    type: 'text',
+    required: false
+  }
+
   return (
     <DropContainer ref={ref}>
       <StyledStringInput
@@ -93,19 +85,3 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
 })
 
 ControlledStringInput.displayName = 'ControlledStringInput'
-
-ControlledStringInput.defaultProps = {
-  value: '',
-  onChange: () => {},
-  type: 'text',
-  required: false
-}
-
-ControlledStringInput.propTypes = {
-  className: PropTypes.string,
-  value: PropTypes.string,
-  type: PropTypes.string,
-  required: PropTypes.bool,
-  placeholder: PropTypes.string,
-  onChange: PropTypes.func
-}

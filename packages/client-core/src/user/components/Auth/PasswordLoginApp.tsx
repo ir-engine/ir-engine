@@ -14,10 +14,10 @@ import OutlinedInput from '@material-ui/core/OutlinedInput'
 import { selectAuthState } from '../../reducers/auth/selector'
 import { doLoginAuto } from '../../reducers/auth/service'
 import { User } from '@xrengine/common/src/interfaces/User'
-
+// @ts-ignore
 import styles from './Auth.module.scss'
-import { createCreator } from '../../../socialmedia/reducers/creator/service'
-import { selectCreatorsState } from '../../../socialmedia/reducers/creator/selector'
+import { createCreator } from '@xrengine/social/src/reducers/creator/service'
+import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {

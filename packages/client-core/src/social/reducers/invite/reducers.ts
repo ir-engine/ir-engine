@@ -1,6 +1,5 @@
 import Immutable from 'immutable'
 import { InviteAction, InvitesRetrievedAction, InviteTargetSetAction } from './actions'
-import _ from 'lodash'
 
 import {
   SENT_INVITES_RETRIEVED,
@@ -16,6 +15,8 @@ import {
   FETCHING_RECEIVED_INVITES,
   FETCHING_SENT_INVITES
 } from '../actions'
+
+export const PAGE_LIMIT = 10
 
 export const initialInviteState = {
   receivedInvites: {

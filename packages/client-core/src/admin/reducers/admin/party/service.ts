@@ -15,9 +15,11 @@ export const createAdminParty = (data) => {
   }
 }
 
-export const fetchAdminParty = () => {
+export const fetchAdminParty = (incDec: string | null) => {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user')
+    const skip = getState().get('adminParties').get('parties').get('skip')
+    const limit = getState().get('adminParties').get('parties').get('limit')
     try {
       if (user.userRole === 'admin') {
         const parties = await client.service('party').find({
@@ -25,8 +27,8 @@ export const fetchAdminParty = () => {
             $sort: {
               createdAt: -1
             },
-            $skip: getState().get('adminUser').get('users').get('skip'),
-            $limit: getState().get('adminUser').get('users').get('limit')
+            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+            $limit: limit
           }
         })
         dispatch(partyRetrievedAction(parties))

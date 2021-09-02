@@ -27,7 +27,8 @@ enum WarningModalTypes {
   NO_GAME_SERVER_PROVISIONED,
   INSTANCE_DISCONNECTED,
   USER_KICKED,
-  INVALID_LOCATION
+  INVALID_LOCATION,
+  INSTANCE_WEBGL_DISCONNECTED
 }
 
 const mapStateToProps = (state: any) => {
@@ -41,12 +42,18 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 const GameServerWarnings = (props: GameServerWarningsProps) => {
+  const { locationState } = props
   const [modalValues, setModalValues] = useState(initialModalValues)
+  const invalidLocationState = locationState.get('invalidLocation')
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
       SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
       () => updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+    )
+
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () =>
+      updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
     )
 
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () =>
@@ -65,12 +72,12 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   }, [])
 
   useEffect(() => {
-    if (props.locationState.invalidLocation) {
+    if (invalidLocationState) {
       updateWarningModal(WarningModalTypes.INVALID_LOCATION)
     } else {
       reset()
     }
-  }, [props.locationState.invalidLocation])
+  }, [invalidLocationState])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
     switch (type) {
@@ -90,11 +97,13 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
           action: async () => provisionInstanceServer(),
-          parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId]
+          parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId],
+          noCountdown: false
         })
         break
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
+        if (!Network.instance.userId) return
         if ((Network.instance.transport as SocketWebRTCClientTransport).left || props.isTeleporting) return
 
         setModalValues({
@@ -102,7 +111,20 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           title: 'World disconnected',
           body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
           action: async () => window.location.reload(),
-          timeout: 30000
+          timeout: 30000,
+          noCountdown: false
+        })
+        break
+
+      case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED:
+        if ((Network.instance.transport as SocketWebRTCClientTransport).left || props.isTeleporting) return
+
+        setModalValues({
+          open: true,
+          title: 'WebGL not enabled',
+          body: 'Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.',
+          action: async () => window.location.reload(),
+          noCountdown: true
         })
         break
 

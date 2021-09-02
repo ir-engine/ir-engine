@@ -19,7 +19,6 @@ import {
   subscribeToTrack
 } from './SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
 //@ts-ignore
@@ -30,6 +29,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
     PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
     INSTANCE_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
+    INSTANCE_WEBGL_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
     INSTANCE_KICKED: 'CORE_INSTANCE_KICKED',
     INSTANCE_RECONNECTED: 'CORE_INSTANCE_RECONNECTED',
     CHANNEL_DISCONNECTED: 'CORE_CHANNEL_DISCONNECTED',
@@ -86,15 +86,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log('Handling kick: ', socket)
   }
 
-  toBuffer(ab) {
-    const buf = Buffer.alloc(ab.byteLength)
-    const view = new Uint8Array(ab)
-    for (let i = 0; i < buf.length; ++i) {
-      buf[i] = view[i]
-    }
-    return buf
-  }
-
   close() {
     this.instanceRecvTransport?.close()
     this.instanceSendTransport?.close()
@@ -110,14 +101,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         this.instanceDataProducer.closed !== true &&
         this.instanceDataProducer.readyState === 'open'
       )
-        this.instanceDataProducer.send(this.toBuffer(data))
+        this.instanceDataProducer.send(data)
     } else {
       if (
         this.channelDataProducer &&
         this.channelDataProducer.closed !== true &&
         this.channelDataProducer.readyState === 'open'
       )
-        this.channelDataProducer.send(this.toBuffer(data))
+        this.channelDataProducer.send(data)
     }
   }
 
@@ -179,18 +170,25 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
 
     socket.on('connect', async () => {
+      console.log('connect')
       if (this.reconnecting === true) {
         this.reconnecting = false
         return
       }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken }
-      const { success } = await request(MessageTypes.Authorization.toString(), payload)
+
+      const { success } = await new Promise<any>((resolve) => {
+        const interval = setInterval(async () => {
+          const response = await request(MessageTypes.Authorization.toString(), payload)
+          clearInterval(interval)
+          resolve(response)
+        }, 1000)
+      })
 
       if (!success) return console.error('Unable to connect with credentials')
 
       let ConnectToWorldResponse
-
       try {
         ConnectToWorldResponse = await Promise.race([
           await request(MessageTypes.ConnectToWorld.toString()),
@@ -206,11 +204,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         })
         return
       }
-      const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any
-      Network.instance.incomingMessageQueueReliable.add(worldState)
+      const { connectedClients, routerRtpCapabilities } = ConnectToWorldResponse as any
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        worldState: WorldStateModel.fromBuffer(worldState),
+        connectedClients,
         instance: instance === true
       })
 
@@ -277,6 +274,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         dataConsumer.on('message', (message: any) => {
           try {
             Network.instance.incomingMessageQueueUnreliable.add(message)
+            Network.instance.incomingMessageQueueUnreliableIDs.add(options.dataProducerId)
           } catch (error) {
             console.warn('Error handling data from consumer:')
             console.warn(error)

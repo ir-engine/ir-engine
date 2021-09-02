@@ -37,6 +37,7 @@ export const BotHookFunctions = {
   [BotHooks.LocationLoaded]: locationLoaded,
   [BotHooks.GetPlayerPosition]: getPlayerPosition,
   [BotHooks.RotatePlayer]: rotatePlayer,
+  [BotHooks.GetClients]: getClients,
   [XRBotHooks.OverrideXR]: overrideXR,
   [XRBotHooks.XRSupported]: xrSupported,
   [XRBotHooks.XRInitialized]: xrInitialized,
@@ -52,8 +53,8 @@ export const BotHookFunctions = {
 export function initializeBot() {
   Engine.isBot = true
 
-  DebugHelpers.toggleDebugPhysics(true)
-  DebugHelpers.toggleDebugAvatar(true)
+  // DebugHelpers.toggleDebugPhysics(true)
+  // DebugHelpers.toggleDebugAvatar(true)
 }
 
 // === ENGINE === //
@@ -74,4 +75,8 @@ export function rotatePlayer({ angle }) {
   console.log('===============rotatePlayer', angle)
   const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
   transform.rotation.multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(angle)))
+}
+
+export function getClients() {
+  return Network.instance.clients
 }

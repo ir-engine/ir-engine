@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import BooleanInput from '../inputs/BooleanInput'
 import FormField from '../inputs/FormField'
 import Dialog from './Dialog'
@@ -101,15 +100,4 @@ export function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
   )
 }
 
-/**
- * declaring propTypes for ExportProjectDialog.
- *
- * @author Robert Long
- * @type {Object}
- */
-ExportProjectDialog.propTypes = {
-  defaultOptions: PropTypes.object.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired
-}
 export default ExportProjectDialog

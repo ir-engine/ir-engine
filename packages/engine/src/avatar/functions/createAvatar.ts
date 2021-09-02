@@ -38,7 +38,7 @@ const avatarHalfHeight = avatarHeight / 2
 export const createAvatar = (
   entity: Entity,
   spawnTransform: { position: Vector3; rotation: Quaternion },
-  isRemotePlayer = false
+  isRemotePlayer = true
 ): void => {
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
@@ -46,11 +46,6 @@ export const createAvatar = (
     scale: new Vector3(1, 1, 1)
   })
 
-  addComponent(entity, InputComponent, {
-    schema: AvatarInputSchema,
-    data: new Map(),
-    prevData: new Map()
-  })
   addComponent(entity, VelocityComponent, {
     velocity: new Vector3()
   })
@@ -72,12 +67,14 @@ export const createAvatar = (
     avatarHalfHeight,
     avatarHeight,
     modelContainer,
-    isGrounded: false,
-    viewVector: new Vector3(0, 0, 1)
+    isGrounded: false
   })
+
   addComponent(entity, NameComponent, {
     name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
   })
+  console.log('uniqueID: ' + getComponent(entity, NetworkObjectComponent).uniqueId)
+  console.log('userID: ' + Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -140,6 +137,11 @@ export const createAvatar = (
 export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
+
+  addComponent(entity, InputComponent, {
+    schema: AvatarInputSchema,
+    data: new Map()
+  })
 
   const controller = PhysXInstance.instance.createController(
     new Controller({

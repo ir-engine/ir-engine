@@ -11,6 +11,7 @@ import { closeDialog } from '../../reducers/dialog/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useHistory } from 'react-router-dom'
 import styles from './Dialog.module.scss'
+import i18n from 'i18next'
 
 interface Props {
   dialog: any
@@ -59,5 +60,10 @@ const DialogComponent = (props: Props): any => {
 }
 
 const DialogWrapper = (props: any): any => <DialogComponent {...props} />
-
+Dialog.defaultProps = {
+  tag: 'form',
+  title: i18n.t('editor:dialog.title') || 'Editor',
+  confirmLabel: i18n.t('editor:dialog.lbl-confirm') || 'Ok',
+  cancelLabel: i18n.t('editor:dialog.lbl-cancel') || 'Cancel'
+}
 export const UIDialog = connect(mapStateToProps, mapDispatchToProps)(DialogWrapper)

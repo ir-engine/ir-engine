@@ -87,6 +87,7 @@ let lastRenderTime = 0
 
 type EngineRendererProps = {
   canvas: HTMLCanvasElement
+  enabled: boolean
 }
 
 export class EngineRenderer {
@@ -145,6 +146,13 @@ export class EngineRenderer {
     const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
+    if (!context) {
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.ERROR,
+        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+      })
+    }
+
     this.renderContext = context
     const options: any = {
       canvas,
@@ -195,6 +203,14 @@ export class EngineRenderer {
     this.needsResize = true
   }
 
+  resetPostProcessing(): void {
+    console.log('resetPostProcessing')
+    Engine.effectComposer.dispose()
+    Engine.effectComposer = new EffectComposer(Engine.renderer)
+    this.postProcessingSchema = undefined
+    console.log('resetPostProcessing done')
+  }
+
   /**
    * Configure post processing.
    * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
@@ -202,13 +218,13 @@ export class EngineRenderer {
    */
   public configurePostProcessing(postProcessingSchema: PostProcessingSchema = defaultPostProcessingSchema): void {
     this.postProcessingSchema = postProcessingSchema
-    this.renderPass = new RenderPass(Engine.scene, Engine.camera)
-    this.renderPass.scene = Engine.scene
-    this.renderPass.camera = Engine.camera
-    Engine.effectComposer.addPass(this.renderPass)
+    const renderPass = new RenderPass(Engine.scene, Engine.camera)
+    renderPass.scene = Engine.scene
+    renderPass.camera = Engine.camera
+    Engine.effectComposer.addPass(renderPass)
     // This sets up the render
     const passes: any[] = []
-    this.normalPass = new NormalPass(this.renderPass.scene, this.renderPass.camera, {
+    const normalPass = new NormalPass(renderPass.scene, renderPass.camera, {
       renderTarget: new WebGLRenderTarget(1, 1, {
         minFilter: NearestFilter,
         magFilter: NearestFilter,
@@ -217,7 +233,7 @@ export class EngineRenderer {
       })
     })
     const depthDownsamplingPass = new DepthDownsamplingPass({
-      normalBuffer: this.normalPass.texture,
+      normalBuffer: normalPass.texture,
       resolutionScale: 0.5
     })
     const normalDepthBuffer = depthDownsamplingPass.texture
@@ -227,7 +243,7 @@ export class EngineRenderer {
       const effect = effectType[key].effect
       if (pass.isActive)
         if (effect === SSAOEffect) {
-          const eff = new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer })
+          const eff = new effect(Engine.camera, normalPass.texture, { ...pass, normalDepthBuffer })
           Engine.effectComposer[key] = eff
           passes.push(eff)
         } else if (effect === DepthOfFieldEffect) {
@@ -402,6 +418,7 @@ export class EngineRenderer {
 
 export const WebGLRendererSystem = async (props: EngineRendererProps): Promise<System> => {
   new EngineRenderer(props)
+  const { enabled } = props
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   EngineRenderer.instance.dispatchSettingsChangeEvent()
@@ -409,7 +426,7 @@ export const WebGLRendererSystem = async (props: EngineRendererProps): Promise<S
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
-    EngineRenderer.instance.execute(delta)
+    if (enabled) EngineRenderer.instance.execute(delta)
 
     return world
   })

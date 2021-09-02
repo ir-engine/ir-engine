@@ -211,7 +211,9 @@ export function removeUserAdmin(id: string) {
 
 export function removeInstance(id: string) {
   return async (dispatch: Dispatch): Promise<any> => {
-    const result = await client.service('instance').remove(id)
+    const result = await client.service('instance').patch(id, {
+      ended: true
+    })
     dispatch(instanceRemoved(result))
   }
 }

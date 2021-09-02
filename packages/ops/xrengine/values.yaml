@@ -336,3 +336,33 @@ agones:
 
 redis:
   enabled: false
+
+analytics:
+  enabled: false
+  name: xrengine-analytics
+
+  replicaCount: 1
+  image:
+    repository: lagunalabs/xrengine
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 3030
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
