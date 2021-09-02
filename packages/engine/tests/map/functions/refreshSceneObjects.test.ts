@@ -44,6 +44,7 @@ describe('refreshSceneObjects', () => {
     addTransformComponentWithPosition(viewerEntity, world, 13, 0, 42)
     const oldObject3DComponent = getComponent(mapEntity, Object3DComponent, false, world.ecsWorld)
     const center = [0, 0]
+    const minimumSceneRadius = 80
     const args = {}
     addComponent(
       mapEntity,
@@ -52,7 +53,7 @@ describe('refreshSceneObjects', () => {
         center,
         viewer: viewerEntity,
         triggerRefreshRadius: 20,
-        minimumSceneRadius: 80,
+        minimumSceneRadius,
         args
       },
       world.ecsWorld
@@ -65,7 +66,7 @@ describe('refreshSceneObjects', () => {
     const viewerTransformComponent = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
 
     expect(createMapObjects).toHaveBeenCalledTimes(1)
-    expect(createMapObjects).toHaveBeenCalledWith(center, args)
+    expect(createMapObjects).toHaveBeenCalledWith(center, minimumSceneRadius, args)
     // Test it was removed then added to trigger SceneObjectSystem enter/exit queries
     expect(newObject3DComponent).not.toBe(oldObject3DComponent)
     expect(newObject3DComponent.value).toBe(createMapObjectsMock.mock.results[0].value.mapMesh)

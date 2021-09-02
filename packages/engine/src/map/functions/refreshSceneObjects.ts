@@ -8,7 +8,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 
 export async function refreshSceneObjects(mapEntity: Entity, ecsWorld: ECSWorld): Promise<void> {
   const map = getComponent(mapEntity, MapComponent, false, ecsWorld)
-  const { mapMesh } = await createMapObjects(map.center, map.args)
+  const { mapMesh } = await createMapObjects(map.center, map.minimumSceneRadius, map.args)
   const mapTransform = getComponent(mapEntity, TransformComponent, false, ecsWorld)
   const viewerTransform = getComponent(map.viewer, TransformComponent, false, ecsWorld)
 

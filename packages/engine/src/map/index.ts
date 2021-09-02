@@ -22,9 +22,9 @@ let centerCoord = {}
 let centerTile = {}
 let scaleArg
 
-export const createMapObjects = async function (center: Position, args: MapProps) {
+export const createMapObjects = async function (center: Position, minimumSceneRadius: number, args: MapProps) {
   console.log('createMapObjects called with args:', center, args)
-  const vectorTiles = await fetchVectorTiles(center)
+  const vectorTiles = await fetchVectorTiles(center, minimumSceneRadius)
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
@@ -39,7 +39,7 @@ export const createMapObjects = async function (center: Position, args: MapProps
     group.add(mesh)
   })
 
-  await setGroundScaleAndPosition(groundMesh, buildingMesh)
+  setGroundScaleAndPosition(groundMesh, buildingMesh)
 
   labels.forEach((label) => {
     group.add(label.object3d)

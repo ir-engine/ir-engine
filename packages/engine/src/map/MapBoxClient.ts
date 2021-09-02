@@ -133,9 +133,11 @@ export function llToTile(llPosition: Position) {
 /**
  * @returns promise resolving to array containing one array of features per tile
  */
-export function fetchVectorTiles(center: LongLat): Promise<TileFeaturesByLayer[]> {
+export function fetchVectorTiles(center: LongLat, minimumSceneRadius = 600): Promise<TileFeaturesByLayer[]> {
   const promises = []
-  forEachSurroundingTile(center, (tileX, tileY) => promises.push(fetchTile(tileX, tileY)))
+  for (const [tileX, tileY] of createTileIterator(center, minimumSceneRadius, TILE_ZOOM)) {
+    promises.push(fetchTile(tileX, tileY))
+  }
   return Promise.all(promises)
 }
 
