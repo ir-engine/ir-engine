@@ -139,8 +139,9 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
             })
             .then((response) => response.blob())
             .then((blob) => resolve(blob))
-        }).catch((error) => {
-          return
+            .catch((error) => {
+              reject(error)
+            })
         })
 
         var avatarArrayBuffer = await new Response(avatarResult).arrayBuffer()
