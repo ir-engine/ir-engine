@@ -4,4 +4,4 @@ export type NetworkObjectOwnerComponentType = {
   networkId: number
 }
 
-export const NetworkObjectComponentOwner = createMappedComponent<NetworkObjectOwnerComponentType>()
+export const NetworkObjectOwnerComponent = createMappedComponent<NetworkObjectOwnerComponentType>()

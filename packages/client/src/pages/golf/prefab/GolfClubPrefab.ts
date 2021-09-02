@@ -22,12 +22,10 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
-import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
+import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowComponent'
-import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { ClientAuthoritativeComponent } from '@xrengine/engine/src/physics/components/ClientAuthoritativeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
@@ -79,7 +77,7 @@ export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): 
  */
 
 export const updateClub = (entityClub: Entity): void => {
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectComponentOwner).networkId
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwnerComponent).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.entity
   if (typeof ownerEntity === 'undefined') return
 
@@ -201,7 +199,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
 
   addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
   addComponent(entityClub, NameComponent, { name: `GolfClub-${playerNumber}` })
-  addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
+  addComponent(entityClub, NetworkObjectOwnerComponent, { networkId: ownerNetworkId })
 
   const color = GolfColours[playerNumber].clone()
 
@@ -251,7 +249,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
     obj.receiveShadow = true
   })
   addComponent(entityClub, Object3DComponent, { value: meshGroup })
-  const isLocalOwned = isEntityLocalClient(ownerEntity)
+
   // since hitting balls are client authored, we only need the club collider on the local client
   if (isClient) {
     const shapeHead: ShapeType = {
@@ -273,10 +271,6 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
       })
     )
     addComponent(entityClub, ColliderComponent, { body })
-  }
-
-  if (!isClient || isLocalOwned) {
-    addComponent(entityClub, ClientAuthoritativeComponent, { ownerNetworkId })
   }
 
   addComponent(entityClub, DebugArrowComponent, {
