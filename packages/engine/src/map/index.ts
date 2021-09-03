@@ -39,7 +39,7 @@ export const createMapObjects = async function (center: Position, minimumSceneRa
     group.add(mesh)
   })
 
-  setGroundScaleAndPosition(groundMesh, buildingMesh)
+  // setGroundScaleAndPosition(groundMesh, buildingMesh)
 
   labels.forEach((label) => {
     group.add(label.object3d)

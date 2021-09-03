@@ -20,7 +20,7 @@ import {
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
-import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from './styles'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles, IStyles, MAX_Z_INDEX } from './styles'
 import { toIndexed } from './toIndexed'
 import { ILayerName, LongLat, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
@@ -28,6 +28,9 @@ import { METERS_PER_DEGREE_LL } from './constants'
 import { collectFeaturesByLayer } from './util'
 import { GeoLabelNode } from './GeoLabelNode'
 import { PI } from '../common/constants/MathConstants'
+import convertFunctionToWorker from '@xrengine/common/src/utils/convertFunctionToWorker'
+import { isClient } from '../common/functions/isClient'
+import resolve from 'resolve'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -47,100 +50,226 @@ export function sceneToLl(position: Position, [lngCenter, latCenter] = [0, 0] as
   return [longtitude, latitude]
 }
 
-function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
-  const shape = new Shape()
-  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
-
-  const geometry = maybeBuffer(feature, styles.width)
-
-  let coords: Position[]
-
-  // TODO switch statement
-  if (geometry.type === 'MultiPolygon') {
-    coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
-  } else if (geometry.type === 'Polygon') {
-    coords = geometry.coordinates[0] // TODO: handle interior rings
-  } else if (geometry.type === 'MultiPoint') {
-    // TODO is this a bug?
-    coords = geometry.coordinates[0] as any
-  } else {
-    // TODO handle feature.geometry.type === 'GeometryCollection'?
-  }
-
-  var point = llToScene(coords[0], llCenter)
-  shape.moveTo(point[0], point[1])
-
-  coords.slice(1).forEach((coord: Position) => {
-    point = llToScene(coord, llCenter)
-    shape.lineTo(point[0], point[1])
-  })
-  point = llToScene(coords[0], llCenter)
-  shape.lineTo(point[0], point[1])
-
-  let height: number
-
-  // TODO handle min_height
-  if (styles.height === 'a') {
-    if (feature.properties.height) {
-      height = feature.properties.height
-    } else if (feature.properties.render_height) {
-      height = feature.properties.render_height
-    } else if (feature.properties.area) {
-      height = Math.sqrt(feature.properties.area)
-    } else {
-      // ignore standalone building labels.
-      console.warn('just a label.', feature.properties)
-      return null
-    }
-    height *= styles.height_scale || 1
-  } else {
-    height = styles.height || 4
-  }
-
-  let threejsGeometry: BufferGeometry | null = null
-
-  if (styles.extrude === 'flat') {
-    threejsGeometry = new ShapeGeometry(shape)
-  } else if (styles.extrude === 'rounded') {
-    threejsGeometry = new ExtrudeGeometry(shape, {
-      steps: 1,
-      depth: height || 1,
-      bevelEnabled: true,
-      bevelThickness: 8,
-      bevelSize: 16,
-      bevelSegments: 16
-    })
-  } else {
-    threejsGeometry = new ExtrudeGeometry(shape, {
-      steps: 1,
-      depth: height || 1,
-      bevelEnabled: false
-    })
-  }
-
-  if (threejsGeometry) {
-    threejsGeometry.rotateX(-Math.PI / 2)
-  }
-
-  if (styles.color && styles.color.builtin_function === 'purple_haze') {
-    const light = new Color(0xa0c0a0)
-    const shadow = new Color(0x303050)
-    colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
-  }
-
-  return threejsGeometry
+function importScripts(...urls: string[]) {
+  void urls
 }
+
+function geometryWorkerFunction() {
+  // TODO figure out how to use our own bundle
+  importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
+
+  /* @ts-ignore:next-line */
+  const { Shape, ShapeGeometry, ExtrudeGeometry, Color } = this.THREE as typeof THREE
+
+  this.onmessage = function (msg) {
+    const { style, feature, llCenter } = msg.data
+    const result = build(feature, llCenter, style)
+
+    const transferrables = [
+      result.getAttribute('uv').array,
+      result.getAttribute('position').array,
+      result.getAttribute('normal').array,
+      result.getAttribute('color').array
+    ]
+    // TODO fix origin?
+    postMessage(result, '*', transferrables as any)
+  }
+
+  const METERS_PER_DEGREE_LL = 111139
+  function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position, sceneScale = 1): Position {
+    return [
+      (lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale,
+      (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale
+    ]
+  }
+
+  function build(feature: Feature, llCenter: Position, style: IStyles): BufferGeometry | null {
+    const shape = new Shape()
+
+    const { geometry } =
+      feature.geometry.type === 'LineString' ||
+      feature.geometry.type === 'Point' ||
+      feature.geometry.type === 'MultiLineString'
+        ? buffer(feature, style.width || 1, {
+            units: 'meters'
+          })
+        : feature
+
+    let coords: Position[]
+
+    // TODO switch statement
+    if (geometry.type === 'MultiPolygon') {
+      coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
+    } else if (geometry.type === 'Polygon') {
+      coords = geometry.coordinates[0] // TODO: handle interior rings
+    } else if (geometry.type === 'MultiPoint') {
+      // TODO is this a bug?
+      coords = geometry.coordinates[0] as any
+    } else {
+      // TODO handle feature.geometry.type === 'GeometryCollection'?
+    }
+
+    var point = llToScene(coords[0], llCenter)
+    shape.moveTo(point[0], point[1])
+
+    coords.slice(1).forEach((coord: Position) => {
+      point = llToScene(coord, llCenter)
+      shape.lineTo(point[0], point[1])
+    })
+    point = llToScene(coords[0], llCenter)
+    shape.lineTo(point[0], point[1])
+
+    let height: number
+
+    // TODO handle min_height
+    if (style.height === 'a') {
+      if (feature.properties.height) {
+        height = feature.properties.height
+      } else if (feature.properties.render_height) {
+        height = feature.properties.render_height
+      } else if (feature.properties.area) {
+        height = Math.sqrt(feature.properties.area)
+      } else {
+        // ignore standalone building labels.
+        console.warn('just a label.', feature.properties)
+        return null
+      }
+      height *= style.height_scale || 1
+    } else {
+      height = style.height || 4
+    }
+
+    let threejsGeometry: BufferGeometry | null = null
+
+    if (style.extrude === 'flat') {
+      threejsGeometry = new ShapeGeometry(shape)
+    } else if (style.extrude === 'rounded') {
+      threejsGeometry = new ExtrudeGeometry(shape, {
+        steps: 1,
+        depth: height || 1,
+        bevelEnabled: true,
+        bevelThickness: 8,
+        bevelSize: 16,
+        bevelSegments: 16
+      })
+    } else {
+      threejsGeometry = new ExtrudeGeometry(shape, {
+        steps: 1,
+        depth: height || 1,
+        bevelEnabled: false
+      })
+    }
+
+    if (threejsGeometry) {
+      threejsGeometry.rotateX(-Math.PI / 2)
+    }
+
+    if (style.color && style.color.builtin_function === 'purple_haze') {
+      const light = new Color(0xa0c0a0)
+      const shadow = new Color(0x303050)
+      colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
+    }
+
+    return threejsGeometry
+  }
+}
+
+const geometryWorker = isClient ? convertFunctionToWorker(geometryWorkerFunction) : null
+
+// function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
+//   const shape = new Shape()
+//   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
+
+//   const geometry = maybeBuffer(feature, styles.width)
+
+//   let coords: Position[]
+
+//   // TODO switch statement
+//   if (geometry.type === 'MultiPolygon') {
+//     coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
+//   } else if (geometry.type === 'Polygon') {
+//     coords = geometry.coordinates[0] // TODO: handle interior rings
+//   } else if (geometry.type === 'MultiPoint') {
+//     // TODO is this a bug?
+//     coords = geometry.coordinates[0] as any
+//   } else {
+//     // TODO handle feature.geometry.type === 'GeometryCollection'?
+//   }
+
+//   var point = llToScene(coords[0], llCenter)
+//   shape.moveTo(point[0], point[1])
+
+//   coords.slice(1).forEach((coord: Position) => {
+//     point = llToScene(coord, llCenter)
+//     shape.lineTo(point[0], point[1])
+//   })
+//   point = llToScene(coords[0], llCenter)
+//   shape.lineTo(point[0], point[1])
+
+//   let height: number
+
+//   // TODO handle min_height
+//   if (styles.height === 'a') {
+//     if (feature.properties.height) {
+//       height = feature.properties.height
+//     } else if (feature.properties.render_height) {
+//       height = feature.properties.render_height
+//     } else if (feature.properties.area) {
+//       height = Math.sqrt(feature.properties.area)
+//     } else {
+//       // ignore standalone building labels.
+//       console.warn('just a label.', feature.properties)
+//       return null
+//     }
+//     height *= styles.height_scale || 1
+//   } else {
+//     height = styles.height || 4
+//   }
+
+//   let threejsGeometry: BufferGeometry | null = null
+
+//   if (styles.extrude === 'flat') {
+//     threejsGeometry = new ShapeGeometry(shape)
+//   } else if (styles.extrude === 'rounded') {
+//     threejsGeometry = new ExtrudeGeometry(shape, {
+//       steps: 1,
+//       depth: height || 1,
+//       bevelEnabled: true,
+//       bevelThickness: 8,
+//       bevelSize: 16,
+//       bevelSegments: 16
+//     })
+//   } else {
+//     threejsGeometry = new ExtrudeGeometry(shape, {
+//       steps: 1,
+//       depth: height || 1,
+//       bevelEnabled: false
+//     })
+//   }
+
+//   if (threejsGeometry) {
+//     threejsGeometry.rotateX(-Math.PI / 2)
+//   }
+
+//   if (styles.color && styles.color.builtin_function === 'purple_haze') {
+//     const light = new Color(0xa0c0a0)
+//     const shadow = new Color(0x303050)
+//     colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
+//   }
+
+//   return threejsGeometry
+// }
 
 function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: Position): BufferGeometry[] {
   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
   const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
 
   // the current method of merging produces strange results with flat geometries
-  if (styles.extrude !== 'flat' && geometries.length > 1) {
-    return [mergeBufferGeometries(geometries.filter((g) => g).map((g) => toIndexed(g)))]
-  } else {
-    return geometries
-  }
+  // if (styles.extrude !== 'flat' && geometries.length > 1) {
+  //   return [mergeBufferGeometries(geometries.filter((g) => g).map((g) => toIndexed(g)))]
+  // } else {
+  return geometries
+  // }
 }
 
 function createCanvasRenderingContext2D(width: number, height: number) {
@@ -322,11 +451,20 @@ export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): 
   return mesh
 }
 
-export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Mesh {
+// export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Mesh {
+//   const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
+//   const meshes = buildMeshes('building', features, llCenter)
+
+//   return meshes[0]
+// }
+export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
   const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
   const meshes = buildMeshes('building', features, llCenter)
 
-  return meshes[0]
+  const group = new Group()
+  group.add(...meshes)
+
+  return group
 }
 
 function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {

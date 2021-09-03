@@ -5,7 +5,9 @@
   "homepage": "xrengine.io",
   "private": true,
   "workspaces": {
-    "packages": ["packages/*"]
+    "packages": [
+      "packages/*"
+    ]
   },
   "keywords": [
     "three",
