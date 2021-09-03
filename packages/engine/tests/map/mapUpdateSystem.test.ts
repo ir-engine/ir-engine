@@ -12,6 +12,7 @@ import { atlantaGeoCoord, atlantaGeoCoord2, atlantaTileCoord } from './constants
 import { Entity } from '../../src/ecs/classes/Entity'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import refreshSceneObjects from '../../src/map/functions/refreshSceneObjects'
+import {cloneDeep} from 'lodash'
 
 // decouple this "loader" from the concept of tiles...
 // Let there be a service (worker/backend) that fetches tiles and bakes the Object3Ds (neglecting navigation stuff for now.) Then a GeographicObjectSystem (formerly MapUpdateSystem) uses the value of the player entity's TransformComponent to request an Object3D created by the service. The system then updates Object3DComponent of the map entity. When the player moves a certain amount, the system makes a new request to the service, receives a new Object3D and updates the Object3DComponent of the map entity.
@@ -90,12 +91,33 @@ describe('MapUpdateSystem', () => {
   })
 
   it('does not refresh when player moves within refresh boundary', async () => {
-    const actorTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
+    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
 
-    actorTransform.position.set(triggerRefreshRadius / 2, 0, 0)
+    viewerTransform.position.set(triggerRefreshRadius / 2, 0, 0)
     execute(1, 1)
 
     expect(refreshSceneObjects).toHaveBeenCalledTimes(0)
+  })
+
+  it('only modifies MapComponent#center, MapComponent#refreshInProgress', async () => {
+    const map = getComponent(mapEntity, MapComponent, false, world.ecsWorld)
+    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
+    const mapTransform = getComponent(mapEntity, TransformComponent, false, world.ecsWorld)
+
+    viewerTransform.position.set(triggerRefreshRadius / 2, 0, 0)
+
+    const mapClone = cloneDeep(map)
+    const viewerTransformClone = cloneDeep(viewerTransform)
+    const mapTransformClone = cloneDeep(mapTransform)
+
+    execute(1, 1)
+
+    map.center = mapClone.center
+    map.refreshInProgress = mapClone.refreshInProgress
+
+    expect(map).toEqual(mapClone)
+    expect(viewerTransform).toEqual(viewerTransformClone)
+    expect(mapTransform).toEqual(mapTransformClone)
   })
 
   it('refreshes when player crosses refresh trigger', async () => {
