@@ -4,7 +4,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { Params } from '@feathersjs/feathers'
 import { BadRequest } from '@feathersjs/errors'
 import { Op } from 'sequelize'
-import { handleCommand } from '../../../../common/src/utils/commandHandler'
+import { handleCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 
 export class Message extends Service {
   app: Application

@@ -1,5 +1,4 @@
-import { Quaternion, Vector3 } from 'three'
-import { eulerToQuaternion } from '../../../engine/src/common/functions/MathRandomFunctions'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 export const forwardVector3: Vector3 = new Vector3(0, 0, 1)
 export const kEpsilon = 0.00001
@@ -64,4 +63,8 @@ export const lookAt = (position: Vector3, rotation: Quaternion, targetPos: Vecto
 
 export const rotate = (rot: Quaternion, x: number, y: number, z: number) => {
   return rot.multiply(eulerToQuaternion(x, y, z))
+}
+
+export const eulerToQuaternion = (x, y, z, order = 'XYZ') => {
+  return new Quaternion().setFromEuler(new Euler(x, y, z, order))
 }

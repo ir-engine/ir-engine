@@ -1,33 +1,29 @@
-import { getComponent, addComponent, hasComponent } from '../../../engine/src/ecs/functions/EntityFunctions'
-import { Vector2, Vector3 } from 'three'
-import { AutoPilotComponent } from '../../../engine/src/navigation/component/AutoPilotComponent'
-import { AutoPilotClickRequestComponent } from '../../../engine/src/navigation/component/AutoPilotClickRequestComponent'
-import { LocalInputTagComponent } from '../../../engine/src/input/components/LocalInputTagComponent'
-import { TransformComponent } from '../../../engine/src/transform/components/TransformComponent'
-import { WorldScene } from '../../../engine/src/scene/functions/SceneLoading'
-import { Engine } from '../../../engine/src/ecs/classes/Engine'
-import { isBot } from '../../../engine/src/common/functions/isBot'
-import { AvatarAnimationComponent } from '../../../engine/src/avatar/components/AvatarAnimationComponent'
-import { AnimationGraph } from '../../../engine/src/avatar/animations/AnimationGraph'
-import { AvatarAnimations, AvatarStates } from '../../../engine/src/avatar/animations/Util'
-import { stopAutopilot } from '../../../engine/src/navigation/functions/stopAutopilot'
-import { Network } from '../../../engine/src/networking/classes/Network'
-import { isNumber } from '@turf/helpers'
-import { getPlayerEntity } from '../../../engine/src/networking/utils/getUser'
+import { Vector3, Vector2 } from 'three'
+import { AnimationGraph } from '../../avatar/animations/AnimationGraph'
+import { AvatarAnimations, AvatarStates } from '../../avatar/animations/Util'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { World } from '../../ecs/classes/World'
+import { getComponent, hasComponent, addComponent } from '../../ecs/functions/EntityFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { AutoPilotClickRequestComponent } from '../../navigation/component/AutoPilotClickRequestComponent'
+import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
+import { removeFollowComponent, createFollowComponent } from '../../navigation/component/FollowComponent'
+import { stopAutopilot } from '../../navigation/functions/stopAutopilot'
 import {
   subscribeToChatSystem,
   unsubscribeFromChatSystem,
   getSubscribedChatSystems
-} from '../../../engine/src/networking/utils/chatSystem'
-import { World } from '../../../engine/src/ecs/classes/World'
-import { createFollowComponent, removeFollowComponent } from '../../../engine/src/navigation/component/FollowComponent'
+} from '../../networking/utils/chatSystem'
+import { getPlayerEntity } from '../../networking/utils/getUser'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
 
 //Checks if a text (string) is a command
 export function isCommand(text: string): boolean {
-  for (var i = 0; i < commandStarters.length; i++) {
+  for (let i = 0; i < commandStarters.length; i++) {
     if (text.startsWith(commandStarters[i])) return true
   }
 
@@ -35,7 +31,7 @@ export function isCommand(text: string): boolean {
 }
 //Get the count of the command init value
 export function getStarterCount(text: string): number {
-  for (var i = 0; i < commandStarters.length; i++) {
+  for (let i = 0; i < commandStarters.length; i++) {
     if (text.startsWith(commandStarters[i])) return commandStarters[i].length
   }
 
@@ -55,9 +51,9 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 
   //Remove the command starter, get the data (the base which is the command and the parameters if exist, parameters are separated by , (commas))
   cmd = cmd.substring(getStarterCount(cmd))
-  var data = cmd.split(' ')
-  var base = data[0]
-  var params = data.length == 2 ? data[1].split(',') : ''
+  let data = cmd.split(' ')
+  let base = data[0]
+  let params = data.length == 2 ? data[1].split(',') : ''
 
   //Handle the command according to the base
   switch (base) {
@@ -239,7 +235,7 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 //Create fake input on the map (like left click) with the coordinates written and implement the auto pilot click request component to the player
 function handleMoveCommand(x: number, y: number, z: number, eid: any) {
   goTo(new Vector3(x, y, z), eid)
-  /*var linput = getComponent(eid, LocalInputTagComponent)
+  /*let linput = getComponent(eid, LocalInputTagComponent)
   if (linput === undefined) linput = addComponent(eid, LocalInputTagComponent, {})
   addComponent(eid, AutoPilotClickRequestComponent, { coords: new Vector2(x, z) })*/
 }
@@ -250,8 +246,8 @@ function handleMetadataCommand(params: any, eid: any) {
   } else {
     const position = getComponent(eid, TransformComponent).position
     const maxDistance: number = parseFloat(params[1])
-    var vector: Vector3
-    var distance: number = 0
+    let vector: Vector3
+    let distance: number = 0
 
     for (let i in World.worldMetadata) {
       vector = getMetadataPosition(World.worldMetadata[i])
@@ -265,10 +261,10 @@ function handleMetadataCommand(params: any, eid: any) {
 
 function handleGoToCommand(landmark: string, eid: any) {
   const position = getComponent(eid, TransformComponent).position
-  var nearest: Vector3 = undefined
-  var distance: number = Number.MAX_SAFE_INTEGER
-  var cDistance: number = 0
-  var vector: Vector3
+  let nearest: Vector3 = undefined
+  let distance: number = Number.MAX_SAFE_INTEGER
+  let cDistance: number = 0
+  let vector: Vector3
 
   for (let i in World.worldMetadata) {
     if (i === landmark) {
@@ -342,7 +338,7 @@ function handleFaceCommand(face: string, eid: any) {
 
   const faces = face.split(' ')
   if (faces.length == 0) return
-  var time: number = 0
+  let time: number = 0
   if (faces.length > 1) {
     if (isNumber(faces[faces.length - 1])) {
       time = parseFloat(faces[faces.length - 1])
@@ -351,7 +347,7 @@ function handleFaceCommand(face: string, eid: any) {
   }
 
   const _faces = []
-  for (var i = 0; i < faces.length; i += 2) {
+  for (let i = 0; i < faces.length; i += 2) {
     const faceData = faces[i]
     const facePerc = faces[i + 1]
     _faces[faceData] = facePerc
@@ -459,7 +455,7 @@ function getMetadataPosition(_pos: string): Vector3 {
 
 export function goTo(pos: Vector3, eid: number) {
   //console.log('goto: ' + JSON.stringify(pos))
-  var linput = getComponent(eid, LocalInputTagComponent)
+  let linput = getComponent(eid, LocalInputTagComponent)
   if (linput === undefined) linput = addComponent(eid, LocalInputTagComponent, {})
   addComponent(eid, AutoPilotClickRequestComponent, {
     coords: new Vector2(0, 0),

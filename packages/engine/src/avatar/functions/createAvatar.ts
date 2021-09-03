@@ -22,8 +22,8 @@ import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { isClient } from '../../common/functions/isClient'
-import { isBot } from '../../common/functions/isBot'
+import { isClient } from '@xrengine/common/functions/isClient'
+import { isBot } from '@xrengine/common/functions/isBot'
 import { createProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
 
 const avatarRadius = 0.25

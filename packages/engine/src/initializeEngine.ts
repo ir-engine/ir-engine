@@ -45,7 +45,7 @@ import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
 import { OutgoingNetworkSystem } from './networking/systems/OutgoingNetworkSystem'
 import { IncomingNetworkSystem } from './networking/systems/IncomingNetworkSystem'
-import { ProximityCheckerSystem } from './proximityChecker/systems/ProximityCheckerSystem'
+import { ProximitySystem } from './proximityChecker/systems/ProximitySystem'
 import { FollowSystem } from './navigation/systems/FollowSystem'
 
 // @ts-ignore
@@ -186,7 +186,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
-  registerSystem(SystemUpdateType.Fixed, ProximityCheckerSystem)
+  registerSystem(SystemUpdateType.Fixed, ProximitySystem)
   registerSystem(SystemUpdateType.Fixed, FollowSystem)
 
   !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)

@@ -1,6 +1,3 @@
-import { sendChatMessage } from '../../../../client-core/src/social/reducers/chat/service'
-import Store from '../../../../client-core/src/store'
-import { User } from '../../../../common/src/interfaces/User'
 import { Network } from '../classes/Network'
 
 //updates the client list with the right username for the user
@@ -11,16 +8,6 @@ export async function _updateUsername(userId, username) {
       return
     }
   }
-}
-
-//sends a chat message in the current channel
-export async function sendMessage(text: string) {
-  const user = (Store.store.getState() as any).get('auth').get('user') as User
-  await sendChatMessage({
-    targetObjectId: user.instanceId,
-    targetObjectType: 'instance',
-    text: text
-  })
 }
 
 //checks if a player has subscribed to a chat system

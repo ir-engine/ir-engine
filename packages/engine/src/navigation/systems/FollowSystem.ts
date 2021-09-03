@@ -1,9 +1,9 @@
 import { defineQuery, defineSystem, System } from 'bitecs'
 import { Vector3 } from 'three'
-import { goTo } from '../../../../common/src/utils/commandHandler'
-import { positionBehind } from '../../../../common/src/utils/mathUtils'
+import { goTo } from '@xrengine/common/src/utils/commandHandler'
+import { positionBehind } from '@xrengine/common/src/utils/mathUtils'
 import { ECSWorld } from '../../ecs/classes/World'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowComponent } from '../component/FollowComponent'
 

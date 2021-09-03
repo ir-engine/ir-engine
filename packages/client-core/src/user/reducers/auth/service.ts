@@ -40,7 +40,7 @@ import {
   userUpdated
 } from './actions'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { _updateUsername } from '../../../../../engine/src/networking/utils/chatSystem'
+import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 const store = Store.store
 

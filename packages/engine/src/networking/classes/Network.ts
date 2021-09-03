@@ -7,7 +7,6 @@ import { NetworkTransport, ActionType } from '../interfaces/NetworkTransport'
 import { AvatarProps } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
-import { WorldStateInterface } from '../schema/networkSchema'
 
 export interface NetworkClientList {
   // Key is socket ID

@@ -4,13 +4,13 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ProximityCheckerComponent } from '../components/ProximityCheckerComponent'
-import { forwardVector3, multiplyQuaternion, normalize, subVector } from '../../../../common/src/utils/mathUtils'
+import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
 import { isEntityLocal } from '../../networking/utils/isPlayerLocal'
 import { getUserId } from '../../networking/utils/getUser'
 
 const maxDistance: number = 10
 
-export const ProximityCheckerSystem = async (): Promise<System> => {
+export const ProximitySystem = async (): Promise<System> => {
   const proximityCheckerQuery = defineQuery([TransformComponent, ProximityCheckerComponent])
 
   return defineSystem((world: ECSWorld) => {

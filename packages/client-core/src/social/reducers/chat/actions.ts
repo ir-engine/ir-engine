@@ -16,18 +16,16 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
-import { getComponent } from '../../../../../engine/src/ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../../../../engine/src/transform/components/TransformComponent'
-import { handleCommand, isCommand } from '../../../../../common/src/utils/commandHandler'
-import { Network } from '../../../../../engine/src/networking/classes/Network'
-import { Engine } from '../../../../../engine/src/ecs/classes/Engine'
-import { isBot } from '../../../../../engine/src/common/functions/isBot'
-import { isPlayerLocal } from '../../../../../engine/src/networking/utils/isPlayerLocal'
+import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 import {
   getChatMessageSystem,
   hasSubscribedToChatSystem,
   removeMessageSystem
-} from '../../../../../engine/src/networking/utils/chatSystem'
+} from '@xrengine/engine/src/networking/utils/chatSystem'
 
 export interface LoadedChannelsAction {
   type: string

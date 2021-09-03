@@ -3,9 +3,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { CameraInput } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
-import { createMessage, sendChatMessage } from '../../../../client-core/src/social/reducers/chat/service'
-import Store from '../../../../client-core/src/store'
-import { User } from '../../../../common/src/interfaces/User'
+import { sendChatMessage } from '@xrengine/client-core/src/social/reducers/chat/service'
+import Store from '@xrengine/client-core/src/store'
+import { User } from '@xrengine/common/src/interfaces/User'
 
 const EXPRESSION_THRESHOLD = 0.1
 
