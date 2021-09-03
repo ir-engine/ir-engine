@@ -93,8 +93,8 @@ async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitma
   return createImageBitmap(blob)
 }
 
-export function createIntersectTestCellCircle(centerX: number, centerY: number, radius: number) {
-  return function isIntersectCellCircle(cellX: number, cellY: number): boolean {
+export function createIntersectTestTileCircle(centerX: number, centerY: number, radius: number) {
+  return function isIntersectTileCircle(cellX: number, cellY: number): boolean {
     const testEdgeX = centerX < cellX ? cellX : centerX > cellX + 1 ? cellX + 1 : centerX
     const testEdgeY = centerY < cellY ? cellY : centerY > cellY + 1 ? cellY + 1 : centerY
     const distanceFromCenter = Math.hypot(testEdgeX - centerX, testEdgeY - centerY)
@@ -121,11 +121,11 @@ export function* createTileIterator(center: LongLat, minimumSceneRadius: number,
   const endTileY = Math.floor(endTileFractionY)
 
   const radiusTiles = (endTileFractionX - startTileFractionX) / 2
-  const isIntersectCellCircle = createIntersectTestCellCircle(centerX, centerY, radiusTiles)
+  const isIntersectTileCircle = createIntersectTestTileCircle(centerX, centerY, radiusTiles)
 
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
-      if (isIntersectCellCircle(tileX, tileY)) {
+      if (isIntersectTileCircle(tileX, tileY)) {
         yield [tileX, tileY]
       }
     }

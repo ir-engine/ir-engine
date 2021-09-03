@@ -1,4 +1,4 @@
-import { createTileIterator, createIntersectTestCellCircle } from '../../src/map/MapBoxClient'
+import { createTileIterator, createIntersectTestTileCircle } from '../../src/map/MapBoxClient'
 
 const testCaseSanFrancisco = {
   center: [-122.4372, 37.76644],
@@ -46,37 +46,37 @@ describe('createTileIterator', () => {
 })
 
 test('createIntersectTestCellCircle', () => {
-  const isIntersectCellCircleAtTopLeft = createIntersectTestCellCircle(2, 2, Math.hypot(1, 1))
-  expect(isIntersectCellCircleAtTopLeft(0, 0)).toBe(false)
-  expect(isIntersectCellCircleAtTopLeft(1, 0)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(2, 0)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(3, 0)).toBe(false)
+  const isIntersectCircleAtTopLeft = createIntersectTestTileCircle(2, 2, Math.hypot(1, 1))
+  expect(isIntersectCircleAtTopLeft(0, 0)).toBe(false)
+  expect(isIntersectCircleAtTopLeft(1, 0)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(2, 0)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(3, 0)).toBe(false)
 
-  expect(isIntersectCellCircleAtTopLeft(0, 1)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(1, 1)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(2, 1)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(3, 1)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(0, 1)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(1, 1)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(2, 1)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(3, 1)).toBe(true)
 
-  expect(isIntersectCellCircleAtTopLeft(0, 2)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(1, 2)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(2, 2)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(3, 2)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(0, 2)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(1, 2)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(2, 2)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(3, 2)).toBe(true)
 
-  expect(isIntersectCellCircleAtTopLeft(0, 3)).toBe(false)
-  expect(isIntersectCellCircleAtTopLeft(1, 3)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(2, 3)).toBe(true)
-  expect(isIntersectCellCircleAtTopLeft(3, 3)).toBe(false)
+  expect(isIntersectCircleAtTopLeft(0, 3)).toBe(false)
+  expect(isIntersectCircleAtTopLeft(1, 3)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(2, 3)).toBe(true)
+  expect(isIntersectCircleAtTopLeft(3, 3)).toBe(false)
 
-  const isIntersectCellCircleAtCenter = createIntersectTestCellCircle(1.5, 1.5, Math.hypot(0.5, 0.5))
-  expect(isIntersectCellCircleAtCenter(0, 0)).toBe(false)
-  expect(isIntersectCellCircleAtCenter(1, 0)).toBe(true)
-  expect(isIntersectCellCircleAtCenter(2, 0)).toBe(false)
+  const isIntersectCircleAtCenter = createIntersectTestTileCircle(1.5, 1.5, Math.hypot(0.5, 0.5))
+  expect(isIntersectCircleAtCenter(0, 0)).toBe(false)
+  expect(isIntersectCircleAtCenter(1, 0)).toBe(true)
+  expect(isIntersectCircleAtCenter(2, 0)).toBe(false)
 
-  expect(isIntersectCellCircleAtCenter(0, 1)).toBe(true)
-  expect(isIntersectCellCircleAtCenter(1, 1)).toBe(true)
-  expect(isIntersectCellCircleAtCenter(2, 1)).toBe(true)
+  expect(isIntersectCircleAtCenter(0, 1)).toBe(true)
+  expect(isIntersectCircleAtCenter(1, 1)).toBe(true)
+  expect(isIntersectCircleAtCenter(2, 1)).toBe(true)
 
-  expect(isIntersectCellCircleAtCenter(0, 2)).toBe(false)
-  expect(isIntersectCellCircleAtCenter(1, 2)).toBe(true)
-  expect(isIntersectCellCircleAtCenter(2, 2)).toBe(false)
+  expect(isIntersectCircleAtCenter(0, 2)).toBe(false)
+  expect(isIntersectCircleAtCenter(1, 2)).toBe(true)
+  expect(isIntersectCircleAtCenter(2, 2)).toBe(false)
 })
