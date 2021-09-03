@@ -192,7 +192,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         ConnectToWorldResponse = await Promise.race([
           await request(MessageTypes.ConnectToWorld.toString()),
           new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error('Connect timed out')), 10000)
+            setTimeout(() => !ConnectToWorldResponse && reject(new Error('Connect timed out')), 10000)
           })
         ])
       } catch (err) {
