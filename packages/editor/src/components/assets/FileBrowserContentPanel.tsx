@@ -72,10 +72,11 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const createProject = (projects) => {
     const selectType = []
     projects.forEach((element, index) => {
-      selectType.push({
-        label: element.name,
-        value: index
-      })
+      if (element.sid !== globalThis.currentProjectID)
+        selectType.push({
+          label: element.name,
+          value: index
+        })
     })
 
     return selectType

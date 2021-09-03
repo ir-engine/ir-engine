@@ -655,6 +655,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       project = await getProject(projectId)
       globalThis.ownedFileIds = JSON.parse(project.ownedFileIds)
+      globalThis.currentProjectID = project.project_id
       const projectFile = await fetchUrl(project.project_url).then((response) => response.json())
 
       await editor.init()
