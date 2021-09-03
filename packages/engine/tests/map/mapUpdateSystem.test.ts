@@ -123,7 +123,9 @@ describe('MapUpdateSystem', () => {
   it('refreshes when player crosses refresh trigger', async () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
     let previousCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center.slice()
+    const mapTransform = getComponent(mapEntity, TransformComponent, false, world.ecsWorld)
 
+    mapTransform.scale.setScalar(0.5)
     viewerTransform.position.set(triggerRefreshRadius, 0, 0)
     execute(1, 1)
 
@@ -131,7 +133,7 @@ describe('MapUpdateSystem', () => {
 
     expect(refreshSceneObjects).toHaveBeenCalledTimes(1)
     expect(refreshSceneObjects).toHaveBeenCalledWith(mapEntity, world.ecsWorld)
-    expect(newCenter).toEqual(sceneToLl([triggerRefreshRadius, 0], previousCenter))
+    expect(newCenter).toEqual(sceneToLl([triggerRefreshRadius * 2, 0], previousCenter))
   })
 
   it('does not refresh when a refresh is in progress', () => {

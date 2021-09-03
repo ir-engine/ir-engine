@@ -21,12 +21,12 @@ export const MapUpdateSystem = async (): Promise<System> => {
       const map = getComponent(mapEntity, MapComponent)
       const mapTransform = getComponent(mapEntity, TransformComponent, false, world)
       const viewerTransform = getComponent(map.viewer as number, TransformComponent)
-      $vector3.subVectors(viewerTransform.position, mapTransform.position)
+      $vector3.subVectors(viewerTransform.position, mapTransform.position).divide(mapTransform.scale)
       const viewerRelativePosition = vector3ToPosition($vector3)
 
       const viewerDistanceFromCenter = Math.hypot(...viewerRelativePosition)
 
-      if (viewerDistanceFromCenter >= map.triggerRefreshRadius && !map.refreshInProgress) {
+      if (viewerDistanceFromCenter >= map.triggerRefreshRadius / mapTransform.scale.x && !map.refreshInProgress) {
         map.center = sceneToLl(viewerRelativePosition, map.center)
         map.refreshInProgress = true
         refreshSceneObjects(mapEntity, world).then(() => {
