@@ -90,7 +90,7 @@ export class XREngineBot {
     this.verbose = args.verbose
     this.headless = args.headless ?? true
     this.ci = typeof process.env.CI === 'string' && process.env.CI === 'true'
-    console.log('CI', process.env.CI, !!process.env.CI, this.ci)
+    console.log('headless', this.headless)
     this.name = args.name ?? 'Bot'
     this.fakeMediaPath = args.fakeMediaPath ?? ''
     this.windowSize = args.windowSize ?? { width: 640, height: 480 }
@@ -307,7 +307,6 @@ export class XREngineBot {
    *  directly in most cases. It will be done automatically when needed.
    */
   async launchBrowser() {
-    console.log('Launching browser')
     const options = {
       dumpio: this.verbose,
       headless: this.headless,
@@ -336,6 +335,9 @@ export class XREngineBot {
       defaultViewport: this.windowSize,
       ignoreDefaultArgs: true, //['--mute-audio'],
       ...this.detectOsOption()
+    }
+    if (this.headless) {
+      options.args.push('--headless')
     }
     if (this.ci) {
       console.log('Starting puppeteer without gpu...')

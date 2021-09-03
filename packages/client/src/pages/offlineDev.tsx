@@ -48,9 +48,6 @@ const DevPage = () => {
       renderer: {
         canvasId: engineRendererCanvasId,
         postProcessing: false
-      },
-      physics: {
-        physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
       }
     }
     console.log(initializationOptions)

@@ -7,6 +7,7 @@ import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
+import { createPhysXWorker } from '../../physics/functions/createPhysXWorker'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -128,5 +129,4 @@ export const resetPhysics = async (): Promise<void> => {
   Engine.workers.splice(Engine.workers.indexOf(Engine.physxWorker), 1)
   PhysXInstance.instance.dispose()
   PhysXInstance.instance = new PhysXInstance()
-  await PhysXInstance.instance.initPhysX(Engine.initOptions.physics.physxWorker(), Engine.initOptions.physics.settings)
 }
