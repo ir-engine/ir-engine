@@ -135,6 +135,12 @@ export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>
   rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
   rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
   rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
+
+  // Add some Spring Movement to specific bones
+  // e.add_com( "BoneSpring" )
+  //   .add( rig.get_chain_indices( "tail" ), 2.9, 0.9, -0.1 )
+  //   .add( rig.points.wing_l.idx, 3.0, 0.9 )
+  //   .add( rig.points.wing_r.idx, 3.0, 0.9 );
 }
 
 export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {

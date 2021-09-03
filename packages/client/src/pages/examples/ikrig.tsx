@@ -72,10 +72,6 @@ const RenderSystem = async (): Promise<System> => {
   })
 }
 
-const debugOptions = {
-  STEP_BY_STEP_MODE: false
-}
-
 // This is a functional React component
 const Page = () => {
   const [animationTimeScale, setAnimationTimeScale] = useState(1)
