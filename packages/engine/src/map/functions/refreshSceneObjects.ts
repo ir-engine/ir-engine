@@ -7,10 +7,14 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GeoLabelSetComponent } from '../GeoLabelSetComponent'
 
-export default async function refreshSceneObjects(mapEntity: Entity, ecsWorld: ECSWorld): Promise<void> {
+export default async function refreshSceneObjects(
+  mapEntity: Entity,
+  viewerEntity: Entity,
+  ecsWorld: ECSWorld
+): Promise<void> {
   const map = getComponent(mapEntity, MapComponent, false, ecsWorld)
   const mapTransform = getComponent(mapEntity, TransformComponent, false, ecsWorld)
-  const viewerTransform = getComponent(map.viewer, TransformComponent, false, ecsWorld)
+  const viewerTransform = getComponent(viewerEntity, TransformComponent, false, ecsWorld)
   const { mapMesh, labels } = await createMapObjects(map.center, map.minimumSceneRadius, map.args)
 
   mapTransform.position.copy(viewerTransform.position)

@@ -9,20 +9,22 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { sceneToLl } from './MeshBuilder'
 import { vector3ToArray2 } from './util'
 import { Vector3 } from 'three'
+import { Entity } from '../ecs/classes/Entity'
 
 const $vector3 = new Vector3()
 
-export const MapUpdateSystem = async (): Promise<System> => {
+export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): Promise<System> => {
   const mapsQuery = defineQuery([MapComponent])
   const labelsQuery = defineQuery([GeoLabelSetComponent])
 
   return defineSystem((world: ECSWorld) => {
+    const viewerEntity = args.getViewerEntity()
+    if (viewerEntity === undefined) return
+
     for (const mapEntity of mapsQuery(world)) {
       const map = getComponent(mapEntity, MapComponent)
       const mapTransform = getComponent(mapEntity, TransformComponent, false, world)
-      // const viewerTransform = getComponent(Engine.activeCameraFollowTarget, TransformComponent)
-      // if(!Engine.activeCameraFollowTarget) continue
-      const viewerTransform = getComponent(map.viewer, TransformComponent, false, world)
+      const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
 
       $vector3.subVectors(viewerTransform.position, mapTransform.position)
       const viewerPositionDelta = vector3ToArray2($vector3)
@@ -34,7 +36,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
       if (viewerDistanceFromCenter >= map.triggerRefreshRadius && !map.refreshInProgress) {
         map.center = sceneToLl(viewerPositionDeltaScaled, map.center)
         map.refreshInProgress = true
-        refreshSceneObjects(mapEntity, world).then(() => {
+        refreshSceneObjects(mapEntity, viewerEntity, world).then(() => {
           map.refreshInProgress = false
         })
       }

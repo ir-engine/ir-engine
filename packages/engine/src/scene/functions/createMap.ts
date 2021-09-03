@@ -7,7 +7,6 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { GeoLabelSetComponent } from '../../map/GeoLabelSetComponent'
 import { MapComponent } from '../../map/MapComponent'
-import { Engine } from '../../ecs/classes/Engine'
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
@@ -17,8 +16,8 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
   addComponent(entity, MapComponent, {
     center,
-    viewer: Engine.activeCameraEntity,
     triggerRefreshRadius: 300,
+    refreshInProgress: false,
     minimumSceneRadius,
     args
   })

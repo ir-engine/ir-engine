@@ -58,7 +58,6 @@ describe('refreshSceneObjects', () => {
       MapComponent,
       {
         center,
-        viewer: viewerEntity,
         triggerRefreshRadius: 20,
         refreshInProgress: false,
         minimumSceneRadius,
@@ -67,7 +66,7 @@ describe('refreshSceneObjects', () => {
       world.ecsWorld
     )
 
-    await refreshSceneObjects(mapEntity, world.ecsWorld)
+    await refreshSceneObjects(mapEntity, viewerEntity, world.ecsWorld)
 
     const newObject3DComponent = getComponent(mapEntity, Object3DComponent, false, world.ecsWorld)
     const mapTransformComponent = getComponent(mapEntity, TransformComponent, false, world.ecsWorld)

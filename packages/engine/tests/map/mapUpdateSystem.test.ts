@@ -12,7 +12,7 @@ import { atlantaGeoCoord, atlantaGeoCoord2, atlantaTileCoord } from './constants
 import { Entity } from '../../src/ecs/classes/Entity'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import refreshSceneObjects from '../../src/map/functions/refreshSceneObjects'
-import {cloneDeep} from 'lodash'
+import { cloneDeep } from 'lodash'
 
 // decouple this "loader" from the concept of tiles...
 // Let there be a service (worker/backend) that fetches tiles and bakes the Object3Ds (neglecting navigation stuff for now.) Then a GeographicObjectSystem (formerly MapUpdateSystem) uses the value of the player entity's TransformComponent to request an Object3D created by the service. The system then updates Object3DComponent of the map entity. When the player moves a certain amount, the system makes a new request to the service, receives a new Object3D and updates the Object3DComponent of the map entity.
@@ -39,11 +39,12 @@ describe('MapUpdateSystem', () => {
 
   beforeEach(async () => {
     world = new World()
-    registerSystem(SystemUpdateType.Free, MapUpdateSystem)
+    viewerEntity = createEntity(world.ecsWorld)
+    mapEntity = createEntity(world.ecsWorld)
+    registerSystem(SystemUpdateType.Free, MapUpdateSystem, { getViewerEntity: () => viewerEntity })
     freePipeline = await createPipeline(SystemUpdateType.Free)
     execute = executePipeline(world, freePipeline)
 
-    viewerEntity = createEntity(world.ecsWorld)
     addComponent(
       viewerEntity,
       TransformComponent,
@@ -55,7 +56,6 @@ describe('MapUpdateSystem', () => {
       world.ecsWorld
     )
 
-    mapEntity = createEntity(world.ecsWorld)
     addComponent(
       mapEntity,
       MapComponent,
@@ -64,7 +64,6 @@ describe('MapUpdateSystem', () => {
         triggerRefreshRadius,
         refreshInProgress: false,
         minimumSceneRadius: triggerRefreshRadius * 2,
-        viewer: viewerEntity,
         args: {}
       },
       world.ecsWorld
@@ -132,7 +131,7 @@ describe('MapUpdateSystem', () => {
     let newCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center
 
     expect(refreshSceneObjects).toHaveBeenCalledTimes(1)
-    expect(refreshSceneObjects).toHaveBeenCalledWith(mapEntity, world.ecsWorld)
+    expect(refreshSceneObjects).toHaveBeenCalledWith(mapEntity, viewerEntity, world.ecsWorld)
     expect(newCenter).toEqual(sceneToLl([triggerRefreshRadius * 2, 0], previousCenter))
   })
 

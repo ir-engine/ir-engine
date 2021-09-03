@@ -173,7 +173,11 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
   })
-  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem, {
+    getViewerEntity() {
+      return Engine.activeCameraFollowTarget
+    }
+  })
 
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, ParticleSystem)
