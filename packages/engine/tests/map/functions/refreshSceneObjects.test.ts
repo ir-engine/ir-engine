@@ -45,7 +45,6 @@ describe('refreshSceneObjects', () => {
     addComponent(mapEntity, Object3DComponent, { value: new Object3D() }, world.ecsWorld)
     addTransformComponentWithPosition(mapEntity, world, 0, 0, 0)
     addTransformComponentWithPosition(viewerEntity, world, 13, 3, 42)
-    const oldObject3DComponent = getComponent(mapEntity, Object3DComponent, false, world.ecsWorld)
     const center = [0, 0]
     const minimumSceneRadius = 80
     const args = {}

@@ -1,5 +1,5 @@
 import { ILayerName, TileFeaturesByLayer } from './types'
-import { Feature, Position } from 'geojson'
+import { Feature } from 'geojson'
 import { Vector3 } from 'three'
 
 export function collectFeaturesByLayer(layerName: ILayerName, vectorTiles: TileFeaturesByLayer[]): Feature[] {
