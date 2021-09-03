@@ -168,11 +168,11 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   onRemove() {
     this.currentEnvMap?.dispose()
     this.editor.scene.unregisterEnvironmentMapNode(this)
-    const fileID = globalThis.filesToUpload[this.ownedFileIdentifier]
+    const fileID = globalThis.ownedFileIds[this.ownedFileIdentifier]
     if (fileID) {
-      const id = fileID['file_id']
+      const id = fileID
       if (id) deleteAsset(id, globalThis.currentProjectID, this.ownedFileIdentifier)
-      delete globalThis.filesToUpload[this.ownedFileIdentifier]
+      delete globalThis.ownedFileIds[this.ownedFileIdentifier]
     }
   }
 
@@ -190,10 +190,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       file_id: fileId,
       meta: { access_token: fileToken }
     } = value
-    globalThis.filesToUpload[this.ownedFileIdentifier] = {
-      file_id: fileId,
-      file_token: fileToken
-    }
+    globalThis.ownedFileIds[this.ownedFileIdentifier] = fileId
   }
 
   setEnvMap() {

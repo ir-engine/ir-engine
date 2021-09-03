@@ -6,6 +6,11 @@ import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
 import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 
+/**
+ *
+ * @author Abhishek Pathak
+ */
+
 const AssetHeading = styled.div`
   text-align: center;
   font-size: 150%;

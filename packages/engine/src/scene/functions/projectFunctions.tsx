@@ -6,7 +6,7 @@ import { upload } from './upload'
 
 export const serverURL = Config.publicRuntimeConfig.apiServer
 
-globalThis.filesToUpload = globalThis.filesToUpload ?? {}
+globalThis.ownedFileIds = globalThis.ownedFileIds ?? {}
 
 /**
  * getProjects used to get list projects created by user.
@@ -113,12 +113,11 @@ export const createProject = async (
 
   const project = {
     name: scene.name,
-    filesToUpload: {
-      thumbnailOwnedFileId: {
-        file_id: thumbnailFileId,
-        file_token: thumbnailFileToken
-      }
+    thumbnailOwnedFileId: {
+      file_id: thumbnailFileId,
+      file_token: thumbnailFileToken
     },
+    ownedFileIds: {},
     project_file_id: projectFileId,
     project_file_token: projectFileToken
   }
@@ -127,7 +126,7 @@ export const createProject = async (
     project['parent_scene_id'] = parentSceneId
   }
 
-  Object.assign(project.filesToUpload, globalThis.filesToUpload)
+  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
 
   const body = JSON.stringify({ project })
 
@@ -229,12 +228,11 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
 
   const project = {
     name: editor.scene.name,
-    filesToUpload: {
-      thumbnailOwnedFileId: {
-        file_id: thumbnailFileId,
-        file_token: thumbnailFileToken
-      }
+    thumbnailOwnedFileId: {
+      file_id: thumbnailFileId,
+      file_token: thumbnailFileToken
     },
+    ownedFileIds: {},
     project_file_id: projectFileId,
     project_file_token: projectFileToken
   }
@@ -245,7 +243,7 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     project['scene_id'] = sceneId
   }
 
-  Object.assign(project.filesToUpload, globalThis.filesToUpload)
+  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
 
   const body = JSON.stringify({
     project
