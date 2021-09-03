@@ -95,9 +95,9 @@ async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitma
 
 export function createIntersectTestCellCircle(centerX: number, centerY: number, radius: number) {
   return function isIntersectCellCircle(cellX: number, cellY: number): boolean {
-    const nearCornerX = cellX < centerX ? cellX + 1 : cellX
-    const nearCornerY = cellY < centerY ? cellY + 1 : cellY
-    const distanceFromCenter = Math.hypot(nearCornerX - centerX, nearCornerY - centerY)
+    const testEdgeX = centerX < cellX ? cellX : centerX > cellX + 1 ? cellX + 1 : centerX
+    const testEdgeY = centerY < cellY ? cellY : centerY > cellY + 1 ? cellY + 1 : centerY
+    const distanceFromCenter = Math.hypot(testEdgeX - centerX, testEdgeY - centerY)
 
     return distanceFromCenter < radius
   }
