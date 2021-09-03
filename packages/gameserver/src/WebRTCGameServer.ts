@@ -1,6 +1,5 @@
 // Patch XHR for FileLoader in threejs
 import { XMLHttpRequest } from 'xmlhttprequest'
-import path from 'path'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import config from '@xrengine/server-core/src/appconfig'

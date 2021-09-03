@@ -1,5 +1,5 @@
 import { PointLight, Object3D } from 'three'
-import createShadowMapResolutionProxy from '@xrengine/engine/src/scene/functions/createShadowMapResolutionProxy'
+import createShadowMapResolutionProxy from '../../scene/functions/createShadowMapResolutionProxy'
 export default class PhysicalPointLight extends PointLight {
   shadowMapResolution: any
   constructor() {
