@@ -1,4 +1,4 @@
-import { refreshSceneObjects } from '../../../src/map/functions/refreshSceneObjects'
+import refreshSceneObjects from '../../../src/map/functions/refreshSceneObjects'
 import { createMapObjects } from '../../../src/map'
 import { Object3D, Quaternion, Vector3 } from 'three'
 import { addComponent, createEntity, getComponent } from '../../../src/ecs/functions/EntityFunctions'
@@ -53,6 +53,7 @@ describe('refreshSceneObjects', () => {
         center,
         viewer: viewerEntity,
         triggerRefreshRadius: 20,
+        refreshInProgress: false,
         minimumSceneRadius,
         args
       },

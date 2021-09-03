@@ -11,12 +11,12 @@ import { MapComponent } from '../../src/map/MapComponent'
 import { atlantaGeoCoord, atlantaGeoCoord2, atlantaTileCoord } from './constants'
 import { Entity } from '../../src/ecs/classes/Entity'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
-import { refreshSceneObjects } from '../../src/map/functions/refreshSceneObjects'
+import refreshSceneObjects from '../../src/map/functions/refreshSceneObjects'
 
 // decouple this "loader" from the concept of tiles...
 // Let there be a service (worker/backend) that fetches tiles and bakes the Object3Ds (neglecting navigation stuff for now.) Then a GeographicObjectSystem (formerly MapUpdateSystem) uses the value of the player entity's TransformComponent to request an Object3D created by the service. The system then updates Object3DComponent of the map entity. When the player moves a certain amount, the system makes a new request to the service, receives a new Object3D and updates the Object3DComponent of the map entity.
 //
-jest.mock('../../src/map/functions/refreshSceneObjects')
+jest.mock('../../src/map/functions/refreshSceneObjects', () => jest.fn(() => Promise.resolve()))
 
 const executePipeline = (world: World, pipeline: PipelineType) => {
   return (delta: number, elapsedTime: number) => {
@@ -29,7 +29,7 @@ const executePipeline = (world: World, pipeline: PipelineType) => {
 
 const triggerRefreshRadius = 20 // meters
 
-describe('check MapUpdateSystem', () => {
+describe('MapUpdateSystem', () => {
   let world: World,
     execute: (delta: number, elapsedTime: number) => void,
     freePipeline: PipelineType,
@@ -61,6 +61,7 @@ describe('check MapUpdateSystem', () => {
       {
         center: [0, 0],
         triggerRefreshRadius,
+        refreshInProgress: false,
         minimumSceneRadius: triggerRefreshRadius * 2,
         viewer: viewerEntity,
         args: {}
@@ -88,7 +89,7 @@ describe('check MapUpdateSystem', () => {
     unregisterSystem(SystemUpdateType.Free, MapUpdateSystem)
   })
 
-  it('does not update when player moves within update boundary', async () => {
+  it('does not refresh when player moves within refresh boundary', async () => {
     const actorTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
 
     actorTransform.position.set(triggerRefreshRadius / 2, 0, 0)
@@ -97,7 +98,7 @@ describe('check MapUpdateSystem', () => {
     expect(refreshSceneObjects).toHaveBeenCalledTimes(0)
   })
 
-  it('updates when player crosses update boundary', async () => {
+  it('refreshes when player crosses refresh trigger', async () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
     let previousCenter = getComponent(mapEntity, MapComponent, false, world.ecsWorld).center.slice()
 
@@ -111,7 +112,27 @@ describe('check MapUpdateSystem', () => {
     expect(newCenter).toEqual(sceneToLl([triggerRefreshRadius, 0], previousCenter))
   })
 
-  it('does not update again if player does not cross boundary again', () => {
+  it('does not refresh when a refresh is in progress', () => {
+    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
+
+    // player moves
+    viewerTransform.position.set(triggerRefreshRadius, 0, 0)
+    execute(1, 1)
+
+    execute(1, 1)
+
+    let resolvePromise: any
+    const promise = new Promise((resolve) => {
+      resolvePromise = resolve
+    })
+    ;(refreshSceneObjects as jest.Mock).mockImplementation(() => promise)
+
+    resolvePromise()
+    execute(1, 1)
+    expect(refreshSceneObjects).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not refresh again if player does not cross boundary again', () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world.ecsWorld)
     const mapTransform = getComponent(mapEntity, TransformComponent, false, world.ecsWorld)
 

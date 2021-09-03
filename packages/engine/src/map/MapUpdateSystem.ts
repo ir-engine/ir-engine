@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem, System } from 'bitecs'
-import { refreshSceneObjects } from './functions/refreshSceneObjects'
+import refreshSceneObjects from './functions/refreshSceneObjects'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/EntityFunctions'
@@ -22,9 +22,12 @@ export const MapUpdateSystem = async (): Promise<System> => {
       )
 
       const viewerDistanceFromCenter = Math.hypot(...viewerPosition)
-      if (viewerDistanceFromCenter >= map.triggerRefreshRadius) {
+      if (viewerDistanceFromCenter >= map.triggerRefreshRadius && !map.refreshInProgress) {
         map.center = sceneToLl(viewerPosition, map.center)
-        refreshSceneObjects(mapEntity, world)
+        map.refreshInProgress = true
+        refreshSceneObjects(mapEntity, world).then(() => {
+          map.refreshInProgress = false
+        })
       }
     }
 

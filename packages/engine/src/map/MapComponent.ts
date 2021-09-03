@@ -9,6 +9,7 @@ export type MapComponentType = {
   /** Distance of `viewer` from `center` which will trigger a refresh, in meters.
    */
   triggerRefreshRadius: number
+  refreshInProgress: boolean
   /** Distance from `center` for which to fetch data and build a scene object, in meters
    */
   minimumSceneRadius: number
