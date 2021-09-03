@@ -22,7 +22,7 @@ import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from './styles'
 import { toIndexed } from './toIndexed'
-import { ILayerName, TileFeaturesByLayer } from './types'
+import { ILayerName, LongLat, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
 import { METERS_PER_DEGREE_LL } from './constants'
 import { collectFeaturesByLayer } from './util'
@@ -41,7 +41,7 @@ export function llToScene2([lng, lat]: Position, [lngCenter, latCenter]: Positio
   return [x, z]
 }
 
-export function sceneToLl(position: Position, [lngCenter, latCenter]: Position, scale = 1): Position {
+export function sceneToLl(position: Position, [lngCenter, latCenter] = [0, 0] as LongLat, scale = 1): Position {
   const longtitude = position[0] / (111134.861111 * scale) + lngCenter
   const latitude = -position[1] / (Math.cos((latCenter * PI) / 180) * 111321.377778 * scale) + latCenter
   return [longtitude, latitude]
@@ -281,7 +281,7 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
     feature.geometry.type === 'Point' ||
     feature.geometry.type === 'MultiLineString'
   ) {
-    const buf = buffer(feature, width, {
+    const buf = buffer(feature, width || 1, {
       units: 'meters'
     })
     return buf.geometry
