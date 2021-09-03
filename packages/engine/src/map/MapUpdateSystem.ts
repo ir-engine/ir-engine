@@ -33,7 +33,7 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
 
       const viewerDistanceFromCenter = Math.hypot(...viewerPositionDelta)
 
-      if (viewerDistanceFromCenter >= map.triggerRefreshRadius && !map.refreshInProgress) {
+      if (viewerDistanceFromCenter >= map.triggerRefreshRadius * mapTransform.scale.x && !map.refreshInProgress) {
         map.center = sceneToLl(viewerPositionDeltaScaled, map.center)
         map.refreshInProgress = true
         refreshSceneObjects(mapEntity, viewerEntity, world).then(() => {
