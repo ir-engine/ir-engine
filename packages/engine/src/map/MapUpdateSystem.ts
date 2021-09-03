@@ -7,7 +7,7 @@ import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { sceneToLl } from './MeshBuilder'
-import { vector3ToPosition } from './util'
+import { vector3ToArray2 } from './util'
 import { Vector3 } from 'three'
 
 const $vector3 = new Vector3()
@@ -20,14 +20,19 @@ export const MapUpdateSystem = async (): Promise<System> => {
     for (const mapEntity of mapsQuery(world)) {
       const map = getComponent(mapEntity, MapComponent)
       const mapTransform = getComponent(mapEntity, TransformComponent, false, world)
-      const viewerTransform = getComponent(map.viewer as number, TransformComponent)
-      $vector3.subVectors(viewerTransform.position, mapTransform.position).divide(mapTransform.scale)
-      const viewerRelativePosition = vector3ToPosition($vector3)
+      // const viewerTransform = getComponent(Engine.activeCameraFollowTarget, TransformComponent)
+      // if(!Engine.activeCameraFollowTarget) continue
+      const viewerTransform = getComponent(map.viewer, TransformComponent, false, world)
 
-      const viewerDistanceFromCenter = Math.hypot(...viewerRelativePosition)
+      $vector3.subVectors(viewerTransform.position, mapTransform.position)
+      const viewerPositionDelta = vector3ToArray2($vector3)
+      $vector3.divide(mapTransform.scale)
+      const viewerPositionDeltaScaled = vector3ToArray2($vector3)
 
-      if (viewerDistanceFromCenter >= map.triggerRefreshRadius / mapTransform.scale.x && !map.refreshInProgress) {
-        map.center = sceneToLl(viewerRelativePosition, map.center)
+      const viewerDistanceFromCenter = Math.hypot(...viewerPositionDelta)
+
+      if (viewerDistanceFromCenter >= map.triggerRefreshRadius && !map.refreshInProgress) {
+        map.center = sceneToLl(viewerPositionDeltaScaled, map.center)
         map.refreshInProgress = true
         refreshSceneObjects(mapEntity, world).then(() => {
           map.refreshInProgress = false

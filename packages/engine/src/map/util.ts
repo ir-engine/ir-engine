@@ -8,6 +8,6 @@ export function collectFeaturesByLayer(layerName: ILayerName, vectorTiles: TileF
   }, [])
 }
 
-export function vector3ToPosition(vector: Vector3): Position {
+export function vector3ToArray2(vector: Vector3): [number, number] {
   return [vector.x, vector.z]
 }
