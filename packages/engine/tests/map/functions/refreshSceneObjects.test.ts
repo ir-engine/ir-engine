@@ -9,6 +9,7 @@ import { MapComponent } from '../../../src/map/MapComponent'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
 
 const createMapObjectsMock = createMapObjects as jest.Mock
+const $vector3 = new Vector3()
 
 jest.mock('../../../src/map', () => {
   return {
@@ -29,6 +30,8 @@ function addTransformComponentWithPosition(entity: Entity, world: World, x: numb
   )
 }
 
+
+
 describe('refreshSceneObjects', () => {
   let world: World, mapEntity: Entity, viewerEntity: Entity
 
@@ -41,7 +44,7 @@ describe('refreshSceneObjects', () => {
   test('when scene objects exist already', async () => {
     addComponent(mapEntity, Object3DComponent, { value: new Object3D() }, world.ecsWorld)
     addTransformComponentWithPosition(mapEntity, world, 0, 0, 0)
-    addTransformComponentWithPosition(viewerEntity, world, 13, 0, 42)
+    addTransformComponentWithPosition(viewerEntity, world, 13, 3, 42)
     const oldObject3DComponent = getComponent(mapEntity, Object3DComponent, false, world.ecsWorld)
     const center = [0, 0]
     const minimumSceneRadius = 80
@@ -71,6 +74,8 @@ describe('refreshSceneObjects', () => {
     // Test it was removed then added to trigger SceneObjectSystem enter/exit queries
     expect(newObject3DComponent).not.toBe(oldObject3DComponent)
     expect(newObject3DComponent.value).toBe(createMapObjectsMock.mock.results[0].value.mapMesh)
-    expect(mapTransformComponent.position.equals(viewerTransformComponent.position)).toBe(true)
+    $vector3.copy(viewerTransformComponent.position)
+    $vector3.y = 0
+    expect(mapTransformComponent.position.equals($vector3)).toBe(true)
   })
 })

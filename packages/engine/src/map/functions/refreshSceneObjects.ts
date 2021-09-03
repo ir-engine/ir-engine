@@ -14,6 +14,7 @@ export default async function refreshSceneObjects(mapEntity: Entity, ecsWorld: E
 
   removeComponent(mapEntity, Object3DComponent, ecsWorld)
   mapTransform.position.copy(viewerTransform.position)
+  mapTransform.position.y = 0
   // TODO try using a setImmediate around addComponent
   addComponent(mapEntity, Object3DComponent, { value: mapMesh }, ecsWorld)
 }
