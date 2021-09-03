@@ -71,9 +71,7 @@ describe('refreshSceneObjects', () => {
 
     expect(createMapObjects).toHaveBeenCalledTimes(1)
     expect(createMapObjects).toHaveBeenCalledWith(center, minimumSceneRadius, args)
-    // Test it was removed then added to trigger SceneObjectSystem enter/exit queries
-    expect(newObject3DComponent).not.toBe(oldObject3DComponent)
-    expect(newObject3DComponent.value).toBe(createMapObjectsMock.mock.results[0].value.mapMesh)
+    expect(newObject3DComponent.value.children[0]).toBe(createMapObjectsMock.mock.results[0].value.mapMesh)
     $vector3.copy(viewerTransformComponent.position)
     $vector3.y = 0
     expect(mapTransformComponent.position.equals($vector3)).toBe(true)
