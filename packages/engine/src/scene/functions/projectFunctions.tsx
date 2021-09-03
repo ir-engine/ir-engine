@@ -7,6 +7,7 @@ import { upload } from './upload'
 export const serverURL = Config.publicRuntimeConfig.apiServer
 
 globalThis.ownedFileIds = globalThis.ownedFileIds ?? {}
+globalThis.currentOwnedFileIds = {}
 
 /**
  * getProjects used to get list projects created by user.
@@ -63,6 +64,7 @@ export const getProject = async (projectId): Promise<JSON> => {
  * createProject used to create project.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param  {any}  scene         [contains the data related to scene]
  * @param  {any}  parentSceneId
  * @param  {any}  thumbnailBlob [thumbnail data]
@@ -125,8 +127,9 @@ export const createProject = async (
   if (parentSceneId) {
     project['parent_scene_id'] = parentSceneId
   }
-
+  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
   Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
+  globalThis.currentOwnedFileIds = {}
 
   const body = JSON.stringify({ project })
 
@@ -181,6 +184,7 @@ export const deleteProject = async (projectId): Promise<any> => {
  * saveProject used to save changes in existing project.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param  {any}  projectId
  * @param  {any}  editor
  * @param  {any}  signal
@@ -243,7 +247,9 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     project['scene_id'] = sceneId
   }
 
+  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
   Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
+  globalThis.currentOwnedFileIds = {}
 
   const body = JSON.stringify({
     project

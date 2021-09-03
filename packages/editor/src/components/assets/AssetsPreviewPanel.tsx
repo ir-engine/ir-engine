@@ -77,9 +77,9 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
       default:
         const unavailable = {
           PreviewSource: PreviewUnavailable,
-          resourceProps: {}
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
-        usePreviewPanel(audioPreviewPanel)
+        usePreviewPanel(unavailable)
         break
     }
   }

@@ -2746,7 +2746,7 @@ export class Editor extends EventEmitter {
       node.href = url
       this.addObject(node, parent, before)
     }
-    globalThis.ownedFileIds[name] = id
+    globalThis.currentOwnedFileIds[name] = id
     this.emit('FileUploaded')
     return node
   }
