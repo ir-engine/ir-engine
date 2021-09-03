@@ -7,6 +7,7 @@ import { World } from '../../../src/ecs/classes/World'
 import { Entity } from '../../../src/ecs/classes/Entity'
 import { MapComponent } from '../../../src/map/MapComponent'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
+import {GeoLabelSetComponent} from '../../../src/map/GeoLabelSetComponent'
 
 const createMapObjectsMock = createMapObjects as jest.Mock
 const $vector3 = new Vector3()
@@ -15,7 +16,10 @@ jest.mock('../../../src/map', () => {
   return {
     createMapObjects: jest.fn(() => {
       return {
-        mapMesh: new Object3D()
+        mapMesh: new Object3D(),
+        labels: [
+          { object3d: new Object3D() }
+        ]
       }
     })
   }
@@ -43,6 +47,7 @@ describe('refreshSceneObjects', () => {
   })
   test('when scene objects exist already', async () => {
     addComponent(mapEntity, Object3DComponent, { value: new Object3D() }, world.ecsWorld)
+    addComponent(mapEntity, GeoLabelSetComponent, { value: new Set([{object3d: new Object3D}]) }, world.ecsWorld)
     addTransformComponentWithPosition(mapEntity, world, 0, 0, 0)
     addTransformComponentWithPosition(viewerEntity, world, 13, 3, 42)
     const center = [0, 0]
