@@ -74,7 +74,7 @@ const RenderSystem = async (): Promise<System> => {
 
 // This is a functional React component
 const Page = () => {
-  const [animationTimeScale, setAnimationTimeScale] = useState(1)
+  const [animationTimeScale, setAnimationTimeScale] = useState(0)
   const [animationIndex, setAnimationIndex] = useState(3)
   const [animationsList, setAnimationsList] = useState<AnimationClip[]>([])
   const worldRef = useRef<World>(null)
@@ -316,35 +316,42 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
   initRig(sourceEntity, null, false, ArmatureType.MIXAMO)
 
   ////////////////////////////////////////////////////////////////////////////
+  let loadModels = []
 
   // LOAD MESH A
-  loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0), ArmatureType.VEGETA).then((entity) => {
-    const rig = getComponent(entity, IKRig)
-    rig.name = 'rigA'
-    sourcePose.targetRigs.push(rig)
-    rig.tpose.apply()
+  loadModels.push(
+    loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0), ArmatureType.VEGETA).then((entity) => {
+      const rig = getComponent(entity, IKRig)
+      rig.name = 'rigA'
+      sourcePose.targetRigs.push(rig)
+      rig.tpose.apply()
 
-    targetEntities.push(entity)
-  })
-  loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(-1, 0, 0)).then((entity) => {
-    const rig = getComponent(entity, IKRig)
-    rig.name = 'rigB'
-    sourcePose.targetRigs.push(rig)
-    rig.tpose.apply()
+      targetEntities.push(entity)
+    })
+  )
+  loadModels.push(
+    loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(-1, 0, 0)).then((entity) => {
+      const rig = getComponent(entity, IKRig)
+      rig.name = 'rigB'
+      sourcePose.targetRigs.push(rig)
+      rig.tpose.apply()
 
-    targetEntities.push(entity)
-  })
-  // loadAndSetupModel(MODEL_C_FILE, sourceEntity, new Vector3(-2, 0, 0), ArmatureType.TREX).then((entity) => {
+      targetEntities.push(entity)
+    })
+  )
+  // loadModels.push(loadAndSetupModel(MODEL_C_FILE, sourceEntity, new Vector3(-2, 0, 0), ArmatureType.TREX).then((entity) => {
   //   const rig = getComponent(entity, IKRig)
   //   rig.name = 'rigTRex'
   //   sourcePose.targetRigs.push(rig)
   //   rig.tpose.apply()
   //
   //   targetEntities.push(entity)
-  // })
+  // }))
 
   // // TODO: Fix me
   // targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
+
+  await Promise.all(loadModels)
 
   ////////////////////////////////////////////////////////////////////////////
 

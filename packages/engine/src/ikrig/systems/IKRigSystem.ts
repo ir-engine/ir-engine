@@ -22,6 +22,7 @@ import {
 } from '../functions/IKFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { AnimationAction } from 'three'
 
 // export class DebugComponent {
 //   static points = null
@@ -81,7 +82,11 @@ export const IKRigSystem = async (): Promise<System> => {
         // TODO remove this block, it's just for testing
         const ac = getComponent(entity, AnimationComponent)
         // @ts-ignore
-        const animationTime = ac.mixer._actions[0].time
+        const actions: AnimationAction[] = ac.mixer._actions
+        if (!actions.length) {
+          continue
+        }
+        const animationTime = actions[0].time
         if (processedAnimation.has(entity)) {
           if (processedAnimation.get(entity) === animationTime) {
             continue
