@@ -19,6 +19,8 @@ import {
   visualizeLookTwist,
   visualizeSpine
 } from '../functions/IKFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 
 // export class DebugComponent {
 //   static points = null
@@ -58,6 +60,9 @@ export const IKRigSystem = async (): Promise<System> => {
   const ikrigsQuery = defineQuery([IKRig])
   const ikposeQuery = defineQuery([IKPose])
 
+  // TODO remove this const, it's just for testing
+  const processedAnimation = new Map<Entity, number>()
+
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
@@ -69,6 +74,19 @@ export const IKRigSystem = async (): Promise<System> => {
       const rig = getComponent(entity, IKRig)
       if (!ikPose.targetRigs) {
         continue
+      }
+
+      {
+        // TODO remove this block, it's just for testing
+        const ac = getComponent(entity, AnimationComponent)
+        // @ts-ignore
+        const animationTime = ac.mixer._actions[0].time
+        if (processedAnimation.has(entity)) {
+          if (processedAnimation.get(entity) === animationTime) {
+            continue
+          }
+        }
+        processedAnimation.set(entity, animationTime)
       }
 
       // // COMPUTE
