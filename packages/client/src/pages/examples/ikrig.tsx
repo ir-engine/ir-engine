@@ -9,17 +9,18 @@ import { IKRig } from '@xrengine/engine/src/ikrig/components/IKRig'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { IKRigSystem } from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   AmbientLight,
+  AnimationAction,
+  AnimationClip,
   AnimationMixer,
   DirectionalLight,
   GridHelper,
   PerspectiveCamera,
   Scene,
-  Skeleton,
   SkeletonHelper,
-  SkinnedMesh,
+  Vector2,
   Vector3,
   WebGLRenderer
 } from 'three'
@@ -30,6 +31,7 @@ import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { initRig } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
 import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 const AnimationSystem = async (): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
@@ -44,16 +46,54 @@ const AnimationSystem = async (): Promise<System> => {
 }
 
 const RenderSystem = async (): Promise<System> => {
+  const currentSize = new Vector2()
   return defineSystem((world: ECSWorld) => {
+    const width = window.innerWidth
+    const height = window.innerHeight
+    Engine.renderer.getSize(currentSize)
+    const needsResize = currentSize.x !== width || currentSize.y !== height
+
+    if (needsResize) {
+      const curPixelRatio = Engine.renderer.getPixelRatio()
+      if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio)
+
+      if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
+        const cam = Engine.camera as PerspectiveCamera
+        cam.aspect = width / height
+        cam.updateProjectionMatrix()
+      }
+
+      Engine.renderer.setSize(width, height, true)
+      // Engine.effectComposer.setSize(width, height, false)
+    }
+
     Engine.renderer.render(Engine.scene, Engine.camera)
     return world
   })
 }
 
-const STEP_BY_STEP_MODE = false
+const debugOptions = {
+  STEP_BY_STEP_MODE: false
+}
 
 // This is a functional React component
 const Page = () => {
+  const [animationTimeScale, setAnimationTimeScale] = useState(1)
+  const [animationIndex, setAnimationIndex] = useState(3)
+  const [animationsList, setAnimationsList] = useState<AnimationClip[]>([])
+  const worldRef = useRef<World>(null)
+  const executeIKRef = useRef<(delta: number, elapsedTime: number) => void>(null)
+  const sourceEntityRef = useRef<Entity>(null)
+  const animationClipActionRef = useRef<AnimationAction>(null)
+
+  useEffect(() => {
+    if (worldRef.current) {
+      const ac = getComponent(sourceEntityRef.current, AnimationComponent)
+      ac.mixer.timeScale = animationTimeScale
+    }
+    // animationClipActionRef.current?.setEffectiveTimeScale(animationTimeScale)
+  }, [animationTimeScale])
+
   useEffect(() => {
     ;(async function () {
       //initializeEngine()
@@ -76,17 +116,16 @@ const Page = () => {
       }
 
       const world = new World()
+      worldRef.current = world
       // const world = World.defaultWorld
-
-      // TODO: support multiple worlds
-      // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
 
       const networkExecute = executePipeline(world, networkPipeline)
       window['execute'] = networkExecute
+      executeIKRef.current = networkExecute
 
       Engine.engineTimer = Timer(
         {
-          networkUpdate: STEP_BY_STEP_MODE ? () => {} : networkExecute,
+          networkUpdate: networkExecute,
           fixedUpdate: executePipeline(world, fixedPipeline),
           update: executePipeline(world, freePipeline)
         },
@@ -94,20 +133,69 @@ const Page = () => {
         Engine.networkFramerate
       )
 
-      initExample(world).catch((e) => {
-        console.error('Failed to init example', e)
-      })
+      initExample(world)
+        .then(({ sourceEntity, targetEntities }) => {
+          const ac = getComponent(sourceEntity, AnimationComponent)
+          const clipAction = ac.mixer.clipAction(ac.animations[animationIndex])
+          clipAction.setEffectiveTimeScale(animationTimeScale).play()
+          ac.mixer.timeScale = animationTimeScale
+          clipAction.play()
+          console.log('CLIP', clipAction)
+          window['CLIP'] = clipAction
+
+          sourceEntityRef.current = sourceEntity
+          animationClipActionRef.current = clipAction
+        })
+        .catch((e) => {
+          console.error('Failed to init example', e)
+        })
+
+      document.body.style.overflow = 'hidden'
 
       Engine.engineTimer.start()
     })()
   }, [])
+
+  function doAnimationStepTime(time: number) {
+    animationClipActionRef.current.time += time
+  }
+  function doAnimationStepFrame() {
+    const clip = animationClipActionRef.current.getClip()
+    animationClipActionRef.current.time = clip.tracks[0].times.find((currentValue) => {
+      return currentValue > animationClipActionRef.current.time
+    })
+  }
+
+  const animationTimeScaleSelect = (
+    <select value={animationTimeScale} onChange={(e) => setAnimationTimeScale(parseFloat(e.target.value))}>
+      <option>0</option>
+      <option>0.1</option>
+      <option>0.2</option>
+      <option>0.5</option>
+      <option>1</option>
+    </select>
+  )
+
+  const doAnimationStepButtons = (
+    <span>
+      <button onClick={() => doAnimationStepTime(0.1)}>Anim step 0.1 </button>
+      <button onClick={doAnimationStepFrame}>Anim step frame </button>
+    </span>
+  )
+
   // Some JSX to keep the compiler from complaining
-  return <Debug />
+  return (
+    <>
+      {animationTimeScaleSelect}
+      {doAnimationStepButtons}
+      <Debug />
+    </>
+  )
 }
 
 export default Page
 
-async function initExample(world) {
+async function initExample(world): Promise<{ sourceEntity: Entity; targetEntities: Entity[] }> {
   await initThree() // Set up the three.js scene with grid, light, etc
 
   // initDebug()
@@ -117,22 +205,70 @@ async function initExample(world) {
   // const MODEL_A_FILE = 'ikrig2/models/vegeta.gltf'
   // const ANIMATION_INDEX = 0
 
+  /*
+  ikrig/anim/Walking.glb animations
+  0 - 'driving'
+  1 - 'idle'
+  2 - 'run_backward'
+  3 - 'run_forward'
+  4 - 'run_left'
+  5 - 'run_right'
+  6 - 'tpose'
+  7 - 'vehicle_enter_driver'
+  8 - 'vehicle_enter_passenger'
+  9 - 'vehicle_exit_driver'
+  10 - 'vehicle_exit_passenger'
+  11 - 'walk_backward'
+  12 - 'walk_forward'
+  13 - 'walk_left'
+  14 - 'walk_right'
+   */
   const ANIM_FILE = 'ikrig/anim/Walking.glb'
-  const MODEL_A_FILE = 'ikrig/models/vegeta.glb'
+  /*
+  0 - 'clapping'
+  1 - 'cry'
+  2 - 'dance1'
+  3 - 'dance2'
+  4 - 'dance3'
+  5 - 'dance4'
+  6 - 'defeat'
+  7 - 'idle'
+  8 - 'jump'
+  9 - 'kiss'
+  10 - 'laugh'
+  11 - 'run_backward'
+  12 - 'run_forward'
+  13 - 'run_left'
+  14 - 'run_right'
+  15 - 'tpose'
+  16 - 'walk_backward'
+  17 - 'walk_forward'
+  18 - 'walk_left'
+  19 - 'walk_right'
+  20 - 'wave'
+   */
+  // const ANIM_FILE = '/models/avatars/Animations.glb'
+  const RIG_FILE = 'ikrig/anim/Walking.glb'
+  const MODEL_A_FILE = 'ikrig/models/vegeta.gltf'
   const MODEL_B_FILE = 'ikrig/anim/Walking.glb'
   const MODEL_C_FILE = 'ikrig/models/robo_trex.gltf'
-  const ANIMATION_INDEX = 12
+  const MODEL_D_FILE = '/models/avatars/Allison.glb'
+  const ANIMATION_INDEX = 3
+
+  const targetEntities = []
 
   // LOAD SOURCE
-  let model = await LoadGLTF(ANIM_FILE)
-  console.log('Animations model is', model)
+  let animModel = await LoadGLTF(ANIM_FILE)
+  console.log('Animations model is', animModel)
   console.log('Animations:')
-  model.animations.forEach((a, i) => console.log(i, a.name))
+  animModel.animations.forEach((a, i) => console.log(i, a.name))
+
+  let rigModel = await LoadGLTF(RIG_FILE)
   // Set up skinned meshes
   let skinnedMeshes = []
-  Engine.scene.add(model.scene)
-  Engine.scene.add(new SkeletonHelper(model.scene))
-  model.scene.traverse((node) => {
+  Engine.scene.add(rigModel.scene)
+  Engine.scene.add(new SkeletonHelper(rigModel.scene))
+  rigModel.scene.traverse((node) => {
     if (node.children)
       node.children.forEach((n) => {
         if (n.type === 'SkinnedMesh') skinnedMeshes.push(n)
@@ -143,25 +279,25 @@ async function initExample(world) {
     return a.skeleton.bones.length - b.skeleton.bones.length
   })[0]
   console.log('skinnedMesh', skinnedMesh)
-  if (!skinnedMesh) {
-    // try to create skinnedmesh with skeleton from what we have
-    const hipsBone = model.scene.getObjectByName('Hips')
-    console.log('hipBone', hipsBone)
-    const bones = []
-    hipsBone.traverse((b) => (b.type === 'Bone' ? bones.push(b) : null))
-    console.log('bones', bones)
-    skinnedMesh = new SkinnedMesh()
-    // model.scene.add(skinnedMesh)
-    hipsBone.parent.add(skinnedMesh)
-    const skeleton = new Skeleton(bones)
-    skinnedMesh.bind(skeleton)
-  }
+  // if (!skinnedMesh) {
+  //   // try to create skinnedmesh with skeleton from what we have
+  //   const hipsBone = rigModel.scene.getObjectByName('Hips')
+  //   console.log('hipBone', hipsBone)
+  //   const bones = []
+  //   hipsBone.traverse((b) => (b.type === 'Bone' ? bones.push(b) : null))
+  //   console.log('bones', bones)
+  //   skinnedMesh = new SkinnedMesh()
+  //   // model.scene.add(skinnedMesh)
+  //   hipsBone.parent.add(skinnedMesh)
+  //   const skeleton = new Skeleton(bones)
+  //   skinnedMesh.bind(skeleton)
+  // }
 
   // Set up entity
-  let sourceEntity = createEntity(world.ecsWorld)
+  const sourceEntity = createEntity(world.ecsWorld)
   const ac = addComponent(sourceEntity, AnimationComponent, {
-    mixer: new AnimationMixer(model.scene),
-    animations: model.animations,
+    mixer: new AnimationMixer(rigModel.scene),
+    animations: animModel.animations,
     animationSpeed: 1
   })
   addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
@@ -181,38 +317,50 @@ async function initExample(world) {
   rig.sourceRig = skinnedMesh
   rig.sourcePose = sourcePose
 
-  ac.mixer
-    .clipAction(model.animations[ANIMATION_INDEX])
-    .setEffectiveTimeScale(STEP_BY_STEP_MODE ? 0 : 0.2)
-    .play()
-  console.log('CLIP', ac.mixer.clipAction(model.animations[ANIMATION_INDEX]))
-  window['CLIP'] = ac.mixer.clipAction(model.animations[ANIMATION_INDEX])
-
   initRig(sourceEntity, null, false, ArmatureType.MIXAMO)
 
   ////////////////////////////////////////////////////////////////////////////
 
   // LOAD MESH A
-  loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0), ArmatureType.VEGETA).then((rig) => {
+  loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0), ArmatureType.VEGETA).then((entity) => {
+    const rig = getComponent(entity, IKRig)
+    rig.name = 'rigA'
     sourcePose.targetRigs.push(rig)
     rig.tpose.apply()
+
+    targetEntities.push(entity)
   })
-  loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(-1, 0, 0)).then((rig) => {
+  loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(-1, 0, 0)).then((entity) => {
+    const rig = getComponent(entity, IKRig)
+    rig.name = 'rigB'
     sourcePose.targetRigs.push(rig)
     rig.tpose.apply()
+
+    targetEntities.push(entity)
   })
-  loadAndSetupModel(MODEL_C_FILE, sourceEntity, new Vector3(-2, 0, 0), ArmatureType.TREX).then((rig) => {
-    sourcePose.targetRigs.push(rig)
-    rig.tpose.apply()
-  })
+  // loadAndSetupModel(MODEL_C_FILE, sourceEntity, new Vector3(-2, 0, 0), ArmatureType.TREX).then((entity) => {
+  //   const rig = getComponent(entity, IKRig)
+  //   rig.name = 'rigTRex'
+  //   sourcePose.targetRigs.push(rig)
+  //   rig.tpose.apply()
+  //
+  //   targetEntities.push(entity)
+  // })
 
   // // TODO: Fix me
   // targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
 
   ////////////////////////////////////////////////////////////////////////////
+
+  return { sourceEntity, targetEntities }
 }
 
-async function loadAndSetupModel(filename, sourceEntity, position, armatureType = ArmatureType.MIXAMO) {
+async function loadAndSetupModel(
+  filename,
+  sourceEntity,
+  position,
+  armatureType = ArmatureType.MIXAMO
+): Promise<Entity> {
   let targetModel = await LoadGLTF(filename)
   targetModel.scene.position.copy(position)
   Engine.scene.add(targetModel.scene)
@@ -276,7 +424,7 @@ async function loadAndSetupModel(filename, sourceEntity, position, armatureType 
   // targetRig.tpose.align_foot('RightFoot')
   //targetRig.tpose.build()
 
-  return targetRig
+  return targetEntity
 }
 
 async function initThree() {
