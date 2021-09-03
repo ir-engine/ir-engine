@@ -13,7 +13,7 @@ import { InteractableModal } from '@xrengine/client-core/src/world/components/In
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import MediaIconsBox from '../../components/MediaIconsBox' /*  */
+import MediaIconsBox from '../../components/MediaIconsBox'
 import { awaitEngaged } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GeneralStateList, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
 
