@@ -5,6 +5,13 @@ import { IKRig } from './IKRig'
 
 export type IKPoseLimbData = { lengthScale: number; dir: Vector3; jointDirection: Vector3 }
 export type IKPoseLookTwist = { lookDirection: Vector3; twistDirection: Vector3 }
+export type IKPoseHipData = {
+  bind_height: number
+  movement: Vector3
+  dir: Vector3
+  twist: number
+}
+export type IKPoseSpineData = [IKPoseLookTwist, IKPoseLookTwist]
 
 export type IKPoseComponentType = {
   startPosition?: Vector3 // Start of chain (world space position of shoulder for an arm chain)
@@ -22,12 +29,7 @@ export type IKPoseComponentType = {
   spineChildPosition?: Vector3
   spineChildScale?: Vector3
 
-  hip?: {
-    bind_height: number
-    movement: Vector3
-    dir: Vector3
-    twist: number
-  }
+  hip?: IKPoseHipData
 
   foot_l?: IKPoseLookTwist
   foot_r?: IKPoseLookTwist
@@ -41,7 +43,7 @@ export type IKPoseComponentType = {
   arm_l?: IKPoseLimbData
   arm_r?: IKPoseLimbData
 
-  spine?: [IKPoseLookTwist, IKPoseLookTwist]
+  spine?: IKPoseSpineData
 
   head?: IKPoseLookTwist
 }
