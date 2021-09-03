@@ -8,6 +8,7 @@ import { FORWARD, UP } from '../constants/Vector3Constants'
 import {
   applyHip,
   applyLimb,
+  applyLimbTmp,
   applyLookTwist,
   applySpine,
   computeHip,
@@ -119,20 +120,22 @@ export const IKRigSystem = async (): Promise<System> => {
       // visualizeLookTwist(rig, rig.points.head, pose.head);
 
       // APPLY
-      applyHip(ikPose)
+      ikPose.targetRigs.forEach((targetRig) => {
+        console.log('~~~ APPLY RIG', targetRig['name'])
+        applyHip(ikPose, targetRig)
 
-      applyLimb(ikPose, rig.chains.leg_l, ikPose.leg_l)
-      applyLimb(ikPose, rig.chains.leg_r, ikPose.leg_r)
+        applyLimbTmp(ikPose, rig, targetRig, 'leg_l', ikPose.leg_l)
+        applyLimbTmp(ikPose, rig, targetRig, 'leg_r', ikPose.leg_r)
 
-      applyLookTwist(entity, rig.points.foot_l, ikPose.foot_l, FORWARD, UP)
-      applyLookTwist(entity, rig.points.foot_r, ikPose.foot_r, FORWARD, UP)
-      applySpine(entity, rig.chains.spine, ikPose.spine, UP, FORWARD)
+        applyLookTwist(targetRig, targetRig.points.foot_l, ikPose.foot_l, FORWARD, UP)
+        applyLookTwist(targetRig, targetRig.points.foot_r, ikPose.foot_r, FORWARD, UP)
+        applySpine(ikPose, targetRig, rig.chains.spine, ikPose.spine, UP, FORWARD)
 
-      applyLimb(ikPose, rig.chains.arm_l, ikPose.arm_l)
-      applyLimb(ikPose, rig.chains.arm_r, ikPose.arm_r)
+        applyLimbTmp(ikPose, rig, targetRig, 'arm_l', ikPose.arm_l)
+        applyLimbTmp(ikPose, rig, targetRig, 'arm_r', ikPose.arm_r)
 
-      applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP)
-
+        applyLookTwist(targetRig, targetRig.points.head, ikPose.head, FORWARD, UP)
+      })
       // rig.pose.apply()
     }
 
