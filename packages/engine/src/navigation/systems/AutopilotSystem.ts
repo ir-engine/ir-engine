@@ -52,7 +52,7 @@ export const AutopilotSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of navClickAddQuery(world)) {
-      const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
+      const { coords, overrideCoords, overridePosition } = getComponent(entity, AutoPilotClickRequestComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
@@ -80,10 +80,12 @@ export const AutopilotSystem = async (): Promise<System> => {
       )
 
       if (clickResult.point) {
-        addComponent(entity, AutoPilotRequestComponent, {
+        if (overrideCoords) clickResult.point = overridePosition
+        const c = addComponent(entity, AutoPilotRequestComponent, {
           point: clickResult.point,
           navEntity: clickResult.entity
         })
+        //console.log('clickResult: ' + JSON.stringify(clickResult) + ' - ' + JSON.stringify(c))
       }
 
       removeComponent(entity, AutoPilotClickRequestComponent)
@@ -100,12 +102,12 @@ export const AutopilotSystem = async (): Promise<System> => {
       const { position } = getComponent(entity, TransformComponent)
 
       let autopilotComponent
-      if (hasComponent(entity, AutoPilotComponent)) {
-        // reuse component
-        autopilotComponent = getComponent(entity, AutoPilotComponent)
-      } else {
-        autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
-      }
+      //if (hasComponent(entity, AutoPilotComponent)) {
+      // reuse component
+      //   autopilotComponent = getComponent(entity, AutoPilotComponent)
+      // } else {
+      autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
+      // }
       autopilotComponent.navEntity = request.navEntity
 
       const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
@@ -146,9 +148,11 @@ export const AutopilotSystem = async (): Promise<System> => {
             })
 
             // Path is finished - remove component
+            console.log('path is finished')
             removeComponent(entity, AutoPilotComponent)
             continue
           }
+          console.log('path advance')
           autopilot.path.advance()
           continue
         }

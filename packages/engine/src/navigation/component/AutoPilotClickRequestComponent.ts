@@ -1,4 +1,4 @@
-import { Vector2 } from 'three'
+import { Vector2, Vector3 } from 'three'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /**
@@ -7,6 +7,8 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 export type AutoPilotClickRequestComponentType = {
   coords: Vector2
+  overrideCoords?: boolean
+  overridePosition?: Vector3
 }
 
 export const AutoPilotClickRequestComponent = createMappedComponent<AutoPilotClickRequestComponentType>()

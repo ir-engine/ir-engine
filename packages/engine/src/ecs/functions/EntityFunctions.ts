@@ -152,7 +152,7 @@ export const removeComponent = <T extends any, S extends bitECS.ISchema>(
     console.warn('[removeComponent]: entity is undefined')
     return
   }
-  // console.log('removeComponent', entity, component.name)
+  //console.log('removeComponent', entity, component.name)
   const componentRef = component.get(entity)
   world._removedComponents.set(entity, componentRef)
   bitECS.removeComponent(world, component, entity)

@@ -23,6 +23,8 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 
 import defaultStyles from './InstanceChat.module.scss'
 
@@ -181,6 +183,7 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
+                    if (isClient && !isBot(window) && message.text.startsWith('/')) return undefined
                     return (
                       <ListItem
                         className={classNames({

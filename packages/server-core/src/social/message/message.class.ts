@@ -28,7 +28,7 @@ export class Message extends Service {
     const userId = loggedInUser?.userId
 
     if (data != undefined && data.text != undefined) {
-      if (handleCommand(data.text, userId, true)) return
+      if (handleCommand(data.text, userId, true, userId)) return
     }
 
     const targetObjectId = data.targetObjectId

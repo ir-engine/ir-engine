@@ -71,6 +71,18 @@ export function createMessage(values: any) {
   }
 }
 
+export async function sendChatMessage(values: any) {
+  try {
+    await client.service('message').create({
+      targetObjectId: values.targetObjectId,
+      targetObjectType: values.targetObjectType,
+      text: values.text
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 export function getChannelMessages(channelId: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
