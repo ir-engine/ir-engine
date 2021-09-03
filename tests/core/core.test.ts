@@ -79,7 +79,7 @@ describe('Multi-Bot Tests', () => {
     console.log(JSON.stringify(clients))
     const clientIds = Object.keys(clients)
     expect(clientIds.length).toEqual(numPlayers)
-  }, maxTimeout)
+  }, 5 * maxTimeout)
 
   // test('Can disconnect players', async () => {
   //   await bot.delay(1000)
