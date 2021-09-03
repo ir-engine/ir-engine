@@ -628,7 +628,7 @@ export function applyLimb(
   })
 }
 
-function from_mul(out, a, b) {
+function from_mul(out: Quaternion, a: Quaternion, b: Quaternion) {
   const ax = a.x,
     ay = a.y,
     az = a.z,
@@ -870,7 +870,7 @@ export function applySpine(entity, chain, ik, lookDirection, twistDirection) {
   })
 }
 
-export function align_chain(pose, dir, b_names) {
+export function align_chain(pose: Pose, dir: Vector3, b_names: string[]) {
   const aEnd = b_names.length - 1, // End Index
     forwardDir = new Vector3(), // Forward
     upDir = new Vector3().copy(dir), // Up
@@ -937,7 +937,7 @@ export function align_chain(pose, dir, b_names) {
       // ROTATION - parent.rotation * child.rotation
       parentWorldQ.multiply(finalRotation)
 
-      bone = pose.bones.find((bone) => (bone.name = b_names[i + 1])) as Object3D // Bone Reference
+      bone = pose.bones.find((bone) => (bone.name = b_names[i + 1])).bone as Object3D // Bone Reference
       bone.position.copy(parentWorldP)
       bone.quaternion.copy(parentWorldQ)
       bone.scale.copy(parentWorldS)
@@ -1055,7 +1055,7 @@ export function from_axis(out, xAxis, yAxis, zAxis) {
   return out
 }
 
-export function mul(out, q) {
+export function mul(out: Quaternion, q: Quaternion) {
   const ax = out.x,
     ay = out.y,
     az = out.z,
@@ -1070,17 +1070,21 @@ export function mul(out, q) {
   out.w = aw * bw - ax * bx - ay * by - az * bz
 }
 
-export function spin_bone_forward(pose, foot) {
+export function spin_bone_forward(pose: Pose, foot: string) {
+  // TODO: check if this function is used
+  console.warn('spin_bone_forward is not tested')
   const v = new Vector3(),
     q = new Quaternion(),
-    b = pose.get_bone(foot)
+    boneState = pose.getBone(foot)
+  const b = boneState.bone
 
   const parentWorldQuaternion = new Quaternion()
   b.parent.getWorldQuaternion(parentWorldQuaternion)
 
-  b.position.copy(v).add(new Vector3(0, b.len, 0))
+  b.position.copy(v).add(new Vector3(0, boneState.length, 0))
 
-  from_mul(v, v, this.scl)
+  v.multiply(this.scl)
+  //from_mul(v, v, this.scl)
   transform_quat(v, this.rot)
   // v.add( b.position );
 
@@ -1090,7 +1094,7 @@ export function spin_bone_forward(pose, foot) {
   from_unit_vecs(q, v, FORWARD) // Rotation needed to point the foot forward.
   mul(q, b.quaternion) // Move WS Foot to point forward
   pmul_invert(q, b.quaternion) // To Local Space
-  pose.set_bone(b.idx, q) // Save to Pose
+  pose.setBone(boneState.idx, q) // Save to Pose
 }
 
 export function from_unit_vecs(out, a, b) {
@@ -1151,10 +1155,13 @@ export function pmul_axis_angle(out, axis, angle) {
   out.w = aw * bw - ax * bx - ay * by - az * bz
 }
 
-export function align_bone_forward(pose, b_name) {
+export function align_bone_forward(pose: Pose, b_name: string) {
+  // TODO: check if this function is used
+  console.warn('spin_bone_forward is not tested')
   const v = new Vector3(),
     q = new Quaternion(),
-    b = pose.get_bone(b_name)
+    boneState = pose.getBone(b_name)
+  const b = boneState.bone
 
   const parentWorldQuaternion = new Quaternion()
   b.parent.getWorldQuaternion(parentWorldQuaternion)
@@ -1165,7 +1172,7 @@ export function align_bone_forward(pose, b_name) {
   mul(q, b.quaternion) // PreMul Difference to Current Rotation
   pmul_invert(q, parentWorldQuaternion) // Convert to Local Space
 
-  pose.set_bone(b.idx, q) // Save to Pose
+  pose.setBone(boneState.idx, q) // Save to Pose
 }
 
 function from_quat(out, q, v) {

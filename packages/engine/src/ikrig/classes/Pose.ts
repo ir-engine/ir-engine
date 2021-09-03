@@ -1,10 +1,11 @@
-import { Bone } from 'three'
+import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { IKObj } from '../components/IKObj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
 import { spin_bone_forward, align_chain, align_bone_forward } from '../functions/IKFunctions'
+import { Entity } from '../../ecs/classes/Entity'
 
 export type PoseBoneLocalState = {
   bone: Bone
@@ -27,11 +28,11 @@ export type PoseBoneLocalState = {
 }
 
 class Pose {
-  static ROTATION: any = 1
-  static POSITION: any = 2
-  static SCALE: any = 4
+  static ROTATION = 1
+  static POSITION = 2
+  static SCALE = 4
 
-  entity: any
+  entity: Entity
   skeleton: Skeleton
   bones: PoseBoneLocalState[]
   rootOffset = {
@@ -41,41 +42,40 @@ class Pose {
   }
   helper: any
 
-  align_leg(b_names) {
+  align_leg(b_names: string[]) {
     align_chain(this, DOWN, b_names)
     return this
   }
-  align_arm_left(b_names) {
+  align_arm_left(b_names: string[]) {
     align_chain(this, LEFT, b_names)
     return this
   }
-  align_arm_right(b_names) {
+  align_arm_right(b_names: string[]) {
     align_chain(this, RIGHT, b_names)
     return this
   }
 
-  align_foot(b_name) {
+  align_foot(b_name: string) {
     spin_bone_forward(this, b_name)
     align_bone_forward(this, b_name)
     return this
   }
 
-  spin_bone_forward(b_name) {
+  spin_bone_forward(b_name: string) {
     spin_bone_forward(this, b_name)
     return this
   }
-  align_bone_forward(b_name) {
+  align_bone_forward(b_name: string) {
     align_bone_forward(this, b_name)
     return this
   }
 
-  constructor(entity, clone) {
+  constructor(entity: Entity, clone: boolean) {
     this.entity = entity
     this.bones = []
     const armature = getComponent(entity, IKObj).ref
-    this.skeleton = clone
-      ? SkeletonUtils.clone(armature.parent).children.find((skin) => skin.skeleton != null).skeleton
-      : armature.parent.children.find((skin) => skin.skeleton != null).skeleton // Recreation of Bone Hierarchy
+    const parent: Object3D = clone ? SkeletonUtils.clone(armature.parent) : armature.parent
+    this.skeleton = this.get_skeleton(parent.children) // Recreation of Bone Hierarchy
 
     // this.bones = this.skeleton.bones
     this.rootOffset = new Object3D() // Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
@@ -128,6 +128,10 @@ class Pose {
     this.skeleton.update()
   }
 
+  get_skeleton(objects: (Object3D | SkinnedMesh)[]): Skeleton {
+    return (objects.find((skin) => skin instanceof SkinnedMesh && skin.skeleton != null) as SkinnedMesh).skeleton
+  }
+
   setOffset(quaternion: Quaternion, position: Vector3, scale: Vector3) {
     this.rootOffset.quaternion.copy(quaternion)
     this.rootOffset.position.copy(position)
@@ -143,12 +147,16 @@ class Pose {
     return this
   }
 
-  apply() {
+  getBone(name: string): PoseBoneLocalState {
+    return this.bones.find((b) => b.name === name)
+  }
+
+  apply(): Pose {
     // Copies modified LquatInverseocal Transforms of the Pose to the Bone Entities.
     const targetSkeleton: Skeleton = getComponent(this.entity, IKObj).ref.skeleton
 
-    let pb, // Pose Bone
-      o // Bone Object
+    let pb: Bone, // Pose Bone
+      o: Bone // Bone Object
     for (let i = 0; i < targetSkeleton.bones.length; i++) {
       pb = this.skeleton.bones[i]
 
@@ -175,7 +183,7 @@ class Pose {
   childPosition = new Vector3(0, 0, 0)
 
   // Make sure this is properly named
-  setChildFromParent(parent, child) {
+  setChildFromParent(parent: Object3D, child: Object3D): Pose {
     console.log('parent, child', parent, child)
 
     // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
@@ -199,7 +207,7 @@ class Pose {
     return this
   }
 
-  getParentRoot(boneIndex) {
+  getParentRoot(boneIndex: number): Quaternion {
     // ORIGINAL CODE
     // get_parent_rot( b_idx, q=null ){
     // 	let cbone = this.bones[ b_idx ];
