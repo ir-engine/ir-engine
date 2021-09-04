@@ -94,6 +94,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     Object.assign(ownedIds, globalThis.ownedFileIds)
     Object.assign(ownedIds, globalThis.currentOwnedFileIds)
     projects[0].ownedFileIds = JSON.stringify(ownedIds)
+    projects[0].sid = globalThis.currentProjectID
     const ownedFileIdsString = projects[index]?.ownedFileIds
     const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
     const returningObjects = []
@@ -107,6 +108,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         const nodeEditor = editor.nodeEditors.get(nodeClass)
         const returningObject = {
           description: url,
+          fileId: fileId,
+          projectId: projects[index].sid,
           id: element,
           label: element,
           nodeClass: nodeClass,

@@ -460,15 +460,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
   beforeEditorUnload = (event) => {
     event.preventDefault()
-    Object.keys(globalThis.currentOwnedFileIds).forEach((element) => {
-      deleteAsset(globalThis.currentOwnedFileIds[element])
-    })
   }
 
   onEditorUnload = () => {
-    // Object.keys(globalThis.currentOwnedFileIds).forEach((element)=>{
-    //   deleteAsset(globalThis.currentOwnedFileIds[element])
-    // })
+    Object.keys(globalThis.currentOwnedFileIds).forEach((element) => {
+      deleteAsset(globalThis.currentOwnedFileIds[element])
+    })
   }
 
   componentDidMount() {
