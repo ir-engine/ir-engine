@@ -6,12 +6,13 @@ import { isClient } from '../../common/functions/isClient'
 export const createPhysXWorker = async () => {
   let worker
   if (isClient) {
+    // module workers currently don't work in safari and firefox
+    // const { default: Worker } = await import('./loadPhysX?worker')
     //@ts-ignore
-    const { default: Worker } = await import('./loadPhysX?worker')
-    worker = new Worker()
+    worker = new Worker('/workers/loadPhysXClassic.js')
   } else {
     //@ts-ignore
-    worker = new Worker(new URL('./loadPhysXNode.js', import.meta.url), { type: 'module' })
+    worker = new Worker(new URL('./loadPhysXNode.js', import.meta.url))
   }
   await PhysXInstance.instance.initPhysX(worker, Engine.initOptions.physics.settings)
   Engine.physxWorker = worker
