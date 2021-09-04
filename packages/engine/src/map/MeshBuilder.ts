@@ -31,6 +31,7 @@ import { PI } from '../common/constants/MathConstants'
 import convertFunctionToWorker from '@xrengine/common/src/utils/convertFunctionToWorker'
 import { isClient } from '../common/functions/isClient'
 import resolve from 'resolve'
+import { flatten } from 'lodash'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -54,33 +55,82 @@ function importScripts(...urls: string[]) {
   void urls
 }
 
-function geometryWorkerFunction() {
+const geometryWorkerFunction = function () {
   // TODO figure out how to use our own bundle
   importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
+  // importScripts('https://cdnjs.cloudflare.com/ajax/libs/Turf.js/0.0.124/turf.min.js')
+  importScripts('https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js')
 
   /* @ts-ignore:next-line */
-  const { Shape, ShapeGeometry, ExtrudeGeometry, Color } = this.THREE as typeof THREE
+  const { Vector3, Shape, ShapeGeometry, ExtrudeGeometry, Color, BufferAttribute } = this.THREE as typeof THREE
+
+  const turf = this.turf
 
   this.onmessage = function (msg) {
     const { style, feature, llCenter } = msg.data
-    const result = build(feature, llCenter, style)
+    const geometry = build(feature, llCenter, style)
 
-    const transferrables = [
-      result.getAttribute('uv').array,
-      result.getAttribute('position').array,
-      result.getAttribute('normal').array,
-      result.getAttribute('color').array
-    ]
-    // TODO fix origin?
-    postMessage(result, '*', transferrables as any)
+    const arrayBuffers = []
+    const attributes = {}
+    for (let attributeName of Object.keys(geometry.attributes)) {
+      const attribute = geometry.getAttribute(attributeName)
+      const array = attribute.array as Float32Array
+      arrayBuffers.push(array.buffer)
+      attributes[attributeName] = {
+        array,
+        itemSize: attribute.itemSize,
+        normalized: attribute.normalized
+      }
+    }
+
+    postMessage({ geometry: { type: geometry.type, attributes } }, arrayBuffers as any)
   }
 
   const METERS_PER_DEGREE_LL = 111139
+
+  const $vector3 = new Vector3()
   function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position, sceneScale = 1): Position {
     return [
       (lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale,
       (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale
     ]
+  }
+
+  // TODO integrate with ./styles.ts
+  const baseColorByFeatureType = {
+    university: 0xf5e0a0,
+    school: 0xffd4be,
+    apartments: 0xd1a1d1,
+    parking: 0xa0a7af,
+    civic: 0xe0e0e0,
+    commercial: 0x8fb0d8,
+    retail: 0xd8d8b2
+  }
+
+  function getBuildingColor(feature: Feature) {
+    const specialColor = baseColorByFeatureType[feature.properties.type]
+    return new Color(specialColor || 0xcacaca)
+  }
+
+  function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color, shadow: Color) {
+    const normals = geometry.attributes.normal
+    const topColor = baseColor.clone().multiply(light)
+    const bottomColor = baseColor.clone().multiply(shadow)
+
+    geometry.setAttribute('color', new BufferAttribute(new Float32Array(normals.count * 3), 3))
+
+    const colors = geometry.attributes.color
+
+    geometry.computeVertexNormals()
+    geometry.computeBoundingBox()
+    geometry.boundingBox.getSize($vector3)
+    const alpha = 1 - Math.min(1, $vector3.y / 200)
+    const lerpedTopColor = topColor.lerp(bottomColor, alpha)
+
+    for (let i = 0; i < normals.count; i++) {
+      const color = normals.getY(i) === 1 ? lerpedTopColor : bottomColor
+      colors.setXYZ(i, color.r, color.g, color.b)
+    }
   }
 
   function build(feature: Feature, llCenter: Position, style: IStyles): BufferGeometry | null {
@@ -90,7 +140,7 @@ function geometryWorkerFunction() {
       feature.geometry.type === 'LineString' ||
       feature.geometry.type === 'Point' ||
       feature.geometry.type === 'MultiLineString'
-        ? buffer(feature, style.width || 1, {
+        ? turf.buffer(feature, style.width || 1, {
             units: 'meters'
           })
         : feature
@@ -176,6 +226,27 @@ function geometryWorkerFunction() {
 
 const geometryWorker = isClient ? convertFunctionToWorker(geometryWorkerFunction) : null
 
+function buildGeometry(layerName: ILayerName, feature: Feature, llCenter): Promise<BufferGeometry | null> {
+  const style = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
+  const promise = new Promise((resolve) => {
+    geometryWorker.onmessage = (msg) => {
+      const geometrySafe = msg.data.geometry as BufferGeometry
+
+      const geometry = new BufferGeometry()
+
+      for (let [attributeName, attribute] of Object.entries(geometrySafe.attributes)) {
+        geometry.setAttribute(
+          attributeName,
+          new BufferAttribute(attribute.array, attribute.itemSize, attribute.normalized)
+        )
+      }
+
+      resolve(geometry)
+    }
+  })
+  geometryWorker.postMessage({ style, feature, llCenter })
+  return Promise.any([promise as any, new Promise((resolve) => setTimeout(resolve, 1000))])
+}
 // function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
 //   const shape = new Shape()
 //   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
@@ -260,15 +331,15 @@ const geometryWorker = isClient ? convertFunctionToWorker(geometryWorkerFunction
 //   return threejsGeometry
 // }
 
-function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: Position): BufferGeometry[] {
-  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
+function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: Position): Promise<BufferGeometry[]> {
+  // const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
   const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
 
   // the current method of merging produces strange results with flat geometries
   // if (styles.extrude !== 'flat' && geometries.length > 1) {
   //   return [mergeBufferGeometries(geometries.filter((g) => g).map((g) => toIndexed(g)))]
   // } else {
-  return geometries
+  return Promise.all(geometries)
   // }
 }
 
@@ -384,8 +455,8 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildMeshes(layerName: ILayerName, features: Feature[], llCenter: Position): Mesh[] {
-  const geometries = buildGeometries(layerName, features, llCenter)
+export async function buildMeshes(layerName: ILayerName, features: Feature[], llCenter: Position): Promise<Mesh[]> {
+  const geometries = await buildGeometries(layerName, features, llCenter)
 
   return geometries.map((g, i) => {
     const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[i].properties.class)
@@ -457,9 +528,9 @@ export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): 
 
 //   return meshes[0]
 // }
-export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+export async function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Promise<Group> {
   const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
-  const meshes = buildMeshes('building', features, llCenter)
+  const meshes = await buildMeshes('building', features, llCenter)
 
   const group = new Group()
   group.add(...meshes)
@@ -467,13 +538,17 @@ export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Po
   return group
 }
 
-function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
-  const meshes = layers.reduce((accMeshes, layerName) => {
+async function createLayerGroup(
+  layers: ILayerName[],
+  vectorTiles: TileFeaturesByLayer[],
+  llCenter: Position
+): Promise<Group> {
+  const meshesPromises = layers.map((layerName) => {
     const featuresInLayer = collectFeaturesByLayer(layerName, vectorTiles)
 
-    const meshes = buildMeshes(layerName, featuresInLayer, llCenter)
-    return [...accMeshes, ...meshes]
-  }, [])
+    return buildMeshes(layerName, featuresInLayer, llCenter)
+  })
+  const meshes = flatten(await Promise.all(meshesPromises))
   const group = new Group()
   if (meshes.length) {
     group.add(...meshes)
@@ -481,11 +556,11 @@ function createLayerGroup(layers: ILayerName[], vectorTiles: TileFeaturesByLayer
   return group
 }
 
-export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Promise<Group> {
   return createLayerGroup(['road'], vectorTiles, llCenter)
 }
 
-export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Promise<Group> {
   return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter)
 }
 
@@ -501,7 +576,7 @@ export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Posit
   }, [])
 }
 
-export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Group {
+export function createLandUse(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Promise<Group> {
   return createLayerGroup(['landuse'], vectorTiles, llCenter)
 }
 

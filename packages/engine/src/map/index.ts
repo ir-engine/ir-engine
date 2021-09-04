@@ -28,11 +28,11 @@ export const createMapObjects = async function (center: Position, minimumSceneRa
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
-  const buildingMesh = createBuildings(vectorTiles, center)
+  const buildingMesh = await createBuildings(vectorTiles, center)
   const groundMesh = createGroundMesh(rasterTiles as any, center[1])
-  const roadsMesh = createRoads(vectorTiles, center)
-  const waterMesh = createWater(vectorTiles, center)
-  const landUseMesh = createLandUse(vectorTiles, center)
+  const roadsMesh = await createRoads(vectorTiles, center)
+  const waterMesh = await createWater(vectorTiles, center)
+  const landUseMesh = await createLandUse(vectorTiles, center)
   const labels = createLabels(vectorTiles, center)
 
   ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
