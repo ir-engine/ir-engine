@@ -56,10 +56,6 @@ export const PhysicsSystem = async (attributes: { simulationEnabled?: boolean } 
     }
   })
 
-  if (!PhysXInstance.instance) {
-    PhysXInstance.instance = new PhysXInstance()
-  }
-
   simulationEnabled = attributes.simulationEnabled ?? true
 
   await createPhysXWorker()

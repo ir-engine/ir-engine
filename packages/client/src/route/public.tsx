@@ -5,10 +5,6 @@ import ProtectedRoute from './protected'
 import homePage from '../pages/index'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
-if (typeof globalThis.process === 'undefined') {
-  ;(globalThis as any).process = { env: {} }
-}
-
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
   static getDerivedStateFromError() {
     return { hasError: true }
