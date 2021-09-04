@@ -15,7 +15,6 @@ if (typeof globalThis.process === 'undefined') {
 
 export const initialize = (): Promise<void> => {
   return new Promise((resolve) => {
-    console.log(process.env)
     // Set Runtime config to client core
     if (process.env['VITE_LOCAL_BUILD'] === 'true') {
       console.log('local build!', process.env)
