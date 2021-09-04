@@ -70,7 +70,7 @@ const geometryWorkerFunction = function () {
   let processingQueue = false
 
   this.onmessage = function (msg) {
-    console.log('adding task', msg.taskId, 'to Queue')
+    // console.log('adding task', msg.data.taskId, 'to Queue')
     messageQueue.push(msg)
   }
 
@@ -78,22 +78,28 @@ const geometryWorkerFunction = function () {
     if (processingQueue && messageQueue.length > 0) return
 
     processingQueue = true
-    console.log('processing Queue begin', messageQueue.length, 'items')
+    // console.log('processing Queue begin', messageQueue.length, 'items')
     while (messageQueue.length > 0) {
       const msg = messageQueue.shift()
       const { taskId, style, feature, llCenter } = msg.data
       const geometry = build(feature, llCenter, style)
 
+      const bufferGeometry = new BufferGeometry().copy(geometry)
+
       const arrayBuffers = []
-      for (let attributeName of Object.keys(geometry.attributes)) {
-        const attribute = geometry.getAttribute(attributeName)
+      const attributes = {}
+      for (let attributeName of Object.keys(bufferGeometry.attributes)) {
+        const attribute = bufferGeometry.getAttribute(attributeName)
         const array = attribute.array as Float32Array
         arrayBuffers.push(array.buffer)
+        attributes[attributeName] = {
+          array,
+          itemSize: attribute.itemSize,
+          normalized: attribute.normalized
+        }
       }
 
-      const json = new BufferGeometry().copy(geometry).toJSON()
-      console.log('posting result for task', taskId)
-      postMessage({ taskId, geometry: json }, arrayBuffers as any)
+      postMessage({ taskId, json: bufferGeometry.toJSON(), transfer: { attributes } }, arrayBuffers as any)
     }
     processingQueue = false
   }, 200)
@@ -238,46 +244,36 @@ const geometryWorkerFunction = function () {
 
 const geometryWorker = isClient ? convertFunctionToWorker(geometryWorkerFunction) : null
 
-let taskId = 0
-const messagesByTaskId = {}
+const $workerMessagesByTaskId = []
+const $geometriesByTaskId = []
 
 geometryWorker.onmessage = (msg) => {
-  messagesByTaskId[msg.data.taskId] = msg
+  $workerMessagesByTaskId[msg.data.taskId] = msg
 }
 
 const geometryLoader = new BufferGeometryLoader()
-function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<BufferGeometry | null> {
+function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<void> {
   const style = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
-  const currentTaskId = taskId
-  const promise = new Promise((resolve) => {
-    setTimeout(() => {
-      const msg = messagesByTaskId[currentTaskId]
+  const promise = new Promise<void>((resolve) => {
+    const interval = setInterval(() => {
+      const msg = $workerMessagesByTaskId[taskId]
       if (msg) {
-        const geometry = geometryLoader.parse(msg.data.geometry)
-        resolve(geometry)
-      } else {
-        resolve(null)
+        const { json, transfer } = msg.data
+        const geometry = geometryLoader.parse(json)
+        for (const attributeName in transfer.attributes) {
+          const { array, itemSize, normalized } = transfer.attributes[attributeName]
+          geometry.setAttribute(attributeName, new BufferAttribute(array, itemSize, normalized))
+        }
+        $geometriesByTaskId[taskId] = geometry
+        clearInterval(interval)
+        delete $workerMessagesByTaskId[taskId]
+        $workerMessagesByTaskId[taskId] = null
+        resolve()
       }
-      delete messagesByTaskId[currentTaskId]
-      messagesByTaskId[currentTaskId] = null
-    }, 500)
+    }, 100)
   })
   geometryWorker.postMessage({ taskId, style, feature, llCenter })
-  taskId++
-  return promise as any
-  // return Promise.any([promise as any, new Promise((resolve) => setTimeout(resolve, 10000))])
-}
-
-function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: Position): Promise<BufferGeometry[]> {
-  // const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
-  const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
-
-  // the current method of merging produces strange results with flat geometries
-  // if (styles.extrude !== 'flat' && geometries.length > 1) {
-  //   return [mergeBufferGeometries(geometries.filter((g) => g).map((g) => toIndexed(g)))]
-  // } else {
-  return Promise.all(geometries)
-  // }
+  return promise
 }
 
 function createCanvasRenderingContext2D(width: number, height: number) {
@@ -285,35 +281,6 @@ function createCanvasRenderingContext2D(width: number, height: number) {
   canvas.width = width
   canvas.height = height
   return canvas.getContext('2d')
-}
-
-function generateTextureCanvas() {
-  const contextSmall = createCanvasRenderingContext2D(32, 64)
-  // plain it in white
-  contextSmall.fillStyle = '#ffffff'
-  contextSmall.fillRect(0, 0, 32, 64)
-  // draw the window rows - with a small noise to simulate light variations in each room
-  for (var y = 2; y < 64; y += 2) {
-    for (var x = 0; x < 32; x += 2) {
-      var value = Math.floor(Math.random() * 64)
-      contextSmall.fillStyle = 'rgb(' + [value, value, value].join(',') + ')'
-      contextSmall.fillRect(x, y, 2, 1)
-    }
-  }
-
-  // build a bigger canvas and copy the small one in it
-  // This is a trick to upscale the texture without filtering
-  const largeCanvasWidth = 512
-  const largeCanvasHeight = 1024
-  const contextLarge = createCanvasRenderingContext2D(largeCanvasWidth, largeCanvasHeight)
-  // disable smoothing
-  contextLarge.imageSmoothingEnabled = false
-  ;(contextLarge as any).webkitImageSmoothingEnabled = false
-  ;(contextLarge as any).mozImageSmoothingEnabled = false
-  // then draw the image
-  contextLarge.drawImage(contextSmall.canvas, 0, 0, largeCanvasWidth, largeCanvasHeight)
-
-  return contextLarge.canvas
 }
 
 function generateRasterTileCanvas(rasterTiles: ImageBitmap[]) {
@@ -328,17 +295,6 @@ function generateRasterTileCanvas(rasterTiles: ImageBitmap[]) {
   }
 
   return context.canvas
-}
-
-// TODO integrate with ./styles.ts
-const baseColorByFeatureType = {
-  university: 0xf5e0a0,
-  school: 0xffd4be,
-  apartments: 0xd1a1d1,
-  parking: 0xa0a7af,
-  civic: 0xe0e0e0,
-  commercial: 0x8fb0d8,
-  retail: 0xd8d8b2
 }
 
 const materialsByParams = new Map<MeshLambertMaterialParameters, MeshLambertMaterial>()
@@ -356,28 +312,60 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
   return material
 }
 
+let $taskId = 0
+const $meshesByTaskId = []
+
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export async function buildMeshes(layerName: ILayerName, features: Feature[], llCenter: Position): Promise<Mesh[]> {
-  const geometries = await buildGeometries(layerName, features, llCenter)
-
-  return geometries
-    .reduce((notNull, g) => (g ? [...notNull, g] : notNull), [])
-    .map((g, i) => {
-      const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[i].properties.class)
-
-      const materialParams = {
-        color: styles.color?.constant,
-        vertexColors: styles.color?.builtin_function === 'purple_haze' ? true : false,
-        depthTest: styles.extrude !== 'flat'
-      }
-
-      const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
-      const mesh = new Mesh(g, material)
-      mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
-      return mesh
+export function buildMeshes(
+  layerName: ILayerName,
+  features: Feature[],
+  llCenter: Position
+): {
+  tasks: { id: number; featureIndex: number }[]
+  promise: Promise<void>
+} {
+  const pendingTasks = []
+  const promises = []
+  for (let featureIndex = 0; featureIndex < features.length; featureIndex++) {
+    promises.push(buildGeometry($taskId, layerName, features[featureIndex], llCenter))
+    pendingTasks.push({
+      id: $taskId,
+      featureIndex
     })
+    $taskId++
+  }
+
+  return {
+    tasks: pendingTasks,
+    promise: Promise.all(promises).then(() => {
+      for (const task of pendingTasks) {
+        const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[task.featureIndex].properties.class)
+
+        const materialParams = {
+          color: styles.color?.constant,
+          vertexColors: styles.color?.builtin_function === 'purple_haze' ? true : false,
+          depthTest: styles.extrude !== 'flat'
+        }
+
+        const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
+        const mesh = new Mesh($geometriesByTaskId[task.id], material)
+        mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
+        $meshesByTaskId[task.id] = mesh
+      }
+    })
+  }
+}
+
+export function resetQueues() {
+  $taskId = 0
+  $geometriesByTaskId.length = 0
+  $meshesByTaskId.length = 0
+}
+
+export function getResultsQueue(): readonly Mesh[] {
+  return $meshesByTaskId
 }
 
 export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
@@ -412,18 +400,16 @@ export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): 
   return mesh
 }
 
-// export function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Mesh {
-//   const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
-//   const meshes = buildMeshes('building', features, llCenter)
-
-//   return meshes[0]
-// }
 export async function createBuildings(vectorTiles: TileFeaturesByLayer[], llCenter: Position): Promise<Group> {
   const features = unifyFeatures(collectFeaturesByLayer('building', vectorTiles))
-  const meshes = await buildMeshes('building', features, llCenter)
+  const { promise, tasks } = buildMeshes('building', features, llCenter)
+
+  await promise
 
   const group = new Group()
-  group.add(...meshes)
+  for (const { id } of tasks) {
+    group.add($meshesByTaskId[id])
+  }
 
   return group
 }
@@ -433,15 +419,21 @@ async function createLayerGroup(
   vectorTiles: TileFeaturesByLayer[],
   llCenter: Position
 ): Promise<Group> {
-  const meshesPromises = layers.map((layerName) => {
+  const promises = []
+  let allTasks = []
+  layers.forEach((layerName) => {
     const featuresInLayer = collectFeaturesByLayer(layerName, vectorTiles)
 
-    return buildMeshes(layerName, featuresInLayer, llCenter)
+    const { promise, tasks } = buildMeshes(layerName, featuresInLayer, llCenter)
+    promises.push(promise)
+    allTasks = allTasks.concat(tasks)
   })
-  const meshes = flatten(await Promise.all(meshesPromises))
   const group = new Group()
-  if (meshes.length) {
-    group.add(...meshes)
+
+  await Promise.all(promises)
+
+  for (const { id } of allTasks) {
+    group.add($meshesByTaskId[id])
   }
   return group
 }

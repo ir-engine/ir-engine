@@ -7,6 +7,7 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { GeoLabelSetComponent } from '../../map/GeoLabelSetComponent'
 import { MapComponent } from '../../map/MapComponent'
+import { Group } from 'three'
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
@@ -22,10 +23,10 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     args
   })
 
-  const { mapMesh, navMesh, groundMesh, labels } = await createMapObjects(center, minimumSceneRadius, args)
+  const { navMesh, groundMesh, labels } = await createMapObjects(center, minimumSceneRadius, args)
 
   addComponent(entity, Object3DComponent, {
-    value: mapMesh
+    value: new Group()
   })
   addComponent(entity, NavMeshComponent, {
     yukaNavMesh: navMesh,
