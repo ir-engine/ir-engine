@@ -39,14 +39,9 @@ export default defineConfig((command) => {
   };
 
   const returned = {
-    plugins: [
-    ],
+    plugins: [],
     server: {
       host: true,
-      https: {
-        key: fs.readFileSync('../../certs/key.pem'),
-        cert: fs.readFileSync('../../certs/cert.pem')
-      }
     },
     resolve: {
       alias: {
@@ -72,6 +67,12 @@ export default defineConfig((command) => {
       },
     },
   };
+  if(process.env.NODE_ENV === 'development') {
+    returned.server.https = {
+      key: fs.readFileSync('../../certs/key.pem'),
+      cert: fs.readFileSync('../../certs/cert.pem')
+    }
+  }
   if (command.command === 'build') {
    returned.build.rollupOptions.plugins = [
        inject({
