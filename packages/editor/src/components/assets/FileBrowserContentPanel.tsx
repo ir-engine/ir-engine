@@ -137,7 +137,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }, [selectedProjectIndex])
 
   const onFileUploaded = (index) => {
-    console.log('selectedprojectfiles:' + projectIDRef.current)
     if (projectIDRef.current === 0) {
       renderProjectFiles(selectedProjectIndex)
     }
@@ -152,7 +151,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   return (
     <>
-      {console.log('RENDERING FILE BROWSER:' + selectedProjectIndex)}
       {/* @ts-ignore */}
       <InputGroup name="Project Name" label="Project Name">
         {/* @ts-ignore */}
