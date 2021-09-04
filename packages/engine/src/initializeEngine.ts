@@ -170,8 +170,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
   registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
-    simulationEnabled: options.physics.simulationEnabled,
-    worker: options.physics.physxWorker
+    simulationEnabled: options.physics.simulationEnabled
   })
   registerSystem(SystemUpdateType.Fixed, MapUpdateSystem, {
     getViewerEntity() {
@@ -207,8 +206,7 @@ const registerEditorSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
-    simulationEnabled: options.physics.simulationEnabled,
-    worker: options.physics.physxWorker
+    simulationEnabled: options.physics.simulationEnabled
   })
 
   // Miscellaneous Systems
@@ -230,8 +228,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
-    simulationEnabled: options.physics.simulationEnabled,
-    worker: options.physics.physxWorker
+    simulationEnabled: options.physics.simulationEnabled
   })
 
   // Miscellaneous Systems

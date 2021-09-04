@@ -32,7 +32,6 @@ export type InitializeOptions = {
   physics?: {
     simulationEnabled?: boolean
     settings?: PhysXConfig
-    physxWorker?: () => Worker
   }
   systems?: SystemInitializeType<any>[]
 }

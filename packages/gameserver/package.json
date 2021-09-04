@@ -33,11 +33,10 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
-    "golf": "nodemon -r ts-eager/register src/golf.ts",
-    "mappa": "cross-env NODE_ENV=production ts-eager src/mappa.ts",
-    "dev": "nodemon -r ts-eager/register src/index.ts",
-    "dev-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
+    "start": "cross-env NODE_ENV=production node -r ./compile.js src/index.ts",
+    "golf": "nodemon -r ./compile.js src/golf.ts",
+    "dev": "nodemon -r ./compile.js src/index.ts",
+    "dev-nossl": "cross-env NOSSL=true nodemon -r ./compile.js src/index.ts",
     "test": "jest",
     "validate": "npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev"
@@ -67,7 +66,7 @@
     "@google-cloud/agones-sdk": "1.17.0",
     "@xrengine/engine": "^0.4.0",
     "@xrengine/server-core": "^0.4.0",
-    "aws-sdk": "2.981.0",
+    "aws-sdk": "2.983.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "comlink": "4.3.1",
@@ -110,7 +109,6 @@
     "trace-unhandled": "2.0.1",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
-    "web-worker": "1.0.0",
     "winston": "3.3.3"
   },
   "devDependencies": {

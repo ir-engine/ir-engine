@@ -46,10 +46,11 @@ import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/i
 import { useState } from '@hookstate/core'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
+import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './functions/setupPlayerAvatar'
 import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
-import { IncomingActionType } from '../../../../engine/src/networking/interfaces/NetworkTransport'
+import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { NetworkWorldAction } from '../../../../engine/src/networking/interfaces/NetworkWorldActions'
 
 export function getHole(world: ECSWorld, i: number) {
   return world.world.namedEntities.get(`GolfHole-${i}`)
@@ -380,7 +381,6 @@ export const GolfSystem = async (): Promise<System> => {
     for (const action of Network.instance.incomingActions) receptor(world, action as any)
 
     const currentPlayer = GolfState.players[GolfState.currentPlayer.value].value
-
     const playerEnterQueryResults = playerEnterQuery(world)
 
     if (isClient) {
@@ -395,7 +395,7 @@ export const GolfSystem = async (): Promise<System> => {
             const currentPlayerNumber = GolfState.currentPlayer.value
             const entityBall = getBall(world, currentPlayerNumber)
 
-            if (entityBall && getComponent(entityBall, NetworkObjectComponentOwner).networkId === networkId) {
+            if (entityBall && getComponent(entityBall, NetworkObjectOwnerComponent).networkId === networkId) {
               const { collisionEntity } = getCollisions(entity, GolfBallComponent)
               if (collisionEntity !== null && collisionEntity === entityBall) {
                 const golfBallComponent = getComponent(entityBall, GolfBallComponent)
@@ -422,7 +422,8 @@ export const GolfSystem = async (): Promise<System> => {
         console.log('player leave???')
         // if a player disconnects and it's their turn, change turns to the next player
         if (currentPlayer.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
-        removeEntity(getClub(world, getGolfPlayerNumber(entity)))
+        const clubEntity = getClub(world, getGolfPlayerNumber(entity))
+        dispatchFromServer(NetworkWorldAction.destroyObject(getComponent(clubEntity, NetworkObjectComponent).networkId))
       }
     }
 

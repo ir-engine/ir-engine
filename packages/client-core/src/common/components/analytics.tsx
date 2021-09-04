@@ -3,7 +3,8 @@ import ReactGA from 'react-ga4'
 import { Config } from '@xrengine/common/src/config'
 
 export const initGA = () => {
-  ReactGA.initialize(Config.publicRuntimeConfig.gaMeasurementId)
+  if (Config.publicRuntimeConfig.gaMeasurementId && Config.publicRuntimeConfig.gaMeasurementId.length > 0)
+    ReactGA.initialize(Config.publicRuntimeConfig.gaMeasurementId)
 }
 
 export const logPageView = () => {

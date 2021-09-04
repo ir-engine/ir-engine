@@ -16,7 +16,6 @@ import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
 import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { dispatchFromServer } from '../../networking/functions/dispatch'
@@ -26,16 +25,15 @@ import {
   NetworkWorldActionType
 } from '../../networking/interfaces/NetworkWorldActions'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { Pose } from '../../transform/TransformInterfaces'
+import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
+import { createPhysXWorker } from '../functions/createPhysXWorker'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
 
-export const PhysicsSystem = async (
-  attributes: { worker?: () => Worker; simulationEnabled?: boolean } = {}
-): Promise<System> => {
+export const PhysicsSystem = async (attributes: { simulationEnabled?: boolean } = {}): Promise<System> => {
   const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnRigidbodyAddQuery = enterQuery(spawnRigidbodyQuery)
 
@@ -48,15 +46,9 @@ export const PhysicsSystem = async (
   const networkObjectQuery = defineQuery([NetworkObjectComponent])
   const networkObjectRemoveQuery = exitQuery(networkObjectQuery)
 
-  const clientAuthoritativeQuery = defineQuery([
-    NetworkObjectComponent,
-    ClientAuthoritativeComponent,
-    ColliderComponent
-  ])
+  const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObjectOwnerComponent, ColliderComponent])
 
   let simulationEnabled = false
-
-  Engine.physxWorker = attributes.worker()
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
     if (typeof ev.physics !== 'undefined') {
@@ -70,8 +62,7 @@ export const PhysicsSystem = async (
 
   simulationEnabled = attributes.simulationEnabled ?? true
 
-  await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
-  Engine.workers.push(Engine.physxWorker)
+  await createPhysXWorker()
 
   function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
     switch (action.type) {
@@ -149,7 +140,7 @@ export const PhysicsSystem = async (
       if (!velocity) continue
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      if ((!isClient && hasComponent(entity, ClientAuthoritativeComponent)) || hasComponent(entity, AvatarComponent))
+      if ((!isClient && hasComponent(entity, NetworkObjectOwnerComponent)) || hasComponent(entity, AvatarComponent))
         continue
 
       if (collider.body.type === BodyType.KINEMATIC || collider.body.type === BodyType.STATIC) {

@@ -9,13 +9,14 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions'
 import { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { BodyType } from 'three-physx'
+import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
+import { isEntityLocalClientOwnerOf } from '../../networking/functions/isEntityLocalClientOwnerOf'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -39,7 +40,7 @@ export const InterpolationSystem = async (): Promise<System> => {
    */
   const networkObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
-    Not(ClientAuthoritativeComponent),
+    Not(NetworkObjectOwnerComponent),
     InterpolationComponent,
     ColliderComponent,
     NetworkObjectComponent
@@ -51,7 +52,6 @@ export const InterpolationSystem = async (): Promise<System> => {
   const correctionFromServerQuery = defineQuery([
     Not(AvatarComponent),
     Not(InterpolationComponent),
-    Not(ClientAuthoritativeComponent),
     ColliderComponent,
     NetworkObjectComponent
   ])
@@ -60,7 +60,7 @@ export const InterpolationSystem = async (): Promise<System> => {
    * Server controlled object with interpolation but no collider
    */
   const transformInterpolationQuery = defineQuery([
-    Not(ClientAuthoritativeComponent),
+    Not(NetworkObjectOwnerComponent),
     Not(AvatarComponent),
     Not(ColliderComponent),
     InterpolationComponent,
@@ -73,7 +73,6 @@ export const InterpolationSystem = async (): Promise<System> => {
    */
   const transformUpdateFromServerQuery = defineQuery([
     Not(InterpolationComponent),
-    Not(ClientAuthoritativeComponent),
     Not(AvatarComponent),
     Not(ColliderComponent),
     TransformComponent,
@@ -124,9 +123,6 @@ export const InterpolationSystem = async (): Promise<System> => {
     }
 
     for (const entity of networkObjectInterpolationQuery(world)) {
-      // TODO: quick bitecs fix
-      if (hasComponent(entity, ClientAuthoritativeComponent) || hasComponent(entity, AvatarComponent)) continue
-
       const collider = getComponent(entity, ColliderComponent)
       const interpolationSnapshot =
         findInterpolationSnapshot(entity, snapshots.interpolation) ??
@@ -150,14 +146,6 @@ export const InterpolationSystem = async (): Promise<System> => {
     }
 
     for (const entity of transformInterpolationQuery(world)) {
-      // TODO: quick bitecs fix
-      if (
-        hasComponent(entity, ClientAuthoritativeComponent) ||
-        hasComponent(entity, AvatarComponent) ||
-        hasComponent(entity, ColliderComponent)
-      )
-        continue
-
       const transform = getComponent(entity, TransformComponent)
       const interpolationSnapshot =
         findInterpolationSnapshot(entity, snapshots.interpolation) ??
@@ -165,7 +153,6 @@ export const InterpolationSystem = async (): Promise<System> => {
 
       if (interpolationSnapshot == null) continue
 
-      // console.log('transformInterpolationQuery', getComponent(entity, NameComponent).name)
       transform.position.set(interpolationSnapshot.x, interpolationSnapshot.y, interpolationSnapshot.z)
       transform.rotation.set(
         interpolationSnapshot.qX,
@@ -176,25 +163,14 @@ export const InterpolationSystem = async (): Promise<System> => {
     }
 
     for (const entity of correctionFromServerQuery(world)) {
-      // TODO: quick bitecs fix
-      if (
-        hasComponent(entity, ClientAuthoritativeComponent) ||
-        hasComponent(entity, InterpolationComponent) ||
-        hasComponent(entity, ColliderComponent)
-      )
-        continue
-
-      // console.log('correctionFromServerQuery', getComponent(entity, NameComponent).name)
+      if (isEntityLocalClientOwnerOf(entity)) continue
 
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) return
 
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      if (collider.body.type === BodyType.KINEMATIC) {
-        transform.position.set(snapshot.x, snapshot.y, snapshot.z)
-        transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
-      } else {
+      if (collider.body.type === BodyType.DYNAMIC) {
         collider.body.updateTransform({
           translation: {
             x: snapshot.x,
@@ -208,22 +184,18 @@ export const InterpolationSystem = async (): Promise<System> => {
             w: snapshot.qW
           }
         })
+      } else {
+        transform.position.set(snapshot.x, snapshot.y, snapshot.z)
+        transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
       }
     }
 
     for (const entity of transformUpdateFromServerQuery(world)) {
-      // TODO: quick bitecs fix
-      if (
-        hasComponent(entity, InterpolationComponent) ||
-        hasComponent(entity, ClientAuthoritativeComponent) ||
-        hasComponent(entity, AvatarComponent) ||
-        hasComponent(entity, ColliderComponent)
-      )
-        continue
+      // we don't want to accept updates from the server if the local client is in control of this entity
+      if (isEntityLocalClientOwnerOf(entity)) continue
 
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) return
-      // console.log('transformUpdateFromServerQuery', getComponent(entity, NameComponent).name, snapshot)
       const transform = getComponent(entity, TransformComponent)
       transform.position.set(snapshot.x, snapshot.y, snapshot.z)
       transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
