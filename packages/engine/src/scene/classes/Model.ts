@@ -1,7 +1,7 @@
 import { AnimationMixer, Object3D } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
 import { AnimationManager } from '../../avatar/AnimationManager'
-import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
+import cloneObject3D from '../../scene/functions/cloneObject3D'
 export default class Model extends Object3D {
   model: any
   _src: any

@@ -1,4 +1,4 @@
-import { register } from 'trace-unhandled'
+const { register } = require('trace-unhandled')
 register()
 
 process.on('SIGTERM', async (err) => {

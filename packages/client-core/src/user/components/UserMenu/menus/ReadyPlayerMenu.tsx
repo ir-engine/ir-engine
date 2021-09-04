@@ -144,7 +144,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
             })
         })
 
-        var avatarArrayBuffer = await new Response(avatarResult).arrayBuffer()
+        var avatarArrayBuffer = await new Response(avatarResult as any).arrayBuffer()
         loader.parse(avatarArrayBuffer, '', (gltf) => {
           var avatarName = this.state.avatarUrl.substring(
             this.state.avatarUrl.lastIndexOf('/') + 1,
@@ -155,7 +155,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
           this.scene.add(gltf.scene)
           this.renderScene()
           const error = this.validate(gltf.scene)
-          this.setState({ error, obj: gltf.scene, selectedFile: new File([avatarResult], avatarName) })
+          this.setState({ error, obj: gltf.scene, selectedFile: new File([avatarResult as any], avatarName) })
 
           this.uploadAvatar()
         })

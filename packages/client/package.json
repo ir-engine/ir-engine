@@ -13,14 +13,14 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "vite",
+    "dev": "cross-env NODE_ENV=development vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js dist/server.js",
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview && cp src/server.js dist/server.js",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run test",
     "test": "jest",
-    "localbuild": "cross-env NODE_ENV=local LOCAL_BUILD=true npm run build",
-    "localstart": "cross-env NODE_ENV=local LOCAL_BUILD=true npm run start"
+    "localbuild": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run build",
+    "localstart": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run start"
   },
   "resolutions": {
     "socket.io": "4.2.0",
@@ -48,6 +48,7 @@
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.13",
+    "@vladmandic/face-api": "1.4.2",
     "@xrengine/client-core": "^0.4.0",
     "@xrengine/editor": "^0.4.0",
     "@xrengine/engine": "^0.4.0",
@@ -59,7 +60,6 @@
     "draco3dgltf": "1.4.1",
     "eslint-plugin-react-hooks": "4.2.0",
     "eventemitter3": "4.0.7",
-    "@vladmandic/face-api": "1.4.2",
     "faker": "5.5.3",
     "file-regex": "3.1.0",
     "fuse.js": "6.4.6",
@@ -68,7 +68,7 @@
     "immutable": "4.0.0-rc.14",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
-    "mediasoup-client": "3.6.37",
+    "mediasoup-client": "3.6.39",
     "moment": "2.29.1",
     "rc-dock": "3.0.19",
     "rc-slider": "9.7.2",
@@ -90,7 +90,7 @@
     "react-map-gl-geocoder": "2.2.0",
     "react-modal": "3.14.3",
     "react-redux": "7.2.4",
-    "react-router-dom": "5.2.1",
+    "react-router-dom": "5.3.0",
     "react-select": "4.3.1",
     "react-virtualized-auto-sizer": "1.0.6",
     "react-window": "1.8.6",
@@ -104,6 +104,7 @@
     "shaka-player": "3.2.0",
     "socket.io-client": "4.2.0",
     "styled-components": "5.3.1",
+    "three-physx": "^0.0.37",
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
@@ -118,6 +119,7 @@
     "comlink": "4.3.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
+    "esbuild-plugin-tsc": "0.3.0",
     "eslint": "7.32.0"
   },
   "license": "ISC"

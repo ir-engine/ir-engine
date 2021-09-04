@@ -1,4 +1,4 @@
-import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions'
 import { IKRig } from '../components/IKRig'
 import { defineQuery, defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'

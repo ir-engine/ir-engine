@@ -39,25 +39,21 @@ export default defineConfig((command) => {
   };
 
   const returned = {
-    plugins: [
-    ],
+    plugins: [],
     server: {
       host: true,
-      https: {
-        key: fs.readFileSync('../../certs/key.pem'),
-        cert: fs.readFileSync('../../certs/cert.pem')
-      }
     },
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
-        'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
+        // 'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
-        'three-physx': 'three-physx/src/index.ts'
+        // 'three-physx': 'three-physx/src/index.ts'
       }
     },
     build: {
+      target: 'esnext',
       sourcemap: 'inline',
       minify: 'esbuild',
       rollupOptions: {
@@ -72,15 +68,24 @@ export default defineConfig((command) => {
       },
     },
   };
-  if (command.command === 'build') {
+  if(process.env.NODE_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
+    returned.server.https = {
+      key: fs.readFileSync('../../certs/key.pem'),
+      cert: fs.readFileSync('../../certs/cert.pem')
+    }
+  }
+  if (command.command === 'build' && process.env.VITE_LOCAL_BUILD !== 'true') {
    returned.build.rollupOptions.plugins = [
        inject({
          process: 'process'
        })
    ]
-  } else returned.define = {
-    'process.env': process.env,
-    'process.browser': process.browser,
+  }
+  if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') { 
+    returned.define = {
+      'process.env': process.env,
+      'process.browser': process.browser,
+    }
   }
   return returned
 });

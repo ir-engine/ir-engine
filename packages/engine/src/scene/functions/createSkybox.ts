@@ -2,7 +2,7 @@ import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader, 
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
-import { SceneBackgroundProps, SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
+import { SceneBackgroundProps, SkyTypeEnum } from '../../scene/constants/SkyBoxShaderProps'
 import { Sky } from '../classes/Sky'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { setSkyDirection } from '../functions/setSkyDirection'
