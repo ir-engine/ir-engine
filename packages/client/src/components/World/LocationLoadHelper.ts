@@ -24,8 +24,8 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { EngineCallbacks } from './'
 import { clientNetworkReceptor } from '@xrengine/engine/src/networking/functions/clientNetworkReceptor'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { NetworkWorldAction } from '../../../../engine/src/networking/interfaces/NetworkWorldActions'
-import { PrefabType } from '../../../../engine/src/networking/templates/PrefabType'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
+import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { Vector3, Quaternion } from 'three'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
@@ -133,8 +133,8 @@ export const initEngine = async (
   Store.store.dispatch(setAppLoaded(true))
 
   // 4. Joing to new world
-  !isOffline &&
-    (await new Promise<void>(async (resolve) => {
+  if (!isOffline) {
+    await new Promise<void>(async (resolve) => {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
       let spawnTransform
       if (newSpawnPos) {
@@ -150,9 +150,12 @@ export const initEngine = async (
         clientNetworkReceptor(World.defaultWorld.ecsWorld, action)
       })
       resolve()
-    }))
+    })
+  }
 
-  isOffline && createOfflineUser()
+  if (isOffline) {
+    createOfflineUser()
+  }
 
   await new Promise<void>((resolve) => {
     const listener = ({ uniqueId }) => {
