@@ -64,6 +64,7 @@ export function locationLoaded() {
 }
 
 export function getPlayerPosition() {
+  console.log('Network.instance.localClientEntity', Network.instance.localClientEntity)
   return getComponent(Network.instance.localClientEntity, TransformComponent)?.position
 }
 
