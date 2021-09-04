@@ -18,7 +18,7 @@ export const NetworkActionDispatchSystem = async (): Promise<System> => {
     } else {
       // On client:
       // we only send actions to server (server will send back our action if it's allowed)
-      Network.instance.transport.sendActions(Network.instance.outgoingActions)
+      Network.instance.transport?.sendActions(Network.instance.outgoingActions)
       Network.instance.incomingActions = []
       Network.instance.outgoingActions = []
     }

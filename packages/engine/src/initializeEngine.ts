@@ -241,7 +241,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   const world = new World()
 
   Engine.initOptions = options
-  Engine.offlineMode = typeof options.networking.schema === 'undefined'
+  Engine.offlineMode = !options.networking.schema.transport
   Engine.publicPath = options.publicPath
   Engine.lastTime = now() / 1000
 

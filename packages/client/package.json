@@ -16,7 +16,6 @@
     "dev": "cross-env NODE_ENV=development vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js dist/server.js",
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview && cp src/server.js dist/server.js",
-    "offline": "cross-env NODE_ENV=offline node --max_old_space-size=6144 ./index.js --port 3000",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run test",
     "test": "jest",

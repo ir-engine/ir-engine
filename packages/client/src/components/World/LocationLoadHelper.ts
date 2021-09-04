@@ -24,6 +24,9 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { EngineCallbacks } from './'
 import { clientNetworkReceptor } from '@xrengine/engine/src/networking/functions/clientNetworkReceptor'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
+import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
+import { Vector3, Quaternion } from 'three'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -65,15 +68,36 @@ export const getSceneData = async (sceneId: string, isOffline: boolean) => {
   return client.service(service).get(serviceId)
 }
 
+const createOfflineUser = () => {
+  const avatar = {
+    thumbnailURL: '',
+    avatarURL: '',
+    avatarId: 0
+  } as any
+
+  const userId = 'user'
+  const netId = 0
+  const params = {
+    position: new Vector3(0.18393396470500378, 0, 0.2599274866972079),
+    rotation: new Quaternion()
+  }
+
+  // it is needed by ClientAvatarSpawnSystem
+  Network.instance.userId = userId
+  // Replicate the server behavior
+  clientNetworkReceptor(World.defaultWorld.ecsWorld, NetworkWorldAction.createClient(userId, avatar))
+  clientNetworkReceptor(
+    World.defaultWorld.ecsWorld,
+    NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params)
+  )
+}
+
 export const initEngine = async (
   sceneId: string,
   initOptions: InitializeOptions,
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
-  const isOffline = !initOptions.networking
-  let sceneData = await getSceneData(sceneId, isOffline)
-
   // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
@@ -84,12 +108,16 @@ export const initEngine = async (
     }
   }
 
-  // 2. Connect to server
-  if (!isOffline) await Store.store.dispatch(connectToInstanceServer('instance'))
+  const isOffline = Engine.offlineMode
+  let sceneData = await getSceneData(sceneId, isOffline)
 
-  await new Promise<void>((resolve) => {
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
-  })
+  // 2. Connect to server
+  if (!isOffline) {
+    await Store.store.dispatch(connectToInstanceServer('instance'))
+    await new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
+    })
+  }
 
   if (typeof engineCallbacks?.onConnectedToServer === 'function') {
     engineCallbacks.onConnectedToServer()
@@ -104,28 +132,30 @@ export const initEngine = async (
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Store.store.dispatch(setAppLoaded(true))
 
-  if (typeof engineCallbacks?.onConnectedToServer === 'function') {
-    engineCallbacks.onConnectedToServer()
+  // 4. Joing to new world
+  if (!isOffline) {
+    await new Promise<void>(async (resolve) => {
+      // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+      let spawnTransform
+      if (newSpawnPos) {
+        spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
+      }
+
+      const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+        MessageTypes.JoinWorld.toString(),
+        { spawnTransform }
+      )
+      worldState.forEach((action) => {
+        // TODO: send the correct world when we support multiple worlds
+        clientNetworkReceptor(World.defaultWorld.ecsWorld, action)
+      })
+      resolve()
+    })
   }
 
-  // 4. Joing to new world
-  await new Promise<void>(async (resolve) => {
-    // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-    let spawnTransform
-    if (newSpawnPos) {
-      spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
-    }
-
-    const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-      MessageTypes.JoinWorld.toString(),
-      { spawnTransform }
-    )
-    worldState.forEach((action) => {
-      // TODO: send the correct world when we support multiple worlds
-      clientNetworkReceptor(World.defaultWorld.ecsWorld, action)
-    })
-    resolve()
-  })
+  if (isOffline) {
+    createOfflineUser()
+  }
 
   await new Promise<void>((resolve) => {
     const listener = ({ uniqueId }) => {
