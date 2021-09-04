@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
-import { AssetsPanelContainer, Column, Row } from '../layout/Flex'
+import { AssetsPanelContainer } from '../layout/Flex'
 import { EditorContext } from '../contexts/EditorContext'
 import AssetDropZone from './AssetDropZone'
 // @ts-ignore
@@ -158,18 +158,16 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       </InputGroup>
 
       <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
-        <Column flex>
-          <AssetPanelContentContainer>
-            <AssetGrid
-              source={selectedSource}
-              items={selectedProjectFiles}
-              onLoadMore={loadMore}
-              hasMore={hasMore}
-              onSelect={onSelect}
-              isLoading={false}
-            />
-          </AssetPanelContentContainer>
-        </Column>
+        <AssetPanelContentContainer>
+          <AssetGrid
+            source={selectedSource}
+            items={selectedProjectFiles}
+            onLoadMore={loadMore}
+            hasMore={hasMore}
+            onSelect={onSelect}
+            isLoading={false}
+          />
+        </AssetPanelContentContainer>
       </AssetsPanelContainer>
     </>
   )
