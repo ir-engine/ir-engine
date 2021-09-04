@@ -248,7 +248,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
   const onDelete = useCallback(
     (_, trigger) => {
-      source.delete(trigger.item)
+      //source.delete(trigger.item)
     },
     [source]
   )

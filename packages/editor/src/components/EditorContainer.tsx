@@ -458,19 +458,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.t = this.props.t
   }
 
-  beforeEditorUnload = (event) => {
-    event.preventDefault()
-  }
-
-  onEditorUnload = () => {
-    Object.keys(globalThis.currentOwnedFileIds).forEach((element) => {
-      deleteAsset(globalThis.currentOwnedFileIds[element])
-    })
-  }
-
   componentDidMount() {
-    window.addEventListener('beforeunload', this.beforeEditorUnload)
-    window.addEventListener('unload', this.onEditorUnload)
     if (this.props.adminState.get('locations').get('updateNeeded') === true) {
       this.props.fetchAdminLocations()
     }
@@ -526,8 +514,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.beforeEditorUnload)
-    window.removeEventListener('unload', this.onEditorUnload)
     const editor = this.state.editor
     editor.removeListener('sceneModified', this.onSceneModified)
     editor.removeListener('saveProject', this.onSaveProject)
