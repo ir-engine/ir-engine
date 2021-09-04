@@ -12,6 +12,14 @@ const StyledTooltip = (styled as any).div`
   display: inherit;
 `
 
+interface TooltipProp {
+  children: any
+  padding?: any
+  position?: any
+  renderContent?: any
+  disabled?: boolean
+}
+
 /**
  *
  * @author Robert Long
@@ -23,7 +31,7 @@ const StyledTooltip = (styled as any).div`
  * @param {any} rest
  * @returns
  */
-export function Tooltip({ children, padding, position, renderContent, disabled, ...rest }) {
+export function Tooltip({ children, padding, position, renderContent, disabled, ...rest }: TooltipProp) {
   const [hoverRef, isHovered] = useHover()
 
   const getTargetRef = useCallback(() => {
@@ -78,7 +86,6 @@ export function InfoTooltip({ info, children, ...rest }) {
   }
 
   return (
-    /* @ts-ignore */
     <Tooltip {...rest} renderContent={() => <TooltipContainer>{info}</TooltipContainer>}>
       {children}
     </Tooltip>

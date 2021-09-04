@@ -1,11 +1,11 @@
-export interface Column {
+export interface CreatorColumn {
   id: 'name' | 'username' | 'email' | 'link' | 'description' | 'avatarId' | 'socialMedia' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
 }
 
-export const columns: Column[] = [
+export const creatorColumns: CreatorColumn[] = [
   { id: 'name', label: 'Name', minWidth: 150 },
   { id: 'username', label: 'Username', minWidth: 100 },
   {
@@ -46,7 +46,7 @@ export const columns: Column[] = [
   }
 ]
 
-export interface Data {
+export interface CreatorData {
   id: string
   name: string
   username: string

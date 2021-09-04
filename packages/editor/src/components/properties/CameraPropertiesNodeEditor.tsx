@@ -101,16 +101,13 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
 
   return (
     <NodeEditor {...props} description={'Properties that will affect the player camera'}>
-      {/* @ts-ignore */}
       <InputGroup name="Start In Free Look" label={'Start In Free Look'}>
         <BooleanInput
           value={(node as any).startInFreeLook}
           onChange={(value) => onChangePayload('startInFreeLook', value)}
         />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Projection Type" label={'Projection Type'}>
-        {/* @ts-ignore */}
         <SelectInput
           placeholder={projectionTypeSelect[0].label}
           value={node.projectionType}
@@ -118,9 +115,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
           options={projectionTypeSelect}
         />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Camera Mode" label={'Camera Mode'}>
-        {/* @ts-ignore */}
         <SelectInput
           placeholder={cameraModeSelect[0].label}
           value={node.cameraMode}
@@ -133,9 +128,7 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
       </InputGroup>
 
       {cameraMode == CameraMode.Dynamic && (
-        /* @ts-ignore */
         <InputGroup name="Default Camera Mode" label={'Default Camera Mode'}>
-          {/* @ts-ignore */}
           <SelectInput
             placeholder={defaultCameraModeSelect[0].label}
             value={node.defaultCameraMode}
@@ -144,7 +137,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
           />
         </InputGroup>
       )}
-      {/* @ts-ignore */}
 
       <NumericInputGroup
         name="Field Of View"
@@ -159,7 +151,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         value={(node as any).fov}
       />
 
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="cameraNearClip"
         label={'Min Projection Distance'}
@@ -172,7 +163,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         value={(node as any).cameraNearClip}
       />
 
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="cameraFarClip"
         label={'Max Projection Distance'}
@@ -184,7 +174,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         default={100}
         value={(node as any).cameraFarClip}
       />
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="minCameraDistance"
         label={'Min Camera Distance'}
@@ -197,7 +186,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         value={(node as any).minCameraDistance}
       />
 
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="maxCameraDistance"
         label={'Max Camera Distance'}
@@ -209,7 +197,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         default={5}
         value={(node as any).maxCameraDistance}
       />
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="startCameraDistance"
         label={'Start Camera Distance'}
@@ -222,7 +209,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         value={(node as any).startCameraDistance}
       />
 
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="minPhi"
         label={'Min Phi'}
@@ -235,7 +221,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         value={(node as any).minPhi}
       />
 
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="maxPhi"
         label={'Max Phi'}
@@ -247,7 +232,6 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         default={5}
         value={(node as any).maxPhi}
       />
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="startPhi"
         label={'Start Phi'}

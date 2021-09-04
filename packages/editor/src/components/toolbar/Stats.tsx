@@ -10,14 +10,13 @@ import styles from './styles.module.scss'
  * @constructor
  */
 export function Stats({ editor }) {
-  const [info, setInfo] = useState(0)
+  const [info, setInfo] = useState<any>({})
   const { t } = useTranslation()
 
   useEffect(() => {
     editor.renderer.onUpdateStats = (info) => {
       if (info.render.frame % 3 === 0) {
         setInfo({
-          /* @ts-ignore */
           geometries: info.memory.geometries,
           textures: info.memory.textures,
           fps: info.render.fps,

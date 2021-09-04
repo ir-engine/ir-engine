@@ -1,4 +1,3 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { BadRequest } from '@feathersjs/errors'
@@ -41,7 +40,7 @@ const validateCollectionData = () => {
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
+    all: [authenticate('jwt')],
     find: [],
     get: [],
     create: [
@@ -77,4 +76,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

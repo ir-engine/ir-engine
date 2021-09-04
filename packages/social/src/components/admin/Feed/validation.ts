@@ -1,15 +1,15 @@
 import * as yup from 'yup'
 
-export const mediaValidationSchema = yup.object({
+export const feedValidationSchema = yup.object({
   title: yup.string().required('Title is required'),
   type: yup.string().required('Type is required!')
 })
 
-export const formValid = (rest, formErrors) => {
+export const validateFeedForm = (rest, formErrors) => {
   let valid = true
 
   // validate form errors being empty
-  Object.values(formErrors).forEach((val) => {
+  Object.values<any>(formErrors).forEach((val) => {
     val.length > 0 && (valid = false)
   })
 

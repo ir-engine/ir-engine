@@ -30,10 +30,10 @@ interface Props {
   getLoggedCreator?: any
   logo?: string
   authState?: any
-  title?: any
   updateCreatorFormState?: typeof updateCreatorFormState
+  title?: string
 }
-const AppHeader = ({ creatorState, getLoggedCreator, logo, title, authState, updateCreatorFormState }: Props) => {
+const AppHeader = ({ creatorState, getLoggedCreator, logo, title, updateCreatorFormState }: Props) => {
   const { t } = useTranslation()
   useEffect(() => getLoggedCreator(), [])
   const creator =
@@ -44,7 +44,7 @@ const AppHeader = ({ creatorState, getLoggedCreator, logo, title, authState, upd
   return (
     <nav className={styles.headerContainer}>
       {logo && <img src={logo} className="header-logo" alt="CREATOR" />}
-      {title && <span>title</span>}
+      {title && <span>{title}</span>}
       {creator &&
         {
           /*!checkGuest*/

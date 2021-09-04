@@ -4,7 +4,7 @@ import replace from '@rollup/plugin-replace';
 import typescript from '@rollup/plugin-typescript';
 import path from 'path';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import scss from 'rollup-plugin-scss';
+import sass from 'rollup-plugin-sass';
 import { defineConfig } from 'vite';
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -24,7 +24,7 @@ export default defineConfig(() => {
         output: { dir: 'dist', format: 'es', sourcemap: true, inlineDynamicImports: true },
         plugins: [
           nodePolyfills(),
-          scss({
+          sass({
             exclude: /node_modules/,
             output: 'dist/index.css',
           }),

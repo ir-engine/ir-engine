@@ -6,6 +6,10 @@ Expand the name of the chart.
 # {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 # {{- end -}}
 
+{{- define "xrengine.analytics.name" -}}
+{{- default .Chart.Name .Values.analytics.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "xrengine.client.name" -}}
 {{- default .Chart.Name .Values.client.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -42,6 +46,15 @@ If release name contains chart name it will be used as a full name.
 {{- else -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "xrengine.analytics.fullname" -}}
+{{- if .Values.analytics.fullnameOverride -}}
+{{- .Values.analytics.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name .Values.analytics.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -104,6 +117,27 @@ Create chart name and version as used by the chart label.
 */}}
 {{- define "xrengine.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "xrengine.analytics.labels" -}}
+helm.sh/chart: {{ include "xrengine.chart" . }}
+{{ include "xrengine.analytics.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "xrengine.analytics.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.analytics.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: client
 {{- end -}}
 
 {{/*
@@ -211,6 +245,18 @@ Selector labels
 app.kubernetes.io/name: {{ include "xrengine.editor.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: editor
+{{- end -}}
+
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "xrengine.analytics.serviceAccountName" -}}
+{{- if .Values.analytics.serviceAccount.create -}}
+    {{ default (include "xrengine.analytics.fullname" .) .Values.analytics.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.analytics.serviceAccount.name }}
+{{- end -}}
 {{- end -}}
 
 

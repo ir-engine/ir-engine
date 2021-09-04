@@ -127,6 +127,16 @@ export const initEngine = async (
     resolve()
   })
 
+  await new Promise<void>((resolve) => {
+    const listener = ({ uniqueId }) => {
+      if (uniqueId === Network.instance.userId) {
+        resolve()
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
+      }
+    }
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
+  })
+
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
   if (typeof engineCallbacks?.onJoinedToNewWorld === 'function') {

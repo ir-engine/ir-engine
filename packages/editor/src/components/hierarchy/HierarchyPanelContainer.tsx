@@ -2,20 +2,20 @@ import React, { useContext, useState, useEffect, useCallback, memo, Fragment } f
 import styled from 'styled-components'
 import DefaultNodeEditor from '../properties/DefaultNodeEditor'
 import { ContextMenu, MenuItem, ContextMenuTrigger } from '../layout/ContextMenu'
-import { cmdOrCtrlString } from '@xrengine/editor/src/functions/utils'
 import { EditorContext } from '../contexts/EditorContext'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FixedSizeList, areEqual } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ItemTypes, addAssetOnDrop, isAsset, AssetTypes } from '../dnd'
-import traverseEarlyOut from '@xrengine/editor/src/functions/traverseEarlyOut'
 import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
 import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
 import useUpload from '../assets/useUpload'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import { useTranslation } from 'react-i18next'
+import { cmdOrCtrlString } from '../../functions/utils'
+import traverseEarlyOut from '../../functions/traverseEarlyOut'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -643,7 +643,6 @@ function TreeNode({
   //returning tree view for hierarchy panel
   return (
     <TreeDepthContainer style={style}>
-      {/* @ts-ignore */}
       <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" node={node} collect={collectNodeMenuProps}>
         <TreeNodeContainer
           ref={drag}
@@ -1200,7 +1199,6 @@ export default function HierarchyPanel() {
 
   //returning hierarchy penal view
   return (
-    /* @ts-ignore */
     <Fragment>
       <PanelContainer>
         {editor.scene && (
@@ -1232,7 +1230,6 @@ export default function HierarchyPanel() {
           </AutoSizer>
         )}
       </PanelContainer>
-      {/* @ts-ignore */}
       <ContextMenu id="hierarchy-node-menu">
         <MenuItem onClick={onRenameNode}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <MenuItem onClick={onDuplicateNode}>

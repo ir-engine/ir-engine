@@ -43,7 +43,7 @@ export function updateGroup(item: any): GroupOneAction {
   }
 }
 
-export function removeGroup(item: any): GroupOneAction {
+export function removeGroupAction(item: any): GroupOneAction {
   return {
     type: GROUP_ADMIN_DELETE,
     item

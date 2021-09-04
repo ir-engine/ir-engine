@@ -1,5 +1,5 @@
 import { DirectionalLight, Object3D } from 'three'
-import createShadowMapResolutionProxy from '@xrengine/engine/src/scene/functions/createShadowMapResolutionProxy'
+import createShadowMapResolutionProxy from '../../scene/functions/createShadowMapResolutionProxy'
 export default class PhysicalDirectionalLight extends DirectionalLight {
   shadowMapResolution: number
   constructor() {
@@ -18,11 +18,9 @@ export default class PhysicalDirectionalLight extends DirectionalLight {
   set shadowBias(value) {
     this.shadow.bias = value
   }
-  // @ts-ignore
   get shadowRadius() {
     return this.shadow.radius
   }
-  // @ts-ignore
   set shadowRadius(value) {
     this.shadow.radius = value
   }

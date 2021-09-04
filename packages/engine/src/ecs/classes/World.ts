@@ -29,6 +29,7 @@ export class World {
   namedEntities: Map<string, Entity>
 
   constructor() {
+    console.log('Creating world')
     if (typeof World.defaultWorld === 'undefined') {
       World.defaultWorld = this
     }

@@ -2,7 +2,8 @@ import i18n from 'i18next'
 import { fetchUrl } from './fetchUrl'
 import { getToken } from './getToken'
 import { Config } from '@xrengine/common/src/config'
-export const serverURL = Config.publicRuntimeConfig.apiServer
+
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 /**
  * deleteProjectAsset used to delete asset for specific project.

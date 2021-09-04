@@ -5,7 +5,7 @@ import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 import EditorNodeMixin from './EditorNodeMixin'
 
 let audioHelperTexture = null
-// @ts-ignore
+
 export default class AudioNode extends EditorNodeMixin(AudioSource) {
   static legacyComponentName = 'audio'
   static nodeName = 'Audio'

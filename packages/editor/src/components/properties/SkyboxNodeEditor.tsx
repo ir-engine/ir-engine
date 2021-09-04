@@ -125,7 +125,6 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
   //creating editor view for skybox setting
   renderSkyboxSettings = (node) => (
     <>
-      {/* @ts-ignore */}
       <NumericInputGroup
         name="Time of Day"
         label={this.props.t('editor:properties.skybox.lbl-timeOfDay')}
@@ -140,7 +139,6 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
         onChange={this.onChangeAzimuth}
         unit="h"
       />
-      {/* @ts-ignore */}
       <RadianNumericInputGroup
         name="Latitude"
         label={this.props.t('editor:properties.skybox.lbl-latitude')}
@@ -152,7 +150,6 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
         value={node.inclination}
         onChange={this.onChangeInclination}
       />
-      {/* @ts-ignore */}
       <InputGroup name="Luminance" label={this.props.t('editor:properties.skybox.lbl-luminance')}>
         <CompoundNumericInput
           min={0.001}
@@ -162,7 +159,6 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
           onChange={this.onChangeLuminance}
         />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Scattering Amount" label={this.props.t('editor:properties.skybox.lbl-scattering')}>
         <CompoundNumericInput
           min={0}
@@ -172,7 +168,6 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
           onChange={this.onChangeMieCoefficient}
         />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Scattering Distance" label={this.props.t('editor:properties.skybox.lbl-scatteringDistance')}>
         <CompoundNumericInput
           min={0}
@@ -182,11 +177,9 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
           onChange={this.onChangeMieDirectionalG}
         />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Horizon Start" label={this.props.t('editor:properties.skybox.lbl-horizonStart')}>
         <CompoundNumericInput min={1} max={20} value={node.turbidity} onChange={this.onChangeTurbidity} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Horizon End" label={this.props.t('editor:properties.skybox.lbl-horizonEnd')}>
         <CompoundNumericInput min={0} max={4} value={node.rayleigh} onChange={this.onChangeRayleigh} />
       </InputGroup>
@@ -196,15 +189,8 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
   // creating editor view for cubemap Settings
   renderTextureSettings = (value, onChange) => (
     <>
-      {/* @ts-ignore */}
       <InputGroup name="Texture" label={this.props.t('editor:properties.skybox.lbl-texture')}>
-        {/* @ts-ignore */}
-        <ControlledStringInput
-          /* @ts-ignore */
-          value={value}
-          /* @ts-ignore */
-          onChange={onChange}
-        />
+        <ControlledStringInput value={value} onChange={onChange} />
       </InputGroup>
     </>
   )
@@ -212,9 +198,7 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
   // creating editor view for color Settings
   renderColorSettings = (node) => (
     <>
-      {/* @ts-ignore */}
       <InputGroup name="Color" label={this.props.t('editor:properties.skybox.lbl-color')}>
-        {/* @ts-ignore */}
         <ColorInput
           value={(node as any).backgroundColor ? (node as any).backgroundColor : 0x000000}
           onChange={this.onChangeColorOption}
@@ -243,11 +227,8 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
     SkyboxNodeEditor.description = this.props.t('editor:properties.skybox.description')
     const node = this.props.node as any
     return (
-      /* @ts-ignore */
       <NodeEditor description={SkyboxNodeEditor.description} {...this.props}>
-        {/* @ts-ignore */}
         <InputGroup name="Sky Type" label={this.props.t('editor:properties.skybox.lbl-skyType')}>
-          {/* @ts-ignore */}
           <SelectInput options={SkyOption} value={(node as any).backgroundType} onChange={this.onChangeSkyOption} />
         </InputGroup>
         {this.renderSkyBoxProps(node)}

@@ -46,9 +46,11 @@ import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/i
 import { useState } from '@hookstate/core'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
+import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './functions/setupPlayerAvatar'
 import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
+import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { NetworkWorldAction } from '../../../../engine/src/networking/interfaces/NetworkWorldActions'
 
 export function getHole(world: ECSWorld, i: number) {
   return world.world.namedEntities.get(`GolfHole-${i}`)
@@ -72,6 +74,7 @@ export const GolfState = createState({
     id: string
     scores: Array<number>
     stroke: number
+    viewingScorecard: boolean
   }>,
   currentPlayer: 0,
   currentHole: 0
@@ -123,16 +126,9 @@ export const GolfSystem = async (): Promise<System> => {
   })
 
   // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
-  function receptor(world: ECSWorld, action: GolfActionType) {
-    console.log(
-      '\n\nACTION',
-      action.type,
-      '\n',
-      action,
-      '\nPREV STATE',
-      JSON.stringify(GolfState.attach(Downgraded).value, null, 2),
-      '\n\n'
-    )
+  function receptor(world: ECSWorld, action: GolfActionType & IncomingActionType) {
+    console.log('ACTION\n' + JSON.stringify(action, null, 2))
+
     GolfState.batch((s) => {
       switch (action.type) {
         case 'puttclub.GAME_STATE': {
@@ -155,6 +151,12 @@ export const GolfSystem = async (): Promise<System> => {
           // this must happen on the server
 
           if (!isClient) {
+            // player left ?
+            const player = Object.values(Network.instance.networkObjects).find(
+              (obj) => obj.uniqueId === action.playerId
+            )
+            if (!player) return
+
             const playerAlreadyExists = s.players.find((p) => p.value.id === action.playerId)
 
             if (!playerAlreadyExists) {
@@ -162,7 +164,8 @@ export const GolfSystem = async (): Promise<System> => {
                 {
                   id: action.playerId,
                   scores: [],
-                  stroke: 0
+                  stroke: 0,
+                  viewingScorecard: false
                 }
               ])
               console.log(`player ${action.playerId} joined`)
@@ -172,9 +175,7 @@ export const GolfSystem = async (): Promise<System> => {
 
             dispatchFromServer(GolfAction.sendState(s.attach(Downgraded).value))
 
-            const { entity } = Object.values(Network.instance.networkObjects).find(
-              (obj) => obj.uniqueId === action.playerId
-            )
+            const { entity } = player
 
             console.log('namedEntities', JSON.stringify(world.world.namedEntities))
 
@@ -333,18 +334,7 @@ export const GolfSystem = async (): Promise<System> => {
          *   - dispatch RESET_BALL
          */
         case 'puttclub.NEXT_HOLE': {
-          // TODO Increment hole based on the next one with no scores
-          // holes: for (const [i] of s.holes.entries()) {
-          //   const nextHole = i
-          //   for (const p of s.players) {
-          //     if (p.scores[i] === undefined) {
-          //       s.currentHole.set(nextHole)
-          //       console.log('incremented hole')
-          //       break holes
-          //     }
-          //   }
-          // }
-          s.currentHole.set((s.currentHole.value + 1) % s.holes.length)
+          s.currentHole.set((s.currentHole.value + 1) % s.holes.length) // TODO: earliest incomplete hole
           // Set all player strokes to 0
           for (const [i, p] of s.players.entries()) {
             p.stroke.set(0)
@@ -364,6 +354,7 @@ export const GolfSystem = async (): Promise<System> => {
          * - teleport ball
          */
         case 'puttclub.RESET_BALL': {
+          if (action.userId !== 'server') return
           const playerNumber = s.players.findIndex((p) => p.value.id === action.playerId)
           const entityBall = getBall(world, playerNumber)
           if (typeof entityBall !== 'undefined') {
@@ -374,9 +365,15 @@ export const GolfSystem = async (): Promise<System> => {
 
           return
         }
+
+        case 'puttclub.TOGGLE_SCORECARD': {
+          const player = s.players.find((p) => p.value.id === action.userId)
+          if (player) player.viewingScorecard.set((v) => !v)
+        }
       }
     })
-    console.log('CURRENT STATE', JSON.stringify(GolfState.attach(Downgraded).value, null, 2), '\n\n')
+
+    console.log('STATE \n' + JSON.stringify(GolfState.attach(Downgraded).value, null, 2))
   }
 
   return defineSystem((world: ECSWorld) => {
@@ -384,23 +381,21 @@ export const GolfSystem = async (): Promise<System> => {
     for (const action of Network.instance.incomingActions) receptor(world, action as any)
 
     const currentPlayer = GolfState.players[GolfState.currentPlayer.value].value
-
     const playerEnterQueryResults = playerEnterQuery(world)
 
     if (isClient) {
       for (const entity of golfClubQuery(world)) {
         const { number } = getComponent(entity, GolfClubComponent)
         const ownerEntity = getPlayerEntityFromNumber(number)
+        updateClub(entity)
         // we only need to detect hits for our own club
         if (typeof ownerEntity !== 'undefined' && isEntityLocalClient(ownerEntity)) {
-          updateClub(entity)
-
           if (getCurrentGolfPlayerEntity() === ownerEntity) {
             const { uniqueId, networkId } = getComponent(ownerEntity, NetworkObjectComponent)
             const currentPlayerNumber = GolfState.currentPlayer.value
             const entityBall = getBall(world, currentPlayerNumber)
 
-            if (entityBall && getComponent(entityBall, NetworkObjectComponentOwner).networkId === networkId) {
+            if (entityBall && getComponent(entityBall, NetworkObjectOwnerComponent).networkId === networkId) {
               const { collisionEntity } = getCollisions(entity, GolfBallComponent)
               if (collisionEntity !== null && collisionEntity === entityBall) {
                 const golfBallComponent = getComponent(entityBall, GolfBallComponent)
@@ -427,7 +422,8 @@ export const GolfSystem = async (): Promise<System> => {
         console.log('player leave???')
         // if a player disconnects and it's their turn, change turns to the next player
         if (currentPlayer.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
-        removeEntity(getClub(world, getGolfPlayerNumber(entity)))
+        const clubEntity = getClub(world, getGolfPlayerNumber(entity))
+        dispatchFromServer(NetworkWorldAction.destroyObject(getComponent(clubEntity, NetworkObjectComponent).networkId))
       }
     }
 
@@ -445,7 +441,7 @@ export const GolfSystem = async (): Promise<System> => {
         if (name.includes('GolfHole')) {
           addComponent(entity, GolfHoleComponent, {})
         }
-        if (name.includes('GolfTole')) {
+        if (name.includes('GolfTee')) {
           addComponent(entity, GolfTeeComponent, {})
         }
       }

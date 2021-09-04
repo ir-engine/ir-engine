@@ -9,7 +9,7 @@ import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import Box from '@material-ui/core/Box'
 import SentInvite from './SentInvite'
-import RecievedInvite from './RecievedInvite'
+import ReceivedInvite from './ReceivedInvite'
 import Button from '@material-ui/core/Button'
 import Search from '../Search'
 import styles from '../Admin.module.scss'
@@ -65,7 +65,6 @@ interface Props {
   retrieveSentInvites?: any
   sendInvite?: any
   sentInvites?: any
-  adminState?: any
   fetchUsersAsAdmin?: any
   authState?: any
   adminUserState?: any
@@ -75,7 +74,6 @@ const mapStateToProps = (state: any): any => {
   return {
     receivedInvites: selectInviteState(state),
     sentInvites: selectInviteState(state),
-    adminState: selectAdminState(state),
     authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state)
   }
@@ -90,10 +88,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const InvitesConsole = (props: Props) => {
   const {
-    adminState,
     authState,
     fetchUsersAsAdmin,
     sentInvites,
+    receivedInvites,
     retrieveSentInvites,
     retrieveReceivedInvites,
     adminUserState
@@ -135,17 +133,16 @@ const InvitesConsole = (props: Props) => {
   }, [authState, adminUserState, refetch])
 
   useEffect(() => {
-    const fetchData = async () => {
-      await retrieveSentInvites(0, 100)
-    }
-    fetchData()
-  }, [retrieveSentInvites])
-
-  useEffect(() => {
     if (sentInvites.get('sentUpdateNeeded') === true) {
-      retrieveSentInvites(0, 100)
+      retrieveSentInvites()
     }
   }, [sentInvites])
+
+  useEffect(() => {
+    if (receivedInvites.get('sentUpdateNeeded') === true) {
+      retrieveReceivedInvites()
+    }
+  }, [receivedInvites])
 
   return (
     <div>
@@ -169,12 +166,12 @@ const InvitesConsole = (props: Props) => {
         <div className={classes.root}>
           <AppBar position="static" style={{ backgroundColor: '#fff', color: '#000' }}>
             <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-              <Tab label="Recieved Invite" {...a11yProps(0)} />
+              <Tab label="Received Invite" {...a11yProps(0)} />
               <Tab label="Sent Invite" {...a11yProps(1)} />
             </Tabs>
           </AppBar>
           <TabPanel value={value} index={0}>
-            <RecievedInvite invites={[]} />
+            <ReceivedInvite invites={[]} />
           </TabPanel>
           <TabPanel value={value} index={1}>
             <SentInvite invites={invites} />

@@ -142,7 +142,6 @@ export function Dialog(props: Props) {
     },
     [onConfirm]
   )
-  //@ts-ignore
   const button = (
     <Button type="submit" onClick={tag === 'form' ? null : onConfirm}>
       {confirmLabel}

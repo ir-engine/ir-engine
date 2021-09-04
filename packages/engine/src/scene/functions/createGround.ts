@@ -19,7 +19,7 @@ type GroundProps = {
   color: string
 }
 
-export const createGround = async function (entity: Entity, args: GroundProps, isClient: boolean) {
+export const createGround = async function (entity: Entity, args: GroundProps, isClient: boolean): Promise<Mesh> {
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
     new MeshStandardMaterial({
@@ -52,6 +52,8 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   }
 
   addComponent(entity, ColliderComponent, { body })
+
+  return mesh
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {

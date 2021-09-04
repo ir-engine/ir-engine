@@ -20,8 +20,7 @@ const engineInitializeOptions: InitializeOptions = {
     canvasId: engineRendererCanvasId
   },
   physics: {
-    simulationEnabled: false,
-    physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
+    simulationEnabled: false
   },
   systems: [
     {

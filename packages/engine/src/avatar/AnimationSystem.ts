@@ -9,6 +9,13 @@ import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { ECSWorld } from '../ecs/classes/World'
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
+import {
+  NetworkWorldAction,
+  NetworkWorldActions,
+  NetworkWorldActionType
+} from '../networking/interfaces/NetworkWorldActions'
+import { Network } from '../networking/classes/Network'
+import { AnimationGraph } from './animations/AnimationGraph'
 
 export const AnimationSystem = async (): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
@@ -17,8 +24,24 @@ export const AnimationSystem = async (): Promise<System> => {
 
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
 
+  function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
+    switch (action.type) {
+      case NetworkWorldActions.ANIMATION_CHANGE: {
+        if (!Network.instance.networkObjects[action.networkId]) {
+          return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
+        }
+        if (Network.instance.networkObjects[action.networkId].uniqueId === Network.instance.userId) return
+        const entity = Network.instance.networkObjects[action.networkId].entity
+        action.params.forceTransition = true
+        AnimationGraph.forceUpdateAnimationState(entity, action.newStateName, action.params)
+      }
+    }
+  }
+
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
+
+    for (const action of Network.instance.incomingActions) avatarActionReceptor(world, action as any)
 
     for (const entity of animationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)

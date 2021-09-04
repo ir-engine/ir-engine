@@ -27,7 +27,7 @@ import serializeColor from '../functions/serializeColor'
 import sortEntities from '../functions/sortEntities'
 import { isStatic, setStaticMode, StaticModes } from '../functions/StaticMode'
 import CubemapBakeNode from './CubemapBakeNode'
-import EditorNodeMixin from './EditorNodeMixin'
+import EditorNodeMixin, { SerializedNode } from './EditorNodeMixin'
 import GroupNode from './GroupNode'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
@@ -439,8 +439,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
     return this
   }
-  // @ts-ignore
-  async serialize(projectId) {
+  async serialize(projectId): Promise<any> {
     const sceneJson = {
       version: 4,
       root: this.uuid,
@@ -529,7 +528,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     await asyncTraverse(this, serializeCallback)
     return sceneJson
   }
-  // @ts-ignore
   prepareForExport(ctx) {
     console.log('Preparing For Export')
     this.children = this.children.filter((c) => c.isNode)

@@ -31,7 +31,7 @@
     "**/*.test.tsx",
     "**/*.test.js",
     "tests/**",
-    "./**/*.d.ts"
+    "./src/**/*.d.ts"
   ],
   "include": [
     "./**/*.ts",

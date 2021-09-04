@@ -1,4 +1,4 @@
-export interface Column {
+export interface LocationColumn {
   id:
     | 'name'
     | 'sceneId'
@@ -14,7 +14,7 @@ export interface Column {
   align?: 'right' | 'center'
 }
 
-export const columns: Column[] = [
+export const locationColumns: LocationColumn[] = [
   { id: 'name', label: 'Name', minWidth: 170 },
   { id: 'sceneId', label: 'SceneId', minWidth: 100 },
   {
@@ -61,7 +61,7 @@ export const columns: Column[] = [
   }
 ]
 
-export interface Data {
+export interface LocationData {
   id: string
   user: any
   name: string
@@ -73,8 +73,7 @@ export interface Data {
   action: any
 }
 
-export interface Props {
-  adminState?: any
+export interface LocationProps {
   authState?: any
   locationState?: any
   fetchAdminLocations?: any

@@ -9,7 +9,7 @@ export const spawnPrefab = (prefabType: string, uniqueId: string, networkId: num
   const entity = createEntity()
   console.log('spawnPrefab', prefabType, uniqueId, networkId, parameters)
   addComponent(entity, Network.instance.schema.prefabs.get(prefabType), {})
-  addComponent(entity, NetworkObjectComponent, { networkId, uniqueId, snapShotTime: 0 })
+  addComponent(entity, NetworkObjectComponent, { networkId, uniqueId })
   Network.instance.networkObjects[networkId] = {
     prefabType,
     entity,

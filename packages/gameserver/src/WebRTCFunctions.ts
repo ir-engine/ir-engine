@@ -137,12 +137,12 @@ export const sendCurrentProducers = async (
 
 export const handleConsumeDataEvent =
   (socket: SocketIO.Socket) =>
-  async (dataProducer: DataProducer): Promise<void> => {
+  async (dataProducer: DataProducer): Promise<boolean> => {
     networkTransport = Network.instance.transport as any
 
     const userId = getUserIdFromSocketId(socket.id)
     logger.info('Data Consumer being created on server by client: ' + userId)
-    if (Network.instance.clients[userId] == null) return
+    if (Network.instance.clients[userId] == null) return Promise.resolve(false)
 
     const newTransport: Transport = Network.instance.clients[userId].instanceRecvTransport
     const outgoingDataProducer = networkTransport.outgoingDataProducer
@@ -299,6 +299,7 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
     })
     consumer.on('message', (message) => {
       Network.instance.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
+      Network.instance.incomingMessageQueueUnreliableIDs.add(userId)
     })
     return consumer
   } catch (err) {

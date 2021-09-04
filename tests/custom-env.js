@@ -16,6 +16,7 @@ const timeoutMS = 3 * 60 * 1000
 const skipEngineSetup = getOS() === 'macOS' && process.arch.includes('arm') 
 
 process.env.CI = process.env.CI === 'true'
+console.log('process.env.CI', process.env.CI)
 
 const killPorts = () => {
   if (skipEngineSetup) return

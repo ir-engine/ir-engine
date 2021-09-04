@@ -8,7 +8,7 @@ export const initialSceneState: PublicScenesState = {
   error: ''
 }
 
-const immutableState = Immutable.fromJS(initialSceneState)
+const immutableState = Immutable.fromJS(initialSceneState) as any
 
 const sceneReducer = (state = immutableState, action: ScenesFetchedAction): any => {
   switch (action.type) {

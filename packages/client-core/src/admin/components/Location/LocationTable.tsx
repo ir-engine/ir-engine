@@ -19,7 +19,7 @@ import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { columns, Props } from './variable'
+import { locationColumns, LocationProps } from './variable'
 import Chip from '@material-ui/core/Chip'
 import Avatar from '@material-ui/core/Avatar'
 import TablePagination from '@material-ui/core/TablePagination'
@@ -29,6 +29,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
+import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -50,7 +51,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removeLocation: bindActionCreators(removeLocation, dispatch)
 })
 
-const LocationTable = (props: Props) => {
+const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const {
@@ -67,7 +68,7 @@ const LocationTable = (props: Props) => {
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [locationId, setLocationId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
@@ -78,6 +79,8 @@ const LocationTable = (props: Props) => {
   const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchAdminLocations(incDec)
     setPage(newPage)
   }
 
@@ -91,7 +94,7 @@ const LocationTable = (props: Props) => {
       fetchAdminLocations()
     }
     if (user?.id != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
-      fetchAdminScenes()
+      fetchAdminScenes('all')
     }
     if (user?.id != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       fetchLocationTypes()
@@ -201,7 +204,7 @@ const LocationTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {locationColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -214,10 +217,10 @@ const LocationTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+            {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {locationColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
@@ -232,7 +235,7 @@ const LocationTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[LOCATION_PAGE_LIMIT]}
         component="div"
         count={adminLocationCount}
         rowsPerPage={rowsPerPage}

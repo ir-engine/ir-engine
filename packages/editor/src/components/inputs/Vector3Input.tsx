@@ -41,21 +41,32 @@ const UniformButtonContainer = (styled as any).div`
 
 let uniqueId = 0
 
+interface Vector3InputProp {
+  uniformScaling?: boolean
+  smallStep?: number
+  mediumStep?: number
+  largeStep?: number
+  value: any
+  onChange: Function
+  hideLabels?: boolean
+}
+
+interface Vector3InputState {
+  uniformEnabled: any
+  hideLabels: boolean
+}
+
 /**
  *
  * @author Robert Long
  */
-export class Vector3Input extends Component {
-  declare state: {
-    uniformEnabled: any
-    hideLabels: boolean
-  }
-
+export class Vector3Input extends Component<Vector3InputProp, Vector3InputState> {
   static defaultProps = {
     value: new Vector3(),
     hideLabels: false,
     onChange: () => {}
   }
+
   constructor(props) {
     super(props)
 
@@ -78,7 +89,7 @@ export class Vector3Input extends Component {
   }
 
   onChange = (field, fieldValue) => {
-    const value = (this.props as any).value
+    const value = this.props.value
 
     if (this.state.uniformEnabled) {
       this.newValue.set(fieldValue, fieldValue, fieldValue)
@@ -92,7 +103,9 @@ export class Vector3Input extends Component {
       this.newValue.z = field === 'z' ? fieldValue : z
     }
 
-    ;(this.props as any).onChange(this.newValue)
+    if (typeof this.props.onChange === 'function') {
+      this.props.onChange(this.newValue)
+    }
   }
 
   onChangeX = (x) => this.onChange('x', x)
@@ -102,8 +115,8 @@ export class Vector3Input extends Component {
   onChangeZ = (z) => this.onChange('z', z)
 
   render() {
-    const { uniformScaling, hideLabels, value, onChange, ...rest } = this.props as any
-    const { uniformEnabled } = this.state as any
+    const { uniformScaling, hideLabels, value, onChange, ...rest } = this.props
+    const { uniformEnabled } = this.state
     const vx = value ? value.x : 0
     const vy = value ? value.y : 0
     const vz = value ? value.z : 0

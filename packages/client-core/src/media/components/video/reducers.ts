@@ -7,7 +7,7 @@ export const initialVideoState: PublicVideoState = {
   error: ''
 }
 
-const immutableState = Immutable.fromJS(initialVideoState)
+const immutableState = Immutable.fromJS(initialVideoState) as any
 
 export default function videoReducer(state = immutableState, action: VideosFetchedAction): any {
   switch (action.type) {

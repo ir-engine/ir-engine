@@ -1,5 +1,5 @@
 import { Scene, AmbientLight, DirectionalLight, PerspectiveCamera, Box3, Vector3 } from 'three'
-import { environmentMap } from './EnvironmentMap'
+import { environmentMap } from '../components/EnvironmentMap'
 import { traverseMaterials } from '../functions/materials'
 import { getCanvasBlob } from '../functions/thumbnails'
 import makeRenderer from './makeRenderer'

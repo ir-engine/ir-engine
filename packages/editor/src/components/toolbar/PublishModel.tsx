@@ -15,23 +15,26 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createLocation, patchLocation, removeLocation } from '../../../../admin/reducers/admin/location/service'
-import { selectAppState } from '../../../../common/reducers/app/selector'
-import { selectAuthState } from '../../../../user/reducers/auth/selector'
-import styles from '../../../../admin/components/Admin.module.scss'
+import {
+  createLocation,
+  patchLocation,
+  removeLocation
+} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { selectAdminSceneState } from '../../../../admin/reducers/admin/scene/selector'
-import { selectAdminLocationState } from '../../../../admin/reducers/admin/location/selector'
+import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
+import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
 import { useParams } from 'react-router-dom'
-import { createPublishProject } from '../../../reducers/scenes/service'
+import { createPublishProject } from '@xrengine/client-core/src/world/reducers/scenes/service'
 
 interface Props {
   open: boolean
   handleClose: any
   location: any
   editing: boolean
-  adminState?: any
   createLocation?: any
   patchLocation?: any
   removeLocation?: any
@@ -76,7 +79,7 @@ const LocationModal = (props: Props): any => {
   const [maxUsers, setMaxUsers] = useState(10)
   const [videoEnabled, setVideoEnabled] = useState(false)
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
-  const [scene, setScene] = useState('')
+  const [scene, setScene] = useState(null)
   const [locationType, setLocationType] = useState('private')
   const adminScenes = adminSceneState.get('scenes').get('scenes')
   const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
@@ -150,7 +153,7 @@ const LocationModal = (props: Props): any => {
 
   useEffect(() => {
     if (currentScene) {
-      const temp = adminScenes.find((el) => el.sid === currentScene.projectId)
+      const temp = adminScenes.find((el) => el.sid === (currentScene as any).projectId)
       console.log('====================================')
       console.log(temp)
       console.log('====================================')

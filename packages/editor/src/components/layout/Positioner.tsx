@@ -434,7 +434,7 @@ const PositionerContainer = (styled as any).div.attrs(({ transform, transformOri
  * @returns
  */
 export function Positioner({ children, position, padding, getTargetRef, ...rest }) {
-  const positionerContainerRef = useRef()
+  const positionerContainerRef = useRef<any>()
 
   const [transformProps, setTransformProps] = useState({
     finalPosition: position,
@@ -445,18 +445,12 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
 
   useEffect(() => {
     const onReposition = () => {
-      /* @ts-ignore */
       const positionerContainerRect = positionerContainerRef.current.getBoundingClientRect()
       const targetRect = getTargetRef().current.getBoundingClientRect()
       const viewportHeight = document.documentElement.clientHeight
       const viewportWidth = document.documentElement.clientWidth
 
-      // TODO: This is a bug, transformOrigin not available
-      const {
-        rect,
-        position: finalPosition,
-        transformOrigin
-      } = getPosition({
+      const { rect, position: finalPosition } = getPosition({
         position,
         targetRect,
         targetOffset: padding,
@@ -467,7 +461,7 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
 
       setTransformProps({
         finalPosition,
-        transformOrigin,
+        transformOrigin: transformProps.transformOrigin,
         transform: `translate(${rect.left}px, ${rect.top}px)`,
         opacity: 1
       })
