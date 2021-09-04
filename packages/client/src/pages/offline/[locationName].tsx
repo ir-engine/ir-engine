@@ -8,6 +8,7 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { DefaultNetworkSchema } from '../../../../engine/src/networking/templates/DefaultNetworkSchema'
 import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import World, { EngineCallbacks } from '../../components/World'
@@ -43,6 +44,11 @@ const LocationPage = (props) => {
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
     onSceneLoaded: () => setLoadingItemCount(0)
+  }
+
+  // Disable networking if no location is provided
+  if (!props.match.params.locationName) {
+    engineInitializeOptions.networking = { schema: DefaultNetworkSchema }
   }
 
   return (
