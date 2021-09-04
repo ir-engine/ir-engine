@@ -1,5 +1,5 @@
+import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
-import { ProjectDiagram } from '@styled-icons/fa-solid'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import {
   fetchAdminLocations,
@@ -41,6 +41,7 @@ import PerformanceCheckDialog from './dialogs/PerformanceCheckDialog'
 import PublishDialog from './dialogs/PublishDialog'
 import PublishedSceneDialog from './dialogs/PublishedSceneDialog'
 import i18n from 'i18next'
+import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
 import { Config } from '@xrengine/common/src/config'
@@ -656,7 +657,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       project = await getProject(projectId)
-
+      globalThis.ownedFileIds = JSON.parse(project.ownedFileIds)
+      globalThis.currentProjectID = project.project_id
       const projectFile = await fetchUrl(project.project_url).then((response) => response.json())
 
       await editor.init()
@@ -1191,6 +1193,16 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     id: 'assetsPanel',
                     title: 'Elements',
                     content: <AssetsPanel />
+                  },
+                  {
+                    id: 'fileBrowserPanel',
+                    title: (
+                      <PanelDragContainer>
+                        <PanelIcon as={Archive} size={12} />
+                        <PanelTitle>File Browser</PanelTitle>
+                      </PanelDragContainer>
+                    ),
+                    content: <FileBrowserPanel />
                   }
                 ]
               }

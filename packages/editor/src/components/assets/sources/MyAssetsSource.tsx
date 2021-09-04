@@ -12,6 +12,21 @@ import Editor from '../../Editor'
 import { AcceptsAllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import UploadSourcePanel from '../UploadSourcePanel'
 import { BaseSource } from './index'
+
+/**
+ * @author Abhishek Pathak
+ */
+
+export const UploadFileType = {
+  'model/gltf': ModelNode,
+  'model/gltf-binary': ModelNode,
+  'image/png': ImageNode,
+  'image/jpeg': ImageNode,
+  'application/pdf': null,
+  'video/mp4': VideoNode,
+  'audio/mpeg': AudioNode
+}
+
 const assetTypeToNode = {
   model: ModelNode,
   image: ImageNode,
@@ -60,8 +75,9 @@ export class MyAssetsSource extends BaseSource {
     await deleteAsset(item.id)
     this.emit('resultsChanged')
   }
+
   async search(params, cursor, abortSignal) {
-    const { results, suggestions, nextCursor } = await searchMedia(
+    const { results } = await searchMedia(
       this.id,
       {
         query: params.query,
@@ -72,30 +88,13 @@ export class MyAssetsSource extends BaseSource {
     )
     return {
       results: results.map((result) => {
-        const thumbnailUrl = result && result.images && result.images.preview && result.images.preview.url
-        const nodeClass = assetTypeToNode[result.type]
-        const iconComponent = thumbnailUrl
-          ? null
-          : this.editor.nodeEditors.get(nodeClass).WrappedComponent
-          ? this.editor.nodeEditors.get(nodeClass).WrappedComponent.iconComponent
-          : this.editor.nodeEditors.get(nodeClass).iconComponent
         return {
-          id: result.id,
-          thumbnailUrl,
-          iconComponent,
-          label: result.name,
-          type: assetTypeToItemType[result.type],
-          url: result.url,
-          nodeClass,
-          initialProps: {
-            name: result.name,
-            src: result.url
-          }
+          project: result
         }
       }),
-      suggestions,
-      nextCursor,
-      hasMore: !!nextCursor
+      suggestions: null,
+      nextCursor: null,
+      hasMore: false //!!nextCursor
     }
   }
 }

@@ -1,5 +1,5 @@
 // array containing audio file type
-export const AudioFileTypes = ['.mp3', 'audio/mpeg']
+export const AudioFileTypes = ['.mp3', '.mpeg', 'audio/mpeg']
 //array containing video file type
 export const VideoFileTypes = ['.mp4', 'video/mp4']
 //array containing image files types
