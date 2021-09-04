@@ -1,3 +1,3 @@
 const { receiveWorker } = require('three-physx')
-const PHYSX = require('./physx.release.cjs.js')
+const PHYSX = require('./physx.release.node.js')
 PHYSX().then(receiveWorker)
