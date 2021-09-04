@@ -76,7 +76,7 @@ export class Project implements ServiceMethods<Data> {
       return mapProjectTemplateDetailData(project)
     } else {
       project = await this.models.collection.findOne({
-        attributes: ['name', 'id', 'sid', 'url', 'type'],
+        attributes: ['name', 'id', 'sid', 'url', 'type', 'ownedFileIds'],
         where: {
           sid: id
           // userId: loggedInUser.userId
@@ -176,13 +176,16 @@ export class Project implements ServiceMethods<Data> {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key)
     }
     if (!sceneData) return
+
+    console.log('Patching the Project Fiel:' + JSON.stringify(data))
+    console.log('Patching the Project Fiel:' + JSON.stringify(data.ownedUploadedFileId))
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
       project.update(
         {
           name: data.name,
           metadata: sceneData.metadata,
           version: sceneData.version,
-          ownedFileIds: JSON.stringify(data.ownedUploadedFileId)
+          ownedFileIds: data.ownedFileIds
         },
         { fields: ['name', 'metadata', 'version', 'ownedFileIds'], transaction }
       )

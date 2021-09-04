@@ -95,7 +95,7 @@ export const AssetPanelContentContainer = (styled as any)(FlexRow)`
  * @param  {Object} editor
  * @return {any}        [description]
  */
-function getSources(editor) {
+export function getSources(editor) {
   return editor.sources
 }
 

@@ -31,7 +31,7 @@ function borderColor(props, defaultColor) {
  *
  * @author Robert Long
  */
-const Viewport = (styled as any).canvas`
+export const Viewport = (styled as any).canvas`
   width: 100%;
   height: 100%;
   position: relative;
@@ -43,7 +43,7 @@ const Viewport = (styled as any).canvas`
  * @author Robert Long
  * @type {[Styled component]}
  */
-const ViewportContainer = (styled as any).div`
+export const ViewportContainer = (styled as any).div`
   display: flex;
   flex: 1;
   position: relative;
@@ -213,8 +213,8 @@ export function ViewportPanelContainer() {
   const onAfterUploadAssets = useCallback(
     (assets) => {
       Promise.all(
-        assets.map(({ url }) => {
-          editor.addMedia(url)
+        assets.map(({ url, name, id }) => {
+          editor.addMedia({ url, name, id })
         })
       ).catch((err) => {
         editor.emit('error', err)
