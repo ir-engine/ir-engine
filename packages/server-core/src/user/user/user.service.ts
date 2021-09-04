@@ -79,9 +79,13 @@ export default (app: Application): void => {
       })
       partyUsers.forEach((partyUser) => {
         updatePromises.push(
-          app.service('party-user').patch(partyUser.id, {
-            isOwner: partyUser.isOwner
-          })
+          app.service('party-user').patch(
+            partyUser.id,
+            {
+              isOwner: partyUser.isOwner
+            },
+            params
+          )
         )
         targetIds.push(partyUser.userId)
       })
