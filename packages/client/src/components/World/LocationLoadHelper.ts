@@ -68,7 +68,7 @@ export const getSceneData = async (sceneId: string, isOffline: boolean) => {
   return client.service(service).get(serviceId)
 }
 
-const initEngineOffline = () => {
+const createOfflineUser = () => {
   const avatar = {
     thumbnailURL: '',
     avatarURL: '',
@@ -152,6 +152,8 @@ export const initEngine = async (
       resolve()
     }))
 
+  isOffline && createOfflineUser()
+
   await new Promise<void>((resolve) => {
     const listener = ({ uniqueId }) => {
       if (uniqueId === Network.instance.userId) {
@@ -174,8 +176,6 @@ export const initEngine = async (
   if (typeof engineCallbacks?.onSuccess === 'function') {
     engineCallbacks.onSuccess()
   }
-
-  isOffline && initEngineOffline()
 }
 
 export const teleportToLocation = async (
