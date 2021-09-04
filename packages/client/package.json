@@ -105,6 +105,7 @@
     "shaka-player": "3.2.0",
     "socket.io-client": "4.2.0",
     "styled-components": "5.3.1",
+    "three-physx": "^0.0.37",
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
