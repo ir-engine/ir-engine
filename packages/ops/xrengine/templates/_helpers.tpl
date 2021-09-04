@@ -137,7 +137,7 @@ Selector labels
 {{- define "xrengine.analytics.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "xrengine.analytics.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: client
+app.kubernetes.io/component: analytics
 {{- end -}}
 
 {{/*
