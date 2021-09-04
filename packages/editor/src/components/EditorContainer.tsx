@@ -1,6 +1,5 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
-import { ProjectDiagram } from '@styled-icons/fa-solid'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import {
   fetchAdminLocations,

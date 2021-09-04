@@ -60,7 +60,7 @@ export const HorizontalScrollContainer = (styled as any)(FlexRow)`
  * @author Robert Long
  * @type {Styled component}
  */
-export const AssetsPanelContainer = (styled as any)(Row)`
+export const AssetsPanelContainer = (styled as any)(FlexRow)`
  position: relative;
  flex: 1;
  background-color: ${(props) => props.theme.panel};
