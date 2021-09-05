@@ -33,6 +33,7 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
     const mapTransform = getComponent(mapEntity, TransformComponent, false, world)
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
     const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
+    const meshesByTaskId = getResultsQueue()
 
     $vector3.subVectors(viewerTransform.position, mapTransform.position)
     const viewerPositionDelta = vector3ToArray2($vector3)
@@ -55,22 +56,14 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
         object3dComponent.value,
         mapTransform.position
       )
-
-      for (const [id, mesh] of $mapObjectsInScene.entries()) {
-        const distanceFromViewer = mesh.position.distanceTo(viewerTransform.position)
-        if (distanceFromViewer > mapComponent.minimumSceneRadius) {
-          console.log('deleting mesh', distanceFromViewer, 'm away')
-          $mapObjectsInScene.delete(id)
-          object3dComponent.value.remove(mesh)
-        }
-      }
     }
 
-    const meshesByTaskId = getResultsQueue()
+    $mapObjectsInScene.forEach((mesh) => {
+      object3dComponent.value.remove(mesh)
+    })
+
     meshesByTaskId.forEach((mesh, taskId) => {
-      if (mesh && !$mapObjectsInScene.has(taskId)) {
-        mesh.position.copy(viewerTransform.position)
-        mesh.position.y = 0
+      if (mesh) {
         object3dComponent.value.add(mesh)
         $mapObjectsInScene.set(taskId, mesh)
       }
