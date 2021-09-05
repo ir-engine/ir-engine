@@ -13,7 +13,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
   const center = await getStartCoords(args)
 
-  const minimumSceneRadius = 1000
+  const minimumSceneRadius = 200
 
   addComponent(entity, MapComponent, {
     center,

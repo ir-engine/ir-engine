@@ -169,3 +169,4 @@ describe('MapUpdateSystem', () => {
     expect(refreshSceneObjects).toHaveBeenCalledTimes(0)
   })
 })
+

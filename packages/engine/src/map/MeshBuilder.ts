@@ -242,14 +242,16 @@ const geometryWorkerFunction = function () {
   }
 }
 
-const geometryWorker = isClient ? convertFunctionToWorker(geometryWorkerFunction) : null
+let geometryWorker: Worker
+if (isClient) {
+  geometryWorker = convertFunctionToWorker(geometryWorkerFunction)
+  geometryWorker.onmessage = (msg) => {
+    $workerMessagesByTaskId[msg.data.taskId] = msg
+  }
+}
 
 const $workerMessagesByTaskId = []
 const $geometriesByTaskId = []
-
-geometryWorker.onmessage = (msg) => {
-  $workerMessagesByTaskId[msg.data.taskId] = msg
-}
 
 const geometryLoader = new BufferGeometryLoader()
 function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<void> {
@@ -258,6 +260,7 @@ function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, 
     const interval = setInterval(() => {
       const msg = $workerMessagesByTaskId[taskId]
       if (msg) {
+        clearInterval(interval)
         const { json, transfer } = msg.data
         const geometry = geometryLoader.parse(json)
         for (const attributeName in transfer.attributes) {
@@ -265,12 +268,11 @@ function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, 
           geometry.setAttribute(attributeName, new BufferAttribute(array, itemSize, normalized))
         }
         $geometriesByTaskId[taskId] = geometry
-        clearInterval(interval)
         delete $workerMessagesByTaskId[taskId]
         $workerMessagesByTaskId[taskId] = null
         resolve()
       }
-    }, 100)
+    }, 200)
   })
   geometryWorker.postMessage({ taskId, style, feature, llCenter })
   return promise
@@ -362,6 +364,7 @@ export function resetQueues() {
   $taskId = 0
   $geometriesByTaskId.length = 0
   $meshesByTaskId.length = 0
+  $workerMessagesByTaskId.length = 0
 }
 
 export function getResultsQueue(): readonly Mesh[] {
