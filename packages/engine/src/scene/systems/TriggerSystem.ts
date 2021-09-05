@@ -6,10 +6,10 @@ import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 
 /**
- * @author Gheric Speiginer <github.com/speigg>
+ * @author Hamza Mushtaq <github.com/hamzzam>
  */
 
-export const TriggerControllerSysyem = async (): Promise<System> => {
+export const TriggerSysyem = async (): Promise<System> => {
   const triggerCollidedQuery = defineQuery([TriggerVolumeComponent, TriggerDetectedComponent])
   const triggerEnterQuery = enterQuery(triggerCollidedQuery)
   const triggerExitQuery = exitQuery(triggerCollidedQuery)
@@ -46,9 +46,35 @@ export const TriggerControllerSysyem = async (): Promise<System> => {
       console.log('handleTriggerEnter')
     }
 
-    for (const entity of nameExitQuery(world)) {
-      const { name } = NameComponent.get(entity)
-      world.world.namedEntities.delete(name)
+    for (const entity of triggerExitQuery(world)) {
+      let triggerComponent = getComponent(entity, TriggerVolumeComponent)
+
+      const args = triggerComponent.args
+      let leaveComponent = args.leaveComponent
+      let leaveProperty = args.leaveProperty
+      let leaveValue = args.leaveValue
+
+      let targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+
+      if (leaveComponent === 'video' || leaveComponent === 'volumteric') {
+        if (leaveProperty === 'paused') {
+          if (leaveValue) {
+            targetObj.pause()
+          } else {
+            targetObj.play()
+          }
+        }
+      } else if (leaveComponent === 'loop-animation') {
+        if (leaveProperty === 'paused') {
+          if (leaveValue) {
+            targetObj.stopAnimation()
+          } else {
+            targetObj.playAnimation()
+          }
+        }
+      }
+
+      console.log('handleTriggerExit')
     }
 
     return world
