@@ -32,3 +32,20 @@ export function getPlayerEntity(player): number {
 
   return undefined
 }
+
+export function getPlayers(localUserId): string[] {
+  const res: string[] = []
+
+  for (let p in Network.instance.clients) {
+    if (
+      Network.instance.clients[p].userId !== localUserId &&
+      Network.instance.clients[p].name !== undefined &&
+      Network.instance.clients[p].name !== '' &&
+      !res.includes(Network.instance.clients[p].name)
+    ) {
+      res.push(Network.instance.clients[p].name)
+    }
+  }
+
+  return res
+}
