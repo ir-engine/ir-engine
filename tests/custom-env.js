@@ -67,7 +67,7 @@ beforeAll(async () => {
     })
   }
 
-  const launchStack = new Promise.all([
+  const launchStack = Promise.all([
     awaitLog('Initialized new gameserver instance'), // GS
     awaitLog('API Server Ready'), // api
     awaitLog('dev server running at:'), // vite
