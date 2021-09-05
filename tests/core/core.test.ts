@@ -28,7 +28,6 @@ describe('My Bot Tests', () => {
   test('Can spawn in the world', async () =>{
     await bot.delay(1000)
     const pos = await bot.runHook(BotHooks.GetPlayerPosition)
-    console.log(pos)
     expect(
       vector3.copy(pos).length()
     ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
