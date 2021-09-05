@@ -15,7 +15,7 @@ export const FollowSystem = async (): Promise<System> => {
 
   return defineSystem((world: ECSWorld) => {
     for (const eid of followQuery(world)) {
-      var { targetEid, cStep, prevTarget } = getComponent(eid, FollowComponent)
+      let { targetEid, cStep, prevTarget } = getComponent(eid, FollowComponent)
       cStep++
       getComponent(eid, FollowComponent).cStep = cStep
       if (cStep < step) continue

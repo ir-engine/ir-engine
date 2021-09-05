@@ -56,7 +56,7 @@ export const positionBehind = (position: Vector3, rotation: Quaternion, distance
 export const lookAt = (position: Vector3, rotation: Quaternion, targetPos: Vector3): number => {
   const x = targetPos.x - position.x
   const y = targetPos.z - position.z
-  var angle = Math.atan2(x, y)
+  let angle = Math.atan2(x, y)
   angle *= Rad2Deg()
   return angle
 }

@@ -10,7 +10,7 @@ export function getUserId(eid) {
 
 //returns the client for a player
 export function getPlayer(player) {
-  for (var p in Network.instance.clients) {
+  for (let p in Network.instance.clients) {
     if (Network.instance.clients[p].name === player) {
       return Network.instance.clients[p]
     }

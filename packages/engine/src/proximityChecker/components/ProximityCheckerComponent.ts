@@ -2,8 +2,4 @@ import { createMappedComponent, hasComponent, addComponent, getComponent } from 
 
 export type ProximityCheckerComponentType = {}
 
-export const createProximityCheckerComponent = (eid: number) => {
-  return addComponent(eid, ProximityCheckerComponent, {})
-}
-
 export const ProximityCheckerComponent = createMappedComponent<ProximityCheckerComponentType>()

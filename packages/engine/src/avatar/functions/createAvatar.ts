@@ -22,10 +22,7 @@ import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import {
-  createProximityCheckerComponent,
-  ProximityCheckerComponent
-} from '../../proximityChecker/components/ProximityCheckerComponent'
+import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
 
@@ -47,7 +44,7 @@ export const createAvatar = (
   isRemotePlayer = true
 ): void => {
   if (isClient && isBot(window)) {
-    if (!hasComponent(entity, ProximityCheckerComponent)) createProximityCheckerComponent(entity)
+    if (!hasComponent(entity, ProximityCheckerComponent)) addComponent(entity, ProximityCheckerComponent, {})
   }
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),

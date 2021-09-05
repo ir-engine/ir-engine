@@ -70,7 +70,7 @@ const nameToInputValue = {
   surprised: CameraInput.Surprised
 }
 
-var prevExp: string = ''
+let prevExp: string = ''
 
 export async function faceToInput(detection) {
   if (detection !== undefined && detection.expressions !== undefined) {

@@ -18,9 +18,9 @@ export const ProximitySystem = async (): Promise<System> => {
       if (isEntityLocal(eid)) {
         const userId = getUserId(eid)
         const transform = getComponent(eid, TransformComponent)
-        var remoteTransform
-        var distance: number = -1
-        var dot: number = -1
+        let remoteTransform
+        let distance: number = -1
+        let dot: number = -1
 
         for (const id in Network.instance.networkObjects) {
           const object = Network.instance.networkObjects[id]

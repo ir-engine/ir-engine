@@ -17,6 +17,7 @@ import {
 import { getPlayerEntity } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
+import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -457,9 +458,11 @@ export function goTo(pos: Vector3, eid: number) {
   //console.log('goto: ' + JSON.stringify(pos))
   let linput = getComponent(eid, LocalInputTagComponent)
   if (linput === undefined) linput = addComponent(eid, LocalInputTagComponent, {})
-  addComponent(eid, AutoPilotClickRequestComponent, {
-    coords: new Vector2(0, 0),
+  addComponent(eid, AutoPilotOverrideComponent, {
     overrideCoords: true,
     overridePosition: pos
+  })
+  addComponent(eid, AutoPilotClickRequestComponent, {
+    coords: new Vector2(0, 0)
   })
 }
