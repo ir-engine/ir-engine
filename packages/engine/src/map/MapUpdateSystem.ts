@@ -16,7 +16,8 @@ import { GeoLabelNode } from './GeoLabelNode'
 import { LongLat } from './types'
 
 const $vector3 = new Vector3()
-const $mapObjectsInScene = new Map<string, { mesh?: Mesh; label?: GeoLabelNode }>()
+const $meshesInScene = new Map<string, Mesh>()
+const $labelsInScene = new Map<string, GeoLabelNode>()
 const $mapObjectsToRemove = new Set<string>()
 const $previousViewerPosition = new Vector3()
 
@@ -60,7 +61,7 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
       $previousViewerPosition.y = 0
     }
 
-    $mapObjectsInScene.forEach((_, featureUUID) => {
+    $meshesInScene.forEach((_, featureUUID) => {
       $mapObjectsToRemove.add(featureUUID)
     })
 
@@ -69,32 +70,32 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
         mesh: { mesh, geographicCenterPoint },
         label
       } = getResultsForFeature(featureUUID)
-      const objectInScene = $mapObjectsInScene.get(featureUUID)
-      if (mesh && (!objectInScene || !objectInScene.mesh)) {
+      if (mesh && !$meshesInScene.has(featureUUID)) {
         setPosition(mesh, geographicCenterPoint, mapComponent.originalCenter)
         object3dComponent.value.add(mesh)
-        updateMap($mapObjectsInScene, featureUUID, (value) => ({ ...value, mesh }), {})
+        $meshesInScene.set(featureUUID, mesh)
       }
-      if (label && (!objectInScene || !objectInScene.label)) {
+      if (label && !$labelsInScene.has(featureUUID)) {
         setPosition(label.object3d, label.geoMiddleSlice[0], mapComponent.originalCenter)
         object3dComponent.value.add(label.object3d)
-        updateMap($mapObjectsInScene, featureUUID, (value) => ({ ...value, label }), {})
+        $labelsInScene.set(featureUUID, label)
       }
       $mapObjectsToRemove.delete(featureUUID)
     })
 
     $mapObjectsToRemove.forEach((featureUUID) => {
-      const { mesh, label } = $mapObjectsInScene.get(featureUUID)
+      const mesh = $meshesInScene.get(featureUUID)
+      const label = $labelsInScene.get(featureUUID)
       if (mesh) {
         object3dComponent.value.remove(mesh)
       }
       if (label) {
         object3dComponent.value.remove(label.object3d)
       }
-      $mapObjectsInScene.delete(featureUUID)
+      $meshesInScene.delete(featureUUID)
     })
 
-    $mapObjectsInScene.forEach(({ label }) => {
+    $labelsInScene.forEach((label) => {
       if (label) {
         label.onUpdate(Engine.camera)
       }
@@ -108,8 +109,4 @@ function setPosition(object3d: Object3D, geographicPoint: LongLat, mapOriginalCe
   const scenePoint = llToScene(geographicPoint, mapOriginalCenter)
   // Note that latitude values are flipped relative to our scene's Z axis
   object3d.position.set(scenePoint[0], 0, -scenePoint[1])
-}
-
-function updateMap<K, V>(map: Map<K, V>, key: K, updateFn: (value: V) => V, initialValue: V) {
-  map.set(key, updateFn(map.get(key) || initialValue))
 }
