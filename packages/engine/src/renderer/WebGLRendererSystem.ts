@@ -129,7 +129,7 @@ export class EngineRenderer {
   normalPass: NormalPass
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
 
-  supportWebGL2: boolean = WebGL.isWebGL2Available()
+  supportWebGL2: boolean
   rendereringEnabled = true
   canvas: HTMLCanvasElement
 
@@ -140,8 +140,13 @@ export class EngineRenderer {
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {
     EngineRenderer.instance = this
-
     this.onResize = this.onResize.bind(this)
+
+    this.supportWebGL2 = WebGL.isWebGL2Available()
+
+    if (!this.supportWebGL2 && !WebGL.isWebGLAvailable()) {
+      WebGL.dispatchWebGLDisconnectedEvent()
+    }
 
     const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')

@@ -5,6 +5,10 @@ export default class WEBGL {
     INSTANCE_WEBGL_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED'
   }
 
+  static dispatchWebGLDisconnectedEvent() {
+    EngineEvents.instance.dispatchEvent({ type: this.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
+  }
+
   static isWebGLAvailable() {
     try {
       const canvas = document.createElement('canvas')
@@ -14,19 +18,12 @@ export default class WEBGL {
     }
   }
 
-  static isWebGL2Available() {
-    var support = true
+  static isWebGL2Available(): boolean {
     try {
       const canvas = document.createElement('canvas')
-      document.body.appendChild(canvas)
-      if (canvas.getContext('webgl') == null || canvas.getContext('experimental-webgl') == null) {
-        EngineEvents.instance.dispatchEvent({ type: this.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
-        return
-      }
       return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'))
     } catch (e) {
-      EngineEvents.instance.dispatchEvent({ type: this.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
-      return
+      return false
     }
   }
 
