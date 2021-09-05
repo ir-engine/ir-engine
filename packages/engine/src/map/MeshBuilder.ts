@@ -1,4 +1,4 @@
-import { buffer, centerOfMass } from '@turf/turf'
+import { buffer, center, centerOfMass, points } from '@turf/turf'
 import { Feature, Geometry, Position } from 'geojson'
 import { BufferGeometryLoader, MeshBasicMaterial } from 'three'
 import {
@@ -64,7 +64,7 @@ const geometryWorkerFunction = function () {
     /* @ts-ignore:next-line */
     this.THREE as typeof THREE
 
-  const turf = this.turf
+  const turf = this.turf as { buffer: typeof buffer; center: typeof center; points: typeof points }
 
   const messageQueue = []
   let processingQueue = false
@@ -82,7 +82,7 @@ const geometryWorkerFunction = function () {
     while (messageQueue.length > 0) {
       const msg = messageQueue.shift()
       const { taskId, style, feature, llCenter } = msg.data
-      const geometry = build(feature, llCenter, style)
+      const { geometry, geographicCenterPoint } = build(feature, llCenter, style)
 
       const bufferGeometry = new BufferGeometry().copy(geometry)
 
@@ -99,7 +99,10 @@ const geometryWorkerFunction = function () {
         }
       }
 
-      postMessage({ taskId, json: bufferGeometry.toJSON(), transfer: { attributes } }, arrayBuffers as any)
+      postMessage(
+        { taskId, geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, geographicCenterPoint },
+        arrayBuffers as any
+      )
     }
     processingQueue = false
   }, 200)
@@ -107,7 +110,7 @@ const geometryWorkerFunction = function () {
   const $vector3 = new Vector3()
   const METERS_PER_DEGREE_LL = 111139
 
-  function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position, sceneScale = 1): Position {
+  function llToScene([lng, lat]: LongLat, [lngCenter, latCenter]: LongLat, sceneScale = 1): [number, number] {
     return [
       (lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale,
       (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale
@@ -151,7 +154,24 @@ const geometryWorkerFunction = function () {
     }
   }
 
-  function build(feature: Feature, llCenter: Position, style: IStyles): BufferGeometry | null {
+  function subtractArray2([a1, b1], [a2, b2]) {
+    return [a1 - a2, b1 - b2]
+  }
+
+  function transformFeaturePoint(
+    featurePoint: LongLat,
+    featureCenterPointInScene: [number, number],
+    mapCenter: LongLat
+  ) {
+    const pointInScene = llToScene(featurePoint, mapCenter)
+    return subtractArray2(pointInScene as any, featureCenterPointInScene)
+  }
+
+  function build(
+    feature: Feature,
+    llCenter: Position,
+    style: IStyles
+  ): { geometry: BufferGeometry; geographicCenterPoint: LongLat } | null {
     const shape = new Shape()
 
     const { geometry } =
@@ -177,14 +197,17 @@ const geometryWorkerFunction = function () {
       // TODO handle feature.geometry.type === 'GeometryCollection'?
     }
 
-    var point = llToScene(coords[0], llCenter)
+    const geographicCenterPoint = turf.center(turf.points(coords)).geometry.coordinates
+    const geometryCenter = llToScene(geographicCenterPoint, llCenter)
+
+    var point = transformFeaturePoint(coords[0], geometryCenter, llCenter)
     shape.moveTo(point[0], point[1])
 
     coords.slice(1).forEach((coord: Position) => {
-      point = llToScene(coord, llCenter)
+      point = transformFeaturePoint(coord, geometryCenter, llCenter)
       shape.lineTo(point[0], point[1])
     })
-    point = llToScene(coords[0], llCenter)
+    point = transformFeaturePoint(coords[0], geometryCenter, llCenter)
     shape.lineTo(point[0], point[1])
 
     let height: number
@@ -238,7 +261,7 @@ const geometryWorkerFunction = function () {
       colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
     }
 
-    return threejsGeometry
+    return { geometry: threejsGeometry, geographicCenterPoint }
   }
 }
 
@@ -250,8 +273,20 @@ if (isClient) {
   }
 }
 
-const $workerMessagesByTaskId = []
-const $geometriesByTaskId = []
+const $workerMessagesByTaskId: {
+  [featureUUID: string]: {
+    data: {
+      geometry: {
+        json: object
+        transfer: {
+          attributes: { [attributeName: string]: { array: Int32Array; itemSize: number; normalized: boolean } }
+        }
+      }
+      geographicCenterPoint: LongLat
+    }
+  }
+} = {}
+const $geometriesByTaskId: { [featureUUID: string]: { geometry: BufferGeometry; geographicCenterPoint: LongLat } } = {}
 
 const geometryLoader = new BufferGeometryLoader()
 function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<void> {
@@ -261,13 +296,16 @@ function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, 
       const msg = $workerMessagesByTaskId[taskId]
       if (msg) {
         clearInterval(interval)
-        const { json, transfer } = msg.data
+        const {
+          geometry: { json, transfer },
+          geographicCenterPoint
+        } = msg.data
         const geometry = geometryLoader.parse(json)
         for (const attributeName in transfer.attributes) {
           const { array, itemSize, normalized } = transfer.attributes[attributeName]
           geometry.setAttribute(attributeName, new BufferAttribute(array, itemSize, normalized))
         }
-        $geometriesByTaskId[taskId] = geometry
+        $geometriesByTaskId[taskId] = { geometry, geographicCenterPoint }
         delete $workerMessagesByTaskId[taskId]
         $workerMessagesByTaskId[taskId] = null
         resolve()
@@ -314,8 +352,7 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
   return material
 }
 
-let $taskId = 0
-const $meshesByTaskId = []
+const $meshesByTaskId: { [featureUUID: string]: { mesh: Mesh; geographicCenterPoint: LongLat } } = {}
 
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
@@ -330,14 +367,16 @@ export function buildMeshes(
 } {
   const pendingTasks = []
   const promises = []
-  for (let featureIndex = 0; featureIndex < features.length; featureIndex++) {
-    promises.push(buildGeometry($taskId, layerName, features[featureIndex], llCenter))
-    pendingTasks.push({
-      id: $taskId,
-      featureIndex
-    })
-    $taskId++
-  }
+  features.forEach((feature, featureIndex) => {
+    const id = feature.properties.uuid
+    promises.push(buildGeometry(id, layerName, feature, llCenter))
+    if (!$meshesByTaskId[id]) {
+      pendingTasks.push({
+        id: feature.properties.uuid,
+        featureIndex
+      })
+    }
+  })
 
   return {
     tasks: pendingTasks,
@@ -352,22 +391,24 @@ export function buildMeshes(
         }
 
         const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
-        const mesh = new Mesh($geometriesByTaskId[task.id], material)
+        const { geometry, geographicCenterPoint } = $geometriesByTaskId[task.id]
+        const mesh = new Mesh(geometry, material)
         mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
-        $meshesByTaskId[task.id] = mesh
+        $meshesByTaskId[task.id] = { mesh, geographicCenterPoint }
       }
     })
   }
 }
 
 export function resetQueues() {
-  $taskId = 0
-  $geometriesByTaskId.length = 0
-  $meshesByTaskId.length = 0
-  $workerMessagesByTaskId.length = 0
+  // $taskId = 0
+  // $geometriesByTaskId.length = 0
+  // TODO free resources using timestamp?
+  // $meshesByTaskId.length = 0
+  // $workerMessagesByTaskId.length = 0
 }
 
-export function getResultsQueue(): readonly Mesh[] {
+export function getResultsQueue() {
   return $meshesByTaskId
 }
 
@@ -411,7 +452,7 @@ export async function createBuildings(vectorTiles: TileFeaturesByLayer[], llCent
 
   const group = new Group()
   for (const { id } of tasks) {
-    group.add($meshesByTaskId[id])
+    group.add($meshesByTaskId[id].mesh)
   }
 
   return group
@@ -436,7 +477,7 @@ async function createLayerGroup(
   await Promise.all(promises)
 
   for (const { id } of allTasks) {
-    group.add($meshesByTaskId[id])
+    group.add($meshesByTaskId[id].mesh)
   }
   return group
 }

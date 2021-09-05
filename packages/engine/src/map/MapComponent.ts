@@ -6,6 +6,7 @@ export type MapComponentType = {
   center: LongLat
   /** Trigger a refresh when camera target entity reaches this distance, in meters, from `center`.
    */
+  originalCenter: LongLat
   triggerRefreshRadius: number
   refreshInProgress: boolean
   /** Distance from `center` for which to fetch data and build a scene object, in meters

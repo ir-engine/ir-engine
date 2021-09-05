@@ -98,6 +98,7 @@ export function unifyFeatures(features: Feature[]): Feature[] {
       })
       const unifiedProperties = {
         ...features[0].properties,
+        uuid: features.map((feature) => feature.properties.uuid).join(';'),
         height: maxHeight
       }
 

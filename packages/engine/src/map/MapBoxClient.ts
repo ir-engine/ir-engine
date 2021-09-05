@@ -1,7 +1,7 @@
 import { VectorTile } from '@mapbox/vector-tile'
 import { degreesToRadians } from '@turf/turf'
 import { Config } from '@xrengine/common/src/config'
-import { Position } from 'geojson'
+import { Feature, Position } from 'geojson'
 import { sceneToLl } from './MeshBuilder'
 import { LongLat, TileFeaturesByLayer } from './types'
 import { vectors } from './vectors'
@@ -58,7 +58,8 @@ function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFea
     if (!vectorLayer) return
 
     for (let i = 0; i < vectorLayer.length; i++) {
-      const feature = vectorLayer.feature(i).toGeoJSON(tileX, tileY, TILE_ZOOM)
+      const feature: Feature = vectorLayer.feature(i).toGeoJSON(tileX, tileY, TILE_ZOOM)
+      feature.properties.uuid = `${layerName},${tileX},${tileY},${i}`
       result[layerName].push(feature)
     }
   })

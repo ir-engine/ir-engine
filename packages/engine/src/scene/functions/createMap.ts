@@ -17,6 +17,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
   addComponent(entity, MapComponent, {
     center,
+    originalCenter: center,
     triggerRefreshRadius: 200,
     refreshInProgress: false,
     minimumSceneRadius,
