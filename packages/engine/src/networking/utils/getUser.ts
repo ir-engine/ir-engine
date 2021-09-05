@@ -21,7 +21,6 @@ export function getPlayer(player) {
 //returns the entity for a player
 export function getPlayerEntity(player): number {
   for (let p in Network.instance.clients) {
-    console.log(JSON.stringify(Network.instance.clients[p]))
     if (Network.instance.clients[p].name === player) {
       for (let e in Network.instance.networkObjects) {
         if (Network.instance.clients[p].userId === Network.instance.networkObjects[e].uniqueId)
@@ -31,4 +30,21 @@ export function getPlayerEntity(player): number {
   }
 
   return undefined
+}
+
+export function getPlayers(userId): string[] {
+  const res: string[] = []
+
+  for (let p in Network.instance.clients) {
+    if (
+      Network.instance.clients[p].userId !== userId &&
+      Network.instance.clients[p].name !== undefined &&
+      Network.instance.clients[p].name !== '' &&
+      !res.includes(Network.instance.clients[p].name)
+    ) {
+      res.push(Network.instance.clients[p].name)
+    }
+  }
+
+  return res
 }

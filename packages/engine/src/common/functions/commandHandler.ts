@@ -14,7 +14,7 @@ import {
   unsubscribeFromChatSystem,
   getSubscribedChatSystems
 } from '../../networking/utils/chatSystem'
-import { getPlayerEntity } from '../../networking/utils/getUser'
+import { getPlayerEntity, getPlayers } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 
@@ -224,6 +224,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 
       return true
     }
+    case 'listAllusers': {
+      if (isServer) return false
+
+      handleListAllUsersCommand(userId)
+
+      return true
+    }
     default: {
       console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
       if (!isServer) return true
@@ -419,6 +426,10 @@ function handleFollowCommand(param: string, eid: number) {
     if (targetEid === undefined || eid === targetEid) return
     createFollowComponent(eid, targetEid)
   }
+}
+function handleListAllUsersCommand(userId) {
+  const players: string[] = getPlayers(userId)
+  console.log('players|' + JSON.stringify(players))
 }
 
 function runAnimation(eid: any, emote: string, emoteParams: any) {

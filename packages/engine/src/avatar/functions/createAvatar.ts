@@ -82,6 +82,7 @@ export const createAvatar = (
   addComponent(entity, NameComponent, {
     name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
   })
+
   console.log('uniqueID: ' + getComponent(entity, NetworkObjectComponent).uniqueId)
   console.log('userID: ' + Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId)
 
