@@ -88,7 +88,7 @@ IncidentLight directLight;
 	for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
 		directionalLight = directionalLights[ i ];
-		getDirectionalDirectLightIrradiance( directionalLight, geometry, directLight );
+		getDirectionalLightInfo( directionalLight, geometry, directLight );
 
 		// NOTE: Depth gets larger away from the camera.
 		// cascade.x is closer, cascade.y is further
@@ -134,7 +134,7 @@ IncidentLight directLight;
 	for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
 		directionalLight = directionalLights[ i ];
-		getDirectionalDirectLightIrradiance( directionalLight, geometry, directLight );
+		getDirectionalLightInfo( directionalLight, geometry, directLight );
 
 		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_DIR_LIGHT_SHADOWS )
 
@@ -165,7 +165,7 @@ IncidentLight directLight;
 
 		directionalLight = directionalLights[ i ];
 
-		getDirectionalDirectLightIrradiance( directionalLight, geometry, directLight );
+		getDirectionalLightInfo( directionalLight, geometry, directLight );
 
 		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_DIR_LIGHT_SHADOWS )
 		directionalLightShadow = directionalLightShadows[ i ];
