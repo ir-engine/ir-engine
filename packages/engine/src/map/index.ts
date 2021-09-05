@@ -33,7 +33,7 @@ export const createMapObjects = async function (center: Position, minimumSceneRa
   const roadsMesh = await createRoads(vectorTiles, center)
   const waterMesh = await createWater(vectorTiles, center)
   const landUseMesh = await createLandUse(vectorTiles, center)
-  const labels = createLabels(vectorTiles, center)
+  const labels = createLabels(vectorTiles)
 
   ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
     group.add(mesh)

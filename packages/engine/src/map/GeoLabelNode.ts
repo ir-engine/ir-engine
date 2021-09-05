@@ -32,13 +32,11 @@ export class GeoLabelNode {
   geoFeature: Feature<LineString>
   geoLength?: number
   geoMiddleSlice: Position[]
-  transformGeoPosition: (position: Position) => Position
 
   object3d: Object3D & { sync(): void }
 
-  constructor(feature: Feature<LineString>, transformGeoPosition: (position: Position) => Position) {
+  constructor(feature: Feature<LineString>) {
     this.geoFeature = feature
-    this.transformGeoPosition = transformGeoPosition
 
     this.object3d = createTextObject(feature.properties.name)
 
@@ -50,16 +48,12 @@ export class GeoLabelNode {
       this.geoFeature,
       this.geoLength * 0.49,
       this.geoLength * 0.51
-    ).geometry.coordinates.map(this.transformGeoPosition)
+    ).geometry.coordinates
   }
   onUpdate(camera: Camera) {
     const [[x1, y1], [x2, y2]] = this.geoMiddleSlice
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
-
-    this.object3d.position.x = x1
-    // for some reason the positions are mirrored along the X-axis
-    this.object3d.position.z = y1 * -1
 
     camera.getWorldDirection(cameraDirection)
 

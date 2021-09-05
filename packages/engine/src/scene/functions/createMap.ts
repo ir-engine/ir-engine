@@ -26,8 +26,14 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
   const { navMesh, groundMesh, labels } = await createMapObjects(center, minimumSceneRadius, args)
 
+  const mapObject3D = new Group()
+
+  labels.forEach((label) => {
+    mapObject3D.add(label.object3d)
+  })
+
   addComponent(entity, Object3DComponent, {
-    value: new Group()
+    value: mapObject3D
   })
   addComponent(entity, NavMeshComponent, {
     yukaNavMesh: navMesh,

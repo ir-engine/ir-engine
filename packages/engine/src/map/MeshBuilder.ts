@@ -287,6 +287,8 @@ const $workerMessagesByTaskId: {
   }
 } = {}
 const $geometriesByTaskId: { [featureUUID: string]: { geometry: BufferGeometry; geographicCenterPoint: LongLat } } = {}
+const $meshesByTaskId: { [featureUUID: string]: { mesh: Mesh; geographicCenterPoint: LongLat } } = {}
+const $labelsByTaskId: { [featureUUID: string]: GeoLabelNode } = {}
 
 const geometryLoader = new BufferGeometryLoader()
 function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<void> {
@@ -352,8 +354,6 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
   return material
 }
 
-const $meshesByTaskId: { [featureUUID: string]: { mesh: Mesh; geographicCenterPoint: LongLat } } = {}
-
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
@@ -408,8 +408,15 @@ export function resetQueues() {
   // $workerMessagesByTaskId.length = 0
 }
 
-export function getResultsQueue() {
-  return $meshesByTaskId
+export function getUUIDsForCompletedFeatures() {
+  return Object.keys($meshesByTaskId)
+}
+
+export function getResultsForFeature(featureUUID: string) {
+  return {
+    mesh: $meshesByTaskId[featureUUID],
+    label: $labelsByTaskId[featureUUID]
+  }
 }
 
 export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
@@ -490,13 +497,14 @@ export function createWater(vectorTiles: TileFeaturesByLayer[], llCenter: Positi
   return createLayerGroup(['water', 'waterway'], vectorTiles, llCenter)
 }
 
-export function createLabels(vectorTiles: TileFeaturesByLayer[], llCenter: Position): GeoLabelNode[] {
+export function createLabels(vectorTiles: TileFeaturesByLayer[]): GeoLabelNode[] {
   const features = collectFeaturesByLayer('road', vectorTiles)
-  return features.reduce((acc, f: any) => {
+  return features.reduce((acc, f: Feature) => {
     if (f.properties.name && ['LineString'].indexOf(f.geometry.type) >= 0) {
-      const labelView = new GeoLabelNode(f, (pos: Position) => llToScene(pos, llCenter))
+      const labelView = new GeoLabelNode(f as any)
 
       acc.push(labelView)
+      $labelsByTaskId[f.properties.uuid] = labelView
     }
     return acc
   }, [])
