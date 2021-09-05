@@ -7,7 +7,7 @@ export const initialAlertState: AlertState = {
   message: ''
 }
 
-const immutableState = Immutable.fromJS(initialAlertState)
+const immutableState = Immutable.fromJS(initialAlertState) as any
 
 const alertReducer = (state = immutableState, action: AlertAction): any => {
   switch (action.type) {

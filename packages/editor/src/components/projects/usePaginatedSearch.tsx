@@ -12,7 +12,7 @@ import { useFetch } from 'use-http'
 export default function usePaginatedSearch(
   path: string,
   queryParams: Record<string, any>,
-  options = {}
+  options = {} as { headers: { [key: string]: string } }
 ): { loading: boolean; error: unknown; entries: Array<unknown>; loadMore: () => void; hasMore: boolean } {
   const urlRef = useRef() as any
 
@@ -54,7 +54,6 @@ export default function usePaginatedSearch(
     {
       headers: {
         'content-type': 'application/json',
-        /* @ts-ignore */
         ...options.headers
       },
       onNewData: (data, newData) => {

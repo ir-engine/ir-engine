@@ -1,11 +1,10 @@
 // === SETUP WEBXR === //
 
 import { Quaternion, Vector3 } from 'three'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 import { Network } from '../../networking/classes/Network'
 
 export async function overrideXR() {
@@ -77,7 +76,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
@@ -86,7 +84,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
@@ -95,7 +92,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
 }
 
 /**
@@ -124,14 +120,14 @@ export function moveControllerStick(args) {
 
 // is in world space, so subtract player pos from it
 export function getXRInputPosition() {
-  const input = getComponent(Network.instance.localClientEntity, InputComponent)
-  const headInputValue = input.data.get(BaseInput.XR_HEAD)?.value
-  const leftControllerInputValue = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND)?.value
-  const rightControllerInputValue = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND)?.value
+  const xrInputs = getComponent(Network.instance.localClientEntity, XRInputSourceComponent)
+  const hmd = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray())
+  const left = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray())
+  const right = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray())
   return {
-    headInputValue,
-    leftControllerInputValue,
-    rightControllerInputValue
+    headInputValue: hmd,
+    leftControllerInputValue: left,
+    rightControllerInputValue: right
   }
 }
 

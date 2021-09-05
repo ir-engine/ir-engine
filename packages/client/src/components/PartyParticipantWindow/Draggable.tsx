@@ -6,9 +6,8 @@ type PropsType = {
 export class Draggable extends React.Component<PropsType> {
   constructor(props: PropsType) {
     super(props)
-    this.props = props
   }
-  props
+
   prev = { x: 0, y: 0 }
   MARGIN = 20
   dragStarted = false

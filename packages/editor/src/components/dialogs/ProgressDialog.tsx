@@ -52,3 +52,10 @@ export function ProgressDialog({ message, onConfirm, cancelable, onCancel, ...pr
     </Dialog>
   )
 }
+
+ProgressDialog.defaultProps = {
+  title: i18n.t('editor:dialog.progress.title') || 'Loading...',
+  message: i18n.t('editor:dialog.progress.message') || 'Loading...',
+  cancelable: false,
+  cancelLabel: i18n.t('editor:dialog.progress.lbl-cancel') || 'Cancel'
+}

@@ -11,25 +11,25 @@ import IconButton from '@material-ui/core/IconButton'
 import ClearIcon from '@material-ui/icons/Clear'
 import { Player } from 'video-react'
 import './PlayerStyles.css'
-import { useStyles, useStyle } from './styles'
-import { formValid } from './validation'
+import { useFeedStyles, useFeedStyle } from './styles'
+import { validateFeedForm } from './validation'
 import { Save } from '@material-ui/icons'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { updateFeed } from '../../../reducers/admin/feeds/service'
+import { updateFeedAsAdmin } from '../../../reducers/feed/service'
 
 interface Props {
   adminFeed: any
   closeEdit: () => void
-  updateFeed?: any
+  updateFeedAsAdmin?: typeof updateFeedAsAdmin
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateFeed: bindActionCreators(updateFeed, dispatch)
+  updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch)
 })
 
 const EditFeed = (props: Props) => {
-  const { closeEdit, adminFeed, updateFeed } = props
+  const { closeEdit, adminFeed, updateFeedAsAdmin } = props
   const [state, setState] = React.useState({
     title: adminFeed.title,
     description: adminFeed.description,
@@ -43,8 +43,8 @@ const EditFeed = (props: Props) => {
     }
   })
 
-  const classes = useStyles()
-  const classex = useStyle()
+  const classes = useFeedStyles()
+  const classex = useFeedStyle()
 
   const handleChange = (e) => {
     const { name } = e.target
@@ -87,8 +87,8 @@ const EditFeed = (props: Props) => {
     }
 
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
-      updateFeed(adminFeed.id, { preview, video }, { title, description })
+    if (validateFeedForm(state, state.formErrors)) {
+      updateFeedAsAdmin(adminFeed.id, { preview, video, title, description })
       closeEdit()
     }
   }

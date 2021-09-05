@@ -31,7 +31,7 @@ export const initialInstanceConnectionState = {
 
 let connectionSocket = null
 
-const immutableState = Immutable.fromJS(initialInstanceConnectionState)
+const immutableState = Immutable.fromJS(initialInstanceConnectionState) as any
 
 const instanceConnectionReducer = (state = immutableState, action: InstanceServerAction): any => {
   let newValues, newInstance, newClient

@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { getStepSize, toPrecision } from '@xrengine/editor/src/functions/utils'
 import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
@@ -85,10 +86,18 @@ const NumericInputUnit = (styled as any).div`
   height: 22px;
 `
 
+interface NumericInputProp {
+  value?: any
+  convertFrom?: any
+  precision?: any
+  mediumStep?: number
+  onChange?: Function
+}
+
 /**
  * @author Robert Long
  */
-export class NumericInput extends Component {
+export class NumericInput extends Component<NumericInputProp, {}> {
   constructor(props) {
     super(props)
 
@@ -238,6 +247,47 @@ export class NumericInput extends Component {
       </NumericInputContainer>
     )
   }
+}
+
+;(NumericInput as any).propTypes = {
+  className: PropTypes.string,
+  unit: PropTypes.node,
+  smallStep: PropTypes.number.isRequired,
+  mediumStep: PropTypes.number.isRequired,
+  largeStep: PropTypes.number.isRequired,
+  min: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onCommit: PropTypes.func,
+  convertTo: PropTypes.func.isRequired,
+  convertFrom: PropTypes.func.isRequired,
+  precision: PropTypes.number.isRequired,
+  displayPrecision: PropTypes.number.isRequired
+}
+;(NumericInput as any).defaultProps = {
+  value: 0,
+  smallStep: 0.025,
+  mediumStep: 0.1,
+  largeStep: 0.25,
+  min: -Infinity,
+  max: Infinity,
+  displayPrecision: 0.001,
+  precision: Number.EPSILON,
+  convertTo: (value) => value,
+  convertFrom: (value) => value
+}
+;(NumericInput as any).defaultProps = {
+  value: 0,
+  smallStep: 0.025,
+  mediumStep: 0.1,
+  largeStep: 0.25,
+  min: -Infinity,
+  max: Infinity,
+  displayPrecision: 0.001,
+  precision: Number.EPSILON,
+  convertTo: (value) => value,
+  convertFrom: (value) => value
 }
 
 export default NumericInput

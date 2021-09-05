@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import DialogActions from '@material-ui/core/DialogActions'
 import AudioPlayer from 'material-ui-audio-player'
-import { useStyle, useStyles, useStylePlayer } from './styles'
+import { useARMediaStyle, useARMediaStyles, useStylePlayer } from './styles'
 import EditArMedia from './EditArmedia'
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
 import Grid from '@material-ui/core/Grid'
@@ -19,8 +19,8 @@ interface Props {
 }
 
 const ViewMedia = (props: Props) => {
-  const classex = useStyle()
-  const classes = useStyles()
+  const classex = useARMediaStyle()
+  const classes = useARMediaStyles()
   const { openView, closeViewModel, mediaAdmin } = props
   const [editMode, setEditMode] = React.useState(false)
 

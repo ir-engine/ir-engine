@@ -66,12 +66,7 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
   render() {
     BoxColliderNodeEditor.description = this.props.t('editor:properties.boxCollider.description')
     return (
-      <NodeEditor
-        {...this.props}
-        /* @ts-ignore */
-        description={BoxColliderNodeEditor.description}
-      >
-        {/* @ts-ignore */}
+      <NodeEditor {...this.props} description={BoxColliderNodeEditor.description}>
         <InputGroup name="Trigger" label={this.props.t('editor:properties.boxCollider.lbl-isTrigger')}>
           <BooleanInput value={(this.props.node as any).isTrigger} onChange={this.onChangeTrigger} />
         </InputGroup>

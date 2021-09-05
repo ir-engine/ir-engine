@@ -4,12 +4,14 @@ import { getAccountId } from './getAccountId'
 import { getToken } from './getToken'
 import { scaledThumbnailUrlFor } from './scaledThumbnailUrlFor'
 import { Config } from '@xrengine/common/src/config'
-export const serverURL = Config.publicRuntimeConfig.apiServer
+
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 /**
  * searchMedia function to search media on the basis of provided params.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param  {any}  source
  * @param  {any}  params
  * @param  {any}  cursor
@@ -84,7 +86,7 @@ export const searchMedia = async (source, params, cursor, signal): Promise<any> 
     })
 
   return {
-    results: thumbnailedEntries ? thumbnailedEntries : [],
+    results: json?.projects || [],
     suggestions: json.suggestions,
     nextCursor: json.meta?.next_cursor
   }

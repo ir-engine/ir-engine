@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import ProjectGridItem from './ProjectGridItem'
-import { Row } from '../layout/Flex'
+import { FlexRow } from '../layout/Flex'
 import StringInput from '../inputs/StringInput'
 import { useHistory } from 'react-router-dom'
 import { Plus } from '@styled-icons/fa-solid/Plus'
@@ -72,6 +72,10 @@ export function LoadingProjectGridItem() {
   )
 }
 
+NewProjectGridItem.defaultProps = {
+  label: 'New Project'
+}
+
 /**
  *
  * @author Robert Long
@@ -83,6 +87,15 @@ const StyledProjectGrid = (styled as any).div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 `
 
+interface ProjectGridProp {
+  projects?: any
+  newProjectPath?: any
+  newProjectLabel?: any
+  contextMenuId?: any
+  loading?: boolean
+  onSelectProject?: Function
+}
+
 /**
  *
  * @author Robert Long
@@ -93,7 +106,7 @@ const StyledProjectGrid = (styled as any).div`
  * @param {any} loading
  * @returns
  */
-export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
+export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }: ProjectGridProp) {
   return (
     <StyledProjectGrid>
       {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
@@ -166,7 +179,7 @@ export const Separator = styled.div`
  *
  * @author Robert Long
  */
-export const ProjectGridHeaderRow = styled(Row)`
+export const ProjectGridHeaderRow = styled(FlexRow)`
   align-items: center;
 
   & > * {

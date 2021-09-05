@@ -12,7 +12,25 @@ export default {
         ipAddress: {
           type: 'string'
         },
+        channelId: {
+          type: 'string'
+        },
         currentUsers: {
+          type: 'integer'
+        },
+        ended: {
+          type: 'boolean'
+        },
+        locationId: {
+          type: 'string'
+        },
+        userId: {
+          type: 'string'
+        },
+        gameserver_subdomain_provision: {
+          type: 'string'
+        },
+        bot: {
           type: 'string'
         }
       }

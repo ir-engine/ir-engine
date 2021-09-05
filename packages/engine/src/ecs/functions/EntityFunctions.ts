@@ -155,7 +155,6 @@ export const removeComponent = <T extends any, S extends bitECS.ISchema>(
   // console.log('removeComponent', entity, component.name)
   const componentRef = component.get(entity)
   world._removedComponents.set(entity, componentRef)
-  component.delete(entity)
   bitECS.removeComponent(world, component, entity)
   return componentRef
 }

@@ -34,10 +34,7 @@ export function unique(arr, maybeComp) {
   }
   return newArr
 }
-export const isApple = /(Mac|iPhone|iPod|iPad)/i.test(
-  //@ts-ignore
-  process.browser && navigator ? navigator.platform : ''
-)
+export const isApple = /(Mac|iPhone|iPod|iPad)/i.test((process as any).browser && navigator ? navigator.platform : '')
 export const cmdOrCtrlString = isApple ? '⌘' : 'ctrl'
 export function getStepSize(event, smallStep, mediumStep, largeStep) {
   if (event.altKey) {

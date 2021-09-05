@@ -3,10 +3,10 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import { IconButton } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
-import { useStyle, useStyles } from './styles'
+import { useCreatorStyles } from './styles'
 
 const SearchCreator = () => {
-  const classes = useStyles()
+  const classes = useCreatorStyles()
   return (
     <Paper component="form" className={classes.searchRoot}>
       <InputBase

@@ -17,6 +17,7 @@ type EulerInputProps = {
     z?: number
   }
   onChange?: (...args: any[]) => any
+  unit?: string
 }
 
 /**

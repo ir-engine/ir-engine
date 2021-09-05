@@ -61,10 +61,10 @@ export function getArMediaItem(itemId: string) {
 }
 
 const uploadFile = async (files) => {
-  const manifest = files.manifest instanceof File ? await upload(files.manifest, null) : null
-  const audio = files.audio instanceof File ? await upload(files.audio, null) : null
-  const dracosis = files.dracosis instanceof File ? await upload(files.dracosis, null) : null
-  const preview = files.preview instanceof File ? await upload(files.preview, null) : null
+  const manifest = files.manifest instanceof File ? ((await upload(files.manifest, null)) as any) : null
+  const audio = files.audio instanceof File ? ((await upload(files.audio, null)) as any) : null
+  const dracosis = files.dracosis instanceof File ? ((await upload(files.dracosis, null)) as any) : null
+  const preview = files.preview instanceof File ? ((await upload(files.preview, null)) as any) : null
   return {
     manifestId: manifest?.file_id,
     audioId: audio?.file_id,
@@ -77,7 +77,6 @@ export function createArMedia(mediaItem: any, files: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const file = await uploadFile(files)
-      //@ts-ignore error that this vars are void because upload is defines as void function
       const newItem = await client.service('ar-media').create({
         ...mediaItem,
         ...file
@@ -93,13 +92,13 @@ export function createArMedia(mediaItem: any, files: any) {
 export const updateArMedia =
   (mediaItem, files, id) =>
   async (dispatch: Dispatch): Promise<any> => {
-    const result = await uploadFile(files)
-    const newItem = await client.service('ar-media').patch(id, {
-      ...mediaItem,
-      ...result
-    })
-    dispatch(updateAdminArMedia(newItem))
     try {
+      const result = await uploadFile(files)
+      const newItem = await client.service('ar-media').patch(id, {
+        ...mediaItem,
+        ...result
+      })
+      dispatch(updateAdminArMedia(newItem))
     } catch (error) {
       console.error(error)
       dispatchAlertError(dispatch, error.message)

@@ -31,10 +31,16 @@ export function CompoundNumericInput({ value, onChange, ...extras }) {
   return (
     <StyledCompoundNumericInput>
       <Slider min={min} max={max} value={value} step={step} onChange={onChange} />
-      {/* @ts-ignore */}
       <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} />
     </StyledCompoundNumericInput>
   )
+}
+CompoundNumericInput.defaultProps = {
+  value: 0,
+  onChange: () => {},
+  min: 0,
+  max: 1,
+  step: 0.01
 }
 
 export default CompoundNumericInput

@@ -1,27 +1,27 @@
 import React from 'react'
 import Container from '@material-ui/core/Container'
-import { useStyle, useStyles } from './styles'
+import { useCreatorStyle, useCreatorStyles } from './styles'
 import { Typography, Paper, Button } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { DialogActions } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { updateCreatorService } from '../../../reducers/admin/creator/service'
-import { formValid } from './validation'
+import { validateCreatorForm } from './validation'
+import { updateCreator } from '../../../reducers/creator/service'
 
 interface Props {
   adminCreator: any
   closeEditModal: any
-  updateCreatorService?: any
+  updateCreator?: typeof updateCreator
 }
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorService: bindActionCreators(updateCreatorService, dispatch)
+  updateCreator: bindActionCreators(updateCreator, dispatch)
 })
 
 const EditCreator = (props: Props) => {
-  const classesx = useStyle()
-  const classes = useStyles()
-  const { adminCreator, closeEditModal, updateCreatorService } = props
+  const classesx = useCreatorStyle()
+  const classes = useCreatorStyles()
+  const { adminCreator, closeEditModal, updateCreator } = props
   const id = adminCreator.id
   const [state, setState] = React.useState({
     name: adminCreator.name,
@@ -91,8 +91,8 @@ const EditCreator = (props: Props) => {
     }
 
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
-      updateCreatorService(id, { name, username, email, twitter, bio })
+    if (validateCreatorForm(state, state.formErrors)) {
+      updateCreator({ id, name, username, email, twitter, bio })
       setState({
         ...state,
         name: '',

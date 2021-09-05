@@ -23,10 +23,7 @@ export class GroupNodeEditor extends Component<GroupNodeEditorProps, {}> {
   static description = i18n.t('editor:properties.group.description')
   render() {
     GroupNodeEditor.description = this.props.t('editor:properties.group.description')
-    return (
-      /* @ts-ignore */
-      <NodeEditor {...this.props} description={GroupNodeEditor.description} />
-    )
+    return <NodeEditor {...this.props} description={GroupNodeEditor.description} />
   }
 }
 

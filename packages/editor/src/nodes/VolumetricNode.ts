@@ -2,7 +2,6 @@ import EditorNodeMixin from './EditorNodeMixin'
 import Volumetric from '@xrengine/engine/src/scene/classes/Volumetric'
 import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 
-// @ts-ignore
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'
   static nodeName = 'Volumetric'
@@ -10,7 +9,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   //   src: new URL(editorLandingVolumetric, location as any).href
   // };
   static initialElementProps = {}
-  static async deserialize(editor, json, loadAsync, onError) {
+  static async deserialize(editor, json, loadAsync) {
     const node = (await super.deserialize(editor, json)) as any
     const {
       src,

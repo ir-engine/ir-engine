@@ -99,7 +99,6 @@ export function NodeIssuesIcon({ node }) {
   }
 
   return (
-    /* @ts-ignore */
     <Tooltip renderContent={renderInfo}>
       <IssueIcon size={14} color={severityToColor[maxSeverity]} />
     </Tooltip>

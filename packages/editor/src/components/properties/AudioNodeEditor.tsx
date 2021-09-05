@@ -25,7 +25,6 @@ export function AudioNodeEditor(props) {
   //returning view to customize properties
   return (
     <NodeEditor description={AudioNodeEditor.description} {...props}>
-      {/* @ts-ignore */}
       <InputGroup name="Audio Url" label={t('editor:properties.audio.lbl-audiourl')}>
         <AudioInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>

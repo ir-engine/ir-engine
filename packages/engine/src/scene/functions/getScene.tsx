@@ -1,5 +1,5 @@
+import { Config } from '@xrengine/common/src/config'
 import { fetchUrl } from './fetchUrl'
-import { serverURL } from './projectFunctions'
 
 /**
  * getScene used to Calling api to get scene data using id.
@@ -12,7 +12,7 @@ export const getScene = async (sceneId): Promise<JSON> => {
     'content-type': 'application/json'
   }
 
-  const response = await fetchUrl(`${serverURL}/project/${sceneId}`, {
+  const response = await fetchUrl(`${Config.publicRuntimeConfig.apiServer}/project/${sceneId}`, {
     headers
   })
 

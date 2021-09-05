@@ -16,7 +16,7 @@ export class Instance extends Service {
     this.app = app
   }
   /**
-   * A method which find instance of user
+   * A method which searches for instances
    *
    * @param params of query with an acton or user role
    * @returns user object

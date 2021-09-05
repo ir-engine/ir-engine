@@ -1,11 +1,11 @@
-export interface Column {
+export interface SceneColumn {
   id: 'name' | 'description' | 'type' | 'entity' | 'version' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
 }
 
-export const columns: Column[] = [
+export const sceneColumns: SceneColumn[] = [
   { id: 'name', label: 'Name', minWidth: 150 },
   { id: 'description', label: 'Description', minWidth: 100 },
   {
@@ -34,7 +34,7 @@ export const columns: Column[] = [
   }
 ]
 
-export interface Data {
+export interface SceneData {
   id: string
   name: string
   description: string

@@ -2,7 +2,7 @@ import React from 'react'
 import { InputBase, IconButton } from '@material-ui/core'
 import Paper from '@material-ui/core/Paper'
 import SearchIcon from '@material-ui/icons/Search'
-import { useStyles } from './styles'
+import { useARMediaStyles } from './styles'
 
 interface Props {
   onSearchHandler?: any
@@ -10,7 +10,7 @@ interface Props {
 
 const SearchVideo = (props: Props) => {
   const { onSearchHandler } = props
-  const classes = useStyles()
+  const classes = useARMediaStyles()
   const [search, setSearch] = React.useState('')
 
   const handleChange = (e: any) => {

@@ -7,9 +7,6 @@ import adminLocationReducer from '@xrengine/client-core/src/admin/reducers/admin
 import adminPartyReducer from '@xrengine/client-core/src/admin/reducers/admin/party/reducers'
 import adminSceneReducer from '@xrengine/client-core/src/admin/reducers/admin/scene/reducers'
 import adminBotsReducer from '@xrengine/client-core/src/admin/reducers/admin/bots/reducers'
-import arMediaReducer from './admin/arMedia/reducers'
-import feedsReducer from './admin/feeds/reducers'
-import creatorReducer from './admin/creator/reducers'
 import groupReducer from '@xrengine/client-core/src/admin/reducers/admin/group/reducers'
 import scopeReducer from '@xrengine/client-core/src/admin/reducers/admin/scope/reducers'
 
@@ -29,9 +26,6 @@ export default {
   adminParty: adminPartyReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,
-  arMedia: arMediaReducer,
-  feedsAdmin: feedsReducer,
-  adminCreator: creatorReducer,
   group: groupReducer,
   scope: scopeReducer
 }

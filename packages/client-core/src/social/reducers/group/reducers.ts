@@ -1,6 +1,6 @@
 import Immutable from 'immutable'
 import {
-  GroupAction,
+  SocialGroupAction,
   LoadedGroupsAction,
   CreatedGroupUserAction,
   PatchedGroupUserAction,
@@ -27,7 +27,7 @@ import {
   REMOVED_GROUP_USER
 } from '../actions'
 
-export const initialGroupState = {
+export const initialSocialGroupState = {
   groups: {
     groups: [],
     total: 0,
@@ -47,9 +47,9 @@ export const initialGroupState = {
   closeDetails: ''
 }
 
-const immutableState = Immutable.fromJS(initialGroupState)
+const immutableState = Immutable.fromJS(initialSocialGroupState) as any
 
-const groupReducer = (state = immutableState, action: GroupAction): any => {
+const groupReducer = (state = immutableState, action: SocialGroupAction): any => {
   let newValues,
     updateMap,
     existingGroups,

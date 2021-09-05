@@ -78,12 +78,12 @@ async function init(): Promise<any> {
 
   editor.object.onChange()
 
-  const animate = () => {
+  const animate = (time: number) => {
     requestAnimationFrame(animate)
 
     controls.update()
 
-    editor.object.onUpdate(editor.camera)
+    editor.object.onUpdate(time)
     renderer.render(scene, editor.camera)
   }
   requestAnimationFrame(animate)

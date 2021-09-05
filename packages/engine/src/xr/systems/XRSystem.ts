@@ -7,20 +7,16 @@ import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { addControllerModels } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
-import { XR6DOF } from '../../input/enums/InputEnums'
 
 /**
  * System for XR session and input handling
- *
  * @author Josh Field <github.com/hexafield>
  */
 
@@ -91,49 +87,6 @@ export const XRSystem = async (): Promise<System> => {
 
     for (const entity of localXRControllerAddQuery(world)) {
       addControllerModels(entity)
-    }
-
-    for (const entity of localXRControllerQuery(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      Engine.inputState.set(XR6DOF.HMD, {
-        type: InputType.SIXDOF,
-        value: [
-          xrInputSourceComponent.head.position.x,
-          xrInputSourceComponent.head.position.y,
-          xrInputSourceComponent.head.position.z,
-          xrInputSourceComponent.head.quaternion.x,
-          xrInputSourceComponent.head.quaternion.y,
-          xrInputSourceComponent.head.quaternion.z,
-          xrInputSourceComponent.head.quaternion.w
-        ],
-        lifecycleState: LifecycleValue.CONTINUED
-      })
-      Engine.inputState.set(XR6DOF.LeftHand, {
-        type: InputType.SIXDOF,
-        value: [
-          xrInputSourceComponent.controllerLeft.position.x,
-          xrInputSourceComponent.controllerLeft.position.y,
-          xrInputSourceComponent.controllerLeft.position.z,
-          xrInputSourceComponent.controllerLeft.quaternion.x,
-          xrInputSourceComponent.controllerLeft.quaternion.y,
-          xrInputSourceComponent.controllerLeft.quaternion.z,
-          xrInputSourceComponent.controllerLeft.quaternion.w
-        ],
-        lifecycleState: LifecycleValue.CONTINUED
-      })
-      Engine.inputState.set(XR6DOF.RightHand, {
-        type: InputType.SIXDOF,
-        value: [
-          xrInputSourceComponent.controllerRight.position.x,
-          xrInputSourceComponent.controllerRight.position.y,
-          xrInputSourceComponent.controllerRight.position.z,
-          xrInputSourceComponent.controllerRight.quaternion.x,
-          xrInputSourceComponent.controllerRight.quaternion.y,
-          xrInputSourceComponent.controllerRight.quaternion.z,
-          xrInputSourceComponent.controllerRight.quaternion.w
-        ],
-        lifecycleState: LifecycleValue.CONTINUED
-      })
     }
 
     return world

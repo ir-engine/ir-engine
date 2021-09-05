@@ -83,7 +83,6 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
       break
     case BakePropertyTypes.CubemapBakeType:
       renderVal = (
-        /* @ts-ignore */
         <SelectInput
           options={cubemapBakeSelectTypes}
           onChange={(id) => {
@@ -96,7 +95,6 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
 
     case BakePropertyTypes.RefreshMode:
       renderVal = (
-        /* @ts-ignore */
         <SelectInput
           options={cubemapBakeRefreshSelectTypes}
           onChange={(id) => {
@@ -109,7 +107,6 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
 
     case BakePropertyTypes.Resolution:
       renderVal = (
-        /* @ts-ignore */
         <SelectInput
           options={bakeResolutionTypes}
           onChange={(id) => {
@@ -136,7 +133,6 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
       break
   }
   return (
-    /* @ts-ignore */
     <InputGroup name={label} label={label}>
       {renderVal}
     </InputGroup>

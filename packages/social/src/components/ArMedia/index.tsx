@@ -12,12 +12,12 @@ import { createArMedia, getArMedia } from '../../reducers/arMedia/service'
 import { selectArMediaState } from '../../reducers/arMedia/selector'
 import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service'
 // import {  Plugins } from '@capacitor/core';
-import Preloader from '@xrengine/social/src/components/Preloader'
 
 import styles from './ArMedia.module.scss'
 
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
+import Preloader from '../Preloader'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -95,8 +95,8 @@ const ArMedia = ({ getArMedia, arMediaState, updateArMediaState, updateWebXRStat
           className={styles.startRecirding}
           onClick={async () => {
             setPreloading(true)
-            if (XRPlugin.uploadFiles !== undefined) {
-              await XRPlugin.uploadFiles({
+            if ((XRPlugin as any).uploadFiles !== undefined) {
+              await (XRPlugin as any).uploadFiles({
                 audioPath: selectedItem.audioUrl,
                 audioId: selectedItem.audioId
               })

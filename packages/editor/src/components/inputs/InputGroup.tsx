@@ -58,6 +58,11 @@ export const InputGroupInfoIcon = (styled as any)(QuestionCircle)`
   cursor: pointer;
   align-self: center;
 `
+
+interface InputGroupInfoProp {
+  info: string
+}
+
 /**
  * Used to render InfoTooltip component.
  *
@@ -65,7 +70,7 @@ export const InputGroupInfoIcon = (styled as any)(QuestionCircle)`
  * @param  {string} info
  * @constructor
  */
-export function InputGroupInfo({ info }) {
+export function InputGroupInfo({ info }: InputGroupInfoProp) {
   return (
     <InfoTooltip info={info}>
       <InputGroupInfoIcon />
@@ -79,8 +84,14 @@ export function InputGroupInfo({ info }) {
  * @author Robert Long
  * @type {Object}
  */
-InputGroupInfo.propTypes = {
-  info: PropTypes.string
+
+interface InputGroupProp {
+  name: string
+  children: any
+  disabled?: boolean
+  info?: string
+  label?: string
+  value?: any
 }
 
 /**
@@ -95,7 +106,7 @@ InputGroupInfo.propTypes = {
  * @param       {string} label
  * @constructor
  */
-export function InputGroup({ name, children, disabled, info, label, ...rest }) {
+export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProp) {
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
       <label>{label}:</label>

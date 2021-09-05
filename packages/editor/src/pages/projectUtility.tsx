@@ -56,7 +56,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
  *
  */
 
-export const ProjectsSection = (styled as any).section<{ flex?: number }>`
+export const StyledProjectsSection = (styled as any).section<{ flex?: number }>`
  padding-bottom: 100px;
  display: flex;
  flex: ${(props) => (props.flex === undefined ? 1 : props.flex)};
@@ -81,7 +81,7 @@ export const ProjectsSection = (styled as any).section<{ flex?: number }>`
  *
  */
 
-export const ProjectsContainer = (styled as any).div`
+export const StyledProjectsContainer = (styled as any).div`
  display: flex;
  flex: 1;
  flex-direction: column;
@@ -96,7 +96,7 @@ export const ProjectsContainer = (styled as any).div`
  * @ProjectsContainer
  * @WelcomeContainer
  */
-export const WelcomeContainer = styled(ProjectsContainer)`
+export const WelcomeContainer = styled(StyledProjectsContainer)`
   align-items: center;
   & > * {
     text-align: center;
@@ -115,7 +115,7 @@ export const WelcomeContainer = styled(ProjectsContainer)`
  * @ProjectsHeader
  *
  */
-export const ProjectsHeader = (styled as any).div`
+export const StyledProjectsHeader = (styled as any).div`
  margin-bottom: 36px;
  display: flex;
  justify-content: space-between;

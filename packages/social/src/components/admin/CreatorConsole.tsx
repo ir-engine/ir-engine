@@ -4,7 +4,6 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -29,19 +28,15 @@ import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 import CreatorCard from '@xrengine/social/src/components/CreatorCard'
 import { updateCreator } from '@xrengine/social/src/reducers/creator/service'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
 interface Props {
-  adminState?: any
   authState?: any
   locationState?: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
-  fetchUsersAsAdmin?: any
   fetchAdminInstances?: any
   removeUser?: any
   list?: any
@@ -137,7 +132,7 @@ const CreatorConsole = (props: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const [dense, setDense] = React.useState(false)
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [loading, setLoading] = React.useState(false)
   const [creatorEdit, setCreatorEdit] = React.useState(null)
   const [creatorData, setCreatorData] = React.useState(null)
@@ -192,77 +187,71 @@ const CreatorConsole = (props: Props) => {
               headCells={headCells}
             />
             <TableBody className={styles.thead}>
-              {stableSort(list, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  return (
-                    <TableRow
-                      hover
-                      className={styles.trow}
-                      style={{ color: 'black !important' }}
-                      tabIndex={-1}
-                      key={row.id}
-                    >
-                      <TableCell className={styles.tcell} align="center">
-                        <Avatar src={row.avatar.toString()} />
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="center">
-                        <VerifiedUserIcon
-                          htmlColor={row.verified === 1 ? '#007AFF' : '#FFFFFF'}
-                          style={{ fontSize: '25px', margin: '0 0 0 5px' }}
-                        />
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="left">
-                        {row.name}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="left">
-                        {row.username}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.email}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.userId}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.createdAt}
-                      </TableCell>
-                      <TableCell className={styles.tcell + ' ' + styles.actionCell}>
-                        {row.verified === 1 ? (
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={() => handleUpdateCreator({ id: row.id.toString(), verified: 0 })}
-                          >
-                            UnVerify
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={() => handleUpdateCreator({ id: row.id.toString(), verified: 1 })}
-                          >
-                            Verify
-                          </Button>
-                        )}
+              {stableSort(list, getComparator(order, orderBy)).map((row, index) => {
+                return (
+                  <TableRow
+                    hover
+                    className={styles.trow}
+                    style={{ color: 'black !important' }}
+                    tabIndex={-1}
+                    key={row.id}
+                  >
+                    <TableCell className={styles.tcell} align="center">
+                      <Avatar src={row.avatar.toString()} />
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="center">
+                      <VerifiedUserIcon
+                        htmlColor={row.verified === 1 ? '#007AFF' : '#FFFFFF'}
+                        style={{ fontSize: '25px', margin: '0 0 0 5px' }}
+                      />
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="left">
+                      {row.name}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="left">
+                      {row.username}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.email}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.userId}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.createdAt}
+                    </TableCell>
+                    <TableCell className={styles.tcell + ' ' + styles.actionCell}>
+                      {row.verified === 1 ? (
                         <Button
                           variant="outlined"
                           color="secondary"
-                          onClick={() => handleCreatorView(row.id.toString())}
+                          onClick={() => handleUpdateCreator({ id: row.id.toString(), verified: 0 })}
                         >
-                          <MoreHorizIcon className="text-success" />
+                          UnVerify
                         </Button>
+                      ) : (
                         <Button
                           variant="outlined"
                           color="secondary"
-                          onClick={() => handleCreatorClick(row.id.toString())}
+                          onClick={() => handleUpdateCreator({ id: row.id.toString(), verified: 1 })}
                         >
-                          <Edit className="text-success" />{' '}
+                          Verify
                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                      )}
+                      <Button variant="outlined" color="secondary" onClick={() => handleCreatorView(row.id.toString())}>
+                        <MoreHorizIcon className="text-success" />
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={() => handleCreatorClick(row.id.toString())}
+                      >
+                        <Edit className="text-success" />{' '}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </TableContainer>

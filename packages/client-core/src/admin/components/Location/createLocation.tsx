@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { createLocation as createLocationAction } from '../../reducers/admin/location/service'
-import { formValid } from '../Users/validation'
+import { validateUserForm } from '../Users/validation'
 import { selectAlertState } from '../../../common/reducers/alert/selector'
 
 const Alert = (props) => {
@@ -171,7 +171,7 @@ const CreateLocation = (props: Props) => {
       temp.scene = "Scene can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateUserForm(state, state.formErrors)) {
       createLocationAction(data)
       //  closeViewModel(false)
     } else {

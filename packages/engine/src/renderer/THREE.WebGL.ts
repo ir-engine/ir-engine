@@ -1,7 +1,10 @@
-import { SocketWebRTCClientTransport } from '../../../client/src/transports/SocketWebRTCClientTransport'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 
 export default class WEBGL {
+  static EVENTS = {
+    INSTANCE_WEBGL_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED'
+  }
+
   static isWebGLAvailable() {
     try {
       const canvas = document.createElement('canvas')
@@ -17,12 +20,12 @@ export default class WEBGL {
       const canvas = document.createElement('canvas')
       document.body.appendChild(canvas)
       if (canvas.getContext('webgl') == null || canvas.getContext('experimental-webgl') == null) {
-        EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
+        EngineEvents.instance.dispatchEvent({ type: this.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
         return
       }
       return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'))
     } catch (e) {
-      EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
+      EngineEvents.instance.dispatchEvent({ type: this.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
       return
     }
   }

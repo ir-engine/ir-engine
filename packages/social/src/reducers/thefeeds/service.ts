@@ -28,8 +28,7 @@ export function createTheFeedsNew(data) {
       console.log('storedVideo', storedVideo)
       const thefeeds = await client.service('thefeeds').create({
         title: data.title,
-        // @ts-ignore
-        videoId: storedVideo.file_id,
+        videoId: (storedVideo as any).file_id,
         description: data.description
       })
       dispatch(addTheFeeds(thefeeds))
@@ -46,8 +45,7 @@ export function updateTheFeedsAsAdmin(data: any) {
       let thefeeds = { id: data.id, title: data.title, videoId: data.video, description: data.description }
       if (typeof data.video === 'object') {
         const storedVideo = await upload(data.video, null)
-        // @ts-ignore
-        thefeeds['videoId'] = storedVideo.file_id
+        thefeeds['videoId'] = (storedVideo as any).file_id
       }
       const updatedItem = await client.service('thefeeds').patch(thefeeds.id, thefeeds)
       dispatch(updateTheFeedsInList(updatedItem))

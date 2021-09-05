@@ -7,7 +7,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { forgotPassword } from '../../reducers/auth/service'
 import Grid from '@material-ui/core/Grid'
-// @ts-ignore
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
 

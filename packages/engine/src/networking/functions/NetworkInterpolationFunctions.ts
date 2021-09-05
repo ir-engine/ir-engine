@@ -13,7 +13,6 @@ import {
 import { NetworkInterpolation } from '../classes/NetworkInterpolation'
 import { Network } from '../classes/Network'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ClientNetworkStateSystem } from '../systems/ClientNetworkStateSystem'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
@@ -51,9 +50,7 @@ export function createSnapshot(state: StateEntityClientGroup): Snapshot {
   return {
     id: '' + _id++,
     time: Date.now(),
-    //@ts-ignore
-    state: state,
-    timeCorrection: 0
+    state: state as StateEntityGroup
   }
 }
 

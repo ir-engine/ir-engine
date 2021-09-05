@@ -1,5 +1,12 @@
 import EventEmitter from 'eventemitter3'
 
+export type SearchResult = {
+  results: any[]
+  suggestions?: any[]
+  nextCursor?: number
+  hasMore?: boolean
+}
+
 /**
  * BaseSource Parent class for all source classes.
  *
@@ -23,7 +30,7 @@ export class BaseSource extends EventEmitter {
     this.uploadSource = false
     this.searchDebounceTimeout = 500
   }
-  async search(_params, _cursor?, _abortSignal?) {
+  async search(_params, _cursor?, _abortSignal?): Promise<SearchResult> {
     return {
       results: [],
       suggestions: [],

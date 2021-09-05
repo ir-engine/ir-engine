@@ -9,6 +9,17 @@ import {
 import { Color, Object3D } from 'three'
 import serializeColor from '../functions/serializeColor'
 import ErrorIcon from '../classes/ErrorIcon'
+
+type SerializedComponents = {
+  name: string
+  props: any
+}
+
+export type SerializedNode = {
+  name: string
+  components: SerializedComponents[]
+}
+
 export default function EditorNodeMixin(Object3DClass) {
   return class extends Object3DClass {
     static nodeName = 'Unknown Node'
@@ -29,7 +40,8 @@ export default function EditorNodeMixin(Object3DClass) {
     static shouldDeserialize(entityJson) {
       return !!entityJson.components.find((c) => c.name === this.legacyComponentName)
     }
-    static async deserialize(editor, json) {
+    static async deserialize(editor, json, loadAsync?, onError?) {
+      // Unused params used in derived class methods
       const node = new this(editor)
       node.name = json.name
       if (json.components) {
@@ -72,7 +84,7 @@ export default function EditorNodeMixin(Object3DClass) {
     clone(recursive) {
       return new (this as any).constructor(this.editor).copy(this, recursive)
     }
-    copy(source, recursive = true) {
+    copy(source, recursive = true): this {
       if (recursive) {
         this.remove(this.errorIcon)
       }
@@ -95,7 +107,7 @@ export default function EditorNodeMixin(Object3DClass) {
     onSelect() {}
     onDeselect() {}
     onRendererChanged() {}
-    async serialize(projectID, components) {
+    async serialize(projectID, components?): Promise<SerializedNode> {
       const entityJson = {
         name: this.name,
         components: [
@@ -164,7 +176,7 @@ export default function EditorNodeMixin(Object3DClass) {
       }
       return entityJson
     }
-    prepareForExport() {
+    prepareForExport(ctx?: any): void {
       this.userData.editor_uuid = this.uuid
       if (!this.visible) {
         this.addGLTFComponent('visible', {
