@@ -56,67 +56,9 @@ export const createTriggerVolume = (
 
   addComponent(entity, ColliderComponent, { body })
 
-  const handleTriggerEnter = (args) => {
-    let enterComponent = args.enterComponent
-    let enterProperty = args.enterProperty
-    let enterValue = args.enterValue
-
-    let targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
-
-    if (enterComponent === 'video' || enterComponent === 'volumteric') {
-      if (enterProperty === 'paused') {
-        if (enterValue) {
-          targetObj.pause()
-        } else {
-          targetObj.play()
-        }
-      }
-    } else if (enterComponent === 'loop-animation') {
-      if (enterProperty === 'paused') {
-        if (enterValue) {
-          targetObj.stopAnimation()
-        } else {
-          targetObj.playAnimation()
-        }
-      }
-    }
-
-    console.log('handleTriggerEnter')
-  }
-
-  const handleTriggerExit = (args) => {
-    let leaveComponent = args.leaveComponent
-    let leaveProperty = args.leaveProperty
-    let leaveValue = args.leaveValue
-
-    let targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
-
-    if (leaveComponent === 'video' || leaveComponent === 'volumteric') {
-      if (leaveProperty === 'paused') {
-        if (leaveValue) {
-          targetObj.pause()
-        } else {
-          targetObj.play()
-        }
-      }
-    } else if (leaveComponent === 'loop-animation') {
-      if (leaveProperty === 'paused') {
-        if (leaveValue) {
-          targetObj.stopAnimation()
-        } else {
-          targetObj.playAnimation()
-        }
-      }
-    }
-
-    console.log('handleTriggerExit')
-  }
-
   const triggerVolume = addComponent(entity, TriggerVolumeComponent, {
     args: args,
     target: args.target,
-    onTriggerEnter: handleTriggerEnter,
-    onTriggerExit: handleTriggerExit,
     active: false
   })
 }

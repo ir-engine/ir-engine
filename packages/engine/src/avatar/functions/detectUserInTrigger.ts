@@ -1,9 +1,10 @@
 import { isClient } from '../../common/functions/isClient'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { TriggerVolumeComponent } from '../../scene/components/TriggerVolumeComponent'
+import { TriggerDetectedComponent } from '../../scene/components/TriggerDetectedComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 
 import { getControllerCollisions } from '../../physics/functions/getControllerCollisions'
@@ -15,37 +16,33 @@ export const detectUserInTrigger = (entity: Entity): void => {
   // if (!raycastComponent?.raycastQuery?.hits[0]?.body?.userData?.entity) return
 
   const portalEntity = getControllerCollisions(entity, PortalComponent).controllerCollisionEntity
-  if (typeof portalEntity === 'undefined') return
-
-  const portalComponent = getComponent(portalEntity, PortalComponent)
-  if (isClient) {
-    if (World.defaultWorld.isInPortal) return
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
-      portalComponent
-    })
+  if (typeof portalEntity !== 'undefined') {
+    const portalComponent = getComponent(portalEntity, PortalComponent)
+    if (isClient) {
+      if (World.defaultWorld.isInPortal) return
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
+        portalComponent
+      })
+    }
   }
 
-  // const triggerEntity = raycastComponent.raycastQuery.hits[0].body.userData.entity
-
-  // const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
-
-  // // Raycast is not working at the moment
-  // // Moved this logic to avatar controller system collision events
-  // if (triggerComponent) {
-  //   if (!triggerComponent.active) {
-  //     triggerComponent.active = true
-  //     triggerComponent.onTriggerEnter()
-  //     console.log('********* TRIGGER ACTIVATED')
-  //     const interval = setInterval(() => {
-  //       if (triggerComponent.active && raycastComponent.raycastQuery.hits[0]?.body.userData !== triggerComponent) {
-  //         triggerComponent.active = false
-  //         triggerComponent.onTriggerExit()
-  //         console.log('********* TRIGGER DEACTIVATED')
-  //         clearInterval(interval)
-  //       }
-  //     }, 100)
-  //   }
-  //   return
-  // }
+  const triggerEntity = getControllerCollisions(entity, TriggerVolumeComponent).controllerCollisionEntity
+  if (typeof triggerEntity !== 'undefined') {
+    let triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
+    const raycastComponent = getComponent(triggerEntity, RaycastComponent)
+    if (triggerComponent) {
+      if (!triggerComponent.active) {
+        triggerComponent.active = true
+        addComponent(triggerEntity, TriggerDetectedComponent, {})
+        const interval = setInterval(() => {
+          if (triggerComponent.active && raycastComponent.raycastQuery.hits[0]?.body.userData !== triggerComponent) {
+            triggerComponent.active = false
+            removeComponent(triggerEntity, TriggerDetectedComponent)
+            clearInterval(interval)
+          }
+        }, 100)
+      }
+    }
+  }
 }
