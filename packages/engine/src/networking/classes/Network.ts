@@ -7,7 +7,6 @@ import { NetworkTransport, ActionType } from '../interfaces/NetworkTransport'
 import { AvatarProps } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
-import { WorldStateInterface } from '../schema/networkSchema'
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -29,6 +28,7 @@ export interface NetworkClientList {
     dataProducers?: Map<string, any> // Key => label of data channel}
     avatarDetail?: AvatarProps
     networkId?: any // to easily retrieve the network object correspending to this client
+    subscribedChatUpdates: string[]
   }
 }
 
@@ -76,10 +76,6 @@ export class Network {
 
   /** ID of last network created. */
   private static availableNetworkId = 0
-
-  isLocal = (userId) => {
-    return this.userId === userId
-  }
 
   /** Get next network id. */
   static getNetworkId(): number {

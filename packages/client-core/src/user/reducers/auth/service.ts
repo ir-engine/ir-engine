@@ -40,6 +40,7 @@ import {
   userUpdated
 } from './actions'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 const store = Store.store
 
@@ -929,7 +930,10 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const user = resolveUser(params.userRelationship)
 
     console.log('User patched', user)
-    if (Network.instance != null) await loadAvatarForUpdatedUser(user)
+    if (Network.instance != null) {
+      await loadAvatarForUpdatedUser(user)
+      _updateUsername(user.id, user.name)
+    }
 
     if (selfUser.id === user.id) {
       store.dispatch(UserAction.clearLayerUsers())

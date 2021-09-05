@@ -21,6 +21,8 @@ let worldIds = 0
 export class World {
   static worlds: Map<number, World> = new Map<number, World>()
   static defaultWorld: World
+  static sceneMetadata: string
+  static worldMetadata: { [key: string]: string } = {}
   ecsWorld: ECSWorld
   entities: Entity[]
   portalEntities: Entity[]

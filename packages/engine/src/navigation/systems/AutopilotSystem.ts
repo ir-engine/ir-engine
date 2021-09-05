@@ -15,6 +15,7 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
+import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -53,6 +54,7 @@ export const AutopilotSystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const entity of navClickAddQuery(world)) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
+      const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
@@ -80,13 +82,16 @@ export const AutopilotSystem = async (): Promise<System> => {
       )
 
       if (clickResult.point) {
-        addComponent(entity, AutoPilotRequestComponent, {
+        if (overrideCoords) clickResult.point = overridePosition
+        const c = addComponent(entity, AutoPilotRequestComponent, {
           point: clickResult.point,
           navEntity: clickResult.entity
         })
+        //console.log('clickResult: ' + JSON.stringify(clickResult) + ' - ' + JSON.stringify(c))
       }
 
       removeComponent(entity, AutoPilotClickRequestComponent)
+      if (hasComponent(entity, AutoPilotOverrideComponent)) removeComponent(entity, AutoPilotOverrideComponent)
     }
 
     // requests
@@ -100,12 +105,12 @@ export const AutopilotSystem = async (): Promise<System> => {
       const { position } = getComponent(entity, TransformComponent)
 
       let autopilotComponent
-      if (hasComponent(entity, AutoPilotComponent)) {
-        // reuse component
-        autopilotComponent = getComponent(entity, AutoPilotComponent)
-      } else {
-        autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
-      }
+      //if (hasComponent(entity, AutoPilotComponent)) {
+      // reuse component
+      //   autopilotComponent = getComponent(entity, AutoPilotComponent)
+      // } else {
+      autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
+      // }
       autopilotComponent.navEntity = request.navEntity
 
       const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
@@ -149,6 +154,7 @@ export const AutopilotSystem = async (): Promise<System> => {
             removeComponent(entity, AutoPilotComponent)
             continue
           }
+
           autopilot.path.advance()
           continue
         }
