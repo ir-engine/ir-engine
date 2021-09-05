@@ -45,18 +45,19 @@ beforeAll(async () => {
   dev = spawn("npm", ["run", "dev"])
   let timeout
   
+  const log = (message) => {
+    console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
+  }
+  dev.stdout.on('data', log)
   /**
    * TODO: add checks to see if any errors occur while launching the stack to save time
    */
-
-  process.stdin.pipe(dev.stdin)
-  const time = Date.now()
-  await Promise.race([
-    new Promise((resolve) => {
+  const awaitLog = (str) => {
+    return new Promise((resolve) => {
       const listen = (message) => {
         if(!running) {
           console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
-          if(message.toString().includes('Initialized new gameserver instance')) {
+          if(message.toString().includes(str)) {
             console.log(`Successfully launched stack! Took ${(Date.now() - time) / 1000} seconds.`)
             dev.stdout.off('data', listen)
             resolve()
@@ -64,7 +65,15 @@ beforeAll(async () => {
         }
       }
       dev.stdout.on('data', listen)
-    }),
+    })
+  }
+
+  process.stdin.pipe(dev.stdin)
+  const time = Date.now()
+  await Promise.race([
+    awaitLog('Initialized new gameserver instance'), // GS
+    awaitLog('API Server Ready'), // api
+    awaitLog('dev server running at:'), // vite
     new Promise((resolve) => {
       timeout = setTimeout(() => {
         if(running) return
@@ -73,6 +82,7 @@ beforeAll(async () => {
       }, timeoutMS)
     })
   ])
+  dev.stdout.off('data', log)
   running = true
   clearTimeout(timeout)
 }, timeoutMS)
