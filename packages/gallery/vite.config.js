@@ -38,7 +38,12 @@ export default defineConfig(() => {
 
     return {
         plugins: [],
-        server: {},
+        server: {
+            https: {
+                key: fs.readFileSync('../../certs/key.pem'),
+                cert: fs.readFileSync('../../certs/cert.pem')
+            }
+        },
         resolve: {
             alias: {
                 "socket.io-client": "socket.io-client/dist/socket.io.js",
@@ -61,4 +66,5 @@ export default defineConfig(() => {
             }
         }
     }
+    
 })
