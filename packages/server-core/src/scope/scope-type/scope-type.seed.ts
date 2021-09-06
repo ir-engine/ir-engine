@@ -9,9 +9,6 @@ export const scopeTypeSeed = {
       type: 'location:write'
     },
     {
-      type: 'scene:write'
-    },
-    {
       type: 'static_resource:read'
     },
     {
@@ -31,6 +28,30 @@ export const scopeTypeSeed = {
     },
     {
       type: 'globalAvatars:write'
+    },
+    {
+      type: 'contentPacks:read'
+    },
+    {
+      type: 'groups:read'
+    },
+    {
+      type: 'instance:read'
+    },
+    {
+      type: 'invite:read'
+    },
+    {
+      type: 'party:read'
+    },
+    {
+      type: 'user:read'
+    },
+    {
+      type: 'scene:read'
+    },
+    {
+      type: 'scene:write'
     }
   ]
 }

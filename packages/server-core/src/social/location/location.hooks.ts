@@ -2,14 +2,13 @@ import * as authentication from '@feathersjs/authentication'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
-
+import { disallow, isProvider, iff, discard } from 'feathers-hooks-common'
 const { authenticate } = authentication.hooks
 
 export default {
   before: {
     all: [authenticate('jwt')],
     find: [
-      verifyScope('location', 'read'),
       addAssociations({
         models: [
           {
@@ -22,7 +21,6 @@ export default {
       })
     ],
     get: [
-      verifyScope('location', 'read'),
       addAssociations({
         models: [
           {
@@ -34,11 +32,14 @@ export default {
         ]
       })
     ],
-    create: [verifyScope('location', 'write')],
-    update: [verifyScope('location', 'write')],
-    patch: [verifyScope('location', 'write')],
+    create: [],
+    update: [],
+    patch: [],
+    // create: [iff(isProvider('external'), verifyScope("location", "write") as any)],
+    // update: [iff(isProvider('external'), verifyScope("location", "write") as any)],
+    // patch: [iff(isProvider('external'), verifyScope("location", "write") as any)],
     remove: [
-      verifyScope('location', 'write'),
+      iff(isProvider('external'), verifyScope("location", "write") as any),
       async (context: HookContext): Promise<HookContext> => {
         const location = await (context.app.service('location') as any).Model.findOne({
           where: {

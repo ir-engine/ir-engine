@@ -95,6 +95,15 @@ const ProjectsPage = (props: Props) => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false) // constant profileMenuOpen initialized as false
   const authUser = authState.get('authUser') // authUser initialized by getting property from authState object.
   const user = authState.get('user') // user initialized by getting value from authState object.
+  const scopes = user.scopes || []
+  let isLocationAllowed = false
+
+  for(const scope of scopes){
+    if(scope.type.split(':')[0] === 'location' && scope.type.split(':')[1] === 'read'){
+      isLocationAllowed = true
+      break
+    }
+  }
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -229,7 +238,7 @@ const ProjectsPage = (props: Props) => {
           classes={{ indicator: classes.indicator }}
         >
           <Tab label={t('editor.projects.projectHeader')} {...tapId(0)} />
-          <Tab label={t('editor.projects.locationHeader')} {...tapId(1)} />
+          {isLocationAllowed && <Tab label={t('editor.projects.locationHeader')} {...tapId(1)} />}
         </Tabs>
         <TabPanel value={value} index={0}>
           {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (

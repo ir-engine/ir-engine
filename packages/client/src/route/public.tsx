@@ -3,8 +3,19 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import ProtectedRoute from './protected'
 import homePage from '../pages/index'
+import { connect } from 'react-redux'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
+if (typeof globalThis.process === 'undefined') {
+  ;(globalThis as any).process = { env: {} }
+}
+
+// const mapStateToProps = (state: any): any => {
+//   return {
+//     authState: selectAuthState(state)
+//   }
+// }
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
   static getDerivedStateFromError() {
     return { hasError: true }
@@ -23,6 +34,16 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   }
 
   render() {
+    // const user = this.props.authState.get('user') 
+    // const scopes = user?.scopes || []
+    // let isSceneAllowed = false
+  
+    // for(const scope of scopes){
+    //   if(scope.type.split(':')[0] === 'scene' && scope.type.split(':')[1] === 'write'){
+    //     isSceneAllowed = true
+    //     break
+    //   }
+    // }
     if (this.state.hasError) return <div>Working...</div>
 
     return (
@@ -103,4 +124,5 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   }
 }
 
+// export default connect(mapStateToProps, null)(RouterComp)
 export default RouterComp

@@ -2,6 +2,7 @@ import React from 'react'
 import List from '@material-ui/core/List'
 import Divider from '@material-ui/core/Divider'
 import ListItem from '@material-ui/core/ListItem'
+import { connect } from 'react-redux'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import { useTranslation } from 'react-i18next'
@@ -31,8 +32,46 @@ import SettingsSystemDaydreamIcon from '@material-ui/icons/SettingsSystemDaydrea
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
+import { selectAuthState } from '../../reducers/auth/selector'
 
-const SideMenuItem = ({ location: { pathname } }) => {
+interface Props {
+  authState?: any
+  location: any
+}
+
+const mapStateToProps = (state: any): any => {
+  return {
+    authState: selectAuthState(state)
+  }
+}
+
+const SideMenuItem = (props: Props) => {
+  const { authState, location } = props
+  const { pathname } = location
+  const scopes = authState?.get('user').scopes || []
+
+  let allowedRoutes = {
+    location: false,
+    bot: false,
+    scene: false,
+    party: false,
+    contentPacks: false,
+    groups: false,
+    instance: false,
+    invite: false,
+    globalAvatars: false
+  }
+
+  scopes.forEach((scope) => {
+    if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
+      if (scope.type.split(':')[1] === 'read') {
+        allowedRoutes = {
+          ...allowedRoutes,
+          [scope.type.split(':')[0]]: true
+        }
+      }
+    }
+  })
   const classes = useStylesForDashboard()
   const { t } = useTranslation()
   const [openSetting, setOpenSeting] = React.useState(false)
@@ -132,19 +171,21 @@ const SideMenuItem = ({ location: { pathname } }) => {
             <ListItemText primary={t('user:dashboard.sessions')} />
           </ListItem>
         </Link> */}
-        <Link to="/admin/parties" className={classes.textLink}>
-          <ListItem
-            classes={{ selected: classes.selected }}
-            selected={'/admin/parties' === pathname}
-            style={{ color: 'white' }}
-            button
-          >
-            <ListItemIcon>
-              <CalendarViewDay style={{ color: 'white' }} />
-            </ListItemIcon>
-            <ListItemText primary={t('user:dashboard.parties')} />
-          </ListItem>
-        </Link>
+        {allowedRoutes.party && (
+          <Link to="/admin/parties" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/parties' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <ListItemIcon>
+                <CalendarViewDay style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={t('user:dashboard.parties')} />
+            </ListItem>
+          </Link>
+        )}
         {/* <Link to="/admin/chats" className={classes.textLink}>
           <ListItem style={{ color: 'white' }} button>
             <ListItemIcon>
@@ -178,34 +219,38 @@ const SideMenuItem = ({ location: { pathname } }) => {
               <ListItemText primary={t('user:dashboard.users')} />
             </ListItem>
           </Link>
-          <Link to="/admin/invites" className={classes.textLink}>
-            <ListItem
-              classes={{ selected: classes.selected }}
-              selected={'/admin/invites' === pathname}
-              style={{ color: 'white' }}
-              className={classes.nested}
-              button
-            >
-              <ListItemIcon>
-                <PersonAdd style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary={t('user:dashboard.invites')} />
-            </ListItem>
-          </Link>
-          <Link to="/admin/groups" className={classes.textLink}>
-            <ListItem
-              classes={{ selected: classes.selected }}
-              selected={'/admin/groups' === pathname}
-              style={{ color: 'white' }}
-              className={classes.nested}
-              button
-            >
-              <ListItemIcon>
-                <GroupAdd style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary={t('user:dashboard.groups')} />
-            </ListItem>
-          </Link>
+          {allowedRoutes.invite && (
+            <Link to="/admin/invites" className={classes.textLink}>
+              <ListItem
+                classes={{ selected: classes.selected }}
+                selected={'/admin/invites' === pathname}
+                style={{ color: 'white' }}
+                className={classes.nested}
+                button
+              >
+                <ListItemIcon>
+                  <PersonAdd style={{ color: 'white' }} />
+                </ListItemIcon>
+                <ListItemText primary={t('user:dashboard.invites')} />
+              </ListItem>
+            </Link>
+          )}
+          {allowedRoutes.groups && (
+            <Link to="/admin/groups" className={classes.textLink}>
+              <ListItem
+                classes={{ selected: classes.selected }}
+                selected={'/admin/groups' === pathname}
+                style={{ color: 'white' }}
+                className={classes.nested}
+                button
+              >
+                <ListItemIcon>
+                  <GroupAdd style={{ color: 'white' }} />
+                </ListItemIcon>
+                <ListItemText primary={t('user:dashboard.groups')} />
+              </ListItem>
+            </Link>
+          )}
         </Collapse>
 
         <ListItem style={{ color: 'white' }} button onClick={handleScene}>
@@ -230,7 +275,7 @@ const SideMenuItem = ({ location: { pathname } }) => {
               <ListItemText primary={t('user:dashboard.scenes')} />
             </ListItem>
           </Link>
-          <Link to="/admin/avatars" className={classes.textLink}>
+         {allowedRoutes.globalAvatars && <Link to="/admin/avatars" className={classes.textLink}>
             <ListItem
               classes={{ selected: classes.selected }}
               selected={'/admin/avatars' === pathname}
@@ -243,9 +288,9 @@ const SideMenuItem = ({ location: { pathname } }) => {
               </ListItemIcon>
               <ListItemText primary={t('user:dashboard.avatars')} />
             </ListItem>
-          </Link>
+          </Link>}
 
-          <Link to="/admin/content-packs" className={classes.textLink}>
+          {allowedRoutes.contentPacks && <Link to="/admin/content-packs" className={classes.textLink}>
             <ListItem
               classes={{ selected: classes.selected }}
               selected={'/admin/content-packs' === pathname}
@@ -258,7 +303,7 @@ const SideMenuItem = ({ location: { pathname } }) => {
               </ListItemIcon>
               <ListItemText primary={t('user:dashboard.content')} />
             </ListItem>
-          </Link>
+          </Link>}
         </Collapse>
 
         <ListItem style={{ color: 'white' }} button onClick={handleSetting}>
@@ -283,20 +328,22 @@ const SideMenuItem = ({ location: { pathname } }) => {
               <ListItemText primary={'Setting'} />
             </ListItem>
           </Link>
-          <Link to="/admin/bots" className={classes.textLink}>
-            <ListItem
-              classes={{ selected: classes.selected }}
-              className={classes.nested}
-              selected={'/admin/bots' === pathname}
-              style={{ color: 'white' }}
-              button
-            >
-              <ListItemIcon>
-                <Toys style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary={t('user:dashboard.bots')} />
-            </ListItem>
-          </Link>
+          {allowedRoutes.bot && (
+            <Link to="/admin/bots" className={classes.textLink}>
+              <ListItem
+                classes={{ selected: classes.selected }}
+                className={classes.nested}
+                selected={'/admin/bots' === pathname}
+                style={{ color: 'white' }}
+                button
+              >
+                <ListItemIcon>
+                  <Toys style={{ color: 'white' }} />
+                </ListItemIcon>
+                <ListItemText primary={t('user:dashboard.bots')} />
+              </ListItem>
+            </Link>
+          )}
         </Collapse>
       </List>
       <Divider style={{ background: '#C0C0C0', marginTop: '2rem' }} />
@@ -353,4 +400,4 @@ const SideMenuItem = ({ location: { pathname } }) => {
   )
 }
 
-export default withRouter(SideMenuItem)
+export default withRouter(connect(mapStateToProps, null)(SideMenuItem))
