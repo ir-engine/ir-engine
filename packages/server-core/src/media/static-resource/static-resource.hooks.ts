@@ -11,7 +11,7 @@ const { authenticate } = hooks
 export default {
   before: {
     all: [],
-    find: [ collectAnalytics()],
+    find: [collectAnalytics()],
     get: [],
     create: [
       authenticate('jwt'),
@@ -31,11 +31,7 @@ export default {
     ],
     update: [authenticate('jwt')],
     patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [
-      authenticate('jwt'),
-      attachOwnerIdInQuery('userId'),
-      removeOwnedFile()
-    ]
+    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId'), removeOwnedFile()]
   },
 
   after: {

@@ -98,8 +98,8 @@ const ProjectsPage = (props: Props) => {
   const scopes = user.scopes || []
   let isLocationAllowed = false
 
-  for(const scope of scopes){
-    if(scope.type.split(':')[0] === 'location' && scope.type.split(':')[1] === 'read'){
+  for (const scope of scopes) {
+    if (scope.type.split(':')[0] === 'location' && scope.type.split(':')[1] === 'read') {
       isLocationAllowed = true
       break
     }

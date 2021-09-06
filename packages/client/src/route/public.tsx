@@ -34,10 +34,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   }
 
   render() {
-    // const user = this.props.authState.get('user') 
+    // const user = this.props.authState.get('user')
     // const scopes = user?.scopes || []
     // let isSceneAllowed = false
-  
+
     // for(const scope of scopes){
     //   if(scope.type.split(':')[0] === 'scene' && scope.type.split(':')[1] === 'write'){
     //     isSceneAllowed = true

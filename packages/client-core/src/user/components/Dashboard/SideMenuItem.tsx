@@ -275,35 +275,39 @@ const SideMenuItem = (props: Props) => {
               <ListItemText primary={t('user:dashboard.scenes')} />
             </ListItem>
           </Link>
-         {allowedRoutes.globalAvatars && <Link to="/admin/avatars" className={classes.textLink}>
-            <ListItem
-              classes={{ selected: classes.selected }}
-              selected={'/admin/avatars' === pathname}
-              className={classes.nested}
-              style={{ color: 'white' }}
-              button
-            >
-              <ListItemIcon>
-                <Accessibility style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary={t('user:dashboard.avatars')} />
-            </ListItem>
-          </Link>}
+          {allowedRoutes.globalAvatars && (
+            <Link to="/admin/avatars" className={classes.textLink}>
+              <ListItem
+                classes={{ selected: classes.selected }}
+                selected={'/admin/avatars' === pathname}
+                className={classes.nested}
+                style={{ color: 'white' }}
+                button
+              >
+                <ListItemIcon>
+                  <Accessibility style={{ color: 'white' }} />
+                </ListItemIcon>
+                <ListItemText primary={t('user:dashboard.avatars')} />
+              </ListItem>
+            </Link>
+          )}
 
-          {allowedRoutes.contentPacks && <Link to="/admin/content-packs" className={classes.textLink}>
-            <ListItem
-              classes={{ selected: classes.selected }}
-              selected={'/admin/content-packs' === pathname}
-              className={classes.nested}
-              style={{ color: 'white' }}
-              button
-            >
-              <ListItemIcon>
-                <PhotoAlbum style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary={t('user:dashboard.content')} />
-            </ListItem>
-          </Link>}
+          {allowedRoutes.contentPacks && (
+            <Link to="/admin/content-packs" className={classes.textLink}>
+              <ListItem
+                classes={{ selected: classes.selected }}
+                selected={'/admin/content-packs' === pathname}
+                className={classes.nested}
+                style={{ color: 'white' }}
+                button
+              >
+                <ListItemIcon>
+                  <PhotoAlbum style={{ color: 'white' }} />
+                </ListItemIcon>
+                <ListItemText primary={t('user:dashboard.content')} />
+              </ListItem>
+            </Link>
+          )}
         </Collapse>
 
         <ListItem style={{ color: 'white' }} button onClick={handleSetting}>

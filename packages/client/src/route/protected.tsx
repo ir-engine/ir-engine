@@ -47,13 +47,13 @@ const ProtectedRoutes = (props: Props) => {
     globalAvatars: false
   }
 
-  React.useEffect(()=>{
-    scopes.forEach(scope => {
-      if( Object.keys(allowedRoutes).includes(scope.type.split(":")[0])){
-        if(scope.type.split(":")[1] === "read"){
+  React.useEffect(() => {
+    scopes.forEach((scope) => {
+      if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
+        if (scope.type.split(':')[1] === 'read') {
           allowedRoutes = {
             ...allowedRoutes,
-            [scope.type.split(":")[0]]: true
+            [scope.type.split(':')[0]]: true
           }
         }
       }
@@ -89,7 +89,7 @@ const ProtectedRoutes = (props: Props) => {
           {allowedRoutes.groups && <PrivateRoute exact path="/admin/groups" component={groups} />}
           {allowedRoutes.instance && <PrivateRoute exact path="/admin/instance" component={instance} />}
           {allowedRoutes.invite && <PrivateRoute exact path="/admin/invites" component={invites} />}
-          { allowedRoutes.location &&<PrivateRoute exact path="/admin/locations" component={locations} />}
+          {allowedRoutes.location && <PrivateRoute exact path="/admin/locations" component={locations} />}
           <PrivateRoute exact path="/admin/scenes" component={scenes} />
           <PrivateRoute exact path="/admin/parties" component={party} />
           <PrivateRoute exact path="/admin/bots" component={botSetting} />

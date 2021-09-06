@@ -39,7 +39,7 @@ export default {
     // update: [iff(isProvider('external'), verifyScope("location", "write") as any)],
     // patch: [iff(isProvider('external'), verifyScope("location", "write") as any)],
     remove: [
-      iff(isProvider('external'), verifyScope("location", "write") as any),
+      iff(isProvider('external'), verifyScope('location', 'write') as any),
       async (context: HookContext): Promise<HookContext> => {
         const location = await (context.app.service('location') as any).Model.findOne({
           where: {
