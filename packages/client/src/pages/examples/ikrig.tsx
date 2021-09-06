@@ -5,7 +5,7 @@ import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functio
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import { defaultIKPoseComponentValues, IKPose } from '@xrengine/engine/src/ikrig/components/IKPose'
-import { IKRig } from '@xrengine/engine/src/ikrig/components/IKRig'
+import { IKRig, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRig'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { IKRigSystem } from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
@@ -19,6 +19,7 @@ import {
   GridHelper,
   PerspectiveCamera,
   Scene,
+  SkinnedMesh,
   SkeletonHelper,
   Vector2,
   Vector3,
@@ -76,6 +77,7 @@ const RenderSystem = async (): Promise<System> => {
 const Page = () => {
   const [animationTimeScale, setAnimationTimeScale] = useState(0)
   const [animationIndex, setAnimationIndex] = useState(3)
+  const [animationTime, setAnimationTime] = useState(0.6225028089213559)
   const [animationsList, setAnimationsList] = useState<AnimationClip[]>([])
   const worldRef = useRef<World>(null)
   const executeIKRef = useRef<(delta: number, elapsedTime: number) => void>(null)
@@ -89,6 +91,12 @@ const Page = () => {
     }
     // animationClipActionRef.current?.setEffectiveTimeScale(animationTimeScale)
   }, [animationTimeScale])
+
+  useEffect(() => {
+    if (animationClipActionRef.current) {
+      animationClipActionRef.current.time = animationTime
+    }
+  }, [animationTime])
 
   useEffect(() => {
     ;(async function () {
@@ -133,6 +141,7 @@ const Page = () => {
         .then(({ sourceEntity, targetEntities }) => {
           const ac = getComponent(sourceEntity, AnimationComponent)
           const clipAction = ac.mixer.clipAction(ac.animations[animationIndex])
+          clipAction.time = animationTime
           clipAction.setEffectiveTimeScale(animationTimeScale).play()
           ac.mixer.timeScale = animationTimeScale
           clipAction.play()
@@ -271,7 +280,7 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
         // n.visible = false
       })
   })
-  let skinnedMesh = skinnedMeshes.sort((a, b) => {
+  let skinnedMesh: SkinnedMesh = skinnedMeshes.sort((a, b) => {
     return a.skeleton.bones.length - b.skeleton.bones.length
   })[0]
   console.log('skinnedMesh', skinnedMesh)
@@ -307,9 +316,11 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
     sourceRig: null
   })
 
-  const rig = getComponent(sourceEntity, IKRig)
+  const rig = getComponent(sourceEntity, IKRig) as IKRigComponentType
   const sourcePose = getComponent(sourceEntity, IKPose)
 
+  // TODO check types!
+  // @ts-ignore
   rig.sourceRig = skinnedMesh
   rig.sourcePose = sourcePose
 
