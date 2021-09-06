@@ -3,6 +3,7 @@ import { createMappedComponent, hasComponent, addComponent, getComponent } from 
 export type ProximityComponentType = {
   usersInRange: any[]
   usersInIntimateRange: any[]
+  usersInHarassmentRange: any[]
   usersLookingTowards: any[]
 }
 

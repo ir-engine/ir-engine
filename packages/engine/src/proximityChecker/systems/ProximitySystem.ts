@@ -10,6 +10,7 @@ import { getUserId } from '../../networking/utils/getUser'
 
 const maxDistance: number = 10
 const intimateDistance: number = 5
+const harassmentDistance: number = 1
 
 export const ProximitySystem = async (): Promise<System> => {
   const proximityCheckerQuery = defineQuery([TransformComponent, ProximityComponent])
@@ -17,9 +18,13 @@ export const ProximitySystem = async (): Promise<System> => {
   return defineSystem((world: ECSWorld) => {
     for (const eid of proximityCheckerQuery(world)) {
       if (isEntityLocal(eid)) {
-        const { usersInRange, usersInIntimateRange, usersLookingTowards } = getComponent(eid, ProximityComponent)
+        const { usersInRange, usersInIntimateRange, usersInHarassmentRange, usersLookingTowards } = getComponent(
+          eid,
+          ProximityComponent
+        )
         const _usersInRange: any[] = []
         const _usersInIntimateRange: any = []
+        const _usersInHarassmentRange: any = []
         const _usersLookingTowards: any[] = []
         const userId = getUserId(eid)
         const transform = getComponent(eid, TransformComponent)
@@ -39,16 +44,32 @@ export const ProximitySystem = async (): Promise<System> => {
             if (!_usersInRange.includes(object.entity)) {
               if (_usersInIntimateRange.includes(object.entity))
                 _usersInIntimateRange.slice(_usersInIntimateRange.indexOf(object.entity), 1)
+              if (_usersInHarassmentRange.includes(object.entity))
+                _usersInHarassmentRange.slice(_usersInHarassmentRange.indexOf(object.entity), 1)
+
               _usersInRange.push(object.entity)
               if (!usersInRange.includes(object.entity))
                 console.log('remote user id nearby with eid: ' + object.entity + ' distance: ' + distance)
             }
-          } else if (distance > 0 && distance <= intimateDistance) {
+          } else if (distance > 0 && distance <= intimateDistance && distance > harassmentDistance) {
             if (!_usersInIntimateRange.includes(object.entity)) {
               if (_usersInRange.includes(object.entity)) _usersInRange.splice(_usersInRange.indexOf(object.entity), 1)
+              if (_usersInHarassmentRange.includes(object.entity))
+                _usersInHarassmentRange.splice(_usersInHarassmentRange.indexOf(object.entity), 1)
+
               _usersInIntimateRange.push(object.entity)
               if (!usersInIntimateRange.includes(object.entity))
                 console.log('remote user id intimate distance with eid: ' + object.entity + ' distance: ' + distance)
+            }
+          } else if (distance > 0 && distance <= harassmentDistance) {
+            if (!_usersInHarassmentRange.includes(object.entity)) {
+              if (_usersInRange.includes(object.entity)) _usersInRange.splice(_usersInRange.indexOf(object.entity), 1)
+              if (_usersInIntimateRange.includes(object.entity))
+                _usersInIntimateRange.slice(_usersInIntimateRange.indexOf(object.entity), 1)
+
+              _usersInHarassmentRange.push(object.entity)
+              if (!usersInHarassmentRange.includes(object.entity))
+                console.log('remote user id harassment distance with eid: ' + object.entity + ' distance: ' + distance)
             }
           }
 
@@ -73,6 +94,11 @@ export const ProximitySystem = async (): Promise<System> => {
               console.log('user not in intimate range')
             }
           }
+          for (let i = 0; i < usersInHarassmentRange.length; i++) {
+            if (!_usersInHarassmentRange.includes(usersInHarassmentRange[i])) {
+              console.log('user not in harassment range')
+            }
+          }
           for (let i = 0; i < usersLookingTowards.length; i++) {
             if (!_usersLookingTowards.includes(usersLookingTowards[i])) {
               console.log('user not looking towards')
@@ -81,6 +107,7 @@ export const ProximitySystem = async (): Promise<System> => {
 
           getComponent(eid, ProximityComponent).usersInRange = _usersInRange
           getComponent(eid, ProximityComponent).usersInIntimateRange = _usersInIntimateRange
+          getComponent(eid, ProximityComponent).usersInHarassmentRange = _usersInHarassmentRange
           getComponent(eid, ProximityComponent).usersLookingTowards = _usersLookingTowards
         }
       }

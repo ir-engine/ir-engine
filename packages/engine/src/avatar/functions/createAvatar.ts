@@ -45,7 +45,12 @@ export const createAvatar = (
 ): void => {
   if (isClient && isBot(window)) {
     if (!hasComponent(entity, ProximityComponent))
-      addComponent(entity, ProximityComponent, { usersInRange: [], usersInIntimateRange: [], usersLookingTowards: [] })
+      addComponent(entity, ProximityComponent, {
+        usersInRange: [],
+        usersInIntimateRange: [],
+        usersInHarassmentRange: [],
+        usersLookingTowards: []
+      })
   }
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
