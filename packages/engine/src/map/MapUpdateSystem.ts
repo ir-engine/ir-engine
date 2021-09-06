@@ -45,7 +45,6 @@ export const MapUpdateSystem = async (): Promise<System> => {
     const mapComponent = getComponent(mapEntity, MapComponent)
     const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
     const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
-    const validUUIDs = getValidUUIDs()
 
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition)
     const viewerPositionDelta = vector3ToArray2($vector3)
@@ -66,7 +65,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
       $mapObjectsToRemove.add(featureUUID)
     })
 
-    validUUIDs.forEach((featureUUID) => {
+    for (const featureUUID of getValidUUIDs()) {
       const {
         mesh: { mesh, geographicCenterPoint },
         label
@@ -83,7 +82,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
         $labelsInScene.set(featureUUID, label)
         $mapObjectsToRemove.delete(featureUUID)
       }
-    })
+    }
 
     $mapObjectsToRemove.forEach((featureUUID) => {
       const mesh = $meshesInScene.get(featureUUID)

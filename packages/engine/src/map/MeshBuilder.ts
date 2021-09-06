@@ -259,12 +259,13 @@ let geometryWorker: Worker
 if (isClient) {
   geometryWorker = convertFunctionToWorker(geometryWorkerFunction)
   geometryWorker.onmessage = (msg) => {
-    $workerMessagesByTaskId[msg.data.taskId] = msg
+    $workerMessagesByTaskId.set(msg.data.taskId, msg)
   }
 }
 
-const $workerMessagesByTaskId: {
-  [featureUUID: string]: {
+const $workerMessagesByTaskId = new Map<
+  string,
+  {
     data: {
       geometry: {
         json: object
@@ -275,17 +276,17 @@ const $workerMessagesByTaskId: {
       geographicCenterPoint: LongLat
     }
   }
-} = {}
-const $geometriesByTaskId: { [featureUUID: string]: { geometry: BufferGeometry; geographicCenterPoint: LongLat } } = {}
-const $meshesByTaskId: { [featureUUID: string]: { mesh: Mesh; geographicCenterPoint: LongLat } } = {}
-const $labelsByTaskId: { [featureUUID: string]: GeoLabelNode } = {}
+>()
+const $geometriesByTaskId = new Map<string, { geometry: BufferGeometry; geographicCenterPoint: LongLat }>()
+const $meshesByTaskId = new Map<string, { mesh: Mesh; geographicCenterPoint: LongLat }>()
+const $labelsByTaskId = new Map<string, GeoLabelNode>()
 
 const geometryLoader = new BufferGeometryLoader()
-function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<void> {
+function buildGeometry(taskId: string, layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<void> {
   const style = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
   const promise = new Promise<void>((resolve) => {
     const interval = setInterval(() => {
-      const msg = $workerMessagesByTaskId[taskId]
+      const msg = $workerMessagesByTaskId.get(taskId)
       if (msg) {
         clearInterval(interval)
         const {
@@ -297,14 +298,13 @@ function buildGeometry(taskId: number, layerName: ILayerName, feature: Feature, 
           const { array, itemSize, normalized } = transfer.attributes[attributeName]
           geometry.setAttribute(attributeName, new BufferAttribute(array, itemSize, normalized))
         }
-        $geometriesByTaskId[taskId] = { geometry, geographicCenterPoint }
-        delete $workerMessagesByTaskId[taskId]
-        $workerMessagesByTaskId[taskId] = null
+        $geometriesByTaskId.set(taskId, { geometry, geographicCenterPoint })
+        $workerMessagesByTaskId.delete(taskId)
         resolve()
       }
     }, 200)
   })
-  geometryWorker.postMessage({ taskId, style, feature, llCenter })
+  geometryWorker.postMessage({ taskId: taskId, style, feature, llCenter })
   return promise
 }
 
@@ -347,21 +347,14 @@ function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameter
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildMeshes(
-  layerName: ILayerName,
-  features: Feature[],
-  llCenter: Position
-): {
-  tasks: { id: number; featureIndex: number }[]
-  promise: Promise<void>
-} {
-  const pendingTasks = []
+export function buildMeshes(layerName: ILayerName, features: Feature[], llCenter: Position) {
+  const pendingTasks: { id: string; featureIndex: number }[] = []
   const promises = []
   features.forEach((feature, featureIndex) => {
     const id = feature.properties.uuid
     promises.push(buildGeometry(id, layerName, feature, llCenter))
     // Don't rebuild it if already available
-    if (!$meshesByTaskId[id]) {
+    if (!$meshesByTaskId.has(id)) {
       pendingTasks.push({
         id: feature.properties.uuid,
         featureIndex
@@ -373,7 +366,7 @@ export function buildMeshes(
     tasks: pendingTasks,
     promise: Promise.all(promises).then(() => {
       for (const task of pendingTasks) {
-        const result = $geometriesByTaskId[task.id]
+        const result = $geometriesByTaskId.get(task.id)
         // Tasks can be cancelled mid-run if deleteResultsForFeature has been called
         if (result) {
           const styles = getFeatureStyles(
@@ -391,7 +384,7 @@ export function buildMeshes(
           const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
           const mesh = new Mesh(result.geometry, material)
           mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
-          $meshesByTaskId[task.id] = { mesh, geographicCenterPoint: result.geographicCenterPoint }
+          $meshesByTaskId.set(task.id, { mesh, geographicCenterPoint: result.geographicCenterPoint })
         }
       }
     })
@@ -399,21 +392,21 @@ export function buildMeshes(
 }
 
 export function getValidUUIDs() {
-  return Object.keys($meshesByTaskId)
+  return $meshesByTaskId.keys()
 }
 
 export function getResultsForFeature(featureUUID: string) {
   return {
-    mesh: $meshesByTaskId[featureUUID],
-    label: $labelsByTaskId[featureUUID]
+    mesh: $meshesByTaskId.get(featureUUID),
+    label: $labelsByTaskId.get(featureUUID)
   }
 }
 
 export function deleteResultsForFeature(featureUUID: string) {
-  delete $meshesByTaskId[featureUUID]
-  delete $geometriesByTaskId[featureUUID]
-  delete $workerMessagesByTaskId[featureUUID]
-  delete $labelsByTaskId[featureUUID]
+  $workerMessagesByTaskId.delete(featureUUID)
+  $geometriesByTaskId.delete(featureUUID)
+  $meshesByTaskId.delete(featureUUID)
+  $labelsByTaskId.delete(featureUUID)
 }
 
 export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
@@ -456,7 +449,7 @@ export async function createBuildings(vectorTiles: TileFeaturesByLayer[], llCent
 
   const group = new Group()
   for (const { id } of tasks) {
-    group.add($meshesByTaskId[id]?.mesh)
+    group.add($meshesByTaskId.get(id)?.mesh)
   }
 
   return group
@@ -481,7 +474,7 @@ async function createLayerGroup(
   await Promise.all(promises)
 
   for (const { id } of allTasks) {
-    group.add($meshesByTaskId[id]?.mesh)
+    group.add($meshesByTaskId.get(id)?.mesh)
   }
   return group
 }
@@ -501,7 +494,7 @@ export function createLabels(vectorTiles: TileFeaturesByLayer[]): GeoLabelNode[]
       const labelView = new GeoLabelNode(f as any)
 
       acc.push(labelView)
-      $labelsByTaskId[f.properties.uuid] = labelView
+      $labelsByTaskId.set(f.properties.uuid, labelView)
     }
     return acc
   }, [])
