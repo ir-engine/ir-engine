@@ -8,7 +8,7 @@ import { deleteResultsForFeature, getResultsForFeature, getValidUUIDs, llToScene
 import { vector3ToArray2 } from './util'
 import { Mesh, Object3D, Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
-import { createMapObjects } from '.'
+import { enqueueTasks } from '.'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { GeoLabelNode } from './GeoLabelNode'
 import { LongLat } from './types'
@@ -31,20 +31,18 @@ export const MapUpdateSystem = async (): Promise<System> => {
     const viewerEntity = viewerQuery(world)[0]
     const mapEntities = mapsQuery(world)
     const mapEntity = mapEntities[0]
+    const mapComponent = getComponent(mapEntity, MapComponent)
+    const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
+    const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
+    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
 
     // Sanity checks
     if (!mapEntity || !viewerEntity) return
     if (mapEntities.length > 1) console.warn('Not supported: More than one map!')
 
-    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
     if (viewerEntity !== previousViewerEntity) {
-      previousViewerEntity = viewerEntity
       $previousViewerPosition.copy(viewerTransform.position)
     }
-
-    const mapComponent = getComponent(mapEntity, MapComponent)
-    const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
-    const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
 
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition)
     const viewerPositionDelta = vector3ToArray2($vector3)
@@ -53,9 +51,12 @@ export const MapUpdateSystem = async (): Promise<System> => {
 
     const viewerDistanceFromCenter = Math.hypot(...viewerPositionDelta)
 
-    if (viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius * mapScale) {
+    if (
+      viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius * mapScale ||
+      viewerEntity !== previousViewerEntity
+    ) {
       mapComponent.center = sceneToLl(viewerPositionDeltaScaled, mapComponent.center)
-      createMapObjects(mapComponent.center, mapComponent.minimumSceneRadius, mapComponent.args)
+      enqueueTasks(mapComponent.center, mapComponent.minimumSceneRadius, mapComponent.args)
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0
@@ -112,6 +113,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
       }
     })
 
+    previousViewerEntity = viewerEntity
     return world
   })
 }

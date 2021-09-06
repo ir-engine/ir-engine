@@ -2,7 +2,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { MapComponent } from '../MapComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { ECSWorld } from '../../ecs/classes/World'
-import { createMapObjects } from '..'
+import { enqueueConstructionTasks } from '..'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GeoLabelSetComponent } from '../GeoLabelSetComponent'
@@ -15,7 +15,7 @@ export default async function refreshSceneObjects(
   const map = getComponent(mapEntity, MapComponent, false, ecsWorld)
   const mapTransform = getComponent(mapEntity, TransformComponent, false, ecsWorld)
   const viewerTransform = getComponent(viewerEntity, TransformComponent, false, ecsWorld)
-  const { mapMesh, labels } = await createMapObjects(map.center, map.minimumSceneRadius, map.args)
+  const { mapMesh, labels } = await enqueueConstructionTasks(map.center, map.minimumSceneRadius, map.args)
 
   mapTransform.position.copy(viewerTransform.position)
   mapTransform.position.y = 0

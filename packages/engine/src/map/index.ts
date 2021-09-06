@@ -22,8 +22,8 @@ let centerCoord = {}
 let centerTile = {}
 let scaleArg
 
-export const createMapObjects = async function (center: Position, minimumSceneRadius: number, args: MapProps) {
-  console.log('createMapObjects called with args:', center, args)
+export const enqueueTasks = async function (center: Position, minimumSceneRadius: number, args: MapProps) {
+  console.log('enqueueMapTasks called with args:', center, args)
   const vectorTiles = await fetchVectorTiles(center, minimumSceneRadius)
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 

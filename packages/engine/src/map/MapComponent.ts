@@ -8,7 +8,6 @@ export type MapComponentType = {
    */
   originalCenter: LongLat
   triggerRefreshRadius: number
-  refreshInProgress: boolean
   /** Distance from `center` for which to fetch data and build a scene object, in meters
    */
   minimumSceneRadius: number

@@ -1,4 +1,4 @@
-import { createMapObjects, getStartCoords } from '../../map'
+import { enqueueTasks, getStartCoords } from '../../map'
 import { MapProps } from '../../map/MapProps'
 import { addComponent } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
@@ -19,12 +19,11 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     center,
     originalCenter: center,
     triggerRefreshRadius: 200,
-    refreshInProgress: false,
     minimumSceneRadius,
     args
   })
 
-  const { navMesh, groundMesh, labels } = await createMapObjects(center, minimumSceneRadius, args)
+  const { navMesh, groundMesh, labels } = await enqueueTasks(center, minimumSceneRadius, args)
 
   const mapObject3D = new Group()
 
