@@ -30,7 +30,6 @@ import { Network } from './networking/classes/Network'
 import { NetworkActionDispatchSystem } from './networking/systems/NetworkActionDispatchSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
-import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { HighlightSystem } from './renderer/HighlightSystem'
@@ -45,6 +44,8 @@ import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
 import { OutgoingNetworkSystem } from './networking/systems/OutgoingNetworkSystem'
 import { IncomingNetworkSystem } from './networking/systems/IncomingNetworkSystem'
+import { ProximitySystem } from './proximityChecker/systems/ProximitySystem'
+import { FollowSystem } from './navigation/systems/FollowSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -160,18 +161,12 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
 
   // Avatar Systems
-  registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
   registerSystem(SystemUpdateType.Fixed, AvatarLoadingSystem)
-  registerSystem(SystemUpdateType.Free, AnimationSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
-  registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
-    simulationEnabled: options.physics.simulationEnabled
-  })
   registerSystem(SystemUpdateType.Fixed, MapUpdateSystem, {
     getViewerEntity() {
       return Engine.activeCameraFollowTarget
@@ -179,22 +174,29 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   })
 
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.Fixed, ParticleSystem)
-  registerSystem(SystemUpdateType.Fixed, DebugHelpersSystem)
   registerSystem(SystemUpdateType.Fixed, AudioSystem)
   registerSystem(SystemUpdateType.Fixed, PositionalAudioSystem)
-  registerSystem(SystemUpdateType.Fixed, TransformSystem)
-  registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
+  registerSystem(SystemUpdateType.Fixed, ProximitySystem)
+  registerSystem(SystemUpdateType.Fixed, FollowSystem)
 
   !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
 
   // Free systems
+  registerSystem(SystemUpdateType.Free, PhysicsSystem, {
+    simulationEnabled: options.physics.simulationEnabled
+  })
   registerSystem(SystemUpdateType.Free, XRSystem)
   registerSystem(SystemUpdateType.Free, CameraSystem)
+  registerSystem(SystemUpdateType.Free, AvatarControllerSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
+  registerSystem(SystemUpdateType.Free, AnimationSystem)
+  registerSystem(SystemUpdateType.Free, ParticleSystem)
+  registerSystem(SystemUpdateType.Free, SceneObjectSystem)
+  registerSystem(SystemUpdateType.Free, TransformSystem)
+  registerSystem(SystemUpdateType.Free, DebugHelpersSystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas, enabled: !options.renderer.disabled })
   registerSystem(SystemUpdateType.Free, HighlightSystem)
   registerSystem(SystemUpdateType.Free, BotHookSystem)
@@ -245,7 +247,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   const world = new World()
 
   Engine.initOptions = options
-  Engine.offlineMode = typeof options.networking.schema === 'undefined'
+  Engine.offlineMode = !options.networking.schema.transport
   Engine.publicPath = options.publicPath
   Engine.lastTime = now() / 1000
 

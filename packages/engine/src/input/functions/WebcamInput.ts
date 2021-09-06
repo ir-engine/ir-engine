@@ -3,6 +3,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { CameraInput } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
+import { sendChatMessage } from '@xrengine/client-core/src/social/reducers/chat/service'
+import Store from '@xrengine/client-core/src/store'
+import { User } from '@xrengine/common/src/interfaces/User'
 
 const EXPRESSION_THRESHOLD = 0.1
 
@@ -67,9 +70,25 @@ const nameToInputValue = {
   surprised: CameraInput.Surprised
 }
 
+let prevExp: string = ''
+
 export async function faceToInput(detection) {
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
+      if (prevExp !== expression && detection.expressions[expression] >= EXPRESSION_THRESHOLD) {
+        console.log(
+          expression +
+            ' ' +
+            (detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression])
+        )
+        prevExp = expression
+        const user = (Store.store.getState() as any).get('auth').get('user') as User
+        await sendChatMessage({
+          targetObjectId: user.instanceId,
+          targetObjectType: 'instance',
+          text: '[emotions]' + prevExp
+        })
+      }
       // If the detected value of the expression is more than 1/3rd-ish of total, record it
       // This should allow up to 3 expressions but usually 1-2
       const inputKey = nameToInputValue[expression]

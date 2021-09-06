@@ -38,8 +38,7 @@
     "dev": "nodemon -r ./compile.js src/index.ts",
     "dev-nossl": "cross-env NOSSL=true nodemon -r ./compile.js src/index.ts",
     "test": "jest",
-    "validate": "npm run build && npm run test",
-    "precommit": "no-master-commits -b master,dev"
+    "validate": "npm run build && npm run test"
   },
   "types": "lib/",
   "resolutions": {
@@ -105,7 +104,6 @@
     "sequelize": "6.6.5",
     "serve-favicon": "2.5.0",
     "slugify": "1.6.0",
-    "three-physx": "0.0.35",
     "trace-unhandled": "2.0.1",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
@@ -121,7 +119,6 @@
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
-    "no-master-commits": "1.1.1",
     "semantic-release": "17.4.7",
     "semantic-release-monorepo": "7.0.5",
     "typedoc": "0.21.9",

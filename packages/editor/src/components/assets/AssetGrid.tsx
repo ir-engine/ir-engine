@@ -209,6 +209,9 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
       editor.getSpawnPosition(node.position)
 
       editor.addObject(node)
+      if (item.projectId && globalThis.currentProjectID !== item.projectId) {
+        globalThis.currentOwnedFileIds[item.label] = item.fileId
+      }
     },
     [editor]
   )
@@ -224,6 +227,8 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
       }
 
       editor.addObject(node)
+      if (item.projectId && globalThis.currentProjectID !== item.projectId)
+        globalThis.currentOwnedFileIds[item.label] = item.fileId
     },
     [editor]
   )
@@ -240,7 +245,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
   const onDelete = useCallback(
     (_, trigger) => {
-      source.delete(trigger.item)
+      //source.delete(trigger.item)
     },
     [source]
   )

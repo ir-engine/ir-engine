@@ -13,14 +13,11 @@ const sqrt2 = Math.sqrt(2)
 describe('My Bot Tests', () => {
 
   beforeAll(async () => {
-    try {
-      await bot.launchBrowser()
-      await bot.enterLocation(`https://${domain}/location/${locationName}`)
-      await bot.awaitHookPromise(BotHooks.LocationLoaded)
-      await bot.runHook(BotHooks.InitializeBot)
-    } catch (e) {
-      console.error(e)
-    }
+    await bot.launchBrowser()
+    await bot.enterLocation(`https://${domain}/location/${locationName}`)
+    await bot.awaitHookPromise(BotHooks.LocationLoaded)
+    await bot.runHook(BotHooks.InitializeBot)
+    await bot.delay(1000)
   }, 2 * maxTimeout)
 
   afterAll(async () => {
@@ -30,8 +27,9 @@ describe('My Bot Tests', () => {
 
   test('Can spawn in the world', async () =>{
     await bot.delay(1000)
+    const pos = await bot.runHook(BotHooks.GetPlayerPosition)
     expect(
-      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).length()
+      vector3.copy(pos).length()
     ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
   })
 
@@ -39,24 +37,18 @@ describe('My Bot Tests', () => {
 
 
 
-describe('Multi-Bot Tests', () => { 
+describe.skip('Multi-Bot Tests', () => { 
 
   const bots = [] as Array<XREngineBot>
 
   async function addBot() {
     const bot = new XREngineBot({ name: `bot-${bots.length}`, verbose: true })
     bots.push(bot)
-    try {
-      await bot.launchBrowser()
-      await bot.enterLocation(`https://${domain}/location/${locationName}`)
-      await bot.awaitHookPromise(BotHooks.LocationLoaded)
-      await bot.runHook(BotHooks.InitializeBot)
-      await bot.delay(1000)
-    } catch (e) {
-      await bot.delay(1500)
-      await bot.quit()
-      console.error(e)
-    }
+    await bot.launchBrowser()
+    await bot.enterLocation(`https://${domain}/location/${locationName}`)
+    await bot.awaitHookPromise(BotHooks.LocationLoaded)
+    await bot.runHook(BotHooks.InitializeBot)
+    await bot.delay(1000)
     return bot
   }
 
@@ -69,7 +61,7 @@ describe('Multi-Bot Tests', () => {
   }, maxTimeout)
 
   // skip for now, as loading multiple uses seems to overload github actions and the test fails
-  test.skip('Can connect multiple players', async () => {
+  test('Can connect multiple players', async () => {
     const numPlayers = 3
     const addedBots = [] as Promise<XREngineBot>[]
     for (let i = 0; i < numPlayers; i++) addedBots.push(addBot())

@@ -464,7 +464,7 @@ function TreeNode({
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia(asset.url, object.parent, object)
+              editor.addMedia({ url: asset.url }, object.parent, object)
             }
           }
         })
@@ -532,7 +532,7 @@ function TreeNode({
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia(asset.url, object.parent, next)
+              editor.addMedia({ url: asset.url }, object.parent, next)
             }
           }
         })
@@ -596,7 +596,7 @@ function TreeNode({
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia(asset.url, object)
+              editor.addMedia({ url: asset.url }, object)
             }
           }
         })
@@ -1156,7 +1156,7 @@ export default function HierarchyPanel() {
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia(asset.url)
+              editor.addMedia({ url: asset.url })
             }
           }
         })

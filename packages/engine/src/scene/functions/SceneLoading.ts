@@ -3,6 +3,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import { addComponent, createEntity, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
@@ -60,8 +61,6 @@ export class WorldScene {
   loaders: Promise<void>[] = []
   static callbacks: any
   static isLoading = false
-  static sceneMetadata: string
-  static worldMetadata = []
 
   constructor(private onProgress?: Function) {}
 
@@ -125,10 +124,11 @@ export class WorldScene {
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     switch (name) {
       case 'mtdata':
-        if (isClient && Engine.isBot) {
-          const { meta_data } = component.data
-          console.log('scene_metadata|' + meta_data)
-        }
+        //if (isClient && Engine.isBot) {
+        const { meta_data } = component.data
+        World.sceneMetadata = meta_data
+        console.log('scene_metadata|' + meta_data)
+        //}
         break
 
       case '_metadata':
@@ -137,11 +137,12 @@ export class WorldScene {
           addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
           const transform = getComponent(entity, TransformComponent)
 
-          if (isClient && Engine.isBot) {
-            const { _data } = component.data
-            const { x, y, z } = transform.data['position']
-            console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
-          }
+          // if (isClient && Engine.isBot) {
+          const { _data } = component.data
+          const { x, y, z } = transform.position
+          World.worldMetadata[_data] = x + ',' + y + ',' + z
+          console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
+          // }
         }
         break
 

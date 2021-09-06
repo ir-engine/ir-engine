@@ -73,7 +73,8 @@ export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActio
     case NetworkWorldActions.CREATE_CLIENT: {
       Network.instance.clients[action.userId] = {
         userId: action.userId,
-        avatarDetail: action.avatarDetail
+        avatarDetail: action.avatarDetail,
+        subscribedChatUpdates: []
       }
       break
     }

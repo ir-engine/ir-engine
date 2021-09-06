@@ -126,7 +126,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     addUIEvents()
-    if (!engineInitializeOptions.networking) {
+    if (!engineInitializeOptions.networking.schema.transport) {
       init(props.locationName)
     } else {
       props.doLoginAuto(true)

@@ -15,24 +15,23 @@ import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-
 
 const { authenticate } = authentication.hooks
 
+/**
+ * Used for Mapping data send according to database fields
+ * @author Abhishek Pathak <abhi.pathak401@gmail.com>
+ */
 const mapProjectSaveData = () => {
   return (context: HookContext): HookContext => {
     context.data.ownedFileId = context.data.project.project_file_id
     context.data.name = context.data.project.name
-    context.data.ownedUploadedFileId = {}
-    Object.keys(context.data.project.filesToUpload).forEach((value) => {
-      context.data.ownedUploadedFileId[value] = context.data.project.filesToUpload[value]['file_id']
-    })
-    context.data.thumbnailOwnedFileId = context.data.ownedUploadedFileId.thumbnailOwnedFileId
-    context.data.ownedFileIds = JSON.stringify(context.data.ownedUploadedFileId)
-
+    context.data.thumbnailOwnedFileId = context.data.project?.thumbnailOwnedFileId
+    context.data.ownedFileIds = JSON.stringify(context.data.project?.ownedFileIds)
     return context
   }
 }
 
 const validateCollectionData = () => {
   return async (context: HookContext): Promise<HookContext> => {
-    if (!context?.data?.ownedFileId || !context?.data?.name || !context?.data?.ownedFileIds) {
+    if (!context?.data?.ownedFileId || !context?.data?.name || !context?.data?.thumbnailOwnedFileId) {
       return await Promise.reject(new BadRequest('Project Data is required!'))
     }
     return context

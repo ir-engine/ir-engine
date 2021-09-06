@@ -98,7 +98,7 @@ export const removeFile = async (context: HookContext, resourceId) => {
 export default (): Hook => {
   return async (context: HookContext) => {
     const { params } = context
-    const assetId = params.headers?.assetId
+    const assetId = params.headers?.assetid
     const fileidentifier = params.headers?.fileidentifier
     const projectID = params.headers?.projectid
     if (!(projectID && fileidentifier)) {

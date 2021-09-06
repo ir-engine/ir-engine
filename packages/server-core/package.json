@@ -37,16 +37,9 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "npm run build-publish && node dist/server.js",
-    "dev": "cross-env NODE_ENV=development vite",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
-    "localbuild": "cross-env LOCAL_BUILD=true npm run start",
     "validate": "npm run build && npm run test",
-    "precommit": "no-master-commits -b master,dev",
-    "upload-avatar": "node ./scripts/upload-avatar.js",
-    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
@@ -124,7 +117,6 @@
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
-    "no-master-commits": "1.1.1",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",

@@ -19,4 +19,4 @@ if (typeof exports === 'object' && typeof module === 'object')
       define([], function() { return PHYSX; });
     else if (typeof exports === 'object')
       exports["PHYSX"] = PHYSX;
-    
+export default PHYSX

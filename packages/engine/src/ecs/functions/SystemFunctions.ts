@@ -10,6 +10,9 @@ export type SystemInitializeType<A> = {
   type: SystemUpdateType
   system: CreateSystemFunctionType<A>
   args?: A
+}
+
+export interface SystemInjectionType<A> extends SystemInitializeType<A> {
   before?: CreateSystemFunctionType<A>
   after?: CreateSystemFunctionType<A>
 }
@@ -35,17 +38,17 @@ export const unregisterSystem = <A>(type: SystemUpdateType, system: CreateSystem
   pipelines[type].splice(idx, 1)
 }
 
-export const injectSystem = <A>(init: SystemInitializeType<A>) => {
+export const injectSystem = <A>(init: SystemInjectionType<A>) => {
   if ('before' in init) {
     const idx = pipelines[init.type].findIndex((i) => {
-      return i.before === init.before
+      return i.system === init.before
     })
     delete init.before
     pipelines[init.type].splice(idx, 0, init)
   } else if ('after' in init) {
     const idx =
       pipelines[init.type].findIndex((i) => {
-        return i.after === init.after
+        return i.system === init.after
       }) + 1
     delete init.after
     pipelines[init.type].splice(idx, 0, init)
