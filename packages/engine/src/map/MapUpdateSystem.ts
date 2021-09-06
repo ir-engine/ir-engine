@@ -71,10 +71,13 @@ export const MapUpdateSystem = async (): Promise<System> => {
         label
       } = getResultsForFeature(featureUUID)
       if (mesh && !$meshesInScene.has(featureUUID)) {
-        setPosition(mesh, geographicCenterPoint, mapComponent.originalCenter)
-        object3dComponent.value.add(mesh)
-        $meshesInScene.set(featureUUID, mesh)
-        $mapObjectsToRemove.delete(featureUUID)
+        const distance = computeDistanceFromMesh(mesh, copyAndScale(viewerTransform.position, 1 / mapScale))
+        if (distance < mapComponent.minimumSceneRadius) {
+          setPosition(mesh, geographicCenterPoint, mapComponent.originalCenter)
+          object3dComponent.value.add(mesh)
+          $meshesInScene.set(featureUUID, mesh)
+          $mapObjectsToRemove.delete(featureUUID)
+        }
       }
       if (label && !$labelsInScene.has(featureUUID)) {
         setPosition(label.object3d, label.geoMiddleSlice[0], mapComponent.originalCenter)
@@ -88,19 +91,17 @@ export const MapUpdateSystem = async (): Promise<System> => {
       const mesh = $meshesInScene.get(featureUUID)
       const label = $labelsInScene.get(featureUUID)
       if (mesh) {
-        if (!mesh.geometry.boundingSphere) {
-          mesh.geometry.computeBoundingSphere()
-        }
-        $vector3.copy(viewerTransform.position).divideScalar(mapScale)
-        const distance = mesh.position.distanceTo($vector3) - mesh.geometry.boundingSphere.radius
+        const distance = computeDistanceFromMesh(mesh, copyAndScale(viewerTransform.position, 1 / mapScale))
         if (distance > mapComponent.minimumSceneRadius) {
           object3dComponent.value.remove(mesh)
-          deleteResultsForFeature(featureUUID)
           if (label) {
             object3dComponent.value.remove(label.object3d)
           }
           $meshesInScene.delete(featureUUID)
           $labelsInScene.delete(featureUUID)
+        }
+        if (distance > mapComponent.minimumSceneRadius * 2) {
+          deleteResultsForFeature(featureUUID)
         }
       }
     })
@@ -113,6 +114,17 @@ export const MapUpdateSystem = async (): Promise<System> => {
 
     return world
   })
+}
+
+function computeDistanceFromMesh(mesh: Mesh, point: Vector3) {
+  if (!mesh.geometry.boundingSphere) {
+    mesh.geometry.computeBoundingSphere()
+  }
+  return mesh.position.distanceTo(point) - mesh.geometry.boundingSphere.radius
+}
+
+function copyAndScale(vector: Vector3, scalar: number) {
+  return $vector3.copy(vector).multiplyScalar(scalar)
 }
 
 function setPosition(object3d: Object3D, geographicPoint: LongLat, mapOriginalCenter: LongLat) {

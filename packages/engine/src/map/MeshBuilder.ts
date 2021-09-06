@@ -385,6 +385,9 @@ export function buildMeshes(layerName: ILayerName, features: Feature[], llCenter
           const mesh = new Mesh(result.geometry, material)
           mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
           $meshesByTaskId.set(task.id, { mesh, geographicCenterPoint: result.geographicCenterPoint })
+        } else {
+          // TODO how to handle this situation?
+          console.warn(`buildMeshes: Task ${task.id} was cancelled mid-run`)
         }
       }
     })
