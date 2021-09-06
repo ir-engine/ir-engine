@@ -28,7 +28,7 @@
     "check-errors": "tsc --noemit",
     "dev": "vite",
     "build": "rimraf dist && mkdir dist && cti entrypoint ./src -o index.ts && node build.js && tsc --emitDeclarationOnly --outDir dist",
-    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production vite build",
     "test": "jest",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",

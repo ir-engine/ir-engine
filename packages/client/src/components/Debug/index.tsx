@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
-import { World } from '../../../../engine/src/ecs/classes/World'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)

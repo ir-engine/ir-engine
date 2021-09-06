@@ -50,7 +50,7 @@ import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/com
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './functions/setupPlayerAvatar'
 import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
 import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
-import { NetworkWorldAction } from '../../../../engine/src/networking/interfaces/NetworkWorldActions'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 
 export function getHole(world: ECSWorld, i: number) {
   return world.world.namedEntities.get(`GolfHole-${i}`)
