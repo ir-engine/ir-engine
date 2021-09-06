@@ -55,6 +55,10 @@ export class Chain {
   }
 
   computeLengthFromBones(bones: PoseBoneLocalState[]) {
+    // Recompute the Length of the bones for each chain. Most often this
+    // is a result of scale being applied to the armature object that can
+    // only be computed after the rig is setup
+
     const end = this.cnt - 1
     let sum = 0,
       b,
@@ -62,7 +66,7 @@ export class Chain {
 
     // Loop Every Bone Except Last one
     for (i = 0; i < end; i++) {
-      b = bones[i]
+      b = bones[this.chainBones[i].index]
 
       this.chainBones[i].ref.getWorldPosition(boneWorldPosition)
       this.chainBones[i + 1].ref.getWorldPosition(childWorldPosition)
