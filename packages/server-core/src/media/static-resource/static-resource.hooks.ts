@@ -5,6 +5,7 @@ import removeOwnedFile from '@xrengine/server-core/src/hooks/remove-owned-file'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 
 const { authenticate } = hooks
 

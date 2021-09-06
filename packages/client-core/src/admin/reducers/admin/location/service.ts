@@ -42,6 +42,7 @@ export function createLocation(location: any) {
       const result = await client.service('location').create(location)
       dispatch(locationCreated(result))
     } catch (err) {
+      console.error(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -62,6 +63,7 @@ export function fetchAdminLocations(incDec?: 'increment' | 'decrement') {
       })
       dispatch(locationsRetrieved(locations))
     } catch (error) {
+      console.error(error)
       dispatchScopeError(dispatch, error.message, error.statusCode, 'read')
     }
   }

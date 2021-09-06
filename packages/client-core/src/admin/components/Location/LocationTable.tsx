@@ -82,7 +82,6 @@ const LocationTable = (props: LocationProps) => {
   const adminLocations = adminLocationState.get('locations').get('locations')
   const adminLocationCount = adminLocationState.get('locations').get('total')
   const { t } = useTranslation()
-
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     fetchAdminLocations(incDec)
@@ -205,56 +204,52 @@ const LocationTable = (props: LocationProps) => {
 
   return (
     <div>
-      {adminScopeReadErrMsg ? (
-        <FormDialog />
-      ) : (
-        <React.Fragment>
-          <TableContainer className={classes.container}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align}
-                      style={{ minWidth: column.minWidth }}
-                      className={classex.tableCellHeader}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      {columns.map((column) => {
-                        const value = row[column.id]
-                        return (
-                          <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
-                            {value}
-                          </TableCell>
-                        )
-                      })}
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[12]}
-            component="div"
-            count={adminLocationCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleRowsPerPageChange}
-            className={classex.tableFooter}
-          />
-        </React.Fragment>
-      )}
+      <React.Fragment>
+        <TableContainer className={classes.container}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {locationColumns.map((column) => (
+                  <TableCell
+                    key={column.id}
+                    align={column.align}
+                    style={{ minWidth: column.minWidth }}
+                    className={classex.tableCellHeader}
+                  >
+                    {column.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                    {locationColumns.map((column) => {
+                      const value = row[column.id]
+                      return (
+                        <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
+                          {value}
+                        </TableCell>
+                      )
+                    })}
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[12]}
+          component="div"
+          count={adminLocationCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
+          className={classex.tableFooter}
+        />
+      </React.Fragment>
       <Dialog
         open={popConfirmOpen}
         onClose={() => setPopConfirmOpen(false)}

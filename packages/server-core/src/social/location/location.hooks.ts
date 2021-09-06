@@ -32,12 +32,9 @@ export default {
         ]
       })
     ],
-    create: [],
-    update: [],
-    patch: [],
-    // create: [iff(isProvider('external'), verifyScope("location", "write") as any)],
-    // update: [iff(isProvider('external'), verifyScope("location", "write") as any)],
-    // patch: [iff(isProvider('external'), verifyScope("location", "write") as any)],
+    create: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
+    patch: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
     remove: [
       iff(isProvider('external'), verifyScope('location', 'write') as any),
       async (context: HookContext): Promise<HookContext> => {

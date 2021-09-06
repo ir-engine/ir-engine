@@ -34,32 +34,6 @@ const mapStateToProps = (state: any): any => {
 const ProtectedRoutes = (props: Props) => {
   const { authState } = props
   const admin = authState.get('user')
-  const scopes = admin.scopes || []
-  let allowedRoutes = {
-    location: false,
-    bot: false,
-    scene: false,
-    party: false,
-    contentPacks: false,
-    groups: false,
-    instance: false,
-    invite: false,
-    globalAvatars: false
-  }
-
-  React.useEffect(() => {
-    scopes.forEach((scope) => {
-      if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
-        if (scope.type.split(':')[1] === 'read') {
-          allowedRoutes = {
-            ...allowedRoutes,
-            [scope.type.split(':')[0]]: true
-          }
-        }
-      }
-    })
-  }, [scopes])
-
   if (admin?.userRole) {
     if (admin?.userRole !== 'admin') {
       return <Redirect to="/login" />
@@ -85,11 +59,11 @@ const ProtectedRoutes = (props: Props) => {
         <Switch>
           <PrivateRoute exact path="/admin" component={analytic} />
           <PrivateRoute exact path="/admin/avatars" component={avatars} />
-          {allowedRoutes.contentPacks && <PrivateRoute exact path="/admin/content-packs" component={contentPacks} />}
-          {allowedRoutes.groups && <PrivateRoute exact path="/admin/groups" component={groups} />}
-          {allowedRoutes.instance && <PrivateRoute exact path="/admin/instance" component={instance} />}
-          {allowedRoutes.invite && <PrivateRoute exact path="/admin/invites" component={invites} />}
-          {allowedRoutes.location && <PrivateRoute exact path="/admin/locations" component={locations} />}
+          <PrivateRoute exact path="/admin/content-packs" component={contentPacks} />
+          <PrivateRoute exact path="/admin/groups" component={groups} />
+          <PrivateRoute exact path="/admin/instance" component={instance} />
+          <PrivateRoute exact path="/admin/invites" component={invites} />
+          <PrivateRoute exact path="/admin/locations" component={locations} />
           <PrivateRoute exact path="/admin/scenes" component={scenes} />
           <PrivateRoute exact path="/admin/parties" component={party} />
           <PrivateRoute exact path="/admin/bots" component={botSetting} />
