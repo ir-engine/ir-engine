@@ -97,7 +97,7 @@ class Pose {
         chg_state: 0, // If Local Has Been Updated
         idx: i, // Bone Index in Armature
         p_idx: p_idx, // Parent Bone Index in Armature
-        length: 0, // Length of Bone
+        length: 0.1, // Length of Bone
         name: b.name,
         local: {
           position: b.position.clone(),
