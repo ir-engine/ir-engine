@@ -4,12 +4,9 @@ import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/e
 import { defaultIKPoseComponentValues, IKPose, IKPoseComponentType } from '@xrengine/engine/src/ikrig/components/IKPose'
 import { IKRig, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRig'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
-import {
-  bones,
-  fungiSerializedPoseBones,
-  fungiSerializedQuaternion,
-  fungiSerializedVector3
-} from './pose1/ikrig.pose.bones'
+import { bones } from './pose1/ikrig.pose.bones'
+import { bones as tbones } from './ikrig.tpose.bones'
+import { fungiSerializedPoseBones, fungiSerializedQuaternion, fungiSerializedVector3 } from './ikrig.bones.types'
 import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
 import { addChain, addPoint } from '../../../src/ikrig/functions/RigFunctions'
@@ -18,7 +15,8 @@ import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig
 
 export function setupTestSourceEntity(sourceEntity: Entity, world: World): void {
   const bonesStates = adoptBones(bones)
-  const { mesh: skinnedMesh } = createSkinnedMesh(bonesStates)
+  const tbonesStates = adoptBones(tbones)
+  const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
 
   addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
   const sourcePose = addComponent(sourceEntity, IKPose, defaultIKPoseComponentValues())
@@ -37,6 +35,8 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
 
   rig.pose = new Pose(sourceEntity, false)
   rig.tpose = new Pose(sourceEntity, true) // If Passing a TPose, it must have its world space computed.
+
+  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
 
   //-----------------------------------------
   // Apply Node's Starting Transform as an offset for poses.
@@ -76,7 +76,30 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
 
   /// init mixamo
 
+  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
+
   rig.tpose.apply()
+
+  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
+}
+
+export function applyPoseState(pose: Pose, bonesStates: PoseBoneLocalState[]) {
+  pose.bones.forEach((value, index) => {
+    const state = bonesStates[index]
+
+    value.local.position.copy(state.local.position)
+    value.local.quaternion.copy(state.local.quaternion)
+    value.local.scale.copy(state.local.scale)
+    value.world.position.copy(state.world.position)
+    value.world.quaternion.copy(state.world.quaternion)
+    value.world.scale.copy(state.world.scale)
+
+    value.bone.position.copy(state.bone.position)
+    value.bone.quaternion.copy(state.bone.quaternion)
+    value.bone.scale.copy(state.bone.scale)
+
+    value.length = state.length
+  })
 }
 
 export function getTestIKPoseData(): IKPoseComponentType {

@@ -249,6 +249,26 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   ik_pose.hip.twist = twist // How Much Twisting to Apply after pointing in the correct direction.
 
   // console.log('twist', twist.toFixed(4), vec3Dot.toFixed(4))
+
+  console.log({
+    bindBoneWorldQuaternion,
+    poseBoneWorldQuaternion,
+    poseBoneWorldPosition,
+    posePosition,
+    bindPosition,
+    vec3Dot,
+    twist
+  })
+
+  return {
+    bindBoneWorldQuaternion,
+    poseBoneWorldQuaternion,
+    poseBoneWorldPosition,
+    posePosition,
+    bindPosition,
+    vec3Dot,
+    twist
+  }
 }
 
 export function computeLimb(pose: Pose, chain: Chain, ik_limb) {
