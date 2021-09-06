@@ -370,6 +370,7 @@ export function buildMeshes(
   features.forEach((feature, featureIndex) => {
     const id = feature.properties.uuid
     promises.push(buildGeometry(id, layerName, feature, llCenter))
+    // Don't rebuild it if already available
     if (!$meshesByTaskId[id]) {
       pendingTasks.push({
         id: feature.properties.uuid,
@@ -382,33 +383,32 @@ export function buildMeshes(
     tasks: pendingTasks,
     promise: Promise.all(promises).then(() => {
       for (const task of pendingTasks) {
-        const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, features[task.featureIndex].properties.class)
+        const result = $geometriesByTaskId[task.id]
+        // Tasks can be cancelled mid-run if deleteResultsForFeature has been called
+        if (result) {
+          const styles = getFeatureStyles(
+            DEFAULT_FEATURE_STYLES,
+            layerName,
+            features[task.featureIndex].properties.class
+          )
 
-        const materialParams = {
-          color: styles.color?.constant,
-          vertexColors: styles.color?.builtin_function === 'purple_haze' ? true : false,
-          depthTest: styles.extrude !== 'flat'
+          const materialParams = {
+            color: styles.color?.constant,
+            vertexColors: styles.color?.builtin_function === 'purple_haze' ? true : false,
+            depthTest: styles.extrude !== 'flat'
+          }
+
+          const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
+          const mesh = new Mesh(result.geometry, material)
+          mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
+          $meshesByTaskId[task.id] = { mesh, geographicCenterPoint: result.geographicCenterPoint }
         }
-
-        const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
-        const { geometry, geographicCenterPoint } = $geometriesByTaskId[task.id]
-        const mesh = new Mesh(geometry, material)
-        mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
-        $meshesByTaskId[task.id] = { mesh, geographicCenterPoint }
       }
     })
   }
 }
 
-export function resetQueues() {
-  // $taskId = 0
-  // $geometriesByTaskId.length = 0
-  // TODO free resources using timestamp?
-  // $meshesByTaskId.length = 0
-  // $workerMessagesByTaskId.length = 0
-}
-
-export function getUUIDsForCompletedFeatures() {
+export function getValidUUIDs() {
   return Object.keys($meshesByTaskId)
 }
 
@@ -417,6 +417,13 @@ export function getResultsForFeature(featureUUID: string) {
     mesh: $meshesByTaskId[featureUUID],
     label: $labelsByTaskId[featureUUID]
   }
+}
+
+export function deleteResultsForFeature(featureUUID: string) {
+  delete $meshesByTaskId[featureUUID]
+  delete $geometriesByTaskId[featureUUID]
+  delete $workerMessagesByTaskId[featureUUID]
+  delete $labelsByTaskId[featureUUID]
 }
 
 export function createGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Mesh {
@@ -459,7 +466,7 @@ export async function createBuildings(vectorTiles: TileFeaturesByLayer[], llCent
 
   const group = new Group()
   for (const { id } of tasks) {
-    group.add($meshesByTaskId[id].mesh)
+    group.add($meshesByTaskId[id]?.mesh)
   }
 
   return group
@@ -484,7 +491,7 @@ async function createLayerGroup(
   await Promise.all(promises)
 
   for (const { id } of allTasks) {
-    group.add($meshesByTaskId[id].mesh)
+    group.add($meshesByTaskId[id]?.mesh)
   }
   return group
 }

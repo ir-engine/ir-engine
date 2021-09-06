@@ -6,7 +6,14 @@ import { getComponent } from '../ecs/functions/EntityFunctions'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { getResultsForFeature, getUUIDsForCompletedFeatures, llToScene, resetQueues, sceneToLl } from './MeshBuilder'
+import {
+  deleteResultsForFeature,
+  getResultsForFeature,
+  getValidUUIDs,
+  llToScene,
+  resetQueues,
+  sceneToLl
+} from './MeshBuilder'
 import { vector3ToArray2 } from './util'
 import { Mesh, Object3D, Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
@@ -43,7 +50,7 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
     const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
     const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
-    const completedUUIDs = getUUIDsForCompletedFeatures()
+    const validUUIDs = getValidUUIDs()
 
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition)
     const viewerPositionDelta = vector3ToArray2($vector3)
@@ -53,7 +60,6 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
     const viewerDistanceFromCenter = Math.hypot(...viewerPositionDelta)
 
     if (viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius * mapScale) {
-      resetQueues()
       mapComponent.center = sceneToLl(viewerPositionDeltaScaled, mapComponent.center)
       createMapObjects(mapComponent.center, mapComponent.minimumSceneRadius, mapComponent.args)
 
@@ -65,7 +71,7 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
       $mapObjectsToRemove.add(featureUUID)
     })
 
-    completedUUIDs.forEach((featureUUID) => {
+    validUUIDs.forEach((featureUUID) => {
       const {
         mesh: { mesh, geographicCenterPoint },
         label
@@ -74,25 +80,35 @@ export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): 
         setPosition(mesh, geographicCenterPoint, mapComponent.originalCenter)
         object3dComponent.value.add(mesh)
         $meshesInScene.set(featureUUID, mesh)
+        $mapObjectsToRemove.delete(featureUUID)
       }
       if (label && !$labelsInScene.has(featureUUID)) {
         setPosition(label.object3d, label.geoMiddleSlice[0], mapComponent.originalCenter)
         object3dComponent.value.add(label.object3d)
         $labelsInScene.set(featureUUID, label)
+        $mapObjectsToRemove.delete(featureUUID)
       }
-      $mapObjectsToRemove.delete(featureUUID)
     })
 
     $mapObjectsToRemove.forEach((featureUUID) => {
       const mesh = $meshesInScene.get(featureUUID)
       const label = $labelsInScene.get(featureUUID)
       if (mesh) {
-        object3dComponent.value.remove(mesh)
+        if (!mesh.geometry.boundingSphere) {
+          mesh.geometry.computeBoundingSphere()
+        }
+        $vector3.copy(viewerTransform.position).divideScalar(mapScale)
+        const distance = mesh.position.distanceTo($vector3) - mesh.geometry.boundingSphere.radius
+        if (distance > mapComponent.minimumSceneRadius) {
+          object3dComponent.value.remove(mesh)
+          deleteResultsForFeature(featureUUID)
+          if (label) {
+            object3dComponent.value.remove(label.object3d)
+          }
+          $meshesInScene.delete(featureUUID)
+          $labelsInScene.delete(featureUUID)
+        }
       }
-      if (label) {
-        object3dComponent.value.remove(label.object3d)
-      }
-      $meshesInScene.delete(featureUUID)
     })
 
     $labelsInScene.forEach((label) => {
