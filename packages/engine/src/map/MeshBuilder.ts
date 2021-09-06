@@ -1,27 +1,21 @@
-import { buffer, center, centerOfMass, points } from '@turf/turf'
-import { Feature, Geometry, Position } from 'geojson'
-import { BufferGeometryLoader, MeshBasicMaterial } from 'three'
+import { buffer, center, points } from '@turf/turf'
+import { Feature, Position } from 'geojson'
+import { BufferGeometryLoader } from 'three'
 import {
   MeshLambertMaterial,
   BufferGeometry,
   Mesh,
-  Shape,
-  ShapeGeometry,
-  ExtrudeGeometry,
   BufferAttribute,
   Color,
   CanvasTexture,
   Group,
   Object3D,
-  Vector3,
   PlaneGeometry,
   MeshLambertMaterialParameters
 } from 'three'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import { NUMBER_OF_TILES_PER_DIMENSION, RASTER_TILE_SIZE_HDPI } from './MapBoxClient'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles, IStyles, MAX_Z_INDEX } from './styles'
-import { toIndexed } from './toIndexed'
 import { ILayerName, LongLat, TileFeaturesByLayer } from './types'
 import { getRelativeSizesOfGeometries } from '../common/functions/GeometryFunctions'
 import { METERS_PER_DEGREE_LL } from './constants'
@@ -30,7 +24,6 @@ import { GeoLabelNode } from './GeoLabelNode'
 import { PI } from '../common/constants/MathConstants'
 import convertFunctionToWorker from '@xrengine/common/src/utils/convertFunctionToWorker'
 import { isClient } from '../common/functions/isClient'
-import { flatten } from 'lodash'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -50,14 +43,11 @@ export function sceneToLl(position: Position, [lngCenter, latCenter] = [0, 0] as
   return [longtitude, latitude]
 }
 
-function importScripts(...urls: string[]) {
-  void urls
-}
+declare function importScripts(...urls: string[]): void
 
 const geometryWorkerFunction = function () {
   // TODO figure out how to use our own bundle
   importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
-  // importScripts('https://cdnjs.cloudflare.com/ajax/libs/Turf.js/0.0.124/turf.min.js')
   importScripts('https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js')
 
   const { Vector3, Shape, ShapeGeometry, ExtrudeGeometry, Color, BufferAttribute, BufferGeometry } =
@@ -69,7 +59,7 @@ const geometryWorkerFunction = function () {
   const messageQueue = []
   let processingQueue = false
 
-  this.onmessage = function (msg) {
+  this.onmessage = function (msg: Event) {
     // console.log('adding task', msg.data.taskId, 'to Queue')
     messageQueue.push(msg)
   }

@@ -1,19 +1,10 @@
 import { defineQuery, defineSystem, System } from 'bitecs'
-import refreshSceneObjects from './functions/refreshSceneObjects'
 import { Engine } from '../ecs/classes/Engine'
 import { ECSWorld } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/EntityFunctions'
-import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import {
-  deleteResultsForFeature,
-  getResultsForFeature,
-  getValidUUIDs,
-  llToScene,
-  resetQueues,
-  sceneToLl
-} from './MeshBuilder'
+import { deleteResultsForFeature, getResultsForFeature, getValidUUIDs, llToScene, sceneToLl } from './MeshBuilder'
 import { vector3ToArray2 } from './util'
 import { Mesh, Object3D, Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
