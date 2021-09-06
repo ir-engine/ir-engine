@@ -41,6 +41,9 @@ import {
 } from './actions'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
+import { createdMessage } from '../../../social/reducers/chat/actions'
+import { Message } from '@xrengine/common/src/interfaces/Message'
+import { User } from '@xrengine/common/src/interfaces/User'
 
 const store = Store.store
 
