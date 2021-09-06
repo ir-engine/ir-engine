@@ -153,7 +153,6 @@ const SideMenuItem = (props: Props) => {
               </ListItem>
             </Link>
           )}
-
           {allowedRoutes.instance && (
             <Link to="/admin/instance" className={classes.textLink}>
               <ListItem
