@@ -225,6 +225,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 
       return true
     }
+    case 'getChatHistory': {
+      if (isServer) return false
+
+      handleGetChatHistoryCommand()
+
+      return true
+    }
     default: {
       console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
       if (!isServer) return true
@@ -419,6 +426,22 @@ function handleFollowCommand(param: string, eid: number) {
     console.log('follow target eid: ' + targetEid)
     if (targetEid === undefined || eid === targetEid) return
     createFollowComponent(eid, targetEid)
+  }
+}
+function handleGetChatHistoryCommand() {
+  const chatState = globalThis.store.getState().get('chat')
+  const channelState = chatState.get('channels')
+  const channels = channelState.get('channels')
+  const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance')
+  if (activeChannelMatch && activeChannelMatch.length > 0) {
+    const activeChannel = activeChannelMatch[1]
+    if (activeChannel === undefined) return
+    const messages = activeChannel.messages
+    if (messages === undefined) return
+
+    console.log(JSON.stringify(messages))
+  } else {
+    console.warn("Couldn't get chat state")
   }
 }
 
