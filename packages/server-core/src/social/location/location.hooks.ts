@@ -9,7 +9,6 @@ export default {
   before: {
     all: [authenticate('jwt')],
     find: [
-      verifyScope('location', 'read'),
       addAssociations({
         models: [
           {
@@ -22,7 +21,6 @@ export default {
       })
     ],
     get: [
-      verifyScope('location', 'read'),
       addAssociations({
         models: [
           {
