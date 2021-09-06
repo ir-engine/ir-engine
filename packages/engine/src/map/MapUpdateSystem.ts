@@ -12,34 +12,38 @@ import { createMapObjects } from '.'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { GeoLabelNode } from './GeoLabelNode'
 import { LongLat } from './types'
+import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 
 const $vector3 = new Vector3()
 const $meshesInScene = new Map<string, Mesh>()
 const $labelsInScene = new Map<string, GeoLabelNode>()
 const $mapObjectsToRemove = new Set<string>()
+
+/** Track where the viewer was the last time we kicked off a new set of map contruction tasks */
 const $previousViewerPosition = new Vector3()
 
-export const MapUpdateSystem = async (args: { getViewerEntity: () => Entity }): Promise<System> => {
+export const MapUpdateSystem = async (): Promise<System> => {
   const mapsQuery = defineQuery([MapComponent])
-  let viewerEntity: Entity
+  const viewerQuery = defineQuery([FollowCameraComponent])
+  let previousViewerEntity: Entity
 
   return defineSystem((world: ECSWorld) => {
-    const newViewerEntity = args.getViewerEntity()
+    const viewerEntity = viewerQuery(world)[0]
     const mapEntities = mapsQuery(world)
-    if (newViewerEntity === undefined) return
-    if (mapEntities.length === 0) return
+    const mapEntity = mapEntities[0]
+
+    // Sanity checks
+    if (!mapEntity || !viewerEntity) return
     if (mapEntities.length > 1) console.warn('Not supported: More than one map!')
 
-    if (newViewerEntity !== viewerEntity) {
-      viewerEntity = newViewerEntity
-      const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
+    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
+    if (viewerEntity !== previousViewerEntity) {
+      previousViewerEntity = viewerEntity
       $previousViewerPosition.copy(viewerTransform.position)
     }
 
-    const mapEntity = mapEntities[0]
     const mapComponent = getComponent(mapEntity, MapComponent)
     const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
-    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
     const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
     const validUUIDs = getValidUUIDs()
 

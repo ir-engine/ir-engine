@@ -167,11 +167,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem, {
-    getViewerEntity() {
-      return Engine.activeCameraFollowTarget
-    }
-  })
+  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, AudioSystem)
