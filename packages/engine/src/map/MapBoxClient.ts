@@ -14,7 +14,7 @@ const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
 export const RASTER_TILE_SIZE_HDPI = 256
 
-const MAX_SIZE_CACHED_TILES = 16
+const MAX_SIZE_CACHED_TILES = 24
 /** ordered by time last used, ascending */
 const $cachedTiles = new Map<[number, number], TileFeaturesByLayer>()
 
