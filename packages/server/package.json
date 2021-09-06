@@ -44,7 +44,6 @@
     "dev-reinit-db-windows": "concurrently -i \"cross-env NODE_ENV=development FORCE_DB_REFRESH=true nodemon --watch src/** -r ts-eager/register src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\"",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test",
-    "precommit": "no-master-commits -b master,dev",
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
   },
@@ -132,7 +131,6 @@
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
-    "no-master-commits": "1.1.1",
     "ts-node": "10.2.1",
     "typedoc": "0.21.9",
     "typescript": "4.4.2"

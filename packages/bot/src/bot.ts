@@ -1,5 +1,5 @@
 import { URL } from 'url'
-import puppeteer from 'puppeteer'
+import * as puppeteer from 'puppeteer'
 import fs from 'fs'
 import { getOS } from '@xrengine/common/src/utils/getOS'
 

@@ -18,7 +18,6 @@
     "check-errors": "tsc --noemit",
     "build": "rimraf dist && mkdir dist && cti entrypoint ./src -o index.ts && node build.js && tsc --emitDeclarationOnly --outDir dist",
     "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
-    "buildx": "esbuild",
     "test": "jest",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },

@@ -18,6 +18,7 @@
     "check-errors": "tsc --noemit",
     "validate": "npm run test",
     "dev": "node -r ts-eager/register src/run-bot.ts",
+    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
