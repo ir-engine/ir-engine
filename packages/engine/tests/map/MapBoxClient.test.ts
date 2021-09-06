@@ -1,4 +1,4 @@
-import { createTileIterator, createIntersectTestTileCircle } from '../../src/map/MapBoxClient'
+import { createTileIterator, createIntersectTestTileCircle, findCacheCutoffTime, evictLeastRecentlyUsedItems } from '../../src/map/MapBoxClient'
 
 const testCaseSanFrancisco = {
   center: [-122.4372, 37.76644],
@@ -79,4 +79,20 @@ test('createIntersectTestCellCircle', () => {
   expect(isIntersectCircleAtCenter(0, 2)).toBe(false)
   expect(isIntersectCircleAtCenter(1, 2)).toBe(true)
   expect(isIntersectCircleAtCenter(2, 2)).toBe(false)
+})
+
+
+describe('evictLeastRecentlyUsedItems', () => {
+  const cache = new Map<number, number>()
+  for(let i = 0; i < 3; i++) {
+    cache.set(i, i)
+  }
+  evictLeastRecentlyUsedItems(cache, 2)
+
+  const keys = []
+  for(const key of cache.keys()) {
+    keys.push(key)
+  }
+
+  expect(keys).toEqual([1, 2])
 })

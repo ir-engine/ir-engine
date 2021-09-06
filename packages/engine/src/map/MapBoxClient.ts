@@ -14,6 +14,10 @@ const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
 export const RASTER_TILE_SIZE_HDPI = 256
 
+const MAX_SIZE_CACHED_TILES = 16
+/** ordered by time last used, ascending */
+const $cachedTiles = new Map<[number, number], TileFeaturesByLayer>()
+
 export function long2TileFraction(lon: number, zoom: number) {
   return ((lon + 180) / 360) * Math.pow(2, zoom)
 }
@@ -80,8 +84,10 @@ async function fetchTile(tileX: number, tileY: number): Promise<TileFeaturesByLa
   const response = await fetch(url)
   const blob = await response.blob()
   return new Promise((resolve) => {
-    vectors(blob, (tile: VectorTile) => {
-      resolve(vectorTile2GeoJSON(tile, [tileX, tileY]))
+    vectors(blob, (rawTile: VectorTile) => {
+      const tile = vectorTile2GeoJSON(rawTile, [tileX, tileY])
+      $cachedTiles.set([tileX, tileY], tile)
+      resolve(tile)
     })
   })
 }
@@ -104,7 +110,11 @@ export function createIntersectTestTileCircle(centerX: number, centerY: number, 
   }
 }
 
-export function* createTileIterator(center: LongLat, minimumSceneRadius: number, zoomLevel: number) {
+export function* createTileIterator(
+  center: LongLat,
+  minimumSceneRadius: number,
+  zoomLevel: number
+): Generator<[number, number]> {
   const [startLong, startLat] = sceneToLl([-minimumSceneRadius, -minimumSceneRadius], center)
   const [endLong, endLat] = sceneToLl([minimumSceneRadius, minimumSceneRadius], center)
 
@@ -158,10 +168,30 @@ export function llToTile(llPosition: Position) {
  */
 export function fetchVectorTiles(center: LongLat, minimumSceneRadius = 600): Promise<TileFeaturesByLayer[]> {
   const promises = []
-  for (const [tileX, tileY] of createTileIterator(center, minimumSceneRadius, TILE_ZOOM)) {
-    promises.push(fetchTile(tileX, tileY))
+  for (const tileCoord of createTileIterator(center, minimumSceneRadius, TILE_ZOOM)) {
+    const cachedTile = $cachedTiles.get(tileCoord)
+    if (cachedTile) {
+      promises.push(Promise.resolve(cachedTile))
+
+      // Update cache, ensuring time-last-used order
+      $cachedTiles.delete(tileCoord)
+      $cachedTiles.set(tileCoord, cachedTile)
+    } else {
+      promises.push(fetchTile(...tileCoord))
+    }
   }
+  evictLeastRecentlyUsedItems($cachedTiles, MAX_SIZE_CACHED_TILES)
   return Promise.all(promises)
+}
+
+export function evictLeastRecentlyUsedItems<K, V>(cache: Map<K, V>, maxSize: number) {
+  let cachedItemCount = cache.size
+  for (const key of cache.keys()) {
+    if (cachedItemCount > maxSize) {
+      cachedItemCount--
+      cache.delete(key)
+    }
+  }
 }
 
 /**
