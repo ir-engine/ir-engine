@@ -30,6 +30,7 @@ import { Network } from './networking/classes/Network'
 import { NetworkActionDispatchSystem } from './networking/systems/NetworkActionDispatchSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
+import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { HighlightSystem } from './renderer/HighlightSystem'
@@ -167,6 +168,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
+  registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
   registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
   // Miscellaneous Systems
