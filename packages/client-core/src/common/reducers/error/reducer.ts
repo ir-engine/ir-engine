@@ -13,7 +13,7 @@ const initialScopeErrorState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialScopeErrorState)
+const immutableState = Immutable.fromJS(initialScopeErrorState) as any
 
 const scopeErrorReducer = (state = immutableState, action: ErrorAction): any => {
   let message, statusCode, updateMap
