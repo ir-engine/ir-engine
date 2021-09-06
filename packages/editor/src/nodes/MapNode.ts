@@ -65,17 +65,17 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     const vectorTiles = await fetchVectorTiles(center)
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
 
-    this.mapLayers = {
-      building: createBuildings(vectorTiles, center),
+    // this.mapLayers = {
+    //   building: createBuildings(vectorTiles, center),
 
-      road: createRoads(vectorTiles, center),
+    //   road: createRoads(vectorTiles, center),
 
-      ground: createGroundMesh(rasterTiles, center[1]),
+    //   ground: createGroundMesh(rasterTiles, center[1]),
 
-      water: createWater(vectorTiles, center),
+    //   water: createWater(vectorTiles, center),
 
-      landUse: createLandUse(vectorTiles, center)
-    }
+    //   landUse: createLandUse(vectorTiles, center)
+    // }
 
     Object.values(this.mapLayers).forEach((layer) => {
       if (layer) {
@@ -84,7 +84,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     })
     safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
 
-    this.labels = createLabels(vectorTiles, center)
+    // this.labels = createLabels(vectorTiles, center)
 
     this.labels.forEach((label) => {
       this.add(label.object3d)
