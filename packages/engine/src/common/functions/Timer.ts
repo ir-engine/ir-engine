@@ -42,7 +42,7 @@ export function Timer(
     Engine.xrFrame = xrFrame
     if (lastTime !== null) {
       delta = (time - lastTime) / 1000
-      elapsedTime = elapsedTime + delta
+      elapsedTime += delta
       if (update) {
         update(delta, elapsedTime)
       }
@@ -168,6 +168,7 @@ export function Timer(
   const expectedDelta = 1000 / 60
 
   function start() {
+    elapsedTime = 0
     lastTime = null
     if (isClient) {
       const _onFrame = (time) => {

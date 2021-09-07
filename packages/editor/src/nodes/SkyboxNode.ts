@@ -9,17 +9,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static ignoreRaycast = true
   static nodeName = 'Skybox'
 
-  static handleEnvironmentMap = false
-
-  turbidity = 10
-  rayleigh = 2
-  luminance = 1
-  mieCoefficient = 0.005
-  mieDirectionalG = 8.5
-  inclination = 60
-  azimuth = 0
-  distance = 1
-
   backgroundType = SkyTypeEnum.skybox
   equirectangularPath = '/hdr/city.jpg'
   cubemapPath = '/cubemap/'
@@ -46,8 +35,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         mieCoefficient: this.mieCoefficient,
         mieDirectionalG: this.mieDirectionalG,
         inclination: this.inclination,
-        azimuth: this.azimuth,
-        distance: this.distance
+        azimuth: this.azimuth
       }
     }
 
@@ -71,8 +59,9 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       node.mieDirectionalG = prop.skyboxProps.mieDirectionalG
       node.inclination = prop.skyboxProps.inclination
       node.azimuth = prop.skyboxProps.azimuth
-      node.distance = prop.skyboxProps.distance
     }
+    node.updateSunPosition()
+    node.onChange()
 
     return node
   }
@@ -99,8 +88,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         mieCoefficient: this.mieCoefficient,
         mieDirectionalG: this.mieDirectionalG,
         inclination: this.inclination,
-        azimuth: this.azimuth,
-        distance: this.distance
+        azimuth: this.azimuth
       }
     }
     this.addGLTFComponent('skybox', skybox)
@@ -150,6 +138,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       default:
         ;(this.sky as Mesh).visible = true
         this.editor.scene.background = this.generateSkybox(this.editor.renderer.renderer)
+        console.log('setUpBackground', this.editor.scene.background)
         break
     }
   }
