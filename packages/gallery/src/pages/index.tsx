@@ -1,7 +1,7 @@
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
-import FeedMenu from '@xrengine/gallery/src/components/FeedMenu'
+import FeedMenu from '../components/FeedMenu'
 import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
 import { createCreator } from '@xrengine/social/src/reducers/creator/service'
 import React, { useEffect, useState } from 'react'
