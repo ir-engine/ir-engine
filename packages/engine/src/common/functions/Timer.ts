@@ -1,32 +1,21 @@
 import { isClient } from './isClient'
 import { now } from './now'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { XRSystem } from '../../xr/systems/XRSystem'
 import { Engine } from '../../ecs/classes/Engine'
 
-type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any
+type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
 export function Timer(
-  callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback },
-  fixedFrameRate?: number,
-  networkTickRate?: number
+  update: TimerUpdateCallback,
+  fixedFrameRate?: number
 ): { start: Function; stop: Function; clear: Function } {
-  const fixedRate = fixedFrameRate || 60
-  const networkRate = networkTickRate || 20
-
   let lastTime = null
-  let accumulated = 0
+  let elapsedTime = 0
   let delta = 0
-  let frameDelta = 0
   let frameId
-  let running = false
-
-  const freeUpdatesLimit = 120
-  const freeUpdatesLimitInterval = 1 / freeUpdatesLimit
-  let freeUpdatesTimer = 0
 
   const newEngineTicks = {
     fixed: 0,
@@ -46,31 +35,18 @@ export function Timer(
   let tpsPrevTicks = 0
   let nextTpsReportTime = 0
   let timerRuns = 0
-  let lastAnimTime = 0
   let prevTimerRuns = 0
-  let updateInterval
-
-  const fixedRunner = callbacks.fixedUpdate ? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null
-  const networkRunner = callbacks.fixedUpdate ? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null
 
   function xrAnimationLoop(time, xrFrame) {
     Engine.xrFrame = xrFrame
-    if (lastAnimTime !== null) {
-      frameDelta = (time - lastAnimTime) / 1000
-      accumulated = accumulated + frameDelta
-      if (callbacks.networkUpdate) {
-        networkRunner.run(frameDelta)
-        // callbacks.networkUpdate(frameDelta, accumulated)
-      }
-      if (callbacks.fixedUpdate) {
-        fixedRunner.run(frameDelta)
-        // callbacks.fixedUpdate(frameDelta, accumulated)
-      }
-      if (callbacks.update) {
-        callbacks.update(frameDelta, accumulated)
+    if (lastTime !== null) {
+      delta = (time - lastTime) / 1000
+      elapsedTime = elapsedTime + delta
+      if (update) {
+        update(delta, elapsedTime)
       }
     }
-    lastAnimTime = time
+    lastTime = time
   }
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
@@ -83,60 +59,24 @@ export function Timer(
     start()
   })
 
-  function onUpdate(time) {
+  function onFrame(time) {
     timerRuns += 1
     const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time
     if (TPS_REPORTS_ENABLED && itsTpsReportTime) {
       tpsPrintReport(time)
     }
 
-    delta = (time - lastTime) / 1000
+    if (lastTime !== null) {
+      delta = (time - lastTime) / 1000
 
-    if (fixedRunner) {
-      tpsSubMeasureStart('fixed')
-      // callbacks.fixedUpdate(delta, time)
+      elapsedTime += delta
 
-      // accumulator doesn't like setInterval on client, disable for now
-      fixedRunner.run(delta)
-
-      tpsSubMeasureEnd('fixed')
+      tpsSubMeasureStart('update')
+      update(delta, elapsedTime)
+      tpsSubMeasureEnd('update')
     }
 
-    if (networkRunner) {
-      tpsSubMeasureStart('net')
-      // callbacks.networkUpdate(delta, time)
-
-      // accumulator doesn't like setInterval on client, disable for now
-      networkRunner.run(delta)
-
-      tpsSubMeasureEnd('net')
-    }
-  }
-
-  function onFrame(time) {
-    frameId = window.requestAnimationFrame(onFrame)
-
-    if (lastAnimTime !== null) {
-      frameDelta = (time - lastAnimTime) / 1000
-      accumulated = accumulated + frameDelta
-
-      if (freeUpdatesLimit) {
-        freeUpdatesTimer += frameDelta
-      }
-      const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval
-      if (updateFrame) {
-        if (callbacks.update) {
-          tpsSubMeasureStart('update')
-          callbacks.update(frameDelta, accumulated)
-          tpsSubMeasureEnd('update')
-        }
-
-        if (freeUpdatesLimit) {
-          freeUpdatesTimer %= freeUpdatesLimitInterval
-        }
-      }
-    }
-    lastAnimTime = time
+    lastTime = time
   }
 
   const tpsMeasureStartData = new Map<string, { time: number; ticks: number }>()
@@ -224,26 +164,21 @@ export function Timer(
     prevTimerRuns = timerRuns
   }
 
-  const expectedUpdateDelta = 1000 / fixedRate
+  const expectedDelta = 1000 / 60
 
   function start() {
-    running = true
     lastTime = null
-    lastAnimTime = null
     if (isClient) {
-      // render loop
-      frameId = window.requestAnimationFrame(onFrame)
-      // logic loop
-      updateInterval = setInterval(() => {
-        const time = now()
-        onUpdate(time)
-        lastTime = time
-      }, expectedUpdateDelta)
+      const _onFrame = (time) => {
+        frameId = window.requestAnimationFrame(_onFrame)
+        onFrame(time)
+      }
+      frameId = window.requestAnimationFrame(_onFrame)
     } else {
       const serverLoop = () => {
-        const time = Date.now()
-        if (time - lastTime >= expectedUpdateDelta && running) {
-          onUpdate(time)
+        const time = now()
+        if (time - lastTime >= expectedDelta) {
+          onFrame(time)
           lastTime = time
         }
         setImmediate(serverLoop)
@@ -254,11 +189,6 @@ export function Timer(
   }
 
   function stop() {
-    running = false
-    if (typeof updateInterval !== 'undefined') {
-      clearInterval(updateInterval)
-      updateInterval = undefined
-    }
     if (isClient) {
       cancelAnimationFrame(frameId)
     }
@@ -275,95 +205,6 @@ export function Timer(
     start: start,
     stop: stop,
     clear: clear
-  }
-}
-
-// Unused, may use again in future
-
-function requestAnimationFrameOnServer(f) {}
-
-export class FixedStepsRunner {
-  timestep: number
-  limit: number
-  updatesLimit: number
-
-  readonly subsequentErrorsLimit = 10
-  readonly subsequentErrorsResetLimit = 1000
-  private subsequentErrorsShown = 0
-  private shownErrorPreviously = false
-  private accumulator = 0
-  readonly callback: (time: number) => void
-
-  constructor(updatesPerSecond: number, callback: (time: number) => void) {
-    this.timestep = 1 / updatesPerSecond
-    this.limit = this.timestep * 1000
-    this.updatesLimit = updatesPerSecond
-    this.callback = callback
-  }
-
-  canRun(delta: number): boolean {
-    return this.accumulator + delta > this.timestep
-  }
-
-  run(delta: number): void {
-    const start = now()
-    let timeUsed = 0
-    let updatesCount = 0
-
-    this.accumulator += delta
-
-    let accumulatorDepleted = this.accumulator < this.timestep
-    let timeout = timeUsed > this.limit
-    let updatesLimitReached = updatesCount > this.updatesLimit
-    while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      this.callback(this.timestep)
-
-      this.accumulator -= this.timestep
-      ++updatesCount
-
-      timeUsed = now() - start
-      accumulatorDepleted = this.accumulator < this.timestep
-      timeout = timeUsed > this.limit
-      updatesLimitReached = updatesCount >= this.updatesLimit
-    }
-
-    if (!accumulatorDepleted) {
-      if (this.subsequentErrorsShown <= this.subsequentErrorsLimit) {
-        // console.error(
-        //   'Fixed timesteps SKIPPED time used ',
-        //   timeUsed,
-        //   'ms (of ',
-        //   this.limit,
-        //   'ms), made ',
-        //   updatesCount,
-        //   'updates. skipped ',
-        //   Math.floor(this.accumulator / this.timestep)
-        // )
-        // console.log(
-        //   'accumulatorDepleted',
-        //   accumulatorDepleted,
-        //   'timeout',
-        //   timeout,
-        //   'updatesLimitReached',
-        //   updatesLimitReached
-        // )
-      } else {
-        if (this.subsequentErrorsShown > this.subsequentErrorsResetLimit) {
-          // console.error('FixedTimestep', this.subsequentErrorsResetLimit, ' subsequent errors catched')
-          this.subsequentErrorsShown = this.subsequentErrorsLimit - 1
-        }
-      }
-
-      if (this.shownErrorPreviously) {
-        this.subsequentErrorsShown++
-      }
-      this.shownErrorPreviously = true
-
-      this.accumulator = this.accumulator % this.timestep
-    } else {
-      this.subsequentErrorsShown = 0
-      this.shownErrorPreviously = false
-    }
   }
 }
 

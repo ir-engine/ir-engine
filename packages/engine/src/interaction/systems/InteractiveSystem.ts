@@ -72,7 +72,7 @@ export const InteractiveSystem = async (): Promise<System> => {
   textGroup.visible = false
 
   return defineSystem((world: ECSWorld) => {
-    const { time } = world
+    const { elapsedTime } = world
 
     for (const entity of interactiveAddQuery(world)) {
       if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
@@ -138,11 +138,12 @@ export const InteractiveSystem = async (): Promise<System> => {
       removeComponent(entity, InteractedComponent)
     }
 
+    // TODO: move to free update
     for (const entity of localUserQuery(world)) {
       // animate the interact text up and down if it's visible
       const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) continue
-      interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
+      interactTextObject.children[0].position.y = Math.sin(elapsedTime * 1.8) * 0.05
       if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
         interactTextObject.children[0].setRotationFromAxisAngle(
           upVec,

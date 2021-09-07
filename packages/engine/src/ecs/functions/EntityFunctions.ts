@@ -106,6 +106,7 @@ export const getComponent = <T extends any, S extends bitECS.ISchema>(
     console.warn('[getComponent]: entity is undefined')
     return
   }
+  //TODO: figure how to handle removed components in free & fixed pipelines
   if (getRemoved) return world._removedComponents.get(entity) ?? component.get(entity)
   return component.get(entity)
 }
@@ -139,8 +140,8 @@ export const hasComponent = <T extends any, S extends bitECS.ISchema>(
     console.warn('[hasComponent]: entity is undefined')
     return
   }
-  return typeof component.get(entity) !== 'undefined'
-  // return bitECS.hasComponent(world, component, entity)
+  // return typeof component.get(entity) !== 'undefined'
+  return bitECS.hasComponent(world, component, entity)
 }
 
 export const removeComponent = <T extends any, S extends bitECS.ISchema>(

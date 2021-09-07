@@ -3,17 +3,12 @@ import { createEntity } from '../functions/EntityFunctions'
 import { Entity } from './Entity'
 
 export type PipelineType = (world: ECSWorld) => ECSWorld
-export interface EnginePipelines {
-  fixedPipeline: PipelineType
-  freePipeline: PipelineType
-  networkPipeline: PipelineType
-  [x: string]: PipelineType
-}
 
 export interface ECSWorld {
   _removedComponents: Map<Entity, any>
   delta: number
-  time: number
+  fixedDelta: number
+  elapsedTime: number
   world: World
 }
 
@@ -27,7 +22,8 @@ export class World {
   entities: Entity[]
   portalEntities: Entity[]
   isInPortal = false
-  pipelines: EnginePipelines
+  framePipeline: PipelineType
+  logicPipeline: PipelineType
   namedEntities: Map<string, Entity>
 
   constructor() {
@@ -42,5 +38,12 @@ export class World {
     this.namedEntities = new Map()
     this.entities = []
     createEntity(this.ecsWorld) // make sure we have no eid 0; also, world entity?
+  }
+
+  execute(delta, elapsedTime) {
+    this.ecsWorld.delta = delta
+    this.ecsWorld.elapsedTime = elapsedTime
+    this.framePipeline(this.ecsWorld)
+    this.ecsWorld._removedComponents.clear()
   }
 }

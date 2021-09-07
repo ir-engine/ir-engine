@@ -15,6 +15,7 @@ import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
+import { World } from './World'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -52,7 +53,6 @@ export class Engine {
    *
    * @default 20
    */
-  public static networkFramerate = 20
 
   public static accumulator: number
   public static justExecuted: boolean
@@ -61,6 +61,7 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1
+  public static worlds: World[] = []
 
   /**
    * Reference to the three.js renderer object.
@@ -106,8 +107,6 @@ export class Engine {
    * @default true
    */
   static enabled = true
-
-  static lastTime: number
 
   static tick = 0
 

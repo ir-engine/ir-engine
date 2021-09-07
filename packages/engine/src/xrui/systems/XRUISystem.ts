@@ -34,7 +34,7 @@ export const XRUISystem = async (): Promise<System> => {
 
     XRUIManager.instance.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
     Engine.renderer.getSize(XRUIManager.instance.layoutSystem.viewResolution)
-    XRUIManager.instance.layoutSystem.update(world.delta, world.time)
+    XRUIManager.instance.layoutSystem.update(world.delta, world.elapsedTime)
 
     return world
   })

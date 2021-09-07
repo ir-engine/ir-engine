@@ -71,11 +71,12 @@ export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActio
   console.log('clientNetworkReceptor', action)
   switch (action.type) {
     case NetworkWorldActions.CREATE_CLIENT: {
-      Network.instance.clients[action.userId] = {
-        userId: action.userId,
-        avatarDetail: action.avatarDetail,
-        subscribedChatUpdates: []
-      }
+      if (!Network.instance.clients[action.userId])
+        Network.instance.clients[action.userId] = {
+          userId: action.userId,
+          avatarDetail: action.avatarDetail,
+          subscribedChatUpdates: []
+        }
       break
     }
 

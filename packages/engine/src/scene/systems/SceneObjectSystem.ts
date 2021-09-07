@@ -61,7 +61,7 @@ export const SceneObjectSystem = async (): Promise<System> => {
       if (!Engine.scene.children.includes(object3DComponent.value)) {
         Engine.scene.add(object3DComponent.value)
       } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.')
+        console.warn('[Object3DComponent]: Scene object has been added manually.', object3DComponent.value)
       }
 
       // Apply material stuff
@@ -126,7 +126,7 @@ export const SceneObjectSystem = async (): Promise<System> => {
 
     for (const entity of updatableQuery(world)) {
       const obj = getComponent(entity, Object3DComponent)
-      ;(obj.value as unknown as Updatable).update(world.delta)
+      ;(obj.value as unknown as Updatable).update(world.fixedDelta)
     }
 
     return world
