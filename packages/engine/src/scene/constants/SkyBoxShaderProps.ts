@@ -6,7 +6,6 @@ export type SkyBoxShaderProps = {
   mieDirectionalG: number
   inclination: number
   azimuth: number
-  distance: number
 }
 
 export enum SkyTypeEnum {
