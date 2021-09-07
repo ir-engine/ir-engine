@@ -44,7 +44,7 @@ export default {
     }),
     (isProd && terser()),
     (!isProd && livereload({
-      watch: 'dist',
+      watch: 'lib',
     })),
   ],
 };
