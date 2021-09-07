@@ -76,8 +76,7 @@
   ],
   "pre-push": [
     "test-packages",
-    "build-docker",
-    "build-publish"
+    "build-docker"
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
