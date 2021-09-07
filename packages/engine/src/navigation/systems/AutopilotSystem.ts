@@ -1,7 +1,6 @@
-import { Raycaster, Vector3 } from 'three'
+import { Quaternion, Raycaster, Vector3 } from 'three'
 import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
@@ -10,14 +9,15 @@ import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
-import { defineQuery, defineSystem, enterQuery, System } from '../../ecs/bitecs'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { defineQuery, defineSystem, enterQuery, exitQuery, removeQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
+import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 
-const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
+export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
   // TODO: handle scale and rotation of graph object, pass world matrix?
   const graphBaseCoordinate = new YukaVector3(base.x, base.y, base.z)
@@ -33,7 +33,11 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): 
   return path
 }
 
+const quat = new Quaternion()
+const forward = new Vector3(0, 0, 1)
+
 export const AutopilotSystem = async (): Promise<System> => {
+  const stick = GamepadAxis.Left
   const raycaster = new Raycaster()
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
@@ -42,13 +46,15 @@ export const AutopilotSystem = async (): Promise<System> => {
   const requestsAddQuery = enterQuery(requestsQuery)
 
   const ongoingQuery = defineQuery([AutoPilotComponent])
+  const removedAutopilotsQuery = exitQuery(ongoingQuery)
 
-  const navClickQuery = defineQuery([LocalInputReceiverComponent, AutoPilotClickRequestComponent])
+  const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
   const navClickAddQuery = enterQuery(navClickQuery)
 
   return defineSystem((world: ECSWorld) => {
     for (const entity of navClickAddQuery(world)) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
+      const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
@@ -76,13 +82,16 @@ export const AutopilotSystem = async (): Promise<System> => {
       )
 
       if (clickResult.point) {
-        addComponent(entity, AutoPilotRequestComponent, {
+        if (overrideCoords) clickResult.point = overridePosition
+        const c = addComponent(entity, AutoPilotRequestComponent, {
           point: clickResult.point,
           navEntity: clickResult.entity
         })
+        //console.log('clickResult: ' + JSON.stringify(clickResult) + ' - ' + JSON.stringify(c))
       }
 
       removeComponent(entity, AutoPilotClickRequestComponent)
+      if (hasComponent(entity, AutoPilotOverrideComponent)) removeComponent(entity, AutoPilotOverrideComponent)
     }
 
     // requests
@@ -96,17 +105,16 @@ export const AutopilotSystem = async (): Promise<System> => {
       const { position } = getComponent(entity, TransformComponent)
 
       let autopilotComponent
-      if (hasComponent(entity, AutoPilotComponent)) {
-        // reuse component
-        autopilotComponent = getComponent(entity, AutoPilotComponent)
-      } else {
-        autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
-      }
+      //if (hasComponent(entity, AutoPilotComponent)) {
+      // reuse component
+      //   autopilotComponent = getComponent(entity, AutoPilotComponent)
+      // } else {
+      autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
+      // }
       autopilotComponent.navEntity = request.navEntity
 
       const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
       autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate)
-      console.log('autopilotComponent.path', autopilotComponent.path)
 
       // TODO: "mount" player? disable movement, etc.
 
@@ -122,9 +130,14 @@ export const AutopilotSystem = async (): Promise<System> => {
       const ARRIVING_DISTANCE = 1
       const ARRIVED_DISTANCE = 0.1
       const MIN_SPEED = 0.2
-      const stick = GamepadAxis.Left
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
+        if (!autopilot.path.current()) {
+          console.error('autopilot.path is invalid or empty')
+          removeComponent(entity, AutoPilotComponent)
+          continue
+        }
+
         const { position: actorPosition } = getComponent(entity, TransformComponent)
         const targetFlatPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
         const targetFlatDistance = targetFlatPosition.distanceTo(actorPosition.clone().setY(0))
@@ -141,12 +154,12 @@ export const AutopilotSystem = async (): Promise<System> => {
             removeComponent(entity, AutoPilotComponent)
             continue
           }
+
           autopilot.path.advance()
-          return
+          continue
         }
 
-        const avatar = getComponent(entity, AvatarComponent)
-        const avatarViewRotation = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
+        const transform = getComponent(entity, TransformComponent)
         const speedModifier = Math.min(
           1,
           Math.max(MIN_SPEED, targetFlatDistance < ARRIVING_DISTANCE ? targetFlatDistance / ARRIVING_DISTANCE : 1)
@@ -154,7 +167,7 @@ export const AutopilotSystem = async (): Promise<System> => {
         const direction = targetFlatPosition
           .clone()
           .sub(actorPosition.clone().setY(0))
-          .applyAxisAngle(new Vector3(0, -1, 0), avatarViewRotation)
+          .applyQuaternion(transform.rotation)
           .normalize()
         const targetAngle = Math.atan2(direction.x, direction.z)
         const stickValue = direction.clone().multiplyScalar(speedModifier) // speed
@@ -196,9 +209,18 @@ export const AutopilotSystem = async (): Promise<System> => {
         // }
         {
           // way 2
-          updatePlayerRotationFromViewVector(entity, targetDirection)
+          transform.rotation.copy(quat.setFromUnitVectors(forward, targetDirection))
         }
       }
+    }
+
+    if (removedAutopilotsQuery(world).length) {
+      // send one relaxed gamepad state to stop movement
+      Engine.inputState.set(stick, {
+        type: InputType.TWODIM,
+        value: [0, 0],
+        lifecycleState: LifecycleValue.CHANGED
+      })
     }
 
     return world

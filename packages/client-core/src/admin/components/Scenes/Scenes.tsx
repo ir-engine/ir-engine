@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { PAGE_LIMIT } from '../../reducers/admin/reducers'
+import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import styles from './Scenes.module.scss'
@@ -136,7 +136,7 @@ const Scenes = (props: Props) => {
   const [orderBy, setOrderBy] = useState<any>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedScenes, setSelectedScenes] = useState([])
@@ -208,54 +208,52 @@ const Scenes = (props: Props) => {
               rowCount={adminScenesCount || 0}
             />
             <TableBody className={styles.thead}>
-              {stableSort(adminScenes, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  return (
-                    <TableRow
-                      hover
-                      className={styles.trowHover}
-                      style={{ color: 'black !important' }}
-                      // onClick={(event) => handleLocationClick(event, row.id.toString())}
-                      tabIndex={-1}
-                      key={row.id}
+              {stableSort(adminScenes, getComparator(order, orderBy)).map((row, index) => {
+                return (
+                  <TableRow
+                    hover
+                    className={styles.trowHover}
+                    style={{ color: 'black !important' }}
+                    // onClick={(event) => handleLocationClick(event, row.id.toString())}
+                    tabIndex={-1}
+                    key={row.id}
+                  >
+                    <TableCell
+                      className={styles.tcell}
+                      component="th"
+                      id={row.id.toString()}
+                      align="right"
+                      scope="row"
+                      padding="none"
                     >
-                      <TableCell
-                        className={styles.tcell}
-                        component="th"
-                        id={row.id.toString()}
-                        align="right"
-                        scope="row"
-                        padding="none"
-                      >
-                        {row.sid}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.name}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.description}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {user.userRole === 'admin' && (
-                          <Checkbox
-                            className={styles.checkbox}
-                            onChange={(e) => handleCheck(e, row)}
-                            name="stereoscopic"
-                            color="primary"
-                          />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                      {row.sid}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.name}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.description}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole === 'admin' && (
+                        <Checkbox
+                          className={styles.checkbox}
+                          onChange={(e) => handleCheck(e, row)}
+                          name="stereoscopic"
+                          color="primary"
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </TableContainer>
 
         <div className={styles.tableFooter}>
           <TablePagination
-            rowsPerPageOptions={[PAGE_LIMIT]}
+            rowsPerPageOptions={[ADMIN_PAGE_LIMIT]}
             component="div"
             count={adminScenesCount}
             rowsPerPage={rowsPerPage}

@@ -1,7 +1,9 @@
 import { TouchApp } from '@styled-icons/material/TouchApp'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
-import { ClientInputSystem, enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { addClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
+import { handleTouch, handleTouchMove } from '@xrengine/engine/src/input/schema/ClientInputSchema'
+import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
 import styles from './TouchGamepad.module.scss'
@@ -61,6 +63,23 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     })
 
     stickLeft.on('move', (e, data) => {
+      const canvasElement = EngineRenderer.instance?.canvas
+      if (!canvasElement) return
+      if (canvasElement.addEventListener) {
+        addClientInputListeners(canvasElement)
+      } else {
+        if ((canvasElement as any).attachEvent) {
+          ;(canvasElement as any)
+            .attachEvent('touchstart', function (e) {
+              handleTouch(e)
+              handleTouchMove(e)
+            })(canvasElement as any)
+            .attachEvent('touchend', handleTouch)
+            .attachEvent('touchcancel', handleTouch)
+            .attachEvent('touchmove', handleTouchMove)
+        }
+      }
+
       const event = new CustomEvent('touchstickmove', {
         detail: {
           stick: GamepadAxis.Left,

@@ -1,3 +1,4 @@
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
@@ -7,12 +8,12 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
-import { Config } from '../../../helper'
+
 import querystring from 'querystring'
 import { Dispatch } from 'redux'
 import { v1 } from 'uuid'
 import { client } from '../../../feathers'
-import { validateEmail, validatePhoneNumber } from '../../../helper'
+import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
 import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
 import { UserAction } from '../../store/UserAction'
@@ -39,6 +40,7 @@ import {
   userUpdated
 } from './actions'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 const store = Store.store
 
@@ -616,7 +618,14 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
     modelData.append('acl', 'public-read')
     modelData.append(modelURL.local ? 'media' : 'file', model)
     if (modelURL.local) {
-      modelData.append('uploadPath', 'avatars')
+      let uploadPath = 'avatars'
+
+      if (modelURL.fields.Key) {
+        uploadPath = modelURL.fields.Key
+        uploadPath = uploadPath.substring(0, uploadPath.lastIndexOf('/'))
+      }
+
+      modelData.append('uploadPath', uploadPath)
       modelData.append('id', `${name}.glb`)
       modelData.append('skipStaticResource', 'true')
     }
@@ -639,13 +648,19 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
         thumbnailData.append('acl', 'public-read')
         thumbnailData.append(thumbnailURL.local === true ? 'media' : 'file', thumbnail)
         if (thumbnailURL.local) {
-          thumbnailData.append('uploadPath', 'avatars')
+          let uploadPath = 'avatars'
+
+          if (thumbnailURL.fields.Key) {
+            uploadPath = thumbnailURL.fields.Key
+            uploadPath = uploadPath.substring(0, uploadPath.lastIndexOf('/'))
+          }
+          thumbnailData.append('uploadPath', uploadPath)
           thumbnailData.append('name', `${name}.png`)
           thumbnailData.append('skipStaticResource', 'true')
         }
 
-        const modelCloudfrontURL = `https://${modelURL.cloudfrontDomain}/${modelURL.fields.Key}`
-        const thumbnailCloudfrontURL = `https://${thumbnailURL.cloudfrontDomain}/${thumbnailURL.fields.Key}`
+        const modelCloudfrontURL = `https://${modelURL.cacheDomain}/${modelURL.fields.Key}`
+        const thumbnailCloudfrontURL = `https://${thumbnailURL.cacheDomain}/${thumbnailURL.fields.Key}`
         const selfUser = (store.getState() as any).get('auth').get('user')
         const existingModel = await client.service('static-resource').find({
           query: {
@@ -867,7 +882,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       //Find entityId from network objects of updated user and dispatch avatar load event.
       for (let key of Object.keys(Network.instance.networkObjects)) {
         const obj = Network.instance.networkObjects[key]
-        if (obj?.ownerId === user.id) {
+        if (obj?.uniqueId === user.id) {
           setAvatar(obj.entity, user.avatarId, avatarURL)
           break
         }
@@ -900,7 +915,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     //Find entityId from network objects of updated user and dispatch avatar load event.
     for (let key of Object.keys(Network.instance.networkObjects)) {
       const obj = Network.instance.networkObjects[key]
-      if (obj?.ownerId === user.id) {
+      if (obj?.uniqueId === user.id) {
         setAvatar(obj.entity, user.avatarId, avatarURL)
         break
       }
@@ -915,10 +930,13 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const user = resolveUser(params.userRelationship)
 
     console.log('User patched', user)
-    if (Network.instance != null) await loadAvatarForUpdatedUser(user)
+    if (Network.instance != null) {
+      await loadAvatarForUpdatedUser(user)
+      _updateUsername(user.id, user.name)
+    }
 
     if (selfUser.id === user.id) {
-      if (selfUser.instanceId !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
+      store.dispatch(UserAction.clearLayerUsers())
       if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(UserAction.clearChannelLayerUsers())
       store.dispatch(userUpdated(user))
       if (user.partyId) {

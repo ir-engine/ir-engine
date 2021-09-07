@@ -9,7 +9,7 @@ export default () => {
     const partyUserResult = await app.service('party-user').find({
       query: {
         partyId: id || params.query?.partyId,
-        $limit: 100
+        $limit: 10000
       }
     })
     delete params.query.partyId

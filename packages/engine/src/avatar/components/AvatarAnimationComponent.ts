@@ -13,7 +13,7 @@ export type AvatarAnimationComponentType = {
   /** Previous animation state */
   prevState: AnimationState
 
-  /** Previous velocity of the character */
+  /** Previous velocity of the avatar */
   prevVelocity: Vector3
 }
 

@@ -3,17 +3,28 @@ import { disallow } from 'feathers-hooks-common'
 import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
 import createPartyOwner from '@xrengine/server-core/src/hooks/create-party-owner'
 import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users'
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import { HookContext } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import addAssociations from '../../hooks/add-associations'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
-    find: [],
+    all: [authenticate('jwt')],
+    find: [
+      addAssociations({
+        models: [
+          {
+            model: 'location'
+          },
+          {
+            model: 'instance'
+          }
+        ]
+      })
+    ],
     get: [],
     create: [
       async (context): Promise<HookContext> => {
@@ -61,4 +72,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

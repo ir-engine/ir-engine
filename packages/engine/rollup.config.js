@@ -4,9 +4,11 @@ import replace from '@rollup/plugin-replace';
 import camelCase from 'lodash.camelcase';
 import livereload from 'rollup-plugin-livereload';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import scss from 'rollup-plugin-scss';
+import sass from 'rollup-plugin-sass';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
+import alias from '@rollup/plugin-alias';
+import commonjs from '@rollup/plugin-commonjs';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
@@ -14,21 +16,27 @@ const extensions = ['.js', '.ts', '.tsx'];
 const libraryName = 'engine'
 
 export default {
-  input: './index.ts',
-  output: [{ file: "dist/engine.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
-  { file: "dist/engine.es.js", format: 'es', sourcemap: true },
+  input: './src/index.ts',
+  output: [
+    { file: "dist/engine.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+    { file: "dist/engine.es.js", format: 'es', sourcemap: true },
   ],
   inlineDynamicImports: true,
   plugins: [
+    alias({
+      entries: [
+        { find: 'buffer', replacement: 'buffer/'},
+      ]
+    }),
     nodePolyfills(),
-    scss({
+    commonjs(),
+    sass({
       exclude: /node_modules/,
       output: 'dist/index.css',
     }),
     json(),
     typescript({
-      jsx: true,
-      rollupCommonJSResolveHack: false
+      rollupCommonJSResolveHack: false,
     }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
@@ -38,7 +46,7 @@ export default {
     }),
     (isProd && terser()),
     (!isProd && livereload({
-      watch: 'dist',
+      watch: 'lib',
     })),
   ],
 };

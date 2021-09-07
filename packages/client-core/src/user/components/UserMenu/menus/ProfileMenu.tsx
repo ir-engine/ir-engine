@@ -24,7 +24,7 @@ import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
 import { getAvatarURLFromNetwork, Views } from '../util'
-import { Config, validateEmail, validatePhoneNumber } from '../../../../helper'
+import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
@@ -279,11 +279,16 @@ const ProfileMenu = (props: Props): any => {
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
                 </Typography>
-                <Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+                {/*<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
                   {t('user:usermenu.profile.lbl-wallet')}
+                </Button>
+                <br/>*/}
+                <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
+                  {t('user:usermenu.profile.loginWithReadyPlayerMe')}
                 </Button>
               </section>
             )}
+
             {selfUser?.userRole === 'guest' && (
               <section className={styles.socialBlock}>
                 <Typography variant="h3" className={styles.textBlock}>

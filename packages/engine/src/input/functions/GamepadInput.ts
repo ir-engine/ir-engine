@@ -3,23 +3,23 @@ import { applyThreshold } from '../../common/functions/applyThreshold'
 import { InputType } from '../enums/InputType'
 import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
 import { InputAlias } from '../types/InputAlias'
-import { InputComponent } from '../components/InputComponent'
 import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+
 /**
  * @property {Boolean} gamepadConnected Connection a new gamepad
  * @property {Number} gamepadThreshold Threshold value from 0 to 1
  * @property {Binary[]} gamepadButtons Map gamepad buttons
  * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
  */
+
 let gamepadConnected = false
 const gamepadThreshold = 0.1
 const gamepadButtons: BinaryValue[] = []
 const gamepadInput: number[] = []
 
 const inputPerGamepad = 2
-let input: InputComponent
 let gamepads: Gamepad[]
 let gamepad: Gamepad
 let inputBase: number
@@ -79,9 +79,9 @@ export const handleGamepads = () => {
 const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   if (gamepad.buttons[index].touched === (gamepadButtons[index] === BinaryValue.ON)) return
   // Set input data
-  input.data.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
+  Engine.inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
-    value: gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF,
+    value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
     lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.STARTED : LifecycleValue.ENDED
   })
   gamepadButtons[index] = gamepad.buttons[index].touched ? 1 : 0
@@ -154,13 +154,13 @@ export const handleGamepadDisconnected = (event: any): void => {
 
   gamepadConnected = false
 
-  if (!input.schema || !gamepadButtons) return // Already disconnected?
+  if (!gamepadButtons) return // Already disconnected?
 
   for (let index = 0; index < gamepadButtons.length; index++) {
     if (gamepadButtons[index] === BinaryValue.ON) {
-      input.data.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
+      Engine.inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
-        value: BinaryValue.OFF
+        value: [BinaryValue.OFF]
       })
     }
     gamepadButtons[index] = 0

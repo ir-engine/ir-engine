@@ -29,7 +29,7 @@ export default (app: Application): void => {
     // @ts-ignore
     app.setup = function (...args: any): Application {
       let promiseResolve, promiseReject
-      app.isSetup = new Promise((resolve, reject) => {
+      ;(app as any).isSetup = new Promise((resolve, reject) => {
         promiseResolve = resolve
         promiseReject = reject
       })
@@ -66,7 +66,7 @@ export default (app: Application): void => {
                 )
                 .seed()
                 .then(() => {
-                  console.log('Server Ready')
+                  console.log('API Server Ready')
                   return Promise.resolve()
                 })
                 .catch((err) => {

@@ -112,6 +112,7 @@ export const addComponent = (world, component, eid, reset=false) => {
     world = eidToWorld.get(eid)
     reset = eid || reset
   }
+  
   if (!world[$componentMap].has(component)) registerComponent(world, component)
   if (hasComponent(world, component, eid)) return
 

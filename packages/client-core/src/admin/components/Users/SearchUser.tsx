@@ -4,7 +4,7 @@ import InputBase from '@material-ui/core/InputBase'
 import Paper from '@material-ui/core/Paper'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
-import { useStyles } from './styles'
+import { useUserStyles } from './styles'
 import { searchUserAction } from '../../reducers/admin/user/service'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const SearchUser = (props: Props) => {
   const { searchUserAction } = props
-  const classes = useStyles()
+  const classes = useUserStyles()
   const [search, setSearch] = React.useState('')
   const handleChange = (e: any) => {
     searchUserAction(search)

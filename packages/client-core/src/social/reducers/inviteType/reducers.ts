@@ -11,7 +11,7 @@ export const initialInviteTypeState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialInviteTypeState)
+const immutableState = Immutable.fromJS(initialInviteTypeState) as any
 
 const inviteTypeReducer = (state = immutableState, action: InviteTypeAction): any => {
   let newValues, updateMap

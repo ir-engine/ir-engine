@@ -1,6 +1,6 @@
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import mimeType from 'mime-types'
 import StorageProvider from '../../media/storageprovider/storageprovider'
 import { Agent } from 'https'
@@ -33,10 +33,10 @@ const getContentType = (url: string) => {
   return 'octet-stream'
 }
 
-export function getAxiosConfig(responseType?: string): axios.AxiosRequestConfig {
+export function getAxiosConfig(responseType?: string): AxiosRequestConfig {
   const axiosConfig = {
     responseType: responseType === 'json' ? 'json' : 'arraybuffer'
-  }
+  } as AxiosRequestConfig
 
   if (config.server.mode === 'local') axiosConfig.httpsAgent = new Agent({ rejectUnauthorized: false })
   return axiosConfig

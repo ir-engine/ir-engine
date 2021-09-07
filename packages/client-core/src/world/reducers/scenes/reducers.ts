@@ -1,4 +1,4 @@
-import { SCENES_FETCHED_ERROR, SCENES_FETCHED_SUCCESS, SET_CURRENT_SCENE } from '../../reducers/actions'
+import { SCENES_FETCHED_ERROR, SCENES_FETCHED_SUCCESS, SET_CURRENT_SCENE } from '../actions'
 import Immutable from 'immutable'
 import { PublicScenesState, ScenesFetchedAction } from './actions'
 
@@ -8,7 +8,7 @@ export const initialSceneState: PublicScenesState = {
   error: ''
 }
 
-const immutableState = Immutable.fromJS(initialSceneState)
+const immutableState = Immutable.fromJS(initialSceneState) as any
 
 const sceneReducer = (state = immutableState, action: ScenesFetchedAction): any => {
   switch (action.type) {

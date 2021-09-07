@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Drawer from '@material-ui/core/Drawer'
-import { useStyle, useStyles } from './styles'
+import { useLocationStyles, useLocationStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
@@ -21,7 +21,7 @@ import Switch from '@material-ui/core/Switch'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { connect } from 'react-redux'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { formValid } from '../Users/validation'
+import { validateUserForm } from '../Users/validation'
 import { patchLocation } from '../../reducers/admin/location/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import MuiAlert from '@material-ui/lab/Alert'
@@ -53,8 +53,8 @@ const Alert = (props) => {
 
 const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, adminSceneState, adminLocationState, patchLocation, locationAdmin } = props
-  const classex = useStyle()
-  const classes = useStyles()
+  const classex = useLocationStyle()
+  const classes = useLocationStyles()
   const [editMode, setEditMode] = React.useState(false)
   const [state, setState] = React.useState({
     name: '',
@@ -62,6 +62,9 @@ const ViewLocation = (props: Props) => {
     scene: '',
     type: 'private',
     videoEnabled: false,
+    audioEnabled: false,
+    screenSharingEnabled: false,
+    faceStreamingEnabled: false,
     globalMediaEnabled: false,
     isLobby: false,
     isFeatured: false,
@@ -89,9 +92,12 @@ const ViewLocation = (props: Props) => {
         scene: locationAdmin.sceneId,
         type: locationAdmin.location_setting.locationType,
         videoEnabled: locationAdmin.location_setting.videoEnabled,
+        audioEnabled: locationAdmin.location_setting.audioEnabled,
+        screenSharingEnabled: locationAdmin.location_setting.screenSharingEnabled,
+        faceStreamingEnabled: locationAdmin.location_setting.faceStreamingEnabled,
         globalMediaEnabled: locationAdmin.location_setting.instanceMediaChatEnabled,
-        isLobby: locationAdmin.isFeatured,
-        isFeatured: locationAdmin.isLobby
+        isLobby: locationAdmin.isLobby,
+        isFeatured: locationAdmin.isFeatured
       })
     }
   }, [locationAdmin])
@@ -126,6 +132,9 @@ const ViewLocation = (props: Props) => {
       location_setting: {
         locationType: state.type,
         instanceMediaChatEnabled: state.globalMediaEnabled,
+        audioEnabled: state.audioEnabled,
+        screenSharingEnabled: state.screenSharingEnabled,
+        faceStreamingEnabled: state.faceStreamingEnabled,
         videoEnabled: state.videoEnabled
       },
       isLobby: state.isLobby,
@@ -146,7 +155,7 @@ const ViewLocation = (props: Props) => {
       temp.scene = "Type can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateUserForm(state, state.formErrors)) {
       patchLocation(location.id, locationData)
       setState({
         ...state,
@@ -317,6 +326,21 @@ const ViewLocation = (props: Props) => {
                         color="primary"
                         control={
                           <Switch
+                            checked={state.audioEnabled}
+                            onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
+                            name="audioEnabled"
+                          />
+                        }
+                        label={t('admin:components.locationModel.lbl-ae')}
+                      />
+                    </FormControl>
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControl>
+                      <FormControlLabel
+                        color="primary"
+                        control={
+                          <Switch
                             checked={state.globalMediaEnabled}
                             onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
                             name="globalMediaEnabled"
@@ -326,9 +350,39 @@ const ViewLocation = (props: Props) => {
                       />
                     </FormControl>
                   </FormGroup>
+                  <FormGroup>
+                    <FormControl>
+                      <FormControlLabel
+                        color="primary"
+                        control={
+                          <Switch
+                            checked={state.screenSharingEnabled}
+                            onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+                            name="screenSharingEnabled"
+                          />
+                        }
+                        label={t('admin:components.locationModel.lbl-se')}
+                      />
+                    </FormControl>
+                  </FormGroup>
                 </Grid>
                 <Grid item xs={6} style={{ display: 'flex' }}>
                   <div style={{ marginLeft: 'auto' }}>
+                    <FormGroup>
+                      <FormControl>
+                        <FormControlLabel
+                          color="primary"
+                          control={
+                            <Switch
+                              checked={state.faceStreamingEnabled}
+                              onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                              name="faceStreamingEnabled"
+                            />
+                          }
+                          label={t('admin:components.locationModel.lbl-fe')}
+                        />
+                      </FormControl>
+                    </FormGroup>
                     <FormGroup>
                       <FormControl>
                         <FormControlLabel
@@ -398,15 +452,24 @@ const ViewLocation = (props: Props) => {
             </Typography>
             <Grid container spacing={2} className={classes.pdlarge}>
               <Grid item xs={6}>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={classes.mb10}>
                   Location Type:
                 </Typography>
-                {/* <Typography variant="h5" component="h5" className={classes.mb10}>Updated At:</Typography> */}
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  Video Enabled
+                {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
+                <Typography variant="h6" component="h6" className={classes.mb10}>
+                  Video Enabled:
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  Media Chat Enabled
+                <Typography variant="h6" component="h6" className={classes.mb10}>
+                  Audio Enabled:
+                </Typography>
+                <Typography variant="h6" component="h6" className={classes.mb10}>
+                  Face Streaming Enabled:
+                </Typography>
+                <Typography variant="h6" component="h6" className={classes.mb10}>
+                  Screen Sharing Enabled:
+                </Typography>
+                <Typography variant="h6" component="h6" className={classes.mb10}>
+                  Media Chat Enabled:
                 </Typography>
               </Grid>
               <Grid item xs={6}>
@@ -414,10 +477,23 @@ const ViewLocation = (props: Props) => {
                   {location?.location_setting?.locationType || <span className={classes.spanNone}>None</span>}
                 </Typography>
                 {/* <Typography variant="h6" component="h6" className={classes.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={classes.spanNone}>None</span>}</Typography> */}
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={classes.mb10}>
                   <span className={classes.spanNone}>{location?.location_setting?.videoEnabled ? 'Yes' : 'No'}</span>
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={classes.mb10}>
+                  <span className={classes.spanNone}>{location?.location_setting?.audioEnabled ? 'Yes' : 'No'}</span>
+                </Typography>
+                <Typography variant="h5" component="h5" className={classes.mb10}>
+                  <span className={classes.spanNone}>
+                    {location?.location_setting?.faceStreamingEnabled ? 'Yes' : 'No'}
+                  </span>
+                </Typography>
+                <Typography variant="h5" component="h5" className={classes.mb10}>
+                  <span className={classes.spanNone}>
+                    {location?.location_setting?.screenSharingEnabled ? 'Yes' : 'No'}
+                  </span>
+                </Typography>
+                <Typography variant="h5" component="h5" className={classes.mb10}>
                   <span className={classes.spanNone}>
                     {location?.location_setting?.instanceMediaChatEnabled ? 'Yes' : 'No'}
                   </span>

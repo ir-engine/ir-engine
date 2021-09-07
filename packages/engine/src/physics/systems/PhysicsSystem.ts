@@ -14,22 +14,30 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
-import { ClientAuthoritativeComponent } from '../components/ClientAuthoritativeComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { dispatchFromServer } from '../../networking/functions/dispatch'
+import {
+  NetworkWorldAction,
+  NetworkWorldActions,
+  NetworkWorldActionType
+} from '../../networking/interfaces/NetworkWorldActions'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
+import { createPhysXWorker } from '../functions/createPhysXWorker'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
 
-export const PhysicsSystem = async (
-  attributes: { worker?: () => Worker; simulationEnabled?: boolean } = {}
-): Promise<System> => {
-  const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
-  const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
+export const PhysicsSystem = async (attributes: { simulationEnabled?: boolean } = {}): Promise<System> => {
+  const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
+  const spawnRigidbodyAddQuery = enterQuery(spawnRigidbodyQuery)
 
-  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const colliderQuery = defineQuery([Not(AvatarComponent), ColliderComponent, TransformComponent])
   const colliderRemoveQuery = exitQuery(colliderQuery)
 
   const raycastQuery = defineQuery([RaycastComponent])
@@ -38,15 +46,9 @@ export const PhysicsSystem = async (
   const networkObjectQuery = defineQuery([NetworkObjectComponent])
   const networkObjectRemoveQuery = exitQuery(networkObjectQuery)
 
-  const clientAuthoritativeQuery = defineQuery([
-    NetworkObjectComponent,
-    ClientAuthoritativeComponent,
-    ColliderComponent
-  ])
+  const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObjectOwnerComponent, ColliderComponent])
 
   let simulationEnabled = false
-
-  Engine.physxWorker = attributes.worker()
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
     if (typeof ev.physics !== 'undefined') {
@@ -54,19 +56,48 @@ export const PhysicsSystem = async (
     }
   })
 
-  if (!PhysXInstance.instance) {
-    PhysXInstance.instance = new PhysXInstance()
-  }
-
   simulationEnabled = attributes.simulationEnabled ?? true
 
-  await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
-  Engine.workers.push(Engine.physxWorker)
+  await createPhysXWorker()
+
+  function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
+    switch (action.type) {
+      case NetworkWorldActions.TELEPORT:
+        {
+          const [x, y, z, qX, qY, qZ, qW] = action.pose
+
+          if (!Network.instance.networkObjects[action.networkId])
+            return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
+
+          const entity = Network.instance.networkObjects[action.networkId].entity
+
+          const colliderComponent = getComponent(entity, ColliderComponent)
+          if (colliderComponent) {
+            colliderComponent.body.updateTransform({
+              translation: { x, y, z },
+              rotation: { x: qX, y: qY, z: qZ, w: qW }
+            })
+            return
+          }
+
+          const controllerComponent = getComponent(entity, AvatarControllerComponent)
+          if (controllerComponent) {
+            const avatar = getComponent(entity, AvatarComponent)
+            controllerComponent.controller?.updateTransform({
+              translation: { x, y: y + avatar.avatarHalfHeight, z },
+              rotation: { x: qX, y: qY, z: qZ, w: qW }
+            })
+            controllerComponent.controller.velocity.setScalar(0)
+          }
+        }
+        break
+    }
+  }
 
   return defineSystem((world: ECSWorld) => {
-    const { delta } = world
+    for (const action of Network.instance.incomingActions) avatarActionReceptor(world, action as any)
 
-    for (const entity of spawnNetworkObjectAddQuery(world)) {
+    for (const entity of spawnRigidbodyAddQuery(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
 
       addComponent(entity, TransformComponent, {
@@ -80,19 +111,13 @@ export const PhysicsSystem = async (
       if (isClient) {
         addComponent(entity, InterpolationComponent, {})
       } else {
-        Network.instance.worldState.createObjects.push({
-          networkId: networkId,
-          ownerId: uniqueId,
-          prefabType: PrefabType.RigidBody,
-          uniqueId,
-          parameters: parameters
-        })
+        dispatchFromServer(NetworkWorldAction.createObject(networkId, uniqueId, PrefabType.RigidBody, parameters))
       }
     }
 
     for (const entity of colliderRemoveQuery(world)) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
-      if (colliderComponent) {
+      if (colliderComponent?.body) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }
     }
@@ -105,12 +130,14 @@ export const PhysicsSystem = async (
     }
 
     for (const entity of colliderQuery(world)) {
-      const collider = getComponent(entity, ColliderComponent)
       const velocity = getComponent(entity, VelocityComponent)
+      if (!velocity) continue
+      const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      if (hasComponent(entity, ClientAuthoritativeComponent)) continue
+      if ((!isClient && hasComponent(entity, NetworkObjectOwnerComponent)) || hasComponent(entity, AvatarComponent))
+        continue
 
-      if (collider.body.type === BodyType.KINEMATIC) {
+      if (collider.body.type === BodyType.KINEMATIC || collider.body.type === BodyType.STATIC) {
         velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       } else if (collider.body.type === BodyType.DYNAMIC) {
@@ -133,20 +160,8 @@ export const PhysicsSystem = async (
     }
 
     for (const entity of clientAuthoritativeQuery(world)) {
-      const networkObject = getComponent(entity, NetworkObjectComponent)
       const collider = getComponent(entity, ColliderComponent)
-      if (isClient) {
-        Network.instance.clientInputState.transforms.push({
-          networkId: networkObject.networkId,
-          x: collider.body.transform.translation.x,
-          y: collider.body.transform.translation.y,
-          z: collider.body.transform.translation.z,
-          qX: collider.body.transform.rotation.x,
-          qY: collider.body.transform.rotation.y,
-          qZ: collider.body.transform.rotation.z,
-          qW: collider.body.transform.rotation.w
-        })
-      } else {
+      if (!isClient) {
         const transform = getComponent(entity, TransformComponent)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       }
@@ -156,7 +171,10 @@ export const PhysicsSystem = async (
     for (const entity of networkObjectRemoveQuery(world)) {
       const networkObject = getComponent(entity, NetworkObjectComponent, true)
       delete Network.instance.networkObjects[networkObject.networkId]
-      console.log('removed prefab with id', networkObject.networkId)
+      const nameComponent = getComponent(entity, NameComponent)
+      nameComponent
+        ? console.log(`removed prefab with name ${nameComponent.name} network id: ${networkObject.networkId}`)
+        : console.log('removed prefab with id ', networkObject.networkId)
     }
 
     if (simulationEnabled) PhysXInstance.instance?.update()

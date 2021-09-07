@@ -22,6 +22,7 @@ import {
   uploadAvatarModel
 } from '../../reducers/auth/service'
 import AvatarMenu from './menus/AvatarMenu'
+import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import SettingMenu from './menus/SettingMenu'
@@ -80,7 +81,8 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Avatar]: AvatarMenu,
     [Views.AvatarUpload]: AvatarSelectMenu,
     [Views.Location]: LocationMenu,
-    [Views.NewLocation]: CreateLocationMenu
+    [Views.NewLocation]: CreateLocationMenu,
+    [Views.ReadyPlayer]: ReadyPlayerMenu
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
@@ -206,6 +208,14 @@ const UserMenu = (props: UserMenuProps): any => {
           location: activeLocation,
           changeActiveMenu,
           updateLocationDetail
+        }
+        break
+      case Views.ReadyPlayer:
+        args = {
+          userId: selfUser?.id,
+          changeActiveMenu: changeActiveMenu,
+          uploadAvatarModel: uploadAvatarModel,
+          isPublicAvatar: false
         }
         break
       default:

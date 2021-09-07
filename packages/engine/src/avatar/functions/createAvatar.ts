@@ -1,7 +1,7 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -21,11 +21,15 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
+import { isClient } from '../../common/functions/isClient'
+import { isBot } from '../../common/functions/isBot'
 
 const avatarRadius = 0.25
-const capsuleHeight = 1.3
 const avatarHeight = 1.8
-const avatarHalfHeight = 0.9
+const capsuleHeight = avatarHeight - avatarRadius * 2
+const avatarHalfHeight = avatarHeight / 2
 
 /**
  *
@@ -37,19 +41,17 @@ const avatarHalfHeight = 0.9
 export const createAvatar = (
   entity: Entity,
   spawnTransform: { position: Vector3; rotation: Quaternion },
-  isRemotePlayer = false
+  isRemotePlayer = true
 ): void => {
+  if (isClient && isBot(window)) {
+    if (!hasComponent(entity, ProximityCheckerComponent)) addComponent(entity, ProximityCheckerComponent, {})
+  }
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
     rotation: new Quaternion().copy(spawnTransform.rotation),
     scale: new Vector3(1, 1, 1)
   })
 
-  addComponent(entity, InputComponent, {
-    schema: AvatarInputSchema,
-    data: new Map(),
-    prevData: new Map()
-  })
   addComponent(entity, VelocityComponent, {
     velocity: new Vector3()
   })
@@ -71,9 +73,14 @@ export const createAvatar = (
     avatarHalfHeight,
     avatarHeight,
     modelContainer,
-    isGrounded: false,
-    viewVector: new Vector3(0, 0, 1)
+    isGrounded: false
   })
+
+  addComponent(entity, NameComponent, {
+    name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
+  })
+  console.log('uniqueID: ' + getComponent(entity, NetworkObjectComponent).uniqueId)
+  console.log('userID: ' + Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -96,7 +103,7 @@ export const createAvatar = (
       origin: new Vector3(0, avatarHalfHeight, 0),
       direction: new Vector3(0, -1, 0),
       maxDistance: avatarHalfHeight + 0.05,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Portal
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
     })
   )
   addComponent(entity, RaycastComponent, { raycastQuery })
@@ -137,11 +144,16 @@ export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
 
+  addComponent(entity, InputComponent, {
+    schema: AvatarInputSchema,
+    data: new Map()
+  })
+
   const controller = PhysXInstance.instance.createController(
     new Controller({
       isCapsule: true,
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: DefaultCollisionMask,
+      collisionMask: DefaultCollisionMask | CollisionGroups.Trigger,
       height: capsuleHeight,
       contactOffset: 0.01,
       stepOffset: 0.25,

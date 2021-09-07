@@ -1,4 +1,3 @@
-import { Component } from '../../ecs/classes/Component'
 import { ID, Snapshot } from '../types/SnapshotDataTypes'
 
 /**

@@ -571,17 +571,17 @@ export const testScenePreset = {
         {
           name: 'envMap',
           props: {
-            probePosition: {
+            bakePosition: {
               x: 0,
               y: 0,
               z: 0
             },
-            probePositionOffset: {
+            bakePositionOffset: {
               x: 0,
               y: 0,
               z: 0
             },
-            probeScale: {
+            bakeScale: {
               x: 1,
               y: 1,
               z: 1
@@ -593,17 +593,17 @@ export const testScenePreset = {
             lookupName: 'EnvMap'
           },
           data: {
-            probePosition: {
+            bakePosition: {
               x: 0,
               y: 0,
               z: 0
             },
-            probePositionOffset: {
+            bakePositionOffset: {
               x: 0,
               y: 0,
               z: 0
             },
-            probeScale: {
+            bakeScale: {
               x: 1,
               y: 1,
               z: 1

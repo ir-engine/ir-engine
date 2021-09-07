@@ -13,14 +13,17 @@ RUN npm install -g lerna cross-env rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
+COPY packages/analytics/package.json ./packages/analytics/
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/common/package.json ./packages/common/
+COPY packages/editor/package.json ./packages/editor/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
+COPY packages/gallery/package.json ./gallery/social/
 COPY packages/bot/package.json ./packages/bot/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds

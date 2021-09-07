@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import config from "config";
+import inject from '@rollup/plugin-inject'
 
 const replaceEnvs = (obj, env) => {
   let result = {};
@@ -27,7 +28,7 @@ const replaceEnvs = (obj, env) => {
   return result;
 }
 
-export default defineConfig(() => {
+export default defineConfig((command) => {
   const env = loadEnv('', process.cwd() + '../../');
   const runtime = replaceEnvs(config.get('publicRuntimeConfig'), env);
 
@@ -37,31 +38,24 @@ export default defineConfig(() => {
     publicRuntimeConfig: JSON.stringify(runtime)
   };
 
-  return {
-    plugins: [
-    ],
+  const returned = {
+    plugins: [],
     server: {
       host: true,
-      https: {
-        key: fs.readFileSync('../../certs/key.pem'),
-        cert: fs.readFileSync('../../certs/cert.pem')
-      }
     },
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
-        'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
+        // 'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
-        'three-physx': 'three-physx/src/index.ts'
+        // 'three-physx': 'three-physx/src/index.ts'
       }
     },
-    define: {
-      'process.env': process.env,
-      'process.browser': process.browser,
-    },
     build: {
+      target: 'esnext',
       sourcemap: 'inline',
+      minify: 'esbuild',
       rollupOptions: {
         output: {
           dir: 'dist',
@@ -74,4 +68,24 @@ export default defineConfig(() => {
       },
     },
   };
+  if(process.env.NODE_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
+    returned.server.https = {
+      key: fs.readFileSync('../../certs/key.pem'),
+      cert: fs.readFileSync('../../certs/cert.pem')
+    }
+  }
+  if (command.command === 'build' && process.env.VITE_LOCAL_BUILD !== 'true') {
+   returned.build.rollupOptions.plugins = [
+       inject({
+         process: 'process'
+       })
+   ]
+  }
+  if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') { 
+    returned.define = {
+      'process.env': process.env,
+      'process.browser': process.browser,
+    }
+  }
+  return returned
 });

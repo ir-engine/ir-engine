@@ -1,6 +1,6 @@
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
-export const useStyle = makeStyles({
+export const usePartyStyle = makeStyles({
   root: {
     width: '100%'
     //background: "#fff"
@@ -35,7 +35,7 @@ export const useStyle = makeStyles({
   }
 })
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const usePartyStyles = makeStyles((theme: Theme) =>
   createStyles({
     tableCellHeader: {
       background: '#343b41 !important',

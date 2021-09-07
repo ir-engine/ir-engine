@@ -7,7 +7,7 @@ import { selectLocationState } from '@xrengine/client-core/src/social/reducers/l
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { theme } from '@xrengine/client-core/src/theme'
-import { Config } from '@xrengine/client-core/src/helper'
+import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'

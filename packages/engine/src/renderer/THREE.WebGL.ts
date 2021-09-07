@@ -1,4 +1,14 @@
+import { EngineEvents } from '../ecs/classes/EngineEvents'
+
 export default class WEBGL {
+  static EVENTS = {
+    INSTANCE_WEBGL_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED'
+  }
+
+  static dispatchWebGLDisconnectedEvent() {
+    EngineEvents.instance.dispatchEvent({ type: this.EVENTS.INSTANCE_WEBGL_DISCONNECTED })
+  }
+
   static isWebGLAvailable() {
     try {
       const canvas = document.createElement('canvas')
@@ -8,9 +18,8 @@ export default class WEBGL {
     }
   }
 
-  static isWebGL2Available() {
+  static isWebGL2Available(): boolean {
     try {
-      return true
       const canvas = document.createElement('canvas')
       return !!(window.WebGL2RenderingContext && canvas.getContext('webgl2'))
     } catch (e) {

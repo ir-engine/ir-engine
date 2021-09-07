@@ -8,33 +8,41 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { dispatchFromClient } from '../../networking/functions/dispatch'
+import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+
+const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 /**
  * @author Josh Field <github.com/HexaField>
- * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
+ * @returns {void}
  */
 
-export const startXR = (): void => {
+export const startWebXR = (): void => {
   const controllerLeft = Engine.xrRenderer.getController(1) as any
   const controllerRight = Engine.xrRenderer.getController(0) as any
   const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1)
   const controllerGripRight = Engine.xrRenderer.getControllerGrip(0)
-  const controllerGroup = new Group()
+  const container = new Group()
 
   Engine.scene.remove(Engine.camera)
-  controllerGroup.add(Engine.camera)
+  container.add(Engine.camera)
   const head = new Group()
 
   removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
 
   addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
     head,
-    controllerGroup,
+    container,
     controllerLeft,
     controllerRight,
     controllerGripLeft,
     controllerGripRight
   })
+
+  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
+  dispatchFromClient(NetworkWorldAction.enterVR(networkId, true))
 }
 
 /**
@@ -46,8 +54,12 @@ export const endXR = (): void => {
   Engine.xrSession.end()
   Engine.xrSession = null
   Engine.scene.add(Engine.camera)
+
   addComponent(Network.instance.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
+
+  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
+  dispatchFromClient(NetworkWorldAction.enterVR(networkId, false))
 }
 
 /**
@@ -60,6 +72,8 @@ export const isInXR = (entity: Entity) => {
 }
 
 const vec3 = new Vector3()
+const v3 = new Vector3()
+const uniformScale = new Vector3(1, 1, 1)
 const quat = new Quaternion()
 const forward = new Vector3(0, 0, -1)
 
@@ -79,6 +93,7 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
+      rigHand.updateMatrixWorld(true)
       return rigHand.getWorldPosition(vec3)
     }
   }
@@ -96,15 +111,17 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
 
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
   const avatar = getComponent(entity, AvatarComponent)
+  const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
+      rigHand.updateMatrixWorld(true)
       return rigHand.getWorldQuaternion(quat)
     }
   }
-  return quat.setFromUnitVectors(forward, avatar.viewVector)
+  return quat.copy(transform.rotation).multiply(rotate180onY)
 }
 
 /**
@@ -126,6 +143,7 @@ export const getHandTransform = (
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
+      rigHand.updateMatrixWorld(true)
       return {
         position: rigHand.getWorldPosition(vec3),
         rotation: rigHand.getWorldQuaternion(quat)
@@ -135,6 +153,31 @@ export const getHandTransform = (
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position),
-    rotation: quat.setFromUnitVectors(forward, avatar.viewVector)
+    rotation: quat.copy(transform.rotation).multiply(rotate180onY)
+  }
+}
+
+/**
+ * Gets the head transform in world space
+ * @author Josh Field <github.com/HexaField>
+ * @param entity the player entity
+ * @returns { position: Vector3, rotation: Quaternion }
+ */
+
+export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  if (xrInputSourceComponent) {
+    Engine.camera.matrix.decompose(vec3, quat, v3)
+    return {
+      position: vec3,
+      rotation: quat,
+      scale: uniformScale
+    }
+  }
+  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  return {
+    position: cameraTransform.position,
+    rotation: cameraTransform.rotation,
+    scale: uniformScale
   }
 }

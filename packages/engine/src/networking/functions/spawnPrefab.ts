@@ -2,25 +2,21 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetworkObjectComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../interfaces/NetworkWorldActions'
+import { dispatchFromServer } from './dispatch'
 
-export const spawnPrefab = (
-  prefabType: number,
-  ownerId: string,
-  uniqueId: string,
-  networkId: number,
-  parameters = {}
-) => {
+export const spawnPrefab = (prefabType: string, uniqueId: string, networkId: number, parameters = {}) => {
   const entity = createEntity()
-  console.log('spawnPrefab', prefabType, ownerId, uniqueId, networkId, parameters)
+  console.log('spawnPrefab', prefabType, uniqueId, networkId, parameters)
   addComponent(entity, Network.instance.schema.prefabs.get(prefabType), {})
-  addComponent(entity, NetworkObjectComponent, { ownerId, networkId, uniqueId, snapShotTime: 0 })
+  addComponent(entity, NetworkObjectComponent, { networkId, uniqueId })
   Network.instance.networkObjects[networkId] = {
-    ownerId,
     prefabType,
     entity,
     uniqueId,
     parameters
   }
-  addComponent(entity, SpawnNetworkObjectComponent, { ownerId, uniqueId, networkId, parameters })
+  dispatchFromServer(NetworkWorldAction.createObject(networkId, uniqueId, prefabType, parameters))
+  addComponent(entity, SpawnNetworkObjectComponent, { uniqueId, networkId, parameters })
   return entity
 }
