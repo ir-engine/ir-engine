@@ -6,7 +6,12 @@ import { IKRig, IKRigComponentType } from '@xrengine/engine/src/ikrig/components
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { bones } from './pose1/ikrig.pose.bones'
 import { bones as tbones } from './ikrig.tpose.bones'
-import { fungiSerializedPoseBones, fungiSerializedQuaternion, fungiSerializedVector3 } from './ikrig.bones.types'
+import {
+  fungiSerializedIKPose,
+  fungiSerializedPoseBones,
+  fungiSerializedQuaternion,
+  fungiSerializedVector3
+} from './ikrig.tests.types'
 import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
 import { addChain, addPoint } from '../../../src/ikrig/functions/RigFunctions'
@@ -183,6 +188,83 @@ export function adoptBones(rawBones: fungiSerializedPoseBones[]): PoseBoneLocalS
   })
 
   return bonesData
+}
+
+export function adoptIKPose(ikposeData: fungiSerializedIKPose): IKPoseComponentType {
+  const ikpose: Partial<IKPoseComponentType> = {}
+
+  ikpose.length = ikposeData.target.len
+  ikpose.startPosition = vector3FromSerialized(ikposeData.target.start_pos)
+  ikpose.endPosition = vector3FromSerialized(ikposeData.target.end_pos)
+  // TODO: axis
+  // ikpose.axis
+
+  // TODO: we need this?
+  /*
+  spineParentQuaternion?: Quaternion
+  spineParentPosition?: Vector3
+  spineParentScale?: Vector3
+
+  spineChildQuaternion?: Quaternion
+  spineChildPosition?: Vector3
+  spineChildScale?: Vector3
+   */
+
+  ikpose.hip = {
+    bind_height: ikposeData.hip.bind_height,
+    twist: ikposeData.hip.twist,
+    dir: vector3FromSerialized(ikposeData.hip.dir),
+    movement: vector3FromSerialized(ikposeData.hip.movement)
+  }
+
+  ikpose.foot_l = {
+    lookDirection: vector3FromSerialized(ikposeData.foot_l.look_dir),
+    twistDirection: vector3FromSerialized(ikposeData.foot_l.twist_dir)
+  }
+  ikpose.foot_r = {
+    lookDirection: vector3FromSerialized(ikposeData.foot_r.look_dir),
+    twistDirection: vector3FromSerialized(ikposeData.foot_r.twist_dir)
+  }
+
+  ikpose.leg_l = {
+    dir: vector3FromSerialized(ikposeData.leg_l.dir),
+    jointDirection: vector3FromSerialized(ikposeData.leg_l.joint_dir),
+    lengthScale: ikposeData.leg_l.len_scale
+  }
+  ikpose.leg_r = {
+    dir: vector3FromSerialized(ikposeData.leg_r.dir),
+    jointDirection: vector3FromSerialized(ikposeData.leg_r.joint_dir),
+    lengthScale: ikposeData.leg_r.len_scale
+  }
+
+  ikpose.arm_l = {
+    dir: vector3FromSerialized(ikposeData.arm_l.dir),
+    jointDirection: vector3FromSerialized(ikposeData.arm_l.joint_dir),
+    lengthScale: ikposeData.arm_l.len_scale
+  }
+  ikpose.arm_r = {
+    dir: vector3FromSerialized(ikposeData.arm_r.dir),
+    jointDirection: vector3FromSerialized(ikposeData.arm_r.joint_dir),
+    lengthScale: ikposeData.arm_r.len_scale
+  }
+
+  ikpose.spine = [
+    {
+      lookDirection: vector3FromSerialized(ikposeData.spine[0].look_dir),
+      twistDirection: vector3FromSerialized(ikposeData.spine[0].twist_dir)
+    },
+    {
+      lookDirection: vector3FromSerialized(ikposeData.spine[1].look_dir),
+      twistDirection: vector3FromSerialized(ikposeData.spine[1].twist_dir)
+    }
+  ]
+
+  ikpose.head = {
+    lookDirection: vector3FromSerialized(ikposeData.head.look_dir),
+    twistDirection: vector3FromSerialized(ikposeData.head.twist_dir)
+  }
+
+  return ikpose
 }
 
 function vector3FromSerialized(sv: fungiSerializedVector3): Vector3 {

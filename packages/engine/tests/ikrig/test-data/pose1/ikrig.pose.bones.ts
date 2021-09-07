@@ -1,4 +1,4 @@
-import { fungiSerializedPoseBones } from '../ikrig.bones.types'
+import { fungiSerializedPoseBones } from '../ikrig.tests.types'
 
 // pose from 0.6225028089213559 time of run-forward animation
 export const bones: fungiSerializedPoseBones[] = [
