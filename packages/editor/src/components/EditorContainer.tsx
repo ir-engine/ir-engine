@@ -868,8 +868,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     editor.sceneModified = false
     globalThis.currentProjectID = project.project_id
+
+    const pathParams = this.state.pathParams
+    pathParams.set('projectId', project.project_id)
     this.updateModifiedState(() => {
-      this.setState({ creatingProject: true, project }, () => {
+      this.setState({ creatingProject: true, project, pathParams }, () => {
         this.props.history.replace(`/editor/projects/${project.project_id}`)
         this.setState({ creatingProject: false })
       })
