@@ -1,7 +1,7 @@
 /** Functions to provide system level functionalities. */
 
 import { SystemUpdateType } from '../functions/SystemUpdateType'
-import { pipe, System } from '../../ecs/bitecs'
+import { pipe, System } from 'bitecs'
 import { PipelineType } from '../classes/World'
 
 export type CreateSystemFunctionType<A extends any> = (props: A) => Promise<System>
@@ -10,6 +10,9 @@ export type SystemInitializeType<A> = {
   type: SystemUpdateType
   system: CreateSystemFunctionType<A>
   args?: A
+}
+
+export interface SystemInjectionType<A> extends SystemInitializeType<A> {
   before?: CreateSystemFunctionType<A>
   after?: CreateSystemFunctionType<A>
 }
@@ -17,11 +20,9 @@ export type SystemInitializeType<A> = {
 const pipelines: {
   [SystemUpdateType.Fixed]: SystemInitializeType<any>[]
   [SystemUpdateType.Free]: SystemInitializeType<any>[]
-  [SystemUpdateType.Network]: SystemInitializeType<any>[]
 } = {
   [SystemUpdateType.Fixed]: [],
-  [SystemUpdateType.Free]: [],
-  [SystemUpdateType.Network]: []
+  [SystemUpdateType.Free]: []
 }
 
 export const registerSystem = <A>(type: SystemUpdateType, system: CreateSystemFunctionType<A>, args?: A) => {
@@ -35,17 +36,17 @@ export const unregisterSystem = <A>(type: SystemUpdateType, system: CreateSystem
   pipelines[type].splice(idx, 1)
 }
 
-export const injectSystem = <A>(init: SystemInitializeType<A>) => {
+export const injectSystem = <A>(init: SystemInjectionType<A>) => {
   if ('before' in init) {
     const idx = pipelines[init.type].findIndex((i) => {
-      return i.before === init.before
+      return i.system === init.before
     })
     delete init.before
     pipelines[init.type].splice(idx, 0, init)
   } else if ('after' in init) {
     const idx =
       pipelines[init.type].findIndex((i) => {
-        return i.after === init.after
+        return i.system === init.after
       }) + 1
     delete init.after
     pipelines[init.type].splice(idx, 0, init)
@@ -57,5 +58,5 @@ export const createPipeline = async (updateType: SystemUpdateType): Promise<Pipe
   for (const { system, args } of pipelines[updateType]) {
     systems.push(await system(args))
   }
-  return pipe(...systems)
+  return pipe(...systems) as any as PipelineType
 }

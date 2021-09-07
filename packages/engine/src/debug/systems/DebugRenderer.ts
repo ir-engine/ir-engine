@@ -282,29 +282,6 @@ export class DebugRenderer {
         geometry.setFromPoints(points)
         mesh = new Mesh(geometry, material)
 
-        //highlight faces that the CONVEXPOLYHEDRON thinks are pointing into the shape.
-        // geometry.faces.forEach(f => {
-        //     const n = f.normal
-        //     n.negate();
-        //     f.normal = n
-        //     const v1 = geometry.vertices[f.a]
-        //     if (n.dot(v1) > 0) {
-        //         const v2 = geometry.vertices[f.b]
-        //         const v3 = geometry.vertices[f.c]
-
-        //         const p = new Vector3();
-        //         p.x = (v1.x + v2.x + v3.x) / 3;
-        //         p.y = (v1.y + v2.y + v3.y) / 3;
-        //         p.z = (v1.z + v2.z + v3.z) / 3;
-
-        //         const g = new Geometry();
-        //         g.vertices.push(v1, v2, v3)
-        //         g.faces.push(new Face3(0, 1, 2));
-        //         g.computeFaceNormals();
-        //         const m = new Mesh(g, new MeshBasicMaterial({ color: 0xff0000 }));
-        //         mesh.add(m)
-        //     }
-        // });
         break
 
       case SHAPES.TriangleMesh:
@@ -314,40 +291,9 @@ export class DebugRenderer {
         geometry.setIndex(shape.options.indices)
         mesh = new Mesh(geometry, material)
         break
-
-      // case Shape.types.HEIGHTFIELD:
-      //   geometry = new BufferGeometry();
-
-      //   v0 = this.tmpVec0
-      //   v1 = this.tmpVec1
-      //   v2 = this.tmpVec2
-      //   for (let xi = 0; xi < (shape as Heightfield).data.length - 1; xi++) {
-      //     for (let yi = 0; yi < (shape as Heightfield).data[xi].length - 1; yi++) {
-      //       for (let k = 0; k < 2; k++) {
-      //         (shape as Heightfield).getConvexTrianglePillar(xi, yi, k === 0)
-      //         v0.copy((shape as Heightfield).pillarConvex.vertices[0])
-      //         v1.copy((shape as Heightfield).pillarConvex.vertices[1])
-      //         v2.copy((shape as Heightfield).pillarConvex.vertices[2])
-      //         v0.vadd((shape as Heightfield).pillarOffset, v0)
-      //         v1.vadd((shape as Heightfield).pillarOffset, v1)
-      //         v2.vadd((shape as Heightfield).pillarOffset, v2)
-      //         points.push(
-      //           new Vector3(v0.x, v0.y, v0.z),
-      //           new Vector3(v1.x, v1.y, v1.z),
-      //           new Vector3(v2.x, v2.y, v2.z)
-      //         );
-      //         //const i = geometry.vertices.length - 3
-      //         //geometry.faces.push(new Face3(i, i + 1, i + 2))
-      //       }
-      //     }
-      //   }
-      //   geometry.setFromPoints(points)
-      //   //geometry.computeBoundingSphere()
-      //   //geometry.computeFaceNormals()
-      //   mesh = new Mesh(geometry, material)
-      //   break;
       default:
         mesh = new Mesh()
+
         break
     }
 

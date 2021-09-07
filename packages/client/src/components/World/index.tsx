@@ -41,8 +41,7 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
       canvasId: engineRendererCanvasId
     },
     physics: {
-      simulationEnabled: false,
-      physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
+      simulationEnabled: false
     }
   }
 }
@@ -113,7 +112,6 @@ export const EnginePage = (props: Props) => {
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
-
   let sceneId = null
 
   const userState = useUserState()
@@ -127,7 +125,8 @@ export const EnginePage = (props: Props) => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    if (!engineInitializeOptions.networking) {
+    addUIEvents()
+    if (!engineInitializeOptions.networking.schema.transport) {
       init(props.locationName)
     } else {
       props.doLoginAuto(true)
@@ -244,22 +243,11 @@ export const EnginePage = (props: Props) => {
 
   const init = async (sceneId: string): Promise<any> => {
     initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
-
-    addUIEvents()
-
     setIsTeleporting(false)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
-    if (slugifiedName === portalComponent.location) {
-      // teleportPlayer(
-      //   Network.instance.localClientEntity,
-      //   portalComponent.remoteSpawnPosition,
-      //   portalComponent.remoteSpawnRotation
-      // )
-      return
-    }
 
     teleportToLocation(portalComponent, slugifiedName, () => {
       setIsTeleporting(true)

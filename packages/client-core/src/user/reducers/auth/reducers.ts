@@ -49,7 +49,7 @@ export const initialAuthState = {
   avatarList: []
 }
 
-const immutableState = Immutable.fromJS(initialAuthState)
+const immutableState = Immutable.fromJS(initialAuthState) as any
 
 const authReducer = (state = immutableState, action: any): any => {
   switch (action.type) {

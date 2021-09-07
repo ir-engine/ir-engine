@@ -10,17 +10,16 @@ import {
   VideoTexture
 } from 'three'
 import Hls from 'hls.js'
-import isHLS from '../../editor/functions/isHLS'
+import isHLS from '../functions/isHLS'
 import AudioSource from './AudioSource'
 export const VideoProjection = {
   Flat: 'flat',
   Equirectangular360: '360-equirectangular'
 }
 import { Engine } from '../../ecs/classes/Engine'
-import isDash from '../../editor/functions/isDash'
+import isDash from '../functions/isDash'
 
 export default class Video extends AudioSource {
-  // @ts-ignore
   _texture: any
   _mesh: Mesh
   _projection: string

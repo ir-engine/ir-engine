@@ -16,7 +16,6 @@ if (isBrowser()) {
   // import("volumetric").then(imported => {
   //   DracosisPlayer = imported;
   // });
-  // @ts-ignore
   // import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
 }
 
@@ -53,7 +52,9 @@ export function createAudio(entity, props: AudioProps): void {
   const audio = new AudioSource(Engine.audioListener)
   addObject3DComponent(entity, audio, props)
   audio.load()
-  addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
+  const posAudio = new PositionalAudio(Engine.audioListener)
+  posAudio.matrixAutoUpdate = false
+  addComponent(entity, PositionalAudioComponent, { value: posAudio })
   if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 

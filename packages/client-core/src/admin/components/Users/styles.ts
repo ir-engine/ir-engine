@@ -1,6 +1,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useUserStyles = makeStyles((theme: Theme) =>
   createStyles({
     large: {
       width: theme.spacing(14),
@@ -56,6 +56,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     marginTp: {
       marginTop: '20%'
     },
+    marginTop: {
+      marginTop: '7%'
+    },
     texAlign: {
       textAlign: 'center'
     },
@@ -103,8 +106,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       border: '1px solid red',
       padding: '2px 4px',
       display: 'flex',
-      alignItems: 'center',
-      //width: "45vw",
+      alignItems: 'center #343b41',
       marginTop: '10px',
       marginBottom: '15px',
       background: '#343b41',
@@ -112,11 +114,14 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     select: {
       color: '#f1f1f1 !important'
+    },
+    selector: {
+      width: '100%'
     }
   })
 )
 
-export const useStyle = makeStyles({
+export const useUserStyle = makeStyles({
   paper: {
     width: '40%',
     backgroundColor: '#43484F',

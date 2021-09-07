@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { Line, Object3D, BufferGeometry, LineBasicMaterial, Float32BufferAttribute } from 'three'
-import { addIsHelperFlag } from '../../editor/functions/addIsHelperFlag'
+import { addIsHelperFlag } from '../../scene/functions/addIsHelperFlag'
 export default class DirectionalPlaneHelper extends Object3D {
   plane: Line<BufferGeometry, LineBasicMaterial>
   directionLine: Line<BufferGeometry, LineBasicMaterial>
@@ -24,9 +23,7 @@ export default class DirectionalPlaneHelper extends Object3D {
     addIsHelperFlag(this)
   }
   setColor(color) {
-    // @ts-ignore
     this.plane.material.color.copy(color)
-    // @ts-ignore
     this.directionLine.material.color.copy(color)
   }
   dispose() {

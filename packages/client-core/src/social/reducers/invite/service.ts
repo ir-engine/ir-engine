@@ -26,7 +26,7 @@ const phoneRegex = /^[0-9]{10}$/
 const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
-import { Config } from '../../../helper'
+import { Config } from '@xrengine/common/src/config'
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
 
 export function sendInvite(data: any) {
@@ -100,15 +100,17 @@ export function sendInvite(data: any) {
   }
 }
 
-export function retrieveReceivedInvites(skip?: number, limit?: number) {
+export function retrieveReceivedInvites(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingReceivedInvites())
+    const skip = getState().get('invite').get('receivedInvites').get('skip')
+    const limit = getState().get('invite').get('receivedInvites').get('limit')
     try {
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'received',
-          $limit: limit != null ? limit : getState().get('invite').get('receivedInvites').get('limit'),
-          $skip: skip != null ? skip : getState().get('invite').get('receivedInvites').get('skip')
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
         }
       })
       dispatch(retrievedReceivedInvites(inviteResult))
@@ -119,15 +121,17 @@ export function retrieveReceivedInvites(skip?: number, limit?: number) {
   }
 }
 
-export function retrieveSentInvites(skip?: number, limit?: number) {
+export function retrieveSentInvites(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingSentInvites())
+    const skip = getState().get('invite').get('sentInvites').get('skip')
+    const limit = getState().get('invite').get('sentInvites').get('limit')
     try {
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'sent',
-          $limit: limit != null ? limit : getState().get('invite').get('sentInvites').get('limit'),
-          $skip: skip != null ? skip : getState().get('invite').get('sentInvites').get('skip')
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
         }
       })
       dispatch(retrievedSentInvites(inviteResult))

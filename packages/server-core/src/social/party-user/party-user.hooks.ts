@@ -3,7 +3,6 @@ import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-p
 import partyUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-user-permission-authenticate'
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import unsetSelfPartyOwner from '@xrengine/server-core/src/hooks/unset-self-party-owner'
 import checkPartyInstanceSize from '@xrengine/server-core/src/hooks/check-party-instance-size'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
@@ -15,7 +14,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
+    all: [authenticate('jwt')],
     find: [iff(isProvider('external'), partyUserPermissionAuthenticate() as any)],
     get: [],
     create: [
@@ -127,4 +126,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

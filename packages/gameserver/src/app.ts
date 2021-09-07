@@ -163,11 +163,10 @@ export const createApp = (): Application => {
         ;(app as any).agonesSDK = agonesSDK
         setInterval(() => agonesSDK.health(), 1000)
 
-        // Create new gameserver instance
+        app.configure(channels)
+
         WebRTCGameServer.instance.initialize(app).then(() => {
           console.log('Initialized new gameserver instance')
-          // Set up event channels (see channels.js)
-          app.configure(channels)
         })
       } else {
         console.warn('Did not create gameserver')

@@ -14,8 +14,8 @@ import { AvatarComponent } from '../components/AvatarComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
- * Interpolates the local client's character transform with the interpolated snapshots
- * @param {Entity} entity the entity belonging to the character
+ * Interpolates the local client's avatar transform with the interpolated snapshots
+ * @param {Entity} entity the entity belonging to the avatar
  * @param {SnapshotData} snapshots the snapshot data to use
  * @param {number} delta the delta of this frame
  */
@@ -38,10 +38,12 @@ export const avatarCorrection = (entity: Entity, snapshots: SnapshotData, delta:
     qW: 1
   })
 
-  const correction = findInterpolationSnapshot(entity, snapshots.correction)
+  // TODO: check for correction logic
+  const correction = findInterpolationSnapshot(entity, (snapshots as any).correction)
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
 
-  if (correction == null || currentSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return
+  // TODO: Checks for timecorrection logic
+  if (correction == null || currentSnapshot == null || (Network.instance.snapshot as any).timeCorrection === 0) return
 
   const offsetX = correction.x - currentSnapshot.x
   const offsetY = correction.y - currentSnapshot.y

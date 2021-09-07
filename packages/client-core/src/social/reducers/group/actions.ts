@@ -79,7 +79,7 @@ export interface FetchingInvitableGroupsAction {
   type: string
 }
 
-export type GroupAction =
+export type SocialGroupAction =
   | LoadedGroupsAction
   | CreatedGroupAction
   | PatchedGroupAction
@@ -92,7 +92,7 @@ export type GroupAction =
   | PatchedGroupUserAction
   | RemovedGroupUserAction
 
-export function loadedGroups(groupResult: GroupResult): GroupAction {
+export function loadedGroups(groupResult: GroupResult): SocialGroupAction {
   return {
     type: LOADED_GROUPS,
     groups: groupResult.data,
@@ -163,7 +163,7 @@ export function fetchingGroups(): FetchingGroupsAction {
   }
 }
 
-export function loadedInvitableGroups(groupResult: GroupResult): GroupAction {
+export function loadedInvitableGroups(groupResult: GroupResult): SocialGroupAction {
   return {
     type: LOADED_INVITABLE_GROUPS,
     groups: groupResult.data,

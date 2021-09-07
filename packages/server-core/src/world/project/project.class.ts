@@ -42,13 +42,16 @@ export class Project implements ServiceMethods<Data> {
    */
   async find(params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const projects = await this.models.collection.findAll({
-      where: {
-        [Op.or]: [{ userId: loggedInUser.userId }, { userId: null }]
-      },
+    const user = await this.app.service('user').get(loggedInUser.userId)
+    const findParams = {
       attributes: ['name', 'id', 'sid', 'url'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
-    })
+    }
+    if (user.userRole !== 'admin')
+      (findParams as any).where = {
+        [Op.or]: [{ userId: loggedInUser.userId }, { userId: null }]
+      }
+    const projects = await this.models.collection.findAll(findParams)
     const processedProjects = projects.map((project: any) => mapProjectDetailData(project.toJSON()))
     return { projects: processedProjects }
   }
@@ -73,7 +76,7 @@ export class Project implements ServiceMethods<Data> {
       return mapProjectTemplateDetailData(project)
     } else {
       project = await this.models.collection.findOne({
-        attributes: ['name', 'id', 'sid', 'url', 'type'],
+        attributes: ['name', 'id', 'sid', 'url', 'type', 'ownedFileIds'],
         where: {
           sid: id
           // userId: loggedInUser.userId
@@ -173,13 +176,16 @@ export class Project implements ServiceMethods<Data> {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key)
     }
     if (!sceneData) return
+
+    console.log('Patching the Project Fiel:' + JSON.stringify(data))
+    console.log('Patching the Project Fiel:' + JSON.stringify(data.ownedUploadedFileId))
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
       project.update(
         {
           name: data.name,
           metadata: sceneData.metadata,
           version: sceneData.version,
-          ownedFileIds: JSON.stringify(data.ownedUploadedFileId)
+          ownedFileIds: data.ownedFileIds
         },
         { fields: ['name', 'metadata', 'version', 'ownedFileIds'], transaction }
       )

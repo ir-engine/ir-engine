@@ -1,13 +1,13 @@
 import Immutable from 'immutable'
-import { SCENES_RETRIEVED } from '../../../../world/reducers/actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { CollectionsFetchedAction } from '../../../../world/reducers/scenes/actions'
+import { ADMIN_SCENES_RETRIEVED } from '../../actions'
+import { CollectionsFetchedAction } from './actions'
 
-export const PAGE_LIMIT = 100
+export const SCENE_PAGE_LIMIT = 100
 
-export const initialAdminState = {
+export const initialSceneAdminState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -17,7 +17,7 @@ export const initialAdminState = {
   scenes: {
     scenes: [],
     skip: 0,
-    limit: 1000,
+    limit: SCENE_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -26,12 +26,12 @@ export const initialAdminState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialAdminState)
+const immutableState = Immutable.fromJS(initialSceneAdminState) as any
 
 const adminReducer = (state = immutableState, action: any): any => {
   let result: any, updateMap: any
   switch (action.type) {
-    case SCENES_RETRIEVED:
+    case ADMIN_SCENES_RETRIEVED:
       result = (action as CollectionsFetchedAction).collections
       updateMap = new Map(state.get('scenes'))
       updateMap.set('scenes', (result as any).data)

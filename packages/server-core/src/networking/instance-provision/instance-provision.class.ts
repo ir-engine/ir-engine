@@ -110,7 +110,9 @@ export class InstanceProvision implements ServiceMethods<Data> {
       return gs.status.address === ip && inputPort?.port?.toString() === port
     })
     if (match == null) {
-      await this.app.service('instance').remove(instance.id)
+      await this.app.service('instance').patch(instance.id, {
+        ended: true
+      })
       await this.app.service('gameserver-subdomain-provision').patch(
         null,
         {
@@ -163,7 +165,8 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
         const channelInstance = await (this.app.service('instance') as any).Model.findOne({
           where: {
-            channelId: channelId
+            channelId: channelId,
+            ended: false
           }
         })
         if (channelInstance == null) return this.getFreeGameserver()
@@ -184,7 +187,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
         if (instanceId != null) {
           const instance = await this.app.service('instance').get(instanceId)
-          if (instance == null) {
+          if (instance == null || instance.ended === true) {
             throw new BadRequest('Invalid instance ID')
           }
           if (instance.currentUsers < location.maxUsersPerInstance) {
@@ -273,7 +276,8 @@ export class InstanceProvision implements ServiceMethods<Data> {
             {
               model: (this.app.service('instance') as any).Model,
               where: {
-                locationId: locationId
+                locationId: locationId,
+                ended: false
               }
             }
           ]
@@ -312,7 +316,8 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
         const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
           where: {
-            locationId: location.id
+            locationId: location.id,
+            ended: false
           },
           include: [
             {

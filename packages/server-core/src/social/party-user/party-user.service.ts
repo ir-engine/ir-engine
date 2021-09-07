@@ -180,6 +180,7 @@ export default (app: Application): void => {
           partyId: data.partyId
         }
       })
+      data.user = await app.service('user').get(data.userId)
       const targetIds = (partyUsers as any).data.map((partyUser) => {
         return partyUser.userId
       })

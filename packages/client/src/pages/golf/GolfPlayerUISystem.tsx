@@ -7,7 +7,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { addComponent, getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery } from 'bitecs'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -48,21 +48,26 @@ const GolfNetworkPlayerView = () => {
   const user = playerState ? userState.layerUsers.find((user) => user.id.value === playerState.id.value) : null
   const isPlayersTurn = golfState.currentPlayer.value === playerNumber
   return user ? (
-    <div
-      style={{
-        fontSize: '60px',
-        backgroundColor: '#000000dd',
-        color: playerColor.getStyle(),
-        fontFamily: "'Roboto', sans-serif",
-        border: `${isPlayersTurn ? 20 : 10}px solid white`,
-        borderRadius: '50px',
-        padding: '20px',
-        margin: '60px',
-        filter: 'drop-shadow(0 0 30px #fff2)'
-      }}
-    >
-      {user.name.value}
-    </div>
+    <>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
+      <div
+        style={{
+          fontSize: '60px',
+          backgroundColor: '#000000dd',
+          color: playerColor.getStyle(),
+          width: '400px',
+          textAlign: 'center',
+          fontFamily: 'Racing Sans One',
+          border: `${isPlayersTurn ? 20 : 10}px solid white`,
+          borderRadius: '50px',
+          padding: '20px',
+          margin: '60px',
+          filter: 'drop-shadow(0 0 30px #fff2)'
+        }}
+      >
+        {user.name.value}
+      </div>
+    </>
   ) : (
     <div></div>
   )

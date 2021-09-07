@@ -1,16 +1,15 @@
 import { Vector2 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../../networking/classes/Network'
-import { Commands } from '../../networking/enums/Commands'
+import { dispatchFromClient } from '../../networking/functions/dispatch'
+import { getLocalNetworkId } from '../../networking/functions/getLocalNetworkId'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
+import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AnimationRenderer } from './AnimationRenderer'
 import { AnimationState } from './AnimationState'
 import { AnimationType, WeightsParameterType, AvatarStates, MovementType } from './Util'
@@ -201,13 +200,7 @@ export class AnimationGraph {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     // Send change animation commnad over network for the local client entity
     if (isEntityLocalClient(entity) && avatarAnimationComponent.currentState.type === AnimationType.STATIC) {
-      Network.instance.clientInputState.commands.push({
-        type: Commands.CHANGE_ANIMATION_STATE,
-        args: convertObjToBufferSupportedString({
-          state: newStateName,
-          params
-        })
-      })
+      dispatchFromClient(NetworkWorldAction.avatarAnimation(getLocalNetworkId(), newStateName, params))
     }
   }
 

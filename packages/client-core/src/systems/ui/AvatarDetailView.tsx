@@ -31,7 +31,9 @@ const CharacterDetailView = () => {
         borderRadius: '50px',
         padding: '20px',
         margin: '60px',
-        filter: 'drop-shadow(0 0 30px #fff2)'
+        boxShadow: '#fff2 0 0 30px',
+        width: '400px',
+        textAlign: 'center'
       }}
     >
       {user.name.value}

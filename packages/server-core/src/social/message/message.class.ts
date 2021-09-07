@@ -4,6 +4,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { Params } from '@feathersjs/feathers'
 import { BadRequest } from '@feathersjs/errors'
 import { Op } from 'sequelize'
+import { handleCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 
 export class Message extends Service {
   app: Application
@@ -24,7 +25,11 @@ export class Message extends Service {
     let channel, channelId
     let userIdList = []
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const userId = loggedInUser.userId
+    const userId = loggedInUser?.userId
+
+    if (data != undefined && data.text != undefined) {
+      if (handleCommand(data.text, userId, true, userId)) return
+    }
 
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType

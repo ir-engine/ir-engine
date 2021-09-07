@@ -10,12 +10,12 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Entity } from './Entity'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { InputValue } from '../../input/interfaces/InputValue'
-// import { GameMode } from '../../game/types/GameMode'
 import { EngineEvents } from './EngineEvents'
 import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
+import { World } from './World'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -26,8 +26,6 @@ import { OrthographicCamera } from 'three'
 export class Engine {
   public static initOptions: InitializeOptions
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null
-
-  // public static gameModes: Map<string, GameMode> = new Map()
 
   public static xrSupported = false
   public static isBot = false
@@ -55,7 +53,6 @@ export class Engine {
    *
    * @default 20
    */
-  public static networkFramerate = 20
 
   public static accumulator: number
   public static justExecuted: boolean
@@ -64,6 +61,7 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1
+  public static worlds: World[] = []
 
   /**
    * Reference to the three.js renderer object.
@@ -110,14 +108,12 @@ export class Engine {
    */
   static enabled = true
 
-  static lastTime: number
-
   static tick = 0
 
   static useAudioSystem = false
 
-  static inputState = new Map<any, InputValue<NumericalType>>()
-  static prevInputState = new Map<any, InputValue<NumericalType>>()
+  static inputState = new Map<any, InputValue>()
+  static prevInputState = new Map<any, InputValue>()
 
   static isInitialized = false
 
@@ -134,7 +130,6 @@ export class Engine {
 
   static xrFrame: XRFrame
   static spatialAudio = false
-  static portCamera: boolean
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {

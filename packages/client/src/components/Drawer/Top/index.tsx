@@ -1,7 +1,7 @@
 import AppBar from '@material-ui/core/AppBar'
 import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
 import { getFriends, unfriend } from '@xrengine/client-core/src/social/reducers/friend/service'
-import { selectGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
+import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
 import {
   createGroup,
   getGroups,
@@ -22,7 +22,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 const mapStateToProps = (state: any): any => {
   return {
     friendState: selectFriendState(state),
-    groupState: selectGroupState(state),
+    groupState: selectSocialGroupState(state),
     partyState: selectPartyState(state)
   }
 }

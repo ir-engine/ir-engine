@@ -6,18 +6,19 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/user/service'
+import { removeUserAdmin, fetchUsersAsAdmin, refetchSingleUserAdmin } from '../../reducers/admin/user/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import { USER_PAGE_LIMIT } from '../../reducers/admin/user/reducers'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import ViewUser from './ViewUser'
-import { useStyle, useStyles } from './styles'
-import { columns, Data, Props } from './Variables'
+import { useUserStyle, useUserStyles } from './styles'
+import { userColumns, UserData, UserProps } from './Variables'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -28,22 +29,26 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removeUserAdmin: bindActionCreators(removeUserAdmin, dispatch),
-  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch)
+  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
+  refetchSingleUserAdmin: bindActionCreators(refetchSingleUserAdmin, dispatch)
 })
 
-const UserTable = (props: Props) => {
-  const { removeUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props
-  const classes = useStyle()
-  const classx = useStyles()
+const UserTable = (props: UserProps) => {
+  const { removeUserAdmin, refetchSingleUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props
+  const classes = useUserStyle()
+  const classx = useUserStyles()
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(USER_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [userId, setUserId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
   const [userAdmin, setUserAdmin] = React.useState('')
   const user = authState.get('user')
   const adminUsers = adminUserState.get('users').get('users')
+  const adminUserCount = adminUserState.get('users').get('total')
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchUsersAsAdmin(incDec)
     setPage(newPage)
   }
 
@@ -51,7 +56,6 @@ const UserTable = (props: Props) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-
   React.useEffect(() => {
     const fetchData = async () => {
       await fetchUsersAsAdmin()
@@ -60,6 +64,7 @@ const UserTable = (props: Props) => {
   }, [adminUserState, user, fetchUsersAsAdmin])
 
   const openViewModel = (open: boolean, user: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    refetchSingleUserAdmin()
     if (
       event.type === 'keydown' &&
       ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
@@ -83,7 +88,7 @@ const UserTable = (props: Props) => {
     location: string,
     inviteCode: string,
     instanceId: string
-  ): Data => {
+  ): UserData => {
     return {
       id,
       user,
@@ -113,15 +118,14 @@ const UserTable = (props: Props) => {
       )
     }
   }
-
   const rows = adminUsers.map((el) => {
-    const loc = el.party.id ? el.party.location : null
+    const loc = el.party?.id ? el.party.location : null
     const loca = loc ? (
       loc.name || <span className={classes.spanNone}>None</span>
     ) : (
       <span className={classes.spanNone}>None</span>
     )
-    const ins = el.party.id ? el.party.instance : null
+    const ins = el.party?.id ? el.party.instance : null
     const inst = ins ? (
       ins.ipAddress || <span className={classes.spanNone}>None</span>
     ) : (
@@ -140,14 +144,13 @@ const UserTable = (props: Props) => {
     )
   })
 
-  const count = rows.size ? rows.size : rows.length
   return (
     <div className={classes.root}>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {userColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -160,10 +163,10 @@ const UserTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+            {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {userColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>
@@ -178,9 +181,9 @@ const UserTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[USER_PAGE_LIMIT]}
         component="div"
-        count={count || 12}
+        count={adminUserCount || 12}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

@@ -29,7 +29,8 @@ export default () => {
               locationId: location.id,
               '$location.maxUsersPerInstance$': {
                 [Op.gt]: Sequelize.literal(`\`instance\`\.\`currentUsers\` + ${partyUserResult.total}`)
-              }
+              },
+              ended: false
             },
             include: [
               {

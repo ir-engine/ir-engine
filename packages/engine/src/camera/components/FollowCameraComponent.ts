@@ -32,7 +32,7 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   distance: 3,
   minDistance: 2,
   maxDistance: 7,
-  theta: 0,
+  theta: Math.PI,
   phi: 0,
   shoulderSide: true,
   locked: true,
@@ -41,7 +41,6 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   collisionMask: CollisionGroups.Default
 }
 
-export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>(
-  undefined,
-  FollowCameraDefaultValues
-)
+export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>()
+// undefined,
+// FollowCameraDefaultValues

@@ -2,11 +2,11 @@ import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot'
 import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
-import { GolfBotHooks } from '../../packages/engine/src/game/templates/Golf/functions/GolfBotHooks'
+import { GolfBotHooks } from '@xrengine/client/src/pages/golf/functions/GolfBotHooks'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 
 const maxTimeout = 60 * 1000
-const bot = new XREngineBot({ name: 'bot-1', headless: false, autoLog: false })
+const bot = new XREngineBot({ name: 'bot-1', headless: false, verbose: false })
 
 const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently

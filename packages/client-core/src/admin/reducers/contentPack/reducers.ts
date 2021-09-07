@@ -9,7 +9,7 @@ export const initialState = {
   updateNeeded: true
 }
 
-const immutableState = Immutable.fromJS(initialState)
+const immutableState = Immutable.fromJS(initialState) as any
 
 const contentPackReducer = (state = immutableState, action: ContentPackAction): any => {
   let newValues, updateMap

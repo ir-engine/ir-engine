@@ -29,7 +29,7 @@ import {
   WebGLRenderer
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
-import { defineQuery, defineSystem, System, Types } from '@xrengine/engine/src/ecs/bitecs'
+import { defineQuery, defineSystem, System, Types } from 'bitecs'
 import { AnimationClip, AnimationMixer } from 'three'
 import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 
@@ -243,7 +243,7 @@ const Page = () => {
       let w = window.innerWidth,
         h = window.innerHeight
 
-      let ctx = canvas.getContext('webgl2') //, { alpha: false }
+      let ctx = canvas.getContext('webgl2') as WebGLRenderingContext //, { alpha: false }
       Engine.renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
 
       Engine.renderer.setClearColor(0x3a3a3a, 1)

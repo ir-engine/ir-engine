@@ -16,7 +16,7 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 
-export const addControllerModels = async (entity: Entity) => {
+export const addControllerModels = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
   // Add our controller models & pointer lines
@@ -44,7 +44,7 @@ export const addControllerModels = async (entity: Entity) => {
     })
   })
 
-  const model = await AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
+  const { scene: model } = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
 
   const controller3DModel = model.children[2] as any
 

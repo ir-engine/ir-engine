@@ -34,6 +34,9 @@ export default {
           },
           {
             model: 'instance'
+          },
+          {
+            model: 'scope'
           }
         ]
       })
@@ -55,6 +58,9 @@ export default {
           },
           {
             model: 'user-settings'
+          },
+          {
+            model: 'scope'
           }
         ]
       })
@@ -78,9 +84,38 @@ export default {
           },
           {
             model: 'user-settings'
+          },
+          {
+            model: 'scope'
           }
         ]
-      })
+      }),
+      async (context: HookContext): Promise<HookContext> => {
+        const foundItem = await (context.app.service('scope') as any).Model.findAll({
+          where: {
+            userId: context.arguments[0]
+          }
+        })
+        if (!foundItem.length) {
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
+            await context.app.service('scope').create({
+              type: el.type,
+              userId: context.arguments[0]
+            })
+          })
+        } else {
+          foundItem.forEach(async (scp) => {
+            await context.app.service('scope').remove(scp.dataValues.id)
+          })
+          context.arguments[1]?.scopeType?.forEach(async (el) => {
+            await context.app.service('scope').create({
+              type: el.type,
+              userId: context.arguments[0]
+            })
+          })
+        }
+        return context
+      }
     ],
     remove: []
   },
@@ -88,76 +123,82 @@ export default {
   after: {
     all: [],
     find: [
-      async (context: HookContext): Promise<HookContext> => {
-        try {
-          const { app, result } = context
-
-          result.data.forEach(async (item) => {
-            if (item.subscriptions && item.subscriptions.length > 0) {
-              await Promise.all(
-                item.subscriptions.map(async (subscription: any) => {
-                  subscription.dataValues.subscriptionType = await context.app
-                    .service('subscription-type')
-                    .get(subscription.plan)
-                })
-              )
-            }
-
-            // const userAvatarResult = await app.service('static-resource').find({
-            //   query: {
-            //     staticResourceType: 'user-thumbnail',
-            //     userId: item.id
-            //   }
-            // });
-            //
-            // if (userAvatarResult.total > 0 && item.dataValues) {
-            //   item.dataValues.avatarUrl = userAvatarResult.data[0].url;
-            // }
-          })
-          return context
-        } catch (err) {
-          logger.error('USER AFTER FIND ERROR')
-          logger.error(err)
-        }
-      }
+      // async (context: HookContext): Promise<HookContext> => {
+      //   try {
+      //     const { app, result } = context
+      //
+      //     result.data.forEach(async (item) => {
+      //       if (item.subscriptions && item.subscriptions.length > 0) {
+      //         await Promise.all(
+      //           item.subscriptions.map(async (subscription: any) => {
+      //             subscription.dataValues.subscriptionType = await context.app
+      //               .service('subscription-type')
+      //               .get(subscription.plan)
+      //           })
+      //         )
+      //       }
+      //
+      //       // const userAvatarResult = await app.service('static-resource').find({
+      //       //   query: {
+      //       //     staticResourceType: 'user-thumbnail',
+      //       //     userId: item.id
+      //       //   }
+      //       // });
+      //       //
+      //       // if (userAvatarResult.total > 0 && item.dataValues) {
+      //       //   item.dataValues.avatarUrl = userAvatarResult.data[0].url;
+      //       // }
+      //     })
+      //     return context
+      //   } catch (err) {
+      //     logger.error('USER AFTER FIND ERROR')
+      //     logger.error(err)
+      //   }
+      // }
     ],
     get: [
-      async (context: HookContext): Promise<HookContext> => {
-        try {
-          if (context.result.subscriptions && context.result.subscriptions.length > 0) {
-            await Promise.all(
-              context.result.subscriptions.map(async (subscription: any) => {
-                subscription.dataValues.subscriptionType = await context.app
-                  .service('subscription-type')
-                  .get(subscription.plan)
-              })
-            )
-          }
-
-          // const { id, app, result } = context;
-          //
-          // const userAvatarResult = await app.service('static-resource').find({
-          //   query: {
-          //     staticResourceType: 'user-thumbnail',
-          //     userId: id
-          //   }
-          // });
-          // if (userAvatarResult.total > 0) {
-          //   result.dataValues.avatarUrl = userAvatarResult.data[0].url;
-          // }
-
-          return context
-        } catch (err) {
-          logger.error('USER AFTER GET ERROR')
-          logger.error(err)
-        }
-      }
+      // async (context: HookContext): Promise<HookContext> => {
+      //   try {
+      //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {
+      //       await Promise.all(
+      //         context.result.subscriptions.map(async (subscription: any) => {
+      //           subscription.dataValues.subscriptionType = await context.app
+      //             .service('subscription-type')
+      //             .get(subscription.plan)
+      //         })
+      //       )
+      //     }
+      //
+      //     // const { id, app, result } = context;
+      //     //
+      //     // const userAvatarResult = await app.service('static-resource').find({
+      //     //   query: {
+      //     //     staticResourceType: 'user-thumbnail',
+      //     //     userId: id
+      //     //   }
+      //     // });
+      //     // if (userAvatarResult.total > 0) {
+      //     //   result.dataValues.avatarUrl = userAvatarResult.data[0].url;
+      //     // }
+      //
+      //     return context
+      //   } catch (err) {
+      //     logger.error('USER AFTER GET ERROR')
+      //     logger.error(err)
+      //   }
+      // }
     ],
     create: [
       async (context: HookContext): Promise<HookContext> => {
         try {
           await context.app.service('user-settings').create({
             userId: context.result.id
+          })
+          context.arguments[0]?.scopeType?.forEach((el) => {
+            context.app.service('scope').create({
+              type: el.type,
+              userId: context.result.id
+            })
           })
           const app = context.app
           let result = context.result
@@ -208,4 +249,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

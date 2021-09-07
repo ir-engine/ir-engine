@@ -8,7 +8,7 @@ master:
                 operator: In
                 values:
                   - ng-redis-1
-slave:
+replica:
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:

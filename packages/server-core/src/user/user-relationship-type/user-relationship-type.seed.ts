@@ -1,5 +1,3 @@
-import config from '../../appconfig'
-
 export const userRelationshipTypeSeed = {
   path: 'user-relationship-type',
   randomize: false,

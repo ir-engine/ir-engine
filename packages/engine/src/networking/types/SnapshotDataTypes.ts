@@ -1,14 +1,5 @@
 // TODO: Remove / move to NullableNumericalType
 export type Value = number | string | Quat | undefined
-export interface Orientation {
-  x: number
-  y: number
-  z: number
-  qX: number
-  qY: number
-  qZ: number
-  qW: number
-}
 
 // TODO: Conslidate me
 export interface StateEntity {
@@ -20,15 +11,13 @@ export interface StateEntity {
   qY: number
   qZ: number
   qW: number
-  snapShotTime: number
 }
 
 export interface StateEntityIK {
   networkId: number
-  snapShotTime: number
-  hmd: Orientation
-  left: Orientation
-  right: Orientation
+  hmd: number[]
+  left: number[]
+  right: number[]
 }
 
 export interface StateInterEntity {
@@ -44,7 +33,6 @@ export interface StateInterEntity {
   vY: number
   vZ: number
   speed: number
-  snapShotTime: number
 }
 
 export interface StateClientEntity {
@@ -58,18 +46,32 @@ export interface StateClientEntity {
   qW: number
 }
 
+export interface StateClientMovingEntity {
+  networkId: number
+  x: number
+  y: number
+  z: number
+  vX: number
+  vY: number
+  vZ: number
+  qX: number
+  qY: number
+  qZ: number
+  qW: number
+}
+
 export type ID = string
 export type Time = number
 export type StateEntityGroup = StateEntity[]
 export type StateEntityIKGroup = StateEntityIK[]
 export type StateEntityInterGroup = StateInterEntity[]
 export type StateEntityClientGroup = StateClientEntity[]
+export type StateEntityClientMovingGroup = StateClientMovingEntity[]
 
 export interface Snapshot {
   id: ID
   time: Time
   state: StateEntityGroup
-  timeCorrection: number
 }
 
 export interface InterpolatedSnapshot {
@@ -89,6 +91,5 @@ export interface Quat {
 
 export interface SnapshotData {
   interpolation: InterpolatedSnapshot
-  correction: Snapshot
   new: StateEntityClientGroup
 }

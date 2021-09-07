@@ -18,7 +18,7 @@ export const initialMediaStreamState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialMediaStreamState)
+const immutableState = Immutable.fromJS(initialMediaStreamState) as any
 
 export default function mediastreamReducer(state = immutableState, action: any): any {
   let updateMap
