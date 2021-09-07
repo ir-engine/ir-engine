@@ -174,6 +174,8 @@ export class EngineRenderer {
     Engine.renderer.outputEncoding = sRGBEncoding
 
     Engine.xrRenderer = renderer.xr
+    //@ts-ignore
+    renderer.xr.cameraAutoUpdate = false
     Engine.xrRenderer.enabled = true
 
     window.addEventListener('resize', this.onResize, false)

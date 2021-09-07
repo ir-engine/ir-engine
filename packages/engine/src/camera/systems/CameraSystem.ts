@@ -224,7 +224,9 @@ export const CameraSystem = async (): Promise<System> => {
       followCamera(entity, delta)
     }
 
-    if (typeof Engine.activeCameraEntity !== 'undefined') {
+    if (Engine.xrRenderer?.isPresenting) {
+      Engine.xrRenderer.updateCamera(Engine.camera)
+    } else if (typeof Engine.activeCameraEntity !== 'undefined') {
       const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
       Engine.camera.position.copy(transform.position)
       Engine.camera.quaternion.copy(transform.rotation)
