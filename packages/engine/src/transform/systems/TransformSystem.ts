@@ -24,7 +24,7 @@ export const TransformSystem = async (): Promise<System> => {
   const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 
   return defineSystem((world: ECSWorld) => {
-    const { delta } = world
+    const { fixedDelta } = world
     for (const entity of parentQuery(world)) {
       const parentTransform = getComponent(entity, TransformComponent)
       const parentingComponent = getComponent(entity, TransformParentComponent)
@@ -84,13 +84,13 @@ export const TransformSystem = async (): Promise<System> => {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
 
       const mutableTransform = getComponent(entity, TransformComponent)
-      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * fixedDelta)
 
       // store rotation before interpolation
       euler1YXZ.setFromQuaternion(mutableTransform.rotation)
       // lerp to desired rotation
 
-      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * fixedDelta)
       euler2YXZ.setFromQuaternion(mutableTransform.rotation)
       // use axis locks - yes this is correct, the axis order is weird because quaternions
       if (desiredTransform.lockRotationAxis[0]) {

@@ -20,11 +20,9 @@ export interface SystemInjectionType<A> extends SystemInitializeType<A> {
 const pipelines: {
   [SystemUpdateType.Fixed]: SystemInitializeType<any>[]
   [SystemUpdateType.Free]: SystemInitializeType<any>[]
-  [SystemUpdateType.Network]: SystemInitializeType<any>[]
 } = {
   [SystemUpdateType.Fixed]: [],
-  [SystemUpdateType.Free]: [],
-  [SystemUpdateType.Network]: []
+  [SystemUpdateType.Free]: []
 }
 
 export const registerSystem = <A>(type: SystemUpdateType, system: CreateSystemFunctionType<A>, args?: A) => {

@@ -95,8 +95,6 @@ export const PhysicsSystem = async (attributes: { simulationEnabled?: boolean } 
   }
 
   return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
     for (const action of Network.instance.incomingActions) avatarActionReceptor(world, action as any)
 
     for (const entity of spawnRigidbodyAddQuery(world)) {

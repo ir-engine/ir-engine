@@ -174,7 +174,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
     }
 
     for (const entity of ikAvatarAddQuery(world)) {
-      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
+      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
       const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
       const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
       debugHead.visible = DebugHelpers.avatarDebugEnabled
