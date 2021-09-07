@@ -75,15 +75,9 @@ export async function reset(): Promise<void> {
   Vault.instance.clear()
   AssetLoader.Cache.clear()
 
-  // Engine.enabled = false;
+  Engine.isInitialized = false
   Engine.inputState.clear()
   Engine.prevInputState.clear()
-}
-
-export const executePipelines = (world: World = World.defaultWorld) => {
-  Object.values(world.pipelines).forEach((pipeline) => {
-    pipeline(world.ecsWorld)
-  })
 }
 
 export const processLocationChange = async (): Promise<void> => {
@@ -99,7 +93,7 @@ export const processLocationChange = async (): Promise<void> => {
     }
   })
 
-  executePipelines(World.defaultWorld)
+  World.defaultWorld.execute(1 / 60)
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -119,7 +113,7 @@ export const processLocationChange = async (): Promise<void> => {
 
   isClient && EngineRenderer.instance.resetPostProcessing()
 
-  executePipelines(World.defaultWorld)
+  World.defaultWorld.execute(1 / 60)
 
   await resetPhysics()
 }

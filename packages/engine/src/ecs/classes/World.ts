@@ -41,7 +41,7 @@ export class World {
     createEntity(this.ecsWorld) // make sure we have no eid 0; also, world entity?
   }
 
-  execute(delta, elapsedTime) {
+  execute(delta: number, elapsedTime?: number) {
     this.ecsWorld.delta = delta
     this.ecsWorld.elapsedTime = elapsedTime
     this.framePipeline(this.ecsWorld)

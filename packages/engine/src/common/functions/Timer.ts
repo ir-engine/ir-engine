@@ -36,6 +36,7 @@ export function Timer(
   let nextTpsReportTime = 0
   let timerRuns = 0
   let prevTimerRuns = 0
+  let serverLoop
 
   function xrAnimationLoop(time, xrFrame) {
     Engine.xrFrame = xrFrame
@@ -175,7 +176,7 @@ export function Timer(
       }
       frameId = window.requestAnimationFrame(_onFrame)
     } else {
-      const serverLoop = () => {
+      serverLoop = () => {
         const time = now()
         if (time - lastTime >= expectedDelta) {
           onFrame(time)
@@ -191,6 +192,8 @@ export function Timer(
   function stop() {
     if (isClient) {
       cancelAnimationFrame(frameId)
+    } else {
+      clearImmediate(serverLoop)
     }
   }
 
