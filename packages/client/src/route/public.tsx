@@ -2,20 +2,13 @@ import React, { Suspense } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import ProtectedRoute from './protected'
+import EditorProtected from './EditorProtected'
 import homePage from '../pages/index'
-import { connect } from 'react-redux'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }
 }
-
-// const mapStateToProps = (state: any): any => {
-//   return {
-//     authState: selectAuthState(state)
-//   }
-// }
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
   static getDerivedStateFromError() {
     return { hasError: true }
@@ -34,16 +27,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   }
 
   render() {
-    // const user = this.props.authState.get('user')
-    // const scopes = user?.scopes || []
-    // let isSceneAllowed = false
-
-    // for(const scope of scopes){
-    //   if(scope.type.split(':')[0] === 'scene' && scope.type.split(':')[1] === 'write'){
-    //     isSceneAllowed = true
-    //     break
-    //   }
-    // }
     if (this.state.hasError) return <div>Working...</div>
 
     return (
@@ -109,13 +92,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
 
           {/* Editor Routes */}
-          <Route
-            path="/editor/projects/:projectId"
-            component={React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))}
-          />
-          <Route path="/editor/projects" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
-          <Route path="/editor/create" component={React.lazy(() => import('@xrengine/editor/src/pages/create'))} />
-          <Redirect path="/editor" to="/editor/projects" />
+          <Route path="/editor" component={EditorProtected} />
 
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
         </Switch>
@@ -124,5 +101,4 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   }
 }
 
-// export default connect(mapStateToProps, null)(RouterComp)
 export default RouterComp

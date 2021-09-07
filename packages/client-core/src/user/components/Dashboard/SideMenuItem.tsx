@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import List from '@material-ui/core/List'
 import Divider from '@material-ui/core/Divider'
 import ListItem from '@material-ui/core/ListItem'
@@ -33,7 +33,6 @@ import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
 import { selectAuthState } from '../../reducers/auth/selector'
-
 interface Props {
   authState?: any
   location: any
@@ -52,6 +51,7 @@ const SideMenuItem = (props: Props) => {
 
   let allowedRoutes = {
     location: false,
+    user: false,
     bot: false,
     scene: false,
     party: false,
@@ -124,15 +124,18 @@ const SideMenuItem = (props: Props) => {
           </ListItem>
         </Link>
 
-        <Link to="/admin/locations" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button onClick={handleLocation}>
+        {allowedRoutes.location || allowedRoutes.instance ? (
+          <ListItem style={{ color: 'white' }} button onClick={() => setOpenLocation(!openLocation)}>
             <ListItemIcon>
               <NearMe style={{ color: 'white' }} />
             </ListItemIcon>
             <ListItemText primary="Location" />
             {openLocation ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
-        </Link>
+        ) : (
+          ''
+        )}
+
         <Collapse in={openLocation} timeout="auto" unmountOnExit>
           {allowedRoutes.location && (
             <Link to="/admin/locations" className={classes.textLink}>
@@ -150,6 +153,7 @@ const SideMenuItem = (props: Props) => {
               </ListItem>
             </Link>
           )}
+
           {allowedRoutes.instance && (
             <Link to="/admin/instance" className={classes.textLink}>
               <ListItem
@@ -199,31 +203,37 @@ const SideMenuItem = (props: Props) => {
             <ListItemText primary={t('user:dashboard.chats')} />
           </ListItem>
         </Link> */}
-        <Link to="/admin/users" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button onClick={handleUser}>
-            <ListItemIcon>
-              <SupervisorAccount style={{ color: 'white' }} />
-            </ListItemIcon>
-            <ListItemText primary="Users" />
-            {openUser ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-        </Link>
-
-        <Collapse in={openUser} timeout="auto" unmountOnExit>
+        {allowedRoutes.user || allowedRoutes.invite || allowedRoutes.groups ? (
           <Link to="/admin/users" className={classes.textLink}>
-            <ListItem
-              style={{ color: 'white' }}
-              className={classes.nested}
-              classes={{ selected: classes.selected }}
-              selected={'/admin/users' === pathname}
-              button
-            >
+            <ListItem style={{ color: 'white' }} button onClick={() => setOpenUser(!openUser)}>
               <ListItemIcon>
                 <SupervisorAccount style={{ color: 'white' }} />
               </ListItemIcon>
-              <ListItemText primary={t('user:dashboard.users')} />
+              <ListItemText primary="Users" />
+              {openUser ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
           </Link>
+        ) : (
+          ''
+        )}
+
+        <Collapse in={openUser} timeout="auto" unmountOnExit>
+          {allowedRoutes.user && (
+            <Link to="/admin/users" className={classes.textLink}>
+              <ListItem
+                style={{ color: 'white' }}
+                className={classes.nested}
+                classes={{ selected: classes.selected }}
+                selected={'/admin/users' === pathname}
+                button
+              >
+                <ListItemIcon>
+                  <SupervisorAccount style={{ color: 'white' }} />
+                </ListItemIcon>
+                <ListItemText primary={t('user:dashboard.users')} />
+              </ListItem>
+            </Link>
+          )}
           {allowedRoutes.invite && (
             <Link to="/admin/invites" className={classes.textLink}>
               <ListItem
@@ -258,13 +268,17 @@ const SideMenuItem = (props: Props) => {
           )}
         </Collapse>
 
-        <ListItem style={{ color: 'white' }} button onClick={handleScene}>
-          <ListItemIcon>
-            <Casino style={{ color: 'white' }} />
-          </ListItemIcon>
-          <ListItemText primary="Scene" />
-          {openScene ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
+        {allowedRoutes.scene || allowedRoutes.globalAvatars || allowedRoutes.contentPacks ? (
+          <ListItem style={{ color: 'white' }} button onClick={() => setOpenScene(!openScene)}>
+            <ListItemIcon>
+              <Casino style={{ color: 'white' }} />
+            </ListItemIcon>
+            <ListItemText primary="Scene" />
+            {openScene ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+        ) : (
+          ''
+        )}
         <Collapse in={openScene} timeout="auto" unmountOnExit>
           <Link to="/admin/scenes" className={classes.textLink}>
             <ListItem
