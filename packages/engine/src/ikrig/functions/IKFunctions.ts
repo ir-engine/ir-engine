@@ -212,14 +212,12 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
 
   // a new Up direction based on only swing.
   const swing_up = UP.clone().applyQuaternion(swing)
-  // TODO: Make sure this isn't flipped
   let twist = swing_up.angleTo(poseUp) // Swing + Pose have same Fwd, Use Angle between both UPs for twist
 
   // The difference between Pose UP and Swing UP is what makes up our twist since they both
   // share the same forward access. The issue is that we do not know if that twist is in the Negative direction
   // or positive. So by computing the Swing Left Direction, we can use the Dot Product to determine
   // if swing UP is Over 90 Degrees, if so then its a positive twist else its negative.
-  // TODO: did we cross in right order?
   // ORIGINAL
   // let swing_lft = Vec3.cross( swing_up, pose_fwd );
   // // App.Debug.ln( pos, Vec3.scale( swing_lft, 1.5 ).add( pos ), "orange" );
@@ -243,32 +241,9 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   // ik_pose.hip.twist = twist;	// How Much Twisting to Apply after pointing in the correct direction.
 
   ik_pose.hip.bind_height = bindPosition.y // The Bind Pose Height of the Hip, Helps with scaling.
-  // TODO: Right subtract order?
   ik_pose.hip.movement.copy(posePosition).sub(bindPosition) // How much movement did the hip do between Bind and Animated.
   ik_pose.hip.dir.copy(poseForward) // Pose Forward is the direction we want the Hip to Point to.
   ik_pose.hip.twist = twist // How Much Twisting to Apply after pointing in the correct direction.
-
-  // console.log('twist', twist.toFixed(4), vec3Dot.toFixed(4))
-
-  console.log({
-    bindBoneWorldQuaternion,
-    poseBoneWorldQuaternion,
-    poseBoneWorldPosition,
-    posePosition,
-    bindPosition,
-    vec3Dot,
-    twist
-  })
-
-  return {
-    bindBoneWorldQuaternion,
-    poseBoneWorldQuaternion,
-    poseBoneWorldPosition,
-    posePosition,
-    bindPosition,
-    vec3Dot,
-    twist
-  }
 }
 
 export function computeLimb(pose: Pose, chain: Chain, ik_limb) {

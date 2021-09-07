@@ -3,12 +3,19 @@ import { Object3D, Quaternion, Vector3 } from 'three'
 import { addComponent, createEntity, getComponent } from '../../src/ecs/functions/EntityFunctions'
 // import { createMapObjects as createMapObjectsMock } from '../../src/map'
 import { Entity } from '../../src/ecs/classes/Entity'
-import { computeHip } from '../../src/ikrig/functions/IKFunctions'
+import { computeHip, computeLimb, computeLookTwist, computeSpine } from '../../src/ikrig/functions/IKFunctions'
 import { IKObj } from '../../src/ikrig/components/IKObj'
-import { IKPose } from '../../src/ikrig/components/IKPose'
+import {
+  IKPose,
+  IKPoseComponentType,
+  IKPoseLimbData,
+  IKPoseLookTwist,
+  IKPoseSpineData
+} from '../../src/ikrig/components/IKPose'
 import { IKRig } from '../../src/ikrig/components/IKRig'
 import {
   adoptBones,
+  adoptIKPose,
   applyPoseState,
   getTestIKPoseData,
   getTestIKRigData,
@@ -16,6 +23,8 @@ import {
 } from './test-data/functions'
 import { bones } from './test-data/pose1/ikrig.pose.bones'
 import { bones as tbones } from './test-data/ikrig.tpose.bones'
+import { ikpose as ikposeData } from './test-data/pose1/ikpose.computed'
+import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
 
 // jest.mock('../../src/map', () => {
 //   return {
@@ -30,12 +39,21 @@ import { bones as tbones } from './test-data/ikrig.tpose.bones'
 // })
 
 describe('check Compute', () => {
-  let world: World, sourceEntity: Entity
+  let world: World, sourceEntity: Entity, expectedIKPose
+  beforeAll(() => {
+    world = new World()
+  })
 
   beforeEach(async () => {
-    world = new World()
     sourceEntity = createEntity(world.ecsWorld)
     setupTestSourceEntity(sourceEntity, world)
+    const rig = getComponent(sourceEntity, IKRig)
+    // apply animation pose
+    const animBonesStates = adoptBones(bones)
+    applyPoseState(rig.pose, animBonesStates)
+
+    // setup expected animation pose data
+    expectedIKPose = adoptIKPose(ikposeData)
   })
 
   beforeEach(() => {
@@ -53,8 +71,6 @@ describe('check Compute', () => {
     const rig = getComponent(sourceEntity, IKRig)
     const boneWorldPosition = new Vector3()
     const boneWorldRotation = new Quaternion()
-
-    applyPoseState(rig.pose, animBonesStates)
 
     rig.tpose.bones.forEach((boneState) => {
       const expectedState = tbonesStates.find((bs) => bs.name === boneState.name)
@@ -82,67 +98,62 @@ describe('check Compute', () => {
       expect(boneWorldRotation).toBeCloseToQuaternion(expectedState.world.quaternion, 2)
     })
   })
-  it('computeHip', async () => {
-    const expectedHip = {
-      bind_height: 0.9967209696769714,
-      movement: new Vector3(1.6543612251060553e-24, -0.9967209696769714, 0.005501017905771732),
-      dir: new Vector3(-0.03825378847947507, -0.1227924413107874, 0.9916948442055679),
-      twist: -0.021265088007216708
-    }
-
-    const expectedMidVars = {
-      bindBoneWorldQuaternion: new Quaternion(
-        -0.06047876179218292,
-        1.2979864294493382e-8,
-        4.418003243245039e-7,
-        0.998169481754303
-      ),
-      poseBoneWorldQuaternion: new Quaternion(
-        0.0012395124649628997,
-        -0.01797848753631115,
-        -0.010550843551754951,
-        0.9997819066047668
-      ),
-      poseBoneWorldPosition: new Vector3(0, 0, 0.005501061677932739),
-      posePosition: new Vector3(0, 0, 0.005501061677932739),
-      bindPosition: new Vector3(-1.6543612251060553e-24, 0.9967209696769714, 4.356805405336672e-8),
-      vec3Dot: 0.021263485350591943,
-      twist: -0.021265088007216708
-    }
-
+  it('computeHip', () => {
+    const expectedHip = expectedIKPose.hip
     const ikPose = getComponent(sourceEntity, IKPose)
     const rig = getComponent(sourceEntity, IKRig)
 
-    const animBonesStates = adoptBones(bones)
-    applyPoseState(rig.pose, animBonesStates)
-
-    let {
-      bindBoneWorldQuaternion,
-      poseBoneWorldQuaternion,
-      poseBoneWorldPosition,
-      posePosition,
-      bindPosition,
-      vec3Dot,
-      twist
-    } = computeHip(rig, ikPose)
-
-    // const r = 0,
-    //   e = 0.2,
-    //   t = 1
-    // // expect(r).toBeCloseTo(e, t)
-    // expect(new Vector3(0, 0, r)).toBeCloseToVector(new Vector3(0, 0, e), t)
-
-    expect(posePosition).toBeCloseToVector(expectedMidVars.posePosition)
-    expect(poseBoneWorldQuaternion).toBeCloseToQuaternion(expectedMidVars.poseBoneWorldQuaternion, 3)
-    expect(poseBoneWorldPosition).toBeCloseToVector(expectedMidVars.poseBoneWorldPosition)
-    expect(bindPosition).toBeCloseToVector(expectedMidVars.bindPosition)
-    expect(bindBoneWorldQuaternion).toBeCloseToQuaternion(expectedMidVars.bindBoneWorldQuaternion, 3)
-    expect(vec3Dot).toBeCloseTo(expectedMidVars.vec3Dot)
-    expect(twist).toBeCloseTo(expectedMidVars.twist)
+    computeHip(rig, ikPose)
 
     expect(ikPose.hip.bind_height).toBeCloseTo(expectedHip.bind_height)
     expect(ikPose.hip.twist).toBeCloseTo(expectedHip.twist)
     expect(ikPose.hip.dir).toBeCloseToVector(expectedHip.dir)
     expect(ikPose.hip.movement).toBeCloseToVector(expectedHip.movement)
+  })
+
+  test.each(['leg_l', 'leg_r', 'arm_l', 'arm_r'])('compute limb %s', (limb) => {
+    const expected: IKPoseLimbData = expectedIKPose[limb]
+
+    const ikPose = getComponent(sourceEntity, IKPose) as IKPoseComponentType
+    const rig = getComponent(sourceEntity, IKRig)
+
+    computeLimb(rig.pose, rig.chains[limb], ikPose[limb])
+
+    const computed: IKPoseLimbData = ikPose[limb]
+
+    expect(computed.dir).toBeCloseToVector(expected.dir, 4)
+    expect(computed.jointDirection).toBeCloseToVector(expected.jointDirection, 4)
+    expect(computed.lengthScale).toBeCloseTo(expected.lengthScale)
+  })
+
+  test.each(['foot_l', 'foot_r', 'head'])('compute look/twist for %s', (chainName) => {
+    const expected: IKPoseLookTwist = expectedIKPose[chainName]
+
+    const ikPose = getComponent(sourceEntity, IKPose) as IKPoseComponentType
+    const rig = getComponent(sourceEntity, IKRig)
+
+    computeLookTwist(rig, rig.points[chainName], ikPose[chainName], FORWARD, UP)
+
+    const computed: IKPoseLookTwist = ikPose[chainName]
+
+    expect(computed.lookDirection).toBeCloseToVector(expected.lookDirection, 4)
+    expect(computed.twistDirection).toBeCloseToVector(expected.twistDirection, 4)
+  })
+
+  test('compute spine', () => {
+    const expected: IKPoseSpineData = expectedIKPose.spine
+
+    const ikPose = getComponent(sourceEntity, IKPose) as IKPoseComponentType
+    const rig = getComponent(sourceEntity, IKRig)
+
+    computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD)
+
+    const computed: IKPoseSpineData = ikPose.spine
+
+    expect(computed[0].lookDirection).toBeCloseToVector(expected[0].lookDirection, 4)
+    expect(computed[0].twistDirection).toBeCloseToVector(expected[0].twistDirection, 4)
+
+    expect(computed[1].lookDirection).toBeCloseToVector(expected[1].lookDirection, 4)
+    expect(computed[1].twistDirection).toBeCloseToVector(expected[1].twistDirection, 4)
   })
 })

@@ -1,4 +1,4 @@
-import { fungiSerializedPoseBones } from './ikrig.bones.types'
+import { fungiSerializedPoseBones } from './ikrig.tests.types'
 
 // tpose
 export const bones: fungiSerializedPoseBones[] = [
