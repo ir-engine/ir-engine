@@ -11,7 +11,6 @@ import { ClientAvatarSpawnSystem } from './avatar/ClientAvatarSpawnSystem'
 import { ServerAvatarSpawnSystem, SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
 import { BotHookFunctions, BotHookSystem } from './bot/functions/botHookFunctions'
 import { CameraSystem } from './camera/systems/CameraSystem'
-import { now } from './common/functions/now'
 import { Timer } from './common/functions/Timer'
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem'
 import { Engine } from './ecs/classes/Engine'
@@ -244,17 +243,16 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, ServerAvatarSpawnSystem)
 
   // Network Outgoing Systems
-  registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
+  registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
-
   const sceneWorld = new World()
 
   Engine.initOptions = options
-  Engine.offlineMode = !options.networking.schema.transport
+  Engine.offlineMode = typeof options.networking.schema.transport === 'undefined'
   Engine.publicPath = options.publicPath
 
   // Browser state set
