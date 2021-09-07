@@ -10,27 +10,28 @@ import { defineConfig } from 'vite';
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
 
-process.env.VITE_IS_LIB_MODE = false
-
 export default defineConfig(() => {
   return {
     build: {
       lib: {
-        entry: path.resolve(__dirname, 'index.ts'),
-        name: 'engine'
+        entry: path.resolve(__dirname, 'src/index.ts'),
+        name: 'client-core'
       },
+      minify: 'esbuild',
+      sourcemap: 'inline',
       rollupOptions: {
-        input: './index.ts',
-        output: { dir: 'dist', format: 'es', sourcemap: true, inlineDynamicImports: true },
+        input: path.resolve(__dirname, 'src/index.ts'),
+        output: { dir: 'lib', format: 'es', sourcemap: true, inlineDynamicImports: true },
         plugins: [
           nodePolyfills(),
           sass({
             exclude: /node_modules/,
-            output: 'dist/index.css',
+            output: 'lib/index.css',
           }),
           json(),
           typescript({
-            tsconfig: 'tsconfig.json',
+            tsconfig: path.resolve(__dirname, 'tsconfig.json'),
+            sourceMap: false
           }),
           replace({
             'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),

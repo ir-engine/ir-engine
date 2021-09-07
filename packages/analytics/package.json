@@ -10,9 +10,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/server-core.umd.js",
-  "module": "dist/server-core.es.js",
-  "types": "dist/server-core/index.d.ts",
   "keywords": [
     "three",
     "three.js",

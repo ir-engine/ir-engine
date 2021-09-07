@@ -1,3 +1,7 @@
+/**
+ * 
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
@@ -42,5 +46,3 @@ export default defineConfig(() => {
     }
   }
 });
-
-process.env.VITE_IS_LIB_MODE = true;

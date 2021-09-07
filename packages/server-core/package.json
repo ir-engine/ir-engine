@@ -10,9 +10,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/server-core.umd.js",
-  "module": "dist/server-core.es.js",
-  "types": "dist/server-core/index.d.ts",
+  "main": "lib/server-core.umd.js",
+  "module": "lib/server-core.es.js",
+  "types": "lib/index.d.ts",
   "keywords": [
     "three",
     "three.js",
@@ -38,7 +38,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
+    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production rollup -c",
     "validate": "npm run build && npm run test",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
