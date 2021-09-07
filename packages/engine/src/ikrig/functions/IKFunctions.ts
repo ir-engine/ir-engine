@@ -299,12 +299,18 @@ export function computeLookTwist(rig, boneInfo, ik, lookDirection, twistDirectio
   // direction is FORWARD and the Direction used to determine twist is UP.
   // But there are times we need the directions to be different depending
   // on how we view the bone in certain situations.
-  const quatInverse = bind.quaternion.invert(),
+  const bindWorldQuaternion = new Quaternion()
+  bind.getWorldQuaternion(bindWorldQuaternion)
+
+  const poseWorldQuaternion = new Quaternion()
+  pose.getWorldQuaternion(poseWorldQuaternion)
+
+  const quatInverse = bindWorldQuaternion.clone().invert(),
     altLookDirection = new Vector3().copy(lookDirection).applyQuaternion(quatInverse),
     altTwistDirection = new Vector3().copy(twistDirection).applyQuaternion(quatInverse)
 
-  const pose_look_dir = new Vector3().copy(altLookDirection).applyQuaternion(pose.quaternion),
-    pose_twist_dir = new Vector3().copy(altTwistDirection).applyQuaternion(pose.quaternion)
+  const pose_look_dir = new Vector3().copy(altLookDirection).applyQuaternion(poseWorldQuaternion),
+    pose_twist_dir = new Vector3().copy(altTwistDirection).applyQuaternion(poseWorldQuaternion)
 
   ik.lookDirection.copy(pose_look_dir)
   ik.twistDirection.copy(pose_twist_dir)
