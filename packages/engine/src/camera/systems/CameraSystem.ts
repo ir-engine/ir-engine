@@ -3,6 +3,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   createEntity,
+  defineQuery,
   getComponent,
   hasComponent,
   removeComponent
@@ -17,8 +18,8 @@ import { Entity } from '../../ecs/classes/Entity'
 import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld, World } from '../../ecs/classes/World'
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -139,7 +140,7 @@ const followCamera = (entity: Entity, delta: number) => {
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-  if (followCamera.mode === CameraMode.FirstPerson || World.defaultWorld.isInPortal) {
+  if (followCamera.mode === CameraMode.FirstPerson || Engine.defaultWorld.isInPortal) {
     cameraTransform.position.copy(cameraDesiredTransform.position)
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
   }
@@ -161,8 +162,6 @@ export const resetFollowCamera = () => {
 }
 export const CameraSystem = async (): Promise<System> => {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
-  const followCameraAddQuery = enterQuery(followCameraQuery)
-  const followCameraRemoveQuery = exitQuery(followCameraQuery)
 
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
@@ -182,10 +181,10 @@ export const CameraSystem = async (): Promise<System> => {
     }
   })
 
-  return defineSystem((world: ECSWorld) => {
+  return (world: World) => {
     const { delta } = world
 
-    for (const entity of followCameraAddQuery(world)) {
+    for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
@@ -210,7 +209,7 @@ export const CameraSystem = async (): Promise<System> => {
       resetFollowCamera()
     }
 
-    for (const entity of followCameraRemoveQuery(world)) {
+    for (const entity of followCameraQuery.exit()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
       if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
@@ -235,5 +234,5 @@ export const CameraSystem = async (): Promise<System> => {
     }
 
     return world
-  })
+  }
 }

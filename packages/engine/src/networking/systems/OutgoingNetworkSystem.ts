@@ -2,8 +2,8 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../classes/Network'
 import { Vault } from '../classes/Vault'
-import { defineQuery, defineSystem, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
+import { defineQuery, System } from 'bitecs'
+import { World } from '../../ecs/classes/World'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
@@ -14,6 +14,27 @@ import { isClient } from '../../common/functions/isClient'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { getLocalNetworkId } from '../functions/getLocalNetworkId'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { Engine } from '../../ecs/classes/Engine'
+import { IncomingActionType } from '../interfaces/NetworkTransport'
+
+function sendActions() {
+  if (!isClient) {
+    // On server:
+    // incoming actions (that haven't been removed) are sent to all clients
+    Network.instance.transport.sendActions(Network.instance.incomingActions)
+    // outgoing actions are dispatched back to self as incoming actions (handled in next frame)
+    const serverActions = Network.instance.outgoingActions as IncomingActionType[]
+    for (const a of serverActions) if (!a.$userId) a.$userId = 'server'
+    Network.instance.incomingActions = serverActions
+    Network.instance.outgoingActions = []
+  } else {
+    // On client:
+    // we only send actions to server (server will send back our action if it's allowed)
+    Network.instance.transport?.sendActions(Network.instance.outgoingActions)
+    Network.instance.incomingActions = []
+    Network.instance.outgoingActions = []
+  }
+}
 
 export const OutgoingNetworkSystem = async (): Promise<System> => {
   /**
@@ -32,13 +53,20 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
 
   // TODO: reduce quaternions over network to three components
 
-  return defineSystem((world: ECSWorld) => {
+  return (world: World) => {
+    if (Engine.offlineMode) {
+      sendActions()
+      return world
+    }
+
     if (
       isClient &&
-      (typeof Network.instance.localClientEntity === 'undefined' ||
-        !hasComponent(Network.instance.localClientEntity, NetworkObjectComponent))
-    )
+      (!Network.instance.localClientEntity || !hasComponent(Network.instance.localClientEntity, NetworkObjectComponent))
+    ) {
       return world
+    }
+
+    sendActions()
 
     const newWorldState: WorldStateInterface = {
       tick: Network.instance.tick,
@@ -96,5 +124,5 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
     }
 
     return world
-  })
+  }
 }

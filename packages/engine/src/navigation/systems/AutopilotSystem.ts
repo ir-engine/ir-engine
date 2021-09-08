@@ -4,18 +4,23 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery, removeQuery, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
+import { System } from '../../ecs/classes/System'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -41,25 +46,19 @@ export const AutopilotSystem = async (): Promise<System> => {
   const raycaster = new Raycaster()
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
-
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
-  const requestsAddQuery = enterQuery(requestsQuery)
-
   const ongoingQuery = defineQuery([AutoPilotComponent])
-  const removedAutopilotsQuery = exitQuery(ongoingQuery)
-
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
-  const navClickAddQuery = enterQuery(navClickQuery)
 
-  return defineSystem((world: ECSWorld) => {
-    for (const entity of navClickAddQuery(world)) {
+  return (world) => {
+    for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
 
-      const clickResult = navmeshesQuery(world).reduce(
+      const clickResult = navmeshesQuery().reduce(
         (previousEntry, currentEntity) => {
           const mesh = getComponent(currentEntity, NavMeshComponent).navTarget
           raycasterResults.length = 0
@@ -96,7 +95,7 @@ export const AutopilotSystem = async (): Promise<System> => {
 
     // requests
     // generate path from target.graph and create new AutoPilotComponent (or reuse existing)
-    for (const entity of requestsAddQuery(world)) {
+    for (const entity of requestsQuery.enter()) {
       const request = getComponent(entity, AutoPilotRequestComponent)
       const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
       if (!navMeshComponent) {
@@ -214,7 +213,7 @@ export const AutopilotSystem = async (): Promise<System> => {
       }
     }
 
-    if (removedAutopilotsQuery(world).length) {
+    if (ongoingQuery.exit(world).length) {
       // send one relaxed gamepad state to stop movement
       Engine.inputState.set(stick, {
         type: InputType.TWODIM,
@@ -222,7 +221,5 @@ export const AutopilotSystem = async (): Promise<System> => {
         lifecycleState: LifecycleValue.CHANGED
       })
     }
-
-    return world
-  })
+  }
 }

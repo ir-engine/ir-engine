@@ -2,7 +2,6 @@ import { Vector3, Vector2 } from 'three'
 import { AnimationGraph } from '../../avatar/animations/AnimationGraph'
 import { AvatarAnimations, AvatarStates } from '../../avatar/animations/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent, addComponent } from '../../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { AutoPilotClickRequestComponent } from '../../navigation/component/AutoPilotClickRequestComponent'
@@ -18,6 +17,7 @@ import { getPlayerEntity } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
+import { Engine } from '../../ecs/classes/Engine'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -243,15 +243,15 @@ function handleMoveCommand(x: number, y: number, z: number, eid: any) {
 
 function handleMetadataCommand(params: any, eid: any) {
   if (params[0] === 'scene') {
-    console.log('scene_metadata|' + World.sceneMetadata)
+    console.log('scene_metadata|' + Engine.defaultWorld.sceneMetadata)
   } else {
     const position = getComponent(eid, TransformComponent).position
     const maxDistance: number = parseFloat(params[1])
     let vector: Vector3
     let distance: number = 0
 
-    for (let i in World.worldMetadata) {
-      vector = getMetadataPosition(World.worldMetadata[i])
+    for (let i in Engine.defaultWorld.worldMetadata) {
+      vector = getMetadataPosition(Engine.defaultWorld.worldMetadata[i])
 
       distance = position.distanceTo(vector)
       if (distance > maxDistance) continue
@@ -267,9 +267,9 @@ function handleGoToCommand(landmark: string, eid: any) {
   let cDistance: number = 0
   let vector: Vector3
 
-  for (let i in World.worldMetadata) {
+  for (let i in Engine.defaultWorld.worldMetadata) {
     if (i === landmark) {
-      vector = getMetadataPosition(World.worldMetadata[i])
+      vector = getMetadataPosition(Engine.defaultWorld.worldMetadata[i])
       cDistance = position.distanceTo(vector)
 
       if (cDistance < distance) {

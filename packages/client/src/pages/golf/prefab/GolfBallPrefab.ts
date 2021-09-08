@@ -33,10 +33,10 @@ import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import { getTee, GolfState } from '../GolfSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 import { OffScreenIndicator } from '@xrengine/engine/src/scene/classes/OffScreenIndicator'
 import { SoundEffect } from '@xrengine/engine/src/audio/components/SoundEffect'
 import { PlaySoundEffect } from '@xrengine/engine/src/audio/components/PlaySoundEffect'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -136,7 +136,7 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   velocity.velocity.copy(new Vector3())
 }
 
-export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHole: number): void => {
+export const spawnBall = (world: World, entityPlayer: Entity, playerCurrentHole: number): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()

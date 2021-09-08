@@ -15,9 +15,8 @@ import { Timer } from './common/functions/Timer'
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
-import { World } from './ecs/classes/World'
-import { reset } from './ecs/functions/EngineFunctions'
-import { createPipeline, injectSystem, registerSystem } from './ecs/functions/SystemFunctions'
+import { createWorld, reset } from './ecs/functions/EngineFunctions'
+import { injectSystem, registerSystem } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
@@ -26,7 +25,6 @@ import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
-import { NetworkActionDispatchSystem } from './networking/systems/NetworkActionDispatchSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
@@ -152,22 +150,31 @@ const configureServer = async (options: Required<InitializeOptions>) => {
 }
 
 const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
-  // Network Systems
-  !Engine.offlineMode && registerSystem(SystemUpdateType.Free, IncomingNetworkSystem)
+  if (options.scene.disabled) {
+    registerSystem(SystemUpdateType.Free, IncomingNetworkSystem)
+    registerSystem(SystemUpdateType.Free, OutgoingNetworkSystem)
+    return
+  }
 
+  // Network (Incoming)
+  registerSystem(SystemUpdateType.Free, IncomingNetworkSystem)
+
+  // Input
+  registerSystem(SystemUpdateType.Free, ClientInputSystem)
+  registerSystem(SystemUpdateType.Free, XRSystem)
+  registerSystem(SystemUpdateType.Free, CameraSystem)
+  registerSystem(SystemUpdateType.Free, BotHookSystem)
+
+  // Fixed Systems
   registerSystem(SystemUpdateType.Free, FixedPipelineSystem, { updatesPerSecond: 60 })
 
-  if (options.scene.disabled) return
-
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, BotHookSystem)
-  registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
-  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
+  // registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Maps & Navigation
-  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
-  registerSystem(SystemUpdateType.Fixed, ProximitySystem)
-  registerSystem(SystemUpdateType.Fixed, FollowSystem)
+  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  // registerSystem(SystemUpdateType.Fixed, ProximitySystem)
+  // registerSystem(SystemUpdateType.Fixed, FollowSystem)
 
   // Avatar Systems
   registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
@@ -183,12 +190,9 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled
   })
-  registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
 
   // Camera & UI systems
   registerSystem(SystemUpdateType.Free, MediaStreamSystem)
-  registerSystem(SystemUpdateType.Free, XRSystem)
-  registerSystem(SystemUpdateType.Free, CameraSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
   registerSystem(SystemUpdateType.Free, InteractiveSystem)
 
@@ -204,7 +208,8 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Free, HighlightSystem)
   registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas, enabled: !options.renderer.disabled })
 
-  !Engine.offlineMode && registerSystem(SystemUpdateType.Free, OutgoingNetworkSystem)
+  // Network (Outgoing)
+  registerSystem(SystemUpdateType.Free, OutgoingNetworkSystem)
 }
 
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
@@ -243,13 +248,13 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, ServerAvatarSpawnSystem)
 
   // Network Outgoing Systems
-  registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
   registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
-  const sceneWorld = new World()
+  const sceneWorld = createWorld()
+  Engine.currentWorld = sceneWorld
 
   Engine.initOptions = options
   Engine.offlineMode = typeof options.networking.schema.transport === 'undefined'
@@ -284,21 +289,17 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     injectSystem(init)
   })
 
-  sceneWorld.logicPipeline = await createPipeline(SystemUpdateType.Fixed)
-  sceneWorld.framePipeline = await createPipeline(SystemUpdateType.Free)
+  await sceneWorld.initSystems()
 
-  Engine.worlds.push(sceneWorld)
-
-  const executePipeline = (delta, elapsedTime) => {
+  const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
+      Engine.currentWorld = world
       world.execute(delta, elapsedTime)
     }
+    Engine.currentWorld = null
   }
 
-  // TODO: support multiple worlds
-  // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
-
-  Engine.engineTimer = Timer(executePipeline, Engine.physicsFrameRate)
+  Engine.engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
   if (options.type === EngineSystemPresets.CLIENT) {

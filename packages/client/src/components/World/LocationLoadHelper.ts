@@ -85,11 +85,8 @@ const createOfflineUser = () => {
   // it is needed by ClientAvatarSpawnSystem
   Network.instance.userId = userId
   // Replicate the server behavior
-  clientNetworkReceptor(World.defaultWorld.ecsWorld, NetworkWorldAction.createClient(userId, avatar))
-  clientNetworkReceptor(
-    World.defaultWorld.ecsWorld,
-    NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params)
-  )
+  clientNetworkReceptor(NetworkWorldAction.createClient(userId, avatar))
+  clientNetworkReceptor(NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params))
 }
 
 export const initEngine = async (
@@ -147,7 +144,7 @@ export const initEngine = async (
       )
       worldState.forEach((action) => {
         // TODO: send the correct world when we support multiple worlds
-        clientNetworkReceptor(World.defaultWorld.ecsWorld, action)
+        clientNetworkReceptor(action)
       })
       resolve()
     })

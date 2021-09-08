@@ -1,8 +1,7 @@
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { defineQuery, defineSystem, Not, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { Not } from 'bitecs'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -23,7 +22,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
  * @author Josh Field <github.com/HexaField>
  */
 
-export const InterpolationSystem = async (): Promise<System> => {
+export const InterpolationSystem = async () => {
   /**
    * Remote avatars
    */
@@ -79,9 +78,7 @@ export const InterpolationSystem = async (): Promise<System> => {
     NetworkObjectComponent
   ])
 
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
+  return () => {
     if (!Network.instance?.snapshot) return
 
     const snapshots: SnapshotData = {
@@ -92,7 +89,7 @@ export const InterpolationSystem = async (): Promise<System> => {
     // Create new snapshot position for next frame server correction
     Vault.instance.add(createSnapshot(snapshots.new))
 
-    for (const entity of networkClientInterpolationQuery(world)) {
+    for (const entity of networkClientInterpolationQuery()) {
       const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
       if (!interpolation || Number.isNaN(interpolation.vX)) continue
@@ -122,7 +119,7 @@ export const InterpolationSystem = async (): Promise<System> => {
       velocity.velocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
     }
 
-    for (const entity of networkObjectInterpolationQuery(world)) {
+    for (const entity of networkObjectInterpolationQuery()) {
       const collider = getComponent(entity, ColliderComponent)
       const interpolationSnapshot =
         findInterpolationSnapshot(entity, snapshots.interpolation) ??
@@ -145,7 +142,7 @@ export const InterpolationSystem = async (): Promise<System> => {
       })
     }
 
-    for (const entity of transformInterpolationQuery(world)) {
+    for (const entity of transformInterpolationQuery()) {
       const transform = getComponent(entity, TransformComponent)
       const interpolationSnapshot =
         findInterpolationSnapshot(entity, snapshots.interpolation) ??
@@ -162,7 +159,7 @@ export const InterpolationSystem = async (): Promise<System> => {
       )
     }
 
-    for (const entity of correctionFromServerQuery(world)) {
+    for (const entity of correctionFromServerQuery()) {
       if (isEntityLocalClientOwnerOf(entity)) continue
 
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
@@ -190,7 +187,7 @@ export const InterpolationSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of transformUpdateFromServerQuery(world)) {
+    for (const entity of transformUpdateFromServerQuery()) {
       // we don't want to accept updates from the server if the local client is in control of this entity
       if (isEntityLocalClientOwnerOf(entity)) continue
 
@@ -200,7 +197,5 @@ export const InterpolationSystem = async (): Promise<System> => {
       transform.position.set(snapshot.x, snapshot.y, snapshot.z)
       transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
     }
-
-    return world
-  })
+  }
 }

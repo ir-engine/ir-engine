@@ -1,7 +1,6 @@
-import { defineQuery, defineSystem, System } from 'bitecs'
 import { Euler, Quaternion } from 'three'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
 import { DesiredTransformComponent } from '../components/DesiredTransformComponent'
@@ -15,7 +14,7 @@ euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
 
-export const TransformSystem = async (): Promise<System> => {
+export const TransformSystem = async (world: World) => {
   const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
   const childQuery = defineQuery([TransformChildComponent, TransformComponent])
   const copyTransformQuery = defineQuery([CopyTransformComponent])
@@ -23,7 +22,7 @@ export const TransformSystem = async (): Promise<System> => {
   const tweenQuery = defineQuery([TweenComponent])
   const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     const { fixedDelta } = world
     for (const entity of parentQuery(world)) {
       const parentTransform = getComponent(entity, TransformComponent)
@@ -124,6 +123,5 @@ export const TransformSystem = async (): Promise<System> => {
       object3DComponent.value.scale.copy(transform.scale)
       object3DComponent.value.updateMatrixWorld()
     }
-    return world
-  })
+  }
 }

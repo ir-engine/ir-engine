@@ -63,9 +63,10 @@ export const GolfAction = {
     }
   },
 
-  toggleScorecard() {
+  showScorecard(value: boolean | 'toggle') {
     return {
-      type: 'puttclub.TOGGLE_SCORECARD' as const
+      type: 'puttclub.SHOW_SCORECARD' as const,
+      value
     }
   }
 }

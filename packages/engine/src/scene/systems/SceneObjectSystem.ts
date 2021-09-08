@@ -1,9 +1,7 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
 import { beforeMaterialCompile } from '../../scene/classes/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
@@ -11,7 +9,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { World } from '../../ecs/classes/World'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -35,23 +33,16 @@ export class SceneOptions {
   boxProjection = false
 }
 
-export const SceneObjectSystem = async (): Promise<System> => {
-  const sceneObjectQuery = defineQuery([Object3DComponent])
-  const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
-  const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
+const sceneObjectQuery = defineQuery([Object3DComponent])
+const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
+const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
-  const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-  const persistAddQuery = enterQuery(persistQuery)
-
-  const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
-  const visibleAddQuery = enterQuery(visibleQuery)
-
-  const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
-
+export const SceneObjectSystem = async (world: World) => {
   SceneOptions.instance = new SceneOptions()
 
-  return defineSystem((world: ECSWorld) => {
-    for (const entity of sceneObjectAddQuery(world)) {
+  return () => {
+    for (const entity of sceneObjectQuery.enter()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       const shadowComponent = getComponent(entity, ShadowComponent)
 
@@ -99,7 +90,7 @@ export const SceneObjectSystem = async (): Promise<System> => {
       })
     }
 
-    for (const entity of sceneObjectRemoveQuery(world)) {
+    for (const entity of sceneObjectQuery.exit()) {
       const object3DComponent = getComponent(entity, Object3DComponent, true)
 
       // Remove from scene
@@ -111,24 +102,22 @@ export const SceneObjectSystem = async (): Promise<System> => {
     }
 
     // Enable second camera layer for persistant entities for fun portal effects
-    for (const entity of persistAddQuery(world)) {
+    for (const entity of persistQuery.enter()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       object3DComponent?.value?.traverse((obj) => {
         obj.layers.enable(CameraLayers.Portal)
       })
     }
 
-    for (const entity of visibleAddQuery(world)) {
+    for (const entity of visibleQuery.enter()) {
       const obj = getComponent(entity, Object3DComponent)
       const visibleComponent = getComponent(entity, VisibleComponent)
       obj.value.visible = visibleComponent.value
     }
 
-    for (const entity of updatableQuery(world)) {
+    for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)
       ;(obj.value as unknown as Updatable).update(world.fixedDelta)
     }
-
-    return world
-  })
+  }
 }

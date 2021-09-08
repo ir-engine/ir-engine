@@ -26,16 +26,16 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { ClientStorage } from '../common/classes/ClientStorage'
-import { now } from '../common/functions/now'
+import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
+import { System } from '../ecs/classes/System'
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing'
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { defineSystem, System } from 'bitecs'
-import { ECSWorld } from '../ecs/classes/World'
+import { World } from '../ecs/classes/World'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -341,7 +341,7 @@ export class EngineRenderer {
    * Change the quality of the renderer.
    */
   changeQualityLevel(): void {
-    const time = now()
+    const time = nowMilliseconds()
     const delta = time - lastRenderTime
     lastRenderTime = time
 
@@ -423,18 +423,13 @@ export class EngineRenderer {
   }
 }
 
-export const WebGLRendererSystem = async (props: EngineRendererProps): Promise<System> => {
+export const WebGLRendererSystem = async (world: World, props: EngineRendererProps) => {
   new EngineRenderer(props)
-  const { enabled } = props
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   EngineRenderer.instance.dispatchSettingsChangeEvent()
 
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
-    if (enabled) EngineRenderer.instance.execute(delta)
-
-    return world
-  })
+  return () => {
+    if (props.enabled) EngineRenderer.instance.execute(world.delta)
+  }
 }

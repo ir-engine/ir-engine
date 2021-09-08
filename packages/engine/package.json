@@ -47,7 +47,7 @@
     "@tweenjs/tween.js": "^18.6.4",
     "@xrengine/bot": "^0.4.0",
     "@xrengine/common": "^0.4.0",
-    "bitecs": "^0.3.19-1",
+    "bitecs": "^0.3.20",
     "browserfs": "^1.4.3",
     "cross-env": "^7.0.3",
     "cross-fetch": "^3.0.6",

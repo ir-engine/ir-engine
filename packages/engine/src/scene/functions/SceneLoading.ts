@@ -126,7 +126,9 @@ export class WorldScene {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
         const { meta_data } = component.data
-        World.sceneMetadata = meta_data
+
+        const world = Engine.defaultWorld
+        world.sceneMetadata = meta_data
         console.log('scene_metadata|' + meta_data)
         //}
         break
@@ -140,7 +142,7 @@ export class WorldScene {
           // if (isClient && Engine.isBot) {
           const { _data } = component.data
           const { x, y, z } = transform.position
-          World.worldMetadata[_data] = x + ',' + y + ',' + z
+          world.worldMetadata[_data] = x + ',' + y + ',' + z
           console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
           // }
         }

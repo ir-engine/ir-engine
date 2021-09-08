@@ -12,7 +12,7 @@ export const detectUserInPortal = (entity: Entity): void => {
 
   const portalComponent = getComponent(portalEntity, PortalComponent)
   if (isClient) {
-    if (World.defaultWorld.isInPortal) return
+    if (Engine.defaultWorld.isInPortal) return
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
       portalComponent

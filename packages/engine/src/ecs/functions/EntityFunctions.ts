@@ -1,7 +1,6 @@
 import * as bitECS from 'bitecs'
-
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
+import { useWorld } from './SystemHooks'
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = {}>(schema?: S, defaultValues = {}) => {
@@ -81,14 +80,14 @@ export type MappedComponent<T, S extends bitECS.ISchema> = bitECS.ComponentType<
   delete: (entity: number) => void
 }
 
-export const createEntity = (world = World.defaultWorld.ecsWorld): Entity => {
+export const createEntity = (world = useWorld()): Entity => {
   const entity = bitECS.addEntity(world)
-  world.world.entities.push(entity)
+  world.entities.push(entity)
   return entity
 }
 
-export const removeEntity = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
-  world.world.entities.splice(world.world.entities.indexOf(entity), 1)
+export const removeEntity = (entity: Entity, world = useWorld()) => {
+  world.entities.splice(world.entities.indexOf(entity), 1)
   bitECS.removeEntity(world, entity)
   // TODO: remove mapped component data
 }
@@ -100,7 +99,7 @@ export const getComponent = <T extends any, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
   getRemoved = false,
-  world = World.defaultWorld.ecsWorld
+  world = useWorld()
 ): T & SoAProxy<S> => {
   if (typeof entity === 'undefined') {
     console.warn('[getComponent]: entity is undefined')
@@ -115,7 +114,7 @@ export const addComponent = <T extends any, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
   args: T,
-  world = World.defaultWorld.ecsWorld
+  world = useWorld()
 ) => {
   if (typeof entity === 'undefined') {
     console.warn('[addComponent]: entity is undefined')
@@ -134,7 +133,7 @@ export const addComponent = <T extends any, S extends bitECS.ISchema>(
 export const hasComponent = <T extends any, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
-  world = World.defaultWorld.ecsWorld
+  world = useWorld()
 ) => {
   if (typeof entity === 'undefined') {
     console.warn('[hasComponent]: entity is undefined')
@@ -147,7 +146,7 @@ export const hasComponent = <T extends any, S extends bitECS.ISchema>(
 export const removeComponent = <T extends any, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
-  world = World.defaultWorld.ecsWorld
+  world = useWorld()
 ) => {
   if (typeof entity === 'undefined') {
     console.warn('[removeComponent]: entity is undefined')
@@ -162,9 +161,9 @@ export const removeComponent = <T extends any, S extends bitECS.ISchema>(
 
 export const getAllComponentsOfType = <T extends any, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
-  world = World.defaultWorld.ecsWorld
+  world = useWorld()
 ): T[] => {
-  const query = bitECS.defineQuery([component])
+  const query = defineQuery([component])
   const entities = query(world)
   return entities.map((e) => {
     return getComponent(e, component)
@@ -173,15 +172,25 @@ export const getAllComponentsOfType = <T extends any, S extends bitECS.ISchema>(
 
 export const getAllEntitiesWithComponent = <T extends any, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
-  world = World.defaultWorld.ecsWorld
+  world = useWorld()
 ): Entity[] => {
-  const query = bitECS.defineQuery([component])
+  const query = defineQuery([component])
   return query(world)
 }
 
-export const removeAllComponents = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
+export const removeAllComponents = (entity: Entity, world = useWorld()) => {
   for (const component of bitECS.getEntityComponents(world, entity)) {
     bitECS.removeComponent(world, component, entity)
     // TODO: remove mapped component data
   }
+}
+
+export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
+  const query = bitECS.defineQuery(components) as bitECS.Query
+  const enterQuery = bitECS.enterQuery(query)
+  const exitQuery = bitECS.exitQuery(query)
+  const wrappedQuery = (world = useWorld()) => query(world)
+  wrappedQuery.enter = (world = useWorld()) => enterQuery(world)
+  wrappedQuery.exit = (world = useWorld()) => exitQuery(world)
+  return wrappedQuery
 }

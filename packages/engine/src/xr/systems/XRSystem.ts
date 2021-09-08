@@ -3,10 +3,10 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ECSWorld } from '../../ecs/classes/World'
+import { World } from '../../ecs/classes/World'
+import { defineQuery } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
@@ -20,11 +20,10 @@ import { endXR, startWebXR } from '../functions/WebXRFunctions'
  * @author Josh Field <github.com/hexafield>
  */
 
-export const XRSystem = async (): Promise<System> => {
+export const XRSystem = async (world: World) => {
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
-  const localXRControllerAddQuery = enterQuery(localXRControllerQuery)
 
   // TEMPORARY - precache controller model
   // TODO: remove this when IK system is in
@@ -52,21 +51,19 @@ export const XRSystem = async (): Promise<System> => {
     }
   })
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     if (Engine.xrRenderer?.isPresenting) {
       const session = Engine.xrFrame.session
       for (const source of session.inputSources) {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
           source.gamepad?.buttons.forEach((button, index) => {
-            if (typeof mapping.buttons[index] !== 'undefined') {
-              // TODO : support button.touched and button.value
-              Engine.inputState.set(mapping.buttons[index], {
-                type: InputType.BUTTON,
-                value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-                lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
-              })
-            }
+            // TODO : support button.touched and button.value
+            Engine.inputState.set(mapping.buttons[index], {
+              type: InputType.BUTTON,
+              value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
+              lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+            })
           })
           if (source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
@@ -85,11 +82,9 @@ export const XRSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of localXRControllerAddQuery(world)) {
+    for (const entity of localXRControllerQuery.enter()) {
       addControllerModels(entity)
     }
-
-    return world
-  })
+  }
   // TODO: add and remove controller models from grips
 }

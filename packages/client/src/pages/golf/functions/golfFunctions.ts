@@ -13,6 +13,12 @@ export const getGolfPlayerNumber = (entity: Entity = Network.instance.localClien
   return number
 }
 
+export function getGolfPlayerState(
+  playerNumber = GolfState.currentPlayer.value
+): typeof GolfState.players[0]['value'] | undefined {
+  return GolfState.players[playerNumber].value
+}
+
 export const isCurrentGolfPlayer = (entity: Entity) => {
   const currentPlayerNumber = GolfState.currentPlayer.value
   const currentPlayerId = GolfState.players[currentPlayerNumber].id.value

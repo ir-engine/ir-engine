@@ -2,7 +2,6 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../classes/Network'
 import { spawnPrefab } from '../functions/spawnPrefab'
-import { ECSWorld } from '../../ecs/classes/World'
 import { NetworkWorldActions, NetworkWorldActionType } from '../interfaces/NetworkWorldActions'
 
 /**
@@ -67,7 +66,7 @@ function syncPhysicsObjects(objectToCreate) {
   }
 }
 
-export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActionType) => {
+export const clientNetworkReceptor = (action: NetworkWorldActionType) => {
   console.log('clientNetworkReceptor', action)
   switch (action.type) {
     case NetworkWorldActions.CREATE_CLIENT: {

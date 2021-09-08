@@ -1,8 +1,8 @@
 import { Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, enterQuery, exitQuery } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
-import { ECSWorld } from '../ecs/classes/World'
+import { System } from '../ecs/classes/System'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -31,7 +31,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
   const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
 
-  return defineSystem((world: ECSWorld) => {
+  return (world) => {
     const { delta } = world
 
     for (const entity of avatarControllerRemovedQuery(world)) {
@@ -113,5 +113,5 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       moveAvatar(entity, delta)
     }
     return world
-  })
+  }
 }

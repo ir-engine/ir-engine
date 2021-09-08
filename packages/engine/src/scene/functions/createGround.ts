@@ -30,6 +30,7 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
 
   addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
+  console.log('create ground', entity, args, isClient)
   const body = createCollider(
     entity,
     {

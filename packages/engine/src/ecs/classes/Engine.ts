@@ -8,20 +8,19 @@
 import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
-import { NumericalType } from '../../common/types/NumericalTypes'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineEvents } from './EngineEvents'
 import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
-import { World } from './World'
+import { World } from '../classes/World'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
  * Data is holded statically hence will be available everywhere.
  *
- * @author Shaw, Josh, Vyacheslav and the XREngine Team
+ * @author Shaw, Josh, Vyacheslav, Gheric and the XREngine Team
  */
 export class Engine {
   public static initOptions: InitializeOptions
@@ -61,6 +60,20 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1
+
+  /**
+   * The default world
+   */
+  public static defaultWorld: World | null = null
+
+  /**
+   * The currently executing world
+   */
+  public static currentWorld: World | null = null
+
+  /**
+   * All worlds that are currently instantiated
+   */
   public static worlds: World[] = []
 
   /**

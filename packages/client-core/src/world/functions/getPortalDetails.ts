@@ -18,7 +18,7 @@ export const getPortalDetails = async () => {
 
   // @TODO make a global ref to all portals instead of getting all components
   await Promise.all(
-    World.defaultWorld.portalEntities.map(async (entity: Entity): Promise<void> => {
+    Engine.defaultWorld.portalEntities.map(async (entity: Entity): Promise<void> => {
       const portal = getComponent(entity, PortalComponent)
       try {
         const portalDetails = await (await fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)).json()

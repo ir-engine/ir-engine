@@ -1,16 +1,14 @@
 import { State, useState } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { defineSystem } from 'bitecs'
 import React from 'react'
 import { Matrix4, MathUtils } from 'three'
-import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
-import { getPlayerNumber } from './functions/golfBotHookFunctions'
 import { getGolfPlayerNumber } from './functions/golfFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
@@ -201,7 +199,7 @@ const mat4 = new Matrix4()
 export const GolfScorecardUISystem = async () => {
   const ui = createScorecardUI()
 
-  return defineSystem((world: ECSWorld) => {
+  return (world: World) => {
     // return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)
@@ -242,7 +240,7 @@ export const GolfScorecardUISystem = async () => {
     // uiTransform.position.y += avatarHeight + 0.3
 
     return world
-  })
+  }
 }
 
 const GolfScorecardUI = new Map<Entity, ReturnType<typeof createScorecardUI>>()

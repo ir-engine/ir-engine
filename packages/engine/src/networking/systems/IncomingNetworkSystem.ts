@@ -4,8 +4,6 @@ import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/networkSchema'
-import { defineSystem, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
 import { clientNetworkReceptor } from '../functions/clientNetworkReceptor'
 import { isEntityLocalClient } from '../functions/isEntityLocalClient'
 import { isClient } from '../../common/functions/isClient'
@@ -14,13 +12,18 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
-export const IncomingNetworkSystem = async (): Promise<System> => {
-  return defineSystem((world: ECSWorld) => {
-    if (isClient) {
-      for (const action of Network.instance.incomingActions) clientNetworkReceptor(world, action as any)
-    } else {
+export const IncomingNetworkSystem = async (world: World): Promise<System> => {
+  if (isClient) world.receptors.add(clientNetworkReceptor)
+
+  return () => {
+    for (const action of Network.instance.incomingActions) {
+      for (const receptor of world.receptors) receptor(action)
+    }
+
+    if (!isClient) {
       // Progress server to next tick
       Network.instance.tick++
     }
@@ -117,7 +120,5 @@ export const IncomingNetworkSystem = async (): Promise<System> => {
         console.log('could not read world state from buffer')
       }
     }
-
-    return world
-  })
+  }
 }

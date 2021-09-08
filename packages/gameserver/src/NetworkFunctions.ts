@@ -356,7 +356,7 @@ export function handleIncomingActions(socket, message) {
   for (const id in Network.instance.clients) userIdMap[Network.instance.clients[id].socketId] = id
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as IncomingActionType[]
-  for (const a of actions) a.userId = userIdMap[socket.id]
+  for (const a of actions) a.$userId = userIdMap[socket.id]
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 
   Network.instance.incomingActions.push(...actions)
