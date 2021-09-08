@@ -28,16 +28,20 @@ export const searchMedia = async (source, params, cursor, signal): Promise<any> 
 
   const searchParams = url.searchParams
 
+  const paramsOption = { query: {} }
   searchParams.set('source', source)
+  paramsOption.query['source'] = source
 
   if (source === 'assets') {
     searchParams.set('user', getAccountId())
+    paramsOption.query['user'] = getAccountId()
     const token = getToken()
     headers.authorization = `Bearer ${token}`
   }
 
   if (params.type) {
     searchParams.set('type', params.type)
+    paramsOption.query['type'] = params.type
   }
 
   if (params.query) {
@@ -46,27 +50,33 @@ export const searchMedia = async (source, params, cursor, signal): Promise<any> 
 
   if (params.filter) {
     searchParams.set('filter', params.filter)
+    paramsOption.query['type'] = params.type
   }
 
   if (params.collection) {
     searchParams.set('collection', params.collection)
+    paramsOption.query['collection'] = params.collection
   }
 
   if (cursor) {
     searchParams.set('cursor', cursor)
+    paramsOption.query['cursor'] = cursor
   }
 
   console.log('Fetching...')
-  const resp = await fetchUrl(url, { headers, signal })
-  console.log('Response: ' + Object.values(resp))
+
+  const media = globalThis.Editor.clientApp.service('media-search')
+  const json = await media.find(paramsOption, {
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${getToken()}` }
+  })
+  ///
+  console.log('Response: ' + Object.values(json))
 
   if (signal.aborted) {
     const error = new Error(i18n.t('editor:errors.mediaSearchAborted')) as any
     error['aborted'] = true
     throw error
   }
-
-  const json = await resp.json()
 
   if (signal.aborted) {
     const error = new Error(i18n.t('editor:errors.mediaSearchAborted')) as any

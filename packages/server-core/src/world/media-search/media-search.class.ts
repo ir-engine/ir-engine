@@ -44,8 +44,8 @@ export class MediaSearch implements ServiceMethods<Data> {
    */
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     console.log('Find')
+
     const source = params?.query?.source
-    console.log(source)
     let result
 
     // TODO: Add work from black list item
@@ -76,6 +76,7 @@ export class MediaSearch implements ServiceMethods<Data> {
         break
       }
     }
+    console.log('Result for search media is:' + result)
     return result || []
   }
 

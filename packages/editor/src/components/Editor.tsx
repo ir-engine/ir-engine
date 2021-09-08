@@ -88,6 +88,9 @@ import { guessContentType } from '@xrengine/engine/src/scene/functions/guessCont
 import AssetManifestSource from './assets/AssetManifestSource'
 import { UploadFileType } from './assets/sources/MyAssetsSource'
 import { loadEnvironmentMap } from './EnvironmentMap'
+import { Application, feathers } from '@feathersjs/feathers'
+import rest from '@feathersjs/rest-client'
+import { Config } from '@xrengine/common/src/config'
 
 const tempMatrix1 = new Matrix4()
 const tempMatrix2 = new Matrix4()
@@ -149,12 +152,13 @@ export class Editor extends EventEmitter {
   playing: boolean
   Engine: Engine
   animationCallback = null
+  clientApp: Application<any, any>
 
   // initializing component properties with default value.
   constructor(settings = {}, Engine) {
     super()
     this.Engine = Engine
-    globalThis.Editor = this
+    globalThis.Editor = this as Editor
     this.camera = Engine.camera
     this.settings = settings
     this.project = null
@@ -202,6 +206,10 @@ export class Editor extends EventEmitter {
     this.initializing = false
     this.initialized = false
     this.sceneLoading = false
+
+    this.clientApp = feathers()
+    const restClient = rest(Config.publicRuntimeConfig.apiServer).fetch(window.fetch.bind(window))
+    this.clientApp.configure(restClient)
   }
 
   /**
