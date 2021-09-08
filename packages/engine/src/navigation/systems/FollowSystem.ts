@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, System } from 'bitecs'
+import { defineSystem, System } from 'bitecs'
 import { Vector3 } from 'three'
 import { positionBehind } from '@xrengine/common/src/utils/mathUtils'
 import { ECSWorld } from '../../ecs/classes/World'
@@ -6,6 +6,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowComponent } from '../component/FollowComponent'
 import { goTo } from '../../common/functions/commandHandler'
+import { defineQuery } from 'bitecs'
 
 const distanceToPlayer: number = 1
 const step: number = 10

@@ -46,6 +46,9 @@ import { OutgoingNetworkSystem } from './networking/systems/OutgoingNetworkSyste
 import { IncomingNetworkSystem } from './networking/systems/IncomingNetworkSystem'
 import { ProximitySystem } from './proximityChecker/systems/ProximitySystem'
 import { FollowSystem } from './navigation/systems/FollowSystem'
+import { FixedPipelineSystem } from './ecs/functions/FixedPipelineSystem'
+import { AvatarSystem } from './avatar/AvatarSystem'
+import { TimerSystem } from './common/timer/systems/timerSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -158,7 +161,16 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   if (options.scene.disabled) return
 
   // Input Systems
+
   registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
+
+  // registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
+
+  // Maps & Navigation
+  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  // registerSystem(SystemUpdateType.Fixed, ProximitySystem)
+  // registerSystem(SystemUpdateType.Fixed, FollowSystem)
+  // registerSystem(SystemUpdateType.Fixed, TimerSystem)
 
   // Avatar Systems
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
