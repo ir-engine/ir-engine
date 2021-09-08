@@ -19,6 +19,7 @@ import { getPlayerEntity } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
+import { isBot } from './isBot'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -440,7 +441,10 @@ function handleGetChatHistoryCommand() {
     const messages = activeChannel.messages
     if (messages === undefined) return
 
-    for (let i = 0; i < messages.length; i++) messages[i].text = removeMessageSystem(messages[i].text)
+    for (let i = 0; i < messages.length; i++) {
+      messages[i].text = removeMessageSystem(messages[i].text)
+      if (isBot(window)) messages[i].createdBy = 'xr-engine'
+    }
     console.log('messages|' + JSON.stringify(messages))
   } else {
     console.warn("Couldn't get chat state")
