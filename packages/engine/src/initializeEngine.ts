@@ -47,6 +47,7 @@ import { OutgoingNetworkSystem } from './networking/systems/OutgoingNetworkSyste
 import { IncomingNetworkSystem } from './networking/systems/IncomingNetworkSystem'
 import { ProximitySystem } from './proximityChecker/systems/ProximitySystem'
 import { FollowSystem } from './navigation/systems/FollowSystem'
+import { AfkCheckSystem } from './navigation/systems/AfkCheckSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -185,9 +186,12 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
   registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
   registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
+
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
   registerSystem(SystemUpdateType.Fixed, ProximitySystem)
   registerSystem(SystemUpdateType.Fixed, FollowSystem)
+
+  registerSystem(SystemUpdateType.Fixed, AfkCheckSystem)
 
   !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
 

@@ -225,7 +225,7 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 
       return true
     }
-    case 'listAllusers ': {
+    case 'listAllusers': {
       if (isServer) return false
 
       handleListAllUsersCommand(userId)
@@ -428,9 +428,10 @@ function handleFollowCommand(param: string, eid: number) {
   }
 }
 function handleListAllUsersCommand(userId) {
+  console.log('listallusers, local id: ' + userId)
   if (userId === undefined) return
 
-  const players: string[] = getPlayers(userId)
+  const players: string[] = getPlayers(userId, true)
   if (players === undefined) return
 
   console.log('players|' + players)

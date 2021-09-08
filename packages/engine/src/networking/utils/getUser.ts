@@ -1,9 +1,18 @@
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 import { Network } from '../classes/Network'
 
 export function getUserId(eid) {
   for (let e in Network.instance.networkObjects) {
     if (Network.instance.networkObjects[e].entity === eid) {
       return Network.instance.networkObjects[e].uniqueId
+    }
+  }
+}
+export function getEid(userId) {
+  for (let e in Network.instance.networkObjects) {
+    if (Network.instance.networkObjects[e].uniqueId === userId) {
+      return Network.instance.networkObjects[e].entity
     }
   }
 }
@@ -33,7 +42,7 @@ export function getPlayerEntity(player): number {
   return undefined
 }
 
-export function getPlayers(localUserId): string[] {
+export function getPlayers(localUserId, notAfk: boolean): string[] {
   const res: string[] = []
 
   for (let p in Network.instance.clients) {
@@ -43,7 +52,14 @@ export function getPlayers(localUserId): string[] {
       Network.instance.clients[p].name !== '' &&
       !res.includes(Network.instance.clients[p].name)
     ) {
-      res.push(Network.instance.clients[p].name)
+      if (!notAfk) res.push(Network.instance.clients[p].name)
+      else {
+        const eid = getEid(Network.instance.clients[p].userId)
+        if (eid !== undefined) {
+          const acc = getComponent(eid, AfkCheckComponent)
+          if (acc !== undefined && !acc.isAfk) res.push(Network.instance.clients[p].name)
+        }
+      }
     }
   }
 
