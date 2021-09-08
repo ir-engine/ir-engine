@@ -15,6 +15,7 @@ export const TriggerSysyem = async (): Promise<System> => {
   const triggerExitQuery = exitQuery(triggerCollidedQuery)
 
   return defineSystem((world: ECSWorld) => {
+    debugger
     for (const entity of triggerEnterQuery(world)) {
       let triggerComponent = getComponent(entity, TriggerVolumeComponent)
 

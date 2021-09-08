@@ -9,12 +9,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { addObject3DComponent } from './addObject3DComponent'
 
-export const createTriggerVolume = (
-  entity,
-  args: {
-    target: any
-  }
-) => {
+export const createTriggerVolume = (entity, args) => {
   console.log('args are', args)
 
   const transform = getComponent(entity, TransformComponent)
@@ -22,21 +17,23 @@ export const createTriggerVolume = (
   const rot = transform.rotation ?? { x: 0, y: 0, z: 0, w: 1 }
   const scale = transform.scale ?? { x: 1, y: 1, z: 1 }
 
-  // A visual representation for the trigger
-  const geometry = new BoxBufferGeometry()
-  const material = new Material()
-  const boxMesh = new Mesh(geometry, material)
-  boxMesh.position.set(pos.x, pos.y, pos.z)
-  boxMesh.scale.set(scale.x, scale.y, scale.z)
-  const box = new BoxHelper(boxMesh, 0xffff00)
-  box.layers.set(1)
-  addObject3DComponent(entity, box, {})
+  if (args.showHelper) {
+    // A visual representation for the trigger
+    const geometry = new BoxBufferGeometry()
+    const material = new Material()
+    const boxMesh = new Mesh(geometry, material)
+    boxMesh.position.set(pos.x, pos.y, pos.z)
+    boxMesh.scale.set(scale.x, scale.y, scale.z)
+    const box = new BoxHelper(boxMesh, 0xffff00)
+    box.layers.set(1)
+    addObject3DComponent(entity, box, {})
+  }
 
   const shapeBox: ShapeType = {
     shape: SHAPES.Box,
     options: { boxExtents: { x: scale.x / 2, y: scale.y / 2, z: scale.z / 2 } },
     config: {
-      isTrigger: false,
+      isTrigger: true,
       collisionLayer: CollisionGroups.Trigger,
       collisionMask: CollisionGroups.Avatars
     }

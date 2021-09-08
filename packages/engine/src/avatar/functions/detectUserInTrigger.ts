@@ -30,13 +30,18 @@ export const detectUserInTrigger = (entity: Entity): void => {
   const triggerEntity = getControllerCollisions(entity, TriggerVolumeComponent).controllerCollisionEntity
   if (typeof triggerEntity !== 'undefined') {
     let triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
-    const raycastComponent = getComponent(triggerEntity, RaycastComponent)
+    const raycastComponent = getComponent(entity, RaycastComponent)
     if (triggerComponent) {
       if (!triggerComponent.active) {
         triggerComponent.active = true
+        console.log('trigger active')
         addComponent(triggerEntity, TriggerDetectedComponent, {})
         const interval = setInterval(() => {
-          if (triggerComponent.active && raycastComponent.raycastQuery.hits[0]?.body.userData !== triggerComponent) {
+          if (
+            triggerComponent.active &&
+            typeof getControllerCollisions(entity, TriggerVolumeComponent).controllerCollisionEntity !== 'undefined'
+          ) {
+            console.log('removing trigger')
             triggerComponent.active = false
             removeComponent(triggerEntity, TriggerDetectedComponent)
             clearInterval(interval)
