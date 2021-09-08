@@ -1,8 +1,7 @@
 import { buffer, center, points } from '@turf/turf'
 import { Feature } from 'geojson'
 import { BufferGeometry, Color } from 'three'
-import convertFunctionToWorker from '../common/functions/convertFunctionToWorker'
-import { isClient } from '../common/functions/isClient'
+import createWorkerModule from '../common/functions/createWorkerModule'
 import { IStyles } from './styles'
 import { LongLat } from './types'
 
@@ -222,9 +221,5 @@ const geometryWorkerFunction = function () {
 }
 
 export default ({ onmessage }: { onmessage: Worker['onmessage'] }) => {
-  if (isClient) {
-    const geometryWorker = convertFunctionToWorker(geometryWorkerFunction)
-    geometryWorker.onmessage = onmessage
-    return geometryWorker
-  }
+  return createWorkerModule(geometryWorkerFunction, { onmessage })
 }

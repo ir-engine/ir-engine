@@ -1,4 +1,4 @@
-import { stringifyFunctionBody } from '../../../src/common/functions/convertFunctionToWorker'
+import { stringifyFunctionBody } from '../../../src/common/functions/createWorkerModule'
 test('stringifyFunctionBody', () => {
   function named() {
     return Math.PI
