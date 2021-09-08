@@ -6,7 +6,7 @@ export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext) => {
     const loggedInUser = extractLoggedInUserFromParams(context.params)
     if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
-    const scopes = await context.app.service('scope').Model.findAll({
+    const scopes = await (context.app.service('scope') as any).Model.findAll({
       where: {
         userId: loggedInUser.userId
       },
