@@ -368,7 +368,7 @@ const FeedForm = ({
               autoPlay={false}
               loop
               muted={false}
-              playsinline={true}
+              playsInline={true}
               controls={true}
             >
               <source src={videoPath} type="video/mp4" />
