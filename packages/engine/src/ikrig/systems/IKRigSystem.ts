@@ -4,17 +4,10 @@ import { defineQuery, defineSystem, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 // import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
-import { FORWARD, UP } from '../constants/Vector3Constants'
 import {
   applyHip,
-  applyLimb,
-  applyLimbTmp,
-  applyLookTwist,
-  applySpine,
-  computeHip,
-  computeLimb,
-  computeLookTwist,
-  computeSpine,
+  applyIKRig,
+  computeIKPose,
   visualizeHip,
   visualizeLimb,
   visualizeLookTwist,
@@ -96,20 +89,7 @@ export const IKRigSystem = async (): Promise<System> => {
       }
 
       // // COMPUTE
-      computeHip(rig, ikPose)
-
-      computeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l)
-      computeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r)
-      //
-      computeLookTwist(rig, rig.points.foot_l, ikPose.foot_l, FORWARD, UP) // Look = Fwd, Twist = Up
-      computeLookTwist(rig, rig.points.foot_r, ikPose.foot_r, FORWARD, UP)
-
-      computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD)
-
-      computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l)
-      computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r)
-
-      computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP)
+      computeIKPose(rig, ikPose)
 
       // // // VISUALIZE
       // visualizeHip(rig, ikPose);
@@ -126,20 +106,7 @@ export const IKRigSystem = async (): Promise<System> => {
 
       // APPLY
       ikPose.targetRigs.forEach((targetRig) => {
-        console.log('~~~ APPLY RIG', targetRig['name'])
-        applyHip(ikPose, targetRig)
-
-        applyLimbTmp(ikPose, rig, targetRig, 'leg_l', ikPose.leg_l)
-        applyLimbTmp(ikPose, rig, targetRig, 'leg_r', ikPose.leg_r)
-
-        applyLookTwist(targetRig, targetRig.points.foot_l, ikPose.foot_l, FORWARD, UP)
-        applyLookTwist(targetRig, targetRig.points.foot_r, ikPose.foot_r, FORWARD, UP)
-        applySpine(ikPose, targetRig, rig.chains.spine, ikPose.spine, UP, FORWARD)
-
-        applyLimbTmp(ikPose, rig, targetRig, 'arm_l', ikPose.arm_l)
-        applyLimbTmp(ikPose, rig, targetRig, 'arm_r', ikPose.arm_r)
-
-        applyLookTwist(targetRig, targetRig.points.head, ikPose.head, FORWARD, UP)
+        applyIKRig(rig, targetRig, ikPose)
       })
       // rig.pose.apply()
     }

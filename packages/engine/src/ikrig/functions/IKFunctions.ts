@@ -143,6 +143,23 @@ export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>
   //   .add( rig.points.wing_r.idx, 3.0, 0.9 );
 }
 
+export function computeIKPose(rig: IKRigComponentType, ikPose: IKPoseComponentType) {
+  computeHip(rig, ikPose)
+
+  computeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l)
+  computeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r)
+  //
+  computeLookTwist(rig, rig.points.foot_l, ikPose.foot_l, FORWARD, UP) // Look = Fwd, Twist = Up
+  computeLookTwist(rig, rig.points.foot_r, ikPose.foot_r, FORWARD, UP)
+
+  computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD)
+
+  computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l)
+  computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r)
+
+  computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP)
+}
+
 export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   // First thing we need is the Hip bone from the Animated Pose
   // Plus what the hip's Bind Pose as well.
@@ -400,14 +417,29 @@ export function visualizeSpine(rig: IKRigComponentType, chain, ik_ary) {
   }
 }
 
-export function applyHip(pose: ReturnType<typeof IKPose.get>, rig: IKRigComponentType) {
+export function applyIKRig(rig: IKRigComponentType, targetRig: IKRigComponentType, ikPose: IKPoseComponentType): void {
+  // Their apply_rig works with source IKPose and have just targetRig as argument
+  console.log('~~~ APPLY RIG', targetRig['name'])
+  applyHip(ikPose, targetRig)
+
+  applyLimbTmp(ikPose, rig, targetRig, 'leg_l', ikPose.leg_l)
+  applyLimbTmp(ikPose, rig, targetRig, 'leg_r', ikPose.leg_r)
+
+  applyLookTwist(targetRig, targetRig.points.foot_l, ikPose.foot_l, FORWARD, UP)
+  applyLookTwist(targetRig, targetRig.points.foot_r, ikPose.foot_r, FORWARD, UP)
+  applySpine(ikPose, targetRig, rig.chains.spine, ikPose.spine, UP, FORWARD)
+
+  applyLimbTmp(ikPose, rig, targetRig, 'arm_l', ikPose.arm_l)
+  applyLimbTmp(ikPose, rig, targetRig, 'arm_r', ikPose.arm_r)
+
+  applyLookTwist(targetRig, targetRig.points.head, ikPose.head, FORWARD, UP)
+}
+
+export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigComponentType) {
   // First step is we need to get access to the Rig's TPose and Pose Hip Bone.
   // The idea is to transform our Bind Pose into a New Pose based on IK Data
   const boneInfo = rig.points.hip
   const bind = rig.tpose.bones[boneInfo.index].bone
-
-  // Get the IK pose from the source rig
-  const ikPose = rig.sourcePose
 
   // Apply IK Swing & Twist ( HANDLE ROTATION )
   // When we compute the IK Hip, We used quaternion invert direction and defined that
