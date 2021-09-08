@@ -101,6 +101,11 @@ export class TriggerVolumeNodeEditor extends Component<TriggerVolumeNodeEditorPr
   //initializing description and will appears on editor view
   static description = i18n.t('editor:properties.triggereVolume.description')
 
+  //function to handle the changes in showHelper property
+  onChangeShowHelperValue = (value) => {
+    ;(this.props.editor as any).setPropertySelected('showHelper', value)
+  }
+
   //function to handle the changes in target
   onChangeTarget = (target) => {
     ;(this.props.editor as any).setPropertiesSelected({
@@ -186,6 +191,9 @@ export class TriggerVolumeNodeEditor extends Component<TriggerVolumeNodeEditorPr
     const LeaveInput = leavePropertyOption && leavePropertyOption.input
     return (
       <NodeEditor description={TriggerVolumeNodeEditor.description} {...this.props}>
+        <InputGroup name="Show Helper" label={this.props.t('editor:properties.triggereVolume.lbl-showHelper')}>
+          <BooleanInput value={node.showHelper} onChange={this.onChangeShowHelperValue} disabled={false} />
+        </InputGroup>
         <InputGroup name="Target" label={this.props.t('editor:properties.triggereVolume.lbl-target')}>
           <SelectInput
             error={targetNotFound}
