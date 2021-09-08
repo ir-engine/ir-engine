@@ -12,7 +12,8 @@ import { stopAutopilot } from '../../navigation/functions/stopAutopilot'
 import {
   subscribeToChatSystem,
   unsubscribeFromChatSystem,
-  getSubscribedChatSystems
+  getSubscribedChatSystems,
+  removeMessageSystem
 } from '../../networking/utils/chatSystem'
 import { getPlayerEntity } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -439,7 +440,8 @@ function handleGetChatHistoryCommand() {
     const messages = activeChannel.messages
     if (messages === undefined) return
 
-    console.log(JSON.stringify(messages))
+    for (let i = 0; i < messages.length; i++) messages[i].text = removeMessageSystem(messages[i].text)
+    console.log('messages|' + JSON.stringify(messages))
   } else {
     console.warn("Couldn't get chat state")
   }
