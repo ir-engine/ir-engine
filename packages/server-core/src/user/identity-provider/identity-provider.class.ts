@@ -6,6 +6,7 @@ import { v1 as uuidv1 } from 'uuid'
 import { random } from 'lodash'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { AuthenticationService } from '@feathersjs/authentication'
+import config from '../../appconfig'
 
 /**
  * A class for identity-provider service
@@ -153,6 +154,14 @@ export class IdentityProvider extends Service {
     // await this.app.service('user-settings').create({
     //   userId: result.userId
     // });
+    if (config.scopes.guest.length) {
+      config.scopes.guest.forEach(async (el) => {
+        await this.app.service('scope').create({
+          type: el,
+          userId: userId
+        })
+      })
+    }
 
     if (type === 'guest') {
       const authService = new AuthenticationService(this.app, 'authentication')
