@@ -1,11 +1,12 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { Creator } from '@xrengine/common/src/interfaces/Creator'
-import { Dispatch } from 'redux'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { client } from '@xrengine/client-core/src/feathers'
+import { Creator } from '@xrengine/common/src/interfaces/Creator'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { Dispatch } from 'redux'
+
 import {
   fetchingCreator,
   creatorRetrieved,
@@ -18,21 +19,18 @@ import {
   creatorFollowing,
   fetchingCreators,
   fetchingCurrentCreator,
-  removeCreator
+  updateCreatorAsBlocked,
+  creatorBlockedUsers
 } from './actions'
 
-export function createCreator(data?: any) {
+export function createCreator() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(fetchingCurrentCreator())
-      if (!data) {
-        data = {}
-        let userNumber = Math.floor(Math.random() * 1000) + 1
-        data.name = 'User' + userNumber
-        data.username = 'user_' + userNumber
-      }
-
-      const creator = await client.service('creator').create(data)
+      let userNumber = Math.floor(Math.random() * 1000) + 1
+      const creator = await client
+        .service('creator')
+        .create({ name: 'User' + userNumber, username: 'user_' + userNumber })
       dispatch(creatorLoggedRetrieved(creator))
     } catch (err) {
       console.log(err)
@@ -53,17 +51,6 @@ export function getLoggedCreator() {
     }
   }
 }
-
-export const fetchCreatorAsAdmin =
-  () =>
-  async (dispatch: Dispatch, getState: any): Promise<any> => {
-    try {
-      const result = await client.service('creator').find({ query: { action: 'admin' } })
-      dispatch(creatorLoggedRetrieved(result))
-    } catch (error) {
-      console.error(error)
-    }
-  }
 
 export function getCreators(limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -97,7 +84,8 @@ export function updateCreator(creator: Creator) {
       dispatch(fetchingCurrentCreator())
       if (creator.newAvatar) {
         const storedAvatar = await upload(creator.newAvatar, null)
-        ;(creator as any).avatarId = (storedAvatar as any).file_id
+        //@ts-ignore error that this vars are void because upload is defines as void funtion
+        creator.avatarId = storedAvatar.file_id
         delete creator.newAvatar
       }
       const updatedCreator = await client.service('creator').patch(creator.id, creator)
@@ -147,6 +135,30 @@ export function unFollowCreator(creatorId: string) {
   }
 }
 
+export function blockCreator(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const follow = await client.service('block-creator').create({ creatorId })
+      follow && dispatch(updateCreatorAsBlocked())
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function getBlockedList(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const list = await client.service('block-creator').find({ query: { action: 'blocked', creatorId } })
+      dispatch(creatorBlockedUsers(list.data))
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
 export function getFollowersList(creatorId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
@@ -167,17 +179,6 @@ export function getFollowingList(creatorId: string) {
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
-    }
-  }
-}
-
-export function deleteCreator(creatorId: string) {
-  return async (dispatch: Dispatch): Promise<any> => {
-    try {
-      await client.service('creator').remove(creatorId)
-      dispatch(removeCreator(creatorId))
-    } catch (err) {
-      console.log(err)
     }
   }
 }

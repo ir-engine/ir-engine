@@ -53,3 +53,22 @@ body{
     display: block;
   }
 }
+
+.btn_skip {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  z-index: 10000;
+  top: 25pt;
+  right: 25pt;
+  .MuiButtonBase-root {
+    background-color: black;
+    color: white;
+    border-radius: 10px;
+  }
+
+  @media screen and (max-width: 499px) {
+    font-size: 14pt;
+
+  }
+}

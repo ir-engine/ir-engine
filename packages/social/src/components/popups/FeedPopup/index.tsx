@@ -6,6 +6,8 @@ import { updateFeedPageState } from '../../../reducers/popupsState/service'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 import Feed from '../../Feed'
+
+//@ts-ignore
 import styles from './FeedPopup.module.scss'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 
@@ -22,9 +24,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   popupsState?: any
   updateFeedPageState?: typeof updateFeedPageState
-  webxrRecorderActivity?: any
+  webxrRecorderActivity: any
+  setView?: any
 }
-export const FeedPopup = ({ popupsState, updateFeedPageState, webxrRecorderActivity }: Props) => {
+export const FeedPopup = ({ popupsState, updateFeedPageState, webxrRecorderActivity, setView }: Props) => {
   //common for feed page
   const feedPageState = popupsState?.get('feedPage')
   const feedId = popupsState?.get('feedId')
@@ -41,7 +44,7 @@ export const FeedPopup = ({ popupsState, updateFeedPageState, webxrRecorderActiv
       >
         <div className={styles.feedPageIosWrapper}>
           <Feed />
-          <AppFooter />
+          <AppFooter setView={setView} />
         </div>
       </SharedModal>
     )

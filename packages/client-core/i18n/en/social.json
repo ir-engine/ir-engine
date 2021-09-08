@@ -19,6 +19,7 @@
     "ara": "Ara",
     "follow": "Follow",
     "flames": "Flames",
+    "continue": "Continue",
     "arMedia": {
         "back": "Back",
         "clip": "Clip",
@@ -71,7 +72,8 @@
     },
     "feed": {
         "back": "Back",
-        "related": "Related feeds"
+        "related": "Related feeds",
+        "is-repoted-message": "Feed is reported!"
     },
     "feedForm": {
         "back": "Back",
@@ -90,7 +92,8 @@
     "feedMenu": {
         "featured": "Featured",
         "creators": "Creators",
-        "feed": "The Feed"
+        "feed": "The Feed",
+        "tips": "Tips & Tricks"
     },
     "header": {
         "lbl-volumetric": "Volumetric"
@@ -152,6 +155,10 @@
     "story": {
         "profilePic": "{{user}}'s profile pic"
     },
+    "tips": {
+        "title": "Created Tips & Tricks",
+        "description": "I recently understood the words of my friend Jacob West about music."
+    },
     "view": {
         "cancel": "Cancel",
         "choice": "You have two different recording modes to choose from",
@@ -161,5 +168,9 @@
     },
     "video": {
         "back": "Back"
+    },
+    "terms":{
+        "confirmTerms": "I agree to Terms of Service",
+        "confirmPolicy": "I agree to Privacy Policy"
     }
 }
