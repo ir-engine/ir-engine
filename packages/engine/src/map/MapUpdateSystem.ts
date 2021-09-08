@@ -9,8 +9,9 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { updateMap } from '../scene/functions/createMap'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
 import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 
-export const MapUpdateSystem = async (): Promise<System> => {
+export default async function MapUpdateSystem(world: World): Promise<System> {
   const moveQuery = defineQuery([Object3DComponent, LocalInputTagComponent])
   const labelsQuery = defineQuery([GeoLabelSetComponent])
   let updateStatus = false

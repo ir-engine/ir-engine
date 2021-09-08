@@ -16,13 +16,15 @@ import { BodyType } from 'three-physx'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { isEntityLocalClientOwnerOf } from '../../networking/functions/isEntityLocalClientOwnerOf'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
 
-export const InterpolationSystem = async () => {
+export default async function InterpolationSystem(world: World): Promise<System> {
   /**
    * Remote avatars
    */

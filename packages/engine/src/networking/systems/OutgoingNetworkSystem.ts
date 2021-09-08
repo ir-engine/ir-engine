@@ -36,7 +36,7 @@ function sendActions() {
   }
 }
 
-export const OutgoingNetworkSystem = async (): Promise<System> => {
+export default async function OutgoingNetworkSystem(world: World): Promise<System> {
   /**
    * For the client, we only want to send out objects we have authority over,
    *   which are the local avatar and any owned objects
@@ -53,7 +53,7 @@ export const OutgoingNetworkSystem = async (): Promise<System> => {
 
   // TODO: reduce quaternions over network to three components
 
-  return (world: World) => {
+  return () => {
     if (Engine.offlineMode) {
       sendActions()
       return world

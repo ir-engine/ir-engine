@@ -6,10 +6,11 @@ import { ProximityCheckerComponent } from '../components/ProximityCheckerCompone
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
 import { isEntityLocal } from '../../networking/utils/isPlayerLocal'
 import { getUserId } from '../../networking/utils/getUser'
+import { System } from '../../ecs/classes/System'
 
 const maxDistance: number = 10
 
-export const ProximitySystem = async (world: World) => {
+export default async function ProximitySystem(world: World): Promise<System> {
   const proximityCheckerQuery = defineQuery([TransformComponent, ProximityCheckerComponent])
 
   return () => {

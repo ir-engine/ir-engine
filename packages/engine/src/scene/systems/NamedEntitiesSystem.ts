@@ -1,11 +1,12 @@
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../components/NameComponent'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
  */
-export const NamedEntitiesSystem = async (): Promise<System> => {
+export default async function NamedEntitiesSystem(world: World): Promise<System> {
   const nameQuery = defineQuery([NameComponent])
 
   return (world) => {

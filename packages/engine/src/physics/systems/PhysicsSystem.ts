@@ -79,10 +79,11 @@ const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObj
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-export const PhysicsSystem = async (
+
+export default async function PhysicsSystem(
   world: World,
-  attributes: { simulationEnabled?: boolean } = {}
-): Promise<System> => {
+  attributes: { simulationEnabled?: boolean }
+): Promise<System> {
   let simulationEnabled = false
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {

@@ -186,13 +186,11 @@ export function createWorld() {
     async initSystems() {
       const fixedSystems = await Promise.all(
         world._fixedPipeline.map((s) => {
-          console.log(`Initializing fixed system: ${s.system.name}`)
           return s.system(world, s.args)
         })
       )
       const freeSystems = await Promise.all(
         world._freePipeline.map((s) => {
-          console.log(`Initializing free system: ${s.system.name}`)
           return s.system(world, s.args)
         })
       )

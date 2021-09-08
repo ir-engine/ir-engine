@@ -5,6 +5,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -20,7 +21,7 @@ import { endXR, startWebXR } from '../functions/WebXRFunctions'
  * @author Josh Field <github.com/hexafield>
  */
 
-export const XRSystem = async (world: World) => {
+export default async function XRSystem(world: World): Promise<System> {
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])

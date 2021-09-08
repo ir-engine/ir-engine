@@ -4,6 +4,7 @@ import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 /** System class for media streaming. */
 export class MediaStreams {
@@ -296,7 +297,7 @@ export class MediaStreams {
   }
 }
 
-export const MediaStreamSystem = async (world: World) => {
+export default async function MediaStreamSystem(world: World): Promise<System> {
   let nearbyAvatarTick = 0
   let executeInProgress = false
 

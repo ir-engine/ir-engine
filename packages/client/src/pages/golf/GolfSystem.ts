@@ -347,7 +347,7 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
 globalThis.GolfState = GolfState
 let ballTimer = 0
 
-export const GolfSystem = async (world: World) => {
+export default async function GolfSystem(world: World) {
   const playerQuery = defineQuery([AvatarComponent])
   const namedComponentQuery = defineQuery([NameComponent])
   const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])

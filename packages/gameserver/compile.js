@@ -65,7 +65,8 @@ const defaultEsbuildOptions = {
     'import.meta.url': 'import_meta_url'
   },
   inject: ['./esbuild-import-meta-fix.js'],
-  format: 'cjs',
+  format: 'esm',
+  splitting: true,
   sourcemap: 'inline',
   write: false,
   logLevel,

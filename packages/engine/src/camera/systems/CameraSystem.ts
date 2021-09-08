@@ -160,7 +160,7 @@ export const resetFollowCamera = () => {
     transform.rotation.copy(desiredTransform.rotation)
   }
 }
-export const CameraSystem = async (): Promise<System> => {
+export default async function CameraSystem(): Promise<System> {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
 
   const cameraEntity = createEntity()

@@ -10,6 +10,7 @@ import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -38,7 +39,7 @@ const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
 const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
-export const SceneObjectSystem = async (world: World) => {
+export default async function SceneObjectSystem(world: World): Promise<System> {
   SceneOptions.instance = new SceneOptions()
 
   return () => {
