@@ -6,6 +6,7 @@ import { IKRig, IKRigComponentType } from '@xrengine/engine/src/ikrig/components
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { bones } from './pose1/ikrig.pose.bones'
 import { bones as tbones } from './ikrig.tpose.bones'
+import { rigData as rig2Data } from './rig2.data'
 import {
   fungiSerializedIKPose,
   fungiSerializedPoseBones,
@@ -16,6 +17,7 @@ import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
 import { addChain, addPoint } from '../../../src/ikrig/functions/RigFunctions'
 import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
+import { setupMixamoIKRig } from '../../../src/ikrig/functions/IKFunctions'
 // import * as rawRig from './IKRig.run-1.json'
 
 export function setupTestSourceEntity(sourceEntity: Entity, world: World): void {
@@ -53,42 +55,55 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
   rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
   rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
 
-  /// init mixamo
-
-  rig.points = {}
-  rig.chains = {}
-
-  addPoint(sourceEntity, 'hip', 'Hips')
-  addPoint(sourceEntity, 'head', 'Head')
-  addPoint(sourceEntity, 'neck', 'Neck')
-  addPoint(sourceEntity, 'chest', 'Spine2')
-  addPoint(sourceEntity, 'foot_l', 'LeftFoot')
-  addPoint(sourceEntity, 'foot_r', 'RightFoot')
-  addChain(sourceEntity, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
-  addChain(sourceEntity, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
-  addChain(sourceEntity, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
-  addChain(sourceEntity, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
-  addChain(sourceEntity, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
-
-  rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
-  rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
-  rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
-  rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
-
-  /// init mixamo
-
-  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
+  setupMixamoIKRig(sourceEntity, rig)
 
   rig.tpose.apply()
-
-  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
 }
 
-export function applyPoseState(pose: Pose, bonesStates: PoseBoneLocalState[]) {
+export function setupTestTargetEntity(targetEntity: Entity, world: World): void {
+  const tbonesStates = adoptBones(rig2Data.tpose.bones)
+  const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
+
+  addComponent(targetEntity, IKObj, { ref: skinnedMesh })
+  const sourcePose = addComponent(targetEntity, IKPose, defaultIKPoseComponentValues())
+  const rig = addComponent(targetEntity, IKRig, {
+    tpose: null,
+    pose: null,
+    chains: {},
+    points: {},
+    sourcePose: null,
+    sourceRig: null
+  })
+
+  // @ts-ignore
+  rig.sourceRig = rig
+  rig.sourcePose = sourcePose
+
+  rig.pose = new Pose(targetEntity, false)
+  rig.tpose = new Pose(targetEntity, true) // If Passing a TPose, it must have its world space computed.
+
+  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
+
+  //-----------------------------------------
+  // Apply Node's Starting Transform as an offset for poses.
+  // This is only important when computing World Space Transforms when
+  // dealing with specific skeletons, like Mixamo stuff.
+  // Need to do this to render things correctly
+  // TODO: Verify the numbers of this vs the original
+  let objRoot = getComponent(targetEntity, IKObj).ref // Obj is a ThreeJS Component
+  rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
+  rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
+
+  /// init mixamo
+
+  setupMixamoIKRig(targetEntity, rig)
+
+  /// init mixamo
+
+  rig.tpose.apply()
+}
+
+export function applyTestPoseState(pose: Pose, bonesStates: PoseBoneLocalState[]) {
   pose.bones.forEach((value, index) => {
     const state = bonesStates[index]
 

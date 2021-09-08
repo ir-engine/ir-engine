@@ -148,6 +148,7 @@ class Pose {
   }
 
   getBone(name: string): PoseBoneLocalState {
+    // TODO: replace with Map?
     return this.bones.find((b) => b.name === name)
   }
 

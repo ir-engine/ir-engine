@@ -333,7 +333,7 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
   loadModels.push(
     loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0), ArmatureType.VEGETA).then((entity) => {
       const rig = getComponent(entity, IKRig)
-      rig.name = 'rigA'
+      rig.name = 'rigA-Vegeta'
       sourcePose.targetRigs.push(rig)
       rig.tpose.apply()
 

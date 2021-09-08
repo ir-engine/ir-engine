@@ -7,6 +7,7 @@ import { addChain, addPoint } from './RigFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose from '../classes/Pose'
 import { Chain } from '../components/Chain'
+import { solveLimb } from './IKSolvers'
 // import { debug } from '../classes/Debug'
 
 const tempQ = new Quaternion()
@@ -33,7 +34,7 @@ const COLOR = {
 // }
 
 // Hold the IK Information, then apply it to a Rig
-export function LawCosinesSSS(aLen, bLen, cLen) {
+export function lawCosinesSSS(aLen: number, bLen: number, cLen: number): number {
   // Law of Cosines - SSS : cos(C) = (a^2 + b^2 - c^2) / 2ab
   // The Angle between A and B with C being the opposite length of the angle.
   let v = (aLen * aLen + bLen * bLen - cLen * cLen) / (2 * aLen * bLen)
@@ -106,7 +107,7 @@ export function setupVegetaIKRig(entity: Entity, rig: ReturnType<typeof IKRig.ge
 }
 
 export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
-  console.log('setupVegetaIKRig', rig)
+  console.log('setupTRexIKRig', rig)
   rig.points = {}
   rig.chains = {}
   //-----------------------------------------
@@ -422,15 +423,15 @@ export function applyIKRig(rig: IKRigComponentType, targetRig: IKRigComponentTyp
   console.log('~~~ APPLY RIG', targetRig['name'])
   applyHip(ikPose, targetRig)
 
-  applyLimbTmp(ikPose, rig, targetRig, 'leg_l', ikPose.leg_l)
-  applyLimbTmp(ikPose, rig, targetRig, 'leg_r', ikPose.leg_r)
+  applyLimb(ikPose, targetRig, targetRig.chains.leg_l, ikPose.leg_l)
+  applyLimb(ikPose, targetRig, targetRig.chains.leg_r, ikPose.leg_r)
 
   applyLookTwist(targetRig, targetRig.points.foot_l, ikPose.foot_l, FORWARD, UP)
   applyLookTwist(targetRig, targetRig.points.foot_r, ikPose.foot_r, FORWARD, UP)
   applySpine(ikPose, targetRig, rig.chains.spine, ikPose.spine, UP, FORWARD)
 
-  applyLimbTmp(ikPose, rig, targetRig, 'arm_l', ikPose.arm_l)
-  applyLimbTmp(ikPose, rig, targetRig, 'arm_r', ikPose.arm_r)
+  applyLimb(ikPose, targetRig, targetRig.chains.arm_l, ikPose.arm_l)
+  applyLimb(ikPose, targetRig, targetRig.chains.arm_r, ikPose.arm_r)
 
   applyLookTwist(targetRig, targetRig.points.head, ikPose.head, FORWARD, UP)
 }
@@ -539,146 +540,135 @@ export function applyLimb(
   limb: IKPoseLimbData,
   grounding = 0
 ) {
-  // solve for ik
-  // Using law of cos SSS, so need the length of all sides of the triangle
-  const bind_a = rig.tpose.bones.find((bone) =>
-      bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase())
-    ), // Bone Reference from Bind
-    bind_b = rig.tpose.bones.find((bone) =>
-      bone.name.toLowerCase().includes(chain.chainBones[1].ref.name.toLowerCase())
-    ),
-    pose_a = rig.pose.bones.find((bone) =>
-      bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase())
-    ), // Bone Reference from Pose
-    pose_b = rig.pose.bones.find((bone) => bone.name.toLowerCase().includes(chain.chainBones[1].ref.name.toLowerCase()))
-
-  const bindAIndex = rig.tpose.bones.findIndex((bone) =>
-    bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase())
-  )
-  const bindBIndex = rig.tpose.bones.findIndex((bone) =>
-    bone.name.toLowerCase().includes(chain.chainBones[1].ref.name.toLowerCase())
-  )
-
-  const bindBone = rig.tpose.bones.find((bone) =>
-    bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase())
-  ).bone
-
-  // How much of the Chain length to use to calc End Effector
-  const len = chain.length * limb.lengthScale
+  // // solve for ik
+  // // Using law of cos SSS, so need the length of all sides of the triangle
+  // const bind_a = rig.tpose.bones.find((bone) =>
+  //     bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase())
+  //   ), // Bone Reference from Bind
+  //   bind_b = rig.tpose.bones.find((bone) =>
+  //     bone.name.toLowerCase().includes(chain.chainBones[1].ref.name.toLowerCase())
+  //   ),
+  //   pose_a = rig.pose.bones.find((bone) =>
+  //     bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase())
+  //   ), // Bone Reference from Pose
+  //   pose_b = rig.pose.bones.find((bone) => bone.name.toLowerCase().includes(chain.chainBones[1].ref.name.toLowerCase()))
+  //
+  // const bindAIndex = rig.tpose.bones.findIndex((bone) =>
+  //   bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase())
+  // )
+  // const bindBIndex = rig.tpose.bones.findIndex((bone) =>
+  //   bone.name.toLowerCase().includes(chain.chainBones[1].ref.name.toLowerCase())
+  // )
+  //
 
   // Setup IK Target
-  // First, set the IK start point, which is the bind bone's defaultposition
-  ikPose.startPosition.copy(bindBone.position)
-  // Set the end position by copying the limb direction, multiplying by length factor and adding bone position
+  const bindBoneData = rig.pose.bones[chain.first()]
+  const bindBone = bindBoneData.bone
+
+  const p_tran = {
+    position: new Vector3(),
+    quaternion: new Quaternion(),
+    scale: new Vector3()
+  }
+  const c_tran = {
+    position: new Vector3(),
+    quaternion: new Quaternion(),
+    scale: new Vector3()
+  }
+  bindBone.parent.getWorldPosition(p_tran.position)
+  bindBone.parent.getWorldQuaternion(p_tran.quaternion)
+  bindBone.parent.getWorldScale(p_tran.scale)
+  bindBone.getWorldPosition(c_tran.position)
+  bindBone.getWorldQuaternion(c_tran.quaternion)
+  bindBone.getWorldScale(c_tran.scale)
+
+  // How much of the Chain length to use to calc End Effector
+  // let len = (rig.leg_len_lmt || chain.len) * limb.len_scale
+  let len = chain.length * limb.lengthScale
+  const preTargetVars = {
+    len,
+    c_tran: {
+      position: c_tran.position.clone(),
+      quaternion: c_tran.quaternion.clone(),
+      scale: c_tran.scale.clone()
+    },
+    p_tran: {
+      position: p_tran.position.clone(),
+      quaternion: p_tran.quaternion.clone(),
+      scale: p_tran.scale.clone()
+    },
+    limbDir: limb.dir.clone(),
+    limbJointDir: limb.jointDirection.clone()
+  }
+
+  // this.target.from_pos_dir( c_tran.pos, limb.dir, limb.joint_dir, len );	// Setup IK Target
+  targetFromPosDir(ikPose, c_tran.position, limb.dir, limb.jointDirection, len)
+
+  //////////
+
+  const preGroundingVars = {
+    target: {
+      axis: {
+        x: ikPose.axis.x.clone(),
+        y: ikPose.axis.y.clone(),
+        z: ikPose.axis.z.clone()
+      },
+      end_pos: ikPose.endPosition.clone(),
+      len: ikPose.length,
+      start_pos: ikPose.startPosition.clone()
+    }
+  }
+  debugger
+
+  // TODO: unfinished
+
+  // TODO: test it, currently not used in apply (same as in original lib example)
+  if (grounding) applyGrounding(ikPose, grounding)
+
+  // --------- IK Solver
+  const solveLimbVars = solveLimb(chain, rig.tpose, rig.pose, ikPose.axis, ikPose.length, p_tran)
+
+  // apply calculated positions to "real" bones
+  chain.chainBones.forEach(({ index: boneIndex }) => {
+    const poseBone = rig.pose.bones[boneIndex]
+
+    poseBone.bone.position.copy(poseBone.local.position)
+    poseBone.bone.quaternion.copy(poseBone.local.quaternion)
+    poseBone.bone.scale.copy(poseBone.local.scale)
+  })
+
+  return {
+    preTargetVars,
+    preGroundingVars,
+    solveLimbVars
+  }
+}
+
+/**
+ *
+ * @param ikPose will be modified
+ * @param pos
+ * @param dir
+ * @param up_dir
+ * @param len_scl
+ */
+function targetFromPosDir(
+  ikPose: IKPoseComponentType,
+  pos: Vector3,
+  dir: Vector3,
+  up_dir: Vector3,
+  len_scl: number
+): void {
+  ikPose.startPosition.copy(pos)
   ikPose.endPosition
-    .copy(limb.dir)
-    .multiplyScalar(len) // Compute End Effector
-    .add(bindBone.position)
+    .copy(dir)
+    .multiplyScalar(len_scl) // Compute End Effector
+    .add(pos)
 
-  // Set the length for our IK solve to be the distance between start and end positions
-  ikPose.length = ikPose.startPosition.distanceTo(ikPose.endPosition)
+  const len_sqr = ikPose.startPosition.distanceToSquared(ikPose.endPosition)
+  ikPose.length = Math.sqrt(len_sqr)
 
-  // Set the axis from the direction
-  ikPose.axis.fromDirection(limb.dir, limb.jointDirection) // Target Axis
-
-  // We will need to re-enable
-  // if (grounding)
-  //  	applyGrounding(entity, grounding);
-
-  const aLen = bind_a.length,
-    bLen = bind_b.length,
-    cLen = ikPose.length
-
-  let rad
-  const outRot = new Quaternion()
-
-  // FIRST BONE - Aim then rotate by the angle.
-  // Aim the first bone toward the target oriented with the bend direction.
-  // this._aim_bone2( chain, tpose, p_wt, rot );		// Aim the first bone toward the target oriented with the bend direction.
-  const parentWorldPosition = new Vector3(),
-    parentWorldQuaternion = new Quaternion(),
-    parentWorldScale = new Vector3()
-
-  if (bind_a.parent.type === 'Bone') {
-    pose_a.parent.getWorldPosition(parentWorldPosition)
-    pose_a.parent.getWorldQuaternion(parentWorldQuaternion)
-    pose_a.parent.getWorldScale(parentWorldScale)
-  } else {
-    pose_a.bone.getWorldPosition(parentWorldPosition)
-    pose_a.bone.getWorldQuaternion(parentWorldQuaternion)
-    pose_a.bone.getWorldScale(parentWorldScale)
-  }
-  // IK SOLVER
-  // ORIGINAL CODE:
-  // let rot	= Quat.mul( p_wt.rot, tpose.get_local_rot( chain.first() ) ),	// Get World Space Rotation for Bone
-  // dir	= Vec3.transform_quat( chain.alt_fwd, rot );					// Get Bone's WS Forward Dir
-  const rot = parentWorldQuaternion.clone().multiply(bind_a.bone.quaternion)
-  //Swing
-  const dir = chain.altForward.clone().applyQuaternion(rot) // Get Bone's WS Forward Dir
-
-  // TODO: Check the original reference and make sure this is valid
-  // Swing
-  // ORIGINAL CODE
-  // let q = Quat.unit_vecs( dir, this.axis.z );
-  //	out.from_mul( q, rot );
-  const q = new Quaternion().setFromUnitVectors(dir, ikPose.axis.z)
-  outRot.copy(q).multiply(rot)
-
-  dir.copy(chain.altUp).applyQuaternion(outRot) // After Swing, Whats the UP Direction
-  let twist = dir.angleTo(ikPose.axis.y) // Get difference between Swing Up and Target Up
-  // console.log('ikPose.axis.y', ikPose.axis.y)
-  // console.log('twist', radToDeg(twist))
-
-  if (twist <= 0.00017453292) twist = 0
-  else {
-    dir.cross(ikPose.axis.z) // Get Swing LEFT, used to test if twist is on the negative side.
-    if (dir.dot(ikPose.axis.y) >= 0) twist = -twist
-  }
-
-  // ???? Why does this fix it??? This should be enabled
-  pmul_axis_angle(outRot, ikPose.axis.z, twist)
-  // END SOLVER
-
-  const bindAWorldQuaternion = new Quaternion()
-  bind_a.bone.getWorldQuaternion(bindAWorldQuaternion)
-  // const poseBWorldQuaternion = new Quaternion();
-
-  // const boneParentQuaternionInverse = new Quaternion();
-  // tposeBone.parent.getWorldQuaternion(boneParentQuaternionInverse);
-  // boneParentQuaternionInverse.invert();
-
-  rad = LawCosinesSSS(aLen, cLen, bLen) // Get the Angle between First Bone and Target.
-  pmul_axis_angle(outRot, ikPose.axis.x, -rad) // Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
-  pmul_invert(outRot, parentWorldQuaternion) // Convert to Local Space in temp to save WS rot for next bone.
-  // Get the Angle between First Bone and Target.
-  // tempQ.setFromAxisAngle(ikPose.target.axis.x, rad)	// Use the Target's X axis for quaternion along with the angle from SSS
-  // .premultiply(quaternion) // Premultiply by original value
-  // 	.premultiply(boneParentQuaternionInverse);							// Convert to Bone's Local Space by multiply invert of parent bone quaternion
-
-  // TODO: check this out, they store this in separate structure that does not change original bone data
-  // Save result to bone.
-  rig.pose.bones[bindAIndex].bone.setRotationFromQuaternion(outRot)
-
-  const poseAWorldQuaternion = new Quaternion()
-
-  pose_a.bone.getWorldQuaternion(poseAWorldQuaternion)
-
-  // TODO
-  // Transform.add handles this with some positional magic
-  // this.add(pose_a, parentWorldPosition, parentWorldQuaternion, parentWorldScale);
-
-  // /SECOND BONE
-  // Need to rotate from Right to Left, So take the angle and subtract it from 180 to rotate from
-  // the other direction. Ex. L->R 70 degNotrees == R->L 110 degrees
-  rad = Math.PI - LawCosinesSSS(aLen, bLen, cLen)
-  poseAWorldQuaternion.multiply(outRot)
-
-  outRot.copy(poseAWorldQuaternion).multiply(bind_b.bone.quaternion) // Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
-  pmul_axis_angle(outRot, ikPose.axis.x, rad) // Rotate it by the target's x-axis
-  pmul_invert(outRot, poseAWorldQuaternion) // Convert to Bone's Local Space
-
-  // TODO: check this out, they store this in separate structure that does not change original bone data
-  rig.pose.bones[bindBIndex].bone.setRotationFromQuaternion(outRot)
+  ikPose.axis.fromDirection(dir, up_dir) // Target Axis
 }
 
 function from_mul(out: Quaternion, a: Quaternion, b: Quaternion) {
@@ -774,9 +764,7 @@ export function applyLookTwist(
   //rig.pose.bones[boneInfo.index].bone.setRotationFromQuaternion(rotation) // Save result to bone.
 }
 
-export function applyGrounding(entity, y_lmt) {
-  const ik: any = getComponent(entity, IKPose)
-
+export function applyGrounding(ikPose: IKPoseComponentType, y_lmt: number): void {
   // Once we have out IK Target setup, We can use its data to test various things
   // First we can test if the end effector is below the height limit. Each foot
   // may need a different off the ground offset since the bones rarely touch the floor
@@ -785,9 +773,8 @@ export function applyGrounding(entity, y_lmt) {
   // 	return;
 
   /* DEBUG IK TARGET */
-  const tar = (ik as any).target,
-    posA = tar.startPosition.add(new Vector3(-1, 0, 0)),
-    posB = tar.endPosition.add(new Vector3(-1, 0, 0))
+  // const posA = ikPose.startPosition.add(new Vector3(-1, 0, 0)),
+  //   posB = ikPose.endPosition.add(new Vector3(-1, 0, 0))
 
   // Debug.setPoint(posA, COLOR.yellow, 0.05, 6)
   //   .setPoint(posB, COLOR.white, 0.05, 6)
@@ -796,21 +783,21 @@ export function applyGrounding(entity, y_lmt) {
   // Where on the line between the Start and end Points would work for our
   // Y Limit. An easy solution is to find the SCALE based on doing a 1D Scale
   //operation on the Y Values only. Whatever scale value we get with Y we can use on X and Z
-  const a = (ik as any).target.startPosition,
-    b = (ik as any).target.endPosition,
+  const a = ikPose.startPosition,
+    b = ikPose.endPosition,
     s = (y_lmt - a.y) / (b.y - a.y) // Normalize Limit Value in the Max/Min Range of Y.
 
   // Change the end effector of our target
-  ;(ik as any).target.endPosition.set((b.x - a.x) * s + a.x, y_lmt, (b.z - a.z) * s + a.z)
+  ikPose.endPosition.set((b.x - a.x) * s + a.x, y_lmt, (b.z - a.z) * s + a.z)
 
   /* DEBUG NEW END EFFECTOR */
-  // Debug.setPoint((ik as any).target.endPosition.add(new Vector3(-1, 0, 0)), 'orange', 0.05, 6)
+  // Debug.setPoint((ikPose as any).target.endPosition.add(new Vector3(-1, 0, 0)), 'orange', 0.05, 6)
 
   // Since we changed the end effector, lets update the Sqr Length and Length of our target
   // This is normally computed by our IK Target when we set it, but since I didn't bother
   // to create a method to update the end effector, we need to do these extra updates.
-  const distance = (ik as any).target.startPosition.distanceTo((ik as any).target.endPosition)
-  ;(ik as any).target.length = distance
+  const distance = ikPose.startPosition.distanceTo(ikPose.endPosition)
+  ikPose.length = distance
 }
 
 export function applySpine(
