@@ -5,7 +5,7 @@ import { XRUIComponent } from '../components/XRUIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { XRUIStateContext } from '../XRUIStateContext'
-import { World } from '../../ecs/classes/World'
+import { Engine } from '../../ecs/classes/Engine'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
