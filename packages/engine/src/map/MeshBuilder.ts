@@ -22,7 +22,7 @@ import { METERS_PER_DEGREE_LL } from './constants'
 import { collectFeaturesByLayer } from './util'
 import { GeoLabelNode } from './GeoLabelNode'
 import { PI } from '../common/constants/MathConstants'
-import convertFunctionToWorker from '@xrengine/common/src/utils/convertFunctionToWorker'
+import convertFunctionToWorker from '../common/functions/convertFunctionToWorker'
 import { isClient } from '../common/functions/isClient'
 
 // TODO free resources used by canvases, bitmaps etc
