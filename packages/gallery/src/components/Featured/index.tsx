@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
-import { Typography } from '@material-ui/core'
+import { Box, Button, TextField, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
 import VisibilityIcon from '@material-ui/icons/Visibility'
@@ -57,9 +57,17 @@ const Featured = ({
   const { t } = useTranslation()
 
   useEffect(() => {
-    // getFeeds('featured')
-    // setFeedList(feedsState.get('feedsFeatured'))
-  })
+    if (authState) {
+      const user = authState.get('user')
+      const userId = user ? user.id : null
+      if (userId) {
+        getFeeds('featured')
+        if (feedsState.get('feedsFeatured')) {
+          setFeedList(feedsState.get('feedsFeatured'))
+        }
+      }
+    }
+  }, [authState, feedsState.get('feedsFeatured')])
 
   return (
     <section className={styles.feedContainer}>
@@ -88,6 +96,8 @@ const Featured = ({
               key={itemIndex}
             >
               <CardMedia className={styles.previewImage} image={item.previewUrl} onClick={() => {}} />
+              <span className={styles.descr}>{item.description}</span>
+
               <span className={styles.eyeLine}>
                 {item.viewsCount}
                 <VisibilityIcon style={{ fontSize: '16px' }} />

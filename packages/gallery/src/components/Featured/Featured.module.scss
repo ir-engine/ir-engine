@@ -4,6 +4,7 @@
     width: 100vw;
     box-sizing: border-box;
     padding: 0 19pt;
+    margin-top: 30px;
     @media screen and (max-width: 499px){
         padding: 0 15pt;
     }
@@ -97,6 +98,22 @@
             flex-direction: row;
             align-items: center;
             justify-content: flex-end;
+            color: #FFF;
+            margin-top: -25px;
+            svg{
+                margin: 0 0 0 5px;
+            }
+        }
+        .descr{            
+            width: 100%;
+            text-align: right;
+            box-sizing: border-box;
+            padding: 0 6pt;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
             color: #FFF;
             margin-top: -25px;
             svg{
