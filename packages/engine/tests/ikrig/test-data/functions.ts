@@ -120,6 +120,10 @@ export function applyTestPoseState(pose: Pose, bonesStates: PoseBoneLocalState[]
 
     value.length = state.length
   })
+
+  pose.bones.forEach((value, index) => {
+    value.bone.updateMatrixWorld()
+  })
 }
 
 export function getTestIKPoseData(): IKPoseComponentType {

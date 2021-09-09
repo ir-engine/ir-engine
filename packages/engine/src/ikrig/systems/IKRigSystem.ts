@@ -5,8 +5,7 @@ import { ECSWorld } from '../../ecs/classes/World'
 // import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
 import {
-  applyHip,
-  applyIKRig,
+  applyIKPoseToIKRig,
   computeIKPose,
   visualizeHip,
   visualizeLimb,
@@ -106,9 +105,8 @@ export const IKRigSystem = async (): Promise<System> => {
 
       // APPLY
       ikPose.targetRigs.forEach((targetRig) => {
-        applyIKRig(rig, targetRig, ikPose)
+        applyIKPoseToIKRig(targetRig, ikPose)
       })
-      // rig.pose.apply()
     }
 
     return world
