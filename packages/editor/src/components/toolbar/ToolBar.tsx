@@ -1,9 +1,7 @@
-import { ButtonProps } from '@material-ui/core'
 import { Grid } from '@styled-icons/boxicons-regular/Grid'
 import { Pause } from '@styled-icons/fa-solid'
 import { ArrowsAlt } from '@styled-icons/fa-solid/ArrowsAlt'
 import { ArrowsAltV } from '@styled-icons/fa-solid/ArrowsAltV'
-import { Bars } from '@styled-icons/fa-solid/Bars'
 import { Bullseye } from '@styled-icons/fa-solid/Bullseye'
 import { ChartArea } from '@styled-icons/fa-solid/ChartArea'
 import { Globe } from '@styled-icons/fa-solid/Globe'
@@ -19,8 +17,8 @@ import { EditorContext } from '../contexts/EditorContext'
 import { Button } from '../inputs/Button'
 import NumericStepperInput from '../inputs/NumericStepperInput'
 import SelectInput from '../inputs/SelectInput'
-import { ContextMenu, MenuItem, showMenu, SubMenu } from '../layout/ContextMenu'
 import { InfoTooltip } from '../layout/Tooltip'
+import MainMenu from '../mainMenu'
 import styledTheme from '../theme'
 import StatsFuc from './StatsFuc'
 import ToolButton from './ToolButton'
@@ -460,45 +458,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     this.forceUpdate()
   }
 
-  onMenuSelected = (e) => {
-    if (!(this.state as any).menuOpen) {
-      const x = 0
-      const y = e.currentTarget.offsetHeight
-      showMenu({
-        position: { x, y },
-        target: e.currentTarget,
-        id: 'menu'
-      })
-
-      this.setState({ menuOpen: true })
-      window.addEventListener('mousedown', this.onWindowClick)
-    }
-  }
-
-  onWindowClick = () => {
-    window.removeEventListener('mousedown', this.onWindowClick)
-    this.setState({ menuOpen: false })
-  }
-
-  renderMenu = (menu) => {
-    if (!menu.items || menu.items.length === 0) {
-      return (
-        <MenuItem key={menu.name} onClick={menu.action}>
-          {menu.name}
-          {menu.hotkey && <div>{menu.hotkey}</div>}
-        </MenuItem>
-      )
-    } else {
-      return (
-        <SubMenu key={menu.name} title={menu.name} hoverDelay={0}>
-          {menu.items.map((item) => {
-            return this.renderMenu(item)
-          })}
-        </SubMenu>
-      )
-    }
-  }
-
   onSelectTranslate = () => {
     ;(this.props as any).editor.editorControls.setTransformMode(TransformMode.Translate)
   }
@@ -573,7 +532,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     return (
       <StyledToolbar>
         <ToolButtons>
-          <ToolButton icon={Bars} onClick={this.onMenuSelected} isSelected={menuOpen} id="menu" />
+          <MainMenu commands={this.props.menu} />
           <ToolButton
             id="translate-button"
             tooltip="[T] Translate"
@@ -681,11 +640,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
         </ToolToggles>
         <Spacer />
         {this.state.showStats && <StatsFuc />}
-        <ContextMenu id="menu">
-          {(this.props as any).menu.map((menu) => {
-            return this.renderMenu(menu)
-          })}
-        </ContextMenu>
       </StyledToolbar>
     )
   }

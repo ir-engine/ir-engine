@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
 import { EditorContext } from '../contexts/EditorContext'
-import AssetDropZone from './AssetDropZone'
 // @ts-ignore
 import styles from './styles.module.scss'
 import { useAssetSearch } from './useAssetSearch'
