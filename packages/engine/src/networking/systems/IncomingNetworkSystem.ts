@@ -4,7 +4,7 @@ import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/networkSchema'
-import { clientNetworkReceptor } from '../functions/clientNetworkReceptor'
+import { incomingNetworkReceptor } from '../functions/incomingNetworkReceptor'
 import { isEntityLocalClient } from '../functions/isEntityLocalClient'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkObjectOwnerComponent } from '../components/NetworkObjectOwnerComponent'
@@ -15,11 +15,12 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 
-export default async function IncomingNetworkSystem(world: World): Promise<System> {
-  if (isClient) world.receptors.add(clientNetworkReceptor)
+export const IncomingNetworkSystem = async (world: World): Promise<System> => {
+  world.receptors.add(incomingNetworkReceptor)
 
   return () => {
     for (const action of Network.instance.incomingActions) {
+      console.log(`\n\nACTION ${action.type}`, action, '\n\n')
       for (const receptor of world.receptors) receptor(action)
     }
 

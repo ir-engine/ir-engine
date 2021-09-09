@@ -92,14 +92,6 @@ export default async function AvatarSystem(world: World): Promise<System> {
   world.receptors.add(avatarActionReceptor)
 
   return () => {
-    for (const entity of avatarQuery.exit(world)) {
-      const collider = getComponent(entity, ColliderComponent, true)
-
-      if (collider?.body) {
-        PhysXInstance.instance.removeBody(collider.body)
-      }
-    }
-
     for (const entity of raycastQuery.exit(world)) {
       const raycast = getComponent(entity, RaycastComponent, true)
 

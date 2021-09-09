@@ -16,7 +16,14 @@ import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
-import { createEntity, hasComponent, removeAllComponents, removeEntity } from './EntityFunctions'
+import {
+  ComponentType,
+  createEntity,
+  hasComponent,
+  MappedComponent,
+  removeAllComponents,
+  removeEntity
+} from './EntityFunctions'
 import { SystemInitializeType } from './SystemFunctions'
 import { useWorld } from './SystemHooks'
 
@@ -144,7 +151,7 @@ export function createWorld() {
     entities: [] as Entity[],
     portalEntities: [] as Entity[],
     isInPortal: false,
-    _removedComponents: new Map<Entity, any>(),
+    _removedComponents: new Map<Entity, Set<MappedComponent<any, any>>>(),
     _freePipeline: [] as SystemInitializeType<any>[],
     _fixedPipeline: [] as SystemInitializeType<any>[],
 
@@ -180,6 +187,9 @@ export function createWorld() {
       world.delta = delta
       world.elapsedTime = elapsedTime
       for (const system of world.freeSystems) system(world)
+      for (const [entity, components] of world._removedComponents) {
+        for (const c of components) c.delete(entity)
+      }
       world._removedComponents.clear()
     },
 
