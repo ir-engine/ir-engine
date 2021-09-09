@@ -22,25 +22,7 @@ import { GeoLabelNode } from './GeoLabelNode'
 import { PI } from '../common/constants/MathConstants'
 import createGeometryWorker from './GeometryWorker'
 
-const $workerMessagesByTaskId = new Map<
-  string,
-  {
-    data: {
-      geometry: {
-        json: object
-        transfer: {
-          attributes: { [attributeName: string]: { array: Int32Array; itemSize: number; normalized: boolean } }
-        }
-      }
-      geographicCenterPoint: LongLat
-    }
-  }
->()
-const geometryWorker = createGeometryWorker({
-  onmessage: (msg) => {
-    $workerMessagesByTaskId.set(msg.data.taskId, msg)
-  }
-})
+const geometryWorker = createGeometryWorker()
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -65,30 +47,24 @@ const $meshesByTaskId = new Map<string, { mesh: Mesh; geographicCenterPoint: Lon
 const $labelsByTaskId = new Map<string, GeoLabelNode>()
 
 const geometryLoader = new BufferGeometryLoader()
-function buildGeometry(taskId: string, layerName: ILayerName, feature: Feature, llCenter: LongLat): Promise<void> {
+async function buildGeometry(
+  taskId: string,
+  layerName: ILayerName,
+  feature: Feature,
+  llCenter: LongLat
+): Promise<void> {
   const style = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
-  const promise = new Promise<void>((resolve) => {
-    const interval = setInterval(() => {
-      const msg = $workerMessagesByTaskId.get(taskId)
-      if (msg) {
-        clearInterval(interval)
-        const {
-          geometry: { json, transfer },
-          geographicCenterPoint
-        } = msg.data
-        const geometry = geometryLoader.parse(json)
-        for (const attributeName in transfer.attributes) {
-          const { array, itemSize, normalized } = transfer.attributes[attributeName]
-          geometry.setAttribute(attributeName, new BufferAttribute(array, itemSize, normalized))
-        }
-        $geometriesByTaskId.set(taskId, { geometry, geographicCenterPoint })
-        $workerMessagesByTaskId.delete(taskId)
-        resolve()
-      }
-    }, 200)
-  })
-  geometryWorker.postMessage({ taskId: taskId, style, feature, llCenter })
-  return promise
+  const {
+    geometry: { json, transfer },
+    geographicCenterPoint
+  } = await geometryWorker.postTask(taskId, feature, llCenter, style)
+
+  const geometry = geometryLoader.parse(json)
+  for (const attributeName in transfer.attributes) {
+    const { array, itemSize, normalized } = transfer.attributes[attributeName]
+    geometry.setAttribute(attributeName, new BufferAttribute(array, itemSize, normalized))
+  }
+  $geometriesByTaskId.set(taskId, { geometry, geographicCenterPoint })
 }
 
 function createCanvasRenderingContext2D(width: number, height: number) {
@@ -189,7 +165,6 @@ export function getResultsForFeature(featureUUID: string) {
 }
 
 export function deleteResultsForFeature(featureUUID: string) {
-  $workerMessagesByTaskId.delete(featureUUID)
   $geometriesByTaskId.delete(featureUUID)
   $meshesByTaskId.delete(featureUUID)
   $labelsByTaskId.delete(featureUUID)
