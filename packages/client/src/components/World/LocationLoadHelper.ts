@@ -95,6 +95,16 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
+  const userLoaded = new Promise<void>((resolve) => {
+    const listener = ({ uniqueId }) => {
+      if (uniqueId === Network.instance.userId) {
+        resolve()
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
+      }
+    }
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
+  })
+
   // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
@@ -154,15 +164,7 @@ export const initEngine = async (
     createOfflineUser()
   }
 
-  await new Promise<void>((resolve) => {
-    const listener = ({ uniqueId }) => {
-      if (uniqueId === Network.instance.userId) {
-        resolve()
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-      }
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-  })
+  await userLoaded
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
