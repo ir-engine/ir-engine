@@ -1,12 +1,9 @@
 module.exports = {
   presets: [
     ['@babel/preset-env', { "targets": { "node": "current" } }],
-    '@babel/preset-typescript',
-    "babel-preset-vite"
+    '@babel/preset-typescript'
   ],
   plugins: [
-    ["@babel/transform-runtime"],
-    ["babel-plugin-transform-import-meta"],
-    ["dynamic-import-node"]
+    ["@babel/transform-runtime"]
   ]
 }

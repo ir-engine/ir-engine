@@ -2,7 +2,6 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
-import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
@@ -77,7 +76,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
 
-  registerClientSystems(options, canvas)
+  await registerClientSystems(options, canvas)
 }
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
@@ -87,7 +86,7 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.camera.layers.enableAll()
   Engine.scene.add(Engine.camera)
 
-  registerEditorSystems(options)
+  await registerEditorSystems(options)
 }
 
 const configureServer = async (options: Required<InitializeOptions>) => {
@@ -112,151 +111,130 @@ const configureServer = async (options: Required<InitializeOptions>) => {
     Engine.hasJoinedWorld = true
   })
 
-  await loadDRACODecoder()
+  // await loadDRACODecoder()
 
   new SpawnPoints()
 
-  registerServerSystems(options)
+  await registerServerSystems(options)
 }
 
 const registerClientSystems = async (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   if (options.scene.disabled) {
-    registerSystem(
-      SystemUpdateType.Free,
-      async () => (await import('./networking/systems/IncomingNetworkSystem')).default
-    )
-    registerSystem(
-      SystemUpdateType.Free,
-      async () => (await import('./networking/systems/OutgoingNetworkSystem')).default
-    )
+    registerSystem(SystemUpdateType.Free, (await import('./networking/systems/IncomingNetworkSystem')).default)
+    registerSystem(SystemUpdateType.Free, (await import('./networking/systems/OutgoingNetworkSystem')).default)
     return
   }
 
   // Network (Incoming)
-  registerSystem(
-    SystemUpdateType.Free,
-    async () => (await import('./networking/systems/IncomingNetworkSystem')).default
-  )
+  registerSystem(SystemUpdateType.Free, (await import('./networking/systems/IncomingNetworkSystem')).default)
 
   // Input
-  registerSystem(SystemUpdateType.Free, async () => (await import('./input/systems/ClientInputSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./xr/systems/XRSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./camera/systems/CameraSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./bot/systems/BotHookSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./input/systems/ClientInputSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./xr/systems/XRSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./camera/systems/CameraSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./bot/systems/BotHookSystem')).default)
 
   // INPUT INJECTION POINT
 
   // Fixed Systems
-  registerSystem(SystemUpdateType.Free, async () => (await import('./ecs/functions/FixedPipelineSystem')).default, {
+  registerSystem(SystemUpdateType.Free, (await import('./ecs/functions/FixedPipelineSystem')).default, {
     updatesPerSecond: 60
   })
 
   // PRE FIXED INJECTION POINT
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./navigation/systems/AutopilotSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./navigation/systems/AutopilotSystem')).default)
 
   // Maps & Navigation
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./map/MapUpdateSystem')).default)
-  registerSystem(
-    SystemUpdateType.Fixed,
-    async () => (await import('./proximityChecker/systems/ProximitySystem')).default
-  )
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./navigation/systems/FollowSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./map/MapUpdateSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./proximityChecker/systems/ProximitySystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./navigation/systems/FollowSystem')).default)
 
   // Avatar Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./physics/systems/InterpolationSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./avatar/ClientAvatarSpawnSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./avatar/AvatarSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./avatar/AvatarControllerSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./physics/systems/InterpolationSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./avatar/ClientAvatarSpawnSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./avatar/AvatarSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./avatar/AvatarControllerSystem')).default)
 
   // FIXED INJECTION POINT
 
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./interaction/systems/EquippableSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./scene/systems/SceneObjectSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./scene/systems/NamedEntitiesSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./transform/systems/TransformSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./physics/systems/PhysicsSystem')).default, {
+  registerSystem(SystemUpdateType.Fixed, (await import('./interaction/systems/EquippableSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./scene/systems/SceneObjectSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./scene/systems/NamedEntitiesSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./transform/systems/TransformSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./physics/systems/PhysicsSystem')).default, {
     simulationEnabled: options.physics.simulationEnabled
   })
 
   // POST FIXED INJECTION POINT
 
   // Camera & UI systems
-  registerSystem(SystemUpdateType.Free, async () => (await import('./networking/systems/MediaStreamSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./xrui/systems/XRUISystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./interaction/systems/InteractiveSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./networking/systems/MediaStreamSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./xrui/systems/XRUISystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./interaction/systems/InteractiveSystem')).default)
 
   // UI INJECTION POINT
 
   // Audio Systems
-  registerSystem(SystemUpdateType.Free, async () => (await import('./audio/systems/AudioSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./audio/systems/PositionalAudioSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./audio/systems/AudioSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./audio/systems/PositionalAudioSystem')).default)
 
   // ANIMATION INJECTION POINT
 
   // Animation Systems
-  registerSystem(SystemUpdateType.Free, async () => (await import('./avatar/AvatarLoadingSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./avatar/AnimationSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./particles/systems/ParticleSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./debug/systems/DebugHelpersSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./renderer/HighlightSystem')).default)
-  registerSystem(SystemUpdateType.Free, async () => (await import('./renderer/WebGLRendererSystem')).default, {
+  registerSystem(SystemUpdateType.Free, (await import('./avatar/AvatarLoadingSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./avatar/AnimationSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./particles/systems/ParticleSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./debug/systems/DebugHelpersSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./renderer/HighlightSystem')).default)
+  registerSystem(SystemUpdateType.Free, (await import('./renderer/WebGLRendererSystem')).default, {
     canvas,
     enabled: !options.renderer.disabled
   })
 
   // Network (Outgoing)
-  registerSystem(
-    SystemUpdateType.Free,
-    async () => (await import('./networking/systems/OutgoingNetworkSystem')).default
-  )
+  registerSystem(SystemUpdateType.Free, (await import('./networking/systems/OutgoingNetworkSystem')).default)
 }
 
-const registerEditorSystems = (options: Required<InitializeOptions>) => {
+const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./scene/systems/NamedEntitiesSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./transform/systems/TransformSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./physics/systems/PhysicsSystem')).default, {
+  registerSystem(SystemUpdateType.Fixed, (await import('./scene/systems/NamedEntitiesSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./transform/systems/TransformSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./physics/systems/PhysicsSystem')).default, {
     simulationEnabled: options.physics.simulationEnabled
   })
 
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./particles/systems/ParticleSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./debug/systems/DebugHelpersSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./particles/systems/ParticleSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./debug/systems/DebugHelpersSystem')).default)
 }
 
-const registerServerSystems = (options: Required<InitializeOptions>) => {
-  registerSystem(SystemUpdateType.Free, async () => (await import('./ecs/functions/FixedPipelineSystem')).default, {
+const registerServerSystems = async (options: Required<InitializeOptions>) => {
+  registerSystem(SystemUpdateType.Free, (await import('./ecs/functions/FixedPipelineSystem')).default, {
     updatesPerSecond: 60
   })
 
   // Network Incoming Systems
-  registerSystem(
-    SystemUpdateType.Fixed,
-    async () => (await import('./networking/systems/IncomingNetworkSystem')).default
-  ) // first
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./networking/systems/MediaStreamSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./networking/systems/IncomingNetworkSystem')).default) // first
+  registerSystem(SystemUpdateType.Fixed, (await import('./networking/systems/MediaStreamSystem')).default)
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./avatar/AvatarSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./avatar/AvatarSystem')).default)
 
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./scene/systems/NamedEntitiesSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./transform/systems/TransformSystem')).default)
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./physics/systems/PhysicsSystem')).default, {
+  registerSystem(SystemUpdateType.Fixed, (await import('./scene/systems/NamedEntitiesSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./transform/systems/TransformSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./physics/systems/PhysicsSystem')).default, {
     simulationEnabled: options.physics.simulationEnabled
   })
 
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.Fixed, async () => (await import('./avatar/ServerAvatarSpawnSystem')).default)
+  registerSystem(SystemUpdateType.Fixed, (await import('./avatar/ServerAvatarSpawnSystem')).default)
 
   // Network Outgoing Systems
-  registerSystem(
-    SystemUpdateType.Fixed,
-    async () => (await import('./networking/systems/OutgoingNetworkSystem')).default
-  )
+  registerSystem(SystemUpdateType.Fixed, (await import('./networking/systems/OutgoingNetworkSystem')).default)
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {

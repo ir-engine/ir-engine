@@ -7,7 +7,7 @@ export function initializeEngineTest(options: InitializeOptions) {
     test('Can initialise engine', async () => {
       await initializeEngine(options)
       expect(Engine.isInitialized).toBe(true)
-    })
+    }, 10000)
 
     test('Can shutdown engine', async () => {
       await shutdownEngine()

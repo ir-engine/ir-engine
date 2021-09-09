@@ -5,7 +5,6 @@
   "private": true,
   "homepage": "",
   "main": "./src",
-  "type": "module",
   "keywords": [
     "three",
     "three.js",
@@ -31,12 +30,11 @@
   "engines": {
     "node": ">= 16.3.0"
   },
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
     "start": "cross-env NODE_ENV=production node -r ./compile.js src/index.ts",
     "golf": "nodemon -r ./compile.js src/golf.ts",
-    "dev": "nodemon -r ./compile.js src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "dev-nossl": "cross-env NOSSL=true nodemon -r ./compile.js src/index.ts",
     "test": "jest",
     "validate": "npm run build && npm run test"
@@ -122,6 +120,8 @@
     "eslint": "7.32.0",
     "semantic-release": "17.4.7",
     "semantic-release-monorepo": "7.0.5",
+    "ts-node": "^10.2.1",
+    "ts-node-dev": "^1.1.8",
     "typedoc": "0.21.9",
     "typescript": "4.4.2"
   },

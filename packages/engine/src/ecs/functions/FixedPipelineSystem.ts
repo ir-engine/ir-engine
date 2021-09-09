@@ -8,6 +8,7 @@ import { System } from '../classes/System'
  * @author Gheric Speiginer <github.com/speigg>
  */
 export default async function FixedPipelineSystem(world: World, args: { updatesPerSecond: number }): Promise<System> {
+  console.log(args)
   let accumulator = 0
 
   const timestep = 1 / args.updatesPerSecond
