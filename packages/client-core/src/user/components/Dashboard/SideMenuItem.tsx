@@ -203,19 +203,19 @@ const SideMenuItem = (props: Props) => {
             <ListItemText primary={t('user:dashboard.chats')} />
           </ListItem>
         </Link> */}
-        {allowedRoutes.user || allowedRoutes.invite || allowedRoutes.groups ? (
-          <Link to="/admin/users" className={classes.textLink}>
-            <ListItem style={{ color: 'white' }} button onClick={() => setOpenUser(!openUser)}>
-              <ListItemIcon>
-                <SupervisorAccount style={{ color: 'white' }} />
-              </ListItemIcon>
-              <ListItemText primary="Users" />
-              {openUser ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>
-          </Link>
-        ) : (
+        {/* {allowedRoutes.user || allowedRoutes.invite || allowedRoutes.groups ? ( */}
+        <Link to="/admin/users" className={classes.textLink}>
+          <ListItem style={{ color: 'white' }} button onClick={() => setOpenUser(!openUser)}>
+            <ListItemIcon>
+              <SupervisorAccount style={{ color: 'white' }} />
+            </ListItemIcon>
+            <ListItemText primary="Users" />
+            {openUser ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+        </Link>
+        {/* ) : (
           ''
-        )}
+        )} */}
 
         <Collapse in={openUser} timeout="auto" unmountOnExit>
           {allowedRoutes.user && (
