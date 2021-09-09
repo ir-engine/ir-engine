@@ -87,9 +87,9 @@ export const createEntity = (world = useWorld()): Entity => {
 }
 
 export const removeEntity = (entity: Entity, world = useWorld()) => {
+  removeAllComponents(entity, world)
   world.entities.splice(world.entities.indexOf(entity), 1)
   bitECS.removeEntity(world, entity)
-  // TODO: remove mapped component data
 }
 
 export type ComponentConstructor<T, S extends bitECS.ISchema> = MappedComponent<T, S>
@@ -105,9 +105,7 @@ export const getComponent = <T extends any, S extends bitECS.ISchema>(
     console.warn('[getComponent]: entity is undefined')
     return
   }
-  //TODO: figure how to handle removed components in free & fixed pipelines
-  if (getRemoved) return world._removedComponents.get(entity) ?? component.get(entity)
-  return component.get(entity)
+  if (getRemoved || hasComponent(entity, component, world)) return component.get(entity)
 }
 
 export const addComponent = <T extends any, S extends bitECS.ISchema>(
@@ -126,7 +124,8 @@ export const addComponent = <T extends any, S extends bitECS.ISchema>(
       component[key][entity] = args[key]
     }
   }
-  component.set(entity, args) //, Object.assign({}, args, component._default))
+  world._removedComponents.get(entity)?.delete(component)
+  component.set(entity, args)
   return component.get(entity)
 }
 
@@ -152,9 +151,9 @@ export const removeComponent = <T extends any, S extends bitECS.ISchema>(
     console.warn('[removeComponent]: entity is undefined')
     return
   }
-  //console.log('removeComponent', entity, component.name)
   const componentRef = component.get(entity)
-  world._removedComponents.set(entity, componentRef)
+  const removed = world._removedComponents.get(entity) ?? new Set()
+  world._removedComponents.set(entity, removed.add(component))
   bitECS.removeComponent(world, component, entity)
   return componentRef
 }
@@ -180,8 +179,7 @@ export const getAllEntitiesWithComponent = <T extends any, S extends bitECS.ISch
 
 export const removeAllComponents = (entity: Entity, world = useWorld()) => {
   for (const component of bitECS.getEntityComponents(world, entity)) {
-    bitECS.removeComponent(world, component, entity)
-    // TODO: remove mapped component data
+    removeComponent(entity, component as MappedComponent<any, any>, world)
   }
 }
 
