@@ -2,8 +2,8 @@ import { VectorTile } from '@mapbox/vector-tile'
 import { degreesToRadians } from '@turf/turf'
 import { Config } from '@xrengine/common/src/config'
 import { Feature, Position } from 'geojson'
-import { sceneToLl } from './MeshBuilder'
-import { LongLat, TileFeaturesByLayer } from './types'
+import { fromMetersFromCenter, LongLat } from './units'
+import { TileFeaturesByLayer } from './types'
 import { vectors } from './vectors'
 
 // TODO try higher zoom levels
@@ -115,8 +115,8 @@ export function* createTileIterator(
   minimumSceneRadius: number,
   zoomLevel: number
 ): Generator<[number, number]> {
-  const [startLong, startLat] = sceneToLl([-minimumSceneRadius, -minimumSceneRadius], center)
-  const [endLong, endLat] = sceneToLl([minimumSceneRadius, minimumSceneRadius], center)
+  const [startLong, startLat] = fromMetersFromCenter([-minimumSceneRadius, -minimumSceneRadius], center)
+  const [endLong, endLat] = fromMetersFromCenter([minimumSceneRadius, minimumSceneRadius], center)
 
   const centerX = long2TileFraction(center[0], zoomLevel)
   const centerY = lat2TileFraction(center[1], zoomLevel)

@@ -1,5 +1,9 @@
 import { Feature } from 'geojson'
 
+/**
+ * @fileoverview a place for all types that are shared by multiple modules but not conceptually owned by any
+ */
+
 export interface TileFeaturesByLayer {
   building: Feature[]
   road: Feature[]
@@ -8,6 +12,3 @@ export interface TileFeaturesByLayer {
   landuse: Feature[]
 }
 export type ILayerName = keyof TileFeaturesByLayer
-
-/** Memnonic drop-in replacement for geojson.Position */
-export type LongLat = number[]

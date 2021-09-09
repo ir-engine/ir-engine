@@ -12,7 +12,7 @@ import { Polygon, MultiPolygon, Position } from 'geojson'
 import { NavMesh } from 'yuka'
 import pc from 'polygon-clipping'
 import { fetchVectorTiles } from '../../map/MapBoxClient'
-import { METERS_PER_DEGREE_LL } from '../../map/constants'
+import { METERS_PER_LONGLAT } from '../../map/units'
 import { TileFeaturesByLayer } from '../../map/types'
 
 type GroundProps = {
@@ -45,9 +45,10 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   )
 
   if (isClient) {
+    // TODO should this be here???
     const center: Position = [mesh.position.x, mesh.position.y, mesh.position.z]
     const vectorTiles = await fetchVectorTiles(center)
-    const navMesh = generateNavMesh(vectorTiles, center, mesh.scale.x * METERS_PER_DEGREE_LL)
+    const navMesh = generateNavMesh(vectorTiles, center, mesh.scale.x * METERS_PER_LONGLAT)
     addComponent(entity, NavMeshComponent, { yukaNavMesh: navMesh, navTarget: mesh })
   }
 

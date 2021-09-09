@@ -1,6 +1,6 @@
 import { PipelineType, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Object3D, Quaternion, Vector3 } from 'three'
-import { sceneToLl } from '../../src/map/MeshBuilder'
+import { fromMetersFromCenter } from '../../src/map/units'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { createPipeline, registerSystem, unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { MapUpdateSystem } from '../../src/map/MapUpdateSystem'
@@ -93,7 +93,7 @@ describe('MapUpdateSystem', () => {
     execute(0, 0)
 
     expect(enqueueTasks).toHaveBeenCalledTimes(1)
-    expect(enqueueTasks).toHaveBeenCalledWith(sceneToLl([0, 0, 0]), minimumSceneRadius, mapArgs)
+    expect(enqueueTasks).toHaveBeenCalledWith(fromMetersFromCenter([0, 0, 0]), minimumSceneRadius, mapArgs)
   })
 
   it('does not refresh when player moves within refresh boundary', async () => {
@@ -137,7 +137,7 @@ describe('MapUpdateSystem', () => {
 
     const viewerPositionDeltaScaled = [triggerRefreshRadius, 0]
     expect(enqueueTasks).toHaveBeenCalledTimes(2)
-    expect(enqueueTasks).toHaveBeenCalledWith(sceneToLl(viewerPositionDeltaScaled), minimumSceneRadius, mapArgs)
+    expect(enqueueTasks).toHaveBeenCalledWith(fromMetersFromCenter(viewerPositionDeltaScaled), minimumSceneRadius, mapArgs)
 
     viewerTransform.position.set(triggerRefreshRadius * 1.5 * mapScale, 0, 0)
     execute(1, 2)
@@ -148,6 +148,6 @@ describe('MapUpdateSystem', () => {
     execute(1, 3)
 
     expect(enqueueTasks).toHaveBeenCalledTimes(3)
-    expect(enqueueTasks).toHaveBeenCalledWith(sceneToLl([triggerRefreshRadius * 2, 0, 0]), minimumSceneRadius, mapArgs)
+    expect(enqueueTasks).toHaveBeenCalledWith(fromMetersFromCenter([triggerRefreshRadius * 2, 0, 0]), minimumSceneRadius, mapArgs)
   })
 })

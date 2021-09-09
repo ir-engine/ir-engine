@@ -1,1 +1,0 @@
-export const METERS_PER_DEGREE_LL = 111139

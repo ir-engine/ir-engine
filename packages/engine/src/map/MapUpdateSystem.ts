@@ -4,14 +4,14 @@ import { ECSWorld } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { deleteResultsForFeature, getResultsForFeature, getValidUUIDs, llToScene, sceneToLl } from './MeshBuilder'
+import { deleteResultsForFeature, getResultsForFeature, getValidUUIDs } from './MeshBuilder'
+import { LongLat, toMetersFromCenter, fromMetersFromCenter } from './units'
 import { vector3ToArray2 } from './util'
 import { Mesh, Object3D, Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
 import { enqueueTasks } from '.'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { GeoLabelNode } from './GeoLabelNode'
-import { LongLat } from './types'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 
 const $vector3 = new Vector3()
@@ -55,7 +55,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
       viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius * mapScale ||
       viewerEntity !== previousViewerEntity
     ) {
-      mapComponent.center = sceneToLl(viewerPositionDeltaScaled, mapComponent.center)
+      mapComponent.center = fromMetersFromCenter(viewerPositionDeltaScaled, mapComponent.center)
       enqueueTasks(mapComponent.center, mapComponent.minimumSceneRadius, mapComponent.args)
 
       $previousViewerPosition.copy(viewerTransform.position)
@@ -130,7 +130,7 @@ function copyAndScale(vector: Vector3, scalar: number) {
 }
 
 function setPosition(object3d: Object3D, geographicPoint: LongLat, mapOriginalCenter: LongLat) {
-  const scenePoint = llToScene(geographicPoint, mapOriginalCenter)
+  const scenePoint = toMetersFromCenter(geographicPoint, mapOriginalCenter)
   // Note that latitude values are flipped relative to our scene's Z axis
   object3d.position.set(scenePoint[0], 0, -scenePoint[1])
 }

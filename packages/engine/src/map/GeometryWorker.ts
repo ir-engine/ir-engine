@@ -3,17 +3,11 @@ import { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, 
 import { Feature } from 'geojson'
 import createTaskWorker from '../common/functions/createTaskWorker'
 import { IStyles } from './styles'
-import { LongLat } from './types'
+import { LongLat, toMetersFromCenter, METERS_PER_LONGLAT } from './units'
 
 declare function importScripts(...urls: string[]): void
 // TODO eliminate duplicate code
 // TODO create multiple worker threads, one for each core, and a loadbalancer?
-
-const METERS_PER_DEGREE_LL = 111139
-
-function llToScene([lng, lat]: LongLat, [lngCenter, latCenter]: LongLat, sceneScale = 1): [number, number] {
-  return [(lng - lngCenter) * METERS_PER_DEGREE_LL * sceneScale, (lat - latCenter) * METERS_PER_DEGREE_LL * sceneScale]
-}
 
 function getTemp(): { $vector3: Vector3 } {
   this.__tempFactory =
@@ -66,12 +60,12 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color,
   }
 }
 
-function subtractArray2([a1, b1], [a2, b2]) {
+function subtractArray2([a1, b1]: number[], [a2, b2]: number[]) {
   return [a1 - a2, b1 - b2]
 }
 
-function transformFeaturePoint(featurePoint: LongLat, featureCenterPointInScene: [number, number], mapCenter: LongLat) {
-  const pointInScene = llToScene(featurePoint, mapCenter)
+function transformFeaturePoint(featurePoint: LongLat, featureCenterPointInScene: number[], mapCenter: LongLat) {
+  const pointInScene = toMetersFromCenter(featurePoint, mapCenter)
   return subtractArray2(pointInScene as any, featureCenterPointInScene)
 }
 
@@ -106,7 +100,7 @@ function buildGeometry(
   }
 
   const geographicCenterPoint = turf.center(turf.points(coords)).geometry.coordinates
-  const geometryCenter = llToScene(geographicCenterPoint, llCenter)
+  const geometryCenter = toMetersFromCenter(geographicCenterPoint, llCenter)
 
   var point = transformFeaturePoint(coords[0], geometryCenter, llCenter)
   shape.moveTo(point[0], point[1])
@@ -225,8 +219,8 @@ export default () => {
     colorVertices,
     getBuildingColor,
     baseColorByFeatureType,
-    llToScene,
-    METERS_PER_DEGREE_LL,
+    toMetersFromCenter,
+    METERS_PER_LONGLAT,
     getTemp
   })
 }

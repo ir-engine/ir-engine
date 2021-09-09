@@ -3,7 +3,6 @@ import rewind from '@mapbox/geojson-rewind'
 import { groupBy } from 'lodash'
 import polygonClipping from 'polygon-clipping'
 import { multiPolygon, polygon } from '@turf/turf'
-import { llToScene } from './MeshBuilder'
 
 /**
  * Assumptions:

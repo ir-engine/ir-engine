@@ -1,5 +1,5 @@
 import { createMappedComponent } from '../ecs/functions/EntityFunctions'
-import { LongLat } from './types'
+import { LongLat } from './units'
 
 export type MapComponentType = {
   /** Geographic point corresponding to the center of the map's scene object's ground plane */
