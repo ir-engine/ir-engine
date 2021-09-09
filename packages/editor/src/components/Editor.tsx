@@ -158,7 +158,7 @@ export class Editor extends EventEmitter {
   constructor(settings = {}, Engine) {
     super()
     this.Engine = Engine
-    globalThis.Editor = this as Editor
+    globalThis.Editor = this
     this.camera = Engine.camera
     this.settings = settings
     this.project = null

@@ -45,18 +45,12 @@ export const getProjects = async (): Promise<any> => {
  * @returns
  */
 export const getProject = async (projectId): Promise<JSON> => {
-  const token = getToken()
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
-  }
-
-  const response = await fetchUrl(`${serverURL}/project/${projectId}`, {
-    headers
+  const json = await globalThis.Editor.clientApp.service('project').get(projectId, {
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${getToken()}`
+    }
   })
-  const json = await response.json()
-  console.log('Response: ' + Object.values(response))
-
   return json
 }
 
