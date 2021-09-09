@@ -12,6 +12,7 @@ import { Matrix4, MathUtils } from 'three'
 import { getGolfPlayerNumber } from './functions/golfFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export function createScorecardUI() {
   return createXRUI(GolfScorecardView, GolfState)
@@ -205,15 +206,11 @@ export const GolfScorecardUISystem = async () => {
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    const cameraTransform = getHeadTransform(Network.instance.localClientEntity)
-    mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
-
-    // const uiTransform = getComponent(ui.entity, TransformComponent)
     const layer = uiComponent.layer
     layer.position.set(0, 0, -0.5)
     layer.quaternion.set(0, 0, 0, 1)
     layer.scale.setScalar(1)
-    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
+    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(Engine.camera.matrixWorld)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
 
     const localPlayerNumber = getGolfPlayerNumber()

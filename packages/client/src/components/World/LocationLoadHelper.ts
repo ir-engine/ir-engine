@@ -22,7 +22,7 @@ import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportTo
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { EngineCallbacks } from './'
-import { clientNetworkReceptor } from '@xrengine/engine/src/networking/functions/clientNetworkReceptor'
+import { incomingNetworkReceptor } from '@xrengine/engine/src/networking/functions/incomingNetworkReceptor'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
@@ -85,8 +85,8 @@ const createOfflineUser = () => {
   // it is needed by ClientAvatarSpawnSystem
   Network.instance.userId = userId
   // Replicate the server behavior
-  clientNetworkReceptor(NetworkWorldAction.createClient(userId, avatar))
-  clientNetworkReceptor(NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params))
+  incomingNetworkReceptor(NetworkWorldAction.createClient(userId, avatar))
+  incomingNetworkReceptor(NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params))
 }
 
 export const initEngine = async (
@@ -141,22 +141,19 @@ export const initEngine = async (
 
   // 4. Joing to new world
   if (!isOffline) {
-    await new Promise<void>(async (resolve) => {
-      // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-      let spawnTransform
-      if (newSpawnPos) {
-        spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
-      }
+    // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+    let spawnTransform
+    if (newSpawnPos) {
+      spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
+    }
 
-      const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-        MessageTypes.JoinWorld.toString(),
-        { spawnTransform }
-      )
-      worldState.forEach((action) => {
-        // TODO: send the correct world when we support multiple worlds
-        clientNetworkReceptor(action)
-      })
-      resolve()
+    const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+      MessageTypes.JoinWorld.toString(),
+      { spawnTransform }
+    )
+    worldState.forEach((action) => {
+      // TODO: send the correct world when we support multiple worlds
+      incomingNetworkReceptor(action)
     })
   }
 
