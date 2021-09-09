@@ -101,7 +101,7 @@
     "babel-preset-vite": "1.0.4",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.25",
+    "esbuild": "0.12.26",
     "eslint": "7.32.0",
     "rollup": "2.56.3",
     "rollup-plugin-node-polyfills": "0.2.1",
