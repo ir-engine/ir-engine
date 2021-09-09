@@ -1,5 +1,5 @@
 import { Chain } from '../components/Chain'
-import Pose from '../classes/Pose'
+import Pose, { PoseBoneTransform } from '../classes/Pose'
 import { Quaternion, Vector3 } from 'three'
 import { Axis } from '../classes/Axis'
 import { lawCosinesSSS } from './IKFunctions'
@@ -16,7 +16,7 @@ import { lawCosinesSSS } from './IKFunctions'
  * @param cLen IKPose.target.len
  * @param p_wt parent world transform
  */
-export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, p_wt) {
+export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, p_wt: PoseBoneTransform) {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Using law of cos SSS, so need the length of all sides of the triangle
   let bind_a = tpose.bones[chain.chainBones[0].index], // Bone Reference from Bind
@@ -48,9 +48,6 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
     .premultiply(new Quaternion().setFromAxisAngle(axis.x, -rad)) // Use the Target's X axis for rotation along with the angle from SSS
     .premultiply(p_wt.quaternion.clone().invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
 
-  debugger
-
-  // TODO: uncomment
   pose.setBone(bind_a.idx, rot) // Save result to bone.
   // Update World Data for future use
   /* ORIGINAL
@@ -149,7 +146,7 @@ export function transformAdd(
 
 //// helpers
 
-function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt, out: Quaternion) {
+function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt: PoseBoneTransform, out: Quaternion) {
   const rot = new Quaternion()
   tpose.bones[chain.first()].bone.getWorldQuaternion(rot) // Get World Space Rotation for Bone
   const dir = chain.altForward.clone().applyQuaternion(rot) // Get Bone's WS Forward Dir
@@ -159,9 +156,8 @@ function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt, out: Quaternion
   out.copy(q).multiply(rot)
 
   // Twist
-  let u_dir = chain.altUp.clone().applyQuaternion(out)
-  let twistx = u_dir.angleTo(axis.y)
-  debugger
+  // let u_dir = chain.altUp.clone().applyQuaternion(out)
+  // let twistx = u_dir.angleTo(axis.y)
   //App.Debug.ln( ct.pos, Vec3.add( ct.pos, u_dir), "white" );
 
   dir.copy(chain.altUp).applyQuaternion(out) // After Swing, Whats the UP Direction
@@ -177,5 +173,4 @@ function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt, out: Quaternion
   }
 
   out.premultiply(new Quaternion().setFromAxisAngle(axis.z, twist)) // Apply Twist
-  debugger
 }

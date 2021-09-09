@@ -7,6 +7,12 @@ import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
 import { spin_bone_forward, align_chain, align_bone_forward } from '../functions/IKFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 
+export type PoseBoneTransform = {
+  position: Vector3
+  quaternion: Quaternion
+  scale: Vector3
+}
+
 export type PoseBoneLocalState = {
   bone: Bone
   parent: Bone | null
@@ -15,16 +21,8 @@ export type PoseBoneLocalState = {
   p_idx: number | null // Parent Bone Index in Armature
   length: number // Length of Bone
   name: string
-  local: {
-    position: Vector3
-    quaternion: Quaternion
-    scale: Vector3
-  } // Local Transform, use Bind pose as default
-  world: {
-    position: Vector3
-    quaternion: Quaternion
-    scale: Vector3
-  } // Model Space Transform
+  local: PoseBoneTransform // Local Transform, use Bind pose as default
+  world: PoseBoneTransform // Model Space Transform
 }
 
 class Pose {
