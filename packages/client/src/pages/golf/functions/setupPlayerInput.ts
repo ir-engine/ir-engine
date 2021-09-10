@@ -3,7 +3,7 @@ import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue
 import { isDev } from '@xrengine/engine/src/common/functions/isDev'
 import { NumericalType } from '@xrengine/engine/src/common/types/NumericalTypes'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InputValue } from '@xrengine/engine/src/input/interfaces/InputValue'

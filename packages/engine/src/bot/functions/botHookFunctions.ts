@@ -1,6 +1,6 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BotHooks, XRBotHooks } from '../enums/BotHooks'

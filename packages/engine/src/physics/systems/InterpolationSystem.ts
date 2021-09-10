@@ -1,7 +1,7 @@
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Not } from 'bitecs'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'

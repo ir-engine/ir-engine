@@ -1,5 +1,6 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, createEntity, getComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../classes/Network'
 import { NetworkWorldActions, NetworkWorldActionType } from '../interfaces/NetworkWorldActions'
 import { isClient } from '../../common/functions/isClient'

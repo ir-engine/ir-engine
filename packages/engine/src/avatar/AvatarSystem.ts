@@ -7,7 +7,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent
-} from '../ecs/functions/EntityFunctions'
+} from '../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'

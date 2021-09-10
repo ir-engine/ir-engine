@@ -1,7 +1,7 @@
 import { AnimationMixer, Group } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -18,7 +18,7 @@ import {
   ShaderMaterial,
   DoubleSide
 } from 'three'
-import { addComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { DissolveEffect } from '../DissolveEffect'

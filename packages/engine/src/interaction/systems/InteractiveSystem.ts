@@ -3,12 +3,12 @@ import { FollowCameraComponent } from '../../camera/components/FollowCameraCompo
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import {
   addComponent,
-  createEntity,
   defineQuery,
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'

@@ -1,6 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { getComponent, hasComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
@@ -242,6 +243,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
       media: {},
       consumerLayers: {},
       stats: {},
+      subscribedChatUpdates: [],
       dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
       dataProducers: new Map<string, DataProducer>() // Key => label of data channel
     }

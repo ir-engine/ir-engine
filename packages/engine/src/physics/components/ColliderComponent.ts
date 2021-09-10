@@ -1,5 +1,5 @@
 import { Body } from 'three-physx'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>

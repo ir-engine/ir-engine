@@ -4,7 +4,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import ScrollableElement from '../ScrollableElement'
 // @ts-ignore
 import defaultStyles from './EmoteMenu.module.scss'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
 //import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
