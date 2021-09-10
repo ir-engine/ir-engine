@@ -1,7 +1,6 @@
-import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { IKRig } from '../components/IKRig'
-import { defineQuery, defineSystem, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
 // import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
 import { FORWARD, UP } from '../constants/Vector3Constants'
@@ -19,6 +18,8 @@ import {
   visualizeLookTwist,
   visualizeSpine
 } from '../functions/IKFunctions'
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 // export class DebugComponent {
 //   static points = null
@@ -54,17 +55,15 @@ import {
 //   }
 // }
 
-export const IKRigSystem = async (): Promise<System> => {
+export const IKRigSystem = async (world: World): Promise<System> => {
   const ikrigsQuery = defineQuery([IKRig])
   const ikposeQuery = defineQuery([IKPose])
 
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
+  return () => {
     // d.reset() // For this example, Lets reset visual debug for every compute.
 
     // RUN
-    for (const entity of ikposeQuery(world)) {
+    for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPose)
       const rig = getComponent(entity, IKRig)
 
@@ -114,7 +113,5 @@ export const IKRigSystem = async (): Promise<System> => {
 
       // rig.pose.apply();
     }
-
-    return world
-  })
+  }
 }

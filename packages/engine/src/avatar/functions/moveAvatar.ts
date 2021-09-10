@@ -1,6 +1,6 @@
 import { Vector3, Matrix4, Quaternion } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'

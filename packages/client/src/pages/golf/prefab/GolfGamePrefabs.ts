@@ -1,5 +1,5 @@
 import { GolfPrefabTypes } from '../GolfGameConstants'
-import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 export const GolfBallTagComponent = createMappedComponent<{}>()
 export const GolfClubTagComponent = createMappedComponent<{}>()

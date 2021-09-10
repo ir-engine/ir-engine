@@ -1,5 +1,5 @@
 import { Group } from 'three'
-import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 export type GolfAvatarComponentType = {
   headModel: Group

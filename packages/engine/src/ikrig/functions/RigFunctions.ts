@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../components/Chain'
 import { IKObj } from '../components/IKObj'
 import { IKRig } from '../components/IKRig'

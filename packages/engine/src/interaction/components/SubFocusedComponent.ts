@@ -1,5 +1,5 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>

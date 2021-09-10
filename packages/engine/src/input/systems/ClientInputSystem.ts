@@ -1,5 +1,5 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { InputType } from '../enums/InputType'
@@ -7,22 +7,22 @@ import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 import { Engine } from '../../ecs/classes/Engine'
 import { handleGamepads } from '../functions/GamepadInput'
-import { defineQuery, defineSystem, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
   if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
   if (typeof mouse !== 'undefined') Engine.mouseInputEnabled = mouse
 }
 
-export const ClientInputSystem = async (): Promise<System> => {
+export default async function ClientInputSystem(world: World): Promise<System> {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     const { delta } = world
 
     if (!Engine.xrSession) {
-      handleGamepads()
+      // handleGamepads()
     }
 
     Engine.prevInputState.clear()
@@ -68,7 +68,5 @@ export const ClientInputSystem = async (): Promise<System> => {
         return
       }
     })
-
-    return world
-  })
+  }
 }

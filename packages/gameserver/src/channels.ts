@@ -12,7 +12,7 @@ import path from 'path'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
-import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 
 export default (app: Application): void => {

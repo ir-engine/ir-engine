@@ -44,5 +44,5 @@ export type ActionType = {
 }
 
 export type IncomingActionType = ActionType & {
-  userId: string
+  $userId: string
 }

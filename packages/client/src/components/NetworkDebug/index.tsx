@@ -82,7 +82,7 @@ export const NetworkDebug = ({ reinit }) => {
   }
 
   const renderComps = () => {
-    const entity = World.defaultWorld.entities
+    const entity = Engine.defaultWorld.entities
     const comps = {}
     entity.forEach((e) => {
       // getAllC e.componentTypes.forEach((ct) => {
@@ -101,7 +101,7 @@ export const NetworkDebug = ({ reinit }) => {
 
   const renderEntities = () => {
     const map = {}
-    World.defaultWorld.entities.forEach((e) => {
+    Engine.defaultWorld.entities.forEach((e) => {
       map[e] = e
     })
     return map

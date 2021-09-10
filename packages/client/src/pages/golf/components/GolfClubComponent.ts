@@ -1,6 +1,6 @@
 import { Group, Mesh, Vector3 } from 'three'
 import { RaycastQuery } from 'three-physx'
-import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 export type GolfClubComponentType = {
   canDoChipShots: boolean

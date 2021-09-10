@@ -1,6 +1,6 @@
 import { Types } from 'bitecs'
 import { AnimationClip, AnimationMixer } from 'three'
-import { createMappedComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 
 type AnimationComponentType = {
   mixer: AnimationMixer

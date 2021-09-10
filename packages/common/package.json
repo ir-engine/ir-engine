@@ -1,15 +1,16 @@
 {
   "name": "@xrengine/common",
   "version": "0.4.0",
-  "main": "dist/common.umd.js",
-  "module": "dist/common.es.js",
+  "main": "lib/common.umd.js",
+  "module": "lib/common.es.js",
+  "types": "lib/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
   "description": "Shared types for other XREngine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=4096 NODE_ENV=production rollup -c",
+    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=4096 NODE_ENV=production vite build --config vite.build.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": "http://github.com/XRFoundation/XREngine",
