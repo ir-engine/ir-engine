@@ -111,21 +111,21 @@ export function buildMeshes(layerName: ILayerName, features: Feature[], llCenter
         const result = $geometriesByTaskId.get(task.id)
         // Tasks can be cancelled mid-run if deleteResultsForFeature has been called
         if (result) {
-          const styles = getFeatureStyles(
+          const { color, extrude, zIndex } = getFeatureStyles(
             DEFAULT_FEATURE_STYLES,
             layerName,
             features[task.featureIndex].properties.class
           )
 
           const materialParams = {
-            color: styles.color?.constant,
-            vertexColors: styles.color?.builtin_function === 'purple_haze' ? true : false,
-            depthTest: styles.extrude !== 'flat'
+            ...(color?.constant ? { color: color?.constant } : {}),
+            vertexColors: color?.builtin_function === 'purple_haze' ? true : false,
+            depthTest: extrude !== 'flat'
           }
 
           const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
           const mesh = new Mesh(result.geometry, material)
-          mesh.renderOrder = styles.extrude === 'flat' ? -1 * (MAX_Z_INDEX - styles.zIndex) : Infinity
+          mesh.renderOrder = extrude === 'flat' ? -1 * (MAX_Z_INDEX - zIndex) : Infinity
           $meshesByTaskId.set(task.id, { mesh, geographicCenterPoint: result.geographicCenterPoint })
         } else {
           // TODO how to handle this situation?
