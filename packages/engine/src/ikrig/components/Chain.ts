@@ -80,7 +80,7 @@ export class Chain {
     if (this.end_idx !== null && this.end_idx > -1) {
       b = this.chainBones[i]
       bones[this.end_idx].bone.getWorldPosition(boneWorldPosition)
-      this.chainBones[i].ref.getWorldPosition(childWorldPosition)
+      bones[this.chainBones[i].index].bone.getWorldPosition(childWorldPosition)
       b.length = boneWorldPosition.distanceTo(childWorldPosition)
       sum += b.length
     } else console.warn('Recompute Chain Len, End Index is missing')
