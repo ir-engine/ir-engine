@@ -19,6 +19,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { isBot } from './isBot'
+import { Engine } from '../../ecs/classes/Engine'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
