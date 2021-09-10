@@ -24,7 +24,7 @@ import {
   removeAllComponents,
   removeEntity
 } from './EntityFunctions'
-import { SystemInitializeType } from './SystemFunctions'
+import { InjectionPoint, SystemInitializeType, SystemModulePromise } from './SystemFunctions'
 import { useWorld } from './SystemHooks'
 
 /** Reset the engine and remove everything from memory. */
@@ -136,6 +136,8 @@ export const resetPhysics = async (): Promise<void> => {
   PhysXInstance.instance = new PhysXInstance()
 }
 
+type SystemGroupInterface = (() => void)[]
+
 export function createWorld() {
   console.log('Creating world')
 
@@ -154,18 +156,35 @@ export function createWorld() {
     _removedComponents: new Map<Entity, Set<MappedComponent<any, any>>>(),
     _freePipeline: [] as SystemInitializeType<any>[],
     _fixedPipeline: [] as SystemInitializeType<any>[],
+    _injectedPipelines: {
+      [InjectionPoint.UPDATE]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.FIXED_EARLY]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.FIXED]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.FIXED_LATE]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.PRE_RENDER]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.POST_RENDER]: [] as SystemInitializeType<any>[]
+    },
 
     /**
      * Systems that run only once every frame.
      * Ideal for cosmetic updates (e.g., particles), animation, rendering, etc.
      */
-    freeSystems: [] as ((world: bitecs.IWorld) => void)[],
+    freeSystems: [] as SystemGroupInterface,
 
     /**
      * Systems that run once for every fixed time interval (in simulation time).
      * Ideal for game logic, ai logic, simulation logic, etc.
      */
-    fixedSystems: [] as ((world: bitecs.IWorld) => void)[],
+    fixedSystems: [] as SystemGroupInterface,
+
+    injectedSystems: {
+      [InjectionPoint.UPDATE]: [] as SystemGroupInterface,
+      [InjectionPoint.FIXED_EARLY]: [] as SystemGroupInterface,
+      [InjectionPoint.FIXED]: [] as SystemGroupInterface,
+      [InjectionPoint.FIXED_LATE]: [] as SystemGroupInterface,
+      [InjectionPoint.PRE_RENDER]: [] as SystemGroupInterface,
+      [InjectionPoint.POST_RENDER]: [] as SystemGroupInterface
+    },
 
     /**
      * Entities mapped by name
@@ -186,7 +205,7 @@ export function createWorld() {
     execute(delta: number, elapsedTime?: number) {
       world.delta = delta
       world.elapsedTime = elapsedTime
-      for (const system of world.freeSystems) system(world)
+      for (const system of world.freeSystems) system()
       for (const [entity, components] of world._removedComponents) {
         for (const c of components) c.delete(entity)
       }
@@ -194,20 +213,28 @@ export function createWorld() {
     },
 
     async initSystems() {
-      const fixedSystems = await Promise.all(
-        world._fixedPipeline.map((s) => {
-          console.log(`Initializing fixed system: ${s.system.name}`)
-          return s.system(world, s.args)
+      const loadSystem = (pipeline: SystemInitializeType<any>[]) => {
+        return pipeline.map(async (s) => {
+          return (await s.system).default(world, s.args)
+        })
+      }
+
+      const _fixedSystems = Promise.all(loadSystem(world._fixedPipeline))
+      const _freeSystems = Promise.all(loadSystem(world._freePipeline))
+      const _injectedSystems = Promise.all(
+        Object.entries(world._injectedPipelines).map(async ([pipelineType, pipeline]) => {
+          return [pipelineType, await Promise.all(loadSystem(pipeline))]
         })
       )
-      const freeSystems = await Promise.all(
-        world._freePipeline.map((s) => {
-          console.log(`Initializing free system: ${s.system.name}`)
-          return s.system(world, s.args)
-        })
-      )
+
+      const [fixedSystems, freeSystems, injectedSystems] = await Promise.all([
+        _fixedSystems,
+        _freeSystems,
+        _injectedSystems
+      ])
       world.fixedSystems = fixedSystems
       world.freeSystems = freeSystems
+      world.injectedSystems = Object.fromEntries(injectedSystems)
     }
   }
 

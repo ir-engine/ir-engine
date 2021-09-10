@@ -30,7 +30,7 @@ function avatarActionReceptor(action: NetworkWorldActionType) {
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
-export const AnimationSystem = async (world: World): Promise<System> => {
+export default async function AnimationSystem(world: World): Promise<System> {
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
   world.receptors.add(avatarActionReceptor)
 

@@ -18,6 +18,7 @@ import {
   visualizeSpine
 } from '../functions/IKFunctions'
 import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 // export class DebugComponent {
 //   static points = null
@@ -53,7 +54,7 @@ import { World } from '../../ecs/classes/World'
 //   }
 // }
 
-export const IKRigSystem = async (world: World) => {
+export const IKRigSystem = async (world: World): Promise<System> => {
   const ikrigsQuery = defineQuery([IKRig])
   const ikposeQuery = defineQuery([IKPose])
 

@@ -30,6 +30,7 @@ import { DebugRenderer } from './DebugRenderer'
 import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
@@ -80,7 +81,7 @@ export class DebugHelpers {
   }
 }
 
-export const DebugHelpersSystem = async (): Promise<System> => {
+export default async function DebugHelpersSystem(world: World): Promise<System> {
   DebugHelpers.physicsDebugRenderer = new DebugRenderer(Engine.scene)
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
@@ -93,7 +94,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
-  return (world) => {
+  return () => {
     // ===== AVATAR ===== //
 
     for (const entity of avatarDebugQuery.enter()) {

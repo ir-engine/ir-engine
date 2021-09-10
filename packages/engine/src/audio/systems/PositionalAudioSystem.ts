@@ -16,6 +16,7 @@ import { PositionalAudioComponent } from '../components/PositionalAudioComponent
 import { AudioTagComponent } from '../components/AudioTagComponent'
 import { AudioComponent } from '../components/AudioComponent'
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -29,7 +30,7 @@ function createSilentAudioEl(streamsLive) {
 
 /** System class which provides methods for Positional Audio system. */
 
-export const PositionalAudioSystem = async (): Promise<System> => {
+export default async function PositionalAudioSystem(world: World): Promise<System> {
   const positionalAudioQuery = defineQuery([PositionalAudioComponent, TransformComponent])
   const avatarAudioQuery = defineQuery([AudioTagComponent, AvatarComponent])
   const audioQuery = defineQuery([AudioTagComponent])

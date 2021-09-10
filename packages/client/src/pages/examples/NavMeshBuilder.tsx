@@ -37,6 +37,7 @@ import { Position, Polygon, MultiPolygon } from 'geojson'
 import pc from 'polygon-clipping'
 import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { World } from '@xrengine/engine/src'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner
@@ -51,8 +52,8 @@ type NavigationComponentType = {
 
 const NavigationComponent = createMappedComponent<NavigationComponentType>()
 
-const RenderSystem = async (): Promise<System> => {
-  return (world) => {
+const RenderSystem = async (world: World): Promise<System> => {
+  return () => {
     Engine.renderer.render(Engine.scene, Engine.camera)
     return world
   }
@@ -167,7 +168,7 @@ async function startDemo(entity) {
   }
 }
 
-export const NavigationSystem = async (): Promise<System> => {
+export const NavigationSystem = async (world: World): Promise<System> => {
   const entity = createEntity()
   addComponent(entity, NavigationComponent, {
     pathPlanner: new PathPlanner(),
@@ -183,7 +184,7 @@ export const NavigationSystem = async (): Promise<System> => {
 
   const navigationQuery = defineQuery([NavigationComponent])
 
-  return (world) => {
+  return () => {
     const { delta } = world
 
     for (const entity of navigationQuery(world)) {
@@ -245,8 +246,8 @@ const Page = () => {
     ;(async function () {
       await initializeEngine()
       // Register our systems to do stuff
-      registerSystem(SystemUpdateType.Fixed, NavigationSystem)
-      registerSystem(SystemUpdateType.Free, RenderSystem)
+      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: NavigationSystem }))
+      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: RenderSystem }))
       await Engine.defaultWorld.initSystems()
 
       // Set up rendering and basic scene for demo

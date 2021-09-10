@@ -5,14 +5,15 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { FollowComponent } from '../component/FollowComponent'
 import { goTo } from '../../common/functions/commandHandler'
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 const distanceToPlayer: number = 1
 const step: number = 10
 
-export const FollowSystem = async (): Promise<System> => {
+export default async function FollowSystem(world: World): Promise<System> {
   const followQuery = defineQuery([FollowComponent])
 
-  return (world) => {
+  return () => {
     for (const eid of followQuery(world)) {
       let { targetEid, cStep, prevTarget } = getComponent(eid, FollowComponent)
       cStep++

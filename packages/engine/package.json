@@ -11,9 +11,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "jest": {
-    "preset": "ts-jest"
-  },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "license": "MIT",

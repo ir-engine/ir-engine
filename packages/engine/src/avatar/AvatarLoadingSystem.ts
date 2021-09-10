@@ -21,6 +21,7 @@ import { DissolveEffect } from './DissolveEffect'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -30,7 +31,7 @@ const lightOpacity = (y, r) => {
   return Math.min(1, Math.max(0, 1 - (y - r) * 0.5))
 }
 
-export const AvatarLoadingSystem = async (): Promise<System> => {
+export default async function AvatarLoadingSystem(world: World): Promise<System> {
   // precache dissolve effects
   await AssetLoader.loadAsync({ url: '/itemLight.png' })
   await AssetLoader.loadAsync({ url: '/itemPlate.png' })
@@ -39,7 +40,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const dissolveQuery = defineQuery([AvatarComponent, Object3DComponent, AvatarDissolveComponent])
 
-  return (world) => {
+  return () => {
     const { delta } = world
 
     for (const entity of growQuery.enter(world)) {

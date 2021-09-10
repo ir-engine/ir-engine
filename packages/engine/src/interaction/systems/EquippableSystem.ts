@@ -18,6 +18,7 @@ import { Network } from '../../networking/classes/Network'
 import { equipEntity, unequipEntity } from '../functions/equippableFunctions'
 import { System } from '../../ecs/classes/System'
 import { Not } from 'bitecs'
+import { World } from '../../ecs/classes/World'
 
 const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
 const equippableQuery = defineQuery([EquipperComponent])
@@ -50,7 +51,7 @@ function equippableActionReceptor(action: NetworkWorldActionType) {
 /**
  * @author Josh Field <github.com/HexaField>
  */
-export const EquippableSystem = async (world): Promise<System> => {
+export default async function EquippableSystem(world: World): Promise<System> {
   world.receptors.add(equippableActionReceptor)
 
   return () => {

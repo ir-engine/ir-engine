@@ -34,9 +34,9 @@ import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
 
-const AnimationSystem = async (): Promise<System> => {
+const AnimationSystem = async (world: World): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
-  return (world) => {
+  return () => {
     const { delta } = world
     for (const entity of animationQuery(world)) {
       const ac = getComponent(entity, AnimationComponent)
@@ -57,9 +57,9 @@ const Page = () => {
     ;(async function () {
       await initializeEngine()
       // Register our systems to do stuff
-      registerSystem(SystemUpdateType.Fixed, AnimationSystem)
-      registerSystem(SystemUpdateType.Fixed, IKRigSystem)
-      registerSystem(SystemUpdateType.Free, RenderSystem)
+      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: AnimationSystem }))
+      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: IKRigSystem }))
+      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: RenderSystem }))
       await Engine.defaultWorld.initSystems()
 
       await initThree() // Set up the three.js scene with grid, light, etc

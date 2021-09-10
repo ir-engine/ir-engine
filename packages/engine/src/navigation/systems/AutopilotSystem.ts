@@ -21,6 +21,7 @@ import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponen
 import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -41,7 +42,7 @@ export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vec
 const quat = new Quaternion()
 const forward = new Vector3(0, 0, 1)
 
-export const AutopilotSystem = async (): Promise<System> => {
+export default async function AutopilotSystem(world: World): Promise<System> {
   const stick = GamepadAxis.Left
   const raycaster = new Raycaster()
 
@@ -50,7 +51,7 @@ export const AutopilotSystem = async (): Promise<System> => {
   const ongoingQuery = defineQuery([AutoPilotComponent])
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
 
-  return (world) => {
+  return () => {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)
