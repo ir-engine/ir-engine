@@ -94,7 +94,7 @@
     "@types/three": "0.131.0",
     "@types/yuka": "0.7.1",
     "babel-plugin-dynamic-import-node": "2.3.3",
-    "babel-plugin-transform-import-meta": "2.0.0",
+    "babel-plugin-transform-import-meta": "2.1.0",
     "babel-preset-vite": "1.0.4",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
