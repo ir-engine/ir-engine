@@ -1,11 +1,12 @@
 import { Mesh, Quaternion, Vector2, Vector3 } from 'three'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { ParityValue } from '../common/enums/ParityValue'
-import { isClient } from '../common/functions/isClient'
+import { clamp } from '../common/functions/MathLerpFunctions'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import {
@@ -23,13 +24,10 @@ import { InputValue } from '../input/interfaces/InputValue'
 import { InputAlias } from '../input/types/InputAlias'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
-import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
-import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
@@ -116,8 +114,8 @@ const switchShoulderSide: InputBehaviorType = (
   }
 }
 
-let lastScrollDelta = 0
 let lastScrollValue = 0
+
 /**
  * Change camera distance.
  * @param entity Entity holding camera and input component.
@@ -128,54 +126,45 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
-  const cameraFollow = getComponent(entity, FollowCameraComponent)
-  if (cameraFollow === undefined || cameraFollow.mode === CameraMode.Strategic) return //console.warn("cameraFollow is undefined")
-
   const value = inputValue.value[0]
-
-  const scrollDelta = Math.min(1, Math.max(-1, value - lastScrollValue))
+  const scrollDelta = Math.sign(value - lastScrollValue)
   lastScrollValue = value
-  if (cameraFollow.mode !== CameraMode.ThirdPerson && scrollDelta === lastScrollDelta) {
+
+  if (scrollDelta === 0) {
     return
   }
-  lastScrollDelta = scrollDelta
 
-  switch (cameraFollow.mode) {
-    case CameraMode.FirstPerson:
-      if (scrollDelta > 0) {
-        switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
-      }
-      break
-    case CameraMode.ShoulderCam:
-      if (scrollDelta > 0) {
-        switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
-        cameraFollow.distance = cameraFollow.minDistance + 1
-      }
-      if (scrollDelta < 0) {
-        switchCameraMode(entity, { cameraMode: CameraMode.FirstPerson })
-      }
-      break
-    default:
-    case CameraMode.ThirdPerson:
-      const newDistance = cameraFollow.distance + scrollDelta
-      cameraFollow.distance = Math.max(cameraFollow.minDistance, Math.min(cameraFollow.maxDistance, newDistance))
+  const followComponent = getComponent(entity, FollowCameraComponent)
 
-      if (cameraFollow.distance >= cameraFollow.maxDistance) {
-        if (scrollDelta > 0) {
-          switchCameraMode(entity, { cameraMode: CameraMode.TopDown })
-        }
-      } else if (cameraFollow.distance <= cameraFollow.minDistance) {
-        if (scrollDelta < 0) {
-          switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
-        }
-      }
+  if (!followComponent) {
+    return
+  }
 
-      break
-    case CameraMode.TopDown:
-      if (scrollDelta < 0) {
-        switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
-      }
-      break
+  const epsilon = 0.001
+  followComponent.zoomLevel = clamp(followComponent.zoomLevel + scrollDelta, epsilon, followComponent.maxDistance)
+
+  // Move to first person mode
+  if (followComponent.zoomLevel < followComponent.minDistance && scrollDelta < 0) {
+    followComponent.zoomLevel = epsilon
+  }
+
+  // Move out of first person mode
+  if (followComponent.zoomLevel === 0 && scrollDelta > 0) {
+    followComponent.zoomLevel = followComponent.minDistance
+  }
+
+  // Rotate camera to the top but let the player to rotate if he/she desires
+  if (Math.abs(followComponent.zoomLevel - followComponent.maxDistance) < epsilon && scrollDelta > 0) {
+    const cameraRotationTransition = getComponent(entity, TargetCameraRotationComponent)
+    if (!cameraRotationTransition) {
+      addComponent(entity, TargetCameraRotationComponent, {
+        phi: 85,
+        phiVelocity: { value: 0 },
+        theta: followComponent.theta,
+        thetaVelocity: { value: 0 },
+        time: 0.3
+      })
+    }
   }
 }
 
@@ -344,7 +333,9 @@ const lookByInputAxis: InputBehaviorType = (
   delta: number
 ): void => {
   const followCamera = getComponent(entity, FollowCameraComponent)
-  if (followCamera && followCamera.mode !== CameraMode.Strategic) {
+  removeComponent(entity, TargetCameraRotationComponent)
+
+  if (followCamera) {
     followCamera.theta -= inputValue.value[0] * 100
     followCamera.phi -= inputValue.value[1] * 100
   }
