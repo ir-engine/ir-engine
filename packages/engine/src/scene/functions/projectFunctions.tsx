@@ -4,9 +4,10 @@ import { fetchUrl } from './fetchUrl'
 import { getToken } from './getToken'
 import { upload } from './upload'
 
-export const serverURL = Config.publicRuntimeConfig.apiServer
+const serverURL = Config.publicRuntimeConfig.apiServer
 
-globalThis.filesToUpload = globalThis.filesToUpload ?? {}
+globalThis.ownedFileIds = globalThis.ownedFileIds ?? {}
+globalThis.currentOwnedFileIds = {}
 
 /**
  * getProjects used to get list projects created by user.
@@ -63,6 +64,7 @@ export const getProject = async (projectId): Promise<JSON> => {
  * createProject used to create project.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param  {any}  scene         [contains the data related to scene]
  * @param  {any}  parentSceneId
  * @param  {any}  thumbnailBlob [thumbnail data]
@@ -113,12 +115,11 @@ export const createProject = async (
 
   const project = {
     name: scene.name,
-    filesToUpload: {
-      thumbnailOwnedFileId: {
-        file_id: thumbnailFileId,
-        file_token: thumbnailFileToken
-      }
+    thumbnailOwnedFileId: {
+      file_id: thumbnailFileId,
+      file_token: thumbnailFileToken
     },
+    ownedFileIds: {},
     project_file_id: projectFileId,
     project_file_token: projectFileToken
   }
@@ -126,8 +127,9 @@ export const createProject = async (
   if (parentSceneId) {
     project['parent_scene_id'] = parentSceneId
   }
-
-  Object.assign(project.filesToUpload, globalThis.filesToUpload)
+  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
+  globalThis.currentOwnedFileIds = {}
 
   const body = JSON.stringify({ project })
 
@@ -182,6 +184,7 @@ export const deleteProject = async (projectId): Promise<any> => {
  * saveProject used to save changes in existing project.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param  {any}  projectId
  * @param  {any}  editor
  * @param  {any}  signal
@@ -229,12 +232,11 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
 
   const project = {
     name: editor.scene.name,
-    filesToUpload: {
-      thumbnailOwnedFileId: {
-        file_id: thumbnailFileId,
-        file_token: thumbnailFileToken
-      }
+    thumbnailOwnedFileId: {
+      file_id: thumbnailFileId,
+      file_token: thumbnailFileToken
     },
+    ownedFileIds: {},
     project_file_id: projectFileId,
     project_file_token: projectFileToken
   }
@@ -245,7 +247,9 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     project['scene_id'] = sceneId
   }
 
-  Object.assign(project.filesToUpload, globalThis.filesToUpload)
+  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
+  globalThis.currentOwnedFileIds = {}
 
   const body = JSON.stringify({
     project

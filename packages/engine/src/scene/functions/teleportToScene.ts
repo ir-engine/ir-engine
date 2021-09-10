@@ -1,7 +1,7 @@
 import { AmbientLight, PerspectiveCamera, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
+// import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -27,7 +27,7 @@ export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
-  World.defaultWorld.isInPortal = true
+  Engine.defaultWorld.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
@@ -108,7 +108,7 @@ export const teleportToScene = async (
   )
 
   const avatar = getComponent(Network.instance.localClientEntity, AvatarComponent)
-  rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
+  // rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
   createAvatarController(Network.instance.localClientEntity)
   addComponent(Network.instance.localClientEntity, LocalInputTagComponent, {})
@@ -133,5 +133,5 @@ export const teleportToScene = async (
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  World.defaultWorld.isInPortal = false
+  Engine.defaultWorld.isInPortal = false
 }

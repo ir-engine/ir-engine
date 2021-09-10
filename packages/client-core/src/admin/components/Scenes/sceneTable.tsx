@@ -12,14 +12,15 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { Dispatch, bindActionCreators } from 'redux'
-import { useStyles, useStyle } from './styles'
-import { columns, Data } from './variables'
+import { useSceneStyles, useSceneStyle } from './styles'
+import { sceneColumns, SceneData } from './variables'
 import TablePagination from '@material-ui/core/TablePagination'
 import { fetchAdminScenes, deleteScene } from '../../reducers/admin/scene/service'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import ViewScene from './ViewScene'
+import { SCENE_PAGE_LIMIT } from '../../reducers/admin/scene/reducers'
 
 interface Props {
   fetchSceneAdmin?: any
@@ -40,17 +41,18 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const SceneTable = (props: Props) => {
   const { fetchSceneAdmin, deleteScene, authState, adminSceneState } = props
-  const classx = useStyles()
-  const classes = useStyle()
+  const classx = useSceneStyles()
+  const classes = useSceneStyle()
   const user = authState.get('user')
   const scene = adminSceneState?.get('scenes')
   const sceneData = scene?.get('scenes')
+  const sceneCount = scene?.get('total')
   const [singleScene, setSingleScene] = React.useState('')
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
   const [sceneId, setSceneId] = React.useState('')
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(SCENE_PAGE_LIMIT)
 
   React.useEffect(() => {
     if (user.id && scene.get('updateNeeded')) {
@@ -59,6 +61,8 @@ const SceneTable = (props: Props) => {
   }, [user, scene])
 
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchSceneAdmin(incDec)
     setPage(newPage)
   }
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +94,14 @@ const SceneTable = (props: Props) => {
     deleteScene(sceneId)
   }
 
-  const createData = (id: string, name: string, type: string, description: string, entity: any, version: any): Data => {
+  const createData = (
+    id: string,
+    name: string,
+    type: string,
+    description: string,
+    entity: any,
+    version: any
+  ): SceneData => {
     return {
       id,
       name,
@@ -125,15 +136,13 @@ const SceneTable = (props: Props) => {
     )
   })
 
-  const count = rows.size ? rows.size : rows.length
-
   return (
     <div className={classes.root}>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {sceneColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -146,10 +155,10 @@ const SceneTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+            {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {sceneColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>
@@ -164,9 +173,9 @@ const SceneTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[SCENE_PAGE_LIMIT]}
         component="div"
-        count={count || 12}
+        count={sceneCount || 12}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

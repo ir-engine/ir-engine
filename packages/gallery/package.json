@@ -12,6 +12,7 @@
   "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {
+    "check-errors": "tsc --noEmit",
     "dev": "vite --host",
     "build": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js www/server.js",
     "validate": "npm run test",
@@ -19,7 +20,7 @@
   },
   "resolutions": {
     "socket.io": "4.2.0",
-    "@types/react": "17.0.19",
+    "@types/react": "17.0.20",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -29,12 +30,12 @@
   },
   "dependencies": {
     "@capacitor-community/http": "1.2.0",
-    "@capacitor/android": "3.2.0",
-    "@capacitor/app": "1.0.2",
-    "@capacitor/cli": "3.2.0",
-    "@capacitor/filesystem": "1.0.2",
-    "@capacitor/ios": "3.2.0",
-    "@capacitor/share": "1.0.3",
+    "@capacitor/android": "3.2.2",
+    "@capacitor/app": "1.0.3",
+    "@capacitor/cli": "3.2.2",
+    "@capacitor/filesystem": "1.0.3",
+    "@capacitor/ios": "3.2.2",
+    "@capacitor/share": "1.0.4",
     "@material-ui/core": "4.12.3",
     "@types/react-redux": "7.1.18",
     "@xrengine/client-core": "^0.4.0",
@@ -46,20 +47,20 @@
     "formik": "2.2.9",
     "react": "^17.0.0",
     "react-dom": "17.0.2",
-    "react-redux": "7.2.4",
+    "react-redux": "7.2.5",
     "react-video-recorder": "3.19.1",
     "redux": "4.1.1",
-    "sass": "1.38.1",
+    "sass": "1.39.0",
     "styled-components": "5.3.1"
   },
   "devDependencies": {
-    "@types/node": "14.17.12",
-    "@types/react": "17.0.19",
+    "@types/node": "14.17.15",
+    "@types/react": "17.0.20",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
     "typescript": "4.4.2",
-    "vite": "2.5.1"
+    "vite": "2.5.6"
   },
   "browser": {
     "fs": false

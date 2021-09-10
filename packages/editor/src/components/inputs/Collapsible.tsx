@@ -1,4 +1,3 @@
-// @ts-ignore
 import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
@@ -83,6 +82,10 @@ export function Collapsible({ label, open, children }) {
       {!collapsed && <CollapsibleContent>{children}</CollapsibleContent>}
     </CollapsibleContainer>
   )
+}
+
+Collapsible.defaultProps = {
+  open: false
 }
 
 export default Collapsible

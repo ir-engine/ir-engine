@@ -27,7 +27,7 @@ export const initialFeedCommentState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialFeedCommentState)
+const immutableState = Immutable.fromJS(initialFeedCommentState) as any
 
 const feedCommentsReducer = (state = immutableState, action: FeedCommentsAction): any => {
   switch (action.type) {

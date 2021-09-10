@@ -3,8 +3,8 @@ import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectList } from '../interfaces/NetworkObjectList'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
-import { NetworkTransport, IncomingActionType, ActionType } from '../interfaces/NetworkTransport'
-import { AvatarProps, NetworkClientInputInterface, WorldStateInterface } from '../interfaces/WorldState'
+import { NetworkTransport, ActionType, IncomingActionType } from '../interfaces/NetworkTransport'
+import { AvatarProps } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
 
@@ -28,6 +28,7 @@ export interface NetworkClientList {
     dataProducers?: Map<string, any> // Key => label of data channel}
     avatarDetail?: AvatarProps
     networkId?: any // to easily retrieve the network object correspending to this client
+    subscribedChatUpdates: string[]
   }
 }
 
@@ -55,7 +56,7 @@ export class Network {
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
   /** Incoming actions */
-  incomingActions = [] as ActionType[]
+  incomingActions = [] as IncomingActionType[]
   /** Outgoing actions */
   outgoingActions = [] as ActionType[]
 
@@ -76,10 +77,6 @@ export class Network {
   /** ID of last network created. */
   private static availableNetworkId = 0
 
-  isLocal = (userId) => {
-    return this.userId === userId
-  }
-
   /** Get next network id. */
   static getNetworkId(): number {
     return ++this.availableNetworkId
@@ -89,6 +86,9 @@ export class Network {
   static _schemas: Map<string, Schema> = new Map()
 
   /** Buffer holding all incoming Messages. */
+  incomingMessageQueueUnreliableIDs: RingBuffer<string> = new RingBuffer<string>(100)
+
+  /** Buffer holding all incoming Messages. */
   incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
 
   /** Buffer holding all incoming Messages. */
@@ -96,29 +96,6 @@ export class Network {
 
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
-
-  /** State of the world. */
-  worldState: WorldStateInterface = {
-    clientsConnected: [],
-    clientsDisconnected: [],
-    createObjects: [],
-    editObjects: [],
-    destroyObjects: []
-  }
-
-  clientInputState: NetworkClientInputInterface = {
-    networkId: -1,
-    data: [],
-    viewVector: {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 0
-    },
-    snapShotTime: 0,
-    commands: [],
-    transforms: []
-  }
 
   /** Tick of the network. */
   tick: any = 0

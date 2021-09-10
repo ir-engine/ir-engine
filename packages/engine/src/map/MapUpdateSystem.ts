@@ -1,24 +1,22 @@
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Vector3 } from 'three'
 import { getCoord, getScaleArg, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
-import { ECSWorld } from '../ecs/classes/World'
-import { getComponent } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { updateMap } from '../scene/functions/createMap'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
+import { System } from '../ecs/classes/System'
 
 export const MapUpdateSystem = async (): Promise<System> => {
   const moveQuery = defineQuery([Object3DComponent, LocalInputTagComponent])
-  const moveAddQuery = enterQuery(moveQuery)
   const labelsQuery = defineQuery([GeoLabelSetComponent])
   let updateStatus = false
 
-  return defineSystem((world: ECSWorld) => {
-    for (const entity of moveAddQuery(world)) {
+  return (world) => {
+    for (const entity of moveQuery.enter(world)) {
       const position = getComponent(entity, Object3DComponent).value.position
     }
 
@@ -65,7 +63,5 @@ export const MapUpdateSystem = async (): Promise<System> => {
         label.onUpdate(Engine.camera)
       }
     }
-
-    return world
-  })
+  }
 }

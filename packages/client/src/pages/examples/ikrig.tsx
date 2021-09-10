@@ -1,7 +1,12 @@
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import {
+  addComponent,
+  createEntity,
+  defineQuery,
+  getComponent
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import { IKPose } from '@xrengine/engine/src/ikrig/components/IKPose'
@@ -24,67 +29,38 @@ import {
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { defineQuery, defineSystem, System } from 'bitecs'
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { setReference } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
 
 const AnimationSystem = async (): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
-  return defineSystem((world: ECSWorld) => {
+  return (world) => {
     const { delta } = world
     for (const entity of animationQuery(world)) {
       const ac = getComponent(entity, AnimationComponent)
       ac.mixer.update(delta)
     }
-    return world
-  })
+  }
 }
 
 const RenderSystem = async (): Promise<System> => {
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     Engine.renderer.render(Engine.scene, Engine.camera)
-    return world
-  })
+  }
 }
 
 // This is a functional React component
 const Page = () => {
   useEffect(() => {
     ;(async function () {
-      initializeEngine()
+      await initializeEngine()
       // Register our systems to do stuff
       registerSystem(SystemUpdateType.Fixed, AnimationSystem)
       registerSystem(SystemUpdateType.Fixed, IKRigSystem)
       registerSystem(SystemUpdateType.Free, RenderSystem)
-
-      const fixedPipeline = await createPipeline(SystemUpdateType.Fixed)
-      const freePipeline = await createPipeline(SystemUpdateType.Free)
-      const networkPipeline = await createPipeline(SystemUpdateType.Network)
-
-      const executePipeline = (world: World, pipeline) => {
-        return (delta, elapsedTime) => {
-          world.ecsWorld.delta = delta
-          world.ecsWorld.time = elapsedTime
-          pipeline(world.ecsWorld)
-          world.ecsWorld._removedComponents.clear()
-        }
-      }
-
-      const world = World.defaultWorld
-
-      // TODO: support multiple worlds
-      // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
-
-      Engine.engineTimer = Timer(
-        {
-          networkUpdate: executePipeline(world, networkPipeline),
-          fixedUpdate: executePipeline(world, fixedPipeline),
-          update: executePipeline(world, freePipeline)
-        },
-        Engine.physicsFrameRate,
-        Engine.networkFramerate
-      )
+      await Engine.defaultWorld.initSystems()
 
       await initThree() // Set up the three.js scene with grid, light, etc
 

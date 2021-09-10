@@ -1,19 +1,31 @@
 /** Functions to provide engine level functionalities. */
-
+import * as bitecs from 'bitecs'
 import { Color } from 'three'
 import { PhysXInstance } from 'three-physx'
+import { ActionType, IncomingActionType } from '../..'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
+import { createPhysXWorker } from '../../physics/functions/createPhysXWorker'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
+import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
-import { hasComponent, removeAllComponents, removeEntity } from './EntityFunctions'
+import {
+  ComponentType,
+  createEntity,
+  hasComponent,
+  MappedComponent,
+  removeAllComponents,
+  removeEntity
+} from './EntityFunctions'
+import { SystemInitializeType } from './SystemFunctions'
+import { useWorld } from './SystemHooks'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -26,7 +38,7 @@ export async function reset(): Promise<void> {
 
   // clear all entities components
   // await new Promise<void>((resolve) => {
-  //   World.defaultWorld.entities.forEach((entity) => {
+  //   Engine.defaultWorld.entities.forEach((entity) => {
   //     removeAllComponents(entity)
   //   })
   //   setTimeout(() => {
@@ -44,14 +56,14 @@ export async function reset(): Promise<void> {
   //   }, 500)
   // })
 
-  // if (World.defaultWorld.entities.length) {
-  //   console.log('World.defaultWorld.entities.length', World.defaultWorld.entities.length)
-  //   throw new Error('World.defaultWorld.entities cleanup not complete')
+  // if (Engine.defaultWorld.entities.length) {
+  //   console.log('Engine.defaultWorld.entities.length', Engine.defaultWorld.entities.length)
+  //   throw new Error('Engine.defaultWorld.entities cleanup not complete')
   // }
 
   Engine.tick = 0
 
-  World.defaultWorld.entities.length = 0
+  Engine.defaultWorld.entities.length = 0
 
   // delete all what is left on scene
   if (Engine.scene) {
@@ -74,15 +86,9 @@ export async function reset(): Promise<void> {
   Vault.instance.clear()
   AssetLoader.Cache.clear()
 
-  // Engine.enabled = false;
+  Engine.isInitialized = false
   Engine.inputState.clear()
   Engine.prevInputState.clear()
-}
-
-export const executePipelines = (world: World = World.defaultWorld) => {
-  Object.values(world.pipelines).forEach((pipeline) => {
-    pipeline(world.ecsWorld)
-  })
 }
 
 export const processLocationChange = async (): Promise<void> => {
@@ -90,7 +96,7 @@ export const processLocationChange = async (): Promise<void> => {
   const removedEntities = []
   const sceneObjectsToRemove = []
 
-  World.defaultWorld.entities.forEach((entity) => {
+  Engine.defaultWorld.entities.forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)
@@ -98,7 +104,7 @@ export const processLocationChange = async (): Promise<void> => {
     }
   })
 
-  executePipelines(World.defaultWorld)
+  Engine.defaultWorld.execute(1 / 60)
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -118,7 +124,7 @@ export const processLocationChange = async (): Promise<void> => {
 
   isClient && EngineRenderer.instance.resetPostProcessing()
 
-  executePipelines(World.defaultWorld)
+  Engine.defaultWorld.execute(1 / 60)
 
   await resetPhysics()
 }
@@ -128,5 +134,89 @@ export const resetPhysics = async (): Promise<void> => {
   Engine.workers.splice(Engine.workers.indexOf(Engine.physxWorker), 1)
   PhysXInstance.instance.dispose()
   PhysXInstance.instance = new PhysXInstance()
-  await PhysXInstance.instance.initPhysX(Engine.initOptions.physics.physxWorker(), Engine.initOptions.physics.settings)
+}
+
+export function createWorld() {
+  console.log('Creating world')
+
+  const worldShape = {
+    sceneMetadata: undefined as string | undefined,
+    worldMetadata: {} as { [key: string]: string },
+
+    delta: -1,
+    elapsedTime: -1,
+    fixedDelta: -1,
+    fixedElapsedTime: -1,
+
+    entities: [] as Entity[],
+    portalEntities: [] as Entity[],
+    isInPortal: false,
+    _removedComponents: new Map<Entity, Set<MappedComponent<any, any>>>(),
+    _freePipeline: [] as SystemInitializeType<any>[],
+    _fixedPipeline: [] as SystemInitializeType<any>[],
+
+    /**
+     * Systems that run only once every frame.
+     * Ideal for cosmetic updates (e.g., particles), animation, rendering, etc.
+     */
+    freeSystems: [] as ((world: bitecs.IWorld) => void)[],
+
+    /**
+     * Systems that run once for every fixed time interval (in simulation time).
+     * Ideal for game logic, ai logic, simulation logic, etc.
+     */
+    fixedSystems: [] as ((world: bitecs.IWorld) => void)[],
+
+    /**
+     * Entities mapped by name
+     */
+    namedEntities: new Map<string, Entity>(),
+
+    /**
+     * Action receptors
+     */
+    receptors: new Set<(action: ActionType) => void>(),
+
+    /**
+     * Execute systems on this world
+     *
+     * @param delta
+     * @param elapsedTime
+     */
+    execute(delta: number, elapsedTime?: number) {
+      world.delta = delta
+      world.elapsedTime = elapsedTime
+      for (const system of world.freeSystems) system(world)
+      for (const [entity, components] of world._removedComponents) {
+        for (const c of components) c.delete(entity)
+      }
+      world._removedComponents.clear()
+    },
+
+    async initSystems() {
+      const fixedSystems = await Promise.all(
+        world._fixedPipeline.map((s) => {
+          console.log(`Initializing fixed system: ${s.system.name}`)
+          return s.system(world, s.args)
+        })
+      )
+      const freeSystems = await Promise.all(
+        world._freePipeline.map((s) => {
+          console.log(`Initializing free system: ${s.system.name}`)
+          return s.system(world, s.args)
+        })
+      )
+      world.fixedSystems = fixedSystems
+      world.freeSystems = freeSystems
+    }
+  }
+
+  const world = Object.assign(bitecs.createWorld(), worldShape) as typeof worldShape
+
+  ;(Engine.worlds as any).push(world) // TS complains about circular type definition without casting Engine.worlds to any
+  if (!Engine.defaultWorld) Engine.defaultWorld = world
+
+  createEntity(world) // make sure we have no eid 0 so that if (!entity) works; also, world entity = 0?
+
+  return world
 }

@@ -42,11 +42,9 @@ export class PublishDialog extends Component<{ t: Function }> {
         onCancel={onCancel}
         confirmLabel={this.props.t('editor:dialog.publish.lbl-confirm')}
       >
-        {/* @ts-ignore */}
         <FormField>
           <label htmlFor="sceneName">{this.props.t('editor:dialog.publish.lbl-name')}</label>
           <StringInput
-            /* @ts-ignore */
             id="sceneName"
             required
             pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}

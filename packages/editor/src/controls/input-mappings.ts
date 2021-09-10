@@ -40,7 +40,7 @@ export const Fly = {
   moveY: 'moveY',
   boost: 'boost'
 }
-export const Editor = {
+export const EditorInputs = {
   grab: 'grab',
   focus: 'focus',
   focusPosition: 'focusPosition',
@@ -114,63 +114,63 @@ export const FlyMapping = {
 export const EditorMapping = {
   mouse: {
     dblclick: {
-      event: [booleanEventHandler(Editor.focus)],
-      position: Editor.focusPosition
+      event: [booleanEventHandler(EditorInputs.focus)],
+      position: EditorInputs.focusPosition
     },
     wheel: {
-      normalizedDeltaY: Editor.zoomDelta
+      normalizedDeltaY: EditorInputs.zoomDelta
     },
     pressed: {
-      left: Editor.selecting,
-      middle: Editor.panning,
-      right: Editor.flying
+      left: EditorInputs.selecting,
+      middle: EditorInputs.panning,
+      right: EditorInputs.flying
     },
     mousedown: {
       event: [requestPointerLockHandler((event) => event.button === 2)],
-      left: Editor.selectStart,
-      position: Editor.selectStartPosition,
-      right: Editor.enableFlyMode
+      left: EditorInputs.selectStart,
+      position: EditorInputs.selectStartPosition,
+      right: EditorInputs.enableFlyMode
     },
     mouseup: {
       event: [exitPointerLockHandler((event) => event.button === 2)],
-      left: Editor.selectEnd,
-      position: Editor.selectEndPosition,
-      right: Editor.disableFlyMode
+      left: EditorInputs.selectEnd,
+      position: EditorInputs.selectEndPosition,
+      right: EditorInputs.disableFlyMode
     },
     move: {
-      position: Editor.cursorPosition,
-      normalizedMovementX: Editor.cursorDeltaX,
-      normalizedMovementY: Editor.cursorDeltaY
+      position: EditorInputs.cursorPosition,
+      normalizedMovementX: EditorInputs.cursorDeltaX,
+      normalizedMovementY: EditorInputs.cursorDeltaY
     }
   },
   keyboard: {
     pressed: {
-      mod: Editor.modifier,
-      shift: Editor.shift
+      mod: EditorInputs.modifier,
+      shift: EditorInputs.shift
     },
     hotkeys: {
-      '=': Editor.incrementGridHeight,
-      '-': Editor.decrementGridHeight,
-      f: Editor.focusSelection,
-      t: Editor.setTranslateMode,
-      r: Editor.setRotateMode,
-      y: Editor.setScaleMode,
-      q: Editor.rotateLeft,
-      e: Editor.rotateRight,
-      g: Editor.grab,
-      z: Editor.toggleTransformSpace,
-      x: Editor.toggleTransformPivot,
-      c: Editor.toggleSnapMode,
-      backspace: Editor.deleteSelected,
-      del: Editor.deleteSelected,
-      'mod+z': Editor.undo,
-      'mod+shift+z': Editor.redo,
-      'mod+d': Editor.duplicateSelected,
-      'mod+g': Editor.groupSelected,
-      esc: Editor.cancel
+      '=': EditorInputs.incrementGridHeight,
+      '-': EditorInputs.decrementGridHeight,
+      f: EditorInputs.focusSelection,
+      t: EditorInputs.setTranslateMode,
+      r: EditorInputs.setRotateMode,
+      y: EditorInputs.setScaleMode,
+      q: EditorInputs.rotateLeft,
+      e: EditorInputs.rotateRight,
+      g: EditorInputs.grab,
+      z: EditorInputs.toggleTransformSpace,
+      x: EditorInputs.toggleTransformPivot,
+      c: EditorInputs.toggleSnapMode,
+      backspace: EditorInputs.deleteSelected,
+      del: EditorInputs.deleteSelected,
+      'mod+z': EditorInputs.undo,
+      'mod+shift+z': EditorInputs.redo,
+      'mod+d': EditorInputs.duplicateSelected,
+      'mod+g': EditorInputs.groupSelected,
+      esc: EditorInputs.cancel
     },
     globalHotkeys: {
-      'mod+s': Editor.saveProject
+      'mod+s': EditorInputs.saveProject
     }
   }
 }

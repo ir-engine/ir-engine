@@ -12,7 +12,6 @@ import { ContextMenuTrigger } from '../layout/ContextMenu'
  */
 export function StylableContextMenuTrigger({ className, attributes, children, ...rest }) {
   return (
-    /* @ts-ignore */
     <ContextMenuTrigger {...rest} attributes={{ className, ...attributes }}>
       {children}
     </ContextMenuTrigger>

@@ -19,7 +19,7 @@ type GroundProps = {
   color: string
 }
 
-export const createGround = async function (entity: Entity, args: GroundProps, isClient: boolean) {
+export const createGround = async function (entity: Entity, args: GroundProps, isClient: boolean): Promise<Mesh> {
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
     new MeshStandardMaterial({
@@ -30,6 +30,7 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
 
   addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
+  console.log('create ground', entity, args, isClient)
   const body = createCollider(
     entity,
     {
@@ -52,6 +53,8 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   }
 
   addComponent(entity, ColliderComponent, { body })
+
+  return mesh
 }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {

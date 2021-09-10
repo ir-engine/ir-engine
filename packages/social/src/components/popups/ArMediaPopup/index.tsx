@@ -5,8 +5,6 @@ import { selectPopupsState } from '../../../reducers/popupsState/selector'
 import { updateArMediaState } from '../../../reducers/popupsState/service'
 import ArMedia from '../../ArMedia'
 import SharedModal from '../../SharedModal'
-
-//@ts-ignore
 import styles from './ArMediaPopup.module.scss'
 
 const mapStateToProps = (state: any): any => {

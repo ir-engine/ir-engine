@@ -5,11 +5,19 @@ import { getI18nConfigs as getClientCoreI18nConfigs } from '@xrengine/client-cor
 import { setRuntime } from '@xrengine/common/src/config'
 import translation from '../i18n/en/translation.json'
 
+/**
+ * this is required to be here to make some dependencies happy
+ */
+
+if (typeof globalThis.process === 'undefined') {
+  ;(globalThis as any).process = { env: {} }
+}
+
 export const initialize = (): Promise<void> => {
   return new Promise((resolve) => {
     // Set Runtime config to client core
-    if (process.env.LOCAL_BUILD === 'true') {
-      console.log('local build!')
+    if (process.env['VITE_LOCAL_BUILD'] === 'true') {
+      console.log('local build!', process.env)
       setRuntime({
         gameserverHost: `${process.env.VITE_GAMESERVER_HOST}`,
         gameserverPort: `${process.env.VITE_GAMESERVER_PORT}`,

@@ -75,10 +75,9 @@ const Feed = ({ feedsState, getFeed, popupsState, updateFeedPageState, removeFee
         </Button>
 
         <div className={styles.popover}>
-          {/* @ts-ignore */}
-          <div aria-describedby={id} variant="contained" onClick={handleClick}>
+          <Button aria-describedby={id} variant="contained" onClick={handleClick} tabIndex={0}>
             <MoreHorizIcon />
-          </div>
+          </Button>
           <Popover
             id={id}
             open={open}

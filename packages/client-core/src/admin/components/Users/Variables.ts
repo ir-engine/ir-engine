@@ -1,11 +1,11 @@
-export interface Column {
+export interface UserColumn {
   id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
 }
 
-export const columns: Column[] = [
+export const userColumns: UserColumn[] = [
   { id: 'name', label: 'Name', minWidth: 170 },
   { id: 'avatar', label: 'Avatar', minWidth: 100 },
   {
@@ -40,7 +40,7 @@ export const columns: Column[] = [
   }
 ]
 
-export interface Data {
+export interface UserData {
   id: string
   user: any
   name: string
@@ -51,7 +51,7 @@ export interface Data {
   instanceId: string
   action: any
 }
-export interface Props {
+export interface UserProps {
   removeUserAdmin?: any
   authState?: any
   adminUserState?: any
@@ -59,7 +59,7 @@ export interface Props {
   refetchSingleUserAdmin?: any
 }
 
-export interface TabPanelProps {
+export interface UserTabPanelProps {
   children?: React.ReactNode
   index: any
   value: any

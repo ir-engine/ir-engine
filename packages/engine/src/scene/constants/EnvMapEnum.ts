@@ -1,4 +1,4 @@
-import { CubemapBakeSettings } from '@xrengine/engine/src/scene/types/CubemapBakeSettings'
+import { CubemapBakeSettings } from '../../scene/types/CubemapBakeSettings'
 
 export const enum EnvMapSourceType {
   'Default',

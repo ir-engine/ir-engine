@@ -3,6 +3,26 @@ import { InputGroupContainer, InputGroupContent, InputGroupInfo } from './InputG
 import Scrubber from './Scrubber'
 import NumericInput from './NumericInput'
 
+export interface NumericInputGroupProp {
+  name?: string
+  className?: any
+  info?: any
+  label?: any
+  displayPrecision?: number
+  smallStep?: number
+  mediumStep?: number
+  largeStep?: number
+  min?: number
+  max?: number
+  value?: any
+  onChange?: Function
+  unit?: string
+  convertFrom?: any
+  convertTo?: any
+  disabled?: boolean
+  default?: any
+}
+
 /**
  *
  * @author Robert Long
@@ -11,11 +31,10 @@ import NumericInput from './NumericInput'
  * @param {any} rest
  * @returns
  */
-export function NumericInputGroup({ name, className, info, label, ...rest }) {
+export function NumericInputGroup({ name, className, info, label, ...rest }: NumericInputGroupProp) {
   const { displayPrecision, ...scrubberProps } = rest
   return (
     <InputGroupContainer>
-      {/* @ts-ignore */}
       <Scrubber {...scrubberProps}>{label}:</Scrubber>
       <InputGroupContent>
         <NumericInput {...rest} />

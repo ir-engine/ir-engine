@@ -13,8 +13,8 @@ type ModelViewProps = {
  * @constructor
  */
 export const ModelView: FunctionComponent<ModelViewProps> = ({ modelUrl, iosModelUrl }: ModelViewProps) => {
-  // @ts-ignore
   return (
+    // @ts-ignore
     <model-viewer
       style={{ width: '100%', height: '300px' }}
       src={modelUrl}

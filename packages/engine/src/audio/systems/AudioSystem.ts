@@ -1,21 +1,14 @@
 import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { System } from '../../ecs/classes/System'
 
 export const AudioSystem = async (): Promise<System> => {
   const soundEffectQuery = defineQuery([SoundEffect])
-  const soundEffectAddQuery = enterQuery(soundEffectQuery)
-
   const musicQuery = defineQuery([BackgroundMusic])
-  const musicAddQuery = enterQuery(musicQuery)
-  const musicRemoveQuery = exitQuery(musicQuery)
-
   const playQuery = defineQuery([SoundEffect, PlaySoundEffect])
-  const playAddQuery = enterQuery(playQuery)
 
   /** Indicates whether the system is ready or not. */
   let audioReady = false
@@ -100,39 +93,44 @@ export const AudioSystem = async (): Promise<System> => {
    * @param ent Entity to get the {@link audio/components/PlaySoundEffect.PlaySoundEffect | PlaySoundEffect} Component.
    */
   const playSoundEffect = (ent): void => {
-    const sound = ent.getComponent(SoundEffect)
-    sound.audio.play()
-    ent.removeComponent(PlaySoundEffect)
+    const sound = getComponent(ent, SoundEffect)
+    const playTag = getComponent(ent, PlaySoundEffect)
+    const audio = sound.audio[playTag.index]
+    audio.volume = Math.min(Math.max(playTag.volume, 0), 1)
+    audio.play()
+    removeComponent(ent, PlaySoundEffect)
   }
 
   window.addEventListener('touchstart', startAudio, true)
   window.addEventListener('touchend', startAudio, true)
   window.addEventListener('click', startAudio, true)
 
-  return defineSystem((world: ECSWorld) => {
-    for (const entity of soundEffectAddQuery(world)) {
+  return (world) => {
+    for (const entity of soundEffectQuery.enter(world)) {
       const effect = getComponent(entity, SoundEffect)
-      if (effect.src && !audio) {
-        effect.audio = new Audio()
-        effect.audio.addEventListener('loadeddata', () => {
-          effect.audio.volume = effect.volume
+      if (!audio) {
+        effect.src.forEach((src, i) => {
+          if (!src) {
+            return
+          }
+
+          const audio = new Audio()
+          effect.audio[i] = audio
+          audio.src = src
         })
-        effect.audio.src = effect.src
       }
     }
 
-    for (const entity of musicAddQuery(world)) {
+    for (const entity of musicQuery.enter(world)) {
       whenReady(() => startBackgroundMusic(entity))
     }
 
-    for (const entity of musicRemoveQuery(world)) {
+    for (const entity of musicQuery.exit(world)) {
       stopBackgroundMusic(entity)
     }
 
-    for (const entity of playAddQuery(world)) {
+    for (const entity of playQuery.enter(world)) {
       whenReady(() => playSoundEffect(entity))
     }
-
-    return world
-  })
+  }
 }

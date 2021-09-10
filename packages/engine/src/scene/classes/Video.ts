@@ -20,7 +20,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import isDash from '../functions/isDash'
 
 export default class Video extends AudioSource {
-  // @ts-ignore
   _texture: any
   _mesh: Mesh
   _projection: string

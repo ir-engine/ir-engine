@@ -1,9 +1,13 @@
 import { Object3D, sRGBEncoding, Box3, Vector3 } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
-import { ECSWorld } from '../ecs/classes/World'
 
-import { getComponent, hasComponent, addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
+import {
+  getComponent,
+  hasComponent,
+  addComponent,
+  removeComponent,
+  defineQuery
+} from '../ecs/functions/EntityFunctions'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 
@@ -16,6 +20,7 @@ import { TweenComponent } from '../transform/components/TweenComponent'
 import { DissolveEffect } from './DissolveEffect'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import { System } from '../ecs/classes/System'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -31,16 +36,13 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
   await AssetLoader.loadAsync({ url: '/itemPlate.png' })
 
   const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarPendingComponent])
-  const growAddQuery = enterQuery(growQuery)
-  const growRemoveQuery = exitQuery(growQuery)
-
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const dissolveQuery = defineQuery([AvatarComponent, Object3DComponent, AvatarDissolveComponent])
 
-  return defineSystem((world: ECSWorld) => {
+  return (world) => {
     const { delta } = world
 
-    for (const entity of growAddQuery(world)) {
+    for (const entity of growQuery.enter(world)) {
       const object = getComponent(entity, Object3DComponent).value
       const plateComponent = getComponent(entity, AvatarEffectComponent)
 
@@ -99,7 +101,7 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
       })
     }
 
-    for (const entity of growRemoveQuery(world)) {
+    for (const entity of growQuery.exit(world)) {
       // const plateComponent = getComponent(entity, AvatarEffectComponent)
       // addComponent(entity, TweenComponent, {
       //   tween: new Tween<any>(plateComponent)
@@ -214,5 +216,5 @@ export const AvatarLoadingSystem = async (): Promise<System> => {
     }
 
     return world
-  })
+  }
 }

@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, useEffect, useContext, memo } from 'react'
+import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroller'
 import styled from 'styled-components'
 import { VerticalScrollContainer } from '../layout/Flex'
@@ -73,7 +74,6 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     )
   } else {
     //setting content as ImageMediaGridItem if all above cases are false
-    // @ts-ignore
     content = <ImageMediaGridItem onClick={onClickItem} label={item.label} {...rest} />
   }
 
@@ -109,9 +109,7 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
   //creating view for AssetGrid using ContextMenuTrigger and tooltip component
   return (
     <div ref={drag}>
-      {/* @ts-ignore */}
       <ContextMenuTrigger id={contextMenuId} item={item} collect={collectMenuProps} holdToDisplay={-1}>
-        {/* @ts-ignore */}
         <Tooltip renderContent={renderTooltip} disabled={disableTooltip}>
           {content}
         </Tooltip>
@@ -133,6 +131,30 @@ const LoadingItem = (styled as any).div`
   align-items: center;
   user-select: none;
 `
+
+//declaring propTypes for AssetGridItem
+AssetGridItem.propTypes = {
+  tooltipComponent: PropTypes.func,
+  disableTooltip: PropTypes.bool,
+  contextMenuId: PropTypes.string,
+  onClick: PropTypes.func,
+  item: PropTypes.shape({
+    id: PropTypes.any.isRequired,
+    type: PropTypes.string.isRequired,
+    label: PropTypes.string,
+    thumbnailUrl: PropTypes.string,
+    videoUrl: PropTypes.string,
+    iconComponent: PropTypes.object,
+    url: PropTypes.string
+  }).isRequired
+}
+
+AssetGrid.defaultProps = {
+  onSelect: () => {},
+  items: [],
+  selectedItems: [],
+  tooltip: AssetTooltip
+}
 
 //variable used to create uniqueId
 let lastId = 0
@@ -187,6 +209,9 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
       editor.getSpawnPosition(node.position)
 
       editor.addObject(node)
+      if (item.projectId && globalThis.currentProjectID !== item.projectId) {
+        globalThis.currentOwnedFileIds[item.label] = item.fileId
+      }
     },
     [editor]
   )
@@ -202,6 +227,8 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
       }
 
       editor.addObject(node)
+      if (item.projectId && globalThis.currentProjectID !== item.projectId)
+        globalThis.currentOwnedFileIds[item.label] = item.fileId
     },
     [editor]
   )
@@ -218,7 +245,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
   const onDelete = useCallback(
     (_, trigger) => {
-      source.delete(trigger.item)
+      //source.delete(trigger.item)
     },
     [source]
   )
@@ -244,7 +271,6 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
           </MediaGrid>
         </InfiniteScroll>
       </VerticalScrollContainer>
-      {/* @ts-ignore */}
       <ContextMenu id={uniqueId.current}>
         <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
         <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
@@ -256,4 +282,35 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
   )
 }
 
+//creating propTypes for asset grid
+AssetGrid.propTypes = {
+  source: PropTypes.object,
+  tooltip: PropTypes.func,
+  isLoading: PropTypes.bool,
+  onSelect: PropTypes.func,
+  onLoadMore: PropTypes.func.isRequired,
+  hasMore: PropTypes.bool,
+  selectedItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.any.isRequired,
+      label: PropTypes.string,
+      thumbnailUrl: PropTypes.string
+    })
+  ).isRequired,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.any.isRequired,
+      label: PropTypes.string,
+      thumbnailUrl: PropTypes.string
+    })
+  ).isRequired
+}
+
+// creating default properties for AssetGrid
+AssetGrid.defaultProps = {
+  onSelect: () => {},
+  items: [],
+  selectedItems: [],
+  tooltip: AssetTooltip
+}
 export default AssetGrid

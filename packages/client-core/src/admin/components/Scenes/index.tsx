@@ -3,10 +3,10 @@ import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import SearchScene from './SearchScene'
 import SceneTable from './sceneTable'
-import { useStyles } from './styles'
+import { useSceneStyles } from './styles'
 
 const Scenes = () => {
-  const classes = useStyles()
+  const classes = useSceneStyles()
   const [userModalOpen, setUserModalOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {

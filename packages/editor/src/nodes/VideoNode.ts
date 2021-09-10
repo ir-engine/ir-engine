@@ -4,12 +4,11 @@ import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
 
-// @ts-ignore
 export default class VideoNode extends EditorNodeMixin(Video) {
   static legacyComponentName = 'video'
   static nodeName = 'Video'
   static initialElementProps = {}
-  static async deserialize(editor, json, loadAsync, onError) {
+  static async deserialize(editor, json) {
     const node = (await super.deserialize(editor, json)) as VideoNode
     const video = json.components.find((c) => c.name === 'video')
     if (video) {

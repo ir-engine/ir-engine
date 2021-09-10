@@ -1,32 +1,34 @@
 {
   "name": "@xrengine/common",
   "version": "0.4.0",
-  "main": "dist/common.umd.js",
-  "module": "dist/common.es.js",
+  "main": "lib/common.umd.js",
+  "module": "lib/common.es.js",
+  "types": "lib/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
   "description": "Shared types for other XREngine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build-publish": "rimraf dist && ctix entrypoint ./src -o index.ts && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=4096 NODE_ENV=production vite build --config vite.build.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": "http://github.com/XRFoundation/XREngine",
   "author": "XREngine",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-alias": "3.1.5",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
+    "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "ctix": "0.3.1",
     "lodash.camelcase": "4.3.0",
     "rimraf": "3.0.2",
     "rollup": "2.56.3",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-node-polyfills": "0.2.1",
-    "rollup-plugin-scss": "3.0.0",
+    "rollup-plugin-sass": "1.2.7",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0"
   },

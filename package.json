@@ -5,12 +5,7 @@
   "homepage": "xrengine.io",
   "private": true,
   "workspaces": {
-    "nohoist": [
-      "packages/docs"
-    ],
-    "packages": [
-      "packages/!(docs)"
-    ]
+    "packages": ["packages/*"]
   },
   "keywords": [
     "three",
@@ -53,9 +48,9 @@
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-nginx": "",
     "cleanup-tests": "node tests/cleanup-tests.js",
-    "test": "jest && lerna run test",
+    "test": "lerna run test",
     "test-packages": "lerna run test",
-    "test-ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true jest && lerna run test",
+    "test-ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
     "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
@@ -68,10 +63,11 @@
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
     "build": "lerna run build --parallel",
-    "build-publish": "lerna run --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/gallery --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
+    "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
     "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
+    "precommit": "no-master-commits -b master",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json"
   },
   "types": "lib/",
@@ -91,8 +87,8 @@
   "resolutions": {
     "socket.io": "4.2.0",
     "terser": "^5.6.1",
-    "@typescript-eslint/eslint-plugin": "4.30.0",
-    "@typescript-eslint/parser": "4.30.0"
+    "@typescript-eslint/eslint-plugin": "4.31.0",
+    "@typescript-eslint/parser": "4.31.0"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.9",
@@ -117,26 +113,27 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "7.15.0",
-    "@babel/preset-env": "7.15.0",
-    "@hookstate/core": "3.0.8",
-    "@typescript-eslint/parser": "4.30.0",
-    "babel-jest": "27.1.0",
+    "@babel/preset-env": "7.15.4",
+    "@hookstate/core": "3.0.11",
+    "@typescript-eslint/parser": "4.31.0",
+    "babel-jest": "27.1.1",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
     "cpy-cli": "3.1.1",
     "concurrently": "6.2.1",
-    "esbuild": "0.12.24",
+    "esbuild": "0.12.26",
     "esbuild-plugin-sass": "0.6.0",
-    "jest": "27.1.0",
+    "jest": "27.1.1",
     "jest-puppeteer": "5.0.4",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
     "lint-staged": "11.1.2",
+    "no-master-commits": "1.1.1",
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
-    "prettier": "2.3.2",
+    "prettier": "2.4.0",
     "puppeteer": "9.1.1",
-    "react-router-dom": "5.2.1",
+    "react-router-dom": "5.3.0",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
     "yuka": "0.7.6"

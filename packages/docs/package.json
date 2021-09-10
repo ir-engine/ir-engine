@@ -14,14 +14,14 @@
     "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-beta.4",
-    "@docusaurus/preset-classic": "2.0.0-beta.4",
+    "@docusaurus/core": "2.0.0-beta.6",
+    "@docusaurus/preset-classic": "2.0.0-beta.6",
     "@mdx-js/react": "1.6.22",
     "clsx": "1.1.1",
     "docusaurus": "1.14.7",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "terser-webpack-plugin": "5.1.4"
+    "terser-webpack-plugin": "5.2.4"
   },
   "browserslist": {
     "production": [
@@ -36,19 +36,19 @@
     ]
   },
   "resolutions": {
-    "@types/react": "17.0.19",
+    "@types/react": "17.0.20",
     "react": "17.0.2",
     "terser": "5.7.2",
-    "**/terser-webpack-plugin": "5.1.4"
+    "**/terser-webpack-plugin": "5.2.4"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
     "react": "^17.0.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "2.0.0-beta.4",
+    "@docusaurus/module-type-aliases": "2.0.0-beta.6",
     "@tsconfig/docusaurus": "1.0.4",
-    "@types/react": "17.0.19",
+    "@types/react": "17.0.20",
     "@types/react-helmet": "6.1.2",
     "@types/react-router-dom": "5.1.8",
     "cross-env": "7.0.3",

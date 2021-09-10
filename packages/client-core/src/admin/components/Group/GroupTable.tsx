@@ -12,11 +12,12 @@ import { TableContainer, TableHead, TablePagination, TableRow } from '@material-
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectGroupState } from '../../reducers/admin/group/selector'
-import { getGroupService, deleteGroup } from '../../reducers/admin/group/service'
+import { getGroupService, deleteGroupByAdmin } from '../../reducers/admin/group/service'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { columns, Data } from './Variables'
-import { useStyles, useStyle } from './styles'
+import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
+import { GROUP_PAGE_LIMIT } from '../../reducers/admin/group/reducers'
 
 interface Props {
   adminGroupState?: any
@@ -32,24 +33,27 @@ const mapStateToProps = (state: any): any => ({
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminGroup: bindActionCreators(getGroupService, dispatch),
-  deleteGroup: bindActionCreators(deleteGroup, dispatch)
+  deleteGroup: bindActionCreators(deleteGroupByAdmin, dispatch)
 })
 
 const GroupTable = (props: Props) => {
   const { adminGroupState, fetchAdminGroup, authState, deleteGroup } = props
-  const classes = useStyles()
-  const classx = useStyle()
+  const classes = useGroupStyles()
+  const classx = useGroupStyle()
 
   const user = authState.get('user')
   const [viewModel, setViewModel] = React.useState(false)
   const [singleGroup, setSingleGroup] = React.useState('')
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = React.useState('')
   const [showWarning, setShowWarning] = React.useState(false)
   const adminGroups = adminGroupState.get('group').get('group')
+  const adminGroupCount = adminGroupState.get('group').get('total')
 
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchAdminGroup(incDec)
     setPage(newPage)
   }
 
@@ -83,10 +87,7 @@ const GroupTable = (props: Props) => {
   }
 
   React.useEffect(() => {
-    const fetchGroups = async () => {
-      await fetchAdminGroup()
-    }
-    if (adminGroupState.get('group').get('updateNeeded')) fetchGroups()
+    if (adminGroupState.get('group').get('updateNeeded')) fetchAdminGroup()
   }, [adminGroupState, user])
 
   const createData = (id: any, name: any, description: string): Data => {
@@ -133,7 +134,7 @@ const GroupTable = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+            {rows.map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                   {columns.map((column) => {
@@ -151,9 +152,9 @@ const GroupTable = (props: Props) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[GROUP_PAGE_LIMIT]}
         component="div"
-        count={count || 12}
+        count={adminGroupCount}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

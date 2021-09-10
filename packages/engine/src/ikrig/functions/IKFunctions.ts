@@ -1,8 +1,8 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { IKRig } from '../components/IKRig'
 import { Bone, Object3D, Quaternion, Vector3 } from 'three'
 import { IKPose } from '../components/IKPose'
-import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
+import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '../../ikrig/constants/Vector3Constants'
 // import { debug } from '../classes/Debug'
 
 const tempQ = new Quaternion()

@@ -148,7 +148,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     remoteSpawnEuler: new Euler()
   })
 
-  World.defaultWorld.portalEntities.push(entity)
+  Engine.defaultWorld.portalEntities.push(entity)
 }
 
 export const setRemoteLocationDetail = (

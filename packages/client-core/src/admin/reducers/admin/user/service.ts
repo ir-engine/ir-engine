@@ -8,13 +8,14 @@ import {
   userRoleUpdated,
   searchedUser,
   fetchedSingleUser,
-  fetchedStaticResource
+  fetchedStaticResource,
+  refetchSingleUser
 } from './actions'
 import { client } from '../../../../feathers'
 import { loadedUsers } from './actions'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 
-export function fetchUsersAsAdmin(offset: string) {
+export function fetchUsersAsAdmin(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user')
     const skip = getState().get('adminUser').get('users').get('skip')
@@ -26,7 +27,7 @@ export function fetchUsersAsAdmin(offset: string) {
             $sort: {
               name: 1
             },
-            $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
             $limit: limit,
             action: 'admin'
           }
@@ -149,4 +150,9 @@ export const fetchStaticResource = () => {
       console.error(error)
     }
   }
+}
+
+export const refetchSingleUserAdmin = () => {
+  console.log('refetchSingleUserAdmin')
+  return async (dispatch: Dispatch): Promise<any> => dispatch(refetchSingleUser())
 }

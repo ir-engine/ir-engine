@@ -3,7 +3,6 @@ import Button from '@material-ui/core/Button'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import ScrollableElement from '../ScrollableElement'
 // @ts-ignore
-
 import defaultStyles from './EmoteMenu.module.scss'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
@@ -11,6 +10,7 @@ import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/Lo
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type MenuItemType = {
   body: any
@@ -204,7 +204,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   runAnimation = (animationName: string, params: WeightsParameterType) => {
-    const entity = World.defaultWorld.entities.find((e) => hasComponent(e, LocalInputTagComponent))
+    const entity = Engine.defaultWorld.entities.find((e) => hasComponent(e, LocalInputTagComponent))
 
     AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
 

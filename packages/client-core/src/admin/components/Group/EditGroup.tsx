@@ -13,8 +13,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { patchGroup } from '../../reducers/admin/group/service'
-import { useStyles, useStyle } from './styles'
+import { patchGroupByAdmin } from '../../reducers/admin/group/service'
+import { useGroupStyles, useGroupStyle } from './styles'
 
 interface Props {
   groupAdmin: any
@@ -28,7 +28,7 @@ interface Props {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch),
-  patchGroup: bindActionCreators(patchGroup, dispatch)
+  patchGroup: bindActionCreators(patchGroupByAdmin, dispatch)
 })
 
 const mapStateToProps = (state: any): any => {
@@ -39,8 +39,8 @@ const mapStateToProps = (state: any): any => {
 }
 
 const EditGroup = (props: Props) => {
-  const classes = useStyles()
-  const classx = useStyle()
+  const classes = useGroupStyles()
+  const classx = useGroupStyle()
 
   const { groupAdmin, closeEditModal, closeViewModal, patchGroup, authState, adminScopeState } = props
   const user = authState.get('user')

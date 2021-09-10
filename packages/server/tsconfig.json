@@ -30,7 +30,9 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.test.js",
-    "../../node_modules/k8s/*"
+    "../../node_modules/k8s/*",
+    "tests/*",
+    "tests old/*"
   ],
   "include": [
     "./**/*.ts",

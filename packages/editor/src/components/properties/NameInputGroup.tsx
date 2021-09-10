@@ -86,7 +86,6 @@ export class NameInputGroup extends Component<Types> {
     return (
       <StyledNameInputGroup name="Name" label={this.t('editor:properties.name.lbl-name')}>
         <StringInput
-          /* @ts-ignore */
           value={name}
           onChange={this.onUpdateName}
           onFocus={this.onFocus}

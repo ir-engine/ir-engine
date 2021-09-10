@@ -10,6 +10,8 @@ client:
       localStorageKey: theoverlay-client-store-key-v1
       loginDisabled: true
       logo: "./logo.svg"
+      gaMeasurementId: '<GOOGLE_ANALYTICS_MEASUREMENT_ID>'
+      rootRedirect: false
       siteDescription: Connected Worlds for Everyone
       siteTitle: XREngine
       title: "The Overlay"
@@ -169,7 +171,7 @@ api:
         secret_access_key: <S3_USER_SECRET_KEY>
       s3:
         region: us-east-1
-        static_resource_bucket: theoverlay-static-resources
+        static_resource_bucket: <S3_STATIC_RESOURCES_BUCKET_NAME>
       cloudfront:
         domain: resources.<domain>
       sns:
@@ -203,7 +205,7 @@ api:
     GOOGLE_CLIENT_SECRET: "<GOOGLE_OAUTH_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
-    SEVER_ENABLED: "true"
+    SERVER_ENABLED: "true"
     SERVER_HOST: "api.<domain>"
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.<domain>
@@ -217,6 +219,7 @@ api:
     STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
     STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>
     STORAGE_CLOUDFRONT_DOMAIN: resources.<domain>
+    STORAGE_CLOUDFRONT_DISTRIBUTION_ID: <cloudfront_distribution_id>
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
     STORAGE_S3_AVATAR_DIRECTORY: avatars
@@ -255,6 +258,9 @@ api:
         paths:
           - /
 
+release:
+  name: prod
+
 media:
   enabled: false
   config:
@@ -275,7 +281,7 @@ media:
         sender_id: <AWS_SNS_SENDER_ID>
     host: https://<domain>/
   extraEnv:
-    APP_HOST: https://<domain>
+    APP_HOST: <domain>
     APP_URL: https://<domain>
     AUTH_SECRET: <INSERT_A_UUID_OR_SOMETHING_SIMILAR>
     AWS_SMS_ACCESS_KEY_ID: <SNS_USER_ACCESS_KEY>
@@ -294,11 +300,11 @@ media:
     GOOGLE_CLIENT_SECRET: "<GOOGLE_OAUTH_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
-    SEVER_ENABLED: "true"
-    SERVER_HOSTNAME: "api.<domain>"
+    SERVER_ENABLED: "true"
+    SERVER_HOST: "api.<domain>"
     SMTP_FROM_EMAIL: info@login.<domain>
     SMTP_FROM_NAME: noreply
-    SMTP_HOST: email-smtp.us-east-1.amazonaws.com
+    SMTP_HOST: email-smtp.<SES_REGION>.amazonaws.com
     SMTP_PASS: <AWS_SMTP_PASSWORD>
     SMTP_PORT: "465"
     SMTP_SECURE: "true"
@@ -307,12 +313,11 @@ media:
     STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
     STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>
     STORAGE_CLOUDFRONT_DOMAIN: resources.<domain>
+    STORAGE_CLOUDFRONT_DISTRIBUTION_ID: <cloudfront_distribution_id>
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
   image:
     repository: lagunalabs/xrengine
-  service:
-    type: NodePort
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -328,17 +333,20 @@ media:
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/enable-cors: "true"
       nginx.ingress.kubernetes.io/cors-allow-origin: https://<domain>
-      nginx.ingress.kubernetes.io/proxy-body-size: 5m
+      nginx.ingress.kubernetes.io/proxy-body-size: 256m
     hosts:
       - host: api.<domain>
         paths:
           - /video
+  service:
+    type: NodePort
 
 gameserver:
   image:
     repository: lagunalabs/xrengine
     pullPolicy: IfNotPresent
   extraEnv:
+    APP_HOST: <domain>
     AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
     APP_URL: https://<domain>
     GAMESERVER_ENABLED: "true"
@@ -352,10 +360,33 @@ gameserver:
     GAMESERVER_PORT: "3031"
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <STATIC_RESOURCE_BUCKET_NAME>
     STORAGE_S3_REGION: us-east-1
+    STORAGE_CLOUDFRONT_DISTRIBUTION_ID: <cloudfront_distribution_id>
     CERT: certs/cert.pem
     KEY: certs/key.pem
   ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/enable-cors: "false"
+      nginx.ingress.kubernetes.io/proxy-body-size: 256m
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~* /socket.io/([a-zA-Z0-9\.]*)/([a-zA-Z0-9\.]*)/?$ {
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_pass http://$1:$2/socket.io/?$args;
+        }
     host: gameserver.<domain>
+  resources:
+    limits:
+      cpu: "2"
+    requests:
+      cpu: "1.5"
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -365,7 +396,6 @@ gameserver:
                 operator: In
                 values:
                   - ng-gameservers-1
-
 
 editor:
   enabled: false
@@ -395,3 +425,26 @@ editor:
           - /create
 redis:
   enabled: false
+
+analytics:
+  enabled: false
+  name: xrengine-analytics
+  replicaCount: 1
+  extraEnv:
+    ANALYTICS_ENABLED: "true"
+    ANALYTICS_PORT: "3030"
+    ANALYTICS_PROCESS_INTERVAL: "10000"
+    AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
+    STORAGE_S3_REGION: us-east-1
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
+    STORAGE_S3_AVATAR_DIRECTORY: avatars
+
+
+  service:
+    type: ClusterIP
+    port: 3030
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:

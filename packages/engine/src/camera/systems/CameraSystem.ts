@@ -1,8 +1,9 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   createEntity,
+  defineQuery,
   getComponent,
   hasComponent,
   removeComponent
@@ -15,16 +16,15 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraMode } from '../types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
 import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld, World } from '../../ecs/classes/World'
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 const direction = new Vector3()
+const quaternion = new Quaternion()
 const upVector = new Vector3(0, 1, 0)
+const forwardVector = new Vector3(0, 0, 1)
 const empty = new Vector3()
 const PI_2Deg = Math.PI / 180
 const mx = new Matrix4()
@@ -59,7 +59,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
-const followCamera = (entity: Entity) => {
+const followCamera = (entity: Entity, delta: number) => {
   if (typeof entity === 'undefined') return
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
@@ -74,7 +74,7 @@ const followCamera = (entity: Entity) => {
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
-  let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
+  let theta
   let camDist = followCamera.distance
   let phi = followCamera.phi
 
@@ -140,19 +140,14 @@ const followCamera = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-  if (followCamera.mode === CameraMode.FirstPerson || World.defaultWorld.isInPortal) {
+  if (followCamera.mode === CameraMode.FirstPerson || Engine.defaultWorld.isInPortal) {
     cameraTransform.position.copy(cameraDesiredTransform.position)
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
   }
 
   if (followCamera.locked || followCamera.mode === CameraMode.FirstPerson) {
-    const newTheta = ((followCamera.theta - 180) * Math.PI) / 180
-
-    // Rotate actor
-    avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
-
-    // Update the view vector
-    rotateViewVectorXZ(avatar.viewVector, newTheta)
+    const newTheta = MathUtils.degToRad(followCamera.theta + 180) % (Math.PI * 2)
+    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 2)
   }
 }
 
@@ -160,15 +155,13 @@ export const resetFollowCamera = () => {
   const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const desiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent)
   if (transform && desiredTransform) {
-    followCamera(Engine.activeCameraFollowTarget)
+    followCamera(Engine.activeCameraFollowTarget, 1 / 60)
     transform.position.copy(desiredTransform.position)
     transform.rotation.copy(desiredTransform.rotation)
   }
 }
 export const CameraSystem = async (): Promise<System> => {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
-  const followCameraAddQuery = enterQuery(followCameraQuery)
-  const followCameraRemoveQuery = exitQuery(followCameraQuery)
 
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
@@ -188,8 +181,10 @@ export const CameraSystem = async (): Promise<System> => {
     }
   })
 
-  return defineSystem((world: ECSWorld) => {
-    for (const entity of followCameraAddQuery(world)) {
+  return (world: World) => {
+    const { delta } = world
+
+    for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
@@ -214,7 +209,7 @@ export const CameraSystem = async (): Promise<System> => {
       resetFollowCamera()
     }
 
-    for (const entity of followCameraRemoveQuery(world)) {
+    for (const entity of followCameraQuery.exit()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
       if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
@@ -225,10 +220,12 @@ export const CameraSystem = async (): Promise<System> => {
     }
 
     for (const entity of followCameraQuery(world)) {
-      followCamera(entity)
+      followCamera(entity, delta)
     }
 
-    if (typeof Engine.activeCameraEntity !== 'undefined') {
+    if (Engine.xrRenderer?.isPresenting) {
+      Engine.xrRenderer.updateCamera(Engine.camera)
+    } else if (typeof Engine.activeCameraEntity !== 'undefined') {
       const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
       Engine.camera.position.copy(transform.position)
       Engine.camera.quaternion.copy(transform.rotation)
@@ -237,5 +234,5 @@ export const CameraSystem = async (): Promise<System> => {
     }
 
     return world
-  })
+  }
 }

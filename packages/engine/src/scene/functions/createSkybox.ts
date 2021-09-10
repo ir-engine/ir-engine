@@ -1,8 +1,8 @@
-import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three'
+import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
-import { SceneBackgroundProps, SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
+import { addComponent } from '../../ecs/functions/EntityFunctions'
+import { SceneBackgroundProps, SkyTypeEnum } from '../../scene/constants/SkyBoxShaderProps'
 import { Sky } from '../classes/Sky'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { setSkyDirection } from '../functions/setSkyDirection'
@@ -13,26 +13,20 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
     switch (args.backgroundType) {
       case SkyTypeEnum.skybox:
         const option = args.skyboxProps
-        addComponent(entity, Object3DComponent, { value: new Sky() })
+        const sky = new Sky()
+        addComponent(entity, Object3DComponent, { value: sky })
 
-        const component = getComponent(entity, Object3DComponent)
-        const skyboxObject3D = component.value
+        sky.azimuth = option.azimuth
+        sky.inclination = option.inclination
+
         const uniforms = Sky.material.uniforms
-        const sun = new Vector3()
-        const theta = Math.PI * (option.inclination - 0.5)
-        const phi = 2 * Math.PI * (option.azimuth - 0.5)
-
-        sun.x = Math.cos(phi)
-        sun.y = Math.sin(phi) * Math.sin(theta)
-        sun.z = Math.sin(phi) * Math.cos(theta)
         uniforms.mieCoefficient.value = option.mieCoefficient
         uniforms.mieDirectionalG.value = option.mieDirectionalG
         uniforms.rayleigh.value = option.rayleigh
         uniforms.turbidity.value = option.turbidity
         uniforms.luminance.value = option.luminance
-        uniforms.sunPosition.value = sun
-        setSkyDirection(sun)
-        ;(skyboxObject3D as any).generateSkybox(Engine.renderer)
+        setSkyDirection(uniforms.sunPosition.value)
+        Engine.scene.background = sky.generateSkybox(Engine.renderer)
         break
 
       case SkyTypeEnum.cubemap:

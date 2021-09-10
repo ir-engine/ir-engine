@@ -1,4 +1,3 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
 import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate'
 import * as authentication from '@feathersjs/authentication'
@@ -9,7 +8,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
+    all: [authenticate('jwt')],
     find: [iff(isProvider('external'), groupUserPermissionAuthenticate() as any)],
     get: [],
     create: [disallow('external')],
@@ -95,4 +94,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

@@ -1,9 +1,10 @@
-import { ProjectDiagram } from '@styled-icons/fa-solid'
+import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
+import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import { fetchAdminLocations } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
-import { selectAdminState } from '@xrengine/client-core/src/admin/reducers/admin/selector'
-import { fetchAdminScenes, fetchLocationTypes } from '@xrengine/client-core/src/admin/reducers/admin/service'
-import { cmdOrCtrlString } from '@xrengine/editor/src/functions/utils'
+import {
+  fetchAdminLocations,
+  fetchLocationTypes
+} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
@@ -12,15 +13,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
 import { connect } from 'react-redux'
-import { withRouter } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
-import {
-  createProject,
-  getProject,
-  saveProject,
-  serverURL
-} from '@xrengine/engine/src/scene/functions/projectFunctions'
+import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'
@@ -36,7 +31,6 @@ import DragLayer from './dnd/DragLayer'
 import Editor from './Editor'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
-// import BrowserPrompt from "./router/BrowserPrompt";
 import { createEditor } from './Nodes'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import defaultTemplateUrl from './templates/crater.json'
@@ -47,8 +41,17 @@ import PerformanceCheckDialog from './dialogs/PerformanceCheckDialog'
 import PublishDialog from './dialogs/PublishDialog'
 import PublishedSceneDialog from './dialogs/PublishedSceneDialog'
 import i18n from 'i18next'
-import { getToken } from '../../../engine/src/scene/functions/getToken'
-import { upload } from '../../../engine/src/scene/functions/upload'
+import FileBrowserPanel from './assets/FileBrowserPanel'
+import { cmdOrCtrlString } from '../functions/utils'
+import configs from './configs'
+import { Config } from '@xrengine/common/src/config'
+import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
+import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
+import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
+
+const maxUploadSize = 25
 
 /**
  * getSceneUrl used to create url for the scene.
@@ -57,7 +60,7 @@ import { upload } from '../../../engine/src/scene/functions/upload'
  * @param  {any} sceneId
  * @return {string}         [url]
  */
-export const getSceneUrl = (sceneId): string => `${APP_URL}/scenes/${sceneId}`
+export const getSceneUrl = (sceneId): string => `${configs.APP_URL}/scenes/${sceneId}`
 
 /**
  * publishProject is used to publish project, firstly we save the project the publish.
@@ -278,7 +281,7 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
     }
     const body = JSON.stringify({ scene: sceneParams })
 
-    const resp = await fetchUrl(`${serverURL}/publish-project/${project.project_id}`, {
+    const resp = await fetchUrl(`${Config.publicRuntimeConfig.apiServer}/publish-project/${project.project_id}`, {
       method: 'POST',
       headers,
       body
@@ -390,7 +393,8 @@ const DockContainer = (styled as any).div`
 `
 
 type EditorContainerProps = {
-  adminState: any
+  adminLocationState: any
+  adminSceneState: any
   fetchAdminLocations?: any
   fetchAdminScenes?: any
   fetchLocationTypes?: any
@@ -408,7 +412,7 @@ type EditorContainerState = {
   // error: null;
   editor: Editor
   creatingProject: any
-  DialogComponent: null
+  DialogComponent: any
   pathParams: Map<string, unknown>
   queryParams: Map<string, string>
   dialogProps: {}
@@ -457,13 +461,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    if (this.props.adminState.get('locations').get('updateNeeded') === true) {
+    if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
       this.props.fetchAdminLocations()
     }
-    if (this.props.adminState.get('scenes').get('updateNeeded') === true) {
+    if (this.props.adminSceneState.get('scenes').get('updateNeeded') === true) {
       this.props.fetchAdminScenes()
     }
-    if (this.props.adminState.get('locationTypes').get('updateNeeded') === true) {
+    if (this.props.adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       this.props.fetchLocationTypes()
     }
     const pathParams = this.state.pathParams
@@ -653,7 +657,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       project = await getProject(projectId)
-
+      globalThis.ownedFileIds = JSON.parse(project.ownedFileIds)
+      globalThis.currentProjectID = project.project_id
       const projectFile = await fetchUrl(project.project_url).then((response) => response.json())
 
       await editor.init()
@@ -863,8 +868,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     editor.sceneModified = false
     globalThis.currentProjectID = project.project_id
+
+    const pathParams = this.state.pathParams
+    pathParams.set('projectId', project.project_id)
     this.updateModifiedState(() => {
-      this.setState({ creatingProject: true, project }, () => {
+      this.setState({ creatingProject: true, project, pathParams }, () => {
         this.props.history.replace(`/editor/projects/${project.project_id}`)
         this.setState({ creatingProject: false })
       })
@@ -1130,7 +1138,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const { DialogComponent, dialogProps, modified, settingsContext, editor } = this.state
     const toolbarMenu = this.generateToolbarMenu()
     const isPublishedScene = !!this.getSceneId()
-    const locations = this.props.adminState.get('locations').get('locations')
+    const locations = this.props.adminLocationState.get('locations').get('locations')
     let assigneeScene
     if (locations) {
       locations.forEach((element) => {
@@ -1188,6 +1196,16 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     id: 'assetsPanel',
                     title: 'Elements',
                     content: <AssetsPanel />
+                  },
+                  {
+                    id: 'fileBrowserPanel',
+                    title: (
+                      <PanelDragContainer>
+                        <PanelIcon as={Archive} size={12} />
+                        <PanelTitle>File Browser</PanelTitle>
+                      </PanelDragContainer>
+                    ),
+                    content: <FileBrowserPanel />
                   }
                 ]
               }
@@ -1246,7 +1264,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminState: selectAdminState(state)
+    adminLocationState: selectAdminLocationState(state),
+    adminSceneState: selectAdminSceneState(state)
   }
 }
 
@@ -1256,4 +1275,4 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
 })
 
-export default withTranslation()(withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorContainer as any)))
+export default withTranslation()(withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorContainer)))

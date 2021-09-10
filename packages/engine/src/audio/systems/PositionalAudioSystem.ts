@@ -5,7 +5,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import {
   PositionalAudioSettingsComponent,
@@ -13,10 +13,9 @@ import {
 } from '../../scene/components/AudioSettingsComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
 import { AudioTagComponent } from '../components/AudioTagComponent'
 import { AudioComponent } from '../components/AudioComponent'
+import { System } from '../../ecs/classes/System'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -32,21 +31,9 @@ function createSilentAudioEl(streamsLive) {
 
 export const PositionalAudioSystem = async (): Promise<System> => {
   const positionalAudioQuery = defineQuery([PositionalAudioComponent, TransformComponent])
-
   const avatarAudioQuery = defineQuery([AudioTagComponent, AvatarComponent])
-  const avatarAudioAddQuery = enterQuery(avatarAudioQuery)
-  const avatarAudioRemoveQuery = exitQuery(avatarAudioQuery)
-
-  const avatarQuery = defineQuery([AvatarComponent])
-  const avatarAddQuery = enterQuery(avatarQuery)
-  const avatarRemoveQuery = exitQuery(avatarQuery)
-
   const audioQuery = defineQuery([AudioTagComponent])
-  const audioAddQuery = enterQuery(audioQuery)
-  const audioRemoveQuery = exitQuery(audioQuery)
-
   const settingsQuery = defineQuery([PositionalAudioSettingsComponent])
-  const settingsAddQuery = enterQuery(settingsQuery)
 
   const avatarAudioStream: Map<Entity, any> = new Map()
 
@@ -80,9 +67,9 @@ export const PositionalAudioSystem = async (): Promise<System> => {
     if (setVolume) positionalAudio.setVolume(positionalAudioSettings.mediaVolume)
   }
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     if (startSuspendedContexts) {
-      for (const entity of avatarAudioQuery(world)) {
+      for (const entity of avatarAudioQuery()) {
         const audio = positionalAudioSettings?.usePositionalAudio
           ? getComponent(entity, PositionalAudioComponent, true)
           : getComponent(entity, AudioComponent, true)
@@ -92,7 +79,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
     }
 
     if (suspendPositionalAudio) {
-      for (const entity of avatarAudioQuery(world)) {
+      for (const entity of avatarAudioQuery()) {
         const audio = positionalAudioSettings?.usePositionalAudio
           ? getComponent(entity, PositionalAudioComponent, true)
           : getComponent(entity, AudioComponent, true)
@@ -101,17 +88,17 @@ export const PositionalAudioSystem = async (): Promise<System> => {
       suspendPositionalAudio = false
     }
 
-    for (const entity of settingsAddQuery(world)) {
+    for (const entity of settingsQuery.enter()) {
       positionalAudioSettings = getComponent(entity, PositionalAudioSettingsComponent)
     }
 
-    for (const entity of audioRemoveQuery(world)) {
+    for (const entity of audioQuery.exit()) {
       const positionalAudio =
         getComponent(entity, PositionalAudioComponent, true) ?? getComponent(entity, AudioComponent, true)
       if (positionalAudio?.value?.source) positionalAudio.value.disconnect()
     }
 
-    for (const entity of avatarAudioAddQuery(world)) {
+    for (const entity of avatarAudioQuery.enter()) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.uniqueId
@@ -136,7 +123,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of avatarAudioRemoveQuery(world)) {
+    for (const entity of avatarAudioQuery.exit()) {
       avatarAudioStream.delete(entity)
 
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
@@ -146,7 +133,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
       if (audio != null) Engine.scene.remove(audio.value)
     }
 
-    for (const entity of positionalAudioQuery(world)) {
+    for (const entity of positionalAudioQuery()) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
       const transform = getComponent(entity, TransformComponent)
 
@@ -158,7 +145,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of avatarAudioQuery(world)) {
+    for (const entity of avatarAudioQuery()) {
       if (hasComponent(entity, LocalInputTagComponent)) {
         continue
       }
@@ -193,7 +180,5 @@ export const PositionalAudioSystem = async (): Promise<System> => {
 
       avatarAudio.value.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
     }
-
-    return world
-  })
+  }
 }

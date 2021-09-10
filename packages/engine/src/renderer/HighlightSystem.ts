@@ -1,19 +1,16 @@
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { getComponent } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/EntityFunctions'
 import { HighlightComponent } from './components/HighlightComponent'
 import { Engine } from '../ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../ecs/classes/World'
+import { System } from '../ecs/classes/System'
 
 export const HighlightSystem = async (): Promise<System> => {
   const highlightsQuery = defineQuery([Object3DComponent, HighlightComponent])
-  const highlightsAddQuery = enterQuery(highlightsQuery)
-  const highlightsRemoveQuery = exitQuery(highlightsQuery)
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     if (!Engine.effectComposer.OutlineEffect) return
 
-    for (const entity of highlightsAddQuery(world)) {
+    for (const entity of highlightsQuery.enter()) {
       const highlightedObject = getComponent(entity, Object3DComponent)
       const compHL = getComponent(entity, HighlightComponent)
       if (!compHL) continue
@@ -26,7 +23,7 @@ export const HighlightSystem = async (): Promise<System> => {
       })
     }
 
-    for (const entity of highlightsRemoveQuery(world)) {
+    for (const entity of highlightsQuery.exit()) {
       const highlightedObject = getComponent(entity, Object3DComponent, true)
       highlightedObject?.value?.traverse((obj) => {
         if (obj !== undefined) {
@@ -34,7 +31,5 @@ export const HighlightSystem = async (): Promise<System> => {
         }
       })
     }
-
-    return world
-  })
+  }
 }

@@ -22,14 +22,14 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
-import { NetworkObjectComponentOwner } from '@xrengine/engine/src/networking/components/NetworkObjectComponentOwner'
-import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
+import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowComponent'
-import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { ClientAuthoritativeComponent } from '@xrengine/engine/src/physics/components/ClientAuthoritativeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { getGolfPlayerNumber } from '../functions/golfFunctions'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
+import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -48,20 +48,10 @@ export const spawnClub = (entityPlayer: Entity): void => {
     playerNumber: getGolfPlayerNumber(entityPlayer)
   }
 
-  // this spawns the club on the server
-  spawnPrefab(GolfPrefabTypes.Club, uuid, networkId, parameters)
-
-  // this sends the club to the clients
-  Network.instance.worldState.createObjects.push({
-    networkId,
-    uniqueId: uuid,
-    prefabType: GolfPrefabTypes.Club,
-    parameters
-  })
+  dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, GolfPrefabTypes.Club, parameters))
 }
 
 export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {
-  //@ts-ignore
   golfClubComponent?.meshGroup?.traverse((obj: Mesh) => {
     if (obj.material) {
       ;(obj.material as Material).opacity = opacity
@@ -87,9 +77,9 @@ export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): 
  */
 
 export const updateClub = (entityClub: Entity): void => {
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectComponentOwner).networkId
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwnerComponent).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.entity
-  if (!ownerEntity) return
+  if (typeof ownerEntity === 'undefined') return
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   if (!golfClubComponent.raycast) return
@@ -209,7 +199,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
 
   addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
   addComponent(entityClub, NameComponent, { name: `GolfClub-${playerNumber}` })
-  addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
+  addComponent(entityClub, NetworkObjectOwnerComponent, { networkId: ownerNetworkId })
 
   const color = GolfColours[playerNumber].clone()
 
@@ -261,7 +251,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
   addComponent(entityClub, Object3DComponent, { value: meshGroup })
 
   // since hitting balls are client authored, we only need the club collider on the local client
-  if (isEntityLocalClient(ownerEntity)) {
+  if (isClient) {
     const shapeHead: ShapeType = {
       shape: SHAPES.Box,
       options: { boxExtents: clubColliderSize },
@@ -281,10 +271,8 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
       })
     )
     addComponent(entityClub, ColliderComponent, { body })
-    addComponent(entityClub, ClientAuthoritativeComponent, { ownerNetworkId })
   }
 
-  const velocity = new Vector3()
   addComponent(entityClub, DebugArrowComponent, {
     color: 0xff00ff,
     direction: new Vector3(),

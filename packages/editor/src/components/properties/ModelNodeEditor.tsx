@@ -211,45 +211,20 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
       case 'infoBox':
         return (
           <>
-            {/* @ts-ignore */}
             <InputGroup name="Name" label={this.props.t('editor:properties.model.lbl-name')}>
-              <StringInput
-                /* @ts-ignore */
-                value={node.payloadName}
-                onChange={this.onChangePayloadName}
-              />
+              <StringInput value={node.payloadName} onChange={this.onChangePayloadName} />
             </InputGroup>
-            {/* @ts-ignore */}
             <InputGroup name="Url" label={this.props.t('editor:properties.model.lbl-url')}>
-              <StringInput
-                /* @ts-ignore */
-                value={node.payloadUrl}
-                onChange={this.onChangePayloadUrl}
-              />
+              <StringInput value={node.payloadUrl} onChange={this.onChangePayloadUrl} />
             </InputGroup>
-            {/* @ts-ignore */}
             <InputGroup name="BuyUrl" label={this.props.t('editor:properties.model.lbl-buy')}>
-              <StringInput
-                /* @ts-ignore */
-                value={node.payloadBuyUrl}
-                onChange={this.onChangePayloadBuyUrl}
-              />
+              <StringInput value={node.payloadBuyUrl} onChange={this.onChangePayloadBuyUrl} />
             </InputGroup>
-            {/* @ts-ignore */}
             <InputGroup name="LearnMoreUrl" label={this.props.t('editor:properties.model.lbl-learnMore')}>
-              <StringInput
-                /* @ts-ignore */
-                value={node.payloadLearnMoreUrl}
-                onChange={this.onChangePayloadLearnMoreUrl}
-              />
+              <StringInput value={node.payloadLearnMoreUrl} onChange={this.onChangePayloadLearnMoreUrl} />
             </InputGroup>
-            {/* @ts-ignore */}
             <InputGroup name="HtmlContent" label={this.props.t('editor:properties.model.lbl-htmlContent')}>
-              <StringInput
-                /* @ts-ignore */
-                value={node.payloadHtmlContent}
-                onChange={this.onChangePayloadHtmlContent}
-              />
+              <StringInput value={node.payloadHtmlContent} onChange={this.onChangePayloadHtmlContent} />
             </InputGroup>
           </>
         )
@@ -264,25 +239,16 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
       case true:
         return (
           <Fragment>
-            {/* @ts-ignore */}
             <InputGroup name="Interaction Text" label={this.props.t('editor:properties.model.lbl-interactionText')}>
-              {/* @ts-ignore */}
-              <StringInput
-                /* @ts-ignore */
-                value={node.interactionText}
-                onChange={this.onChangeInteractionText}
-              />
+              <StringInput value={node.interactionText} onChange={this.onChangeInteractionText} />
             </InputGroup>
-            {/* @ts-ignore */}
             <InputGroup name="Interaction Type" label={this.props.t('editor:properties.model.lbl-interactionType')}>
-              {/* @ts-ignore */}
               <SelectInput
                 options={InteractableOption}
                 value={node.interactionType}
                 onChange={this.onChangeInteractionType}
               />
             </InputGroup>
-            {/* @ts-ignore */}
             <NumericInputGroup
               name="Interaction Distance"
               label={this.props.t('editor:properties.model.lbl-interactionDistance')}
@@ -306,23 +272,18 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     ModelNodeEditor.description = this.props.t('editor:properties.model.description')
     const node = this.props.node as any
     return (
-      /* @ts-ignore */
       <NodeEditor description={ModelNodeEditor.description} {...this.props}>
-        {/* @ts-ignore */}
         <InputGroup name="Model Url" label={this.props.t('editor:properties.model.lbl-modelurl')}>
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
           {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}
         </InputGroup>
-        {/* @ts-ignore */}
 
         {/* TODO: implement environment map overrides. - source from scene env map, a custom BPCEM bake, URL string
          <InputGroup name="Environment Map" label={this.props.t('editor:properties.model.lbl-modelurl')}>
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
           {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}
         </InputGroup> */}
-        {/* @ts-ignore */}
         <InputGroup name="Loop Animation" label={this.props.t('editor:properties.model.lbl-loopAnimation')}>
-          {/* @ts-ignore */}
           <SelectInput
             disabled={this.isAnimationPropertyDisabled()}
             options={node.getClipOptions()}
@@ -330,12 +291,9 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
             onChange={this.onChangeAnimation}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Is Avatar" label={this.props.t('editor:properties.model.lbl-isAvatar')}>
-          {/* @ts-ignore */}
           <BooleanInput value={node.hasAvatarAnimations} onChange={this.onChangeAnimationSource} />
         </InputGroup>
-        {/* @ts-ignore */}
         {/* <InputGroup name="Collidable" label={this.props.t('editor:properties.model.lbl-collidable')}>
           // === not currently in use, used by floor plan === //
           <BooleanInput
@@ -343,9 +301,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
             onChange={this.onChangeCollidable}
           />
         </InputGroup> */}
-        {/* @ts-ignore */}
         <InputGroup name="Texture Override" label={this.props.t('editor:properties.model.lbl-textureOverride')}>
-          {/* @ts-ignore */}
           <SelectInput
             options={this.props.editor.scene.children.map((obj: Object3D) => {
               return {
@@ -357,7 +313,6 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
             onChange={this.onChangeTextureOverride}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         {/* <InputGroup name="Walkable" label={this.props.t('editor:properties.model.lbl-walkable')}>
             // === not currently in use, used by floor plan === //
             <BooleanInput
@@ -365,19 +320,15 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
             onChange={this.onChangeWalkable}
           />
         </InputGroup> */}
-        {/* @ts-ignore */}
         <InputGroup name="Cast Shadow" label={this.props.t('editor:properties.model.lbl-castShadow')}>
           <BooleanInput value={node.castShadow} onChange={this.onChangeCastShadow} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.model.lbl-receiveShadow')}>
           <BooleanInput value={node.receiveShadow} onChange={this.onChangeReceiveShadow} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Interactable" label={this.props.t('editor:properties.model.lbl-interactable')}>
           <BooleanInput value={node.interactable} onChange={this.onChangeInteractable} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="MatrixAutoUpdate" label={this.props.t('editor:properties.model.lbl-matrixAutoUpdate')}>
           <BooleanInput value={node.isUpdateDataMatrix} onChange={this.onChangeUpdateDataMatrix} />
         </InputGroup>

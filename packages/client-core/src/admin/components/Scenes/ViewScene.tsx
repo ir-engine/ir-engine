@@ -9,7 +9,7 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import { EntityData, entityColumns } from './variables'
-import { useStyle, useStyles } from './styles'
+import { useSceneStyle, useSceneStyles } from './styles'
 
 interface Props {
   adminScene: any
@@ -20,8 +20,8 @@ interface Props {
 const ViewScene = (props: Props) => {
   const { adminScene, viewModal, closeViewModal } = props
 
-  const classes = useStyles()
-  const classesx = useStyle()
+  const classes = useSceneStyles()
+  const classesx = useSceneStyle()
 
   const createData = (id, name, index, components): EntityData => {
     return {

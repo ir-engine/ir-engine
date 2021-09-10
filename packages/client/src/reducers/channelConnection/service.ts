@@ -26,7 +26,8 @@ export function provisionChannelServer(instanceId?: string, channelId?: string) 
     if (instanceId != null) {
       const instance = await client.service('instance').find({
         query: {
-          id: instanceId
+          id: instanceId,
+          ended: false
         }
       })
       if (instance.total === 0) {

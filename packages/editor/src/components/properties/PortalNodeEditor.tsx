@@ -1,12 +1,12 @@
 import { DoorOpen } from '@styled-icons/fa-solid'
 import { Config } from '@xrengine/common/src/config'
-import CubemapBakeNode from '@xrengine/editor/src/nodes/CubemapBakeNode'
-import type PortalNode from '@xrengine/editor/src/nodes/PortalNode'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import i18n from 'i18next'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import { Object3D } from 'three'
+import PortalNode from '../../nodes/PortalNode'
+import CubemapBakeNode from '../../nodes/CubemapBakeNode'
 import Editor from '../Editor'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
@@ -136,16 +136,11 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     PortalNodeEditor.description = this.props.t('editor:properties.portal.description')
     const node = this.props.node as PortalNode
     return (
-      /* @ts-ignore */
       <NodeEditor description={PortalNodeEditor.description} {...this.props}>
-        {/* @ts-ignore */}
         <InputGroup name="Location" label={this.props.t('editor:properties.portal.lbl-locationName')}>
-          {/* @ts-ignore */}
           <ControlledStringInput value={node.locationName} onChange={this.onChangeLocationName} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Portal" label={this.props.t('editor:properties.portal.lbl-portal')}>
-          {/* @ts-ignore */}
           <SelectInput
             options={this.state.portals}
             value={node.linkedPortalId}
@@ -156,19 +151,13 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
             getOptionLabel={(data: PortalDetail) => data.name}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Model Url" label={this.props.t('editor:properties.portal.lbl-modelUrl')}>
-          {/* @ts-ignore */}
           <ControlledStringInput value={node.modelUrl} onChange={this.onChangeModelUrl} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Display Text" label={this.props.t('editor:properties.portal.lbl-displayText')}>
-          {/* @ts-ignore */}
           <ControlledStringInput value={node.displayText} onChange={this.onChangeDisplayText} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Cubemap Bake" label={this.props.t('editor:properties.portal.lbl-cubemapBake')}>
-          {/* @ts-ignore */}
           <SelectInput
             options={this.props.editor.scene.children
               .filter((obj: Object3D) => {
@@ -184,23 +173,18 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
             onChange={this.onChangeCubemapBake}
           />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Spawn Position" label={this.props.t('editor:properties.portal.lbl-spawnPosition')}>
           <Vector3Input value={node.spawnPosition} onChange={this.onChangeSpawnPosition} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Spawn Rotation" label={this.props.t('editor:properties.portal.lbl-spawnRotation')}>
           <EulerInput value={node.spawnRotation} onChange={this.onChangeSpawnRotation} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Trigger Position" label={this.props.t('editor:properties.portal.lbl-triggerPosition')}>
           <Vector3Input value={node.triggerPosition} onChange={this.onChangeTriggerPosition} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Trigger Rotation" label={this.props.t('editor:properties.portal.lbl-triggerRotation')}>
           <EulerInput value={node.triggerRotation} onChange={this.onChangeTriggerRotation} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Trigger Scale" label={this.props.t('editor:properties.portal.lbl-triggerScale')}>
           <Vector3Input value={node.triggerScale} onChange={this.onChangeTriggerScale} />
         </InputGroup>

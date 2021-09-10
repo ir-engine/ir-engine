@@ -18,7 +18,7 @@ import {
   ShaderMaterial,
   DoubleSide
 } from 'three'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent } from '../../ecs/functions/EntityFunctions'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { DissolveEffect } from '../DissolveEffect'

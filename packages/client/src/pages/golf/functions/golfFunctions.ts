@@ -6,11 +6,17 @@ import { NetworkObjectType } from '@xrengine/engine/src/networking/interfaces/Ne
 import { GolfState } from '../GolfSystem'
 
 export const getGolfPlayerNumber = (entity: Entity = Network.instance.localClientEntity) => {
-  const uniqueId = getComponent(entity, NetworkObjectComponent)?.uniqueId
+  const uniqueId = getComponent(entity, NetworkObjectComponent, true)?.uniqueId
   if (!uniqueId) return undefined
   const number = GolfState.players.findIndex((player) => player.id.value === uniqueId)
   if (number < 0) return undefined
   return number
+}
+
+export function getGolfPlayerState(
+  playerNumber = GolfState.currentPlayer.value
+): typeof GolfState.players[0]['value'] | undefined {
+  return GolfState.players[playerNumber].value
 }
 
 export const isCurrentGolfPlayer = (entity: Entity) => {
@@ -26,10 +32,10 @@ export const getCurrentGolfPlayerEntity = () => {
 }
 
 export const getPlayerEntityFromNumber = (number: number) => {
-  const player = GolfState.players[number].value
+  const player = GolfState.players[number]
   if (!player) return undefined
   const entity = Object.values(Network.instance.networkObjects).find(
-    (obj: NetworkObjectType) => obj.uniqueId === player.id
+    (obj: NetworkObjectType) => obj.uniqueId === player.value.id
   )?.entity
   if (entity < 0) return undefined
   return entity

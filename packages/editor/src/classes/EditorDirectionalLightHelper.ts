@@ -33,14 +33,10 @@ export default class EditorDirectionalLightHelper extends Object3D {
   }
   update() {
     if (this.color !== undefined) {
-      // @ts-ignore
       this.lightPlane.material.color.set(this.color)
-      // @ts-ignore
       this.targetLine.material.color.set(this.color)
     } else {
-      // @ts-ignore
       this.lightPlane.material.color.copy(this.light.color)
-      // @ts-ignore
       this.targetLine.material.color.copy(this.light.color)
     }
   }

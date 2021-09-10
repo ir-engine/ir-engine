@@ -3,32 +3,27 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { World } from '../../ecs/classes/World'
+import { defineQuery } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { addControllerModels } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
-import { XR6DOF } from '../../input/enums/InputEnums'
 
 /**
  * System for XR session and input handling
- *
  * @author Josh Field <github.com/hexafield>
  */
 
-export const XRSystem = async (): Promise<System> => {
+export const XRSystem = async (world: World) => {
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
-  const localXRControllerAddQuery = enterQuery(localXRControllerQuery)
 
   // TEMPORARY - precache controller model
   // TODO: remove this when IK system is in
@@ -56,21 +51,21 @@ export const XRSystem = async (): Promise<System> => {
     }
   })
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     if (Engine.xrRenderer?.isPresenting) {
       const session = Engine.xrFrame.session
       for (const source of session.inputSources) {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
           source.gamepad?.buttons.forEach((button, index) => {
-            if (typeof mapping.buttons[index] !== 'undefined') {
-              // TODO : support button.touched and button.value
-              Engine.inputState.set(mapping.buttons[index], {
-                type: InputType.BUTTON,
-                value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-                lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
-              })
-            }
+            // TODO : support button.touched and button.value
+            const prev = Engine.prevInputState.get(mapping.buttons[index])
+            if (!prev && button.pressed == false) return
+            Engine.inputState.set(mapping.buttons[index], {
+              type: InputType.BUTTON,
+              value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
+              lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+            })
           })
           if (source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
@@ -89,31 +84,9 @@ export const XRSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of localXRControllerAddQuery(world)) {
+    for (const entity of localXRControllerQuery.enter()) {
       addControllerModels(entity)
     }
-
-    for (const entity of localXRControllerQuery(world)) {
-      const xrInputs = getComponent(entity, XRInputSourceComponent)
-      console.log(xrInputs.head.quaternion.toArray(), xrInputs.head.quaternion)
-      Engine.inputState.set(XR6DOF.HMD, {
-        type: InputType.SIXDOF,
-        value: xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray()),
-        lifecycleState: LifecycleValue.CONTINUED
-      })
-      Engine.inputState.set(XR6DOF.LeftHand, {
-        type: InputType.SIXDOF,
-        value: xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray()),
-        lifecycleState: LifecycleValue.CONTINUED
-      })
-      Engine.inputState.set(XR6DOF.RightHand, {
-        type: InputType.SIXDOF,
-        value: xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray()),
-        lifecycleState: LifecycleValue.CONTINUED
-      })
-    }
-
-    return world
-  })
+  }
   // TODO: add and remove controller models from grips
 }

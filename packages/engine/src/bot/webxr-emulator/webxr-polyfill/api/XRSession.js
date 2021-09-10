@@ -144,7 +144,7 @@ export default class XRSession extends EventTarget {
       //   - If the entry’s cancelled boolean is true, continue to the next entry.
       //   - Invoke the Web IDL callback function, passing now and frame as the arguments
       //   - If an exception is thrown, report the exception.
-      const rightNow = Date.now(); //should we get this from arguments?
+      const rightNow = performance.now() // Date.now(); //should we get this from arguments?
       for (let i = 0; i < callbacks.length; i++) {
         try {
           if (!callbacks[i].cancelled && typeof callbacks[i].callback === 'function') {

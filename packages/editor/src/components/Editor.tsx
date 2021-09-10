@@ -86,6 +86,7 @@ import { fetchContentType } from '@xrengine/engine/src/scene/functions/fetchCont
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import { guessContentType } from '@xrengine/engine/src/scene/functions/guessContentType'
 import AssetManifestSource from './assets/AssetManifestSource'
+import { UploadFileType } from './assets/sources/MyAssetsSource'
 import { loadEnvironmentMap } from './EnvironmentMap'
 
 const tempMatrix1 = new Matrix4()
@@ -2693,16 +2694,17 @@ export class Editor extends EventEmitter {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        this.addMedia(url.href, null, null).catch((error) => this.emit('error', error))
+
+        this.addMedia({ url: url.href }, null, null).catch((error) => this.emit('error', error))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }
     }
   }
 
-  async addMedia(url, parent, before) {
+  async addMedia(params, parent, before) {
     let contentType = ''
-
+    const { url, name, id } = params
     const { hostname } = new URL(url)
 
     try {
@@ -2712,7 +2714,6 @@ export class Editor extends EventEmitter {
     }
 
     let node
-
     if (contentType.startsWith('model/gltf')) {
       node = new ModelNode(this)
       this.getSpawnPosition(node.position)
@@ -2745,7 +2746,8 @@ export class Editor extends EventEmitter {
       node.href = url
       this.addObject(node, parent, before)
     }
-
+    globalThis.currentOwnedFileIds[name] = id
+    this.emit('FileUploaded')
     return node
   }
 

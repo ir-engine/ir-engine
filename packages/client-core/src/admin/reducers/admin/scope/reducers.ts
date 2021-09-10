@@ -2,7 +2,7 @@ import Immutable from 'immutable'
 
 import { ScopeAction, ScopeRetrieveAction } from './actions'
 
-export const PAGE_LIMIT = 100
+export const SCOPE_PAGE_LIMIT = 100
 
 import {
   ADD_SCOPE,
@@ -17,7 +17,7 @@ export const initialScopeState = {
   scope: {
     scope: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: SCOPE_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -27,7 +27,7 @@ export const initialScopeState = {
   scopeType: {
     scopeType: [],
     skip: 0,
-    limit: PAGE_LIMIT,
+    limit: SCOPE_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -36,7 +36,7 @@ export const initialScopeState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialScopeState)
+const immutableState = Immutable.fromJS(initialScopeState) as any
 
 const scopeReducer = (state = immutableState, action: ScopeAction): any => {
   let result: any, updateMap: any
@@ -72,7 +72,7 @@ const scopeReducer = (state = immutableState, action: ScopeAction): any => {
     case SCOPE_TYPE_RETRIEVED:
       const type = (action as ScopeRetrieveAction).list
       updateMap = new Map(state.get('scopeType'))
-      updateMap.set('scopeType', type.data)
+      updateMap.set('scopeType', (type as any).data)
       updateMap.set('skip', (type as any).skip)
       updateMap.set('limit', (type as any).limit)
       updateMap.set('retrieving', false)

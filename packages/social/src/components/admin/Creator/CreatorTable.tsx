@@ -5,27 +5,27 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
+import { useCreatorStyles, useCreatorStyle } from './styles'
+import { creatorColumns, CreatorData } from './Variables'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { useStyles, useStyle } from './styles'
-import { columns, Data } from './Variables'
-import { fetchCreatorAsAdmin, deleteCreator } from '../../../reducers/admin/creator/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectAuthState } from '../../../../../client-core/src/user/reducers/auth/selector'
-import { selectCreatorsState } from '../../../reducers/admin/creator/selector'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
+import { deleteCreator, fetchCreatorAsAdmin } from '../../../reducers/creator/service'
+import { selectCreatorsState } from '../../../reducers/creator/selector'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 interface Props {
-  fetchCreatorAsAdmin?: () => void
+  fetchCreatorAsAdmin?: typeof fetchCreatorAsAdmin
   authState?: any
   creatorState?: any
-  deleteCreator?: any
+  deleteCreator?: typeof deleteCreator
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -41,12 +41,12 @@ const mapStateToProps = (state: any): any => {
 }
 
 const CreatorTable = (props: Props) => {
-  const { fetchCreatorAsAdmin, deleteCreator, authState, creatorState } = props
-  const classx = useStyles()
-  const classes = useStyle()
+  const { fetchCreatorAsAdmin, authState, creatorState } = props
+  const classx = useCreatorStyles()
+  const classes = useCreatorStyle()
   const user = authState.get('user')
-  const creator = creatorState.get('creator')
-  const creatorData = creator.get('creator')
+  const creator = creatorState.get('creators')
+  const creatorData = creator.get('creators')
   const [singleCreator, setSingleCreator] = React.useState('')
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
@@ -102,7 +102,7 @@ const CreatorTable = (props: Props) => {
     description: any,
     avatarId: string,
     socialMedia: string
-  ): Data => {
+  ): CreatorData => {
     return {
       id,
       name,
@@ -147,7 +147,7 @@ const CreatorTable = (props: Props) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {creatorColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -163,7 +163,7 @@ const CreatorTable = (props: Props) => {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {creatorColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>

@@ -41,7 +41,6 @@ export function VideoInput({ onChange, ...rest }) {
   return (
     <ControlledStringInput
       ref={dropRef}
-      // @ts-ignore
       onChange={onChange}
       error={isOver && !canDrop}
       canDrop={isOver && canDrop}

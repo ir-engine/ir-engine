@@ -3,10 +3,7 @@ import { localAudioConstraints, localVideoConstraints } from '../constants/Video
 import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
-import { startLivestreamOnServer } from '../functions/startLivestreamOnServer'
-import { ECSWorld } from '../../ecs/classes/World'
-import { defineSystem, System } from 'bitecs'
-import { CreateSystemFunctionType } from '../../ecs/functions/SystemFunctions'
+import { World } from '../../ecs/classes/World'
 
 /** System class for media streaming. */
 export class MediaStreams {
@@ -299,11 +296,11 @@ export class MediaStreams {
   }
 }
 
-export const MediaStreamSystem = async (): Promise<System> => {
+export const MediaStreamSystem = async (world: World) => {
   let nearbyAvatarTick = 0
   let executeInProgress = false
 
-  return defineSystem((world: ECSWorld) => {
+  return (world) => {
     nearbyAvatarTick++
 
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && executeInProgress === false) {
@@ -338,7 +335,5 @@ export const MediaStreamSystem = async (): Promise<System> => {
         })
       }
     }
-
-    return world
-  })
+  }
 }

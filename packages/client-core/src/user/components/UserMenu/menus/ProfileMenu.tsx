@@ -279,11 +279,16 @@ const ProfileMenu = (props: Props): any => {
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
                 </Typography>
-                <Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+                {/*<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
                   {t('user:usermenu.profile.lbl-wallet')}
+                </Button>
+                <br/>*/}
+                <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
+                  {t('user:usermenu.profile.loginWithReadyPlayerMe')}
                 </Button>
               </section>
             )}
+
             {selfUser?.userRole === 'guest' && (
               <section className={styles.socialBlock}>
                 <Typography variant="h3" className={styles.textBlock}>

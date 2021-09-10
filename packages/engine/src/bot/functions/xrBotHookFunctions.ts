@@ -5,8 +5,6 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
 import { Network } from '../../networking/classes/Network'
 
 export async function overrideXR() {
@@ -78,7 +76,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
@@ -87,7 +84,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-input-pose',
     detail: {
@@ -96,7 +92,6 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   })
-  // )
 }
 
 /**

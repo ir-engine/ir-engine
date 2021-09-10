@@ -40,8 +40,7 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
 
   const handleClickOpen = () => {
     if ((XRPlugin as any).accessPermission !== undefined) {
-      // @ts-ignore
-      XRPlugin.accessPermission({})
+      ;(XRPlugin as any).accessPermission({})
     }
     setOpen(true)
   }

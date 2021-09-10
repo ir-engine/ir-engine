@@ -35,7 +35,6 @@ export class ScenePreviewCameraNodeEditor extends Component<ScenePreviewCameraNo
   render() {
     ScenePreviewCameraNodeEditor.description = this.props.t('editor:properties.sceneCamera.description')
     return (
-      /* @ts-ignore */
       <NodeEditor {...this.props} description={ScenePreviewCameraNodeEditor.description}>
         <PropertiesPanelButton onClick={this.onSetFromViewport}>
           {this.props.t('editor:properties.sceneCamera.lbl-setFromViewPort')}

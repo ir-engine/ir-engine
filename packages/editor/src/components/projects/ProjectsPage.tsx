@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import styled from 'styled-components'
+import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { Button, MediumButton } from '../inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '../layout/ContextMenu'
-import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
 
 import {
   ErrorMessage,
@@ -87,7 +87,7 @@ const contextMenuId = 'project-menu'
  *
  * @author Robert Long
  */
-class ProjectsPage extends Component<{ t: Function }> {
+class ProjectsPage extends Component<{ t: Function; history: any }> {
   constructor(props) {
     super(props)
 
@@ -132,10 +132,8 @@ class ProjectsPage extends Component<{ t: Function }> {
 
   renderContextMenu = (props) => {
     return (
-      /* @ts-ignore */
       <ContextMenu id={contextMenuId}>
-        {/* @ts-ignore */}
-        <MenuItem onClick={(e) => this.onDeleteProject(props.trigger.project, e)}>Delete Project</MenuItem>
+        <MenuItem onClick={() => this.onDeleteProject(props.trigger.project)}>Delete Project</MenuItem>
       </ContextMenu>
     )
   }

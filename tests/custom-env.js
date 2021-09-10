@@ -4,6 +4,7 @@ import killport from "kill-port"
 import { spawn } from "child_process"
 import kill from 'tree-kill'
 import { register } from 'trace-unhandled'
+import { getOS } from '@xrengine/common/src/utils/getOS'
 register()
 
 dotenv.config({
@@ -11,12 +12,14 @@ dotenv.config({
 })
 
 const timeoutMS = 3 * 60 * 1000
+// setting up and tearing down the engine causes testing to fail on Apple M1 systems
+const skipEngineSetup = getOS() === 'macOS' && process.arch.includes('arm') 
 
 process.env.CI = process.env.CI === 'true'
-process.env.HEADLESS = process.env.CI
+console.log('process.env.CI', process.env.CI)
 
 const killPorts = () => {
-  if (process.platform.includes('darwin') === 'macOS') return // killing ports causes testing to fail on macOS
+  if (skipEngineSetup) return
   [
     process.env.APP_PORT, // vite
     process.env.MYSQL_PORT, // docker
@@ -33,29 +36,47 @@ killPorts()
 let dev 
 let running = false
 beforeAll(async () => {
+  
+  if (skipEngineSetup)  {
+    console.log("Skipping engine setup")
+    return
+  }
+
   dev = spawn("npm", ["run", "dev"])
   let timeout
   
+  const log = (message) => {
+    console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
+  }
+  dev.stdout.on('data', log)
   /**
    * TODO: add checks to see if any errors occur while launching the stack to save time
    */
-
-  process.stdin.pipe(dev.stdin)
-  const time = Date.now()
-  await Promise.race([
-    new Promise((resolve) => {
+  const awaitLog = (str) => {
+    return new Promise((resolve) => {
       const listen = (message) => {
         if(!running) {
           console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
-          if(message.toString().includes('Initialized new gameserver instance')) {
-            console.log(`Successfully launched stack! Took ${(Date.now() - time) / 1000} seconds.`)
+          if(message.toString().includes(str)) {
             dev.stdout.off('data', listen)
             resolve()
           }
         }
       }
       dev.stdout.on('data', listen)
-    }),
+    })
+  }
+
+  const launchStack = Promise.all([
+    awaitLog('Initialized new gameserver instance'), // GS
+    awaitLog('API Server Ready'), // api
+    awaitLog('dev server running at:'), // vite
+  ])
+
+  process.stdin.pipe(dev.stdin)
+  const time = Date.now()
+  await Promise.race([
+    launchStack,
     new Promise((resolve) => {
       timeout = setTimeout(() => {
         if(running) return
@@ -64,11 +85,14 @@ beforeAll(async () => {
       }, timeoutMS)
     })
   ])
+  dev.stdout.off('data', log)
   running = true
   clearTimeout(timeout)
+  console.log(`Successfully launched stack! Took ${(Date.now() - time) / 1000} seconds.`)
 }, timeoutMS)
 
 afterAll(async () => {
+  if (!dev) return
   await new Promise((resolve) => {
     dev.once(('exit'), resolve)
     dev.once(('error'), resolve)

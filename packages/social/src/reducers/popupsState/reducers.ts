@@ -32,7 +32,7 @@ export const initialPopupState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialPopupState)
+const immutableState = Immutable.fromJS(initialPopupState) as any
 
 const popupsStateReducer = (state = immutableState, action: PopupsActions): any => {
   switch (action.type) {

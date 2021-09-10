@@ -24,7 +24,7 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { upload } from '../../scene/functions/upload'
 
 //#region CubemapToEquirectangular Shader
 const vertexShader = `

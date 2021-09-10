@@ -4,19 +4,22 @@ import {
   CubeCamera,
   CubeTexture,
   DepthModes,
+  MathUtils,
   Mesh,
   NeverDepth,
   Object3D,
+  RGBAFormat,
   Scene,
   ShaderMaterial,
   UniformsLib,
   UniformsUtils,
+  UnsignedByteType,
   Vector3,
   WebGLCubeRenderTarget,
   WebGLRenderer
 } from 'three'
 import { PMREMGenerator } from 'three'
-import { PMREMCubeUVPacker } from './PMREMCubeUVPacker'
+
 /**
  * @author zz85 / https://github.com/zz85
  *
@@ -39,6 +42,7 @@ uniform vec3 sunPosition;
 uniform float rayleigh;
 uniform float turbidity;
 uniform float mieCoefficient;
+uniform float scale;
 varying vec3 vWorldPosition;
 varying vec3 vSunDirection;
 varying float vSunfade;
@@ -80,7 +84,7 @@ void main() {
   #include <project_vertex>
   vSunDirection = normalize( sunPosition );
   vSunE = sunIntensity( dot( vSunDirection, up ) );
-  vSunfade = 1.0 - clamp( 1.0 - exp( ( sunPosition.y / 450000.0 ) ), 0.0, 1.0 );
+  vSunfade = 1.0 - clamp( 1.0 - exp( ( sunPosition.y / scale ) ), 0.0, 1.0 );
   float rayleighCoefficient = rayleigh - ( 1.0 * ( 1.0 - vSunfade ) );
   // extinction (absorbtion + out scattering)
   // rayleigh coefficients
@@ -139,14 +143,15 @@ vec3 Uncharted2Tonemap( vec3 x ) {
 void main() {
   // optical length
   // cutoff angle at 90 to avoid singularity in next formula.
-  float zenithAngle = acos( max( 0.0, dot( up, normalize( vWorldPosition - cameraPos ) ) ) );
+  vec3 direction = normalize( vWorldPosition - cameraPos );
+  float zenithAngle = acos( max( 0.0, dot( up, direction ) ) );
   float inverse = 1.0 / ( cos( zenithAngle ) + 0.15 * pow( 93.885 - ( ( zenithAngle * 180.0 ) / pi ), -1.253 ) );
   float sR = rayleighZenithLength * inverse;
   float sM = mieZenithLength * inverse;
   // combined extinction factor
   vec3 Fex = exp( -( vBetaR * sR + vBetaM * sM ) );
   // in scattering
-  float cosTheta = dot( normalize( vWorldPosition - cameraPos ), vSunDirection );
+  float cosTheta = dot( direction, vSunDirection );
   float rPhase = rayleighPhase( cosTheta * 0.5 + 0.5 );
   vec3 betaRTheta = vBetaR * rPhase;
   float mPhase = hgPhase( cosTheta, mieDirectionalG );
@@ -154,7 +159,6 @@ void main() {
   vec3 Lin = pow( vSunE * ( ( betaRTheta + betaMTheta ) / ( vBetaR + vBetaM ) ) * ( 1.0 - Fex ), vec3( 1.5 ) );
   Lin *= mix( vec3( 1.0 ), pow( vSunE * ( ( betaRTheta + betaMTheta ) / ( vBetaR + vBetaM ) ) * Fex, vec3( 1.0 / 2.0 ) ), clamp( pow( 1.0 - dot( up, vSunDirection ), 5.0 ), 0.0, 1.0 ) );
   // nightsky
-  vec3 direction = normalize( vWorldPosition - cameraPos );
   float theta = acos( direction.y ); // elevation --> y-axis, [-pi/2, pi/2]
   float phi = atan( direction.z, direction.x ); // azimuth --> x-axis [-pi/2, pi/2]
   vec2 uv = vec2( phi, theta ) / vec2( 2.0 * pi, pi ) + vec2( 0.5, 0.0 );
@@ -180,70 +184,84 @@ export class Sky extends Object3D {
         rayleigh: { value: 2 },
         mieCoefficient: { value: 0.005 },
         mieDirectionalG: { value: 0.8 },
-        sunPosition: { value: new Vector3() }
+        sunPosition: { value: new Vector3() },
+        scale: { value: 1000 }
       }
     ]),
     vertexShader,
     fragmentShader
   }
-  static geometry = new BoxBufferGeometry(1000, 1000, 1000)
+
+  static geometry = new BoxBufferGeometry(1, 1, 1)
+  static material: ShaderMaterial
+
   skyScene: Scene
   cubeCamera: CubeCamera
   sky: Mesh
   _inclination: number
   _azimuth: number
   _distance: number
-  static material: ShaderMaterial
+
   constructor() {
     super()
+
     Sky.material = new ShaderMaterial({
       fragmentShader: Sky.shader.fragmentShader,
       vertexShader: Sky.shader.vertexShader,
       uniforms: UniformsUtils.clone(Sky.shader.uniforms),
       side: BackSide,
-      fog: true
+      fog: true,
+      depthWrite: false
     })
-    Sky.material.depthWrite = false
+
     this.skyScene = new Scene()
-    this.cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512))
+    this.cubeCamera = new CubeCamera(
+      1,
+      100000,
+      new WebGLCubeRenderTarget(512, { format: RGBAFormat, type: UnsignedByteType })
+    )
     this.skyScene.add(this.cubeCamera)
     this.sky = new Mesh(Sky.geometry, Sky.material)
     this.sky.name = 'Sky'
-    ;(this as any).add(this.sky)
+    this.add(this.sky)
     this._inclination = 0
     this._azimuth = 0.15
-    this._distance = 8000
-    this.updateSunPosition()
+    this.distance = 1000
   }
+
+  get _material(): ShaderMaterial {
+    return this.sky.material as ShaderMaterial
+  }
+
   get turbidity() {
-    return (this.sky.material as ShaderMaterial).uniforms.turbidity.value
+    return this._material.uniforms.turbidity.value
   }
   set turbidity(value) {
-    ;(this.sky.material as ShaderMaterial).uniforms.turbidity.value = value
+    this._material.uniforms.turbidity.value = value
   }
   get rayleigh() {
-    return (this.sky.material as ShaderMaterial).uniforms.rayleigh.value
+    return this._material.uniforms.rayleigh.value
   }
   set rayleigh(value) {
-    ;(this.sky.material as ShaderMaterial).uniforms.rayleigh.value = value
+    this._material.uniforms.rayleigh.value = value
   }
   get luminance() {
-    return (this.sky.material as ShaderMaterial).uniforms.luminance.value
+    return this._material.uniforms.luminance.value
   }
   set luminance(value) {
-    ;(this.sky.material as ShaderMaterial).uniforms.luminance.value = value
+    this._material.uniforms.luminance.value = value
   }
   get mieCoefficient() {
-    return (this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value
+    return this._material.uniforms.mieCoefficient.value
   }
   set mieCoefficient(value) {
-    ;(this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value = value
+    this._material.uniforms.mieCoefficient.value = value
   }
   get mieDirectionalG() {
-    return (this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value
+    return this._material.uniforms.mieDirectionalG.value
   }
   set mieDirectionalG(value) {
-    ;(this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value = value
+    this._material.uniforms.mieDirectionalG.value = value
   }
   get inclination() {
     return this._inclination
@@ -264,37 +282,32 @@ export class Sky extends Object3D {
   }
   set distance(value) {
     this._distance = value
+    this._material.uniforms.scale.value = value
     this.updateSunPosition()
   }
   updateSunPosition() {
+    const distance = this._distance
     const theta = Math.PI * (this._inclination - 0.5)
     const phi = 2 * Math.PI * (this._azimuth - 0.5)
-    const distance = this._distance
-    const x = distance * Math.cos(phi)
-    const y = distance * Math.sin(phi) * Math.sin(theta)
-    const z = distance * Math.sin(phi) * Math.cos(theta)
-    ;(this.sky.material as ShaderMaterial).uniforms.sunPosition.value.set(x, y, z).normalize()
-    this.sky.scale.set(distance, distance, distance)
+    const x = Math.cos(phi)
+    const y = Math.sin(phi) * Math.sin(theta)
+    const z = Math.sin(phi) * Math.cos(theta)
+    this._material.uniforms.sunPosition.value.set(x, y, z)
+    this.sky.scale.setScalar(distance)
   }
+
   generateSkybox(renderer: WebGLRenderer) {
     this.skyScene.add(this.sky)
     this.cubeCamera.update(renderer, this.skyScene)
-    ;(this as any).add(this.sky)
-    // const pmremGenerator = new PMREMGenerator(
-    //   this.cubeCamera.renderTarget.texture as any
-    // );
+    this.add(this.sky)
+
     const pmremGenerator = new PMREMGenerator(renderer)
-    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture)
-    // pmremGenerator.update(renderer);
-    // const pmremCubeUVPacker = new PMREMCubeUVPacker((pmremGenerator as any).cubeLods);
-    const pmremCubeUVPacker = new PMREMCubeUVPacker([texture])
-    const UVPackertexture = pmremCubeUVPacker.CubeUVRenderTarget.texture
-    pmremCubeUVPacker.update(renderer)
+    const pmremRT = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture)
     pmremGenerator.dispose()
-    pmremCubeUVPacker.dispose()
-    return UVPackertexture
-    // return texture
+
+    return pmremRT.texture
   }
+
   copy(source, recursive = true) {
     if (recursive) {
       ;(this as any).remove(this.sky)
