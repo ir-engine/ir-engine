@@ -24,6 +24,9 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
   const bonesStates = adoptBones(bones)
   const tbonesStates = adoptBones(tbones)
   const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
+  skinnedMesh.parent.position.set(100, 100, 100)
+  skinnedMesh.parent.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(-1, 1, 1).normalize())
+  //skinnedMesh.parent.scale.set(10, 10, 10)
 
   addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
   const sourcePose = addComponent(sourceEntity, IKPose, defaultIKPoseComponentValues())
@@ -43,15 +46,21 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
   rig.pose = new Pose(sourceEntity, false)
   rig.tpose = new Pose(sourceEntity, true) // If Passing a TPose, it must have its world space computed.
 
-  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
-
   //-----------------------------------------
   // Apply Node's Starting Transform as an offset for poses.
   // This is only important when computing World Space Transforms when
   // dealing with specific skeletons, like Mixamo stuff.
   // Need to do this to render things correctly
   // TODO: Verify the numbers of this vs the original
-  let objRoot = getComponent(sourceEntity, IKObj).ref // Obj is a ThreeJS Component
+  const objRoot = getComponent(sourceEntity, IKObj).ref // Obj is a ThreeJS Component
+  const rootQuaternion = new Quaternion()
+  const rootPosition = new Vector3()
+  const rootScale = new Vector3()
+
+  objRoot.parent.getWorldQuaternion(rootQuaternion)
+  objRoot.parent.getWorldPosition(rootPosition)
+  objRoot.parent.getWorldScale(rootScale)
+
   rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
   rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
 
@@ -63,6 +72,9 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
 export function setupTestTargetEntity(targetEntity: Entity, world: World): void {
   const tbonesStates = adoptBones(rig2Data.tpose.bones)
   const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
+  skinnedMesh.parent.position.set(-1000, -1000, -1000)
+  skinnedMesh.parent.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 1, 1).normalize())
+  //skinnedMesh.parent.scale.set(0.5, 0.5, 0.5)
 
   addComponent(targetEntity, IKObj, { ref: skinnedMesh })
   const sourcePose = addComponent(targetEntity, IKPose, defaultIKPoseComponentValues())
@@ -82,17 +94,24 @@ export function setupTestTargetEntity(targetEntity: Entity, world: World): void 
   rig.pose = new Pose(targetEntity, false)
   rig.tpose = new Pose(targetEntity, true) // If Passing a TPose, it must have its world space computed.
 
-  console.log('rig.pose.bones[0].local.position.z', rig.pose.bones[0].local.position.z)
-
   //-----------------------------------------
   // Apply Node's Starting Transform as an offset for poses.
   // This is only important when computing World Space Transforms when
   // dealing with specific skeletons, like Mixamo stuff.
   // Need to do this to render things correctly
   // TODO: Verify the numbers of this vs the original
-  let objRoot = getComponent(targetEntity, IKObj).ref // Obj is a ThreeJS Component
-  rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
-  rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
+  const objRoot = getComponent(targetEntity, IKObj).ref // Obj is a ThreeJS Component
+
+  const rootQuaternion = new Quaternion()
+  const rootPosition = new Vector3()
+  const rootScale = new Vector3()
+
+  objRoot.parent.getWorldQuaternion(rootQuaternion)
+  objRoot.parent.getWorldPosition(rootPosition)
+  objRoot.parent.getWorldScale(rootScale)
+
+  rig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
+  rig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
 
   /// init mixamo
 
@@ -152,11 +171,8 @@ export function getTestIKRigData(): IKRigComponentType {
 
 export function createSkinnedMesh(bonesStates: PoseBoneLocalState[]): { group: Group; mesh: SkinnedMesh } {
   const hipsBone = bonesStates.find((bs) => bs.name === 'Hips').bone
-  console.log('hipBone', hipsBone)
   const bones = []
   hipsBone.traverse((b) => (b.type === 'Bone' ? bones.push(b) : null))
-  console.log('bonesStates', bonesStates)
-  console.log('bones', bones)
   const skinnedMesh = new SkinnedMesh()
   const skeleton = new Skeleton(bones)
   skinnedMesh.bind(skeleton)

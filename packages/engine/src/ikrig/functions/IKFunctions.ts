@@ -161,22 +161,26 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   // let pose_fwd 	= Vec3.transform_quat( alt_fwd, pose.world.rot ),
   // 	pose_up 	= Vec3.transform_quat( alt_up, pose.world.rot );
 
-  const bindBoneWorldQuaternion = new Quaternion()
-  bindBone.getWorldQuaternion(bindBoneWorldQuaternion)
+  const bindBoneWorldQuaternion = bindBoneInfo.world.quaternion.clone()
+  // const bindBoneWorldQuaternion = new Quaternion()
+  // bindBone.getWorldQuaternion(bindBoneWorldQuaternion).multiply(rig.tpose.rootOffset.quaternion.clone().invert())
+
   const quatInverse = new Quaternion().copy(bindBoneWorldQuaternion).invert(),
     altForward = FORWARD.clone().applyQuaternion(quatInverse),
     altUp = UP.clone().applyQuaternion(quatInverse)
 
-  const poseBoneWorldQuaternion = new Quaternion()
-  poseBone.getWorldQuaternion(poseBoneWorldQuaternion)
+  const poseBoneWorldQuaternion = poseBoneInfo.world.quaternion.clone()
+  // const poseBoneWorldQuaternion = new Quaternion()
+  // poseBone.getWorldQuaternion(poseBoneWorldQuaternion).multiply(rig.pose.rootOffset.quaternion.clone().invert())
 
   const poseForward = altForward.clone().applyQuaternion(poseBoneWorldQuaternion),
     poseUp = altUp.clone().applyQuaternion(poseBoneWorldQuaternion)
 
   /* VISUAL DEBUG TPOSE AND ANIMATED POSE DIRECTIONS 	*/
 
-  const poseBoneWorldPosition = new Vector3()
-  poseBone.getWorldPosition(poseBoneWorldPosition)
+  // const poseBoneWorldPosition = poseBoneInfo.world.position.clone()
+  // const poseBoneWorldPosition = new Vector3()
+  // poseBone.getWorldPosition(poseBoneWorldPosition)
 
   // Debug.setLine( poseBoneWorldPosition, new Vector3().copy(poseBoneWorldPosition).add(FORWARD), COLOR.white );
   // Debug.setLine( poseBoneWorldPosition, new Vector3().copy(poseBoneWorldPosition).add(UP), COLOR.white );
@@ -227,7 +231,7 @@ export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
   // ik_pose.hip.dir.copy( pose_fwd );	// Pose Forward is the direction we want the Hip to Point to.
   // ik_pose.hip.twist = twist;	// How Much Twisting to Apply after pointing in the correct direction.
 
-  ik_pose.hip.bind_height = bindPosition.y // The Bind Pose Height of the Hip, Helps with scaling.
+  ik_pose.hip.bind_height = bindBoneInfo.local.position.y // The Bind Pose Height of the Hip, Helps with scaling.
   ik_pose.hip.movement.copy(posePosition).sub(bindPosition) // How much movement did the hip do between Bind and Animated.
   ik_pose.hip.dir.copy(poseForward) // Pose Forward is the direction we want the Hip to Point to.
   ik_pose.hip.twist = twist // How Much Twisting to Apply after pointing in the correct direction.
@@ -393,6 +397,23 @@ export function visualizeSpine(rig: IKRigComponentType, chain, ik_ary) {
  * @param ikPose
  */
 export function applyIKPoseToIKRig(targetRig: IKRigComponentType, ikPose: IKPoseComponentType): void {
+  // // update pose offset
+  // const rootQuaternion = new Quaternion()
+  // const rootPosition = new Vector3()
+  // const rootScale = new Vector3()
+  //
+  // const poseRoot = targetRig.pose.bones[0].bone.parent
+  // poseRoot.getWorldQuaternion(rootQuaternion)
+  // poseRoot.getWorldPosition(rootPosition)
+  // poseRoot.getWorldScale(rootScale)
+  // targetRig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
+  //
+  // const tposeRoot = targetRig.tpose.bones[0].bone.parent
+  // tposeRoot.getWorldQuaternion(rootQuaternion)
+  // tposeRoot.getWorldPosition(rootPosition)
+  // tposeRoot.getWorldScale(rootScale)
+  // targetRig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
+
   // console.log('~~~ APPLY RIG', targetRig['name'])
   applyHip(ikPose, targetRig)
 
@@ -435,12 +456,7 @@ export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigCompon
   // Take note that vegeta and roborex's Hips are completely different but by using that inverse
   // direction trick, we are easily able to apply the same movement to both.
 
-  const parentRotation = new Quaternion()
-  if (rig.pose.bones[boneInfo.index].parent) {
-    rig.pose.bones[boneInfo.index].parent.getWorldQuaternion(parentRotation)
-  } else {
-    // rig.pose.bones[boneInfo.index].bone.getWorldQuaternion(parentRotation)
-  }
+  const parentRotation = rig.pose.getParentRotation(boneInfo.index)
 
   const b_rot = new Quaternion()
   bind.getWorldQuaternion(b_rot)
@@ -457,6 +473,7 @@ export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigCompon
 
   const bindWorldPosition = new Vector3()
   bind.getWorldPosition(bindWorldPosition)
+  bindWorldPosition.sub(rig.tpose.rootOffset.position)
 
   // TRANSLATION
   const h_scl = bindWorldPosition.y / ikPose.hip.bind_height // Create Scale value from Src's Hip Height and Target's Hip Height
@@ -516,6 +533,10 @@ export function applyLimb(
   bindBone.getWorldPosition(c_tran.position)
   bindBone.getWorldQuaternion(c_tran.quaternion)
   bindBone.getWorldScale(c_tran.scale)
+
+  // TODO scale, quaternion ... use matrix?
+  p_tran.position.sub(rig.pose.rootOffset.position)
+  c_tran.position.sub(rig.pose.rootOffset.position)
 
   // How much of the Chain length to use to calc End Effector
   // let len = (rig.leg_len_lmt || chain.len) * limb.len_scale
@@ -640,7 +661,7 @@ export function applyLookTwist(
   // ORIGINAL CODE
   // let p_rot 	= rig.pose.get_parent_rot( b_info.idx );
   // let c_rot 	= Quat.mul( p_rot, bind.local.rot );
-  const rootQuaternion = rig.pose.getParentRoot(boneInfo.index)
+  const rootQuaternion = rig.pose.getParentRotation(boneInfo.index)
 
   const childRotation = new Quaternion().copy(rootQuaternion).multiply(bind.quaternion)
 
