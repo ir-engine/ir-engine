@@ -70,7 +70,7 @@
     "lodash": "4.17.21",
     "mediasoup-client": "3.6.40",
     "moment": "2.29.1",
-    "rc-dock": "3.0.20",
+    "rc-dock": "3.1.0",
     "rc-slider": "9.7.2",
     "react": "^17.0.0",
     "react-color": "2.19.3",
