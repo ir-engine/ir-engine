@@ -1,2 +1,2 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 export const PersistTagComponent = createMappedComponent<{}>()

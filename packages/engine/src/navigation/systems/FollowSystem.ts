@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { positionBehind } from '@xrengine/common/src/utils/mathUtils'
-import { defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowComponent } from '../component/FollowComponent'
 import { goTo } from '../../common/functions/commandHandler'

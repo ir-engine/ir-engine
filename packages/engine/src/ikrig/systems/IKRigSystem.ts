@@ -1,4 +1,5 @@
-import { addComponent, createEntity, defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { IKRig } from '../components/IKRig'
 // import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'

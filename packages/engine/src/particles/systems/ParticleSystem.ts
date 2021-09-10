@@ -1,5 +1,5 @@
 import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { applyTransform } from '../functions/particleHelpers'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'

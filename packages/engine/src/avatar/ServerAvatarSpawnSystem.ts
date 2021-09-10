@@ -1,5 +1,5 @@
 import { Entity } from '../ecs/classes/Entity'
-import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { Quaternion, Vector3 } from 'three'

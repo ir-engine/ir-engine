@@ -5,12 +5,8 @@ import { createState } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  removeEntity
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'

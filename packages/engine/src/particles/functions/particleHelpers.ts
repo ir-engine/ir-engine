@@ -1,5 +1,5 @@
 import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isClient } from '../../common/functions/isClient'
 import { ParticleEmitterMesh } from './ParticleEmitterMesh'

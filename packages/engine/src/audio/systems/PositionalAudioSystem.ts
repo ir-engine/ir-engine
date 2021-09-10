@@ -5,7 +5,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import {
   PositionalAudioSettingsComponent,

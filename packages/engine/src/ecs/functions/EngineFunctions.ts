@@ -8,24 +8,15 @@ import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
-import { createPhysXWorker } from '../../physics/functions/createPhysXWorker'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
-import {
-  ComponentType,
-  createEntity,
-  hasComponent,
-  MappedComponent,
-  removeAllComponents,
-  removeEntity
-} from './EntityFunctions'
-import { InjectionPoint, SystemInitializeType, SystemModulePromise } from './SystemFunctions'
-import { useWorld } from './SystemHooks'
+import { hasComponent, MappedComponent, removeAllComponents } from './ComponentFunctions'
+import { removeEntity, createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { InjectionPoint, SystemInitializeType } from './SystemFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {

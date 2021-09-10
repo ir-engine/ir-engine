@@ -7,7 +7,7 @@ import {
   addComponent,
   removeComponent,
   defineQuery
-} from '../ecs/functions/EntityFunctions'
+} from '../ecs/functions/ComponentFunctions'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 
