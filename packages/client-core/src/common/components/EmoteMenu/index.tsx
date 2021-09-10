@@ -2,9 +2,11 @@ import React, { MouseEventHandler } from 'react'
 import Button from '@material-ui/core/Button'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import ScrollableElement from '../ScrollableElement'
+// @ts-ignore
 import defaultStyles from './EmoteMenu.module.scss'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
+//import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -45,7 +47,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
     this.state = {
       menuRadius: this.calculateMenuRadius(),
       items: [
-        {
+        /*{
           body: <img src="/static/Dance1.svg" alt="Dance 1" />,
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
@@ -89,6 +91,66 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
         },
         {
           body: <img src="/static/Defeat.svg" alt="Defeat" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
+          }
+        },
+        {
+          body: <img src="/static/Kiss.svg" alt="Kiss" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
+          }
+        },
+        {
+          body: <img src="/static/Wave.svg" alt="Wave" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
+          }
+        }*/
+        {
+          body: <img src="/static/dance_new1.svg" alt="Dance 1" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
+          }
+        },
+        {
+          body: <img src="/static/clap1.svg" alt="Dance 2" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
+          }
+        },
+        {
+          body: <img src="/static/victory.svg" alt="Dance 3" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
+          }
+        },
+        {
+          body: <img src="/static/grinning.svg" alt="Dance 4" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
+          }
+        },
+        {
+          body: <img src="/static/sad.svg" alt="sad" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CLAP })
+          }
+        },
+        {
+          body: <img src="/static/Cry.svg" alt="Cry" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
+          }
+        },
+        {
+          body: <img src="/static/kiss1.svg" alt="kiss" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
+          }
+        },
+        {
+          body: <img src="/static/laughing.svg" alt="Defeat" />,
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
           }
