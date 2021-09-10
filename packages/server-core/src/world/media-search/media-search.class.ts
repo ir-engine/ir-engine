@@ -43,8 +43,6 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @author Abhishek Pathak
    */
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
-    console.log('Find')
-
     const source = params?.query?.source
     let result
 
@@ -76,7 +74,6 @@ export class MediaSearch implements ServiceMethods<Data> {
         break
       }
     }
-    console.log('Result for search media is:' + result)
     return result || []
   }
 

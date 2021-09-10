@@ -1,7 +1,5 @@
 import { Config } from '@xrengine/common/src/config'
 import i18n from 'i18next'
-import { fetchUrl } from './fetchUrl'
-import { getToken } from './getToken'
 import { upload } from './upload'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
@@ -135,28 +133,17 @@ export const createProject = async (
  * deleteProject used to delete project using projectId.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param  {any}  projectId
  * @return {Promise}
  */
 export const deleteProject = async (projectId): Promise<any> => {
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
-  }
-
-  const projectEndpoint = `${serverURL}/project/${projectId}`
-
-  const resp = await fetchUrl(projectEndpoint, { method: 'DELETE', headers })
-  console.log('Response: ' + Object.values(resp))
-
-  if (resp.status === 401) {
-    throw new Error(i18n.t('editor:errors.notAuthenticated'))
-  }
-
-  if (resp.status !== 200) {
-    throw new Error(i18n.t('editor:errors.projectDeletionFail', { reason: await resp.text() }))
+  try {
+    const response = await globalThis.Editor.feathersClient.service('project').remove(projectId)
+    console.log('Deleted Project File:' + response)
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
 
   return true
@@ -205,13 +192,6 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
-  }
-
   const project = {
     name: editor.scene.name,
     thumbnailOwnedFileId: {
@@ -233,26 +213,20 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
   Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
   globalThis.currentOwnedFileIds = {}
 
-  const body = JSON.stringify({
-    project
-  })
-  // console.log("EDITOR JSON IS");
-  // console.log(project);
-
-  const projectEndpoint = `${serverURL}/project/${projectId}`
-  // Calling api to save project
-  const resp = await fetchUrl(projectEndpoint, { method: 'PATCH', headers, body, signal })
-  console.log('Response: ' + Object.values(resp))
-
-  const json = await resp.json()
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+  let json = {}
+  try {
+    json = await globalThis.Editor.feathersClient.service('project').patch(
+      projectId,
+      { project },
+      {
+        headers: {
+          'content-type': 'application/json'
+        }
+      }
+    )
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
-
-  if (resp.status !== 200) {
-    throw new Error(i18n.t('editor:errors.savingProjectFail', { reason: await resp.text() }))
-  }
-
   return json
 }
