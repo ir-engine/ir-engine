@@ -49,6 +49,7 @@
     "react-dom": "17.0.2",
     "react-redux": "7.2.5",
     "react-video-recorder": "3.19.1",
+    "react-step-wizard": "^5.3.9",
     "redux": "4.1.1",
     "sass": "1.39.2",
     "styled-components": "5.3.1",

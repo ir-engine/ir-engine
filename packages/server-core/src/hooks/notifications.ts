@@ -135,6 +135,21 @@ export async function addFollowCreator(context: any): Promise<HookContext> {
   }
 }
 
+export async function addBlockCreator(context: any): Promise<HookContext> {
+  try {
+    const { result } = context
+    await context.app.service('notifications').create({
+      creatorAuthorId: result.blockedId,
+      creatorViewerId: result.creatorId,
+      type: 'block'
+    })
+    return context
+  } catch (err) {
+    logger.error('NOTIFICATION AFTER FOLLOW CREATOR ERROR')
+    logger.error(err)
+  }
+}
+
 export async function removeFollowCreator(context: any): Promise<HookContext> {
   try {
     const { result } = context
