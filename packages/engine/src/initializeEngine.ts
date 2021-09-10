@@ -2,6 +2,7 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
@@ -111,7 +112,7 @@ const configureServer = async (options: Required<InitializeOptions>) => {
     Engine.hasJoinedWorld = true
   })
 
-  // await loadDRACODecoder()
+  await loadDRACODecoder()
 
   new SpawnPoints()
 
