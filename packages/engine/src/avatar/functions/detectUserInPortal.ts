@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { getControllerCollisions } from '../../physics/functions/getControllerCollisions'
-import { World } from '../../ecs/classes/World'
+import { Engine } from '../../ecs/classes/Engine'
 
 export const detectUserInPortal = (entity: Entity): void => {
   const portalEntity = getControllerCollisions(entity, PortalComponent).controllerCollisionEntity
