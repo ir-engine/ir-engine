@@ -15,17 +15,11 @@ import { getToken } from './getToken'
  */
 
 export const searchMedia = async (source, params, cursor, signal): Promise<any> => {
-  const headers: any = {
-    'content-type': 'application/json'
-  }
-
   const paramsOption = { query: {} }
   paramsOption.query['source'] = source
 
   if (source === 'assets') {
     paramsOption.query['user'] = getAccountId()
-    const token = getToken()
-    headers.authorization = `Bearer ${token}`
   }
 
   if (params.type) {
@@ -48,9 +42,11 @@ export const searchMedia = async (source, params, cursor, signal): Promise<any> 
     paramsOption.query['cursor'] = cursor
   }
 
-  const service = globalThis.Editor.clientApp.service('media-search')
+  const service = globalThis.Editor.feathersClient.service('media-search')
   const json = await service.find(paramsOption, {
-    headers
+    headers: {
+      'content-type': 'application/json'
+    }
   })
 
   if (signal.aborted) {

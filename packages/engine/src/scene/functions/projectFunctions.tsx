@@ -15,19 +15,17 @@ globalThis.currentOwnedFileIds = {}
  * @return {Promise}
  */
 export const getProjects = async (): Promise<any> => {
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
+  let json: any
+  try {
+    json = await globalThis.Editor.feathersClient.service('project').find({
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+  } catch (error) {
+    console.log('Error in Getting Projects:' + error)
+    throw new Error(error)
   }
-
-  const response = await fetchUrl(`${serverURL}/project`, { headers })
-
-  const json = await response.json().catch((err) => {
-    console.log('Error fetching JSON')
-    console.log(err)
-  })
 
   if (!Array.isArray(json.projects) || json.projects == null) {
     throw new Error(
@@ -45,13 +43,17 @@ export const getProjects = async (): Promise<any> => {
  * @returns
  */
 export const getProject = async (projectId): Promise<JSON> => {
-  const json = await globalThis.Editor.clientApp.service('project').get(projectId, {
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${getToken()}`
-    }
-  })
-  return json
+  try {
+    const json = await globalThis.Editor.feathersClient.service('project').get(projectId, {
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+    return json
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
+  }
 }
 
 /**
@@ -100,13 +102,6 @@ export const createProject = async (
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
-  }
-
   const project = {
     name: scene.name,
     thumbnailOwnedFileId: {
@@ -125,22 +120,15 @@ export const createProject = async (
   Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
   globalThis.currentOwnedFileIds = {}
 
-  const body = JSON.stringify({ project })
-
-  const projectEndpoint = `${serverURL}/project`
-
-  const resp = await fetchUrl(projectEndpoint, { method: 'POST', headers, body, signal })
-  console.log('Response: ' + Object.values(resp))
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+  let json = {}
+  try {
+    json = await globalThis.Editor.feathersClient.service('project').create({ project })
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
 
-  if (resp.status !== 200) {
-    throw new Error(i18n.t('editor:errors.projectCreationFail', { reason: await resp.text() }))
-  }
-
-  return await resp.json()
+  return json
 }
 
 /**

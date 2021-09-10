@@ -461,6 +461,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
+    globalThis.Editor.initializeFeathersClient(getToken())
     if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
       this.props.fetchAdminLocations()
     }
@@ -660,10 +661,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       globalThis.ownedFileIds = JSON.parse(project.ownedFileIds)
       globalThis.currentProjectID = project.project_id
       const projectIndex = project.project_url.split('collection/')[1]
-      const projectFile = await globalThis.Editor.clientApp.service(`collection`).get(projectIndex, {
+      const projectFile = await globalThis.Editor.feathersClient.service(`collection`).get(projectIndex, {
         headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${getToken()}`
+          'content-type': 'application/json'
         }
       })
       await editor.init()
