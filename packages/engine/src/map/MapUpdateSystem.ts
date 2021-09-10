@@ -31,14 +31,13 @@ export const MapUpdateSystem = async (): Promise<System> => {
     const viewerEntity = viewerQuery(world)[0]
     const mapEntities = mapsQuery(world)
     const mapEntity = mapEntities[0]
+    // Sanity checks
+    if (!mapEntity || !viewerEntity) return
+    if (mapEntities.length > 1) console.warn('Not supported: More than one map!')
     const mapComponent = getComponent(mapEntity, MapComponent)
     const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
     const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
-
-    // Sanity checks
-    if (!mapEntity || !viewerEntity) return
-    if (mapEntities.length > 1) console.warn('Not supported: More than one map!')
 
     if (viewerEntity !== previousViewerEntity) {
       $previousViewerPosition.copy(viewerTransform.position)
