@@ -45,38 +45,7 @@ export function lawCosinesSSS(aLen: number, bLen: number, cLen: number): number 
 }
 
 export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
-  console.log('setupMixamoIKRig', rig)
-  rig.points = {}
-  rig.chains = {}
-  //-----------------------------------------
-  // Auto Setup the Points and Chains based on
-  // Known Skeleton Structures.
-  // TODO:Fix
-
-  addPoint(entity, 'hip', 'Hips')
-  addPoint(entity, 'head', 'Head')
-  addPoint(entity, 'neck', 'Neck')
-  addPoint(entity, 'chest', 'Spine2')
-  addPoint(entity, 'foot_l', 'LeftFoot')
-  addPoint(entity, 'foot_r', 'RightFoot')
-  addChain(entity, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
-  addChain(entity, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
-  addChain(entity, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
-  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
-  addChain(entity, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
-
-  rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones)
-  rig.chains.leg_l.setOffsets(DOWN, FORWARD, rig.tpose)
-  rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
-  rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
-  rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
-}
-
-export function setupVegetaIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
-  console.log('setupVegetaIKRig', rig)
+  // console.log('setupMixamoIKRig', rig)
   rig.points = {}
   rig.chains = {}
   //-----------------------------------------
@@ -107,7 +76,7 @@ export function setupVegetaIKRig(entity: Entity, rig: ReturnType<typeof IKRig.ge
 }
 
 export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
-  console.log('setupTRexIKRig', rig)
+  // console.log('setupTRexIKRig', rig)
   rig.points = {}
   rig.chains = {}
   //-----------------------------------------
