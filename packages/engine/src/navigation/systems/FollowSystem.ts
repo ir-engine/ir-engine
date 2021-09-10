@@ -1,11 +1,10 @@
-import { defineQuery, defineSystem, System } from 'bitecs'
 import { Vector3 } from 'three'
 import { positionBehind } from '@xrengine/common/src/utils/mathUtils'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowComponent } from '../component/FollowComponent'
 import { goTo } from '../../common/functions/commandHandler'
+import { System } from '../../ecs/classes/System'
 
 const distanceToPlayer: number = 1
 const step: number = 10
@@ -13,7 +12,7 @@ const step: number = 10
 export const FollowSystem = async (): Promise<System> => {
   const followQuery = defineQuery([FollowComponent])
 
-  return defineSystem((world: ECSWorld) => {
+  return (world) => {
     for (const eid of followQuery(world)) {
       let { targetEid, cStep, prevTarget } = getComponent(eid, FollowComponent)
       cStep++
@@ -30,7 +29,5 @@ export const FollowSystem = async (): Promise<System> => {
         getComponent(eid, FollowComponent).prevTarget = pos
       }
     }
-
-    return world
-  })
+  }
 }

@@ -11,14 +11,12 @@ import { ClientAvatarSpawnSystem } from './avatar/ClientAvatarSpawnSystem'
 import { ServerAvatarSpawnSystem, SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
 import { BotHookFunctions, BotHookSystem } from './bot/functions/botHookFunctions'
 import { CameraSystem } from './camera/systems/CameraSystem'
-import { now } from './common/functions/now'
 import { Timer } from './common/functions/Timer'
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
-import { World } from './ecs/classes/World'
-import { reset } from './ecs/functions/EngineFunctions'
-import { createPipeline, injectSystem, registerSystem } from './ecs/functions/SystemFunctions'
+import { createWorld, reset } from './ecs/functions/EngineFunctions'
+import { injectSystem, registerSystem } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
@@ -27,7 +25,6 @@ import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
-import { NetworkActionDispatchSystem } from './networking/systems/NetworkActionDispatchSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
@@ -48,6 +45,8 @@ import { IncomingNetworkSystem } from './networking/systems/IncomingNetworkSyste
 import { ProximitySystem } from './proximityChecker/systems/ProximitySystem'
 import { FollowSystem } from './navigation/systems/FollowSystem'
 import { AfkCheckSystem } from './navigation/systems/AfkCheckSystem'
+import { FixedPipelineSystem } from './ecs/functions/FixedPipelineSystem'
+import { AvatarSystem } from './avatar/AvatarSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -152,56 +151,69 @@ const configureServer = async (options: Required<InitializeOptions>) => {
 }
 
 const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
-  // Network Systems
-  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, IncomingNetworkSystem)
+  if (options.scene.disabled) {
+    registerSystem(SystemUpdateType.Free, IncomingNetworkSystem)
+    registerSystem(SystemUpdateType.Free, OutgoingNetworkSystem)
+    return
+  }
 
-  registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
+  // Network (Incoming)
+  registerSystem(SystemUpdateType.Free, IncomingNetworkSystem)
 
-  if (options.scene.disabled) return
+  // Input
+  registerSystem(SystemUpdateType.Free, ClientInputSystem)
+  registerSystem(SystemUpdateType.Free, XRSystem)
+  registerSystem(SystemUpdateType.Free, CameraSystem)
+  registerSystem(SystemUpdateType.Free, BotHookSystem)
+
+  // Fixed Systems
+  registerSystem(SystemUpdateType.Free, FixedPipelineSystem, { updatesPerSecond: 60 })
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
+  // registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
+
+  // Maps & Navigation
+  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
+  // registerSystem(SystemUpdateType.Fixed, ProximitySystem)
+  // registerSystem(SystemUpdateType.Fixed, FollowSystem)
 
   // Avatar Systems
+  registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
+  registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
+  registerSystem(SystemUpdateType.Fixed, AvatarSystem)
   registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
-  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
-  registerSystem(SystemUpdateType.Fixed, AvatarLoadingSystem)
-  registerSystem(SystemUpdateType.Free, AnimationSystem)
 
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
+  registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
+  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
+  registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled
   })
-  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
-  // Miscellaneous Systems
-  registerSystem(SystemUpdateType.Fixed, ParticleSystem)
-  registerSystem(SystemUpdateType.Fixed, DebugHelpersSystem)
-  registerSystem(SystemUpdateType.Fixed, AudioSystem)
-  registerSystem(SystemUpdateType.Fixed, PositionalAudioSystem)
-  registerSystem(SystemUpdateType.Fixed, TransformSystem)
-  registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
-  registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
-  registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
-
-  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
-  registerSystem(SystemUpdateType.Fixed, ProximitySystem)
-  registerSystem(SystemUpdateType.Fixed, FollowSystem)
-
-  registerSystem(SystemUpdateType.Fixed, AfkCheckSystem)
-
-  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
-
-  // Free systems
-  registerSystem(SystemUpdateType.Free, XRSystem)
-  registerSystem(SystemUpdateType.Free, CameraSystem)
+  // Camera & UI systems
+  registerSystem(SystemUpdateType.Free, MediaStreamSystem)
   registerSystem(SystemUpdateType.Free, XRUISystem)
-  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas, enabled: !options.renderer.disabled })
+  registerSystem(SystemUpdateType.Free, InteractiveSystem)
+
+  // Audio Systems
+  registerSystem(SystemUpdateType.Free, AudioSystem)
+  registerSystem(SystemUpdateType.Free, PositionalAudioSystem)
+
+  // Animation Systems
+  registerSystem(SystemUpdateType.Free, AvatarLoadingSystem)
+  registerSystem(SystemUpdateType.Free, AnimationSystem)
+  registerSystem(SystemUpdateType.Free, ParticleSystem)
+  registerSystem(SystemUpdateType.Free, DebugHelpersSystem)
   registerSystem(SystemUpdateType.Free, HighlightSystem)
-  registerSystem(SystemUpdateType.Free, BotHookSystem)
+  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas, enabled: !options.renderer.disabled })
+
+  // Network (Outgoing)
+  registerSystem(SystemUpdateType.Free, OutgoingNetworkSystem)
+  
+  // Miscellaneous Systems
+  registerSystem(SystemUpdateType.Free, AfkCheckSystem)
 }
 
 const registerEditorSystems = (options: Required<InitializeOptions>) => {
@@ -219,13 +231,14 @@ const registerEditorSystems = (options: Required<InitializeOptions>) => {
 }
 
 const registerServerSystems = (options: Required<InitializeOptions>) => {
+  registerSystem(SystemUpdateType.Free, FixedPipelineSystem, { updatesPerSecond: 60 })
+
   // Network Incoming Systems
   registerSystem(SystemUpdateType.Fixed, IncomingNetworkSystem, { ...options.networking }) // first
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
-  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
+  registerSystem(SystemUpdateType.Fixed, AvatarSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
@@ -240,18 +253,16 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Network Outgoing Systems
   registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
-  registerSystem(SystemUpdateType.Fixed, NetworkActionDispatchSystem)
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
-
-  const world = new World()
+  const sceneWorld = createWorld()
+  Engine.currentWorld = sceneWorld
 
   Engine.initOptions = options
-  Engine.offlineMode = !options.networking.schema.transport
+  Engine.offlineMode = typeof options.networking.schema.transport === 'undefined'
   Engine.publicPath = options.publicPath
-  Engine.lastTime = now() / 1000
 
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && navigator && window) {
@@ -282,33 +293,17 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     injectSystem(init)
   })
 
-  const fixedPipeline = await createPipeline(SystemUpdateType.Fixed)
-  const freePipeline = await createPipeline(SystemUpdateType.Free)
-  const networkPipeline = await createPipeline(SystemUpdateType.Network)
+  await sceneWorld.initSystems()
 
-  const executePipeline = (world: World, pipeline) => {
-    return (delta, elapsedTime) => {
-      world.ecsWorld.delta = delta
-      world.ecsWorld.time = elapsedTime
-      pipeline(world.ecsWorld)
-      world.ecsWorld._removedComponents.clear()
+  const executeWorlds = (delta, elapsedTime) => {
+    for (const world of Engine.worlds) {
+      Engine.currentWorld = world
+      world.execute(delta, elapsedTime)
     }
+    Engine.currentWorld = null
   }
 
-  world.pipelines = { fixedPipeline, freePipeline, networkPipeline }
-
-  // TODO: support multiple worlds
-  // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
-
-  Engine.engineTimer = Timer(
-    {
-      networkUpdate: executePipeline(world, networkPipeline),
-      fixedUpdate: executePipeline(world, fixedPipeline),
-      update: executePipeline(world, freePipeline)
-    },
-    Engine.physicsFrameRate,
-    Engine.networkFramerate
-  )
+  Engine.engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
   if (options.type === EngineSystemPresets.CLIENT) {

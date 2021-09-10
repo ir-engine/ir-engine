@@ -1,9 +1,9 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { getComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../classes/Network'
-import { spawnPrefab } from '../functions/spawnPrefab'
-import { ECSWorld } from '../../ecs/classes/World'
 import { NetworkWorldActions, NetworkWorldActionType } from '../interfaces/NetworkWorldActions'
+import { isClient } from '../../common/functions/isClient'
+import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetworkObjectComponent'
 
 /**
  * Apply State received over the network to the client.
@@ -67,36 +67,40 @@ function syncPhysicsObjects(objectToCreate) {
   }
 }
 
-export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActionType) => {
-  console.log('clientNetworkReceptor', action)
+export const incomingNetworkReceptor = (action: NetworkWorldActionType) => {
   switch (action.type) {
     case NetworkWorldActions.CREATE_CLIENT: {
-      Network.instance.clients[action.userId] = {
-        userId: action.userId,
-        avatarDetail: action.avatarDetail,
-        subscribedChatUpdates: []
-      }
+      if (!isClient) return
+      if (!Network.instance.clients[action.userId])
+        Network.instance.clients[action.userId] = {
+          userId: action.userId,
+          avatarDetail: action.avatarDetail,
+          subscribedChatUpdates: []
+        }
       break
     }
 
     case NetworkWorldActions.DESTROY_CLIENT: {
+      if (!isClient) return
       delete Network.instance.clients[action.userId].userId
       break
     }
 
     case NetworkWorldActions.CREATE_OBJECT: {
-      if (!Network.instance.schema.prefabs.has(action.prefabType)) {
-        console.log('prefabType not found', action.prefabType)
+      const { networkId, uniqueId, prefabType, parameters } = action
+
+      if (!Network.instance.schema.prefabs.has(prefabType)) {
+        console.log('prefabType not found', prefabType)
         break
       }
 
-      const isIdFull = Network.instance.networkObjects[action.networkId] != undefined
-      const isSameUniqueId = isIdFull && Network.instance.networkObjects[action.networkId].uniqueId === action.uniqueId
+      const isIdFull = Network.instance.networkObjects[networkId] != undefined
+      const isSameUniqueId = isIdFull && Network.instance.networkObjects[networkId].uniqueId === uniqueId
 
       const entityExistsInAnotherId = searchSameInAnotherId(action)
 
       if (isSameUniqueId) {
-        console.error('[Network]: this player id already exists, please reconnect', action.networkId)
+        console.error('[Network]: this object id already exists', networkId)
         break
       }
 
@@ -105,29 +109,37 @@ export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActio
           '[Network]: Found local client in a different networkId. Was ',
           entityExistsInAnotherId,
           'now',
-          action.networkId
+          networkId
         )
 
         // set existing entity to new id
-        Network.instance.networkObjects[action.networkId] = Network.instance.networkObjects[entityExistsInAnotherId]
+        Network.instance.networkObjects[networkId] = Network.instance.networkObjects[entityExistsInAnotherId]
 
         // remove old id
         delete Network.instance.networkObjects[entityExistsInAnotherId]
 
         // change network component id
-        getComponent(Network.instance.networkObjects[action.networkId].entity, NetworkObjectComponent).networkId =
-          action.networkId
+        getComponent(Network.instance.networkObjects[networkId].entity, NetworkObjectComponent).networkId = networkId
 
         break
       }
 
       if (isIdFull) {
-        console.warn('[Network]: creating an object with an existing newtorkId...', action.networkId)
+        console.warn('[Network]: creating an object with an existing newtorkId...', networkId)
         syncPhysicsObjects(action)
       }
 
-      if (Network.instance.networkObjects[action.networkId] === undefined) {
-        spawnPrefab(action.prefabType, action.uniqueId, action.networkId, action.parameters)
+      if (Network.instance.networkObjects[networkId] === undefined) {
+        const entity = createEntity()
+        addComponent(entity, Network.instance.schema.prefabs.get(prefabType), {})
+        addComponent(entity, NetworkObjectComponent, { networkId, uniqueId })
+        Network.instance.networkObjects[networkId] = {
+          prefabType,
+          entity,
+          uniqueId,
+          parameters
+        }
+        addComponent(entity, SpawnNetworkObjectComponent, { uniqueId, networkId, parameters })
       }
       syncNetworkObjectsTest(action)
       break
@@ -140,7 +152,10 @@ export const clientNetworkReceptor = (world: ECSWorld, action: NetworkWorldActio
         break
       }
 
-      if (getComponent(Network.instance.localClientEntity, NetworkObjectComponent).networkId === action.networkId) {
+      if (
+        isClient &&
+        getComponent(Network.instance.localClientEntity, NetworkObjectComponent).networkId === action.networkId
+      ) {
         console.warn('Can not remove owner...')
         break
       }

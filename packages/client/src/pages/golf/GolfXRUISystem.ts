@@ -1,9 +1,12 @@
-import { pipe } from 'bitecs'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { GolfPlayerUISystem } from './GolfPlayerUISystem'
 import { GolfScorecardUISystem } from './GolfScorecardUISystem'
 
-export const GolfXRUISystem = async () => {
+export const GolfXRUISystem = async (world: World) => {
   const playerUISystem = await GolfPlayerUISystem()
   const scoreboardUISystem = await GolfScorecardUISystem()
-  return pipe(playerUISystem, scoreboardUISystem)
+  return () => {
+    playerUISystem()
+    scoreboardUISystem(world)
+  }
 }
