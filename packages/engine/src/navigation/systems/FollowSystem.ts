@@ -22,12 +22,12 @@ export default async function FollowSystem(world: World): Promise<System> {
       getComponent(eid, FollowComponent).cStep = 0
 
       const tTransform = getComponent(targetEid, TransformComponent)
-      if (tTransform === undefined) return
-
-      const pos: Vector3 = positionBehind(tTransform.position, tTransform.rotation, distanceToPlayer)
-      if (pos !== prevTarget) {
-        goTo(pos, eid)
-        getComponent(eid, FollowComponent).prevTarget = pos
+      if (tTransform !== undefined) {
+        const pos: Vector3 = positionBehind(tTransform.position, tTransform.rotation, distanceToPlayer)
+        if (pos !== prevTarget) {
+          goTo(pos, eid)
+          getComponent(eid, FollowComponent).prevTarget = pos
+        }
       }
     }
   }
