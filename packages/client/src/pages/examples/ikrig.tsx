@@ -331,7 +331,14 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
 
   // LOAD MESH A
   loadModels.push(
-    loadAndSetupModel(MODEL_A_FILE, sourceEntity, new Vector3(1, 0, 0), ArmatureType.VEGETA).then((entity) => {
+    loadAndSetupModel(
+      MODEL_A_FILE,
+      sourceEntity,
+      new Vector3(1, 0, 0),
+      new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 1, 1).normalize()),
+      new Vector3(0.5, 0.5, 0.5),
+      ArmatureType.VEGETA
+    ).then((entity) => {
       const rig = getComponent(entity, IKRig)
       rig.name = 'rigA-Vegeta'
       sourcePose.targetRigs.push(rig)
@@ -341,7 +348,13 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
     })
   )
   loadModels.push(
-    loadAndSetupModel(MODEL_B_FILE, sourceEntity, new Vector3(-1, 0, 0)).then((entity) => {
+    loadAndSetupModel(
+      MODEL_B_FILE,
+      sourceEntity,
+      new Vector3(-1, 0, 0),
+      new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(-1, 1, 1).normalize()),
+      new Vector3(2, 2, 2)
+    ).then((entity) => {
       const rig = getComponent(entity, IKRig)
       rig.name = 'rigB'
       sourcePose.targetRigs.push(rig)
@@ -373,10 +386,14 @@ async function loadAndSetupModel(
   filename,
   sourceEntity,
   position,
+  quaternion,
+  scale,
   armatureType = ArmatureType.MIXAMO
 ): Promise<Entity> {
   let targetModel = await LoadGLTF(filename)
   targetModel.scene.position.copy(position)
+  // targetModel.scene.quaternion.copy(quaternion)
+  // targetModel.scene.scale.copy(scale)
   Engine.scene.add(targetModel.scene)
   // Engine.scene.add(new SkeletonHelper(targetModel.scene));
   let targetSkinnedMeshes = []
@@ -417,8 +434,19 @@ async function loadAndSetupModel(
 
   targetRig.pose = new Pose(targetEntity, false)
   targetRig.tpose = new Pose(targetEntity, true) // If Passing a TPose, it must have its world space computed.
-  targetRig.pose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
-  targetRig.tpose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale)
+
+  const rootQuaternion = new Quaternion()
+  const rootPosition = new Vector3()
+  const rootScale = new Vector3()
+
+  targetObj.ref.parent.getWorldQuaternion(rootQuaternion)
+  targetObj.ref.parent.getWorldPosition(rootPosition)
+  targetObj.ref.parent.getWorldScale(rootScale)
+
+  targetRig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
+  targetRig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
+  console.log('---setOffset', rootQuaternion, rootPosition, rootScale)
+
   //setupIKRig(targetEntity, targetRig)
   initRig(targetEntity, null, false, armatureType)
 
@@ -429,6 +457,9 @@ async function loadAndSetupModel(
 
   const helper = new SkeletonHelper(targetRig.pose.bones[0].bone)
   Engine.scene.add(helper)
+
+  // TODO: remove it when fixed
+  targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
 
   // targetRig.tpose.align_leg(['LeftUpLeg', 'LeftLeg'])
   // targetRig.tpose.align_leg(['RightUpLeg', 'RightLeg'])
