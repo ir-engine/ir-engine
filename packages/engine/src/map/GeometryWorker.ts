@@ -166,7 +166,7 @@ function buildGeometry(
   return { geometry: threejsGeometry, geographicCenterPoint }
 }
 
-function prepareEnv() {
+export function createTaskHandler() {
   importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
   importScripts('https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js')
 
@@ -175,30 +175,30 @@ function prepareEnv() {
     THREE
 
   Object.assign(this, { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, ExtrudeGeometry })
-}
 
-function taskHandler(feature: Feature, llCenter: LongLat, style: IStyles) {
-  const { geometry, geographicCenterPoint } = buildGeometry(feature, llCenter, style)
+  return function handleBuildGeometryTask(feature: Feature, llCenter: LongLat, style: IStyles) {
+    const { geometry, geographicCenterPoint } = buildGeometry(feature, llCenter, style)
 
-  const bufferGeometry = new BufferGeometry().copy(geometry)
+    const bufferGeometry = new BufferGeometry().copy(geometry)
 
-  const arrayBuffers = []
-  const attributes = {}
-  for (let attributeName of Object.keys(bufferGeometry.attributes)) {
-    const attribute = bufferGeometry.getAttribute(attributeName)
-    const array = attribute.array as Float32Array
-    arrayBuffers.push(array.buffer)
-    attributes[attributeName] = {
-      array,
-      itemSize: attribute.itemSize,
-      normalized: attribute.normalized
+    const arrayBuffers = []
+    const attributes = {}
+    for (let attributeName of Object.keys(bufferGeometry.attributes)) {
+      const attribute = bufferGeometry.getAttribute(attributeName)
+      const array = attribute.array as Float32Array
+      arrayBuffers.push(array.buffer)
+      attributes[attributeName] = {
+        array,
+        itemSize: attribute.itemSize,
+        normalized: attribute.normalized
+      }
     }
-  }
 
-  this.postResult(
-    { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, geographicCenterPoint },
-    arrayBuffers
-  )
+    this.postResult(
+      { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, geographicCenterPoint },
+      arrayBuffers
+    )
+  }
 }
 
 interface SerializedGeometry {
@@ -212,7 +212,7 @@ interface SerializedGeometry {
 }
 
 export default () => {
-  return createTaskWorker<string, [Feature, LongLat, IStyles], SerializedGeometry>(prepareEnv, taskHandler, {
+  return createTaskWorker<string, [Feature, LongLat, IStyles], SerializedGeometry>(createTaskHandler, {
     buildGeometry,
     transformFeaturePoint,
     subtractArray2,

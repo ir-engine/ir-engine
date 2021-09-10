@@ -40,13 +40,12 @@ export function stringifyFunctionBody(
 
 export function createWorkerBody<TaskId, TaskArgs extends any[], TaskResult>(
   messageQueue: MessageEvent[],
-  prepareEnv: () => void,
-  taskHandler: (...args: TaskArgs) => void,
+  createTaskHandler: () => (...args: TaskArgs) => void,
   getTaskContext: (id: TaskId) => { postResult: (result: TaskResult) => void },
   intervalDuration: number
 ) {
   return function workerBody() {
-    prepareEnv()
+    const taskHandler = createTaskHandler()
     let processingQueue = false
 
     this.onmessage = function (msg: MessageEvent) {
@@ -99,8 +98,7 @@ export async function startTaskLifecycle<TaskId, TaskArgs extends any[], TaskRes
 }
 
 export default function createTaskWorker<TaskId, TaskArgs extends any[], TaskResult>(
-  prepareEnv: () => void,
-  taskHandler: (...args: TaskArgs) => any,
+  createTaskHandler: () => (...args: TaskArgs) => any,
   dependencies: { [constName: string]: any } = {}
 ) {
   if (isClient) {
@@ -112,13 +110,12 @@ export default function createTaskWorker<TaskId, TaskArgs extends any[], TaskRes
 
     const intervalDuration = 200
     const messageQueue = []
-    const workerBody = createWorkerBody(messageQueue, prepareEnv, taskHandler, getTaskContext, intervalDuration)
+    const workerBody = createWorkerBody(messageQueue, createTaskHandler, getTaskContext, intervalDuration)
     const workerBodySourceCode = stringifyFunctionBody(workerBody, {
       ...dependencies,
       messageQueue,
-      prepareEnv,
       intervalDuration,
-      taskHandler,
+      createTaskHandler,
       getTaskContext
     })
 

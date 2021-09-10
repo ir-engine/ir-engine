@@ -48,6 +48,7 @@ jest.useFakeTimers()
 describe('createWorkerBody', () => {
   const intervalDuration = 200
   let context: TaskContext, messageQueue: [],
+    createTaskHandler: () => (arg: any) => void,
     taskHandler: (arg: any) => void,
     taskContext: TaskContext,
     getTaskContext: () => TaskContext,
@@ -61,22 +62,23 @@ describe('createWorkerBody', () => {
       jest.advanceTimersByTime(10)
       ;(this as TaskContext).postResult('🍔')
     })
+    createTaskHandler = jest.fn(() => taskHandler)
     taskContext = {
       onmessage: () => {},
       postResult: jest.fn()
     }
     getTaskContext = () => taskContext
-    const body = createWorkerBody(messageQueue, prepareEnv, taskHandler, getTaskContext, intervalDuration)
+    const body = createWorkerBody(messageQueue, createTaskHandler, getTaskContext, intervalDuration)
     body.call(context)
     context.onmessage({ data: { id: 'burger', args: ['cheese'] } } as any)
   })
 
   it('prepares the enviroment once before handling the first task', () => {
     jest.advanceTimersByTime(intervalDuration)
-    expect(prepareEnv).toHaveBeenCalledTimes(1)
+    expect(createTaskHandler).toHaveBeenCalledTimes(1)
     context.onmessage({ data: { id: 'burger', args: ['cheese'] } } as any)
     jest.advanceTimersByTime(intervalDuration)
-    expect(prepareEnv).toHaveBeenCalledTimes(1)
+    expect(createTaskHandler).toHaveBeenCalledTimes(1)
   })
   it('adds incoming messages to a queue', () => {
     expect(messageQueue).toEqual([{ data: { id: 'burger', args: ['cheese'] } }])
