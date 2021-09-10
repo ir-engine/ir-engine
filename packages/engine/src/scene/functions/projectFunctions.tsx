@@ -42,11 +42,7 @@ export const getProjects = async (): Promise<any> => {
  */
 export const getProject = async (projectId): Promise<JSON> => {
   try {
-    const json = await globalThis.Editor.feathersClient.service('project').get(projectId, {
-      headers: {
-        'content-type': 'application/json'
-      }
-    })
+    const json = await globalThis.Editor.feathersClient.service('project').get(projectId)
     return json
   } catch (error) {
     console.log('Error in Getting Project:' + error)
@@ -215,15 +211,7 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
 
   let json = {}
   try {
-    json = await globalThis.Editor.feathersClient.service('project').patch(
-      projectId,
-      { project },
-      {
-        headers: {
-          'content-type': 'application/json'
-        }
-      }
-    )
+    json = await globalThis.Editor.feathersClient.service('project').patch(projectId, { project })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
