@@ -7,7 +7,7 @@ import { now } from "../../../src/common/functions/now";
 import { Engine } from "../../../src/ecs/classes/Engine";
 import { Entity } from "../../../src/ecs/classes/Entity";
 import { execute } from "../../../src/ecs/functions/EngineFunctions";
-import { getComponent, getMutableComponent } from "../../../src/ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent } from "../../../src/ecs/functions/ComponentFunctions";
 import { registerSystem } from "../../../src/ecs/functions/SystemFunctions";
 import { SystemUpdateType } from "../../../src/ecs/functions/SystemUpdateType";
 import { Input } from "../../../src/input/components/Input";

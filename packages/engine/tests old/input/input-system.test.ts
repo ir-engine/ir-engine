@@ -1,7 +1,7 @@
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
 import { InputSystem } from "../../src/input/systems/ClientInputSystem";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
-import { addComponent, createEntity, removeComponent } from "../../src/ecs/functions/EntityFunctions";
+import { addComponent, createEntity, removeComponent } from "../../src/ecs/functions/ComponentFunctions";
 import { Input } from "../../src/input/components/Input";
 import { AvatarInputSchema } from "../../src/avatar/AvatarInputSchema";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";

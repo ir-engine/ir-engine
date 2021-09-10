@@ -2,50 +2,19 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { AudioListener, BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
-import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
-import { AudioSystem } from './audio/systems/AudioSystem'
-import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem'
-import { AnimationSystem } from './avatar/AnimationSystem'
-import { AvatarControllerSystem } from './avatar/AvatarControllerSystem'
-import { ClientAvatarSpawnSystem } from './avatar/ClientAvatarSpawnSystem'
-import { ServerAvatarSpawnSystem, SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
-import { BotHookFunctions, BotHookSystem } from './bot/functions/botHookFunctions'
-import { CameraSystem } from './camera/systems/CameraSystem'
+import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
+import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
-import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { createWorld, reset } from './ecs/functions/EngineFunctions'
-import { injectSystem, registerSystem } from './ecs/functions/SystemFunctions'
+import { InjectionPoint, injectSystem, registerSystem, registerSystemWithArgs } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
-import { ClientInputSystem } from './input/systems/ClientInputSystem'
-import { EquippableSystem } from './interaction/systems/EquippableSystem'
-import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
-import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
-import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
-import { ParticleSystem } from './particles/systems/ParticleSystem'
-import { InterpolationSystem } from './physics/systems/InterpolationSystem'
-import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
-import { HighlightSystem } from './renderer/HighlightSystem'
-import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
-import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
-import { TransformSystem } from './transform/systems/TransformSystem'
-import { XRSystem } from './xr/systems/XRSystem'
 import { FontManager } from './xrui/classes/FontManager'
-import { XRUISystem } from './xrui/systems/XRUISystem'
-import { AvatarLoadingSystem } from './avatar/AvatarLoadingSystem'
-import { MapUpdateSystem } from './map/MapUpdateSystem'
-import { NamedEntitiesSystem } from './scene/systems/NamedEntitiesSystem'
-import { OutgoingNetworkSystem } from './networking/systems/OutgoingNetworkSystem'
-import { IncomingNetworkSystem } from './networking/systems/IncomingNetworkSystem'
-import { ProximitySystem } from './proximityChecker/systems/ProximitySystem'
-import { FollowSystem } from './navigation/systems/FollowSystem'
-import { FixedPipelineSystem } from './ecs/functions/FixedPipelineSystem'
-import { AvatarSystem } from './avatar/AvatarSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -107,7 +76,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
 
-  registerClientSystems(options, canvas)
+  await registerClientSystems(options, canvas)
 }
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
@@ -117,7 +86,7 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.camera.layers.enableAll()
   Engine.scene.add(Engine.camera)
 
-  registerEditorSystems(options)
+  await registerEditorSystems(options)
 }
 
 const configureServer = async (options: Required<InitializeOptions>) => {
@@ -142,113 +111,171 @@ const configureServer = async (options: Required<InitializeOptions>) => {
     Engine.hasJoinedWorld = true
   })
 
-  await loadDRACODecoder()
+  // await loadDRACODecoder()
 
   new SpawnPoints()
 
-  registerServerSystems(options)
+  await registerServerSystems(options)
 }
 
-const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
+const registerClientSystems = async (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   if (options.scene.disabled) {
-    registerSystem(SystemUpdateType.Free, IncomingNetworkSystem)
-    registerSystem(SystemUpdateType.Free, OutgoingNetworkSystem)
+    registerSystem(SystemUpdateType.Free, import('./networking/systems/IncomingNetworkSystem'))
+    registerSystem(SystemUpdateType.Free, import('./networking/systems/OutgoingNetworkSystem'))
     return
   }
 
   // Network (Incoming)
-  registerSystem(SystemUpdateType.Free, IncomingNetworkSystem)
+  registerSystem(SystemUpdateType.Free, import('./networking/systems/IncomingNetworkSystem'))
 
   // Input
-  registerSystem(SystemUpdateType.Free, ClientInputSystem)
-  registerSystem(SystemUpdateType.Free, XRSystem)
-  registerSystem(SystemUpdateType.Free, CameraSystem)
-  registerSystem(SystemUpdateType.Free, BotHookSystem)
+  registerSystem(SystemUpdateType.Free, import('./input/systems/ClientInputSystem'))
+  registerSystem(SystemUpdateType.Free, import('./xr/systems/XRSystem'))
+  registerSystem(SystemUpdateType.Free, import('./camera/systems/CameraSystem'))
+  registerSystem(SystemUpdateType.Free, import('./bot/systems/BotHookSystem'))
+  registerSystem(SystemUpdateType.Free, import('./navigation/systems/AutopilotSystem'))
+
+  // UPDATE INJECTION POINT
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.UPDATE
+  })
 
   // Fixed Systems
-  registerSystem(SystemUpdateType.Free, FixedPipelineSystem, { updatesPerSecond: 60 })
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/FixedPipelineSystem'), {
+    updatesPerSecond: 60
+  })
 
-  // Input Systems
-  // registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
+  // EARLY FIXED UPDATE INJECTION POINT
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.FIXED_EARLY
+  })
 
   // Maps & Navigation
-  // registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
-  // registerSystem(SystemUpdateType.Fixed, ProximitySystem)
-  // registerSystem(SystemUpdateType.Fixed, FollowSystem)
+  registerSystem(SystemUpdateType.Fixed, import('./map/MapUpdateSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./proximityChecker/systems/ProximitySystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/FollowSystem'))
 
   // Avatar Systems
-  registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
-  registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
-  registerSystem(SystemUpdateType.Fixed, AvatarSystem)
-  registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
+  registerSystem(SystemUpdateType.Fixed, import('./physics/systems/InterpolationSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./avatar/ClientAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./avatar/AvatarSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./avatar/AvatarControllerSystem'))
+
+  // FIXED UPDATE INJECTION POINT
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.FIXED
+  })
 
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
-  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
-  registerSystem(SystemUpdateType.Fixed, TransformSystem)
-  registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
+  registerSystem(SystemUpdateType.Fixed, import('./interaction/systems/EquippableSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./scene/systems/SceneObjectSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./scene/systems/NamedEntitiesSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./transform/systems/TransformSystem'))
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
+  })
+
+  // LATE FIXED UPDATE INJECTION POINT
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.FIXED_LATE
   })
 
   // Camera & UI systems
-  registerSystem(SystemUpdateType.Free, MediaStreamSystem)
-  registerSystem(SystemUpdateType.Free, XRUISystem)
-  registerSystem(SystemUpdateType.Free, InteractiveSystem)
+  registerSystem(SystemUpdateType.Free, import('./networking/systems/MediaStreamSystem'))
+  registerSystem(SystemUpdateType.Free, import('./xrui/systems/XRUISystem'))
+  registerSystem(SystemUpdateType.Free, import('./interaction/systems/InteractiveSystem'))
 
   // Audio Systems
-  registerSystem(SystemUpdateType.Free, AudioSystem)
-  registerSystem(SystemUpdateType.Free, PositionalAudioSystem)
+  registerSystem(SystemUpdateType.Free, import('./audio/systems/AudioSystem'))
+  registerSystem(SystemUpdateType.Free, import('./audio/systems/PositionalAudioSystem'))
+
+  // PRE RENDER INJECTION POINT
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.PRE_RENDER
+  })
 
   // Animation Systems
-  registerSystem(SystemUpdateType.Free, AvatarLoadingSystem)
-  registerSystem(SystemUpdateType.Free, AnimationSystem)
-  registerSystem(SystemUpdateType.Free, ParticleSystem)
-  registerSystem(SystemUpdateType.Free, DebugHelpersSystem)
-  registerSystem(SystemUpdateType.Free, HighlightSystem)
-  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas, enabled: !options.renderer.disabled })
+  registerSystem(SystemUpdateType.Free, import('./avatar/AvatarLoadingSystem'))
+  registerSystem(SystemUpdateType.Free, import('./avatar/AnimationSystem'))
+  registerSystem(SystemUpdateType.Free, import('./particles/systems/ParticleSystem'))
+  registerSystem(SystemUpdateType.Free, import('./debug/systems/DebugHelpersSystem'))
+  registerSystem(SystemUpdateType.Free, import('./renderer/HighlightSystem'))
+  registerSystemWithArgs(SystemUpdateType.Free, import('./renderer/WebGLRendererSystem'), {
+    canvas,
+    enabled: !options.renderer.disabled
+  })
+
+  // POST RENDER INJECTION POINT
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.POST_RENDER
+  })
 
   // Network (Outgoing)
-  registerSystem(SystemUpdateType.Free, OutgoingNetworkSystem)
+  registerSystem(SystemUpdateType.Free, import('./networking/systems/OutgoingNetworkSystem'))
 }
 
-const registerEditorSystems = (options: Required<InitializeOptions>) => {
+const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   // Scene Systems
-  // registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
-  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
-  registerSystem(SystemUpdateType.Fixed, TransformSystem)
-  registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
+  registerSystem(SystemUpdateType.Fixed, import('./scene/systems/NamedEntitiesSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./transform/systems/TransformSystem'))
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })
 
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.Fixed, ParticleSystem)
-  registerSystem(SystemUpdateType.Fixed, DebugHelpersSystem)
+  registerSystem(SystemUpdateType.Fixed, import('./particles/systems/ParticleSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./debug/systems/DebugHelpersSystem'))
 }
 
-const registerServerSystems = (options: Required<InitializeOptions>) => {
-  registerSystem(SystemUpdateType.Free, FixedPipelineSystem, { updatesPerSecond: 60 })
+const registerServerSystems = async (options: Required<InitializeOptions>) => {
+  registerSystem(SystemUpdateType.Free, import('./networking/systems/IncomingNetworkSystem'))
+
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/FixedPipelineSystem'), {
+    updatesPerSecond: 60
+  })
+
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.UPDATE
+  })
 
   // Network Incoming Systems
-  registerSystem(SystemUpdateType.Fixed, IncomingNetworkSystem, { ...options.networking }) // first
-  registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
+  registerSystem(SystemUpdateType.Fixed, import('./networking/systems/MediaStreamSystem'))
+
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.FIXED_EARLY
+  })
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, AvatarSystem)
+  registerSystem(SystemUpdateType.Fixed, import('./avatar/AvatarSystem'))
+
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.FIXED
+  })
 
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, NamedEntitiesSystem)
-  registerSystem(SystemUpdateType.Fixed, EquippableSystem)
-  registerSystem(SystemUpdateType.Fixed, TransformSystem)
-  registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
+  registerSystem(SystemUpdateType.Fixed, import('./scene/systems/NamedEntitiesSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./transform/systems/TransformSystem'))
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })
 
+  registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.FIXED_LATE
+  })
+
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.Fixed, ServerAvatarSpawnSystem)
+  registerSystem(SystemUpdateType.Fixed, import('./avatar/ServerAvatarSpawnSystem'))
+
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.PRE_RENDER
+  })
+
+  registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
+    injectionPoint: InjectionPoint.POST_RENDER
+  })
 
   // Network Outgoing Systems
-  registerSystem(SystemUpdateType.Fixed, OutgoingNetworkSystem)
+  registerSystem(SystemUpdateType.Free, import('./networking/systems/OutgoingNetworkSystem'))
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
@@ -286,7 +313,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   }
 
   options.systems?.forEach((init) => {
-    injectSystem(init)
+    injectSystem(sceneWorld, init)
   })
 
   await sceneWorld.initSystems()

@@ -5,7 +5,7 @@ import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { ParityValue } from '../common/enums/ParityValue'
 import { isClient } from '../common/functions/isClient'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent } from '../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import {

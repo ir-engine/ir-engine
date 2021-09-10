@@ -11,9 +11,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "jest": {
-    "preset": "ts-jest"
-  },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "license": "MIT",
@@ -74,7 +71,7 @@
     "three-physx": "^0.0.37",
     "troika-three-text": "^0.42.0",
     "twitch-m3u8": "^1.1.4",
-    "vite": "2.5.3",
+    "vite": "2.5.6",
     "volumetric": "0.2.28",
     "web-worker": "1.1.0"
   },
@@ -101,7 +98,7 @@
     "babel-preset-vite": "1.0.4",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.25",
+    "esbuild": "0.12.26",
     "eslint": "7.32.0",
     "rollup": "2.56.3",
     "rollup-plugin-node-polyfills": "0.2.1",

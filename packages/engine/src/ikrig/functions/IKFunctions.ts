@@ -1,4 +1,4 @@
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { IKRig } from '../components/IKRig'
 import { Bone, Object3D, Quaternion, Vector3 } from 'three'
 import { IKPose } from '../components/IKPose'

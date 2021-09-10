@@ -1,5 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
@@ -15,7 +15,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 
-export const IncomingNetworkSystem = async (world: World): Promise<System> => {
+export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
 
   return () => {

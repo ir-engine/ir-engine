@@ -5,7 +5,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXInstance } from 'three-physx'
@@ -79,10 +79,11 @@ const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObj
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-export const PhysicsSystem = async (
+
+export default async function PhysicsSystem(
   world: World,
-  attributes: { simulationEnabled?: boolean } = {}
-): Promise<System> => {
+  attributes: { simulationEnabled?: boolean }
+): Promise<System> {
   let simulationEnabled = false
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
@@ -116,16 +117,8 @@ export const PhysicsSystem = async (
       }
     }
 
-    for (const entity of colliderQuery.enter()) {
-      const colliderComponent = getComponent(entity, ColliderComponent)
-      const nameComponent = getComponent(entity, NameComponent)
-      console.log(`COLLIDER BODY ADDED ${nameComponent.name}`, colliderComponent.body)
-    }
-
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
-      const nameComponent = getComponent(entity, NameComponent, true)
-      console.log(`COLLIDER BODY REMOVED ${nameComponent.name}`, colliderComponent.body)
       if (colliderComponent?.body) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }

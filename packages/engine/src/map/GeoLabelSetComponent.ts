@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../ecs/functions/ComponentFunctions'
 import { GeoLabelNode } from './GeoLabelNode'
 
 type ComponentType = {

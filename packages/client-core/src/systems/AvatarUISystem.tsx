@@ -1,10 +1,6 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  removeEntity
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
@@ -13,13 +9,14 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 
-export const AvatarUISystem = async (): Promise<System> => {
+export default async function AvatarUISystem(world: World): Promise<System> {
   const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
 
-  return (world) => {
+  return () => {
     for (const userEntity of userQuery.enter()) {
       if (userEntity === Network.instance.localClientEntity) continue
       const userId = getComponent(userEntity, NetworkObjectComponent).uniqueId

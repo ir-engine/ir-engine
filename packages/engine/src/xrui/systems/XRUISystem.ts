@@ -1,10 +1,11 @@
 import { Engine } from '../../ecs/classes/Engine'
+import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 
-export const XRUISystem = async (world: World) => {
+export default async function XRUISystem(world: World): Promise<System> {
   XRUIManager.instance = new XRUIManager(await import('ethereal'))
 
   const uiQuery = defineQuery([XRUIComponent])

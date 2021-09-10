@@ -7,7 +7,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent
-} from '../ecs/functions/EntityFunctions'
+} from '../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -25,8 +25,9 @@ import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { dispatchFromServer } from '../networking/functions/dispatch'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { World } from '../ecs/classes/World'
+import { System } from '../ecs/classes/System'
 
-export const AvatarSystem = async (world: World) => {
+export default async function AvatarSystem(world: World): Promise<System> {
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
   const avatarQuery = defineQuery([AvatarComponent, ColliderComponent])

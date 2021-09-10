@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Sky } from '../../scene/classes/Sky'
 
 export type SkyboxComponentType = {
