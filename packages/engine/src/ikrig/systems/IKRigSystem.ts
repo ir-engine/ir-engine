@@ -1,4 +1,5 @@
-import { addComponent, createEntity, defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { IKRig } from '../components/IKRig'
 // import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
@@ -18,6 +19,7 @@ import {
   visualizeSpine
 } from '../functions/IKFunctions'
 import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 // export class DebugComponent {
 //   static points = null
@@ -53,7 +55,7 @@ import { World } from '../../ecs/classes/World'
 //   }
 // }
 
-export const IKRigSystem = async (world: World) => {
+export const IKRigSystem = async (world: World): Promise<System> => {
   const ikrigsQuery = defineQuery([IKRig])
   const ikposeQuery = defineQuery([IKPose])
 

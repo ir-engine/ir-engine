@@ -1,11 +1,12 @@
 import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
-export const AudioSystem = async (): Promise<System> => {
+export default async function AudioSystem(world: World): Promise<System> {
   const soundEffectQuery = defineQuery([SoundEffect])
   const musicQuery = defineQuery([BackgroundMusic])
   const playQuery = defineQuery([SoundEffect, PlaySoundEffect])
@@ -105,7 +106,7 @@ export const AudioSystem = async (): Promise<System> => {
   window.addEventListener('touchend', startAudio, true)
   window.addEventListener('click', startAudio, true)
 
-  return (world) => {
+  return () => {
     for (const entity of soundEffectQuery.enter(world)) {
       const effect = getComponent(entity, SoundEffect)
       if (!audio) {

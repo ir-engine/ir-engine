@@ -1,5 +1,5 @@
 import { Entity } from '../ecs/classes/Entity'
-import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { Quaternion, Vector3 } from 'three'
@@ -10,6 +10,7 @@ import { PrefabType } from '../networking/templates/PrefabType'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { AvatarTagComponent } from './components/AvatarTagComponent'
 import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -49,11 +50,11 @@ export class SpawnPoints {
   }
 }
 
-export const ServerAvatarSpawnSystem = async (): Promise<System> => {
+export default async function ServerAvatarSpawnSystem(world: World): Promise<System> {
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   const spawnPlayerQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
 
-  return (world) => {
+  return () => {
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointQuery.enter(world)) {
       if (!hasComponent(entity, TransformComponent)) {

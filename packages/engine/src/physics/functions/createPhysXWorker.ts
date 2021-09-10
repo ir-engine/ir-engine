@@ -1,7 +1,7 @@
 import { PhysXInstance } from 'three-physx'
 import { Engine } from '../../ecs/classes/Engine'
-import Worker from 'web-worker'
 import { isClient } from '../../common/functions/isClient'
+import Worker from 'web-worker'
 
 export const createPhysXWorker = async () => {
   let worker
@@ -11,8 +11,10 @@ export const createPhysXWorker = async () => {
     //@ts-ignore
     worker = new Worker('/workers/loadPhysXClassic.js')
   } else {
+    const path = await import('path')
     //@ts-ignore
-    worker = new Worker(new URL('./loadPhysXNode.js', import.meta.url))
+    worker = new Worker(path.resolve(__dirname, './loadPhysXNode.js'))
+    // worker = new Worker(new URL('./loadPhysXNode.js', import.meta.url))
   }
   await PhysXInstance.instance.initPhysX(worker, Engine.initOptions.physics.settings)
   Engine.physxWorker = worker

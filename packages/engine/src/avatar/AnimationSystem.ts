@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { defineQuery, getComponent } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationGraph } from './animations/AvatarAnimationGraph'
 import { AvatarStates } from './animations/Util'
@@ -30,7 +30,7 @@ function avatarActionReceptor(action: NetworkWorldActionType) {
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
-export const AnimationSystem = async (world: World): Promise<System> => {
+export default async function AnimationSystem(world: World): Promise<System> {
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
   world.receptors.add(avatarActionReceptor)
 

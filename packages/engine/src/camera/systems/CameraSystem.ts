@@ -2,12 +2,12 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
-  createEntity,
   defineQuery,
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -160,7 +160,7 @@ export const resetFollowCamera = () => {
     transform.rotation.copy(desiredTransform.rotation)
   }
 }
-export const CameraSystem = async (): Promise<System> => {
+export default async function CameraSystem(world: World): Promise<System> {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
 
   const cameraEntity = createEntity()
@@ -181,7 +181,7 @@ export const CameraSystem = async (): Promise<System> => {
     }
   })
 
-  return (world: World) => {
+  return () => {
     const { delta } = world
 
     for (const entity of followCameraQuery.enter()) {
@@ -232,7 +232,5 @@ export const CameraSystem = async (): Promise<System> => {
       Engine.camera.scale.copy(transform.scale)
       Engine.camera.updateMatrixWorld()
     }
-
-    return world
   }
 }

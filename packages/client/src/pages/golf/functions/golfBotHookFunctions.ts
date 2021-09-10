@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'

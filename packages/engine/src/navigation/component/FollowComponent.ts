@@ -5,7 +5,7 @@ import {
   addComponent,
   getComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
 import { AutoPilotComponent } from './AutoPilotComponent'
 import { AutoPilotRequestComponent } from './AutoPilotRequestComponent'
 

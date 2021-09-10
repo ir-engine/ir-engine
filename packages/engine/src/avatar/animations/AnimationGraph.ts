@@ -1,6 +1,6 @@
 import { Vector2 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { dispatchFromClient } from '../../networking/functions/dispatch'
 import { getLocalNetworkId } from '../../networking/functions/getLocalNetworkId'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'

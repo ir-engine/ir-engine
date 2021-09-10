@@ -1,5 +1,4 @@
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-
 class DebugComponent {
   static points = null
   static lines = null

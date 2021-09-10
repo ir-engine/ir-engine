@@ -1,7 +1,7 @@
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Not } from 'bitecs'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -16,13 +16,15 @@ import { BodyType } from 'three-physx'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { isEntityLocalClientOwnerOf } from '../../networking/functions/isEntityLocalClientOwnerOf'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
 
-export const InterpolationSystem = async () => {
+export default async function InterpolationSystem(world: World): Promise<System> {
   /**
    * Remote avatars
    */
