@@ -6,6 +6,8 @@ import { updateCreatorPageState } from '../../../reducers/popupsState/service'
 import Creator from '../../Creator'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
+
+//@ts-ignore
 import styles from './CreatorPopup.module.scss'
 
 const mapStateToProps = (state: any): any => {
@@ -21,9 +23,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   popupsState?: any
   updateCreatorPageState?: typeof updateCreatorPageState
-  webxrRecorderActivity?: any
+  webxrRecorderActivity: any
+  setView?: any
 }
-export const CreatorPopup = ({ popupsState, updateCreatorPageState, webxrRecorderActivity }: Props) => {
+export const CreatorPopup = ({ popupsState, updateCreatorPageState, webxrRecorderActivity, setView }: Props) => {
   const creatorPageState = popupsState?.get('creatorPage')
   const creatorId = popupsState?.get('creatorId')
   const handleCreatorClose = () => updateCreatorPageState(false)
@@ -33,7 +36,7 @@ export const CreatorPopup = ({ popupsState, updateCreatorPageState, webxrRecorde
     !webxrRecorderActivity && (
       <SharedModal open={popupsState?.get('creatorPage')} onClose={handleCreatorClose} className={styles.creatorPopup}>
         <Creator creatorId={popupsState?.get('creatorId')} />
-        <AppFooter />
+        <AppFooter setView={setView} />
       </SharedModal>
     )
   useEffect(() => {
