@@ -1,5 +1,3 @@
-import { fetchUrl } from './fetchUrl'
-
 /**
  * fetchContentType is used to get the header content type of response using url.
  *
@@ -9,8 +7,7 @@ import { fetchUrl } from './fetchUrl'
  */
 
 export const fetchContentType = async (url): Promise<any> => {
-  const f = await fetchUrl(url, { method: 'HEAD' }).then((r) => r.headers.get('content-type'))
-  console.log('Response: ' + Object.values(f))
-
-  return f
+  // const f = await fetchUrl(url, { method: 'HEAD' }).then((r) => r.headers.get('content-type'))
+  // console.log('Response: ' + Object.values(f))
+  // return f
 }

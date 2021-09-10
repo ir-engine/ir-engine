@@ -83,7 +83,6 @@ import {
   Vector3
 } from 'three'
 import { fetchContentType } from '@xrengine/engine/src/scene/functions/fetchContentType'
-import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import { guessContentType } from '@xrengine/engine/src/scene/functions/guessContentType'
 import AssetManifestSource from './assets/AssetManifestSource'
 import { UploadFileType } from './assets/sources/MyAssetsSource'
