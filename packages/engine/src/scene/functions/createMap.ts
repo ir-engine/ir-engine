@@ -27,6 +27,8 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
   const mapObject3D = new Group()
 
+  mapObject3D.name = '(Geographic) Map'
+
   labels.forEach((label) => {
     mapObject3D.add(label.object3d)
   })
