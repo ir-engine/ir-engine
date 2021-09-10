@@ -10,7 +10,6 @@ import { closeTransport } from './WebRTCFunctions'
 import { Quaternion, Vector3 } from 'three'
 import { getNewNetworkId } from '@xrengine/engine/src/networking/functions/getNewNetworkId'
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
-import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
@@ -183,11 +182,7 @@ export async function validateNetworkObjects(): Promise<void> {
       // Remove all objects for disconnecting user
       networkObjectsClientOwns.forEach((obj) => {
         // Get the entity attached to the NetworkObjectComponent and remove it
-        console.log('Removing entity ', obj.entity, ' for user ', userId)
         dispatchFromServer(NetworkWorldAction.destroyObject(obj.networkId))
-        removeEntity(obj.entity)
-        delete Network.instance.networkObjects[obj.id]
-        console.log('Removed entity ', obj.entity, ' for user ', userId)
       })
 
       if (Network.instance.clients[userId]) delete Network.instance.clients[userId]
@@ -283,15 +278,6 @@ function disconnectClientIfConnected(socket, userId: string): void {
       logger.error('networkId is invalid')
       logger.error(networkObject)
     }
-
-    // get network object
-    const entity = Network.instance.networkObjects[key].entity
-
-    // Remove the entity and all of it's components
-    removeEntity(entity)
-
-    // Remove network object from list
-    delete Network.instance.networkObjects[key]
   })
 }
 
@@ -324,7 +310,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
   })
 
   const networkId = getNewNetworkId(userId)
-  spawnPrefab(PrefabType.Player, userId, networkId, spawnPos)
+  dispatchFromServer(NetworkWorldAction.createObject(networkId, userId, PrefabType.Player, spawnPos))
 
   await new Promise<void>((resolve) => {
     const listener = ({ uniqueId }) => {
@@ -392,15 +378,6 @@ export async function handleDisconnect(socket): Promise<any> {
 
       // If it does, tell clients to destroy it
       dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
-
-      // get network object
-      const entity = Network.instance.networkObjects[key].entity
-
-      // Remove the entity and all of it's components
-      removeEntity(entity)
-
-      // Remove network object from list
-      delete Network.instance.networkObjects[key]
     })
 
     dispatchFromServer(NetworkWorldAction.destroyClient(userId))

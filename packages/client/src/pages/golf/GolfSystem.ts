@@ -87,6 +87,16 @@ export const GolfState = createState({
   currentHole: 0
 })
 
+// Attach logging
+GolfState.attach(() => ({
+  id: Symbol('Logger'),
+  init: () => ({
+    onSet() {
+      console.log('GOLF STATE \n' + JSON.stringify(GolfState.attach(Downgraded).value, null, 2))
+    }
+  })
+}))
+
 export function useGolfState() {
   return useState(GolfState)
 }
@@ -338,8 +348,6 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
       }
     }
   })
-
-  console.log('STATE \n' + JSON.stringify(GolfState.attach(Downgraded).value, null, 2))
 }
 
 // Note: player numbers are 0-indexed
@@ -348,7 +356,7 @@ globalThis.GolfState = GolfState
 let ballTimer = 0
 
 export const GolfSystem = async (world: World) => {
-  const playerQuery = defineQuery([AvatarComponent])
+  const playerQuery = defineQuery([AvatarComponent, NetworkObjectComponent])
   const namedComponentQuery = defineQuery([NameComponent])
   const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
   const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
@@ -410,16 +418,21 @@ export const GolfSystem = async (world: World) => {
       }
 
       for (const entity of playerQuery.exit()) {
-        const { uniqueId } = getComponent(entity, NetworkObjectComponent)
-        console.log('player leave???')
+        const { uniqueId } = getComponent(entity, NetworkObjectComponent, true)
+        const playerNum = getGolfPlayerNumber(entity)
+        console.log(`player ${playerNum} leave???`)
         // if a player disconnects and it's their turn, change turns to the next player
-        if (currentPlayer) {
-          if (currentPlayer.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
-          const clubEntity = getClub(world, getGolfPlayerNumber(entity))
+        if (currentPlayer?.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
+        const clubEntity = getClub(world, playerNum)
+        if (clubEntity)
           dispatchFromServer(
             NetworkWorldAction.destroyObject(getComponent(clubEntity, NetworkObjectComponent).networkId)
           )
-        }
+        const ballEntity = getBall(world, playerNum)
+        if (ballEntity)
+          dispatchFromServer(
+            NetworkWorldAction.destroyObject(getComponent(ballEntity, NetworkObjectComponent).networkId)
+          )
       }
     }
 
@@ -459,7 +472,8 @@ export const GolfSystem = async (world: World) => {
             setTimeout(() => {
               const outOfBounds = !golfBallComponent.groundRaycast.hits.length
               const activeHoleEntity = getHole(world, GolfState.currentHole.value)
-              const position = getComponent(activeBallEntity, TransformComponent).position
+              const position = getComponent(activeBallEntity, TransformComponent)?.position
+              if (!position) return
               const { collisionEvent } = getCollisions(activeBallEntity, GolfHoleComponent)
               const dist = position.distanceToSquared(getComponent(activeHoleEntity, TransformComponent).position)
               // ball-hole collision not being detected, not sure why, use dist for now

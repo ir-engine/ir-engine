@@ -70,7 +70,7 @@ function avatarActionReceptor(action: NetworkWorldActionType) {
 }
 
 const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
-const colliderQuery = defineQuery([Not(AvatarComponent), ColliderComponent, TransformComponent])
+const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
 const raycastQuery = defineQuery([RaycastComponent])
 const networkObjectQuery = defineQuery([NetworkObjectComponent])
 const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObjectOwnerComponent, ColliderComponent])
@@ -116,8 +116,16 @@ export const PhysicsSystem = async (
       }
     }
 
+    for (const entity of colliderQuery.enter()) {
+      const colliderComponent = getComponent(entity, ColliderComponent)
+      const nameComponent = getComponent(entity, NameComponent)
+      console.log(`COLLIDER BODY ADDED ${nameComponent.name}`, colliderComponent.body)
+    }
+
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
+      const nameComponent = getComponent(entity, NameComponent, true)
+      console.log(`COLLIDER BODY REMOVED ${nameComponent.name}`, colliderComponent.body)
       if (colliderComponent?.body) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }
@@ -166,16 +174,6 @@ export const PhysicsSystem = async (
         const transform = getComponent(entity, TransformComponent)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       }
-    }
-
-    // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
-    for (const entity of networkObjectQuery.exit()) {
-      const networkObject = getComponent(entity, NetworkObjectComponent, true)
-      delete Network.instance.networkObjects[networkObject.networkId]
-      const nameComponent = getComponent(entity, NameComponent)
-      nameComponent
-        ? console.log(`removed prefab with name ${nameComponent.name} network id: ${networkObject.networkId}`)
-        : console.log('removed prefab with id ', networkObject.networkId)
     }
 
     if (simulationEnabled) PhysXInstance.instance?.update()

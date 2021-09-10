@@ -208,6 +208,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
 
   const showScorecardKey = 143
   inputs.schema.inputMap.set('KeyI', showScorecardKey)
+  inputs.schema.inputMap.set(GamepadButtons.B, showScorecardKey)
   inputs.schema.behaviorMap.set(
     showScorecardKey,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {

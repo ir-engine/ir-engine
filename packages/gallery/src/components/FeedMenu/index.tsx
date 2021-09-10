@@ -2,6 +2,7 @@ import Button from '@material-ui/core/Button'
 import React, { useRef, useState } from 'react'
 
 import { useTranslation } from 'react-i18next'
+import Featured from '../Featured'
 
 import styles from './FeedMenu.module.scss'
 
@@ -9,9 +10,6 @@ const FeedMenu = () => {
   const { t } = useTranslation()
   const [type, setType] = useState('featured')
   const [type2, setType2] = useState('grid')
-
-  const padding = 40
-  let content = null
 
   return (
     <>
@@ -33,7 +31,7 @@ const FeedMenu = () => {
           </Button>
         </section>
       </nav>
-      <section className={styles.content}>{content}</section>
+      <Featured />
     </>
   )
 }

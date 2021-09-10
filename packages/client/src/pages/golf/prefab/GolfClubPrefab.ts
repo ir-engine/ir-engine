@@ -23,12 +23,13 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
-import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
+import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -47,8 +48,7 @@ export const spawnClub = (entityPlayer: Entity): void => {
     playerNumber: getGolfPlayerNumber(entityPlayer)
   }
 
-  // this spawns the club on the server
-  spawnPrefab(GolfPrefabTypes.Club, uuid, networkId, parameters)
+  dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, GolfPrefabTypes.Club, parameters))
 }
 
 export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {
