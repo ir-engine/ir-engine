@@ -61,7 +61,7 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   transformComponent.scale.setScalar(0)
   textGroup.visible = false
 
-  return (world) => {
+  return () => {
     const { elapsedTime } = world
 
     for (const entity of interactiveQuery.enter(world)) {

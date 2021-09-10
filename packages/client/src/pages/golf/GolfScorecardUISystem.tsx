@@ -197,10 +197,10 @@ const GolfScorecardView = () => {
 
 const mat4 = new Matrix4()
 
-export const GolfScorecardUISystem = async () => {
+export const GolfScorecardUISystem = async (world: World) => {
   const ui = createScorecardUI()
 
-  return (world: World) => {
+  return () => {
     // return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)

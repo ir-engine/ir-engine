@@ -117,16 +117,8 @@ export default async function PhysicsSystem(
       }
     }
 
-    for (const entity of colliderQuery.enter()) {
-      const colliderComponent = getComponent(entity, ColliderComponent)
-      const nameComponent = getComponent(entity, NameComponent)
-      console.log(`COLLIDER BODY ADDED ${nameComponent.name}`, colliderComponent.body)
-    }
-
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
-      const nameComponent = getComponent(entity, NameComponent, true)
-      console.log(`COLLIDER BODY REMOVED ${nameComponent.name}`, colliderComponent.body)
       if (colliderComponent?.body) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }

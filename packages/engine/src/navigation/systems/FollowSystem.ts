@@ -13,7 +13,7 @@ const step: number = 10
 export default async function FollowSystem(world: World): Promise<System> {
   const followQuery = defineQuery([FollowComponent])
 
-  return (world) => {
+  return () => {
     for (const eid of followQuery(world)) {
       let { targetEid, cStep, prevTarget } = getComponent(eid, FollowComponent)
       cStep++

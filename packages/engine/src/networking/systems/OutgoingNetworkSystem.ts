@@ -1,10 +1,8 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../classes/Network'
-import { Vault } from '../classes/Vault'
-import { defineQuery, System } from 'bitecs'
+import { defineQuery } from 'bitecs'
 import { World } from '../../ecs/classes/World'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateInterface, WorldStateModel } from '../schema/networkSchema'
@@ -13,9 +11,9 @@ import { AvatarControllerComponent } from '../../avatar/components/AvatarControl
 import { isClient } from '../../common/functions/isClient'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { getLocalNetworkId } from '../functions/getLocalNetworkId'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { IncomingActionType } from '../interfaces/NetworkTransport'
+import { System } from '../../ecs/classes/System'
 
 function sendActions() {
   if (!isClient) {
@@ -122,7 +120,5 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     } catch (e) {
       console.log('could not convert world state to a buffer')
     }
-
-    return world
   }
 }

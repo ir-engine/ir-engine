@@ -54,7 +54,7 @@ export default async function ServerAvatarSpawnSystem(world: World): Promise<Sys
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   const spawnPlayerQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
 
-  return (world) => {
+  return () => {
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointQuery.enter(world)) {
       if (!hasComponent(entity, TransformComponent)) {

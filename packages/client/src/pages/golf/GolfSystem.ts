@@ -380,6 +380,7 @@ export default async function GolfSystem(world: World) {
   world.receptors.add(golfReceptor)
 
   return () => {
+    console.log('golf system')
     const currentPlayer = getGolfPlayerState()
     const playerEnterQueryResults = playerQuery.enter()
 

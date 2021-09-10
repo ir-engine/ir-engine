@@ -32,10 +32,10 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "cross-env NODE_ENV=production node -r ./compile.js src/index.ts",
-    "golf": "nodemon -r ./compile.js src/golf.ts",
+    "start": "cross-env NODE_ENV=production ts-node-dev --respawn --transpile-only src/index.ts",
+    "golf": "ts-node-dev --respawn --transpile-only src/golf.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "dev-nossl": "cross-env NOSSL=true nodemon -r ./compile.js src/index.ts",
+    "dev-nossl": "cross-env NOSSL=true ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "jest",
     "validate": "npm run build && npm run test"
   },

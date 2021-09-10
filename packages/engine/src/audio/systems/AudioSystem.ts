@@ -106,7 +106,7 @@ export default async function AudioSystem(world: World): Promise<System> {
   window.addEventListener('touchend', startAudio, true)
   window.addEventListener('click', startAudio, true)
 
-  return (world) => {
+  return () => {
     for (const entity of soundEffectQuery.enter(world)) {
       const effect = getComponent(entity, SoundEffect)
       if (!audio) {

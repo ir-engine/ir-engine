@@ -5,9 +5,7 @@ import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import Layout from '../../components/Layout/Layout'
-import GolfSystem from './GolfSystem'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { GolfXRUISystem } from './GolfXRUISystem'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -27,11 +25,11 @@ const LocationPage = (props) => {
     systems: [
       {
         injectionPoint: 'FIXED',
-        system: GolfSystem
+        system: import('./GolfSystem')
       },
       {
-        injectionPoint: 'UI',
-        system: GolfXRUISystem
+        injectionPoint: 'PRE_RENDER',
+        system: import('./GolfXRUISystem')
       }
     ]
   }

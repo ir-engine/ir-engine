@@ -22,7 +22,7 @@ const LocationPage = (props) => {
     systems: [
       {
         injectionPoint: 'FIXED',
-        system: async () => (await import('@xrengine/client-core/src/systems/AvatarUISystem')).default
+        system: import('@xrengine/client-core/src/systems/AvatarUISystem')
       }
     ]
   }

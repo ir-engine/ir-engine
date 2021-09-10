@@ -32,7 +32,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
   const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
   const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
 
-  return (world) => {
+  return () => {
     const { delta } = world
 
     for (const entity of avatarControllerRemovedQuery(world)) {

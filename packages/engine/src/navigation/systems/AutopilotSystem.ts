@@ -51,7 +51,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
   const ongoingQuery = defineQuery([AutoPilotComponent])
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
 
-  return (world) => {
+  return () => {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)

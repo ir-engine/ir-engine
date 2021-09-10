@@ -21,6 +21,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { getGolfPlayerNumber } from './functions/golfFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { useGolfState } from './GolfSystem'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 const scratchColor = new Color()
 
@@ -80,7 +81,7 @@ const GolfNetworkPlayerView = () => {
 const mat = new Matrix4()
 const up = new Vector3(0, 1, 0)
 
-export const GolfPlayerUISystem = async () => {
+export const GolfPlayerUISystem = async (world: World) => {
   const playerQuery = defineQuery([AvatarComponent])
 
   return () => {

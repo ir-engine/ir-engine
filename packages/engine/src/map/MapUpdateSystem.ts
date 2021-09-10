@@ -16,7 +16,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
   const labelsQuery = defineQuery([GeoLabelSetComponent])
   let updateStatus = false
 
-  return (world) => {
+  return () => {
     for (const entity of moveQuery.enter(world)) {
       const position = getComponent(entity, Object3DComponent).value.position
     }

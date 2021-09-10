@@ -15,7 +15,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 
-export const IncomingNetworkSystem = async (world: World): Promise<System> => {
+export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
 
   return () => {

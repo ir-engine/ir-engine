@@ -94,7 +94,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
-  return (world) => {
+  return () => {
     // ===== AVATAR ===== //
 
     for (const entity of avatarDebugQuery.enter()) {

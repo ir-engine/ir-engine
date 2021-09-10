@@ -9,7 +9,7 @@ import { NameComponent } from '../components/NameComponent'
 export default async function NamedEntitiesSystem(world: World): Promise<System> {
   const nameQuery = defineQuery([NameComponent])
 
-  return (world) => {
+  return () => {
     for (const entity of nameQuery.enter()) {
       const { name } = NameComponent.get(entity)
       if (world.namedEntities.has(name)) console.warn(`An Entity with name "${name}" already exists.`)

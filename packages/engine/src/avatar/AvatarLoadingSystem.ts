@@ -40,7 +40,7 @@ export default async function AvatarLoadingSystem(world: World): Promise<System>
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const dissolveQuery = defineQuery([AvatarComponent, Object3DComponent, AvatarDissolveComponent])
 
-  return (world) => {
+  return () => {
     const { delta } = world
 
     for (const entity of growQuery.enter(world)) {

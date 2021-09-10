@@ -301,7 +301,7 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
   let nearbyAvatarTick = 0
   let executeInProgress = false
 
-  return (world) => {
+  return () => {
     nearbyAvatarTick++
 
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && executeInProgress === false) {

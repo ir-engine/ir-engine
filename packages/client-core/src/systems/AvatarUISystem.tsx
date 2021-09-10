@@ -20,7 +20,7 @@ export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView
 export default async function AvatarUISystem(world: World): Promise<System> {
   const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
 
-  return (world) => {
+  return () => {
     for (const userEntity of userQuery.enter()) {
       if (userEntity === Network.instance.localClientEntity) continue
       const userId = getComponent(userEntity, NetworkObjectComponent).uniqueId
