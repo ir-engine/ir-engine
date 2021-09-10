@@ -81,6 +81,13 @@ class Pose {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Create Bone Transform Hierarchy to do transformations
     // without changing the actual armature.
+    const bWorldPosition = new Vector3()
+    const bChildWorldPosition = new Vector3()
+    const rootBone = this.skeleton.bones.find((b) => !(b.parent instanceof Bone))
+    rootBone.parent.getWorldPosition(this.rootOffset.position)
+    rootBone.parent.getWorldQuaternion(this.rootOffset.quaternion)
+    rootBone.parent.getWorldScale(this.rootOffset.scale)
+
     for (let i = 0; i < this.skeleton.bones.length; i++) {
       const b = this.skeleton.bones[i]
       let p_idx, boneParent
@@ -115,8 +122,6 @@ class Pose {
 
       //b['index'] = i
       if (b.children.length > 0) {
-        const bWorldPosition = new Vector3()
-        const bChildWorldPosition = new Vector3()
         b.getWorldPosition(bWorldPosition)
         b.children[0].getWorldPosition(bChildWorldPosition)
         this.bones[i].length = bWorldPosition.distanceTo(bChildWorldPosition)
@@ -206,7 +211,7 @@ class Pose {
     return this
   }
 
-  getParentRoot(boneIndex: number): Quaternion {
+  getParentRotation(boneIndex: number): Quaternion {
     // ORIGINAL CODE
     // get_parent_rot( b_idx, q=null ){
     // 	let cbone = this.bones[ b_idx ];

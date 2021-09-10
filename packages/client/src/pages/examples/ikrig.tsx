@@ -23,7 +23,8 @@ import {
   SkeletonHelper,
   Vector2,
   Vector3,
-  WebGLRenderer
+  WebGLRenderer,
+  Quaternion
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import Debug from '../../components/Debug'
@@ -75,7 +76,7 @@ const RenderSystem = async (): Promise<System> => {
 
 // This is a functional React component
 const Page = () => {
-  const [animationTimeScale, setAnimationTimeScale] = useState(0)
+  const [animationTimeScale, setAnimationTimeScale] = useState(1)
   const [animationIndex, setAnimationIndex] = useState(3)
   const [animationTime, setAnimationTime] = useState(0.6225028089213559)
   const [animationsList, setAnimationsList] = useState<AnimationClip[]>([])

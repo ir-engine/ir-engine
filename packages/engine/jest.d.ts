@@ -1,8 +1,10 @@
+import { Vector3, Quaternion } from 'three'
+
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toBeCloseToVector(expected, tolerance?: number): R
-      toBeCloseToQuaternion(expected, tolerance?: number): R
+      toBeCloseToVector(expected: Vector3, tolerance?: number): R
+      toBeCloseToQuaternion(expected: Quaternion, tolerance?: number): R
     }
   }
 }
