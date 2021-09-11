@@ -37,6 +37,7 @@ import { ikpose as ikposeData } from './test-data/pose1/ikpose.computed'
 import { rigData as rigDataApplied } from './test-data/rig2.data.applied'
 import { UP, FORWARD } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
 import { PoseBoneLocalState } from '../../src/ikrig/classes/Pose'
+import '../custom-matchers'
 
 let world: World, sourceEntity: Entity, expectedIKPose
 beforeAll(() => {
