@@ -17,4 +17,4 @@ export type AvatarAnimationComponentType = {
   prevVelocity: Vector3
 }
 
-export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>()
+export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')

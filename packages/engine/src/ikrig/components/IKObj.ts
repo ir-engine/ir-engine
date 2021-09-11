@@ -4,4 +4,4 @@ type IKObjType = {
   ref?: any
 }
 
-export const IKObj = createMappedComponent<IKObjType>()
+export const IKObj = createMappedComponent<IKObjType>('IKObj')

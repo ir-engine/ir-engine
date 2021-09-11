@@ -50,7 +50,7 @@ type NavigationComponentType = {
   navigationMesh
 }
 
-const NavigationComponent = createMappedComponent<NavigationComponentType>()
+const NavigationComponent = createMappedComponent<NavigationComponentType>('NavigationComponent')
 
 const RenderSystem = async (world: World): Promise<System> => {
   return () => {

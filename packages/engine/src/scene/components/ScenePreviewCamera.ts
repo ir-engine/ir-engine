@@ -1,3 +1,3 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const ScenePreviewCameraTagComponent = createMappedComponent<{}>()
+export const ScenePreviewCameraTagComponent = createMappedComponent('ScenePreviewCameraTagComponent')

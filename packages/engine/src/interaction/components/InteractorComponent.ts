@@ -8,4 +8,4 @@ export type InteractorComponentType = {
   subFocusedArray: any[]
 }
 
-export const InteractorComponent = createMappedComponent<InteractorComponentType>()
+export const InteractorComponent = createMappedComponent<InteractorComponentType>('InteractorComponent')

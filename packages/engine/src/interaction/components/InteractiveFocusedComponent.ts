@@ -5,4 +5,5 @@ export type InteractiveFocusedComponentType = {
   interacts: Entity
 }
 
-export const InteractiveFocusedComponent = createMappedComponent<InteractiveFocusedComponentType>()
+export const InteractiveFocusedComponent =
+  createMappedComponent<InteractiveFocusedComponentType>('InteractiveFocusedComponent')

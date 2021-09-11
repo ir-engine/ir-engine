@@ -5,4 +5,4 @@ export type ShadowComponentType = {
   receiveShadow: boolean
 }
 
-export const ShadowComponent = createMappedComponent<ShadowComponentType>()
+export const ShadowComponent = createMappedComponent<ShadowComponentType>('ShadowComponent')

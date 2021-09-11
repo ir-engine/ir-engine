@@ -4,4 +4,6 @@ export type DelegatedInputReceiverComponentType = {
   networkId: number
 }
 
-export const DelegatedInputReceiverComponent = createMappedComponent<DelegatedInputReceiverComponentType>()
+export const DelegatedInputReceiverComponent = createMappedComponent<DelegatedInputReceiverComponentType>(
+  'DelegatedInputReceiverComponent'
+)

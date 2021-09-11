@@ -5,4 +5,4 @@ export type CopyTransformComponentType = {
   input: Entity
 }
 
-export const CopyTransformComponent = createMappedComponent<CopyTransformComponentType>()
+export const CopyTransformComponent = createMappedComponent<CopyTransformComponentType>('CopyTransformComponent')
