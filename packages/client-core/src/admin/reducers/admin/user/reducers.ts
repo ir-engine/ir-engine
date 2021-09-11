@@ -22,7 +22,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LoadedUsersAction } from './actions'
-
+import { match } from 'ts-pattern'
 export const USER_PAGE_LIMIT = 100
 
 export const initialUserAdminState = {
@@ -69,8 +69,9 @@ const immutableState = Immutable.fromJS(initialUserAdminState) as any
 
 const adminReducer = (state = immutableState, action: any): any => {
   let result, updateMap
-  switch (action.type) {
-    case ADMIN_LOADED_USERS:
+
+  match(action.type)
+    .with(ADMIN_LOADED_USERS, (value) => {
       result = (action as LoadedUsersAction).users
       updateMap = new Map(state.get('users'))
 
@@ -83,20 +84,20 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false)
       updateMap.set('lastFetched', new Date())
       return state.set('users', updateMap)
-
-    case USER_ROLE_RETRIEVED:
+    })
+    .with(USER_ROLE_RETRIEVED, (value) => {
       result = (action as userRoleRetrievedResponse).types
       updateMap = new Map(state.get('userRole'))
       updateMap.set('userRole', result.data)
       updateMap.set('updateNeeded', false)
       return state.set('userRole', updateMap)
-
-    case USER_ROLE_CREATED:
+    })
+    .with(USER_ROLE_CREATED, (value) => {
       updateMap = new Map(state.get('userRole'))
       updateMap.set('updateNeeded', true)
       return state.set('userRole', updateMap)
-
-    case USER_ADMIN_REMOVED:
+    })
+    .with(USER_ADMIN_REMOVED, (value) => {
       result = (action as userAdminRemovedResponse).data
       updateMap = new Map(state.get('users'))
       let userRemove = updateMap.get('users')
@@ -104,21 +105,25 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', true)
       updateMap.set('users', userRemove)
       return state.set('users', updateMap)
-    case USER_ADMIN_CREATED:
+    })
+    .with(USER_ADMIN_CREATED, (value) => {
       result = (action as UserCreatedAction).user
       updateMap = new Map(state.get('users'))
       updateMap.set('updateNeeded', true)
       return state.set('users', updateMap)
-    case USER_ADMIN_PATCHED:
+    })
+    .with(USER_ADMIN_PATCHED, (value) => {
       result = (action as UserCreatedAction).user
       updateMap = new Map(state.get('users'))
       updateMap.set('updateNeeded', true)
       return state.set('users', updateMap)
-    case USER_ROLE_UPDATED:
+    })
+    .with(USER_ROLE_UPDATED, (value) => {
       updateMap = new Map(state.get('users'))
       updateMap.set('updateNeeded', true)
       return state.set('users', updateMap)
-    case USER_SEARCH_ADMIN:
+    })
+    .with(USER_SEARCH_ADMIN, (value) => {
       result = (action as any).data
       updateMap = new Map(state.get('users'))
       updateMap.set('users', (result as any).data)
@@ -130,7 +135,8 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false)
       updateMap.set('lastFetched', new Date())
       return state.set('users', updateMap)
-    case SINGLE_USER_ADMIN_LOADED:
+    })
+    .with(SINGLE_USER_ADMIN_LOADED, (value) => {
       result = (action as any).data
       updateMap = new Map(state.get('singleUser'))
       updateMap.set('singleUser', result)
@@ -138,7 +144,8 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('fetched', true)
       updateMap.set('updateNeeded', false)
       return state.set('singleUser', updateMap)
-    case STATIC_RESOURCE_RETRIEVED:
+    })
+    .with(STATIC_RESOURCE_RETRIEVED, (value) => {
       result = (action as fetchedStaticResourceAction).staticResource
       updateMap = new Map(state.get('staticResource'))
       updateMap.set('staticResource', (result as any).data)
@@ -146,11 +153,94 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false)
       updateMap.set('fetched', true)
       return state.set('staticResource', updateMap)
-    case SINGLE_USER_ADMIN_REFETCH:
+    })
+    .with(SINGLE_USER_ADMIN_REFETCH, (value) => {
       updateMap = new Map(state.get('singleUser'))
       updateMap.set('updateNeeded', true)
       return state.set('singleUser', updateMap)
-  }
+    })
+  // switch (action.type) {
+  //   case ADMIN_LOADED_USERS:
+  //     result = (action as LoadedUsersAction).users
+  //     updateMap = new Map(state.get('users'))
+
+  //     updateMap.set('users', (result as any).data)
+  //     updateMap.set('skip', (result as any).skip)
+  //     updateMap.set('limit', (result as any).limit)
+  //     updateMap.set('total', (result as any).total)
+  //     updateMap.set('retrieving', false)
+  //     updateMap.set('fetched', true)
+  //     updateMap.set('updateNeeded', false)
+  //     updateMap.set('lastFetched', new Date())
+  //     return state.set('users', updateMap)
+
+  //   case USER_ROLE_RETRIEVED:
+  //     result = (action as userRoleRetrievedResponse).types
+  //     updateMap = new Map(state.get('userRole'))
+  //     updateMap.set('userRole', result.data)
+  //     updateMap.set('updateNeeded', false)
+  //     return state.set('userRole', updateMap)
+
+  //   case USER_ROLE_CREATED:
+  //     updateMap = new Map(state.get('userRole'))
+  //     updateMap.set('updateNeeded', true)
+  //     return state.set('userRole', updateMap)
+
+  //   case USER_ADMIN_REMOVED:
+  //     result = (action as userAdminRemovedResponse).data
+  //     updateMap = new Map(state.get('users'))
+  //     let userRemove = updateMap.get('users')
+  //     userRemove = userRemove.filter((user) => user.id !== result.id)
+  //     updateMap.set('updateNeeded', true)
+  //     updateMap.set('users', userRemove)
+  //     return state.set('users', updateMap)
+  //   case USER_ADMIN_CREATED:
+  //     result = (action as UserCreatedAction).user
+  //     updateMap = new Map(state.get('users'))
+  //     updateMap.set('updateNeeded', true)
+  //     return state.set('users', updateMap)
+  //   case USER_ADMIN_PATCHED:
+  //     result = (action as UserCreatedAction).user
+  //     updateMap = new Map(state.get('users'))
+  //     updateMap.set('updateNeeded', true)
+  //     return state.set('users', updateMap)
+  //   case USER_ROLE_UPDATED:
+  //     updateMap = new Map(state.get('users'))
+  //     updateMap.set('updateNeeded', true)
+  //     return state.set('users', updateMap)
+  //   case USER_SEARCH_ADMIN:
+  //     result = (action as any).data
+  //     updateMap = new Map(state.get('users'))
+  //     updateMap.set('users', (result as any).data)
+  //     updateMap.set('skip', (result as any).skip)
+  //     updateMap.set('limit', (result as any).limit)
+  //     updateMap.set('total', (result as any).total)
+  //     updateMap.set('retrieving', false)
+  //     updateMap.set('fetched', true)
+  //     updateMap.set('updateNeeded', false)
+  //     updateMap.set('lastFetched', new Date())
+  //     return state.set('users', updateMap)
+  //   case SINGLE_USER_ADMIN_LOADED:
+  //     result = (action as any).data
+  //     updateMap = new Map(state.get('singleUser'))
+  //     updateMap.set('singleUser', result)
+  //     updateMap.set('retrieving', false)
+  //     updateMap.set('fetched', true)
+  //     updateMap.set('updateNeeded', false)
+  //     return state.set('singleUser', updateMap)
+  //   case STATIC_RESOURCE_RETRIEVED:
+  //     result = (action as fetchedStaticResourceAction).staticResource
+  //     updateMap = new Map(state.get('staticResource'))
+  //     updateMap.set('staticResource', (result as any).data)
+  //     updateMap.set('retrieving', false)
+  //     updateMap.set('updateNeeded', false)
+  //     updateMap.set('fetched', true)
+  //     return state.set('staticResource', updateMap)
+  //   case SINGLE_USER_ADMIN_REFETCH:
+  //     updateMap = new Map(state.get('singleUser'))
+  //     updateMap.set('updateNeeded', true)
+  //     return state.set('singleUser', updateMap)
+  // }
 
   return state
 }
