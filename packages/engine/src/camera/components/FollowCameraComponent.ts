@@ -6,11 +6,15 @@ import { CameraMode } from '../types/CameraMode'
 export type FollowCameraComponentType = {
   /** * **Default** value is ```'thirdPerson'```. */
   mode: CameraMode
-  /** * **Default** value is 3. */
+  /** Distance to the target  */
   distance: number
-  /** * **Default** value is 2. */
+  /** Desired zoom level  */
+  zoomLevel: number
+  /** Used internally */
+  zoomVelocity: { value: number }
+  /** Minimum distance to target */
   minDistance: number
-  /** * **Default** value is 7. */
+  /** Maximum distance to target */
   maxDistance: number
   /** Rotation around Y axis */
   theta: number
@@ -29,6 +33,8 @@ export type FollowCameraComponentType = {
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
   mode: CameraMode.ThirdPerson,
+  zoomLevel: 3,
+  zoomVelocity: { value: 0 },
   distance: 3,
   minDistance: 2,
   maxDistance: 7,
@@ -42,5 +48,3 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
 }
 
 export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>()
-// undefined,
-// FollowCameraDefaultValues
