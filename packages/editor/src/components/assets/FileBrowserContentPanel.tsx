@@ -99,30 +99,28 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
     const returningObjects = []
     for (let element of Object.keys(ownedFileIds)) {
-      if (element !== 'thumbnailOwnedFileId') {
-        const fileId = ownedFileIds[element]
-        const { url } = await getUrlFromId(fileId)
-        if (!url) continue
-        const contentType = await getContentType(new URL(url))
-        const nodeClass = UploadFileType[contentType]
-        const nodeEditor = editor.nodeEditors.get(nodeClass)
-        const returningObject = {
-          description: url,
-          fileId: fileId,
-          projectId: projects[index].sid,
-          id: element,
-          label: element,
-          nodeClass: nodeClass,
-          url: url,
-          type: 'Element',
-          contentType: contentType,
-          initialProps: { src: new URL(url) },
-          iconComponent: nodeEditor.WrappedComponent
-            ? nodeEditor.WrappedComponent.iconComponent
-            : nodeEditor.iconComponent
-        }
-        returningObjects.push(returningObject)
+      const fileId = ownedFileIds[element]
+      const { url } = await getUrlFromId(fileId)
+      if (!url) continue
+      const contentType = await getContentType(new URL(url))
+      const nodeClass = UploadFileType[contentType]
+      const nodeEditor = editor.nodeEditors.get(nodeClass)
+      const returningObject = {
+        description: url,
+        fileId: fileId,
+        projectId: projects[index].sid,
+        id: element,
+        label: element,
+        nodeClass: nodeClass,
+        url: url,
+        type: 'Element',
+        contentType: contentType,
+        initialProps: { src: new URL(url) },
+        iconComponent: nodeEditor.WrappedComponent
+          ? nodeEditor.WrappedComponent.iconComponent
+          : nodeEditor.iconComponent
       }
+      returningObjects.push(returningObject)
     }
     setSelectedProjectFiles(returningObjects)
   }
