@@ -5,7 +5,9 @@
   "homepage": "xrengine.io",
   "private": true,
   "workspaces": {
-    "packages": ["packages/*"]
+    "packages": [
+      "packages/*"
+    ]
   },
   "keywords": [
     "three",
@@ -119,9 +121,9 @@
     "babel-jest": "27.1.1",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
-    "cpy-cli": "3.1.1",
     "concurrently": "6.2.1",
-    "esbuild": "0.12.26",
+    "cpy-cli": "3.1.1",
+    "esbuild": "0.12.25",
     "esbuild-plugin-sass": "0.6.0",
     "jest": "27.1.1",
     "jest-puppeteer": "5.0.4",
