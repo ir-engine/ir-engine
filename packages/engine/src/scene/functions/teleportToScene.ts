@@ -19,7 +19,6 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { World } from '../../ecs/classes/World'
 import { processLocationChange } from '../../ecs/functions/EngineFunctions'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 

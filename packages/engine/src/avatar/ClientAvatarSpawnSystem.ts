@@ -39,6 +39,8 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
         addComponent(entity, FollowCameraComponent, {
           mode: CameraMode.ThirdPerson,
           distance: 5,
+          zoomLevel: 5,
+          zoomVelocity: { value: 0 },
           minDistance: 2,
           maxDistance: 7,
           theta: Math.PI,
