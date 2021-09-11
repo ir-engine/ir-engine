@@ -1,4 +1,4 @@
-import { createMappedComponent, hasComponent, addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type ProximityComponentType = {
   usersInRange: any[]
