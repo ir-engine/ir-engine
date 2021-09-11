@@ -1,6 +1,7 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { AudioListener, BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
+import { BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
+import { AudioListener } from './audio/StereoAudioListener'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
@@ -34,8 +35,8 @@ BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 const configureClient = async (options: Required<InitializeOptions>) => {
   const canvas = configCanvasElement(options.renderer.canvasId!)
 
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=1106389
   Engine.audioListener = new AudioListener()
-  console.log(Engine.audioListener)
 
   Engine.scene = new Scene()
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
@@ -133,7 +134,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.Free, import('./input/systems/ClientInputSystem'))
   registerSystem(SystemUpdateType.Free, import('./xr/systems/XRSystem'))
   registerSystem(SystemUpdateType.Free, import('./camera/systems/CameraSystem'))
-  registerSystem(SystemUpdateType.Free, import('./bot/systems/BotHookSystem'))
   registerSystem(SystemUpdateType.Free, import('./navigation/systems/AutopilotSystem'))
 
   // UPDATE INJECTION POINT
@@ -151,6 +151,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     injectionPoint: InjectionPoint.FIXED_EARLY
   })
 
+  registerSystem(SystemUpdateType.Fixed, import('./bot/systems/BotHookSystem'))
   // Maps & Navigation
   registerSystem(SystemUpdateType.Fixed, import('./map/MapUpdateSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./proximityChecker/systems/ProximitySystem'))
