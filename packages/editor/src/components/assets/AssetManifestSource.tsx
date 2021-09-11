@@ -62,82 +62,80 @@ export class AssetManifestSource extends BaseSource {
    * @return {Promise}
    */
   async load() {
-    //TODO
-    // calling api using manifestUrl
-    //   const response = await fetchUrl(this.manifestUrl)
-    //   //getting json using response
-    //   const manifest = await response.json().catch((err) => {
-    //     console.log(err)
-    //   })
-    //   //initializing placeholder if there exist manifest.searchPlaceholder
-    //   if (manifest.searchPlaceholder) {
-    //     this.searchPlaceholder = manifest.searchPlaceholder
-    //   }
-    //   // loop over manifest assets
-    //   for (const asset of manifest.assets) {
-    //     // get proxied asset url using manifestUrl
-    //     const assetUrl = new URL(asset.url, this.manifestUrl).href
-    //     const nodeClass = assetTypeToNodeClass[asset.type]
-    //     const nodeEditor = this.editor.nodeEditors.get(nodeClass)
-    //     //creationg array assets by pushing assets one by one
-    //     this.assets.push({
-    //       id: asset.id,
-    //       label: asset.label,
-    //       url: assetUrl,
-    //       tags: asset.tags || [],
-    //       type: asset.type,
-    //       iconComponent: nodeEditor.iconComponent,
-    //       nodeClass,
-    //       initialProps: {
-    //         name: asset.label,
-    //         src: assetUrl
-    //       }
-    //     })
-    //   }
-    //   // initializing tags by assigning manifest tags
-    //   this.tags = manifest.tags
-    //   const options = {
-    //     shouldSort: true,
-    //     threshold: 0.6,
-    //     location: 0,
-    //     distance: 100,
-    //     maxPatternLength: 32,
-    //     minMatchCharLength: 1,
-    //     keys: ['label', 'tags']
-    //   }
-    //   //Creating a new Fuse search instance using options for assets
-    //   this.fuse = new Fuse(this.assets, options)
-    //   this.loaded = true
-    // }
-    // /**
-    //  * function used to search assets.
-    //  *
-    //  * @author Robert Long
-    //  * @param  {any}  params
-    //  * @param  {any}  _cursor
-    //  * @param  {any}  _abortSignal
-    //  * @return {Promise}
-    //  */
-    // async search(params, _cursor?, _abortSignal?): Promise<SearchResult> {
-    //   //check if component not get loaded then load
-    //   if (!this.loaded) {
-    //     await this.load()
-    //   }
-    //   //adding all assets to results
-    //   let results = this.assets
-    //   //check if params contains tag then filter assets having tag
-    //   if (params.tags && params.tags.length > 0) {
-    //     results = results.filter((result) => hasTags(result, params.tags))
-    //   }
-    //   //check if params contains query option then search using fuse
-    //   if (params.query) {
-    //     results = this.fuse.search(params.query)
-    //   }
-    //   //returning searched assets results
-    //   return {
-    //     results,
-    //     hasMore: false
-    //   }
+    const response = await fetch(this.manifestUrl)
+    //getting json using response
+    const manifest = await response.json().catch((err) => {
+      console.log(err)
+    })
+    //initializing placeholder if there exist manifest.searchPlaceholder
+    if (manifest.searchPlaceholder) {
+      this.searchPlaceholder = manifest.searchPlaceholder
+    }
+    // loop over manifest assets
+    for (const asset of manifest.assets) {
+      // get proxied asset url using manifestUrl
+      const assetUrl = new URL(asset.url, this.manifestUrl).href
+      const nodeClass = assetTypeToNodeClass[asset.type]
+      const nodeEditor = this.editor.nodeEditors.get(nodeClass)
+      //creationg array assets by pushing assets one by one
+      this.assets.push({
+        id: asset.id,
+        label: asset.label,
+        url: assetUrl,
+        tags: asset.tags || [],
+        type: asset.type,
+        iconComponent: nodeEditor.iconComponent,
+        nodeClass,
+        initialProps: {
+          name: asset.label,
+          src: assetUrl
+        }
+      })
+    }
+    // initializing tags by assigning manifest tags
+    this.tags = manifest.tags
+    const options = {
+      shouldSort: true,
+      threshold: 0.6,
+      location: 0,
+      distance: 100,
+      maxPatternLength: 32,
+      minMatchCharLength: 1,
+      keys: ['label', 'tags']
+    }
+    //Creating a new Fuse search instance using options for assets
+    this.fuse = new Fuse(this.assets, options)
+    this.loaded = true
+  }
+  /**
+   * function used to search assets.
+   *
+   * @author Robert Long
+   * @param  {any}  params
+   * @param  {any}  _cursor
+   * @param  {any}  _abortSignal
+   * @return {Promise}
+   */
+  async search(params, _cursor?, _abortSignal?): Promise<SearchResult> {
+    //check if component not get loaded then load
+    if (!this.loaded) {
+      await this.load()
+    }
+    //adding all assets to results
+    let results = this.assets
+    //check if params contains tag then filter assets having tag
+    if (params.tags && params.tags.length > 0) {
+      results = results.filter((result) => hasTags(result, params.tags))
+    }
+    //check if params contains query option then search using fuse
+    if (params.query) {
+      results = this.fuse.search(params.query)
+    }
+    //returning searched assets results
+    return {
+      results,
+      hasMore: false
+    }
   }
 }
 

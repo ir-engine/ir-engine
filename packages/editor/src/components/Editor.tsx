@@ -264,10 +264,9 @@ export class Editor extends EventEmitter {
    * @param  {any}  manifestUrl contains url of source
    */
   async installAssetSource(manifestUrl) {
-    //TODO:Use feathersClient
-    //const res = await fetchUrl(new URL(manifestUrl, (window as any).location).href)
-    //const json = await res.json()
-    //this.sources.push(new AssetManifestSource(this, json.name, manifestUrl))
+    const res = await fetch(new URL(manifestUrl, (window as any).location).href)
+    const json = await res.json()
+    this.sources.push(new AssetManifestSource(this, json.name, manifestUrl))
     this.emit('settingsChanged')
   }
 
