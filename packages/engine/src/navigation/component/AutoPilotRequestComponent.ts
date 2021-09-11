@@ -11,4 +11,5 @@ export type AutoPilotRequestComponentType = {
   point: Vector3
 }
 
-export const AutoPilotRequestComponent = createMappedComponent<AutoPilotRequestComponentType>()
+export const AutoPilotRequestComponent =
+  createMappedComponent<AutoPilotRequestComponentType>('AutoPilotRequestComponent')

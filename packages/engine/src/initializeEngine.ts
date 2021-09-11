@@ -151,9 +151,13 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     injectionPoint: InjectionPoint.FIXED_EARLY
   })
 
+  // Bot
   registerSystem(SystemUpdateType.Fixed, import('./bot/systems/BotHookSystem'))
-  // Maps & Navigation
+
+  // Maps
   registerSystem(SystemUpdateType.Fixed, import('./map/MapUpdateSystem'))
+
+  // Navigation
   registerSystem(SystemUpdateType.Fixed, import('./proximityChecker/systems/ProximitySystem'))
   registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/FollowSystem'))
 

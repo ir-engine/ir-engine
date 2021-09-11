@@ -7,4 +7,4 @@ export type InteractedComponentType = {
   parity: ParityValue
 }
 
-export const InteractedComponent = createMappedComponent<InteractedComponentType>()
+export const InteractedComponent = createMappedComponent<InteractedComponentType>('InteractedComponent')

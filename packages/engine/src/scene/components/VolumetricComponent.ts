@@ -4,4 +4,4 @@ export type VolumetricVideoComponentType = {
   player: any
 }
 
-export const VolumetricComponent = createMappedComponent<VolumetricVideoComponentType>()
+export const VolumetricComponent = createMappedComponent<VolumetricVideoComponentType>('VolumetricComponent')

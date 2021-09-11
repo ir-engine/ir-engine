@@ -9,4 +9,5 @@ export type DesiredTransformComponentType = {
   lockRotationAxis: [boolean, boolean, boolean]
 }
 
-export const DesiredTransformComponent = createMappedComponent<DesiredTransformComponentType>()
+export const DesiredTransformComponent =
+  createMappedComponent<DesiredTransformComponentType>('DesiredTransformComponent')

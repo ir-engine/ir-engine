@@ -4,4 +4,4 @@ export type VisibleComponentType = {
   value: boolean
 }
 
-export const VisibleComponent = createMappedComponent<VisibleComponentType>()
+export const VisibleComponent = createMappedComponent<VisibleComponentType>('VisibleComponent')

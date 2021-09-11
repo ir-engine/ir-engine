@@ -10,4 +10,4 @@ export type BoundingBoxComponentType = {
   dynamic: boolean
 }
 
-export const BoundingBoxComponent = createMappedComponent<BoundingBoxComponentType>()
+export const BoundingBoxComponent = createMappedComponent<BoundingBoxComponentType>('BoundingBoxComponent')

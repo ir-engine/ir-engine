@@ -9,4 +9,4 @@ export type InputComponentType = {
   schema: InputSchema
 }
 
-export const InputComponent = createMappedComponent<InputComponentType>()
+export const InputComponent = createMappedComponent<InputComponentType>('InputComponent')

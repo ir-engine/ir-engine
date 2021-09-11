@@ -7,4 +7,4 @@ export type TransformChildComponentType = {
   offsetQuaternion: Quaternion
 }
 
-export const TransformChildComponent = createMappedComponent<TransformChildComponentType>()
+export const TransformChildComponent = createMappedComponent<TransformChildComponentType>('TransformChildComponent')

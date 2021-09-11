@@ -5,4 +5,4 @@ type ComponentType = {
   value: Set<GeoLabelNode>
 }
 
-export const GeoLabelSetComponent = createMappedComponent<ComponentType>()
+export const GeoLabelSetComponent = createMappedComponent<ComponentType>('GeoLabelSetComponent')

@@ -10,4 +10,4 @@ export type BackgroundMusicType = {
   volume: number
 }
 
-export const BackgroundMusic = createMappedComponent<BackgroundMusicType>()
+export const BackgroundMusic = createMappedComponent<BackgroundMusicType>('BackgroundMusic')

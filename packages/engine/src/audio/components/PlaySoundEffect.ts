@@ -7,4 +7,4 @@ export type PlaySoundEffectType = {
   volume: number
 }
 
-export const PlaySoundEffect = createMappedComponent<PlaySoundEffectType>()
+export const PlaySoundEffect = createMappedComponent<PlaySoundEffectType>('PlaySoundEffect')

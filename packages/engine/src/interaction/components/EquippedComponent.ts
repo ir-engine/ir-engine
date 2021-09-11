@@ -7,4 +7,4 @@ export type EquippedComponentType = {
   equipperEntity: Entity
 }
 
-export const EquippedComponent = createMappedComponent<EquippedComponentType>()
+export const EquippedComponent = createMappedComponent<EquippedComponentType>('EquippedComponent')

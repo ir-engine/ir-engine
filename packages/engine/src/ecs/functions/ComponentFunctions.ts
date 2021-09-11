@@ -2,17 +2,14 @@ import * as bitECS from 'bitecs'
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 
+export const ComponentMap = new Map<string, ComponentType<any>>()
+
 // TODO: benchmark map vs array for componentMap
-export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = {}>(schema?: S, defaultValues = {}) => {
+export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = {}>(name: string, schema?: S) => {
   const component = bitECS.defineComponent(schema)
   const componentMap = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
 
-  // if (defaultValues) {
-  //   Object.defineProperty(component, '_default', {
-  //     value: defaultValues
-  //   })
-  // }
   if (schema) {
     Object.defineProperty(component, '_schema', {
       value: schema
@@ -20,6 +17,9 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = {
   }
   Object.defineProperty(component, '_map', {
     value: componentMap
+  })
+  Object.defineProperty(component, '_name', {
+    value: name
   })
   Object.defineProperty(component, 'get', {
     value: function (eid: number) {
@@ -55,6 +55,9 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = {
       return componentMap.delete(eid)
     }
   })
+
+  ComponentMap.set(name, component)
+
   return component as typeof component & {
     get: typeof componentMap.get
     set: typeof componentMap.set
