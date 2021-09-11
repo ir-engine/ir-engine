@@ -121,7 +121,7 @@
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
     "typedoc": "0.21.9",
-    "typescript": "4.4.2"
+    "typescript": "4.4.3"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

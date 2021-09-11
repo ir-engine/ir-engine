@@ -6,8 +6,7 @@ import {
   CreatorsAction,
   CreatorRetrievedAction,
   CreatorsRetrievedAction,
-  CreatorsNotificationsRetrievedAction,
-  CreatorRemoveAction
+  CreatorsNotificationsRetrievedAction
 } from './actions'
 
 import {
@@ -22,7 +21,8 @@ import {
   CREATOR_FOLLOWING_RETRIEVED,
   CREATORS_FETCH,
   CURRENT_CREATOR_FETCH,
-  CREATOR_REMOVED
+  SET_CREATOR_AS_BLOCKED,
+  CREATOR_BLOCKED_RETRIEVED
 } from '../actions'
 
 export const initialCreatorState = {
@@ -36,11 +36,12 @@ export const initialCreatorState = {
     currentCreatorNotifications: {},
     followers: [],
     following: [],
-    fetching: false
+    fetching: false,
+    blocked: []
   }
 }
 
-const immutableState = Immutable.fromJS(initialCreatorState) as any
+const immutableState = Immutable.fromJS(initialCreatorState)
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
   switch (action.type) {
@@ -59,8 +60,6 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
           })
         )
         .set('fetchingCurrentCreator', false)
-        .set('updateNeeded', false)
-        .set('lastFetched', new Date())
 
     case CREATOR_FETCH:
       return state.set('fetchingCreator', true).set('creator', {})
@@ -83,17 +82,17 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
     case SET_CREATOR_NOT_FOLLOWED:
       return state.set('creator', { ...state.get('creator'), followed: false })
 
+    case SET_CREATOR_AS_BLOCKED:
+      return state.set('creator', { ...state.get('creator'), blocked: true })
+
+    case CREATOR_BLOCKED_RETRIEVED:
+      return state.set('blocked', (action as CreatorsRetrievedAction).creators)
+
     case CREATOR_FOLLOWERS_RETRIEVED:
       return state.set('followers', (action as CreatorsRetrievedAction).creators)
 
     case CREATOR_FOLLOWING_RETRIEVED:
       return state.set('following', (action as CreatorsRetrievedAction).creators)
-
-    case CREATOR_REMOVED:
-      return state.set('currentCreator', null).set(
-        'creators',
-        state.get('creators')?.filter((creator) => creator.id !== (action as CreatorRemoveAction).id)
-      )
   }
   return state
 }

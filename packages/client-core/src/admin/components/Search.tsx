@@ -13,10 +13,13 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       alignItems: 'center',
       width: '100%'
+      // background: '',
+      // color:'#f1f1f1'
     },
     input: {
       marginLeft: theme.spacing(1),
-      flex: 1
+      flex: 1,
+      backgroundColor: '#343b41'
     },
     iconButton: {
       padding: 10
@@ -33,9 +36,6 @@ export default function SearchInput({ typeName }) {
 
   return (
     <Paper component="form" className={classes.root}>
-      <IconButton className={classes.iconButton} aria-label="menu">
-        <MenuIcon />
-      </IconButton>
       <InputBase
         className={classes.input}
         placeholder={`Search for ${typeName}`}
