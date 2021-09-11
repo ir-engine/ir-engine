@@ -1,5 +1,6 @@
 import { Config } from '@xrengine/common/src/config'
 import i18n from 'i18next'
+import { getToken } from './getToken'
 import { upload } from './upload'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
@@ -13,17 +14,19 @@ globalThis.currentOwnedFileIds = {}
  * @return {Promise}
  */
 export const getProjects = async (): Promise<any> => {
-  let json: any
-  try {
-    json = await globalThis.Editor.feathersClient.service('project').find({
-      headers: {
-        'content-type': 'application/json'
-      }
-    })
-  } catch (error) {
-    console.log('Error in Getting Projects:' + error)
-    throw new Error(error)
+  const token = getToken()
+
+  const headers = {
+    'content-type': 'application/json',
+    authorization: `Bearer ${token}`
   }
+
+  const response = await fetch(`${serverURL}/project`, { headers })
+
+  const json = await response.json().catch((err) => {
+    console.log('Error fetching JSON')
+    console.log(err)
+  })
 
   if (!Array.isArray(json.projects) || json.projects == null) {
     throw new Error(
@@ -129,17 +132,28 @@ export const createProject = async (
  * deleteProject used to delete project using projectId.
  *
  * @author Robert Long
- * @author Abhishek Pathak
  * @param  {any}  projectId
  * @return {Promise}
  */
 export const deleteProject = async (projectId): Promise<any> => {
-  try {
-    const response = await globalThis.Editor.feathersClient.service('project').remove(projectId)
-    console.log('Deleted Project File:' + response)
-  } catch (error) {
-    console.log('Error in Getting Project:' + error)
-    throw new Error(error)
+  const token = getToken()
+
+  const headers = {
+    'content-type': 'application/json',
+    authorization: `Bearer ${token}`
+  }
+
+  const projectEndpoint = `${serverURL}/project/${projectId}`
+
+  const resp = await fetch(projectEndpoint, { method: 'DELETE', headers })
+  console.log('Response: ' + Object.values(resp))
+
+  if (resp.status === 401) {
+    throw new Error(i18n.t('editor:errors.notAuthenticated'))
+  }
+
+  if (resp.status !== 200) {
+    throw new Error(i18n.t('editor:errors.projectDeletionFail', { reason: await resp.text() }))
   }
 
   return true
