@@ -163,13 +163,19 @@ const Page = () => {
   }, [])
 
   function doAnimationStepTime(time: number) {
-    animationClipActionRef.current.time += time
+    setAnimationTime(animationClipActionRef.current.time + time)
+    setAnimationTimeScale(0)
   }
   function doAnimationStepFrame() {
     const clip = animationClipActionRef.current.getClip()
-    animationClipActionRef.current.time = clip.tracks[0].times.find((currentValue) => {
+    let nextAnimationTime = clip.tracks[0].times.find((currentValue) => {
       return currentValue > animationClipActionRef.current.time
     })
+    if (typeof animationTime === 'undefined' || animationClipActionRef.current.time === nextAnimationTime) {
+      nextAnimationTime = clip.tracks[0].times[0]
+    }
+    setAnimationTime(nextAnimationTime)
+    setAnimationTimeScale(0)
   }
 
   const animationTimeScaleSelect = (
@@ -185,7 +191,7 @@ const Page = () => {
   const doAnimationStepButtons = (
     <span>
       <button onClick={() => doAnimationStepTime(0.1)}>Anim step 0.1 </button>
-      <button onClick={doAnimationStepFrame}>Anim step frame </button>
+      <button onClick={() => doAnimationStepFrame()}>Anim step frame </button>
     </span>
   )
 
