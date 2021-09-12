@@ -1,5 +1,5 @@
 import { BoxBufferGeometry, BoxHelper, Material, Mesh, Object3D, Quaternion, Vector3 } from 'three'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { createCollider } from '../../physics/functions/createCollider'

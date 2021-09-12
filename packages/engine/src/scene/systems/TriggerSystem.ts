@@ -1,7 +1,7 @@
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
+import { World } from '../../ecs/classes/World'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 
@@ -14,8 +14,7 @@ export const TriggerSysyem = async (): Promise<System> => {
   const triggerEnterQuery = enterQuery(triggerCollidedQuery)
   const triggerExitQuery = exitQuery(triggerCollidedQuery)
 
-  return defineSystem((world: ECSWorld) => {
-    debugger
+  return defineSystem((world: World) => {
     for (const entity of triggerEnterQuery(world)) {
       let triggerComponent = getComponent(entity, TriggerVolumeComponent)
 

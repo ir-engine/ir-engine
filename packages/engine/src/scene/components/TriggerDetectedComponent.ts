@@ -1,7 +1,5 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type TriggerDetectedComponentType = {
-  colliderEntity: any
-}
+export type TriggerDetectedComponentType = {}
 
-export const TriggerDetectedComponent = createMappedComponent<TriggerDetectedComponentType>()
+export const TriggerDetectedComponent = createMappedComponent<TriggerDetectedComponentType>('TriggerDetectedComponent')

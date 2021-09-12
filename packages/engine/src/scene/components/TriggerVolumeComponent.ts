@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type TriggerVolumeComponentType = {
   args: any
@@ -6,4 +6,4 @@ export type TriggerVolumeComponentType = {
   active: boolean
 }
 
-export const TriggerVolumeComponent = createMappedComponent<TriggerVolumeComponentType>()
+export const TriggerVolumeComponent = createMappedComponent<TriggerVolumeComponentType>('TriggerVolumeComponent')
