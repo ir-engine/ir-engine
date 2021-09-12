@@ -7,6 +7,7 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 const editorProject = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
 const editorProjID = React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))
 const editorCreate = React.lazy(() => import('@xrengine/editor/src/pages/create'))
+const UnauthorisedPage = React.lazy(() => import('@xrengine/client/src/pages/403/403'))
 
 interface Props {
   authState?: any
@@ -40,9 +41,21 @@ const EditorProtectedRoutes = (props: Props) => {
   }
   return (
     <Switch>
-      {isSceneAllowed && <Route exact path="/editor/projects/:projectId" component={editorProjID} />}
-      {isSceneAllowed && <Route exact path="/editor/projects" component={editorProject} />}
-      {isSceneAllowed && <Route exact path="/editor/create" component={editorCreate} />}
+      {isSceneAllowed ? (
+        <Route exact path="/editor/projects/:projectId" component={editorProjID} />
+      ) : (
+        <Route exact path="/editor/projects/:projectId" component={editorProjID} />
+      )}
+      {isSceneAllowed ? (
+        <Route exact path="/editor/projects" component={editorProject} />
+      ) : (
+        <Route exact path="/editor/projects" component={UnauthorisedPage} />
+      )}
+      {isSceneAllowed ? (
+        <Route exact path="/editor/create" component={editorCreate} />
+      ) : (
+        <Route exact path="/editor/create" component={UnauthorisedPage} />
+      )}
       <Redirect path="/editor" to="/editor/projects" />
     </Switch>
   )

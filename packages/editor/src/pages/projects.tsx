@@ -103,11 +103,10 @@ const ProjectsPage = (props: Props) => {
   for (const scope of scopes) {
     if (scope.type.split(':')[0] === 'location' && scope.type.split(':')[1] === 'read') {
       isLocationAllowed = true
-      break
     }
     if (scope.type.split(':')[0] === 'editor' && scope.type.split(':')[1] === 'write') {
       isEditorAllowed = true
-      break
+      if (isLocationAllowed) break
     }
   }
 
