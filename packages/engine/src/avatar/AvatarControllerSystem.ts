@@ -201,6 +201,8 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
+
+      detectUserInTrigger(entity)
     }
 
     for (const entity of controllerQuery(world)) {
@@ -247,8 +249,6 @@ export const AvatarControllerSystem = async (): Promise<System> => {
       )
 
       moveAvatar(entity, delta)
-
-      detectUserInTrigger(entity)
     }
     return world
   })

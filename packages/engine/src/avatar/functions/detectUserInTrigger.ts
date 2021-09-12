@@ -27,26 +27,28 @@ export const detectUserInTrigger = (entity: Entity): void => {
     }
   }
 
-  const triggerEntity = getControllerCollisions(entity, TriggerVolumeComponent).controllerCollisionEntity
-  if (typeof triggerEntity !== 'undefined') {
-    let triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
-    const raycastComponent = getComponent(entity, RaycastComponent)
-    if (triggerComponent) {
-      if (!triggerComponent.active) {
-        triggerComponent.active = true
-        console.log('trigger active')
-        addComponent(triggerEntity, TriggerDetectedComponent, {})
-        const interval = setInterval(() => {
-          if (
-            triggerComponent.active &&
-            typeof getControllerCollisions(entity, TriggerVolumeComponent).controllerCollisionEntity !== 'undefined'
-          ) {
-            console.log('removing trigger')
-            triggerComponent.active = false
-            removeComponent(triggerEntity, TriggerDetectedComponent)
-            clearInterval(interval)
-          }
-        }, 100)
+  const raycastComponent = getComponent(entity, RaycastComponent)
+  if (raycastComponent.raycastQuery.hits[0]?.body.userData.entity) {
+    const triggerEntity = raycastComponent.raycastQuery.hits[0]?.body.userData.entity
+    if (typeof triggerEntity !== 'undefined') {
+      let triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
+      if (triggerComponent) {
+        if (!triggerComponent.active) {
+          triggerComponent.active = true
+          console.log('trigger active')
+          addComponent(triggerEntity, TriggerDetectedComponent, {})
+          const interval = setInterval(() => {
+            if (
+              triggerComponent.active &&
+              raycastComponent.raycastQuery.hits[0]?.body.userData.entity !== triggerEntity
+            ) {
+              console.log('removing trigger')
+              triggerComponent.active = false
+              removeComponent(triggerEntity, TriggerDetectedComponent)
+              clearInterval(interval)
+            }
+          }, 100)
+        }
       }
     }
   }
