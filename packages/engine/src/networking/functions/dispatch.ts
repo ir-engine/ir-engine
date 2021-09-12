@@ -19,7 +19,3 @@ export const dispatchFromClient = (action: ActionType) => {
   // noop on server
   if (isClient) Network.instance.outgoingActions.push(action)
 }
-
-export const removeOutgoingAction = (action: ActionType) => {
-  Network.instance.incomingActions.splice(Network.instance.incomingActions.indexOf(action))
-}

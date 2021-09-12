@@ -1,12 +1,13 @@
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
-  createEntity,
+  defineQuery,
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -17,17 +18,20 @@ import { Entity } from '../../ecs/classes/Entity'
 import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld, World } from '../../ecs/classes/World'
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
+import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
 const upVector = new Vector3(0, 1, 0)
-const forwardVector = new Vector3(0, 0, 1)
 const empty = new Vector3()
 const PI_2Deg = Math.PI / 180
 const mx = new Matrix4()
-const vec3 = new Vector3()
+const tempVec = new Vector3()
+const tempVec1 = new Vector3()
 
 /**
  * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
@@ -58,8 +62,105 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 const getPositionRate = () => (window?.innerWidth <= 768 ? 6 : 3)
 const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
 
+const setAvatarOpacity = (entity: Entity, opacity: number): void => {
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent.value.traverse((obj) => {
+    const mat = (obj as SkinnedMesh).material as Material
+    if (!mat) return
+    mat.opacity = opacity
+    mat.transparent = opacity != 1
+  })
+}
+
+const updateAvatarOpacity = (entity: Entity) => {
+  if (!entity) return
+
+  const followCamera = getComponent(entity, FollowCameraComponent)
+  const distanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+
+  setAvatarOpacity(entity, distanceRatio)
+}
+
+const updateCameraTargetRotation = (entity: Entity, delta: number) => {
+  if (!entity) return
+  const followCamera = getComponent(entity, FollowCameraComponent)
+  const target = getComponent(entity, TargetCameraRotationComponent)
+  const epsilon = 0.001
+
+  if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
+    removeComponent(entity, TargetCameraRotationComponent)
+    return
+  }
+
+  followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
+  followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+}
+
+const updateFollowCamera = (entity: Entity, delta: number) => {
+  if (!entity) return
+
+  const followCamera = getComponent(entity, FollowCameraComponent)
+
+  // Limit the pitch
+  followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+
+  // Zoom smoothing
+  followCamera.distance = smoothDamp(
+    followCamera.distance,
+    followCamera.zoomLevel,
+    followCamera.zoomVelocity,
+    0.3,
+    delta
+  )
+
+  let camDist = followCamera.distance
+  const theta = followCamera.theta
+  const phi = followCamera.phi
+
+  const avatar = getComponent(entity, AvatarComponent)
+  const avatarTransform = getComponent(entity, TransformComponent)
+
+  const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+  const side = followCamera.shoulderSide ? -1 : 1
+  const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
+  const heightOffset = lerp(0, 0.25, minDistanceRatio)
+
+  tempVec.set(shoulderOffset, avatar.avatarHeight + heightOffset, 0)
+  tempVec.applyQuaternion(avatarTransform.rotation)
+  tempVec.add(avatarTransform.position)
+
+  // Raycast for camera
+  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const raycastDirection = tempVec1.setScalar(0).subVectors(cameraTransform.position, tempVec).normalize()
+  followCamera.raycastQuery.origin.copy(tempVec)
+  followCamera.raycastQuery.direction.copy(raycastDirection)
+
+  const closestHit = followCamera.raycastQuery.hits[0]
+  followCamera.rayHasHit = closestHit !== undefined
+
+  if (followCamera.rayHasHit && closestHit.distance < camDist) {
+    camDist = closestHit.distance < 0.5 ? closestHit.distance : closestHit.distance - 0.5
+  }
+
+  cameraTransform.position.set(
+    tempVec.x + camDist * Math.sin(theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
+    tempVec.y + camDist * Math.sin(phi * PI_2Deg),
+    tempVec.z + camDist * Math.cos(theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
+  )
+
+  direction.copy(cameraTransform.position).sub(tempVec).normalize()
+
+  mx.lookAt(direction, empty, upVector)
+  cameraTransform.rotation.setFromRotationMatrix(mx)
+
+  if (followCamera.locked) {
+    const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
+    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 2)
+  }
+}
+
 const followCamera = (entity: Entity, delta: number) => {
-  if (typeof entity === 'undefined') return
+  if (!entity) return
 
   const cameraDesiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
@@ -78,16 +179,15 @@ const followCamera = (entity: Entity, delta: number) => {
   let phi = followCamera.phi
 
   if (followCamera.mode !== CameraMode.Strategic) {
-    followCamera.theta %= 360
     followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
   }
 
   if (followCamera.mode === CameraMode.FirstPerson) {
     camDist = 0.01
     theta = followCamera.theta
-    vec3.set(0, avatar.avatarHeight, 0)
+    tempVec.set(0, avatar.avatarHeight, 0)
   } else if (followCamera.mode === CameraMode.Strategic) {
-    vec3.set(0, avatar.avatarHeight * 2, -3)
+    tempVec.set(0, avatar.avatarHeight * 2, -3)
     theta = 180
     phi = 150
   } else {
@@ -100,20 +200,20 @@ const followCamera = (entity: Entity, delta: number) => {
     theta = followCamera.theta
 
     const shoulderOffset = followCamera.shoulderSide ? -0.2 : 0.2
-    vec3.set(shoulderOffset, avatar.avatarHeight + 0.25, 0)
+    tempVec.set(shoulderOffset, avatar.avatarHeight + 0.25, 0)
   }
 
-  vec3.applyQuaternion(avatarTransform.rotation)
-  vec3.add(avatarTransform.position)
+  tempVec.applyQuaternion(avatarTransform.rotation)
+  tempVec.add(avatarTransform.position)
 
   // Raycast for camera
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
-  const raycastDirection = new Vector3().subVectors(cameraTransform.position, vec3).normalize()
-  followCamera.raycastQuery.origin.copy(vec3)
+  const raycastDirection = new Vector3().subVectors(cameraTransform.position, tempVec).normalize()
+  followCamera.raycastQuery.origin.copy(tempVec)
   followCamera.raycastQuery.direction.copy(raycastDirection)
 
   const closestHit = followCamera.raycastQuery.hits[0]
-  followCamera.rayHasHit = typeof closestHit !== 'undefined'
+  followCamera.rayHasHit = closestHit !== undefined
 
   if (
     followCamera.mode !== CameraMode.FirstPerson &&
@@ -129,17 +229,17 @@ const followCamera = (entity: Entity, delta: number) => {
   }
 
   cameraDesiredTransform.position.set(
-    vec3.x + camDist * Math.sin(theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
-    vec3.y + camDist * Math.sin(phi * PI_2Deg),
-    vec3.z + camDist * Math.cos(theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
+    tempVec.x + camDist * Math.sin(theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
+    tempVec.y + camDist * Math.sin(phi * PI_2Deg),
+    tempVec.z + camDist * Math.cos(theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
   )
 
-  direction.copy(cameraDesiredTransform.position).sub(vec3).normalize()
+  direction.copy(cameraDesiredTransform.position).sub(tempVec).normalize()
 
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-  if (followCamera.mode === CameraMode.FirstPerson || World.defaultWorld.isInPortal) {
+  if (followCamera.mode === CameraMode.FirstPerson || Engine.defaultWorld.isInPortal) {
     cameraTransform.position.copy(cameraDesiredTransform.position)
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
   }
@@ -159,10 +259,9 @@ export const resetFollowCamera = () => {
     transform.rotation.copy(desiredTransform.rotation)
   }
 }
-export const CameraSystem = async (): Promise<System> => {
+export default async function CameraSystem(world: World): Promise<System> {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
-  const followCameraAddQuery = enterQuery(followCameraQuery)
-  const followCameraRemoveQuery = exitQuery(followCameraQuery)
+  const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
 
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
@@ -182,10 +281,10 @@ export const CameraSystem = async (): Promise<System> => {
     }
   })
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     const { delta } = world
 
-    for (const entity of followCameraAddQuery(world)) {
+    for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
@@ -210,7 +309,7 @@ export const CameraSystem = async (): Promise<System> => {
       resetFollowCamera()
     }
 
-    for (const entity of followCameraRemoveQuery(world)) {
+    for (const entity of followCameraQuery.exit()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
       if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
@@ -221,17 +320,22 @@ export const CameraSystem = async (): Promise<System> => {
     }
 
     for (const entity of followCameraQuery(world)) {
-      followCamera(entity, delta)
+      updateFollowCamera(entity, delta)
+      updateAvatarOpacity(entity)
     }
 
-    if (typeof Engine.activeCameraEntity !== 'undefined') {
+    for (const entity of targetCameraRotationQuery(world)) {
+      updateCameraTargetRotation(entity, delta)
+    }
+
+    if (Engine.xrRenderer?.isPresenting) {
+      Engine.xrRenderer.updateCamera(Engine.camera)
+    } else if (typeof Engine.activeCameraEntity !== 'undefined') {
       const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
       Engine.camera.position.copy(transform.position)
       Engine.camera.quaternion.copy(transform.rotation)
       Engine.camera.scale.copy(transform.scale)
       Engine.camera.updateMatrixWorld()
     }
-
-    return world
-  })
+  }
 }

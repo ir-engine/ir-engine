@@ -1,9 +1,9 @@
-import { PhysXConfig } from 'three-physx'
 import { AvatarInputSchema } from './avatar/AvatarInputSchema'
 import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
-import { SystemInitializeType } from './ecs/functions/SystemFunctions'
+import { PhysXConfig } from 'three-physx'
+import { SystemInjectionType } from './ecs/functions/SystemFunctions'
 
 export enum EngineSystemPresets {
   CLIENT,
@@ -33,7 +33,7 @@ export type InitializeOptions = {
     simulationEnabled?: boolean
     settings?: PhysXConfig
   }
-  systems?: SystemInitializeType<any>[]
+  systems?: SystemInjectionType<any>[]
 }
 
 /**

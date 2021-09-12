@@ -13,7 +13,7 @@ import {
 import { NetworkInterpolation } from '../classes/NetworkInterpolation'
 import { Network } from '../classes/Network'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 /** Get snapshot factory.

@@ -27,7 +27,7 @@ import { AvatarAnimations, AvatarStates, WeightsParameterType } from '@xrengine/
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
 import { stopAutopilot } from '@xrengine/engine/src/navigation/functions/stopAutopilot'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AutoPilotComponent } from '@xrengine/engine/src/navigation/component/AutoPilotComponent'
 

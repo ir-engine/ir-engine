@@ -1,7 +1,7 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 type IKObjType = {
   ref?: any
 }
 
-export const IKObj = createMappedComponent<IKObjType>()
+export const IKObj = createMappedComponent<IKObjType>('IKObj')

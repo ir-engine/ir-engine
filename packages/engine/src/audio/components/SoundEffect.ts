@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type SoundEffectType = {
   /** Audio track container. */
@@ -7,4 +7,4 @@ export type SoundEffectType = {
   src: any[]
 }
 
-export const SoundEffect = createMappedComponent<SoundEffectType>()
+export const SoundEffect = createMappedComponent<SoundEffectType>('SoundEffect')

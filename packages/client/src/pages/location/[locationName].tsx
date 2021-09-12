@@ -8,10 +8,7 @@ import { useTranslation } from 'react-i18next'
 import InstanceChat from '../../components/InstanceChat'
 import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
-import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -24,9 +21,8 @@ const LocationPage = (props) => {
   const engineInitializeOptions: InitializeOptions = {
     systems: [
       {
-        type: SystemUpdateType.Free,
-        system: AvatarUISystem,
-        after: XRUISystem
+        injectionPoint: 'FIXED',
+        system: import('@xrengine/client-core/src/systems/AvatarUISystem')
       }
     ]
   }

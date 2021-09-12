@@ -42,7 +42,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const useStyles = makeStyles({
   table: {
-    minWidth: 650
+    minWidth: 650,
+    background: '#43484F !important'
+  },
+  TableCellColor: {
+    color: '#f1f1f1'
   }
 })
 
@@ -146,11 +150,19 @@ const SentInvite = (props: Props) => {
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Id</TableCell>
-            <TableCell align="right">Name</TableCell>
-            <TableCell align="right">Passcode</TableCell>
-            <TableCell align="right">Type</TableCell>
-            <TableCell align="right">Action</TableCell>
+            <TableCell className={classes.TableCellColor}>Id</TableCell>
+            <TableCell className={classes.TableCellColor} align="right">
+              Name
+            </TableCell>
+            <TableCell className={classes.TableCellColor} align="right">
+              Passcode
+            </TableCell>
+            <TableCell className={classes.TableCellColor} align="right">
+              Type
+            </TableCell>
+            <TableCell className={classes.TableCellColor} align="right">
+              Action
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -175,6 +187,7 @@ const SentInvite = (props: Props) => {
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[INVITE_PAGE_LIMIT]}
+              component="div"
               colSpan={3}
               count={sentInviteCount}
               rowsPerPage={rowsPerPage}

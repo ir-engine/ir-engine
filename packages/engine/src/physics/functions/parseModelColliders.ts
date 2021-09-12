@@ -1,6 +1,6 @@
 import { Vector3, Quaternion, Matrix4, Mesh, Object3D } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createCollider } from './createCollider'
 

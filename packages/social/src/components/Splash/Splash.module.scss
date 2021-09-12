@@ -17,12 +17,7 @@
 }
 .logo{
     height: auto;
-    width: 196pt;
-    position: fixed;
-    top: calc(50% - 111px);
-    left: calc(50% - 98pt);
-    /* bring your own prefixes */
-    transform: translate(-50%, -50%);
+    width: 225pt;
     animation: pulse 3s linear infinite;
 }
 

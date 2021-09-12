@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Axis } from '../classes/Axis'
 import { IKRig } from './IKRig'
 
@@ -43,4 +43,4 @@ type IKPoseComponentType = {
   head?: { lookDirection: Vector3; twistDirection: Vector3 }
 }
 
-export const IKPose = createMappedComponent<IKPoseComponentType>()
+export const IKPose = createMappedComponent<IKPoseComponentType>('IKPose')

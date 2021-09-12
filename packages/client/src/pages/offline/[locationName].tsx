@@ -1,11 +1,8 @@
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import { AvatarUISystem } from '@xrengine/client-core/src/systems/AvatarUISystem'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { XRUISystem } from '@xrengine/engine/src/xrui/systems/XRUISystem'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema'
@@ -25,9 +22,8 @@ const engineInitializeOptions: InitializeOptions = {
   },
   systems: [
     {
-      type: SystemUpdateType.Fixed,
-      system: AvatarUISystem,
-      after: XRUISystem
+      injectionPoint: 'FIXED',
+      system: import('@xrengine/client-core/src/systems/AvatarUISystem')
     }
   ]
 }

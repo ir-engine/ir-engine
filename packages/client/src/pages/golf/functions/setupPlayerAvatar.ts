@@ -3,7 +3,7 @@ import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarCo
 import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
 import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { GolfAvatarComponent } from '../components/GolfAvatarComponent'
 

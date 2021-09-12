@@ -71,6 +71,28 @@ export function createMessage(values: any) {
   }
 }
 
+export async function sendChatMessage(values: any) {
+  try {
+    await client.service('message').create({
+      targetObjectId: values.targetObjectId,
+      targetObjectType: values.targetObjectType,
+      text: values.text
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+//sends a chat message in the current channel
+export async function sendMessage(text: string) {
+  const user = (Store.store.getState() as any).get('auth').get('user') as User
+  await sendChatMessage({
+    targetObjectId: user.instanceId,
+    targetObjectType: 'instance',
+    text: text
+  })
+}
+
 export function getChannelMessages(channelId: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {

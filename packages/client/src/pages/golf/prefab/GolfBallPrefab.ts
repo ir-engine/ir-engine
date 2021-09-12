@@ -16,11 +16,10 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
@@ -33,10 +32,12 @@ import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import { getTee, GolfState } from '../GolfSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 import { OffScreenIndicator } from '@xrengine/engine/src/scene/classes/OffScreenIndicator'
 import { SoundEffect } from '@xrengine/engine/src/audio/components/SoundEffect'
 import { PlaySoundEffect } from '@xrengine/engine/src/audio/components/PlaySoundEffect'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
+import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -136,7 +137,7 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   velocity.velocity.copy(new Vector3())
 }
 
-export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHole: number): void => {
+export const spawnBall = (world: World, entityPlayer: Entity, playerCurrentHole: number): void => {
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
@@ -152,7 +153,7 @@ export const spawnBall = (world: ECSWorld, entityPlayer: Entity, playerCurrentHo
   }
 
   // this spawns the ball on the server
-  spawnPrefab(GolfPrefabTypes.Ball, uuid, networkId, parameters)
+  dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, GolfPrefabTypes.Ball, parameters))
 }
 
 /**
@@ -229,6 +230,7 @@ const wallHitSFX = (entityBall: Entity) => {
 
 export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
+  if (!collider) return
   const ballPosition = collider.body.transform.translation
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   golfBallComponent.groundRaycast.origin.copy(ballPosition)
@@ -366,7 +368,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
       restOffset: -golfBallColliderExpansion,
       // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
       // this will not reverse the expansion for trigger colliders
-      contactOffset: golfBallColliderExpansion,
+      contactOffset: -0.005, //golfBallColliderExpansion,
       material: { staticFriction: 0.2, dynamicFriction: 0.2, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask:

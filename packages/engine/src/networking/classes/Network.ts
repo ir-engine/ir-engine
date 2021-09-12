@@ -3,11 +3,10 @@ import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectList } from '../interfaces/NetworkObjectList'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
-import { NetworkTransport, ActionType } from '../interfaces/NetworkTransport'
+import { NetworkTransport, ActionType, IncomingActionType } from '../interfaces/NetworkTransport'
 import { AvatarProps } from '../interfaces/WorldState'
 import { Snapshot } from '../types/SnapshotDataTypes'
 import SocketIO from 'socket.io'
-import { WorldStateInterface } from '../schema/networkSchema'
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -29,6 +28,7 @@ export interface NetworkClientList {
     dataProducers?: Map<string, any> // Key => label of data channel}
     avatarDetail?: AvatarProps
     networkId?: any // to easily retrieve the network object correspending to this client
+    subscribedChatUpdates: string[]
   }
 }
 
@@ -56,7 +56,7 @@ export class Network {
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
   /** Incoming actions */
-  incomingActions = [] as ActionType[]
+  incomingActions = [] as IncomingActionType[]
   /** Outgoing actions */
   outgoingActions = [] as ActionType[]
 
@@ -76,10 +76,6 @@ export class Network {
 
   /** ID of last network created. */
   private static availableNetworkId = 0
-
-  isLocal = (userId) => {
-    return this.userId === userId
-  }
 
   /** Get next network id. */
   static getNetworkId(): number {
