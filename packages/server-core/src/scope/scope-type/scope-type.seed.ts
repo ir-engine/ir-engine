@@ -33,10 +33,19 @@ export const scopeTypeSeed = {
       type: 'contentPacks:read'
     },
     {
+      type: 'contentPacks:write'
+    },
+    {
       type: 'groups:read'
     },
     {
+      type: 'groups:write'
+    },
+    {
       type: 'instance:read'
+    },
+    {
+      type: 'instance:write'
     },
     {
       type: 'invite:read'
@@ -45,7 +54,13 @@ export const scopeTypeSeed = {
       type: 'party:read'
     },
     {
+      type: 'party:write'
+    },
+    {
       type: 'user:read'
+    },
+    {
+      type: 'user:write'
     },
     {
       type: 'scene:read'
