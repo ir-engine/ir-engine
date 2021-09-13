@@ -1,7 +1,7 @@
-import { enqueueTasks, getStartCoords } from '../../map'
+import { getStartCoords } from '../../map'
 import { MapProps } from '../../map/MapProps'
 import { addComponent } from '../../ecs/functions/EntityFunctions'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+// import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
@@ -20,27 +20,22 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     originalCenter: center,
     triggerRefreshRadius: 200,
     minimumSceneRadius,
+    loadedObjectsByUUID: new Map(),
     args
   })
-
-  const { navMesh, groundMesh, labels } = await enqueueTasks(center, minimumSceneRadius, args)
 
   const mapObject3D = new Group()
 
   mapObject3D.name = '(Geographic) Map'
 
-  labels.forEach((label) => {
-    mapObject3D.add(label.object3d)
-  })
-
   addComponent(entity, Object3DComponent, {
     value: mapObject3D
   })
-  addComponent(entity, NavMeshComponent, {
-    yukaNavMesh: navMesh,
-    navTarget: groundMesh
-  })
-  addComponent(entity, GeoLabelSetComponent, { value: new Set(labels) })
+  // addComponent(entity, NavMeshComponent, {
+  //   yukaNavMesh: navMesh,
+  //   navTarget: groundMesh
+  // })
+  // addComponent(entity, GeoLabelSetComponent, { value: new Set(labels) })
   if (args.enableDebug) {
     addComponent(entity, DebugNavMeshComponent, null)
   }

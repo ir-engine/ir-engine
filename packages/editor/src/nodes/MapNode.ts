@@ -8,7 +8,7 @@ import {
   createLabels,
   safelySetGroundScaleAndPosition
 } from '@xrengine/engine/src/map/MeshBuilder'
-import { fetchVectorTiles, fetchRasterTiles } from '@xrengine/engine/src/map/MapBoxClient'
+// import { fetchVectorTiles, fetchRasterTiles } from '@xrengine/engine/src/map/MapBoxClient'
 import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
 import { getStartCoords } from '@xrengine/engine/src/map'
@@ -62,8 +62,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   async addMap(editor) {
     console.log('creating map')
     const center = await getStartCoords(this.getProps())
-    const vectorTiles = await fetchVectorTiles(center)
-    const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
+    // const vectorTiles = await fetchVectorTiles(center)
+    // const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
 
     // this.mapLayers = {
     //   building: createBuildings(vectorTiles, center),
@@ -92,9 +92,9 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   async refreshGroundLayer() {
     const center = await getStartCoords(this.getProps())
-    const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
+    // const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
     this.mapLayers.ground.removeFromParent()
-    this.mapLayers.ground = createGroundMesh(rasterTiles, center[1])
+    // this.mapLayers.ground = createGroundMesh(rasterTiles, center[1])
     this.applyScale(this.mapLayers.ground)
     safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
     this.add(this.mapLayers.ground)

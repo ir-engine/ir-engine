@@ -4,20 +4,19 @@ import { ECSWorld } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { deleteResultsForFeature, getResultsForFeature, getValidUUIDs } from './MeshBuilder'
+import createSurroundingObjects from './functions/createSurroundingObjects'
 import { LongLat, toMetersFromCenter, fromMetersFromCenter } from './units'
 import { vector3ToArray2 } from './util'
 import { Mesh, Object3D, Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
-import { enqueueTasks } from '.'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { GeoLabelNode } from './GeoLabelNode'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { TILE_ZOOM } from './constants'
 
 const $vector3 = new Vector3()
 const $meshesInScene = new Map<string, Mesh>()
 const $labelsInScene = new Map<string, GeoLabelNode>()
-const $mapObjectsToRemove = new Set<string>()
 
 /** Track where the viewer was the last time we kicked off a new set of map contruction tasks */
 const $previousViewerPosition = new Vector3()
@@ -55,40 +54,37 @@ export const MapUpdateSystem = async (): Promise<System> => {
       viewerEntity !== previousViewerEntity
     ) {
       mapComponent.center = fromMetersFromCenter(viewerPositionDeltaScaled, mapComponent.center)
-      enqueueTasks(mapComponent.center, mapComponent.minimumSceneRadius, mapComponent.args)
+      createSurroundingObjects(
+        mapComponent.loadedObjectsByUUID,
+        mapComponent.center,
+        mapComponent.minimumSceneRadius,
+        TILE_ZOOM
+      )
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0
     }
 
-    $meshesInScene.forEach((_, featureUUID) => {
-      $mapObjectsToRemove.add(featureUUID)
-    })
-
-    for (const featureUUID of getValidUUIDs()) {
-      const {
-        mesh: { mesh, geographicCenterPoint },
-        label
-      } = getResultsForFeature(featureUUID)
-      if (mesh && !$meshesInScene.has(featureUUID)) {
+    for (const [uuid, object] of mapComponent.loadedObjectsByUUID) {
+      const { mesh, geographicCenterPoint } = object
+      if (mesh && !$meshesInScene.has(uuid)) {
+        setPosition(mesh, geographicCenterPoint, mapComponent.originalCenter)
+        // TODO compute bounding circle radius from geojson and store in Map3DObject
         const distance = computeDistanceFromMesh(mesh, copyAndScale(viewerTransform.position, 1 / mapScale))
         if (distance < mapComponent.minimumSceneRadius) {
-          setPosition(mesh, geographicCenterPoint, mapComponent.originalCenter)
           object3dComponent.value.add(mesh)
-          $meshesInScene.set(featureUUID, mesh)
-          $mapObjectsToRemove.delete(featureUUID)
+          $meshesInScene.set(uuid, mesh)
         }
       }
-      if (label && !$labelsInScene.has(featureUUID)) {
-        setPosition(label.object3d, label.geoMiddleSlice[0], mapComponent.originalCenter)
-        object3dComponent.value.add(label.object3d)
-        $labelsInScene.set(featureUUID, label)
-        $mapObjectsToRemove.delete(featureUUID)
-      }
+      // if (label && !$labelsInScene.has(uuid)) {
+      //   setPosition(label.object3d, label.geoMiddleSlice[0], mapComponent.originalCenter)
+      //   object3dComponent.value.add(label.object3d)
+      //   $labelsInScene.set(featureUUID, label)
+      //   $mapObjectsToRemove.delete(featureUUID)
+      // }
     }
 
-    $mapObjectsToRemove.forEach((featureUUID) => {
-      const mesh = $meshesInScene.get(featureUUID)
+    $meshesInScene.forEach((mesh, featureUUID) => {
       const label = $labelsInScene.get(featureUUID)
       if (mesh) {
         const distance = computeDistanceFromMesh(mesh, copyAndScale(viewerTransform.position, 1 / mapScale))
@@ -101,13 +97,14 @@ export const MapUpdateSystem = async (): Promise<System> => {
           $labelsInScene.delete(featureUUID)
         }
         if (distance > mapComponent.minimumSceneRadius * 2) {
-          deleteResultsForFeature(featureUUID)
+          mapComponent.loadedObjectsByUUID.delete(featureUUID)
         }
       }
     })
 
     $labelsInScene.forEach((label) => {
       if (label) {
+        // TODO use UpdatableComponent
         label.onUpdate(Engine.camera)
       }
     })

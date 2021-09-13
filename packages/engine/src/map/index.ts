@@ -1,17 +1,6 @@
 import { Position, Polygon, MultiPolygon } from 'geojson'
-import { Group } from 'three'
 import { NavMesh } from 'yuka'
-import { fetchRasterTiles, fetchVectorTiles } from './MapBoxClient'
 import { MapProps } from './MapProps'
-import {
-  createBuildings,
-  createGroundMesh,
-  createRoads,
-  createWater,
-  createLandUse,
-  createLabels,
-  setGroundScaleAndPosition
-} from './MeshBuilder'
 import { NavMeshBuilder } from './NavMeshBuilder'
 import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
@@ -21,39 +10,39 @@ let centerCoord = {}
 let centerTile = {}
 let scaleArg
 
-export const enqueueTasks = async function (center: Position, minimumSceneRadius: number, args: MapProps) {
-  console.log('enqueueMapTasks called with args:', center, args)
-  const vectorTiles = await fetchVectorTiles(center, minimumSceneRadius)
-  const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
+// export const enqueueTasks = async function (center: Position, minimumSceneRadius: number, args: MapProps) {
+//   console.log('enqueueMapTasks called with args:', center, args)
+//   const vectorTiles = await fetchVectorTiles(center, minimumSceneRadius)
+//   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
-  const group = new Group()
-  const buildingMesh = await createBuildings(vectorTiles, center)
-  const groundMesh = createGroundMesh(rasterTiles as any, center[1])
-  const roadsMesh = await createRoads(vectorTiles, center)
-  const waterMesh = await createWater(vectorTiles, center)
-  const landUseMesh = await createLandUse(vectorTiles, center)
-  const labels = createLabels(vectorTiles)
+//   const group = new Group()
+//   const buildingMesh = await createBuildings(vectorTiles, center)
+//   const groundMesh = createGroundMesh(rasterTiles as any, center[1])
+//   const roadsMesh = await createRoads(vectorTiles, center)
+//   const waterMesh = await createWater(vectorTiles, center)
+//   const landUseMesh = await createLandUse(vectorTiles, center)
+//   const labels = createLabels(vectorTiles)
 
-  ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
-    group.add(mesh)
-  })
+//   ;[buildingMesh, roadsMesh, waterMesh, landUseMesh, groundMesh].forEach((mesh) => {
+//     group.add(mesh)
+//   })
 
-  // setGroundScaleAndPosition(groundMesh, buildingMesh)
+//   // setGroundScaleAndPosition(groundMesh, buildingMesh)
 
-  labels.forEach((label) => {
-    group.add(label.object3d)
-  })
+//   labels.forEach((label) => {
+//     group.add(label.object3d)
+//   })
 
-  // TODO: use generateNavMesh as soon as it will work nice
-  const navMesh = null // generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
+//   // TODO: use generateNavMesh as soon as it will work nice
+//   const navMesh = null // generateNavMesh(vectorTiles, center, args.scale.x * METERS_PER_DEGREE_LL)
 
-  group.name = 'MapObject'
-  // centerCoord = Object.assign(center)
-  // centerTile = Object.assign(llToTile(center))
-  // scaleArg = args.scale.x
+//   group.name = 'MapObject'
+//   // centerCoord = Object.assign(center)
+//   // centerTile = Object.assign(llToTile(center))
+//   // scaleArg = args.scale.x
 
-  return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels }
-}
+//   return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels }
+// }
 
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
   const builder = new NavMeshBuilder()
