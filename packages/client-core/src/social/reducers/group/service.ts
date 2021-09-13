@@ -16,7 +16,7 @@ import {
   removedGroupUser
 } from './actions'
 import { UserAction } from '../../../user/store/UserAction'
-
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 const store = Store.store
 
 export function getGroups(skip?: number, limit?: number) {
@@ -121,40 +121,40 @@ export function getInvitableGroups(skip?: number, limit?: number) {
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('group-user').on('created', (params) => {
     const newGroupUser = params.groupUser
-    const selfUser = (store.getState() as any).get('auth').get('user')
+    const selfUser = useAuthState().user
     store.dispatch(createdGroupUser(newGroupUser))
     if (
       newGroupUser.user.channelInstanceId != null &&
-      newGroupUser.user.channelInstanceId === selfUser.channelInstanceId
+      newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
       store.dispatch(UserAction.addedChannelLayerUser(newGroupUser.user))
-    if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
+    if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
       store.dispatch(UserAction.removedChannelLayerUser(newGroupUser.user))
   })
 
   client.service('group-user').on('patched', (params) => {
     const updatedGroupUser = params.groupUser
-    const selfUser = (store.getState() as any).get('auth').get('user')
+    const selfUser = useAuthState().user
     store.dispatch(patchedGroupUser(updatedGroupUser))
     if (
       updatedGroupUser.user.channelInstanceId != null &&
-      updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId
+      updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
       store.dispatch(UserAction.addedChannelLayerUser(updatedGroupUser.user))
-    if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
+    if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
       store.dispatch(UserAction.removedChannelLayerUser(updatedGroupUser.user))
   })
 
   client.service('group-user').on('removed', (params) => {
     const deletedGroupUser = params.groupUser
-    const selfUser = (store.getState() as any).get('auth').get('user')
+    const selfUser = useAuthState().user
     store.dispatch(removedGroupUser(deletedGroupUser, params.self))
     if (
       deletedGroupUser.user.channelInstanceId != null &&
-      deletedGroupUser.user.channelInstanceId === selfUser.channelInstanceId
+      deletedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
       store.dispatch(UserAction.addedChannelLayerUser(deletedGroupUser.user))
-    if (deletedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
+    if (deletedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
       store.dispatch(UserAction.removedChannelLayerUser(deletedGroupUser.user))
   })
 

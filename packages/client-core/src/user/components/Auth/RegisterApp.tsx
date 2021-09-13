@@ -2,9 +2,9 @@ import React, { useRef, useState } from 'react'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { registerUserByEmail } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/service'
 import styles from './Auth.module.scss'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -12,18 +12,10 @@ import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { useTranslation } from 'react-i18next'
 
-const mapDispatchToProps = (dispatch: Dispatch): any => {
-  return {
-    registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch)
-  }
-}
-
-interface Props {
-  registerUserByEmail: typeof registerUserByEmail
-}
+interface Props {}
 
 const SignUp = (props: Props): any => {
-  const { registerUserByEmail } = props
+  const dispatch = useDispatch()
 
   const initialState = {
     email: '',
@@ -43,10 +35,12 @@ const SignUp = (props: Props): any => {
       email: state.email,
       password: state.password
     })
-    registerUserByEmail({
-      email: state.email,
-      password: state.password
-    })
+    dispatch(
+      AuthService.registerUserByEmail({
+        email: state.email,
+        password: state.password
+      })
+    )
   }
 
   const [values, setValues] = useState({ showPassword: false, showPasswordConfirm: false })
@@ -154,4 +148,4 @@ const SignUp = (props: Props): any => {
 
 const SignUpWrapper = (props: any): any => <SignUp {...props} />
 
-export default connect(null, mapDispatchToProps)(SignUpWrapper)
+export default SignUpWrapper

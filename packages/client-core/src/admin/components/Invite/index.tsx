@@ -15,7 +15,7 @@ import Search from '../Search'
 import styles from '../Admin.module.scss'
 import InviteModel from './InviteModel'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { selectAdminState } from '../../reducers/admin/selector'
 import { ConfirmProvider } from 'material-ui-confirm'
 import Grid from '@material-ui/core/Grid'
@@ -66,7 +66,6 @@ interface Props {
   sendInvite?: any
   sentInvites?: any
   fetchUsersAsAdmin?: any
-  authState?: any
   adminUserState?: any
 }
 
@@ -74,7 +73,6 @@ const mapStateToProps = (state: any): any => {
   return {
     receivedInvites: selectInviteState(state),
     sentInvites: selectInviteState(state),
-    authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state)
   }
 }
@@ -88,7 +86,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const InvitesConsole = (props: Props) => {
   const {
-    authState,
     fetchUsersAsAdmin,
     sentInvites,
     receivedInvites,
@@ -102,7 +99,7 @@ const InvitesConsole = (props: Props) => {
   const [inviteModelOpen, setInviteModelOpen] = React.useState(false)
   const invites = sentInvites.get('sentInvites').get('invites')
   const adminUsers = adminUserState.get('users').get('users')
-  const user = authState.get('user')
+  const user = useAuthState().user
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
@@ -126,11 +123,11 @@ const InvitesConsole = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id != null && (adminUserState.get('users').get('updateNeeded') === true || refetch === true)) {
+    if (user?.id.value != null && (adminUserState.get('users').get('updateNeeded') === true || refetch === true)) {
       fetchUsersAsAdmin()
     }
     setRefetch(false)
-  }, [authState, adminUserState, refetch])
+  }, [useAuthState(), adminUserState, refetch])
 
   useEffect(() => {
     if (sentInvites.get('sentUpdateNeeded') === true) {

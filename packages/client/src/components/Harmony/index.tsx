@@ -69,8 +69,7 @@ import {
   transferPartyOwner
 } from '@xrengine/client-core/src/social/reducers/party/service'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import PartyParticipantWindow from '../../components/PartyParticipantWindow'
@@ -116,7 +115,6 @@ const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     chatState: selectChatState(state),
     channelConnectionState: selectChannelConnectionState(state),
     friendState: selectFriendState(state),
@@ -129,7 +127,6 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   getChannels: bindActionCreators(getChannels, dispatch),
   getChannelMessages: bindActionCreators(getChannelMessages, dispatch),
   createMessage: bindActionCreators(createMessage, dispatch),
@@ -158,8 +155,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 interface Props {
-  authState?: any
-  doLoginAuto?: typeof doLoginAuto
   setLeftDrawerOpen: any
   setRightDrawerOpen: any
   chatState?: any
@@ -209,7 +204,6 @@ const initialRefreshModalValues = {
 
 const Harmony = (props: Props): any => {
   const {
-    authState,
     chatState,
     channelConnectionState,
     getChannels,
@@ -249,7 +243,7 @@ const Harmony = (props: Props): any => {
 
   const messageRef = React.useRef()
   const messageEl = messageRef.current
-  const selfUser = authState.get('user') as User
+  const selfUser = useAuthState().user
   const channelState = chatState.get('channels')
   const channels = channelState.get('channels')
   const targetObject = chatState.get('targetObject')
@@ -394,7 +388,7 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     if (
-      selfUser?.instanceId != null &&
+      selfUser?.instanceId.value != null &&
       MediaStreams.instance.channelType === 'instance' &&
       (MediaStreams.instance.channelId == null || MediaStreams.instance.channelId === '')
     ) {
@@ -403,9 +397,9 @@ const Harmony = (props: Props): any => {
       MediaStreams.instance.channelId = instanceChannel[0]
       updateChannelTypeState()
     }
-    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
-    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(false))
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
@@ -624,7 +618,7 @@ const Harmony = (props: Props): any => {
 
   const generateMessageSecondary = (message: Message): string => {
     const date = moment(message.createdAt).format('MMM D YYYY, h:mm a')
-    if (message.senderId !== selfUser.id) {
+    if (message.senderId !== selfUser.id.value) {
       return `${message?.sender?.name ? message.sender.name : 'A former user'} on ${date}`
     } else {
       return date
@@ -670,7 +664,7 @@ const Harmony = (props: Props): any => {
 
   const toggleMessageCrudSelect = (e: any, message: Message) => {
     e.preventDefault()
-    if (message.senderId === selfUser.id) {
+    if (message.senderId === selfUser.id.value) {
       if (messageCrudSelected === message.id && messageUpdatePending !== message.id) {
         setMessageCrudSelected('')
       } else {
@@ -682,11 +676,11 @@ const Harmony = (props: Props): any => {
   const checkMediaStream = async (streamType: string, channelType: string, channelId?: string): Promise<boolean> => {
     if (streamType === 'video' && !MediaStreams.instance?.videoStream) {
       console.log('Configuring video transport', channelType, channelId)
-      return configureMediaTransports(['video'], channelType, channelId)
+      return configureMediaTransports(['video'], channelType, true, channelId)
     }
     if (streamType === 'audio' && !MediaStreams.instance?.audioStream) {
       console.log('Configuring audio transport', channelType, channelId)
-      return configureMediaTransports(['audio'], channelType, channelId)
+      return configureMediaTransports(['audio'], channelType, true, channelId)
     }
 
     return Promise.resolve(false)
@@ -864,7 +858,7 @@ const Harmony = (props: Props): any => {
       if (channel.channelType === 'group') return channel[channel.channelType].name
       if (channel.channelType === 'party') return 'Current party'
       if (channel.channelType === 'user')
-        return channel.user1.id === selfUser.id ? channel.user2.name : channel.user1.name
+        return channel.user1.id === selfUser.id.value ? channel.user2.name : channel.user1.name
     } else return 'Current Layer'
   }
 
@@ -874,7 +868,7 @@ const Harmony = (props: Props): any => {
       if (channel.channelType === 'group') return channel[channel.channelType].name
       if (channel.channelType === 'party') return 'Current party'
       if (channel.channelType === 'user')
-        return channel.user1.id === selfUser.id ? channel.user2.name : channel.user1.name
+        return channel.user1.id === selfUser.id.value ? channel.user2.name : channel.user1.name
     } else return 'Current Layer'
   }
 
@@ -994,15 +988,15 @@ const Harmony = (props: Props): any => {
             </ListItemIcon>
           )}
         </div>
-        {selfUser?.instanceId != null && (
+        {selfUser?.instanceId.value != null && (
           <div
             className={classNames({
               [styles.instanceButton]: true,
-              [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
+              [styles.activeChat]: isActiveChat('instance', selfUser.instanceId.value)
             })}
             onClick={() => {
               setActiveChat('instance', {
-                id: selfUser.instanceId
+                id: selfUser.instanceId.value
               })
               if (dimensions.width <= 768) setSelectorsOpen(false)
             }}
@@ -1011,13 +1005,13 @@ const Harmony = (props: Props): any => {
             <span>Here</span>
             <div
               className={classNames({
-                [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
+                [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId.value)
               })}
             />
           </div>
         )}
       </div>
-      {selfUser?.userRole !== 'guest' && (
+      {selfUser?.userRole.value !== 'guest' && (
         <Accordion
           expanded={selectedAccordion === 'user'}
           onChange={handleAccordionSelect('user')}
@@ -1072,7 +1066,7 @@ const Harmony = (props: Props): any => {
           </AccordionDetails>
         </Accordion>
       )}
-      {selfUser?.userRole !== 'guest' && (
+      {selfUser?.userRole.value !== 'guest' && (
         <Accordion
           expanded={selectedAccordion === 'group'}
           onChange={handleAccordionSelect('group')}
@@ -1124,7 +1118,7 @@ const Harmony = (props: Props): any => {
           </AccordionDetails>
         </Accordion>
       )}
-      {selfUser && selfUser.instanceId && (
+      {selfUser && selfUser.instanceId.value && (
         <Accordion expanded={selectedAccordion === 'layerUsers'} onChange={handleAccordionSelect('layerUsers')}>
           <AccordionSummary id="layer-user-header" expandIcon={<ExpandMore />} aria-controls="layer-user-content">
             <Public className={styles['icon-margin-right']} />
@@ -1157,8 +1151,8 @@ const Harmony = (props: Props): any => {
                           <ListItemAvatar>
                             <Avatar src={layerUser.avatarUrl} />
                           </ListItemAvatar>
-                          {selfUser.id === layerUser.id && <ListItemText primary={layerUser.name + ' (you)'} />}
-                          {selfUser.id !== layerUser.id && <ListItemText primary={layerUser.name} />}
+                          {selfUser.id.value === layerUser.id && <ListItemText primary={layerUser.name + ' (you)'} />}
+                          {selfUser.id.value !== layerUser.id && <ListItemText primary={layerUser.name} />}
                           {/*{*/}
                           {/*    locationBanPending !== layerUser.id &&*/}
                           {/*    isLocationAdmin === true &&*/}
@@ -1303,7 +1297,7 @@ const Harmony = (props: Props): any => {
             >
               <Person />
             </div>
-            {selfUser?.userRole !== 'guest' && (
+            {selfUser?.userRole.value !== 'guest' && (
               <div
                 className={classNames({
                   [styles['invite-toggle']]: true,
@@ -1346,7 +1340,7 @@ const Harmony = (props: Props): any => {
                 <PartyParticipantWindow harmony={true} peerId={'me_cam'} />
               </Grid>
               {layerUsers
-                .filter((user) => user.id !== selfUser.id)
+                .filter((user) => user.id !== selfUser.id.value)
                 .map((user) => (
                   <Grid
                     item
@@ -1381,8 +1375,8 @@ const Harmony = (props: Props): any => {
                     <ListItem
                       className={classNames({
                         [styles.message]: true,
-                        [styles.self]: message.senderId === selfUser.id,
-                        [styles.other]: message.senderId !== selfUser.id
+                        [styles.self]: message.senderId === selfUser.id.value,
+                        [styles.other]: message.senderId !== selfUser.id.value
                       })}
                       key={message.id}
                       onMouseEnter={(e) => toggleMessageCrudSelect(e, message)}
@@ -1390,7 +1384,7 @@ const Harmony = (props: Props): any => {
                       onTouchEnd={(e) => toggleMessageCrudSelect(e, message)}
                     >
                       <div>
-                        {message.senderId !== selfUser.id && (
+                        {message.senderId !== selfUser.id.value && (
                           <ListItemAvatar>
                             <Avatar src={message.sender?.avatarUrl} />
                           </ListItemAvatar>
@@ -1398,7 +1392,7 @@ const Harmony = (props: Props): any => {
                         {messageUpdatePending !== message.id && (
                           <ListItemText primary={message.text} secondary={generateMessageSecondary(message)} />
                         )}
-                        {message.senderId === selfUser.id && messageUpdatePending !== message.id && (
+                        {message.senderId === selfUser.id.value && messageUpdatePending !== message.id && (
                           <div className="message-crud">
                             {messageDeletePending !== message.id && messageCrudSelected === message.id && (
                               <div className={styles['crud-controls']}>

@@ -2,6 +2,7 @@ import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunction
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { client } from '@xrengine/client-core/src/feathers'
@@ -54,9 +55,9 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(channelServerConnecting())
-      const authState = getState().get('auth')
-      const user = authState.get('user')
-      const token = authState.get('authUser').accessToken
+      const authState = useAuthState()
+      const user = authState.user.value
+      const token = authState.authUser.accessToken.value
       const channelConnectionState = getState().get('channelConnection')
       const instance = channelConnectionState.get('instance')
       const locationId = channelConnectionState.get('locationId')

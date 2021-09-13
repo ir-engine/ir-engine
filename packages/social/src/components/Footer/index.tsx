@@ -13,7 +13,6 @@ import { connect } from 'react-redux'
 import { useEffect } from 'react'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getLoggedCreator } from '../../reducers/creator/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 import {
   updateArMediaState,
@@ -29,7 +28,6 @@ import ViewMode from '../ViewMode/ViewMode'
 const mapStateToProps = (state: any): any => {
   return {
     creatorState: selectCreatorsState(state),
-    authState: selectAuthState(state),
     popupsState: selectPopupsState(state)
   }
 }
@@ -47,7 +45,6 @@ interface Props {
   getLoggedCreator?: any
   updateCreatorPageState?: typeof updateCreatorPageState
   updateNewFeedPageState?: typeof updateNewFeedPageState
-  authState?: any
   popupsState?: any
   updateCreatorFormState?: typeof updateCreatorFormState
   updateFeedPageState?: typeof updateFeedPageState
@@ -57,7 +54,6 @@ interface Props {
 const AppFooter = ({
   creatorState,
   getLoggedCreator,
-  authState,
   updateCreatorPageState,
   popupsState,
   updateCreatorFormState,

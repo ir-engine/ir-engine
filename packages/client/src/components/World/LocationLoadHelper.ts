@@ -32,9 +32,9 @@ const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
-    authState.get('isLoggedIn') === true &&
-    authState.get('user')?.id != null &&
-    authState.get('user')?.id.length > 0
+    authState.isLoggedIn?.value === true &&
+    authState.user?.id?.value != null &&
+    authState.user?.id?.value.length > 0
   ) {
     if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
       getLobby()

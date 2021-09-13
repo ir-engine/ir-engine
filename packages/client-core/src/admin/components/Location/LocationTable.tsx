@@ -8,7 +8,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
@@ -34,7 +34,6 @@ import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
@@ -55,7 +54,6 @@ const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const {
-    authState,
     fetchAdminLocations,
     fetchAdminScenes,
     fetchLocationTypes,
@@ -73,7 +71,10 @@ const LocationTable = (props: LocationProps) => {
   const [locationId, setLocationId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
   const [locationAdmin, setLocationAdmin] = React.useState('')
-  const user = authState.get('user')
+
+  const authState = useAuthState()
+  const user = authState.user
+
   const adminLocations = adminLocationState.get('locations').get('locations')
   const adminLocationCount = adminLocationState.get('locations').get('total')
   const { t } = useTranslation()
@@ -90,19 +91,19 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (user?.id != null && adminLocationState.get('locations').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
       fetchAdminLocations()
     }
-    if (user?.id != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
       fetchAdminScenes('all')
     }
-    if (user?.id != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       fetchLocationTypes()
     }
-    if (user?.id != null && adminUserState.get('users').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminUserState.get('users').get('updateNeeded') === true) {
       fetchUsersAsAdmin()
     }
-    if (user?.id != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
       fetchAdminInstances()
     }
   }, [authState, adminSceneState, adminInstanceState, adminLocationState])

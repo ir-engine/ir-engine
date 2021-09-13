@@ -3,7 +3,7 @@ import { Switch, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PrivateRoute from './Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 const analytic = React.lazy(() => import('../pages/admin/index'))
 const avatars = React.lazy(() => import('../pages/admin/avatars'))
@@ -17,22 +17,17 @@ const users = React.lazy(() => import('../pages/admin/users'))
 const party = React.lazy(() => import('../pages/admin/party'))
 const botSetting = React.lazy(() => import('../pages/admin/bot'))
 
-interface Props {
-  authState?: any
-}
+interface Props {}
 
 const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
+  return {}
 }
 
 const ProtectedRoutes = (props: Props) => {
-  const { authState } = props
-  const admin = authState.get('user')
+  const admin = useAuthState().user
 
   if (admin?.userRole) {
-    if (admin?.userRole !== 'admin') {
+    if (admin?.userRole.value !== 'admin') {
       return <Redirect to="/login" />
     }
   }

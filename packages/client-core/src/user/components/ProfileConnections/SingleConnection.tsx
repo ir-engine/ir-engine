@@ -5,58 +5,39 @@ import Typography from '@material-ui/core/Typography'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { User } from '@xrengine/common/src/interfaces/User'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { showAlert } from '../../../common/reducers/alert/actions'
 import { showDialog } from '../../../common/reducers/dialog/service'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { selectAuthState } from '../../reducers/auth/selector'
-import {
-  addConnectionByOauth,
-  addConnectionByPassword,
-  createMagicLink,
-  loginUserByPassword,
-  removeConnection
-} from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/service'
 import { ConnectionTexts } from './ConnectionTexts'
 import { useTranslation } from 'react-i18next'
 import styles from './ProfileConnections.module.scss'
+import { useAuthState } from '../../reducers/auth/AuthState'
 
 interface Props {
   auth?: any
   classes?: any
   connectionType?: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
-
   showDialog?: typeof showDialog
-  addConnectionByOauth?: typeof addConnectionByOauth
-  createMagicLink?: typeof createMagicLink
-  loginUserByPassword?: typeof loginUserByPassword
-  addConnectionByPassword?: typeof addConnectionByPassword
-  removeConnection?: typeof removeConnection
   showAlert?: typeof showAlert
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    auth: selectAuthState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   showDialog: bindActionCreators(showDialog, dispatch),
-  addConnectionByOauth: bindActionCreators(addConnectionByOauth, dispatch),
-  createMagicLink: bindActionCreators(createMagicLink, dispatch),
-  loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
-  addConnectionByPassword: bindActionCreators(addConnectionByPassword, dispatch),
-  removeConnection: bindActionCreators(removeConnection, dispatch),
   showAlert: bindActionCreators(showAlert, dispatch)
 })
 
 const SingleConnection = (props: Props): any => {
-  const { addConnectionByOauth, auth, classes, connectionType, removeConnection, showAlert, showDialog } = props
+  const { auth, classes, connectionType, showAlert, showDialog } = props
   const { t } = useTranslation()
-
+  const dispatch = useDispatch()
   const initialState = {
     identityProvider: IdentityProviderSeed,
     userId: ''
@@ -64,7 +45,7 @@ const SingleConnection = (props: Props): any => {
   const [state, setState] = useState(initialState)
 
   useEffect(() => {
-    const user = auth.get('user') as User
+    const user = useAuthState().user.value
     if (!user) {
       return
     }
@@ -83,7 +64,7 @@ const SingleConnection = (props: Props): any => {
       return
     }
 
-    removeConnection(identityProvider.id, state.userId)
+    dispatch(AuthService.removeConnection(identityProvider.id, state.userId))
   }
 
   const connect = (): any => {
@@ -93,7 +74,7 @@ const SingleConnection = (props: Props): any => {
       case 'facebook':
       case 'google':
       case 'github':
-        addConnectionByOauth(connectionType, userId)
+        dispatch(AuthService.addConnectionByOauth(connectionType, userId))
         break
       case 'email':
         showDialog({
@@ -111,7 +92,7 @@ const SingleConnection = (props: Props): any => {
         })
         break
       case 'linkedin':
-        addConnectionByOauth(connectionType, userId)
+        dispatch(AuthService.addConnectionByOauth(connectionType, userId))
         break
     }
   }

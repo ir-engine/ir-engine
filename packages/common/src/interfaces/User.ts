@@ -3,6 +3,13 @@ import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { RelationshipType } from './UserRelationship'
 
+export interface UserSetting {
+  id: string
+  spatialAudioEnabled: boolean
+  volume: number
+  microphone: number
+}
+
 export interface User {
   id: string
   name: string
@@ -17,12 +24,17 @@ export interface User {
   channelInstanceId?: string
   partyId?: string
   locationBans?: LocationBan[]
+  user_setting?: UserSetting
+  inviteCode?: string
 }
 
-export const UserSeed = {
+export const UserSeed: User = {
   id: '',
   name: '',
-  identityProviders: []
+  userRole: '',
+  avatarId: '',
+  identityProviders: [],
+  locationAdmins: []
 }
 
 export function resolveUser(user: any): User {

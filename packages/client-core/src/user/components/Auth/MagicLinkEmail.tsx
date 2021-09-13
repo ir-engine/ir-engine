@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import Grid from '@material-ui/core/Grid'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -12,30 +12,14 @@ import { Link } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import styles from './Auth.module.scss'
 import { User } from '@xrengine/common/src/interfaces/User'
-import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '../../reducers/auth/service'
-import { selectAuthState } from '../../reducers/auth/selector'
+import { AuthService } from '../../reducers/auth/service'
+import { useAuthState } from '../../reducers/auth/AuthState'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
-  auth?: any
   type?: 'email' | 'sms' | undefined
   isAddConnection?: boolean
-  createMagicLink?: typeof createMagicLink
-  addConnectionBySms?: typeof addConnectionBySms
-  addConnectionByEmail?: typeof addConnectionByEmail
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    auth: selectAuthState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createMagicLink: bindActionCreators(createMagicLink, dispatch),
-  addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch)
-})
 
 const defaultState = {
   emailPhone: '',
@@ -48,7 +32,10 @@ const defaultState = {
 const termsOfService = Config.publicRuntimeConfig.staticPages?.termsOfService ?? '/terms-of-service'
 
 const MagicLinkEmail = (props: Props): any => {
-  const { auth, type, isAddConnection, createMagicLink, addConnectionBySms, addConnectionByEmail } = props
+  const { type, isAddConnection } = props
+
+  const dispatch = useDispatch()
+  const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()
 
@@ -63,17 +50,17 @@ const MagicLinkEmail = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!isAddConnection) {
-      createMagicLink(state.emailPhone)
+      dispatch(AuthService.createMagicLink(state.emailPhone))
       setState({ ...state, isSubmitted: true })
       return
     }
 
-    const user = auth.get('user') as User
-    const userId = user ? user.id : ''
+    const user = auth.user
+    const userId = user ? user.id.value : ''
     if (type === 'email') {
-      addConnectionByEmail(state.emailPhone, userId)
+      dispatch(AuthService.addConnectionByEmail(state.emailPhone, userId))
     } else {
-      addConnectionBySms(state.emailPhone, userId)
+      dispatch(AuthService.addConnectionBySms(state.emailPhone, userId))
     }
   }
   let descr = ''
@@ -179,4 +166,4 @@ const MagicLinkEmail = (props: Props): any => {
 
 const MagicLinkEmailWrapper = (props: Props): any => <MagicLinkEmail {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(MagicLinkEmailWrapper)
+export default MagicLinkEmailWrapper

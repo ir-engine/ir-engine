@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import CardMedia from '@material-ui/core/CardMedia'
 import { Google } from '@styled-icons/bootstrap/Google'
@@ -14,29 +14,16 @@ import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
-import { loginUserByOAuth, resetPassword, registerUserByEmail } from '../../../user/reducers/auth/service'
+import { AuthService } from '../../../user/reducers/auth/service'
 import { useTranslation } from 'react-i18next'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
-  resetPassword: bindActionCreators(resetPassword, dispatch),
-  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch)
-})
 
 interface Props {
   auth?: any
   enableFacebookSocial?: boolean
   enableGithubSocial?: boolean
   enableGoogleSocial?: boolean
-  loginUserByOAuth?: typeof loginUserByOAuth
   logo: string
   isAddConnection?: boolean
-  resetPassword?: typeof resetPassword
-  registerUserByEmail?: typeof registerUserByEmail
 }
 const FlatSignIn = (props: Props) => {
   const [view, setView] = useState('login')
@@ -51,6 +38,8 @@ const FlatSignIn = (props: Props) => {
     : false
   const { t } = useTranslation()
 
+  const dispatch = useDispatch()
+
   const socials = [enableGoogleSocial, enableFacebookSocial]
 
   const socialCount = socials.filter((v) => v).length
@@ -59,13 +48,18 @@ const FlatSignIn = (props: Props) => {
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    loginUserByOAuth('google')
+    dispatch(AuthService.loginUserByOAuth('google'))
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    loginUserByOAuth('facebook')
+    dispatch(AuthService.loginUserByOAuth('facebook'))
   }
+
+  const handleResetPassword = (token: string, password: string): any => {
+    dispatch(AuthService.resetPassword(token, password))
+  }
+
   let component = null
   let footer = null
 
@@ -105,7 +99,7 @@ const FlatSignIn = (props: Props) => {
     case 'reset-password':
       component = (
         <>
-          <ResetPassword resetPassword={resetPassword} token={''} />
+          <ResetPassword resetPassword={handleResetPassword} token={''} />
           <span className={styles.placeholder} />
         </>
       )
@@ -172,4 +166,4 @@ const FlatSignIn = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FlatSignIn)
+export default FlatSignIn

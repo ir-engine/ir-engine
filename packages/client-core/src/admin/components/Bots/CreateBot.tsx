@@ -22,7 +22,7 @@ import { selectAdminInstanceState } from '../../reducers/admin/instance/selector
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { fetchAdminLocations } from '../../reducers/admin/location/service'
 import { connect } from 'react-redux'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import { createBotAsAdmin } from '../../reducers/admin/bots/service'
@@ -32,7 +32,6 @@ import { validateForm } from './validation'
 interface Props {
   fetchAdminInstances?: any
   adminInstanceState?: any
-  authState?: any
   createBotAsAdmin?: any
   adminLocationState?: any
   fetchAdminLocations?: any
@@ -41,7 +40,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     adminInstanceState: selectAdminInstanceState(state),
-    authState: selectAuthState(state),
     adminLocationState: selectAdminLocationState(state)
   }
 }
@@ -57,14 +55,7 @@ const Alert = (props) => {
 }
 
 const CreateBot = (props: Props) => {
-  const {
-    adminInstanceState,
-    authState,
-    fetchAdminInstances,
-    createBotAsAdmin,
-    fetchAdminLocations,
-    adminLocationState
-  } = props
+  const { adminInstanceState, fetchAdminInstances, createBotAsAdmin, fetchAdminLocations, adminLocationState } = props
   const [command, setCommand] = React.useState({
     name: '',
     description: ''
@@ -86,16 +77,17 @@ const CreateBot = (props: Props) => {
   })
   const classes = useStyles()
   const classx = useStyle()
-  const user = authState.get('user')
+  const authState = useAuthState()
+  const user = authState.user
   const adminInstances = adminInstanceState.get('instances')
   const instanceData = adminInstances.get('instances')
   const adminLocation = adminLocationState.get('locations')
   const locationData = adminLocation.get('locations')
   React.useEffect(() => {
-    if (user.id && adminInstances.get('updateNeeded')) {
+    if (user.id.value && adminInstances.get('updateNeeded')) {
       fetchAdminInstances()
     }
-    if (user?.id != null && adminLocation.get('updateNeeded') === true) {
+    if (user?.id.value != null && adminLocation.get('updateNeeded') === true) {
       fetchAdminLocations()
     }
   }, [user, adminInstanceState])
@@ -129,7 +121,7 @@ const CreateBot = (props: Props) => {
     const data = {
       name: state.name,
       instanceId: state.instance || null,
-      userId: user.id,
+      userId: user.id.value,
       command: commandData,
       description: state.description,
       locationId: state.location

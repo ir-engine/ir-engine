@@ -5,7 +5,7 @@ import { Forum, People, PersonAdd } from '@material-ui/icons'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import { updateMessageScrollInit } from '@xrengine/client-core/src/social/reducers/chat/service'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
@@ -14,7 +14,6 @@ import styles from './DrawerControls.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     chatState: selectChatState(state),
     locationState: selectLocationState(state),
     partyState: selectPartyState(state)
@@ -32,7 +31,6 @@ interface Props {
   setRightDrawerOpen: any
   setBottomDrawerOpen: any
   updateMessageScrollInit?: any
-  authState?: any
   chatState?: any
   locationState?: any
   partyState?: any
@@ -40,7 +38,6 @@ interface Props {
 
 export const DrawerControls = (props: Props): JSX.Element => {
   const {
-    authState,
     disableBottom,
     locationState,
     partyState,
@@ -50,20 +47,11 @@ export const DrawerControls = (props: Props): JSX.Element => {
     setTopDrawerOpen,
     updateMessageScrollInit
   } = props
-  const party = partyState.get('party')
-  const selfUser = authState.get('user')
-  const currentLocation = locationState.get('currentLocation').get('location')
-  const enablePartyVideoChat =
-    selfUser &&
-    selfUser.instanceId != null &&
-    selfUser.partyId != null &&
-    party?.id != null &&
-    (Network?.instance?.transport as any)?.socket?.connected === true
-  const enableInstanceVideoChat =
-    selfUser &&
-    selfUser.instanceId != null &&
-    currentLocation?.locationSettings?.instanceMediaChatEnabled === true &&
-    (Network?.instance?.transport as any)?.socket?.connected === true
+  //const party = partyState.get('party')
+  const selfUser = useAuthState().user
+  //const currentLocation = locationState.get('currentLocation').get('location')
+  //const enablePartyVideoChat = selfUser && selfUser.instanceId?.value != null && selfUser.partyId != null &&party?.id != null &&(Network?.instance?.transport as any)?.socket?.connected === true
+  //const enableInstanceVideoChat = selfUser && selfUser.instanceId != null && currentLocation?.locationSettings?.instanceMediaChatEnabled === true && (Network?.instance?.transport as any)?.socket?.connected === true
   const openChat = (): void => {
     setLeftDrawerOpen(false)
     setTopDrawerOpen(false)
@@ -85,17 +73,17 @@ export const DrawerControls = (props: Props): JSX.Element => {
   }
   return (
     <AppBar className={styles['bottom-appbar']}>
-      {selfUser.userRole !== 'guest' && (
+      {selfUser.userRole.value !== 'guest' && (
         <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>
           <PersonAdd />
         </Fab>
       )}
-      {selfUser.userRole !== 'guest' && disableBottom !== true && (
+      {selfUser.userRole.value !== 'guest' && disableBottom !== true && (
         <Fab color="primary" aria-label="Forum" onClick={openChat}>
           <Forum />
         </Fab>
       )}
-      {selfUser.userRole !== 'guest' && (
+      {selfUser.userRole.value !== 'guest' && (
         <Fab color="primary" aria-label="People" onClick={openPeople}>
           <People />
         </Fab>

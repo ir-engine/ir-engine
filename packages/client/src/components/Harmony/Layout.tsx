@@ -4,13 +4,13 @@ import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dia
 import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { theme } from '@xrengine/client-core/src/theme'
 import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import Harmony from '.'
 import LeftDrawer from '../Drawer/Left'
@@ -44,27 +44,25 @@ interface Props {
   children?: any
   setUserHasInteracted?: any
   onBoardingStep?: number
-  doLoginAuto?: typeof doLoginAuto
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     locationState: selectLocationState(state),
     onBoardingStep: selectAppOnBoardingStep(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  setUserHasInteracted: bindActionCreators(setUserHasInteracted, dispatch),
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  setUserHasInteracted: bindActionCreators(setUserHasInteracted, dispatch)
 })
 
 const Layout = (props: Props): any => {
-  const { pageTitle, children, appState, authState, setUserHasInteracted, doLoginAuto } = props
+  const { pageTitle, children, appState, setUserHasInteracted } = props
+  const dispatch = useDispatch()
   const userHasInteracted = appState.get('userHasInteracted')
-  const authUser = authState.get('authUser')
+  const authUser = useAuthState().authUser
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false)
@@ -75,7 +73,7 @@ const Layout = (props: Props): any => {
   const [groupForm, setGroupForm] = useState(initialGroupForm)
   const [selectedUser, setSelectedUser] = useState(initialSelectedUserState)
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
-  const user = authState.get('user')
+  const user = useAuthState().user
 
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
@@ -96,7 +94,7 @@ const Layout = (props: Props): any => {
       window.addEventListener('touchend', initialClickListener)
     }
 
-    doLoginAuto(true)
+    dispatch(AuthService.doLoginAuto(true))
   }, [])
 
   //info about current mode to conditional render menus
@@ -126,9 +124,8 @@ const Layout = (props: Props): any => {
           <Alerts />
           {childrenWithProps}
         </Fragment>
-        {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
+        {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && user?.id?.value != null && (
           <Fragment>
-            h
             <LeftDrawer
               harmony={true}
               detailsType={detailsType}
@@ -151,7 +148,7 @@ const Layout = (props: Props): any => {
             />
           </Fragment>
         )}
-        {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
+        {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
           <Fragment>
             <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
           </Fragment>

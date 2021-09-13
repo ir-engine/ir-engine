@@ -19,7 +19,7 @@ export default (): void => {
       },
       isInternal: true
     })
-    const instanceUsers = await app.service('user').find({
+    const instanceUsers = await app.service().find({
       query: {
         $limit: 0,
         instanceId: {

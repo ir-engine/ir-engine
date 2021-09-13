@@ -3,21 +3,11 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { selectAuthState } from '../../../reducers/auth/selector'
-import {
-  addConnectionByEmail,
-  addConnectionBySms,
-  loginUserByOAuth,
-  loginUserByXRWallet,
-  logoutUser,
-  removeUser,
-  updateUserAvatarId,
-  updateUsername,
-  updateUserSettings
-} from '../../../reducers/auth/service'
+import { useAuthState } from '../../../reducers/auth/AuthState'
+import { AuthService } from '../../../reducers/auth/service'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
@@ -32,55 +22,18 @@ import { useTranslation } from 'react-i18next'
 interface Props {
   changeActiveMenu?: any
   setProfileMenuOpen?: any
-  authState?: any
-  updateUsername?: any
-  updateUserAvatarId?: any
-  updateUserSettings?: any
-  loginUserByOAuth?: any
-  loginUserByXRWallet?: any
-  addConnectionBySms?: any
-  addConnectionByEmail?: any
-  logoutUser?: any
-  removeUser?: any
+
   hideLogin?: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUsername: bindActionCreators(updateUsername, dispatch),
-  updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
-  updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
-  loginUserByXRWallet: bindActionCreators(loginUserByXRWallet, dispatch),
-  addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
-  logoutUser: bindActionCreators(logoutUser, dispatch),
-  removeUser: bindActionCreators(removeUser, dispatch)
-})
-
 const ProfileMenu = (props: Props): any => {
-  const {
-    authState,
-    updateUsername,
-    addConnectionByEmail,
-    addConnectionBySms,
-    loginUserByOAuth,
-    loginUserByXRWallet,
-    logoutUser,
-    changeActiveMenu,
-    setProfileMenuOpen,
-    hideLogin
-  } = props
+  const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
 
-  const selfUser = authState.get('user') || {}
+  const dispatch = useDispatch()
+  const selfUser = useAuthState().user
 
-  const [username, setUsername] = useState(selfUser?.name)
+  const [username, setUsername] = useState(selfUser?.name.value)
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
@@ -105,8 +58,8 @@ const ProfileMenu = (props: Props): any => {
   }, []) // Only run once
 
   useEffect(() => {
-    selfUser && setUsername(selfUser.name)
-  }, [selfUser.name])
+    selfUser && setUsername(selfUser.name.value)
+  }, [selfUser.name.value])
 
   const updateUserName = (e) => {
     e.preventDefault()
@@ -121,8 +74,8 @@ const ProfileMenu = (props: Props): any => {
   const handleUpdateUsername = () => {
     const name = username.trim()
     if (!name) return
-    if (selfUser.name.trim() !== name) {
-      updateUsername(selfUser.id, name)
+    if (selfUser.name.value.trim() !== name) {
+      dispatch(AuthService.updateUsername(selfUser.id.value, name))
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -143,20 +96,19 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') addConnectionByEmail(emailPhone, selfUser?.id)
-    else if (type === 'sms') addConnectionBySms(emailPhone, selfUser?.id)
-
+    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value))
+    else if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value))
     return
   }
 
   const handleOAuthServiceClick = (e) => {
-    loginUserByOAuth(e.currentTarget.id)
+    dispatch(AuthService.loginUserByOAuth(e.currentTarget.id))
   }
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
-    await logoutUser()
+    await dispatch(AuthService.logoutUser())
     // window.location.reload()
   }
 
@@ -184,7 +136,7 @@ const ProfileMenu = (props: Props): any => {
     const result: any = await navigator.credentials.get(didAuthQuery)
     console.log(result)
 
-    loginUserByXRWallet(result)
+    dispatch(AuthService.loginUserByXRWallet(result))
   }
 
   return (
@@ -192,7 +144,7 @@ const ProfileMenu = (props: Props): any => {
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id)} />
+            <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id?.value)} />
             {changeActiveMenu != null && (
               <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple>
                 <Create />
@@ -226,26 +178,26 @@ const ProfileMenu = (props: Props): any => {
               />
             </span>
             <h2>
-              {selfUser?.userRole === 'admin'
+              {selfUser?.userRole?.value === 'admin'
                 ? t('user:usermenu.profile.youAreAn')
                 : t('user:usermenu.profile.youAreA')}{' '}
-              <span>{selfUser?.userRole}</span>.
+              <span>{selfUser?.userRole?.value}</span>.
             </h2>
             <h4>
-              {(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && (
+              {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
                 <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>
               )}
             </h4>
-            {selfUser?.inviteCode != null && (
+            {selfUser?.inviteCode.value != null && (
               <h2>
-                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode}
+                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
             )}
           </div>
         </section>
         {!hideLogin && (
           <>
-            {selfUser?.userRole === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && (
               <section className={styles.emailPhoneSection}>
                 <Typography variant="h1" className={styles.panelHeader}>
                   {t('user:usermenu.profile.connectPhone')}
@@ -274,7 +226,7 @@ const ProfileMenu = (props: Props): any => {
                 </form>
               </section>
             )}
-            {selfUser?.userRole === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
@@ -289,7 +241,7 @@ const ProfileMenu = (props: Props): any => {
               </section>
             )}
 
-            {selfUser?.userRole === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && (
               <section className={styles.socialBlock}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.connectSocial')}
@@ -328,4 +280,4 @@ const ProfileMenu = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileMenu)
+export default ProfileMenu

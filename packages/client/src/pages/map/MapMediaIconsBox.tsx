@@ -1,6 +1,6 @@
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import React, { useEffect, useState } from 'react'
@@ -21,7 +21,7 @@ import styles from './MapMediaIconsBox.module.scss'
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
-    authState: selectAuthState(state),
+
     locationState: selectLocationState(state),
     mediastream: state.get('mediastream')
   }
@@ -30,10 +30,10 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch): any => ({})
 
 const MediaIconsBox = (props) => {
-  const { authState, locationState, mediastream } = props
+  const { locationState, mediastream } = props
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
 
-  const user = authState.get('user')
+  const user = useAuthState().user
   const currentLocation = locationState.get('currentLocation').get('location')
 
   const instanceMediaChatEnabled = currentLocation.locationSettings
@@ -68,8 +68,9 @@ const MediaIconsBox = (props) => {
     }
   }
   const handleMicClick = async () => {
-    const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await configureMediaTransports(['audio'], partyId)) {
+    const partyId =
+      currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId.value
+    if (await configureMediaTransports(['audio'], partyId, true)) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()

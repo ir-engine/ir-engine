@@ -8,14 +8,12 @@ import TextField from '@material-ui/core/TextField'
 import MessageIcon from '@material-ui/icons/Message'
 import styles from './NewComment.module.scss'
 import { addCommentToFeed } from '../../reducers/feedComment/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
+  return {}
 }
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   addCommentToFeed: bindActionCreators(addCommentToFeed, dispatch)
@@ -24,10 +22,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   addCommentToFeed?: typeof addCommentToFeed
   feedId: any
-  authState?: any
 }
 
-const NewComment = ({ addCommentToFeed, feedId, authState }: Props) => {
+const NewComment = ({ addCommentToFeed, feedId }: Props) => {
   const [composingComment, setComposingComment] = useState('')
   const [buttonPopup, setButtonPopup] = useState(false)
   const { t } = useTranslation()
@@ -40,7 +37,7 @@ const NewComment = ({ addCommentToFeed, feedId, authState }: Props) => {
     composingComment.trim().length > 0 && addCommentToFeed(feedId, composingComment)
     setComposingComment('')
   }
-  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false
+  const checkGuest = useAuthState().authUser?.identityProvider?.type?.value === 'guest' ? true : false
 
   return (
     <section className={styles.messageContainer}>

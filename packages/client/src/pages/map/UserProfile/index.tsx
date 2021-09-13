@@ -1,18 +1,16 @@
-import { updateUserAvatarId, updateUsername } from '@xrengine/client-core/src/user/reducers/auth/service'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import TextField from '@material-ui/core/TextField'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { NavigateNext, NavigateBefore } from '@material-ui/icons'
 import Fab from '@material-ui/core/Fab'
-import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
 import styles from './UserProfile.module.scss'
 import { selectCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { fetchAvatarList } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { getAvatarURLFromNetwork, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SearchIcon } from '../icons/Search'
@@ -23,32 +21,24 @@ import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage
 interface Props {
   currentScene?: any
   showUserProfile?: any
-  authState?: any
-  fetchAvatars?: any
   isUserProfileShowing?: any
   showHideProfile?: Function
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     currentScene: selectCurrentScene(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUsername: bindActionCreators(updateUsername, dispatch),
-  fetchAvatars: bindActionCreators(fetchAvatarList, dispatch),
-  updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch)
-})
-
 const UserProfileScreen = (props: Props) => {
-  const { currentScene, authState, fetchAvatars, isUserProfileShowing, showHideProfile } = props
-
+  const { currentScene, isUserProfileShowing, showHideProfile } = props
+  const dispatch = useDispatch()
   const { t } = useTranslation()
-  const selfUser = authState?.get('user') || {}
-  const avatarList = authState.get('avatarList') || []
-  const [userName, setUsername] = useState(selfUser?.name)
+  const authState = useAuthState()
+  const selfUser = authState.user
+  const avatarList = authState.avatarList.value
+  const [userName, setUsername] = useState(selfUser?.name.value)
   const [isEditProfile, setEditProfile] = useState(false)
   const [isProfileEdited, setProfileEdited] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
@@ -62,15 +52,16 @@ const UserProfileScreen = (props: Props) => {
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
 
   useEffect(() => {
-    selfUser && setUsername(selfUser.name)
-  }, [selfUser.name])
+    selfUser && setUsername(selfUser.name.value)
+  }, [selfUser.name.value])
 
   useEffect(() => {
-    fetchAvatars()
+    dispatch(AuthService.fetchAvatarList())
   }, [isAvatarLoaded])
 
   useEffect(() => {
     if (page * imgPerPage >= avatarList.length) {
+      if (page <= 0) return
       setPage(page - 1)
     }
   }, [avatarList])
@@ -90,8 +81,15 @@ const UserProfileScreen = (props: Props) => {
     const avatar = avatarResources.avatar
 
     setSelectedAvatarId(avatar.name)
-    if (selfUser.avatarId !== avatar.name) {
-      updateUserAvatarId(selfUser.id, avatar.name, avatar.url, avatarResources['user-thumbnail'].url)
+    if (selfUser.avatarId.value !== avatar.name) {
+      dispatch(
+        AuthService.updateUserAvatarId(
+          selfUser.id.value,
+          avatar.name,
+          avatar.url,
+          avatarResources['user-thumbnail'].url
+        )
+      )
     }
   }
 
@@ -107,8 +105,8 @@ const UserProfileScreen = (props: Props) => {
   const handleUpdateUsername = () => {
     const name = userName.trim()
     if (!name) return
-    if (selfUser.name.trim() !== name) {
-      updateUsername(selfUser.id, name)
+    if (selfUser.name.value.trim() !== name) {
+      dispatch(AuthService.updateUsername(selfUser.id.value, name))
     }
   }
 
@@ -185,7 +183,7 @@ const UserProfileScreen = (props: Props) => {
     <div>
       <section className={`${styles.blockbg} ${isUserProfileShowing === false ? styles.hideProfile : ''}`}>
         <div className={styles.avatarBlock}>
-          <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id)} />
+          <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id.value)} />
           <div
             className={`${styles.avatarBtn} ${
               !isEditProfile ? styles.editBtn : isProfileEdited ? styles.enableBtn : styles.disableBtn
@@ -284,4 +282,4 @@ const UserProfileScreen = (props: Props) => {
     </div>
   )
 }
-export default connect(mapStateToProps, mapDispatchToProps)(UserProfileScreen)
+export default connect(mapStateToProps)(UserProfileScreen)

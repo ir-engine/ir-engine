@@ -17,7 +17,7 @@ import {
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
 import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
@@ -52,7 +52,6 @@ interface Props {
   containerProportions?: ContainerProportions
   peerId?: string
   appState?: any
-  authState?: any
   locationState?: any
   mediastream?: any
 }
@@ -60,7 +59,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     locationState: selectLocationState(state),
     mediastream: selectMediastreamState(state)
   }
@@ -81,7 +79,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [toggle, setToggle] = useState(0)
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, appState, authState, locationState, mediastream } = props
+  const { harmony, peerId, appState, locationState, mediastream } = props
   const userState = useUserState()
   const videoRef = React.createRef<HTMLVideoElement>()
   const audioRef = React.createRef<HTMLAudioElement>()
@@ -89,7 +87,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const audioStreamRef = useRef(audioStream)
 
   const userHasInteracted = appState.get('userHasInteracted')
-  const selfUser = authState.get('user')
+  const selfUser = useAuthState().user
   const currentLocation = locationState.get('currentLocation').get('location')
   const enableGlobalMute =
     currentLocation?.locationSettings?.locationType === 'showroom' &&
@@ -183,11 +181,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [userHasInteracted])
 
   useEffect(() => {
-    if (
-      harmony !== true &&
-      (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) &&
-      audioRef.current != null
-    )
+    if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled?.value === true && audioRef.current != null)
       audioRef.current.volume = 0
     else if (
       harmony === true
@@ -225,11 +219,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         audioRef.current.srcObject = new MediaStream([newAudioTrack])
       }
       // TODO: handle 3d audio switch on/off
-      if (
-        harmony !== true &&
-        (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1)
-      )
-        audioRef.current.volume = 0
+      if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled?.value === true) audioRef.current.volume = 0
       if (
         harmony === true
         // selfUser?.user_setting?.spatialAudioEnabled === false ||
@@ -373,7 +363,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             videoProducerPaused == true ||
             videoProducerGlobalMute == true) && (
             <img
-              src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id : user?.id)}
+              src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id?.value : user?.id)}
               draggable={false}
             />
           )}

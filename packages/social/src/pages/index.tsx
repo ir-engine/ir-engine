@@ -1,6 +1,5 @@
 // import {Stories} from '@xrengine/social/src/components/Stories';
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import FeedOnboarding from '@xrengine/social/src/components/FeedOnboarding'
@@ -19,21 +18,20 @@ import { createCreator } from '@xrengine/social/src/reducers/creator/service'
 import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
 import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import Splash from '../components/Splash'
 import styles from './index.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    auth: selectAuthState(state),
     creatorsState: selectCreatorsState(state),
     webxrnativeState: selectWebXrNativeState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch),
   getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
   changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
@@ -41,13 +39,21 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const Home = ({
   createCreator,
-  doLoginAuto,
+  //doLoginAuto,
   auth,
   creatorsState,
   webxrnativeState,
   changeWebXrNative,
   getWebXrNative
 }) => {
+  const dispatch = useDispatch()
+  const [onboarded, setOnboarded] = useState(true)
+  const [feedOnborded, setFeedOnborded] = useState(true)
+  const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
+
+  const currentCreator = creatorsState.get('currentCreator')
+  const currentTime = new Date(Date.now()).toISOString()
+
   /*hided for now*/
 
   useEffect(() => {
@@ -60,16 +66,9 @@ const Home = ({
   }, [auth])
 
   useEffect(() => {
-    doLoginAuto(true)
+    dispatch(AuthService.doLoginAuto(true))
     getWebXrNative()
   }, [])
-
-  const [onboarded, setOnboarded] = useState(true)
-  const [feedOnborded, setFeedOnborded] = useState(true)
-  const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
-
-  const currentCreator = creatorsState.get('currentCreator')
-  const currentTime = new Date(Date.now()).toISOString()
 
   useEffect(() => {
     if (!!currentCreator && !!currentCreator.createdAt) {

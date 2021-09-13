@@ -9,18 +9,12 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { alertSuccess } from '../../../common/reducers/alert/service'
 import { selectAppOnBoardingStep } from '../../../common/reducers/app/selector'
-import { selectAuthState } from '../../reducers/auth/selector'
-import {
-  fetchAvatarList,
-  removeAvatar,
-  updateUserAvatarId,
-  updateUserSettings,
-  uploadAvatarModel
-} from '../../reducers/auth/service'
+import { useAuthState } from '../../reducers/auth/AuthState'
+import { AuthService } from '../../reducers/auth/service'
 import AvatarMenu from './menus/AvatarMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
@@ -43,24 +37,19 @@ type StateType = {
 
 const mapStateToProps = (state: any): any => {
   return {
-    onBoardingStep: selectAppOnBoardingStep(state),
-    authState: selectAuthState(state)
+    onBoardingStep: selectAppOnBoardingStep(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
-  updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
-  alertSuccess: bindActionCreators(alertSuccess, dispatch),
+  alertSuccess: bindActionCreators(alertSuccess, dispatch)
   // provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
-  fetchAvatarList: bindActionCreators(fetchAvatarList, dispatch),
-  removeAvatar: bindActionCreators(removeAvatar, dispatch)
 })
 
 const UserMenu = (props: UserMenuProps): any => {
-  const { authState, updateUserAvatarId, alertSuccess, uploadAvatarModel, fetchAvatarList, enableSharing, hideLogin } =
-    props
+  const { alertSuccess, enableSharing, hideLogin } = props
+
+  const dispatch = useDispatch()
 
   let menus = [
     { id: Views.Profile, iconNode: PersonIcon },
@@ -86,14 +75,14 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
-
-  const selfUser = authState.get('user') || {}
-  const avatarList = authState.get('avatarList') || []
+  const authState = useAuthState()
+  const selfUser = authState.user
+  const avatarList = authState.avatarList.value
 
   const [currentActiveMenu, setCurrentActiveMenu] = useState(enableSharing === false ? (menus[0] as any) : null)
   const [activeLocation, setActiveLocation] = useState(null)
 
-  const [userSetting, setUserSetting] = useState(selfUser?.user_setting)
+  const [userSetting, setUserSetting] = useState(selfUser?.user_setting.value)
   const [graphics, setGraphicsSetting] = useState({})
 
   useEffect(() => {
@@ -110,15 +99,27 @@ const UserMenu = (props: UserMenuProps): any => {
   document.addEventListener('ENGINE_LOADED', onEngineLoaded)
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (selfUser) {
-      updateUserAvatarId(selfUser.id, avatarId, avatarURL, thumbnailURL)
+    if (selfUser?.value) {
+      dispatch(AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL))
     }
   }
 
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting }
     setUserSetting(setting)
-    updateUserSettings(selfUser.user_setting.id, setting)
+    dispatch(AuthService.updateUserSettings(selfUser.user_setting.id.value, setting))
+  }
+
+  const handleFetchAvatarList = (): any => {
+    return dispatch(AuthService.fetchAvatarList())
+  }
+
+  const handleUploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
+    return dispatch(AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar))
+  }
+
+  const handleRemoveAvatar = (keys: [string]): any => {
+    return dispatch(AuthService.removeAvatar(keys))
   }
 
   const updateGraphicsSettings = (newSetting: any): void => {
@@ -173,10 +174,10 @@ const UserMenu = (props: UserMenuProps): any => {
         args = {
           setAvatar: setAvatar,
           changeActiveMenu: changeActiveMenu,
-          removeAvatar: removeAvatar,
-          fetchAvatarList: fetchAvatarList,
+          removeAvatar: handleRemoveAvatar,
+          fetchAvatarList: handleFetchAvatarList,
           avatarList: avatarList,
-          avatarId: selfUser?.avatarId,
+          avatarId: selfUser?.avatarId?.value,
           enableSharing: enableSharing
         }
         break
@@ -193,9 +194,9 @@ const UserMenu = (props: UserMenuProps): any => {
         break
       case Views.AvatarUpload:
         args = {
-          userId: selfUser?.id,
+          userId: selfUser?.id.value,
           changeActiveMenu: changeActiveMenu,
-          uploadAvatarModel: uploadAvatarModel
+          uploadAvatarModel: handleUploadAvatarModel
         }
         break
       case Views.Location:
@@ -212,9 +213,9 @@ const UserMenu = (props: UserMenuProps): any => {
         break
       case Views.ReadyPlayer:
         args = {
-          userId: selfUser?.id,
+          userId: selfUser?.id.value,
           changeActiveMenu: changeActiveMenu,
-          uploadAvatarModel: uploadAvatarModel,
+          uploadAvatarModel: handleUploadAvatarModel,
           isPublicAvatar: false
         }
         break

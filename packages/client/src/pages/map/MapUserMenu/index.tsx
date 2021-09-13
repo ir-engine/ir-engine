@@ -1,19 +1,13 @@
 import Badge from '@material-ui/core/Badge'
 import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import {
-  fetchAvatarList,
-  removeAvatar,
-  updateUserAvatarId,
-  updateUserSettings,
-  uploadAvatarModel
-} from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { DownArrow } from '../icons/DownArrow'
 import AvatarMenu from './menus/AvatarMenu'
@@ -45,33 +39,18 @@ enum ActivePanel {
 
 const mapStateToProps = (state: any): any => {
   return {
-    onBoardingStep: selectAppOnBoardingStep(state),
-    authState: selectAuthState(state)
+    onBoardingStep: selectAppOnBoardingStep(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
-  updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
-  alertSuccess: bindActionCreators(alertSuccess, dispatch),
+  alertSuccess: bindActionCreators(alertSuccess, dispatch)
   // provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
-  fetchAvatarList: bindActionCreators(fetchAvatarList, dispatch),
-  removeAvatar: bindActionCreators(removeAvatar, dispatch)
 })
 
 const UserMenu = (props: UserMenuProps): any => {
-  const {
-    authState,
-    updateUserAvatarId,
-    alertSuccess,
-    uploadAvatarModel,
-    fetchAvatarList,
-    enableSharing,
-    hideLogin,
-    showHideProfile
-  } = props
-
+  const { alertSuccess, uploadAvatarModel, enableSharing, hideLogin, showHideProfile } = props
+  const dispatch = useDispatch()
   const menuPanel = {
     [Views.Profile]: ProfileMenu,
     [Views.Share]: ShareMenu,
@@ -84,8 +63,9 @@ const UserMenu = (props: UserMenuProps): any => {
   const [activePanel, setActivePanel] = useState(ActivePanel.NONE)
   const [hasUnreadMessages, setUnreadMessages] = useState(false)
 
-  const selfUser = authState.get('user') || {}
-  const avatarList = authState.get('avatarList') || []
+  const authState = useAuthState()
+  const selfUser = authState.user
+  const avatarList = authState.avatarList.value || []
 
   const [currentActiveMenu, setCurrentActiveMenu] = useState(null)
   const [activeLocation, setActiveLocation] = useState(null)
@@ -108,14 +88,14 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser) {
-      updateUserAvatarId(selfUser.id, avatarId, avatarURL, thumbnailURL)
+      dispatch(AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL))
     }
   }
 
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting }
     setUserSetting(setting)
-    updateUserSettings(selfUser.user_setting.id, setting)
+    dispatch(AuthService.updateUserSettings(selfUser.user_setting.id.value, setting))
   }
 
   const updateGraphicsSettings = (newSetting: any): void => {
@@ -175,10 +155,10 @@ const UserMenu = (props: UserMenuProps): any => {
         args = {
           setAvatar: setAvatar,
           changeActiveMenu: changeActiveMenu,
-          removeAvatar: removeAvatar,
-          fetchAvatarList: fetchAvatarList,
+          removeAvatar: AuthService.removeAvatar,
+          fetchAvatarList: AuthService.fetchAvatarList,
           avatarList: avatarList,
-          avatarId: selfUser?.avatarId,
+          avatarId: selfUser?.avatarId.value,
           enableSharing: enableSharing
         }
         break
@@ -195,7 +175,7 @@ const UserMenu = (props: UserMenuProps): any => {
         break
       case Views.AvatarUpload:
         args = {
-          userId: selfUser?.id,
+          userId: selfUser?.id.value,
           changeActiveMenu: changeActiveMenu,
           uploadAvatarModel: uploadAvatarModel
         }

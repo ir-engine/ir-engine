@@ -1,23 +1,17 @@
 import React from 'react'
 import BotsCore from '@xrengine/client-core/src/admin/components/Bots'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useDispatch } from 'react-redux'
 
-interface Props {
-  doLoginAuto?: any
-}
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
+interface Props {}
 
 const Bots = (props: Props) => {
-  const { doLoginAuto } = props
+  const dispatch = useDispatch()
   React.useEffect(() => {
-    doLoginAuto(false)
+    dispatch(AuthService.doLoginAuto(false))
   }, [])
 
   return <BotsCore />
 }
 
-export default connect(null, mapDispatchToProps)(Bots)
+export default Bots

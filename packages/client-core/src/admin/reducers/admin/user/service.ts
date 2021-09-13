@@ -14,14 +14,15 @@ import {
 import { client } from '../../../../feathers'
 import { loadedUsers } from './actions'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { useAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export function fetchUsersAsAdmin(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const user = getState().get('auth').get('user')
+    const user = useAuthState().user
     const skip = getState().get('adminUser').get('users').get('skip')
     const limit = getState().get('adminUser').get('users').get('limit')
     try {
-      if (user.userRole === 'admin') {
+      if (user.userRole.value === 'admin') {
         const users = await client.service('user').find({
           query: {
             $sort: {
@@ -103,7 +104,7 @@ export const updateUserRole = (id: string, role: string) => {
 export const searchUserAction = (data: any, offset: string) => {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      const user = getState().get('auth').get('user')
+      //const user = getState().get('auth').get('user')
       const skip = getState().get('adminUser').get('users').get('skip')
       const limit = getState().get('adminUser').get('users').get('limit')
       const result = await client.service('user').find({

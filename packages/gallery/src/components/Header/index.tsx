@@ -3,7 +3,6 @@ import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { useTranslation } from 'react-i18next'
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core'
 

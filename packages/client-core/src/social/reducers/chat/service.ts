@@ -21,6 +21,8 @@ import { dispatchAlertError } from '../../../common/reducers/alert/service'
 
 import { Config } from '@xrengine/common/src/config'
 
+import { accessAuthState } from '../../../user/reducers/auth/AuthState'
+
 const store = Store.store
 
 export function getChannels(skip?: number, limit?: number) {
@@ -85,7 +87,7 @@ export async function sendChatMessage(values: any) {
 
 //sends a chat message in the current channel
 export async function sendMessage(text: string) {
-  const user = (Store.store.getState() as any).get('auth').get('user') as User
+  const user = accessAuthState().user.value
   await sendChatMessage({
     targetObjectId: user.instanceId,
     targetObjectType: 'instance',
@@ -161,7 +163,7 @@ export function updateMessageScrollInit(value: boolean) {
 
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('message').on('created', (params) => {
-    const selfUser = (store.getState() as any).get('auth').get('user') as User
+    const selfUser = accessAuthState().user.value
     const msg = createdMessage(params.message, selfUser)
     if (msg != undefined) store.dispatch(msg)
   })

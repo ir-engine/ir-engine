@@ -9,14 +9,12 @@ import { connect } from 'react-redux'
 
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getLoggedCreator } from '../../reducers/creator/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { updateCreatorFormState } from '../../reducers/popupsState/service'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
   return {
-    creatorState: selectCreatorsState(state),
-    authState: selectAuthState(state)
+    creatorState: selectCreatorsState(state)
   }
 }
 
@@ -29,7 +27,6 @@ interface Props {
   creatorState?: any
   getLoggedCreator?: any
   logo?: string
-  authState?: any
   updateCreatorFormState?: typeof updateCreatorFormState
   title?: string
 }

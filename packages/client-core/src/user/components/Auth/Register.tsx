@@ -6,25 +6,24 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import { showDialog } from '../../../common/reducers/dialog/service'
-import { registerUserByEmail } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/service'
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch)
 })
 
 interface Props {
-  registerUserByEmail: typeof registerUserByEmail
   showDialog: typeof showDialog
 }
 
 const SignUp = (props: Props): any => {
-  const { registerUserByEmail, showDialog } = props
+  const { showDialog } = props
+  const dispatch = useDispatch()
   const initialState = {
     email: '',
     password: '',
@@ -40,10 +39,12 @@ const SignUp = (props: Props): any => {
 
   const handleRegister = (e: any): void => {
     e.preventDefault()
-    registerUserByEmail({
-      email: state.email,
-      password: state.password
-    })
+    dispatch(
+      AuthService.registerUserByEmail({
+        email: state.email,
+        password: state.password
+      })
+    )
   }
 
   return (

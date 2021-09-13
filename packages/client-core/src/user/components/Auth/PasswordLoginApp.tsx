@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useHistory } from 'react-router-dom'
 
@@ -11,8 +11,8 @@ import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 
-import { selectAuthState } from '../../reducers/auth/selector'
-import { doLoginAuto } from '../../reducers/auth/service'
+import { useAuthState } from '../../reducers/auth/AuthState'
+import { AuthService } from '../../reducers/auth/service'
 import { User } from '@xrengine/common/src/interfaces/User'
 import styles from './Auth.module.scss'
 import { createCreator } from '@xrengine/social/src/reducers/creator/service'
@@ -21,42 +21,38 @@ import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
   return {
-    auth: selectAuthState(state),
     creatorsState: selectCreatorsState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch)
 })
 
 const initialState = { email: '', password: '' }
 
 interface Props {
-  auth?: any
   // loginUserByPassword?: typeof loginUserByPassword;
-  doLoginAuto?: typeof doLoginAuto
   createCreator?: typeof createCreator
   creatorsState?: any
 }
 
 export const PasswordLoginApp = (props: Props): any => {
   const {
-    auth,
     // loginUserByPassword,
-    doLoginAuto,
     createCreator,
     creatorsState
   } = props
+  const dispatch = useDispatch()
+  const auth = useAuthState()
   const history = useHistory()
   const { t } = useTranslation()
 
   useEffect(() => {
     if (auth) {
-      const user = auth.get('user') as User
-      const userId = user ? user.id : null
+      const user = auth.user
+      const userId = user ? user.id.value : null
 
       if (userId) {
         createCreator()
@@ -74,8 +70,7 @@ export const PasswordLoginApp = (props: Props): any => {
 
   const handleEmailLogin = (e: any): void => {
     e.preventDefault()
-
-    doLoginAuto(true)
+    dispatch(AuthService.doLoginAuto(true))
   }
 
   const [showPassword, showHidePassword] = useState(false)
