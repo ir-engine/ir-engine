@@ -352,8 +352,10 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     })
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
+      console.log('initializeEngine got event CONNECT')
       Network.instance.isInitialized = true
       Network.instance.userId = id
+      console.log('initializeEngine set isInitialized to true and userId to', id)
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.engineTimer.start()
