@@ -3,25 +3,48 @@
  */
 import React, { useState, useEffect } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
+
+import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
+
 import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import TelegramIcon from '@material-ui/icons/Telegram'
+// import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+// import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility'
+import Popover from '@material-ui/core/Popover'
+import Button from '@material-ui/core/Button'
 import CardHeader from '@material-ui/core/CardHeader'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import Avatar from '@material-ui/core/Avatar'
+import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined'
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
+import CreatorAsTitle from '../CreatorAsTitle'
+// @ts-ignore
 import styles from './FeedCard.module.scss'
+import SimpleModal from '../SimpleModal'
 import { addViewToFeed, removeFeed } from '../../reducers/feed/service'
+// import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector'
+
+// import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service'
+import PopupLogin from '../PopupLogin/PopupLogin'
+// import { IndexPage } from '@xrengine/social/pages/login';
 import { selectCreatorsState } from '../../reducers/creator/selector'
+import { getLoggedCreator } from '../../reducers/creator/service'
+import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import { updateCreatorPageState, updateFeedPageState } from '../../reducers/popupsState/service'
+import { Share } from '@capacitor/share'
+import { addReportToFeed } from '../../reducers/feedReport/service'
+import Snackbar from '@material-ui/core/Snackbar'
+import Alert from '@material-ui/lab/Alert'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -36,6 +59,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   //     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
   getFeedFires: bindActionCreators(getFeedFires, dispatch),
   addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
+  addReportToFeed: bindActionCreators(addReportToFeed, dispatch),
   removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
@@ -58,11 +82,13 @@ interface Props {
   // addBookmarkToFeed?: typeof addBookmarkToFeed;
   // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
   addViewToFeed?: typeof addViewToFeed
+  addReportToFeed?: typeof addReportToFeed
   removeFeed?: typeof removeFeed
 }
 const FeedCard = (props: Props): any => {
   const [buttonPopup, setButtonPopup] = useState(false)
   const [fired, setFired] = useState(false)
+  const [reported, setReported] = useState(false)
   //     const [isVideo, setIsVideo] = useState(false);
   //     const [openFiredModal, setOpenFiredModal] = useState(false);
   //     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
@@ -74,6 +100,7 @@ const FeedCard = (props: Props): any => {
     addFireToFeed,
     removeFireToFeed,
     addViewToFeed,
+    addReportToFeed,
     updateCreatorPageState,
     updateFeedPageState,
     removeFeed
@@ -87,10 +114,16 @@ const FeedCard = (props: Props): any => {
     setFiredCount(firedCount + 1)
     setFired(true)
   }
+
   const handleRemoveFireClick = (feedId) => {
     removeFireToFeed(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
+  }
+
+  const handleReportFeed = (feedId) => {
+    addReportToFeed(feedId)
+    setReported(true)
   }
 
   //hided for now
@@ -108,12 +141,10 @@ const FeedCard = (props: Props): any => {
   //     };
   useEffect(() => {
     getFeedFires(feed.id, setFeedFiresCreators)
-    console.log('feed', feed)
   }, [])
 
   const { t } = useTranslation()
   const shareVia = () => {
-    // @ts-ignore TODO: Share is undefined here
     Share.share({
       title: t('social:shareForm.arcMedia'),
       text: t('social:shareForm.videoCreated'),
@@ -138,7 +169,7 @@ const FeedCard = (props: Props): any => {
   }, [feedFiresCreators])
 
   useEffect(() => {
-    setVideoDisplay(false)
+    setVideoDisplay(true)
   }, [feed.id])
 
   const previewImageClick = () => {
@@ -214,7 +245,6 @@ const FeedCard = (props: Props): any => {
                 </Typography>
               }
             />
-
             <section className={styles.iconSubContainer}>
               {feed.isFired ? (
                 <WhatshotIcon
@@ -230,6 +260,7 @@ const FeedCard = (props: Props): any => {
                 />
               )}
               <TelegramIcon onClick={shareVia} />
+              <ReportOutlinedIcon htmlColor="#FF0000" onClick={() => handleReportFeed(feed.id)} />
             </section>
             {/*hided for now*/}
             {/* {feed.isBookmarked ? <BookmarkIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveBookmarkClick(feed.id)} />
@@ -248,6 +279,17 @@ const FeedCard = (props: Props): any => {
       {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}> */}
       {/* <IndexPage /> */}
       {/* </PopupLogin> */}
+      <Snackbar
+        open={reported}
+        autoHideDuration={2000}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center'
+        }}
+        onClose={() => setReported(false)}
+      >
+        <Alert severity="error">{t('social:feed.is-repoted-message')}</Alert>
+      </Snackbar>
     </>
   ) : (
     <></>

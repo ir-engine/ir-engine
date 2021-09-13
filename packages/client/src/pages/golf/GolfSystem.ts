@@ -309,6 +309,12 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
        */
       case 'puttclub.NEXT_HOLE': {
         s.currentHole.set((s.currentHole.value + 1) % s.holes.length) // TODO: earliest incomplete hole
+        if (s.currentHole.value === 0) {
+          console.log('finished game! resetting player scores')
+          for (const [i, p] of s.players.entries()) {
+            p.scores.set([])
+          }
+        }
         // Set all player strokes to 0
         for (const [i, p] of s.players.entries()) {
           p.stroke.set(0)

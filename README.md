@@ -19,8 +19,7 @@
 - OAuth login with Facebook, Google, Steam and Github
 - User management, avatars and inventory
 - Authorative realtime gameserver
-- Reliable messaging and signaling with socket.io
-- Fast, unreliable messaging with SCTP data channels
+- Websockets and WebRTC data transport
 - Built end-to-end in Typescript
 - Free, open source, MIT-licensed
 

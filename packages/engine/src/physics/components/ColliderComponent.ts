@@ -9,4 +9,4 @@ export type ColliderComponentType = {
   body: Body
 }
 
-export const ColliderComponent = createMappedComponent<ColliderComponentType>()
+export const ColliderComponent = createMappedComponent<ColliderComponentType>('ColliderComponent')

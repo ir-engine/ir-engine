@@ -40,7 +40,9 @@ export const addControllerModels = (entity: Entity) => {
     })
 
     controller.addEventListener('disconnected', (ev) => {
-      controller.targetRay.visible = false
+      if (controller?.targetRay) {
+        controller.targetRay.visible = false
+      }
     })
   })
 

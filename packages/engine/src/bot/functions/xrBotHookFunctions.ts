@@ -202,7 +202,6 @@ export type InputSourceTweenProps = {
   quaternionTo: Quaternion
   callback: () => void
 }
-let last
 
 export function tweenXRInputSource(args: InputSourceTweenProps) {
   let counter = 0
@@ -216,9 +215,6 @@ export function tweenXRInputSource(args: InputSourceTweenProps) {
       args.callback()
     }
     counter++
-    const now = Date.now()
-    console.log(now - last)
-    last = now
   }
   tweens.push(tweenFunction)
 }

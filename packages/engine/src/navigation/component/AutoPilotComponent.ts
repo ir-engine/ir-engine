@@ -11,4 +11,4 @@ export type AutoPilotComponentType = {
   path: Path
 }
 
-export const AutoPilotComponent = createMappedComponent<AutoPilotComponentType>()
+export const AutoPilotComponent = createMappedComponent<AutoPilotComponentType>('AutoPilotComponent')

@@ -7,4 +7,4 @@ export type TransformComponentType = {
   scale: Vector3
 }
 
-export const TransformComponent = createMappedComponent<TransformComponentType>()
+export const TransformComponent = createMappedComponent<TransformComponentType>('TransformComponent')

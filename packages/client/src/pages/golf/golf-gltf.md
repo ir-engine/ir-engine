@@ -8,14 +8,14 @@ All golf tees and holes are loaded from the gltf model scene, to enable changes 
 Tees and holes require the following properties:
 
 ```
-xrengine.entity: 'GolfTee-0'
-xrengine.userdata.par: 3
+realitypack.entity: 'GolfTee-0'
+realitypack.userdata.par: 3
 ```
 
 ```
-xrengine.entity: 'GolfHole-0'
-xrengine.box-collider.isTrigger: true
-xrengine.box-collider.removeMesh: true
+realitypack.entity: 'GolfHole-0'
+realitypack.box-collider.isTrigger: true
+realitypack.box-collider.removeMesh: true
 ```
 
 

@@ -17,7 +17,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
-import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
 import { EditorContextProvider } from './contexts/EditorContext'
@@ -273,33 +272,13 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
       name: publishParams.name
     }
 
-    const token = getToken()
-
-    const headers = {
-      'content-type': 'application/json',
-      authorization: `Bearer ${token}`
+    try {
+      project = await globalThis.Editor.feathersClient
+        .service(`/publish-project/${project.project_id}`)
+        .create({ scene: sceneParams })
+    } catch (error) {
+      throw new Error(error)
     }
-    const body = JSON.stringify({ scene: sceneParams })
-
-    const resp = await fetchUrl(`${Config.publicRuntimeConfig.apiServer}/publish-project/${project.project_id}`, {
-      method: 'POST',
-      headers,
-      body
-    })
-
-    console.log('Response: ' + Object.values(resp))
-
-    if (signal.aborted) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    if (resp.status !== 200) {
-      throw new Error(i18n.t('editor:errors.sceneCreationFail', { reason: await resp.text() }))
-    }
-
-    project = await resp.json()
 
     showDialog(PublishedSceneDialog, {
       sceneName: sceneParams.name,
@@ -461,6 +440,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
+    globalThis.Editor.initializeFeathersClient(getToken())
     if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
       this.props.fetchAdminLocations()
     }
@@ -659,8 +639,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       project = await getProject(projectId)
       globalThis.ownedFileIds = JSON.parse(project.ownedFileIds)
       globalThis.currentProjectID = project.project_id
-      const projectFile = await fetchUrl(project.project_url).then((response) => response.json())
-
+      const projectIndex = project.project_url.split('collection/')[1]
+      const projectFile = await globalThis.Editor.feathersClient.service(`collection`).get(projectIndex, {
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
       await editor.init()
 
       await editor.loadProject(projectFile)

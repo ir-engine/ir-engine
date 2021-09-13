@@ -6,4 +6,4 @@ export type AvatarPendingComponentType = {
   plate: Mesh
 }
 
-export const AvatarPendingComponent = createMappedComponent<AvatarPendingComponentType>()
+export const AvatarPendingComponent = createMappedComponent<AvatarPendingComponentType>('AvatarPendingComponent')

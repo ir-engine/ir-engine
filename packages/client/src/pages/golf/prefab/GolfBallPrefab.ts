@@ -368,7 +368,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
       restOffset: -golfBallColliderExpansion,
       // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
       // this will not reverse the expansion for trigger colliders
-      contactOffset: golfBallColliderExpansion,
+      contactOffset: -0.005, //golfBallColliderExpansion,
       material: { staticFriction: 0.2, dynamicFriction: 0.2, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask:

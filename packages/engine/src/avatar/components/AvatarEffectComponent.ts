@@ -11,4 +11,4 @@ export type AvatarEffectComponentType = {
   originMaterials: Array<MaterialMap>
 }
 
-export const AvatarEffectComponent = createMappedComponent<AvatarEffectComponentType>()
+export const AvatarEffectComponent = createMappedComponent<AvatarEffectComponentType>('AvatarEffectComponent')

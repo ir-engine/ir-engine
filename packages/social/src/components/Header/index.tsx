@@ -2,6 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
+// @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -9,9 +10,9 @@ import { connect } from 'react-redux'
 
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getLoggedCreator } from '../../reducers/creator/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { updateCreatorFormState } from '../../reducers/popupsState/service'
 import { useTranslation } from 'react-i18next'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -28,12 +29,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   creatorState?: any
   getLoggedCreator?: any
-  logo?: string
   authState?: any
   updateCreatorFormState?: typeof updateCreatorFormState
-  title?: string
 }
-const AppHeader = ({ creatorState, getLoggedCreator, logo, title, updateCreatorFormState }: Props) => {
+const AppHeader = ({ creatorState, getLoggedCreator, authState, updateCreatorFormState }: Props) => {
   const { t } = useTranslation()
   useEffect(() => getLoggedCreator(), [])
   const creator =
@@ -43,8 +42,7 @@ const AppHeader = ({ creatorState, getLoggedCreator, logo, title, updateCreatorF
 
   return (
     <nav className={styles.headerContainer}>
-      {logo && <img src={logo} className="header-logo" alt="CREATOR" />}
-      {title && <span>{title}</span>}
+      <img src="/assets/LogoColored.png" className={styles.headerLogo} alt="ARC" />
       {creator &&
         {
           /*!checkGuest*/

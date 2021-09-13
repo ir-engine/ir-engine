@@ -22,4 +22,4 @@ export type GolfClubComponentType = {
   number: number
 }
 
-export const GolfClubComponent = createMappedComponent<GolfClubComponentType>()
+export const GolfClubComponent = createMappedComponent<GolfClubComponentType>('GolfClubComponent')

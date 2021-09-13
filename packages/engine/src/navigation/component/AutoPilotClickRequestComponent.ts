@@ -9,4 +9,6 @@ export type AutoPilotClickRequestComponentType = {
   coords: Vector2
 }
 
-export const AutoPilotClickRequestComponent = createMappedComponent<AutoPilotClickRequestComponentType>()
+export const AutoPilotClickRequestComponent = createMappedComponent<AutoPilotClickRequestComponentType>(
+  'AutoPilotClickRequestComponent'
+)

@@ -14,7 +14,7 @@ import {
   getSubscribedChatSystems,
   removeMessageSystem
 } from '../../networking/utils/chatSystem'
-import { getPlayerEntity } from '../../networking/utils/getUser'
+import { getPlayerEntity, getPlayers } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
@@ -231,6 +231,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       if (isServer) return false
 
       handleGetChatHistoryCommand()
+      
+      return true
+    }
+    case 'listAllusers': {
+      if (isServer) return false
+
+      handleListAllUsersCommand(userId)
 
       return true
     }
@@ -420,7 +427,6 @@ function handleGetTransformCommand(player: string) {
   console.log(player + ' transform: ' + JSON.stringify(transform))
 }
 function handleFollowCommand(param: string, eid: number) {
-  console.log('follow: ' + param)
   if (param === 'stop') {
     removeFollowComponent(eid)
   } else {
@@ -430,6 +436,7 @@ function handleFollowCommand(param: string, eid: number) {
     createFollowComponent(eid, targetEid)
   }
 }
+
 function handleGetChatHistoryCommand() {
   const chatState = globalThis.store.getState().get('chat')
   const channelState = chatState.get('channels')
@@ -458,6 +465,16 @@ function handleGetChatHistoryCommand() {
   } else {
     console.warn("Couldn't get chat state")
   }
+}
+
+function handleListAllUsersCommand(userId) {
+  console.log('listallusers, local id: ' + userId)
+  if (userId === undefined) return
+
+  const players: string[] = getPlayers(userId, true)
+  if (players === undefined) return
+
+  console.log('players|' + players)
 }
 
 function runAnimation(eid: any, emote: string, emoteParams: any) {

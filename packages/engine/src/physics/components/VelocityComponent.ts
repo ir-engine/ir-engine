@@ -9,4 +9,4 @@ export type VelocityComponentType = {
   velocity: Vector3
 }
 
-export const VelocityComponent = createMappedComponent<VelocityComponentType>()
+export const VelocityComponent = createMappedComponent<VelocityComponentType>('VelocityComponent')

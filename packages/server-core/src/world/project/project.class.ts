@@ -177,8 +177,6 @@ export class Project implements ServiceMethods<Data> {
     }
     if (!sceneData) return
 
-    console.log('Patching the Project Fiel:' + JSON.stringify(data))
-    console.log('Patching the Project Fiel:' + JSON.stringify(data.ownedUploadedFileId))
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
       project.update(
         {

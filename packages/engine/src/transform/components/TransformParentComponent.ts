@@ -4,4 +4,4 @@ export type TransformParentComponentType = {
   children: any[]
 }
 
-export const TransformParentComponent = createMappedComponent<TransformParentComponentType>()
+export const TransformParentComponent = createMappedComponent<TransformParentComponentType>('TransformParentComponent')

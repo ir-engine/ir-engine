@@ -236,10 +236,6 @@ export class WorldScene {
         createTransformComponent(entity, component.data)
         break
 
-      case 'walkable':
-        addComponent(entity, WalkableTagComponent, {})
-        break
-
       case 'fog':
         setFog(entity, component.data)
         break

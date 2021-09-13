@@ -44,7 +44,7 @@ export class FollowCreator extends Service {
       const dataQuery = `SELECT creator.*, sr.url as avatar
         FROM \`follow_creator\` as fc
         JOIN \`creator\` as creator ON creator.id=fc.followerId
-        JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
+        LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
         WHERE fc.creatorId=:creatorId
         ORDER BY fc.createdAt DESC    
         LIMIT :skip, :limit`

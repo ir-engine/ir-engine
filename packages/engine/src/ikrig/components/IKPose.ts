@@ -43,4 +43,4 @@ type IKPoseComponentType = {
   head?: { lookDirection: Vector3; twistDirection: Vector3 }
 }
 
-export const IKPose = createMappedComponent<IKPoseComponentType>()
+export const IKPose = createMappedComponent<IKPoseComponentType>('IKPose')

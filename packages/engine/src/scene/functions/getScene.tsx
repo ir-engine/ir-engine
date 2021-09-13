@@ -1,24 +1,17 @@
-import { Config } from '@xrengine/common/src/config'
-import { fetchUrl } from './fetchUrl'
-
 /**
  * getScene used to Calling api to get scene data using id.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  */
 
 export const getScene = async (sceneId): Promise<JSON> => {
-  const headers = {
-    'content-type': 'application/json'
+  let json
+  try {
+    json = await globalThis.Editor.feathersClient.service('project').get(sceneId)
+  } catch (error) {
+    console.log("Can't get URL from id" + error)
+    throw new Error(error)
   }
-
-  const response = await fetchUrl(`${Config.publicRuntimeConfig.apiServer}/project/${sceneId}`, {
-    headers
-  })
-
-  console.log('Response: ' + Object.values(response))
-
-  const json = await response.json()
-
   return json.scenes[0]
 }

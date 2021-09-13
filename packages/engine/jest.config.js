@@ -20,6 +20,7 @@ module.exports = {
       useESM: true,
     },
   },
+  testTimeout: 30000,
   passWithNoTests: true,
   testMatch: ['<rootDir>/tests/**/*.test.(t|j)s(x)?']
 };

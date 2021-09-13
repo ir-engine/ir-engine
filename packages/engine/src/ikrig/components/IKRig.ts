@@ -12,4 +12,4 @@ type IKRigComponentType = {
   sourceRig?: ReturnType<typeof IKRig.get>
 }
 
-export const IKRig = createMappedComponent<IKRigComponentType>()
+export const IKRig = createMappedComponent<IKRigComponentType>('IKRig')
