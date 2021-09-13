@@ -419,6 +419,10 @@
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
         },
+        "customscriptnode": {
+            "description": "Attach Custom Scripts.",
+            "lbl-attachscript": "Attach Custom Script"
+        },
         "portal": {
             "lbl-portal": "Linked Portal",
             "description": "A Portat to teleport players to specified location",

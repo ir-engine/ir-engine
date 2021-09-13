@@ -24,6 +24,7 @@ import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
 import VolumetricNode from '@xrengine/editor/src/nodes/VolumetricNode'
 import CubemapBakeNode from '@xrengine/editor/src/nodes/CubemapBakeNode'
 import SplineNode from '@xrengine/editor/src/nodes/SplineNode'
+import CustomScriptNode from '@xrengine/editor/src/nodes/CustomScriptNode'
 import MapNode from '@xrengine/editor/src/nodes/MapNode'
 import MetadataNode from '@xrengine/editor/src/nodes/MetadataNode'
 import CloudsNode from '@xrengine/editor/src/nodes/CloudsNode'
@@ -53,6 +54,7 @@ import ScenePreviewCameraNodeEditor from './properties/ScenePreviewCameraNodeEdi
 import SkyboxNodeEditor from './properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from './properties/SpawnPointNodeEditor'
 import SplineNodeEditor from './properties/SplineNodeEditor'
+import CustomScriptNodeEditor from './properties/CustomScriptNodeEditor'
 import SpotLightNodeEditor from './properties/SpotLightNodeEditor'
 import TriggerVolumeNodeEditor from './properties/TriggerVolumeNodeEditor'
 import VideoNodeEditor from './properties/VideoNodeEditor'
@@ -77,6 +79,7 @@ import InteriorNodeEditor from './properties/InteriorNodeEditor'
 export function createEditor(settings, Engine) {
   const editor = new Editor(settings, Engine)
   editor.registerNode(SceneNode, SceneNodeEditor)
+  editor.registerNode(CustomScriptNode, CustomScriptNodeEditor)
   editor.registerNode(GroupNode, GroupNodeEditor)
   editor.registerNode(ModelNode, ModelNodeEditor)
   editor.registerNode(GroundPlaneNode, GroundPlaneNodeEditor)
