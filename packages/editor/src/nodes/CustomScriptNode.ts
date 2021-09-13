@@ -7,11 +7,17 @@ import EditorNodeMixin from './EditorNodeMixin'
 export default class CustomScriptNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'customscript'
   static nodeName = 'Custom Script'
+  static disableTransform = true
+  static haveStaticTags = false
+
   scriptID = ''
+  scriptSelected = 0
+
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const { scriptID } = json.components.find((c) => c.name === 'customscript').props
+    const { scriptID, scriptSelected } = json.components.find((c) => c.name === 'customscript').props
     node.scriptID = scriptID
+    node.scriptSelected = scriptSelected
     return node
   }
   constructor(editor) {
@@ -21,7 +27,8 @@ export default class CustomScriptNode extends EditorNodeMixin(Object3D) {
   async serialize(projectID) {
     return await super.serialize(projectID, {
       customscript: {
-        scriptID: this.scriptID
+        scriptID: this.scriptID,
+        scriptSelected: this.scriptSelected
       }
     })
   }
