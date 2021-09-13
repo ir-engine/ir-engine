@@ -166,6 +166,7 @@ export const createApp = (): Application => {
 
         app.configure(channels)
 
+        console.log('Initializing WebRTCGameServer')
         WebRTCGameServer.instance.initialize(app).then(() => {
           console.log('Initialized new gameserver instance')
         })
