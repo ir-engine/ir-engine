@@ -153,6 +153,8 @@ export class Editor extends EventEmitter {
   Engine: Engine
   animationCallback = null
   feathersClient: Application<any, any>
+  ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
+  currentOwnedFileIds: {}
 
   // initializing component properties with default value.
   constructor(settings = {}, Engine) {
@@ -163,12 +165,12 @@ export class Editor extends EventEmitter {
     this.settings = settings
     this.project = null
     this.helperScene = Engine.scene
-
+    this.ownedFileIds = {}
+    this.currentOwnedFileIds = {}
     this.selected = []
     this.selectedTransformRoots = []
 
     this.history = new History()
-
     this.renderer = null
     this.inputManager = null
     this.editorControls = null
@@ -2763,7 +2765,7 @@ export class Editor extends EventEmitter {
       node.href = url
       this.addObject(node, parent, before)
     }
-    globalThis.currentOwnedFileIds[name] = id
+    globalThis.Editor.currentOwnedFileIds[name] = id
     this.emit('FileUploaded')
     return node
   }

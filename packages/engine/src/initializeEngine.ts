@@ -160,6 +160,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Navigation
   registerSystem(SystemUpdateType.Fixed, import('./proximityChecker/systems/ProximitySystem'))
   registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/FollowSystem'))
+  registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/AfkCheckSystem'))
 
   // Avatar Systems
   registerSystem(SystemUpdateType.Fixed, import('./physics/systems/InterpolationSystem'))
