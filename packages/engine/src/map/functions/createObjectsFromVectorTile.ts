@@ -24,6 +24,7 @@ export function getFeaturesFromVectorLayer(
   }
 }
 
+// TODO this isn't unifying buildings across tiles
 export default async function* createObjectsFromVectorTile(
   tile: VectorTile,
   x: number,

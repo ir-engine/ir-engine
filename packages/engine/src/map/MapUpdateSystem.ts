@@ -43,29 +43,31 @@ export const MapUpdateSystem = async (): Promise<System> => {
     }
 
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition)
-    const viewerPositionDelta = vector3ToArray2($vector3)
+    // const viewerPositionDelta = vector3ToArray2($vector3)
     $vector3.divideScalar(mapScale)
     const viewerPositionDeltaScaled = vector3ToArray2($vector3)
 
-    const viewerDistanceFromCenter = Math.hypot(...viewerPositionDelta)
+    // const viewerDistanceFromCenter = Math.hypot(...viewerPositionDelta)
 
-    if (
-      viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius * mapScale ||
-      viewerEntity !== previousViewerEntity
-    ) {
-      mapComponent.center = fromMetersFromCenter(viewerPositionDeltaScaled, mapComponent.center)
-      createSurroundingObjects(
-        mapComponent.loadedObjectsByUUID,
-        mapComponent.center,
-        mapComponent.minimumSceneRadius,
-        TILE_ZOOM
-      )
+    // if (
+    //   viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius * mapScale ||
+    //   viewerEntity !== previousViewerEntity
+    // ) {
+    mapComponent.center = fromMetersFromCenter(viewerPositionDeltaScaled, mapComponent.center)
+    runImmediateTasks(
+      mapComponent.center,
+      mapComponent.minimumSceneRadius,
+      mapComponent.vectorTileCache,
+      mapComponent.geometryCache,
+      mapComponent.geometryMetaCache,
+      mapComponent.completeObjects
+    )
 
-      $previousViewerPosition.copy(viewerTransform.position)
-      $previousViewerPosition.y = 0
-    }
+    // $previousViewerPosition.copy(viewerTransform.position)
+    // $previousViewerPosition.y = 0
+    // }
 
-    for (const [uuid, object] of mapComponent.loadedObjectsByUUID) {
+    for (const [uuid, object] of mapComponent.completedObjects) {
       const { mesh, geographicCenterPoint } = object
       if (mesh && !$meshesInScene.has(uuid)) {
         setPosition(mesh, geographicCenterPoint, mapComponent.originalCenter)
@@ -97,7 +99,7 @@ export const MapUpdateSystem = async (): Promise<System> => {
           $labelsInScene.delete(featureUUID)
         }
         if (distance > mapComponent.minimumSceneRadius * 2) {
-          mapComponent.loadedObjectsByUUID.delete(featureUUID)
+          mapComponent.completedObjects.delete(featureUUID)
         }
       }
     })

@@ -1,5 +1,5 @@
 import { Feature } from 'geojson'
-import { Mesh } from 'three'
+import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
 import { LongLat } from './units'
 
 /**
@@ -15,16 +15,21 @@ export interface TileFeaturesByLayer {
 }
 export type ILayerName = keyof TileFeaturesByLayer
 
-export interface Map3DObject {
-  uuid: string
-  mesh: Mesh
-  geographicCenterPoint: LongLat
-}
-
 export interface FeatureWithTileIndex extends Feature {
   properties: {
     /** index of feature within tile */
     tileIndex: string
     [key: string]: any
   }
+}
+
+export interface MapDerivedFeatureGeometry {
+  geometry: BufferGeometry | InstancedBufferGeometry
+  geographicCenterPoint: LongLat
+}
+
+export interface MapDerivedFeatureComplete {
+  mesh: Mesh
+  geographicCenterPoint: LongLat
+  // TODO add label
 }

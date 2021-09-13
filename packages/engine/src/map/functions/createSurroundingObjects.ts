@@ -2,13 +2,13 @@ import { LongLat } from '../units'
 import createSurroundingTileIterator from './createSurroundingTileIterator'
 import fetchVectorTileUsingCache from './fetchVectorTile'
 import createObjectsFromVectorTile from './createObjectsFromVectorTile'
-import { Map3DObject } from '../types'
+import { MapDerivedFeatureComplete } from '../types'
 import TileCache from '../classes/TileCache'
 
 const tileCache = new TileCache(24)
 
 export default async function createSurroundingObjects(
-  output: Map<string, Map3DObject>,
+  output: Map<string, MapDerivedFeatureComplete>,
   center: LongLat,
   minimumSceneRadius: number,
   tileZoom: number

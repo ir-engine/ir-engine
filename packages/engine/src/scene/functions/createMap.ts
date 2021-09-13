@@ -20,7 +20,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     originalCenter: center,
     triggerRefreshRadius: 200,
     minimumSceneRadius,
-    loadedObjectsByUUID: new Map(),
+    completedObjects: new Map(),
     args
   })
 

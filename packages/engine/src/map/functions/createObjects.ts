@@ -2,7 +2,7 @@ import { Mesh } from 'three'
 import createMesh from './createMesh'
 import createGeometry, { $geometriesByTaskId } from './createGeometry'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from '../styles'
-import { FeatureWithTileIndex, ILayerName, Map3DObject } from '../types'
+import { FeatureWithTileIndex, ILayerName, MapDerivedFeatureComplete } from '../types'
 import { LongLat } from '../units'
 
 const $meshesByTaskId = new Map<string, { mesh: Mesh; geographicCenterPoint: LongLat }>()
@@ -18,7 +18,7 @@ export default async function* createObjects(
   tileY: number,
   features: FeatureWithTileIndex[],
   llCenter: LongLat
-): AsyncGenerator<Map3DObject> {
+): AsyncGenerator<MapDerivedFeatureComplete> {
   const pendingTasks: { id: string; featureIndex: number }[] = []
   const promises = []
   features.forEach((feature, featureIndex) => {

@@ -1,5 +1,5 @@
 import { createMappedComponent } from '../ecs/functions/EntityFunctions'
-import { Map3DObject } from './types'
+import { MapDerivedFeatureComplete } from './types'
 import { LongLat } from './units'
 
 export type MapComponentType = {
@@ -14,7 +14,7 @@ export type MapComponentType = {
   minimumSceneRadius: number
   // TODO: remove this args
   args: any
-  loadedObjectsByUUID: Map<string, Map3DObject>
+  completeObjects: Map<string, MapDerivedFeatureComplete>
 }
 
 export const MapComponent = createMappedComponent<MapComponentType>()
