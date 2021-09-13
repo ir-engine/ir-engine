@@ -14,6 +14,8 @@ import { getLocalNetworkId } from '../functions/getLocalNetworkId'
 import { Engine } from '../../ecs/classes/Engine'
 import { IncomingActionType } from '../interfaces/NetworkTransport'
 import { System } from '../../ecs/classes/System'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { isZero } from '@xrengine/common/src/utils/mathUtils'
 
 function sendActions() {
   if (!isClient) {
@@ -49,6 +51,10 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
     : defineQuery([XRInputSourceComponent])
 
+  const velQuery = isClient
+    ? defineQuery([NetworkObjectOwnerComponent, NetworkObjectComponent, VelocityComponent])
+    : defineQuery([NetworkObjectComponent, VelocityComponent])
+
   // TODO: reduce quaternions over network to three components
 
   return () => {
@@ -70,7 +76,8 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       tick: Network.instance.tick,
       time: Date.now(),
       pose: [],
-      ikPose: []
+      ikPose: [],
+      velocities: []
     }
 
     for (const entity of networkTransformsQuery(world)) {
@@ -83,6 +90,16 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       newWorldState.pose.push({
         networkId: networkObject.networkId,
         pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
+      })
+    }
+
+    for (const entity of velQuery(world)) {
+      const networkObject = getComponent(entity, NetworkObjectComponent)
+      const vel = getComponent(entity, VelocityComponent)
+
+      newWorldState.velocities.push({
+        networkId: networkObject.networkId,
+        velocity: isZero(vel.velocity) ? 0 : vel.velocity.toArray()
       })
     }
 
@@ -118,7 +135,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       const buffer = WorldStateModel.toBuffer(newWorldState)
       Network.instance.transport.sendData(buffer)
     } catch (e) {
-      console.log('could not convert world state to a buffer')
+      console.log('could not convert world state to a buffer, ' + e)
     }
   }
 }

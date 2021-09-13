@@ -14,6 +14,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
@@ -49,6 +50,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
         const newWorldState = WorldStateModel.fromBuffer(buffer)
 
         if (isClient) {
+          //add velocity to player to check how it works and apply here the read of velocities
           Network.instance.tick = newWorldState.tick
 
           // on client, all incoming object poses handled by Interpolation
@@ -70,6 +72,18 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
             newServerSnapshot.time = newWorldState.time
             Network.instance.snapshot = newServerSnapshot
             addSnapshot(newServerSnapshot)
+          }
+
+          for (const vel of newWorldState.velocities) {
+            if (!Network.instance.networkObjects[vel.networkId]) continue
+            const entity = Network.instance.networkObjects[vel.networkId].entity
+            if (isEntityLocalClient(entity)) continue
+
+            if (hasComponent(entity, VelocityComponent)) {
+              console.log('applying velocity to entity: ' + entity)
+              const velC = getComponent(entity, VelocityComponent)
+              velC.velocity.fromArray(vel.velocity === 0 ? [0, 0, 0] : vel.velocity)
+            }
           }
         } else {
           for (const pose of newWorldState.pose) {
@@ -117,8 +131,18 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
           xrInputSourceComponent.controllerRight.position.fromArray(rightPose)
           xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPose, 3)
         }
+
+        for (const vel of newWorldState.velocities) {
+          if (!Network.instance.networkObjects[vel.networkId]) continue
+          const entity = Network.instance.networkObjects[vel.networkId].entity
+
+          if (hasComponent(entity, VelocityComponent)) {
+            const velC = getComponent(entity, VelocityComponent)
+            velC.velocity.fromArray(vel.velocity === 0 ? [0, 0, 0] : vel.velocity)
+          }
+        }
       } catch (e) {
-        console.log('could not read world state from buffer')
+        console.log('could not convert world state to a buffer, ' + e)
       }
     }
   }

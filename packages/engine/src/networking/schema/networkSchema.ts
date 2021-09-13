@@ -1,4 +1,7 @@
-import { string, float32, Model, Schema, uint32, uint8, uint64 } from '../../assets/superbuffer'
+import { string, float32, Schema, uint32, uint8, uint64 } from '../../assets/superbuffer'
+import { Model } from '../../assets/superbuffer/model'
+import { setVelocityScaleAt } from '../../particles/classes/ParticleMesh'
+import { PostProcessingSchema } from '../../renderer/interfaces/PostProcessingSchema'
 import { Pose } from '../../transform/TransformInterfaces'
 
 /**
@@ -18,11 +21,17 @@ const ikPoseSchema = new Schema({
   rightPose: [float32]
 })
 
+const velocitiesSchema = new Schema({
+  networkId: uint32,
+  velocity: [float32]
+})
+
 const networkSchema = new Schema({
   tick: uint32,
   time: uint64,
   pose: [poseSchema],
   ikPose: [ikPoseSchema]
+  // velocities: [velocitiesSchema]
 })
 
 /** Interface for world state. */
@@ -42,6 +51,10 @@ export interface WorldStateInterface {
     headPose: Pose
     leftPose: Pose
     rightPose: Pose
+  }[]
+  velocities: {
+    networkId: number
+    velocity: any
   }[]
 }
 
