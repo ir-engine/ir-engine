@@ -187,4 +187,34 @@ describe('unifyFeatures', () => {
     // Not sure why this isn't a multipolygon, but I trust polygon-clipping
     // expect(output[0].geometry.type).toBe('MultiPolygon')
   })
+
+  it('optionally handles tile index metadata', () => {
+    const input: Feature[] = [
+      {
+        type: 'Feature',
+        id: 1,
+        geometry: {
+          type: 'MultiPolygon',
+          coordinates: []
+        },
+        properties: {
+          tileIndex: '4'
+        }
+      },
+      {
+        type: 'Feature',
+        id: 1,
+        geometry: {
+          type: 'MultiPolygon',
+          coordinates: []
+        },
+        properties: {
+          tileIndex: '2'
+        }
+      }
+    ]
+
+    const output = unifyFeatures(input, {tileIndex: true})
+    expect(output[0].properties.tileIndex).toBe('4,2')
+  })
 })

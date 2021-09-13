@@ -79,8 +79,14 @@ export function copy(self: Polygon): Polygon {
   }
 }
 
+export function addTileIndex(featuresFromTile: Feature[]) {
+  featuresFromTile.forEach(({ properties }, index) => {
+    properties.tileIndex = `${index}`
+  })
+}
+
 /** Useful for when a feature is split across multiple vector tiles */
-export function unifyFeatures(features: Feature[]): Feature[] {
+export function unifyFeatures(features: Feature[], options: { tileIndex?: boolean } = {}): Feature[] {
   const featuresById = groupBy(features, 'id')
 
   const featuresByIdArray = Object.values(featuresById)
@@ -97,7 +103,7 @@ export function unifyFeatures(features: Feature[]): Feature[] {
       })
       const unifiedProperties = {
         ...features[0].properties,
-        uuid: features.map((feature) => feature.properties.uuid).join(';'),
+        ...(options.tileIndex ? { tileIndex: features.map((feature) => feature.properties.tileIndex).join('&') } : {}),
         height: maxHeight
       }
 
