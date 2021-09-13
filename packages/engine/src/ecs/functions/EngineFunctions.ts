@@ -206,10 +206,7 @@ export function createWorld() {
     async initSystems() {
       const loadSystem = (pipeline: SystemInitializeType<any>[]) => {
         return pipeline.map(async (s) => {
-          console.log('starting system', s.system)
-          const systemDefault = (await s.system).default(world, s.args)
-          console.log('Finished starting system', s.system)
-          return systemDefault
+          return (await s.system).default(world, s.args)
         })
       }
 
