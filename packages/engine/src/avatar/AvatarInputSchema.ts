@@ -160,6 +160,8 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   const epsilon = 0.001
   const nextZoomLevel = clamp(followComponent.zoomLevel + scrollDelta, epsilon, followComponent.maxDistance)
 
+  document.title = followComponent.phi + ''
+
   // Move out of first person mode
   if (followComponent.zoomLevel <= epsilon && scrollDelta > 0) {
     followComponent.zoomLevel = followComponent.minDistance
@@ -169,17 +171,18 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   // Move to first person mode
   if (nextZoomLevel < followComponent.minDistance) {
     followComponent.zoomLevel = epsilon
+    setTargetCameraRotation(entity, 0, followComponent.theta)
     return
   }
 
   // Rotate camera to the top but let the player rotate if he/she desires
-  if (Math.abs(followComponent.maxDistance - nextZoomLevel) <= 0.5 && scrollDelta > 0) {
+  if (Math.abs(followComponent.maxDistance - nextZoomLevel) <= 1.0 && scrollDelta > 0) {
     setTargetCameraRotation(entity, 85, followComponent.theta)
   }
 
   // Rotate from top
   if (
-    Math.abs(followComponent.maxDistance - followComponent.zoomLevel) <= 0.5 &&
+    Math.abs(followComponent.maxDistance - followComponent.zoomLevel) <= 1.0 &&
     scrollDelta < 0 &&
     followComponent.phi >= 80
   ) {

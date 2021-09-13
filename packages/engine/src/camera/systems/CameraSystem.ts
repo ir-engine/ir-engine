@@ -19,7 +19,6 @@ const direction = new Vector3()
 const quaternion = new Quaternion()
 const upVector = new Vector3(0, 1, 0)
 const empty = new Vector3()
-const PI_2Deg = Math.PI / 180
 const mx = new Matrix4()
 const tempVec = new Vector3()
 const tempVec1 = new Vector3()
@@ -130,10 +129,13 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
     camDist = closestHit.distance < 0.5 ? closestHit.distance : closestHit.distance - 0.5
   }
 
+  const thetaRad = MathUtils.degToRad(theta)
+  const phiRad = MathUtils.degToRad(phi)
+
   cameraTransform.position.set(
-    tempVec.x + camDist * Math.sin(theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
-    tempVec.y + camDist * Math.sin(phi * PI_2Deg),
-    tempVec.z + camDist * Math.cos(theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
+    tempVec.x + camDist * Math.sin(thetaRad) * Math.cos(phiRad),
+    tempVec.y + camDist * Math.sin(phiRad),
+    tempVec.z + camDist * Math.cos(thetaRad) * Math.cos(phiRad)
   )
 
   direction.copy(cameraTransform.position).sub(tempVec).normalize()
