@@ -5,9 +5,6 @@ import { upload } from './upload'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
 
-globalThis.ownedFileIds = globalThis.ownedFileIds ?? {}
-globalThis.currentOwnedFileIds = {}
-
 /**
  * getProjects used to get list projects created by user.
  *
@@ -113,9 +110,9 @@ export const createProject = async (
   if (parentSceneId) {
     project['parent_scene_id'] = parentSceneId
   }
-  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
-  globalThis.currentOwnedFileIds = {}
+  Object.assign(globalThis.Editor.ownedFileIds, globalThis.Editor.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, globalThis.Editor.ownedFileIds)
+  globalThis.Editor.currentOwnedFileIds = {}
 
   let json = {}
   try {
@@ -219,9 +216,9 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     project['scene_id'] = sceneId
   }
 
-  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
-  globalThis.currentOwnedFileIds = {}
+  Object.assign(globalThis.Editor.ownedFileIds, globalThis.Editor.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, globalThis.Editor.ownedFileIds)
+  globalThis.Editor.currentOwnedFileIds = {}
 
   let json = {}
   try {
