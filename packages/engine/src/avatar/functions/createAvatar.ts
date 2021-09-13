@@ -25,7 +25,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
-import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
+import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -45,8 +45,13 @@ export const createAvatar = (
   isRemotePlayer = true
 ): void => {
   if (isClient) {
-    if (isBot(window) && !hasComponent(entity, ProximityCheckerComponent)) {
-      addComponent(entity, ProximityCheckerComponent, {})
+    if (isBot(window) && !hasComponent(entity, ProximityComponent)) {
+      addComponent(entity, ProximityComponent, {
+        usersInRange: [],
+        usersInIntimateRange: [],
+        usersInHarassmentRange: [],
+        usersLookingTowards: []
+      })
     }
     if (!hasComponent(entity, AfkCheckComponent))
       addComponent(entity, AfkCheckComponent, {
