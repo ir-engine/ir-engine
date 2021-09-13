@@ -190,6 +190,24 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   followComponent.zoomLevel = nextZoomLevel
 }
 
+const setCameraRotation: InputBehaviorType = (
+  entity: Entity,
+  inputKey: InputAlias,
+  inputValue: InputValue,
+  delta: number
+): void => {
+  const followComponent = getComponent(entity, FollowCameraComponent)
+
+  switch (inputKey) {
+    case BaseInput.CAMERA_ROTATE_LEFT:
+      followComponent.theta += 50 * delta
+      break
+    case BaseInput.CAMERA_ROTATE_RIGHT:
+      followComponent.theta -= 50 * delta
+      break
+  }
+}
+
 const morphNameByInput = {
   [CameraInput.Neutral]: 'None',
   [CameraInput.Angry]: 'Frown',
@@ -442,8 +460,10 @@ export const createAvatarInput = () => {
   map.set(XR6DOF.RightHand, BaseInput.XR_CONTROLLER_RIGHT_HAND)
 
   map.set('KeyW', BaseInput.FORWARD)
+  map.set('ArrowUp', BaseInput.FORWARD)
   map.set('KeyA', BaseInput.LEFT)
   map.set('KeyS', BaseInput.BACKWARD)
+  map.set('ArrowDown', BaseInput.BACKWARD)
   map.set('KeyD', BaseInput.RIGHT)
   map.set('KeyE', BaseInput.INTERACT)
   map.set('Space', BaseInput.JUMP)
@@ -452,6 +472,8 @@ export const createAvatarInput = () => {
   map.set('KepV', BaseInput.SWITCH_CAMERA)
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
   map.set('KeyF', BaseInput.LOCKING_CAMERA)
+  map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
+  map.set('ArrowRight', BaseInput.CAMERA_ROTATE_RIGHT)
 
   map.set(CameraInput.Neutral, CameraInput.Neutral)
   map.set(CameraInput.Angry, CameraInput.Angry)
@@ -480,6 +502,8 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.BACKWARD, setLocalMovementDirection)
   map.set(BaseInput.LEFT, setLocalMovementDirection)
   map.set(BaseInput.RIGHT, setLocalMovementDirection)
+  map.set(BaseInput.CAMERA_ROTATE_LEFT, setCameraRotation)
+  map.set(BaseInput.CAMERA_ROTATE_RIGHT, setCameraRotation)
 
   map.set(CameraInput.Happy, setAvatarExpression)
   map.set(CameraInput.Sad, setAvatarExpression)
