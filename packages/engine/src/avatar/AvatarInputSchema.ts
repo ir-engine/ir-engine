@@ -160,8 +160,6 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   const epsilon = 0.001
   const nextZoomLevel = clamp(followComponent.zoomLevel + scrollDelta, epsilon, followComponent.maxDistance)
 
-  document.title = followComponent.phi + ''
-
   // Move out of first person mode
   if (followComponent.zoomLevel <= epsilon && scrollDelta > 0) {
     followComponent.zoomLevel = followComponent.minDistance
