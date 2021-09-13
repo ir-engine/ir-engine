@@ -8,4 +8,4 @@ export type FogComponentType = {
   far: number
 }
 
-export const FogComponent = createMappedComponent<FogComponentType>()
+export const FogComponent = createMappedComponent<FogComponentType>('FogComponent')

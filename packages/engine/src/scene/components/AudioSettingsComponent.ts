@@ -16,4 +16,6 @@ export type PositionalAudioSettingsComponentType = {
   usePositionalAudio: boolean
 }
 
-export const PositionalAudioSettingsComponent = createMappedComponent<PositionalAudioSettingsComponentType>()
+export const PositionalAudioSettingsComponent = createMappedComponent<PositionalAudioSettingsComponentType>(
+  'PositionalAudioSettingsComponent'
+)

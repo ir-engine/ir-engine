@@ -47,4 +47,4 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   collisionMask: CollisionGroups.Default
 }
 
-export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>()
+export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>('FollowCameraComponent')

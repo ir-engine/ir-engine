@@ -7,4 +7,4 @@ export type DebugArrowComponentType = {
   position: Vector3
 }
 
-export const DebugArrowComponent = createMappedComponent<DebugArrowComponentType>()
+export const DebugArrowComponent = createMappedComponent<DebugArrowComponentType>('DebugArrowComponent')

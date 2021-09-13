@@ -5,4 +5,4 @@ export type AudioComponentType = {
   value: Audio<GainNode>
 }
 
-export const AudioComponent = createMappedComponent<AudioComponentType>()
+export const AudioComponent = createMappedComponent<AudioComponentType>('AudioComponent')

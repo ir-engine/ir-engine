@@ -6,4 +6,4 @@ export type HighlightComponentType = {
   edgeStrength: number
 }
 
-export const HighlightComponent = createMappedComponent<HighlightComponentType>()
+export const HighlightComponent = createMappedComponent<HighlightComponentType>('HighlightComponent')

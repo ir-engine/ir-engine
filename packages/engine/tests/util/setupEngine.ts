@@ -1,15 +1,10 @@
 /**
- * tests
- */
-import { initializeEngineTest } from "./core.initialiseEngine";
-
-/**
  * engine utils & polyfills
  */
 import { EngineSystemPresets, InitializeOptions } from '../../src/initializationOptions'
 import { XMLHttpRequest } from 'xmlhttprequest'
-;import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
-(globalThis as any).XMLHttpRequest = XMLHttpRequest
+import { NetworkSchema } from '../../src/networking/interfaces/NetworkSchema'
+;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 
 class DummyTransport {
@@ -21,7 +16,7 @@ class DummyTransport {
   close = () => {}
 }
 
-const options: InitializeOptions = {
+export const engineTestSetup: InitializeOptions = {
   type: EngineSystemPresets.SERVER,
   publicPath: '',
   networking: {
@@ -32,13 +27,3 @@ const options: InitializeOptions = {
   },
   systems: []
 }
-
-/**
- * tests
- */
-describe('Core', () => {
-
-  // force close until we can reset the engine properly
-  afterAll(() => setTimeout(() => process.exit(0), 1000))
-  initializeEngineTest(options)
-})

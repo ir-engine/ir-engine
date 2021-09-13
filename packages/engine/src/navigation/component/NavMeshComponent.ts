@@ -11,4 +11,4 @@ export type NavMeshComponentType = {
   navTarget: Object3D
 }
 
-export const NavMeshComponent = createMappedComponent<NavMeshComponentType>()
+export const NavMeshComponent = createMappedComponent<NavMeshComponentType>('NavMeshComponent')

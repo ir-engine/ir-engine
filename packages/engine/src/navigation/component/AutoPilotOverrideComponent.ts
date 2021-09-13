@@ -6,4 +6,5 @@ export type AutoPilotOverrideComponentType = {
   overridePosition: Vector3
 }
 
-export const AutoPilotOverrideComponent = createMappedComponent<AutoPilotOverrideComponentType>()
+export const AutoPilotOverrideComponent =
+  createMappedComponent<AutoPilotOverrideComponentType>('AutoPilotOverrideComponent')

@@ -12,4 +12,4 @@ export type PortalComponentType = {
   remoteSpawnEuler: Euler
 }
 
-export const PortalComponent = createMappedComponent<PortalComponentType>()
+export const PortalComponent = createMappedComponent<PortalComponentType>('PortalComponent')

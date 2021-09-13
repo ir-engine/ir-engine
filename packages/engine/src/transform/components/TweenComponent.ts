@@ -5,4 +5,4 @@ export type TweenComponentType = {
   tween: Tween<any>
 }
 
-export const TweenComponent = createMappedComponent<TweenComponentType>()
+export const TweenComponent = createMappedComponent<TweenComponentType>('TweenComponent')

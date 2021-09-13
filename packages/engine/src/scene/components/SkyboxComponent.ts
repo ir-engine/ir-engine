@@ -5,4 +5,4 @@ export type SkyboxComponentType = {
   value: Sky
 }
 
-export const SkyboxComponent = createMappedComponent<SkyboxComponentType>()
+export const SkyboxComponent = createMappedComponent<SkyboxComponentType>('SkyboxComponent')

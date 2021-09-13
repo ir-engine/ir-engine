@@ -40,4 +40,4 @@ export type ParticleEmitterComponentType = {
   // colors: any[];
 }
 
-export const ParticleEmitterComponent = createMappedComponent<ParticleEmitterComponentType>()
+export const ParticleEmitterComponent = createMappedComponent<ParticleEmitterComponentType>('ParticleEmitterComponent')

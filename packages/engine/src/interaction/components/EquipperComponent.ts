@@ -6,4 +6,4 @@ export type EquipperComponentType = {
   data: any
 }
 
-export const EquipperComponent = createMappedComponent<EquipperComponentType>()
+export const EquipperComponent = createMappedComponent<EquipperComponentType>('EquipperComponent')
