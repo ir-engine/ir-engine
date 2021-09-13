@@ -104,6 +104,7 @@ export const createApp = (): Application => {
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               awaitEngineLoaded().then(() => {
+                console.log('engine is loaded, attaching socket query to feathers')
                 ;(socket as any).feathers.socketQuery = socket.handshake.query
                 ;(socket as any).socketQuery = socket.handshake.query
                 next()
