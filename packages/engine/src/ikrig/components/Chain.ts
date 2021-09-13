@@ -43,13 +43,11 @@ export class Chain {
 
     // this.alt_fwd.from_quat( q, fwd );	// Use invert to get direction that will Recreate the real direction
     // this.alt_up.from_quat( q, up );
-    const b = tpose.bones[this.chainBones[0].index].bone
+    const b = tpose.bones[this.chainBones[0].index]
 
-    const boneWorldQuaternion = new Quaternion()
-    b.getWorldQuaternion(boneWorldQuaternion)
-    boneWorldQuaternion.invert() // Invert World Space Rotation
-    this.altForward = new Vector3().copy(fwd).applyQuaternion(boneWorldQuaternion).normalize() // Use invert to get direction that will Recreate the real direction
-    this.altUp = new Vector3().copy(up).applyQuaternion(boneWorldQuaternion).normalize()
+    const q = b.world.quaternion.clone().invert() // Invert World Space Rotation
+    this.altForward = new Vector3().copy(fwd).applyQuaternion(q).normalize() // Use invert to get direction that will Recreate the real direction
+    this.altUp = new Vector3().copy(up).applyQuaternion(q).normalize()
 
     return this
   }

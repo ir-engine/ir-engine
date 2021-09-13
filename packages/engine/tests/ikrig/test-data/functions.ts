@@ -302,10 +302,10 @@ export function adoptIKPose(ikposeData: fungiSerializedIKPose): IKPoseComponentT
   return ikpose
 }
 
-function vector3FromSerialized(sv: fungiSerializedVector3): Vector3 {
+export function vector3FromSerialized(sv: fungiSerializedVector3): Vector3 {
   return new Vector3(sv['0'], sv['1'], sv['2'])
 }
 
-function quaternionFromSerialized(sv: fungiSerializedQuaternion): Quaternion {
+export function quaternionFromSerialized(sv: fungiSerializedQuaternion): Quaternion {
   return new Quaternion(sv['0'], sv['1'], sv['2'], sv['3'])
 }

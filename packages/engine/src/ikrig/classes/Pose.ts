@@ -87,6 +87,7 @@ class Pose {
     rootBone.parent.getWorldPosition(this.rootOffset.position)
     rootBone.parent.getWorldQuaternion(this.rootOffset.quaternion)
     rootBone.parent.getWorldScale(this.rootOffset.scale)
+    const invertedRootRotation = this.rootOffset.quaternion.clone().invert()
 
     for (let i = 0; i < this.skeleton.bones.length; i++) {
       const b = this.skeleton.bones[i]
@@ -119,6 +120,11 @@ class Pose {
       b.getWorldPosition(this.bones[i].world.position)
       b.getWorldQuaternion(this.bones[i].world.quaternion)
       b.getWorldScale(this.bones[i].world.scale)
+
+      // convert to model space
+      this.bones[i].world.position.sub(this.rootOffset.position).applyQuaternion(invertedRootRotation)
+      this.bones[i].world.quaternion.premultiply(invertedRootRotation)
+      this.bones[i].world.scale.divide(this.rootOffset.scale)
 
       //b['index'] = i
       if (b.children.length > 0) {

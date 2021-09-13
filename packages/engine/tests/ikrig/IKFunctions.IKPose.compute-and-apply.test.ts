@@ -27,7 +27,8 @@ import {
   adoptIKPose,
   applyTestPoseState,
   setupTestSourceEntity,
-  setupTestTargetEntity
+  setupTestTargetEntity,
+  vector3FromSerialized
 } from './test-data/functions'
 import { bones } from './test-data/pose1/ikrig.pose.bones'
 import { bones as tbones } from './test-data/ikrig.tpose.bones'
@@ -61,13 +62,17 @@ describe('check Compute', () => {
     //
   })
 
-  test.only('correct test pose', async () => {
+  test.skip('correct test pose', async () => {
     const animBonesStates = adoptBones(bones)
     const tbonesStates = adoptBones(tbones)
     const ikPose = getComponent(sourceEntity, IKPose)
     const rig = getComponent(sourceEntity, IKRig)
     const boneWorldPosition = new Vector3()
     const boneWorldRotation = new Quaternion()
+
+    expect(rig.tpose.bones[0].world.position).toBeCloseToVector(tbonesStates[0].world.position)
+    expect(rig.tpose.bones[0].world.scale).toBeCloseToVector(tbonesStates[0].world.scale)
+    expect(rig.tpose.bones[0].world.quaternion).toBeCloseToQuaternion(tbonesStates[0].world.quaternion, 2)
 
     rig.tpose.bones.forEach((boneState) => {
       const expectedState = tbonesStates.find((bs) => bs.name === boneState.name)
@@ -87,15 +92,35 @@ describe('check Compute', () => {
       const expectedState = animBonesStates.find((bs) => bs.name === boneState.name)
       console.log('-- pose bone -- name:', boneState.name)
       expect(boneState.length).toBeCloseTo(expectedState.length, 4)
-      expect(boneState.bone.position.x).toBe(expectedState.local.position.x)
-      expect(boneState.bone.position.y).toBe(expectedState.local.position.y)
-      expect(boneState.bone.position.z).toBe(expectedState.local.position.z)
-      boneState.bone.getWorldPosition(boneWorldPosition)
-      boneState.bone.getWorldQuaternion(boneWorldRotation)
-      expect(boneWorldPosition).toBeCloseToVector(expectedState.world.position, 4)
-      expect(boneWorldRotation).toBeCloseToQuaternion(expectedState.world.quaternion, 2)
+      expect(boneState.bone.position).toBeCloseToVector(expectedState.local.position)
+      expect(boneState.bone.quaternion).toBeCloseToQuaternion(expectedState.local.quaternion, 2)
+      expect(boneState.bone.scale).toBeCloseToVector(expectedState.local.scale)
+
+      expect(boneState.world.position).toBeCloseToVector(expectedState.world.position)
+      expect(boneState.world.quaternion).toBeCloseToQuaternion(expectedState.world.quaternion, 2)
+      expect(boneState.world.scale).toBeCloseToVector(expectedState.world.scale)
     })
   })
+
+  test.skip('correct chains', async () => {
+    const rig = getComponent(sourceEntity, IKRig)
+
+    for (let chainsKey in rigDataApplied.chains) {
+      const chain = rig.chains[chainsKey]
+      const expectedChain = rigDataApplied.chains[chainsKey]
+      expect(chain.cnt).toBe(expectedChain.cnt)
+      expect(chain.end_idx).toBe(expectedChain.end_idx)
+      expect(chain.length).toBeCloseTo(expectedChain.len)
+      expect(chain.chainBones.length).toBe(expectedChain.bones.length)
+      expect(chain.altForward).toBeCloseToVector(vector3FromSerialized(expectedChain.alt_fwd))
+      expect(chain.altUp).toBeCloseToVector(vector3FromSerialized(expectedChain.alt_up))
+      for (let i = 0; i < chain.chainBones.length; i++) {
+        expect(chain.chainBones[i].index).toBe(expectedChain.bones[i].idx)
+        expect(chain.chainBones[i].length).toBeCloseTo(expectedChain.bones[i].len)
+      }
+    }
+  })
+
   it('computeHip', () => {
     const expectedHip = expectedIKPose.hip
     const ikPose = getComponent(sourceEntity, IKPose)
