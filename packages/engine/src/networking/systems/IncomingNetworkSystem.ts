@@ -73,18 +73,6 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
             Network.instance.snapshot = newServerSnapshot
             addSnapshot(newServerSnapshot)
           }
-
-          for (const vel of newWorldState.velocities) {
-            if (!Network.instance.networkObjects[vel.networkId]) continue
-            const entity = Network.instance.networkObjects[vel.networkId].entity
-            if (isEntityLocalClient(entity)) continue
-
-            if (hasComponent(entity, VelocityComponent)) {
-              console.log('applying velocity to entity: ' + entity)
-              const velC = getComponent(entity, VelocityComponent)
-              velC.velocity.fromArray(vel.velocity === 0 ? [0, 0, 0] : vel.velocity)
-            }
-          }
         } else {
           for (const pose of newWorldState.pose) {
             const networkObject = Network.instance.networkObjects[pose.networkId]
@@ -97,6 +85,13 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               transformComponent.rotation.fromArray(pose.pose, 3)
               continue
             }
+
+            if (hasComponent(networkObject.entity, VelocityComponent)) {
+              const velC = getComponent(networkObj.entity, VelocityComponent)
+              if (pose.velocity === 0) velC.velocity.setScalar(0)
+              else velC.velocity.fromArray(pose.velocity)
+            }
+
             const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
             // networkObjectOwnerComponent && console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
             if (networkObjectOwnerComponent && networkObjectOwnerComponent.networkId === incomingNetworkId) {
@@ -130,16 +125,6 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
           xrInputSourceComponent.controllerLeft.quaternion.fromArray(leftPose, 3)
           xrInputSourceComponent.controllerRight.position.fromArray(rightPose)
           xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPose, 3)
-        }
-
-        for (const vel of newWorldState.velocities) {
-          if (!Network.instance.networkObjects[vel.networkId]) continue
-          const entity = Network.instance.networkObjects[vel.networkId].entity
-
-          if (hasComponent(entity, VelocityComponent)) {
-            const velC = getComponent(entity, VelocityComponent)
-            velC.velocity.fromArray(vel.velocity === 0 ? [0, 0, 0] : vel.velocity)
-          }
         }
       } catch (e) {
         console.log('could not convert world state to a buffer, ' + e)

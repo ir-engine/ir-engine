@@ -76,38 +76,42 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       tick: Network.instance.tick,
       time: Date.now(),
       pose: [],
-      ikPose: [],
-      velocities: []
+      ikPose: []
     }
 
     for (const entity of networkTransformsQuery(world)) {
       const transformComponent = getComponent(entity, TransformComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
 
-      const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
+      let vel = undefined
+      if (hasComponent(entity, VelocityComponent)) {
+        const velC = getComponent(entity, VelocityComponent)
+        vel = velC.velocity.toArray()
+      }
+
+      // const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
       // networkObjectOwnerComponent && console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position)
       // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
       newWorldState.pose.push({
         networkId: networkObject.networkId,
-        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
-      })
-    }
-
-    for (const entity of velQuery(world)) {
-      const networkObject = getComponent(entity, NetworkObjectComponent)
-      const vel = getComponent(entity, VelocityComponent)
-
-      newWorldState.velocities.push({
-        networkId: networkObject.networkId,
-        velocity: isZero(vel.velocity) ? 0 : vel.velocity.toArray()
+        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose,
+        velocity: vel !== undefined ? vel : 0
       })
     }
 
     if (isClient) {
       const transformComponent = getComponent(Network.instance.localClientEntity, TransformComponent)
+
+      let vel = undefined
+      if (hasComponent(Network.instance.localClientEntity, VelocityComponent)) {
+        const velC = getComponent(Network.instance.localClientEntity, VelocityComponent)
+        vel = velC.velocity.toArray()
+      }
+
       newWorldState.pose.push({
         networkId: getLocalNetworkId(),
-        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose
+        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose,
+        velocity: vel !== undefined ? vel : 0
       })
     }
 

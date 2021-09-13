@@ -11,7 +11,8 @@ import { Pose } from '../../transform/TransformInterfaces'
 
 const poseSchema = new Schema({
   networkId: uint32,
-  pose: [float32]
+  pose: [float32],
+  velocity: [float32]
 })
 
 const ikPoseSchema = new Schema({
@@ -21,17 +22,11 @@ const ikPoseSchema = new Schema({
   rightPose: [float32]
 })
 
-const velocitiesSchema = new Schema({
-  networkId: uint32,
-  velocity: [float32]
-})
-
 const networkSchema = new Schema({
   tick: uint32,
   time: uint64,
   pose: [poseSchema],
   ikPose: [ikPoseSchema]
-  // velocities: [velocitiesSchema]
 })
 
 /** Interface for world state. */
@@ -44,6 +39,7 @@ export interface WorldStateInterface {
   pose: {
     networkId: number
     pose: Pose
+    velocity: any
   }[]
   /** transform of ik avatars. */
   ikPose: {
@@ -51,10 +47,6 @@ export interface WorldStateInterface {
     headPose: Pose
     leftPose: Pose
     rightPose: Pose
-  }[]
-  velocities: {
-    networkId: number
-    velocity: any
   }[]
 }
 
