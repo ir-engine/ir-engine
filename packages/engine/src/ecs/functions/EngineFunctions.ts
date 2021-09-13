@@ -204,11 +204,20 @@ export function createWorld() {
     },
 
     async initSystems() {
+      console.log('initSystems')
       const loadSystem = (pipeline: SystemInitializeType<any>[]) => {
+        console.log('loadSystem', pipeline)
         return pipeline.map(async (s) => {
-          return (await s.system).default(world, s.args)
+          console.log('pipeline child system', s)
+          const systemDefault = (await s.system).default(world, s.args)
+          console.log('systemDefault', systemDefault)
+          return systemDefault
         })
       }
+
+      console.log('world.fixedPipeline', world._fixedPipeline)
+      console.log('world.freePipeline', world._freePipeline)
+      console.log('world.injectedPipelines', world._injectedPipelines)
 
       const _fixedSystems = Promise.all(loadSystem(world._fixedPipeline))
       const _freeSystems = Promise.all(loadSystem(world._freePipeline))
@@ -218,11 +227,13 @@ export function createWorld() {
         })
       )
 
+      console.log('awaiting all systems starting')
       const [fixedSystems, freeSystems, injectedSystems] = await Promise.all([
         _fixedSystems,
         _freeSystems,
         _injectedSystems
       ])
+      console.log('all systems started!')
       world.fixedSystems = fixedSystems
       world.freeSystems = freeSystems
       world.injectedSystems = Object.fromEntries(injectedSystems)
