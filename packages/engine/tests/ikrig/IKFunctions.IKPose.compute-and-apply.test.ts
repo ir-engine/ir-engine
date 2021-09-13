@@ -12,7 +12,8 @@ import {
   computeIKPose,
   computeLimb,
   computeLookTwist,
-  computeSpine
+  computeSpine,
+  worldToModel
 } from '../../src/ikrig/functions/IKFunctions'
 import {
   IKPose,
@@ -28,6 +29,7 @@ import {
   applyTestPoseState,
   setupTestSourceEntity,
   setupTestTargetEntity,
+  targetMeshTransform,
   vector3FromSerialized
 } from './test-data/functions'
 import { bones } from './test-data/pose1/ikrig.pose.bones'
@@ -62,13 +64,10 @@ describe('check Compute', () => {
     //
   })
 
-  test.skip('correct test pose', async () => {
+  test('correct test pose', async () => {
     const animBonesStates = adoptBones(bones)
     const tbonesStates = adoptBones(tbones)
-    const ikPose = getComponent(sourceEntity, IKPose)
     const rig = getComponent(sourceEntity, IKRig)
-    const boneWorldPosition = new Vector3()
-    const boneWorldRotation = new Quaternion()
 
     expect(rig.tpose.bones[0].world.position).toBeCloseToVector(tbonesStates[0].world.position)
     expect(rig.tpose.bones[0].world.scale).toBeCloseToVector(tbonesStates[0].world.scale)
@@ -102,7 +101,7 @@ describe('check Compute', () => {
     })
   })
 
-  test.skip('correct chains', async () => {
+  test('correct chains', async () => {
     const rig = getComponent(sourceEntity, IKRig)
 
     for (let chainsKey in rigDataApplied.chains) {
@@ -187,6 +186,7 @@ describe('Check Apply', () => {
     targetRig: IKRigComponentType,
     expectedState: PoseBoneLocalState[]
   const boneWorldPosition = new Vector3()
+  const boneWorldScale = new Vector3()
   const boneWorldRotation = new Quaternion()
 
   beforeAll(() => {
@@ -222,30 +222,51 @@ describe('Check Apply', () => {
     const appliedHip = targetRig.pose.bones[targetRig.points.hip.index]
     const expectedHip = expectedState[targetRig.points.hip.index]
 
+    expect(appliedHip.local.position).toBeCloseToVector(expectedHip.local.position, 4)
+    expect(appliedHip.local.quaternion).toBeCloseToQuaternion(expectedHip.local.quaternion, 2)
+
     expect(appliedHip.bone.position).toBeCloseToVector(expectedHip.local.position, 4)
     expect(appliedHip.bone.quaternion).toBeCloseToQuaternion(expectedHip.local.quaternion, 2)
 
+    // expect(appliedHip.model.position).toBeCloseToVector(expectedHip.world.position, 4)
+    // expect(appliedHip.model.quaternion).toBeCloseToQuaternion(expectedHip.world.quaternion, 2)
+
     appliedHip.bone.getWorldPosition(boneWorldPosition)
     appliedHip.bone.getWorldQuaternion(boneWorldRotation)
-    boneWorldPosition.sub(targetRig.pose.rootOffset.position)
+    appliedHip.bone.getWorldScale(boneWorldScale)
+    worldToModel(boneWorldPosition, boneWorldRotation, boneWorldScale, targetMeshTransform)
 
     expect(boneWorldPosition).toBeCloseToVector(expectedHip.world.position, 4)
     expect(boneWorldRotation).toBeCloseToQuaternion(expectedHip.world.quaternion, 2)
   })
 
   test('apply spine', () => {
+    applyHip(ikPose, targetRig)
+
+    const appliedHip = targetRig.pose.bones[targetRig.points.hip.index]
+    const expectedHip = expectedState[targetRig.points.hip.index]
+
+    expect(appliedHip.local.position).toBeCloseToVector(expectedHip.local.position, 4)
+    expect(appliedHip.local.quaternion).toBeCloseToQuaternion(expectedHip.local.quaternion, 2)
+
+    expect(appliedHip.bone.position).toBeCloseToVector(expectedHip.local.position, 4)
+    expect(appliedHip.bone.quaternion).toBeCloseToQuaternion(expectedHip.local.quaternion, 2)
+
+    expect(appliedHip.world.position).toBeCloseToVector(expectedHip.world.position, 4)
+    expect(appliedHip.world.quaternion).toBeCloseToQuaternion(expectedHip.world.quaternion, 2)
+
     applySpine(ikPose, targetRig, targetRig.chains.spine, ikPose.spine, UP, FORWARD)
 
-    // const chain = targetRig.chains.spine
-    // const firstBone = targetRig.pose.bones[chain.first()]
-    // const expectedFirstBone = expectedState[chain.first()]
-    // expect(firstBone.local.position).toBeCloseToVector(expectedFirstBone.local.position, 4)
-    // expect(firstBone.local.quaternion).toBeCloseToQuaternion(expectedFirstBone.local.quaternion, 2)
-    //
-    // const lastBone = targetRig.pose.bones[chain.last()]
-    // const expectedLastBone = expectedState[chain.last()]
-    // expect(lastBone.local.position).toBeCloseToVector(expectedLastBone.local.position, 4)
-    // expect(lastBone.local.quaternion).toBeCloseToQuaternion(expectedLastBone.local.quaternion, 2)
+    const chain = targetRig.chains.spine
+    const firstBone = targetRig.pose.bones[chain.first()]
+    const expectedFirstBone = expectedState[chain.first()]
+    expect(firstBone.local.position).toBeCloseToVector(expectedFirstBone.local.position, 4)
+    expect(firstBone.local.quaternion).toBeCloseToQuaternion(expectedFirstBone.local.quaternion, 2)
+
+    const lastBone = targetRig.pose.bones[chain.last()]
+    const expectedLastBone = expectedState[chain.last()]
+    expect(lastBone.local.position).toBeCloseToVector(expectedLastBone.local.position, 4)
+    expect(lastBone.local.quaternion).toBeCloseToQuaternion(expectedLastBone.local.quaternion, 2)
 
     // now test all bones of chain
     targetRig.chains.spine.chainBones.forEach((boneData) => {
@@ -256,16 +277,14 @@ describe('Check Apply', () => {
 
       expect(applied.local.position).toBeCloseToVector(expected.local.position, 4)
       expect(applied.local.quaternion).toBeCloseToQuaternion(expected.local.quaternion, 2)
-      const wp = new Vector3()
-      const wr = new Quaternion()
-      applied.bone.getWorldPosition(wp)
-      applied.bone.getWorldQuaternion(wr)
-      wp.sub(targetRig.pose.rootOffset.position)
-      // TODO: premultiply?
-      wr.multiply(targetRig.pose.rootOffset.quaternion.clone().invert())
-
-      expect(wp).toBeCloseToVector(expected.world.position, 4)
-      expect(wr).toBeCloseToQuaternion(expected.world.quaternion, 2)
+      // applied.bone.getWorldPosition(boneWorldPosition)
+      // applied.bone.getWorldQuaternion(boneWorldRotation)
+      // applied.bone.getWorldScale(boneWorldScale)
+      // worldToModel(boneWorldPosition, boneWorldRotation, boneWorldScale, targetRig.pose.rootOffset)
+      //
+      // expect(boneWorldPosition).toBeCloseToVector(expected.world.position, 4)
+      // expect(boneWorldScale).toBeCloseToVector(expected.world.scale, 4)
+      // expect(boneWorldRotation).toBeCloseToQuaternion(expected.world.quaternion, 2)
     })
   })
 

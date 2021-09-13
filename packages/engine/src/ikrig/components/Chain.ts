@@ -66,8 +66,9 @@ export class Chain {
     for (i = 0; i < end; i++) {
       b = bones[this.chainBones[i].index]
 
-      this.chainBones[i].ref.getWorldPosition(boneWorldPosition)
-      this.chainBones[i + 1].ref.getWorldPosition(childWorldPosition)
+      boneWorldPosition.copy(bones[this.chainBones[i].index].world.position)
+      childWorldPosition.copy(bones[this.chainBones[i + 1].index].world.position)
+      //this.chainBones[i + 1].ref.getWorldPosition(childWorldPosition)
 
       b.length = boneWorldPosition.distanceTo(childWorldPosition)
 
@@ -77,9 +78,7 @@ export class Chain {
     // If End Point exists, Can calculate the final bone's length
     if (this.end_idx !== null && this.end_idx > -1) {
       b = this.chainBones[i]
-      bones[this.end_idx].bone.getWorldPosition(boneWorldPosition)
-      bones[this.chainBones[i].index].bone.getWorldPosition(childWorldPosition)
-      b.length = boneWorldPosition.distanceTo(childWorldPosition)
+      b.length = bones[this.end_idx].world.position.distanceTo(bones[this.chainBones[i].index].world.position)
       sum += b.length
     } else console.warn('Recompute Chain Len, End Index is missing')
 

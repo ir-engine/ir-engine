@@ -20,13 +20,24 @@ import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig
 import { setupMixamoIKRig } from '../../../src/ikrig/functions/IKFunctions'
 // import * as rawRig from './IKRig.run-1.json'
 
+export const sourceMeshTransform = {
+  position: new Vector3(100, 100, 100),
+  quaternion: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(-1, 1, 1).normalize()),
+  scale: new Vector3(10, 10, 10)
+}
+export const targetMeshTransform = {
+  position: new Vector3(-1000, -1000, -1000),
+  quaternion: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 1, 1).normalize()),
+  scale: new Vector3(0.5, 0.5, 0.5)
+}
+
 export function setupTestSourceEntity(sourceEntity: Entity, world: World): void {
   const bonesStates = adoptBones(bones)
   const tbonesStates = adoptBones(tbones)
   const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
-  skinnedMesh.parent.position.set(100, 100, 100)
-  skinnedMesh.parent.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(-1, 1, 1).normalize())
-  //skinnedMesh.parent.scale.set(10, 10, 10)
+  skinnedMesh.parent.position.copy(sourceMeshTransform.position)
+  skinnedMesh.parent.quaternion.copy(sourceMeshTransform.quaternion)
+  skinnedMesh.parent.scale.copy(sourceMeshTransform.scale)
 
   addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
   const sourcePose = addComponent(sourceEntity, IKPose, defaultIKPoseComponentValues())
@@ -61,8 +72,9 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
   objRoot.parent.getWorldPosition(rootPosition)
   objRoot.parent.getWorldScale(rootScale)
 
-  rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
-  rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
+  // TODO remove this
+  // rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
+  // rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
 
   setupMixamoIKRig(sourceEntity, rig)
 
@@ -72,9 +84,9 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
 export function setupTestTargetEntity(targetEntity: Entity, world: World): void {
   const tbonesStates = adoptBones(rig2Data.tpose.bones)
   const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
-  skinnedMesh.parent.position.set(-1000, -1000, -1000)
-  skinnedMesh.parent.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 1, 1).normalize())
-  //skinnedMesh.parent.scale.set(0.5, 0.5, 0.5)
+  skinnedMesh.parent.position.copy(targetMeshTransform.position)
+  skinnedMesh.parent.quaternion.copy(targetMeshTransform.quaternion)
+  skinnedMesh.parent.scale.copy(targetMeshTransform.scale)
 
   addComponent(targetEntity, IKObj, { ref: skinnedMesh })
   const sourcePose = addComponent(targetEntity, IKPose, defaultIKPoseComponentValues())
@@ -100,18 +112,19 @@ export function setupTestTargetEntity(targetEntity: Entity, world: World): void 
   // dealing with specific skeletons, like Mixamo stuff.
   // Need to do this to render things correctly
   // TODO: Verify the numbers of this vs the original
-  const objRoot = getComponent(targetEntity, IKObj).ref // Obj is a ThreeJS Component
+  // const objRoot = getComponent(targetEntity, IKObj).ref // Obj is a ThreeJS Component
+  //
+  // const rootQuaternion = new Quaternion()
+  // const rootPosition = new Vector3()
+  // const rootScale = new Vector3()
+  //
+  // objRoot.parent.getWorldQuaternion(rootQuaternion)
+  // objRoot.parent.getWorldPosition(rootPosition)
+  // objRoot.parent.getWorldScale(rootScale)
 
-  const rootQuaternion = new Quaternion()
-  const rootPosition = new Vector3()
-  const rootScale = new Vector3()
-
-  objRoot.parent.getWorldQuaternion(rootQuaternion)
-  objRoot.parent.getWorldPosition(rootPosition)
-  objRoot.parent.getWorldScale(rootScale)
-
-  rig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
-  rig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
+  // TODO remove this
+  // rig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
+  // rig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
 
   /// init mixamo
 
@@ -145,30 +158,6 @@ export function applyTestPoseState(pose: Pose, bonesStates: PoseBoneLocalState[]
   })
 }
 
-export function getTestIKPoseData(): IKPoseComponentType {
-  const data: Partial<IKPoseComponentType> = {}
-
-  // console.log('pose', pose)
-
-  return data
-}
-
-export function getTestIKRigData(): IKRigComponentType {
-  const data: Partial<IKRigComponentType> = {
-    tpose: null,
-    pose: null,
-    chains: null,
-    points: null,
-    sourcePose: null,
-    sourceRig: null
-  }
-
-  // console.log('rawRig', rawRig)
-  // data.pose = new Pose(entity, false)
-
-  return data
-}
-
 export function createSkinnedMesh(bonesStates: PoseBoneLocalState[]): { group: Group; mesh: SkinnedMesh } {
   const hipsBone = bonesStates.find((bs) => bs.name === 'Hips').bone
   const bones = []
@@ -187,13 +176,13 @@ export function createSkinnedMesh(bonesStates: PoseBoneLocalState[]): { group: G
 export function adoptBones(rawBones: fungiSerializedPoseBones[]): PoseBoneLocalState[] {
   const bonesData = rawBones.map((rawBone) => {
     const bone = new Bone()
-    const state = {
+    const state: PoseBoneLocalState = {
       bone,
       idx: rawBone.idx,
       p_idx: rawBone.p_idx,
       name: rawBone.name,
       length: rawBone.len,
-      parent: null, // TODO add parent
+      parent: null,
       chg_state: rawBone.chg_state,
       local: {
         position: vector3FromSerialized(rawBone.local.pos),

@@ -421,7 +421,7 @@ export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigCompon
   // First step is we need to get access to the Rig's TPose and Pose Hip Bone.
   // The idea is to transform our Bind Pose into a New Pose based on IK Data
   const boneInfo = rig.points.hip
-  const bind = rig.tpose.bones[boneInfo.index].bone
+  const bind = rig.tpose.bones[boneInfo.index]
 
   // Apply IK Swing & Twist ( HANDLE ROTATION )
   // When we compute the IK Hip, We used quaternion invert direction and defined that
@@ -431,29 +431,23 @@ export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigCompon
 
   const parentRotation = rig.pose.getParentRotation(boneInfo.index)
 
-  const b_rot = new Quaternion()
-  bind.getWorldQuaternion(b_rot)
-
   const q = new Quaternion()
     .setFromUnitVectors(FORWARD, ikPose.hip.dir) // Create Swing Rotation
-    .multiply(b_rot) // Apply it to our WS Rotation
+    .multiply(bind.world.quaternion) // Apply it to our WS Rotation
 
   // If There is a Twist Value, Apply that as a PreMultiplication.
   if (ikPose.hip.twist != 0) q.premultiply(new Quaternion().setFromAxisAngle(ikPose.hip.dir, ikPose.hip.twist))
 
   // In the end, we need to convert to local space. Simply premul by the inverse of the parent
-  pmul_invert(q, parentRotation)
-
-  const bindWorldPosition = new Vector3()
-  bind.getWorldPosition(bindWorldPosition)
-  bindWorldPosition.sub(rig.tpose.rootOffset.position)
+  // pmul_invert(q, parentRotation)
+  q.premultiply(parentRotation.clone().invert())
 
   // TRANSLATION
-  const h_scl = bindWorldPosition.y / ikPose.hip.bind_height // Create Scale value from Src's Hip Height and Target's Hip Height
+  const h_scl = bind.world.position.y / ikPose.hip.bind_height // Create Scale value from Src's Hip Height and Target's Hip Height
   const position = new Vector3()
     .copy(ikPose.hip.movement)
     .multiplyScalar(h_scl) // Scale the Translation Differnce to Match this Models Scale
-    .add(bindWorldPosition) // Then Add that change to the TPose Position
+    .add(bind.world.position) // Then Add that change to the TPose Position
 
   // MAYBE we want to keep the stride distance exact, we can reset the XZ positions
   // BUT we need to keep the Y Movement scaled, else our leg IK won't work well since
@@ -462,8 +456,12 @@ export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigCompon
   // position.x = ikPose.hip.movement.x;
   // position.z = ikPose.hip.movement.z;
 
-  rig.pose.bones[boneInfo.index].local.quaternion.copy(q) // Save LS rotation to pose
-  rig.pose.bones[boneInfo.index].local.position.copy(position) // Save LS rotation to pose
+  const pose = rig.pose.bones[boneInfo.index]
+  pose.local.quaternion.copy(q) // Save LS rotation to pose
+  pose.local.position.copy(position) // Save LS rotation to pose
+
+  pose.world.position.copy(rig.pose.bones[boneInfo.index].local.position)
+  pose.world.quaternion.copy(rig.pose.bones[boneInfo.index].local.quaternion)
 }
 
 // this.apply_limb( rig, rig.chains.leg_l, this.leg_l );
@@ -507,9 +505,8 @@ export function applyLimb(
   bindBone.getWorldQuaternion(c_tran.quaternion)
   bindBone.getWorldScale(c_tran.scale)
 
-  // TODO scale, quaternion ... use matrix?
-  p_tran.position.sub(rig.pose.rootOffset.position)
-  c_tran.position.sub(rig.pose.rootOffset.position)
+  // TODO: handle this, we need transform in model space...
+  // rig.pose.get_parent_world(chain.first(), p_tran, c_tran)
 
   // How much of the Chain length to use to calc End Effector
   // let len = (rig.leg_len_lmt || chain.len) * limb.len_scale
@@ -743,16 +740,19 @@ export function applySpine(
 
   const boneInfo = rig.pose.bones[chain.first()]
   const bone = boneInfo.bone
+  const parentInfo = rig.pose.bones[boneInfo.p_idx]
+
+  // TODO: rig.pose.get_parent_world( chain.first() )
 
   // Copy bone to our transform variables to work on them
-  ikPose.spineParentPosition.copy(bone.parent.position)
-  ikPose.spineChildPosition.copy(bone.position)
+  ikPose.spineParentPosition.copy(parentInfo.local.position)
+  ikPose.spineChildPosition.copy(boneInfo.local.position)
 
-  ikPose.spineParentQuaternion.copy(bone.parent.quaternion)
-  ikPose.spineChildQuaternion.copy(bone.quaternion)
+  ikPose.spineParentQuaternion.copy(parentInfo.local.quaternion)
+  ikPose.spineChildQuaternion.copy(boneInfo.local.quaternion)
 
-  ikPose.spineParentScale.copy(bone.parent.scale)
-  ikPose.spineChildScale.copy(bone.scale)
+  ikPose.spineParentScale.copy(parentInfo.local.scale)
+  ikPose.spineChildScale.copy(boneInfo.local.scale)
 
   const cnt = chain.cnt - 1,
     ikLook = new Vector3(),
@@ -761,17 +761,19 @@ export function applySpine(
     altTwist = new Vector3(),
     rotation = new Quaternion()
 
-  let t,
-    boneIndex,
-    boneBindValue,
+  let t: number,
+    boneIndex: number,
+    boneBind: PoseBoneLocalState,
     currentLook = new Vector3(),
     currentTwist = new Vector3(),
     quat = new Quaternion()
 
+  debugger
+
   for (let i = 0; i <= cnt; i++) {
     // Prepare for the Iteration
     boneIndex = chain.chainBones[i].index // Bone Index
-    boneBindValue = rig.tpose.bones[boneIndex].bone // Bind Values of the Bone
+    boneBind = rig.tpose.bones[boneIndex] // Bind Values of the Bone
     t = i / cnt // ** 2;		// The Lerp Time, be 0 on first bone, 1 at final bone, Can use curves to distribute the lerp differently
 
     // Lerp our Target IK Directions for this bone
@@ -779,8 +781,7 @@ export function applySpine(
     ikTwist.lerpVectors(ik[0].twistDirection, ik[1].twistDirection, t)
 
     // Compute our Quat Inverse Direction, using the Defined Look&Twist Direction
-    boneBindValue.getWorldQuaternion(quat)
-    quat = quat.invert()
+    quat.copy(boneBind.world.quaternion).invert()
 
     altLook.copy(lookDirection).applyQuaternion(quat)
     altTwist.copy(twistDirection).applyQuaternion(quat)
@@ -791,15 +792,15 @@ export function applySpine(
     // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
     const v: Vector3 = new Vector3()
       .copy(ikPose.spineParentScale)
-      .multiply(boneBindValue.position) // parent.scale * child.position;
+      .multiply(boneBind.local.position) // parent.scale * child.position;
       .applyQuaternion(ikPose.spineParentQuaternion) //Vec3.transformQuat( v, tp.quaternion, v );
     ikPose.spineChildPosition.copy(ikPose.spineParentPosition).add(v) // Vec3.add( tp.position, v, this.position );
 
     // SCALE - parent.scale * child.scale
-    ikPose.spineChildScale.copy(ikPose.spineParentScale).multiply(boneBindValue.scale)
+    ikPose.spineChildScale.copy(ikPose.spineParentScale).multiply(boneBind.local.scale)
 
     // ROTATION - parent.quaternion * child.quaternion
-    ikPose.spineChildQuaternion.copy(ikPose.spineParentQuaternion).multiply(boneBindValue.quaternion)
+    ikPose.spineChildQuaternion.copy(ikPose.spineParentQuaternion).multiply(boneBind.local.quaternion)
 
     currentLook = altLook.applyQuaternion(ikPose.spineChildQuaternion) // What direction is the bone point looking now, without any extra rotation
 
@@ -817,20 +818,20 @@ export function applySpine(
 
     rig.pose.setBone(boneIndex, rotation) // Save result to bone.
     // rig.pose.bones[boneIndex].bone.setRotationFromQuaternion(rotation) // Save result to bone.
-    rig.pose.bones[boneIndex].bone.quaternion.copy(rotation) // Save result to bone.
+    // rig.pose.bones[boneIndex].local.quaternion.copy(rotation) // Save result to bone.
 
     if (t != 1) {
       // ORIGINAL CODE is
       // this.add(ikPose.spineParentQuaternion, rotation, boneBindValue.position, boneBindValue.scale); // Compute the WS Transform for the next bone in the chain.
       const parentScaleChildPosition = new Vector3()
         .copy(ikPose.spineParentScale)
-        .multiply(boneBindValue.position)
+        .multiply(boneBind.local.position)
         .applyQuaternion(ikPose.spineParentQuaternion)
       // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
       // TODO: Multiplied in proper order?
       ikPose.spineParentPosition.copy(ikPose.spineParentPosition).add(parentScaleChildPosition)
       // SCALE - parent.scale * child.scale
-      ikPose.spineParentScale.multiply(boneBindValue.scale)
+      ikPose.spineParentScale.multiply(boneBind.local.scale)
       // ROTATION - parent.quaternion * child.quaternion
       ikPose.spineParentQuaternion.multiply(rotation)
     }
@@ -1194,4 +1195,23 @@ export function applySwingAndTwist(target: Quaternion, swing: Quaternion, twist:
   target.premultiply(twistQ)
 
   pmul_invert(target, p)
+}
+
+/**
+ * convert world coordinates to model coordinates with root transform
+ * @param position will be modified
+ * @param quaternion will be modified
+ * @param scale will be modified
+ * @param rootTransform
+ */
+export function worldToModel(
+  position: Vector3,
+  quaternion: Quaternion,
+  scale: Vector3,
+  rootTransform: { position: Vector3; quaternion: Quaternion; scale: Vector3 }
+): void {
+  const rootRotationInverted = rootTransform.quaternion.clone().invert()
+  position.sub(rootTransform.position).applyQuaternion(rootRotationInverted).divide(rootTransform.scale)
+  quaternion.premultiply(rootRotationInverted)
+  scale.divide(rootTransform.scale)
 }
