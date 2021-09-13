@@ -55,7 +55,7 @@ const ViewScene = (props: Props) => {
             </Container>
           </Paper>
           <Container maxWidth="lg" className={classes.marginTop}>
-            <Typography variant="h4" component="h4" className={classes.mb40px}>
+            <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
               Scene Information
             </Typography>
             <Container className={classes.mb40px}>
@@ -96,7 +96,7 @@ const ViewScene = (props: Props) => {
                 </Grid>
               </Grid>
             </Container>
-            <Typography variant="h4" component="h4" className={classes.mb40px}>
+            <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
               Entity Information
             </Typography>
             <Container>

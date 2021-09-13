@@ -110,6 +110,14 @@ export const useSceneStyles = makeStyles((theme: Theme) =>
     },
     table: {
       minWidth: 650
+    },
+    headingFont: {
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '1.6rem'
+      },
+      [theme.breakpoints.between(100, 395)]: {
+        fontSize: '1.4rem'
+      }
     }
   })
 )
