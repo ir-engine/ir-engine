@@ -12,6 +12,7 @@ import {
   PerspectiveCamera,
   Quaternion,
   Scene,
+  sRGBEncoding,
   Vector3,
   WebGLRenderer
 } from 'three'
@@ -20,6 +21,8 @@ import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos'
 import Player from 'volumetric/web/decoder/Player'
 // @ts-ignore
 import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker'
+
+//@ts-ignore
 import styles from './WebXRPlugin.module.scss'
 import { connect } from 'react-redux'
 import { updateNewFeedPageState, updateWebXRState } from '../../reducers/popupsState/service'
@@ -190,8 +193,10 @@ export const WebXRPlugin = ({
       }
 
       console.log('WebXRComponent - stop plugin')
-      ;(XRPlugin as any).removeAllListeners()
-      XRPlugin.stop()
+      // @ts-ignore
+      XRPlugin.removeAllListeners()
+      // @ts-ignore
+      XRPlugin.stop({})
       window.screen.orientation.unlock()
 
       // setContentHidden();
@@ -331,6 +336,7 @@ export const WebXRPlugin = ({
       }
       const renderer = rendererRef.current
 
+      renderer.outputEncoding = sRGBEncoding
       renderer.setSize(window.innerWidth, window.innerHeight)
       renderer.domElement.style.position = 'fixed'
       renderer.domElement.style.width = '100vw'
@@ -391,7 +397,9 @@ export const WebXRPlugin = ({
           setContentHidden()
         })
         .catch((error) => console.log(error.message))
-      ;(XRPlugin as any).addListener('poseDataReceived', (data: any) => {
+
+      // @ts-ignore
+      XRPlugin.addListener('poseDataReceived', (data: any) => {
         const camera = cameraRef.current
         const anchor = anchorRef.current
 
@@ -486,7 +494,9 @@ export const WebXRPlugin = ({
           // }
         }
       })
-      ;(XRPlugin as any).addListener('cameraIntrinsicsReceived', (data: any) => {
+
+      // @ts-ignore
+      XRPlugin.addListener('cameraIntrinsicsReceived', (data: any) => {
         setCameraIntrinsicsState(
           JSON.stringify({
             fX: data.fX,
@@ -527,13 +537,15 @@ export const WebXRPlugin = ({
       console.log(clipTime)
       console.log(clipTitle)
 
+      // @ts-ignore
       XRPlugin.stopRecording({
         audioId: mediaItemRef.current.audioId,
         videoDelay: videoDelay,
         clipTitle: clipTitle,
         clipTime: clipTime
       })
-        .then(({ result, filePath, nameId }: any) => {
+        // @ts-ignore
+        .then(({ result, filePath, nameId }) => {
           console.log('END RECORDING, result IS', result)
           console.log('filePath is', filePath)
           setLastFeedVideoUrl(filePath)
@@ -574,6 +586,7 @@ export const WebXRPlugin = ({
     const screenWidth = Math.floor(screen.width / 2) * 2
 
     //TODO: check why there are errors
+    // @ts-ignore
     XRPlugin.startRecording({
       isAudio: true,
       width: screenWidth,
@@ -613,32 +626,36 @@ export const WebXRPlugin = ({
     if (recordingState !== RecordingStates.OFF) {
       return
     }
-
-    // const params = {
-    //   x: e.clientX * window.devicePixelRatio,
-    //   y: e.clientY * window.devicePixelRatio
-    // }
+    const params = {
+      x: e.clientX * window.devicePixelRatio,
+      y: e.clientY * window.devicePixelRatio
+    }
 
     if (playerRef.current && playerRef.current.currentFrame <= 0) {
       playerRef.current.playOneFrame()
     }
-    XRPlugin.handleTap()
+    // @ts-ignore
+    XRPlugin.handleTap(params)
   }
 
   const playVideo = () => {
-    XRPlugin.playVideo({})
+    // @ts-ignore
+    XRPlugin.playVideo()
   }
 
   const pauseVideo = () => {
-    XRPlugin.pauseVideo({})
+    // @ts-ignore
+    XRPlugin.pauseVideo()
   }
 
   const clearAnchors = () => {
+    // @ts-ignore
     XRPlugin.clearAnchors()
   }
 
   const stopRecord = () => {
-    XRPlugin.stop()
+    // @ts-ignore
+    XRPlugin.stop({})
   }
 
   // useEffect(() => {

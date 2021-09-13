@@ -7,4 +7,4 @@ export type Object3DComponentType = {
   value: Object3D
 }
 
-export const Object3DComponent = createMappedComponent<Object3DComponentType>()
+export const Object3DComponent = createMappedComponent<Object3DComponentType>('Object3DComponent')

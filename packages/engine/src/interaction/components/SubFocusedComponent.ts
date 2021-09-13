@@ -9,4 +9,4 @@ export type SubFocusedType = {
   subInteracts: Entity
 }
 
-export const SubFocusedComponent = createMappedComponent<SubFocusedType>()
+export const SubFocusedComponent = createMappedComponent<SubFocusedType>('SubFocusedComponent')

@@ -6,6 +6,7 @@ import { updateCreatorFormState } from '../../../reducers/popupsState/service'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 
+//@ts-ignore
 import styles from './CreatorFormPopup.module.scss'
 import CreatorForm from '../../CreatorForm'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
@@ -23,9 +24,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   popupsState?: any
   updateCreatorFormState?: typeof updateCreatorFormState
-  webxrRecorderActivity?: any
+  webxrRecorderActivity: any
+  setView?: any
 }
-export const CreatorFormPopup = ({ popupsState, updateCreatorFormState, webxrRecorderActivity }: Props) => {
+export const CreatorFormPopup = ({ popupsState, updateCreatorFormState, webxrRecorderActivity, setView }: Props) => {
   //common for creator form
   const handleCreatorFormClose = () => updateCreatorFormState(false)
   const platformClass = isIOS ? styles.isIos : ''
@@ -39,7 +41,7 @@ export const CreatorFormPopup = ({ popupsState, updateCreatorFormState, webxrRec
         className={styles.creatorFormPopup + ' ' + platformClass}
       >
         <CreatorForm />
-        <AppFooter />
+        <AppFooter setView={setView} />
       </SharedModal>
     )
 

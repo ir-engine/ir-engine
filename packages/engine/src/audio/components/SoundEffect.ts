@@ -7,4 +7,4 @@ export type SoundEffectType = {
   src: any[]
 }
 
-export const SoundEffect = createMappedComponent<SoundEffectType>()
+export const SoundEffect = createMappedComponent<SoundEffectType>('SoundEffect')

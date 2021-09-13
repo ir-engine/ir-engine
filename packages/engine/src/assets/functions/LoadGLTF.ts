@@ -22,8 +22,8 @@ if (!isClient) {
   loader.register((parser) => new GLTFRemoveMaterialsExtension(parser))
 }
 
-// const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
-const dracoLoader = new DRACOLoader()
+const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
+// const dracoLoader = new DRACOLoader()
 if (isClient) {
   dracoLoader.setDecoderPath('/loader_decoders/')
 } else {

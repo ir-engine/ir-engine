@@ -31,4 +31,4 @@ export const removeFollowComponent = (eid: number): void => {
   }
 }
 
-export const FollowComponent = createMappedComponent<FollowComponentType>()
+export const FollowComponent = createMappedComponent<FollowComponentType>('FollowComponent')

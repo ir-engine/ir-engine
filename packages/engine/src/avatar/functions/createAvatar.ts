@@ -24,7 +24,8 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { NameComponent } from '../../scene/components/NameComponent'
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
-import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent'
+import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
+import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -43,15 +44,19 @@ export const createAvatar = (
   spawnTransform: { position: Vector3; rotation: Quaternion },
   isRemotePlayer = true
 ): void => {
-  if (isClient && isBot(window)) {
-    if (!hasComponent(entity, ProximityComponent))
-      addComponent(entity, ProximityComponent, {
-        usersInRange: [],
-        usersInIntimateRange: [],
-        usersInHarassmentRange: [],
-        usersLookingTowards: []
+  if (isClient) {
+    if (isBot(window) && !hasComponent(entity, ProximityCheckerComponent)) {
+      addComponent(entity, ProximityCheckerComponent, {})
+    }
+    if (!hasComponent(entity, AfkCheckComponent))
+      addComponent(entity, AfkCheckComponent, {
+        isAfk: false,
+        prevPosition: new Vector3(0, 0, 0),
+        cStep: 0,
+        timer: 0
       })
   }
+
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
     rotation: new Quaternion().copy(spawnTransform.rotation),

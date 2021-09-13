@@ -67,7 +67,7 @@
     "socket.io": "4.2.0",
     "styled-components": "5.3.1",
     "three": "^0.132.0",
-    "three-mesh-bvh": "^0.3.7",
+    "three-mesh-bvh": "^0.4.0",
     "three-physx": "^0.0.37",
     "troika-three-text": "^0.42.0",
     "twitch-m3u8": "^1.1.4",
@@ -94,7 +94,7 @@
     "@types/three": "0.131.0",
     "@types/yuka": "0.7.1",
     "babel-plugin-dynamic-import-node": "2.3.3",
-    "babel-plugin-transform-import-meta": "2.0.0",
+    "babel-plugin-transform-import-meta": "2.1.0",
     "babel-preset-vite": "1.0.4",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
@@ -104,8 +104,8 @@
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-sass": "1.2.7",
     "ts-jest": "27.0.5",
-    "typedoc": "0.21.9",
-    "typescript": "4.4.2"
+    "typedoc": "0.22.3",
+    "typescript": "4.4.3"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

@@ -6,4 +6,5 @@ export type SpawnNetworkObjectComponentType = {
   parameters: any
 }
 
-export const SpawnNetworkObjectComponent = createMappedComponent<SpawnNetworkObjectComponentType>()
+export const SpawnNetworkObjectComponent =
+  createMappedComponent<SpawnNetworkObjectComponentType>('SpawnNetworkObjectComponent')

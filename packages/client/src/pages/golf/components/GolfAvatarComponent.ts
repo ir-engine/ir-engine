@@ -8,4 +8,4 @@ export type GolfAvatarComponentType = {
   torsoModel: Group
 }
 
-export const GolfAvatarComponent = createMappedComponent<GolfAvatarComponentType>()
+export const GolfAvatarComponent = createMappedComponent<GolfAvatarComponentType>('GolfAvatarComponent')

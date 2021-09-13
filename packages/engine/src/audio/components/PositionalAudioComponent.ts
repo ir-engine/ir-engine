@@ -5,4 +5,4 @@ export type PositionalAudioComponentType = {
   value: PositionalAudio
 }
 
-export const PositionalAudioComponent = createMappedComponent<PositionalAudioComponentType>()
+export const PositionalAudioComponent = createMappedComponent<PositionalAudioComponentType>('PositionalAudioComponent')

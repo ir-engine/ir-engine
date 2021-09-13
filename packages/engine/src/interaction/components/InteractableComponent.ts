@@ -5,4 +5,4 @@ export type InteractableComponentType = {
   data: InteractionData
 }
 
-export const InteractableComponent = createMappedComponent<InteractableComponentType>()
+export const InteractableComponent = createMappedComponent<InteractableComponentType>('InteractableComponent')

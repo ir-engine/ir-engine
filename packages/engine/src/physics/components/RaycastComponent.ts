@@ -5,4 +5,4 @@ export type RaycastComponentType = {
   raycastQuery: RaycastQuery
 }
 
-export const RaycastComponent = createMappedComponent<RaycastComponentType>()
+export const RaycastComponent = createMappedComponent<RaycastComponentType>('RaycastComponent')

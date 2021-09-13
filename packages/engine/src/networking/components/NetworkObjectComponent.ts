@@ -7,4 +7,4 @@ export type NetworkObjectComponentType = {
   uniqueId: string
 }
 
-export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>()
+export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>('NetworkObjectComponent')

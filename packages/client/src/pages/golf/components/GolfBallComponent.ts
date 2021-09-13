@@ -9,4 +9,4 @@ export type GolfBallComponentType = {
   state: BALL_STATES
 }
 
-export const GolfBallComponent = createMappedComponent<GolfBallComponentType>()
+export const GolfBallComponent = createMappedComponent<GolfBallComponentType>('GolfBallComponent')

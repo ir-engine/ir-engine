@@ -30,4 +30,4 @@ export type XRInputSourceComponentType = {
   head: Group
 }
 
-export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>()
+export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>('XRInputSourceComponent')
