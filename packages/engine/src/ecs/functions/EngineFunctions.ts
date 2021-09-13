@@ -17,6 +17,7 @@ import { Entity } from '../classes/Entity'
 import { hasComponent, MappedComponent, removeAllComponents } from './ComponentFunctions'
 import { removeEntity, createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InjectionPoint, SystemInitializeType } from './SystemFunctions'
+import { Physics } from '../../physics/classes/Physics'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -135,6 +136,7 @@ export function createWorld() {
   const worldShape = {
     sceneMetadata: undefined as string | undefined,
     worldMetadata: {} as { [key: string]: string },
+    physics: undefined as Physics,
 
     delta: -1,
     elapsedTime: -1,

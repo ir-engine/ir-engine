@@ -3,7 +3,7 @@ import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 't
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
+import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'

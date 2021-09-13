@@ -30,10 +30,10 @@ import {
 } from '../../networking/interfaces/NetworkWorldActions'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
-import { createPhysXWorker } from '../functions/createPhysXWorker'
 import { System } from '../../ecs/classes/System'
 import { Not } from 'bitecs'
 import { World } from '../../ecs/classes/World'
+import { Physics } from '../classes/Physics'
 
 function avatarActionReceptor(action: NetworkWorldActionType) {
   switch (action.type) {
@@ -84,7 +84,7 @@ export default async function PhysicsSystem(
   world: World,
   attributes: { simulationEnabled?: boolean }
 ): Promise<System> {
-  let simulationEnabled = false
+  let simulationEnabled = true
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
     if (typeof ev.physics !== 'undefined') {
@@ -92,11 +92,10 @@ export default async function PhysicsSystem(
     }
   })
 
-  simulationEnabled = attributes.simulationEnabled ?? true
-
   world.receptors.add(avatarActionReceptor)
 
-  await createPhysXWorker()
+  world.physics = new Physics()
+  await world.physics.createScene()
 
   return () => {
     for (const entity of spawnRigidbodyQuery.enter()) {
