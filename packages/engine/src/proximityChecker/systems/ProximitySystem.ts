@@ -1,10 +1,10 @@
-import { defineQuery, defineSystem } from 'bitecs'
+import { defineQuery } from 'bitecs'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ProximityComponent } from '../components/ProximityComponent'
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
 import { isEntityLocal } from '../../networking/utils/isPlayerLocal'
-import { getUserId } from '../../networking/utils/getUser'
+import { getPlayer, getUserId } from '../../networking/utils/getUser'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -50,7 +50,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
               _usersInRange.push(object.entity)
               if (!usersInRange.includes(object.entity))
-                console.log('remote user id nearby with eid: ' + object.entity + ' distance: ' + distance)
+                console.log('proximity|inRange|' + getPlayer(object.entity) + '|' + distance)
             }
           } else if (distance > 0 && distance <= intimateDistance && distance > harassmentDistance) {
             if (!_usersInIntimateRange.includes(object.entity)) {
@@ -60,7 +60,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
               _usersInIntimateRange.push(object.entity)
               if (!usersInIntimateRange.includes(object.entity))
-                console.log('remote user id intimate distance with eid: ' + object.entity + ' distance: ' + distance)
+                console.log('proximity|intimate|' + getPlayer(object.entity) + '|' + distance)
             }
           } else if (distance > 0 && distance <= harassmentDistance) {
             if (!_usersInHarassmentRange.includes(object.entity)) {
@@ -70,7 +70,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
               _usersInHarassmentRange.push(object.entity)
               if (!usersInHarassmentRange.includes(object.entity))
-                console.log('remote user id harassment distance with eid: ' + object.entity + ' distance: ' + distance)
+                console.log('proximity|harassment|' + getPlayer(object.entity) + '|' + distance)
             }
           }
 
@@ -81,28 +81,28 @@ export default async function ProximitySystem(world: World): Promise<System> {
             if (!_usersLookingTowards.includes(object.entity)) {
               _usersLookingTowards.push(object.entity)
               if (!usersLookingTowards.includes(object.entity))
-                console.log('remote user id nearby with eid: ' + object.entity + ' dot: ' + dot)
+                console.log('proximity|lookAt|' + getPlayer(object.entity) + '|' + dot)
             }
           }
 
           for (let i = 0; i < usersInRange.length; i++) {
             if (!_usersInRange.includes(usersInRange[i]) && !_usersInIntimateRange.includes(usersInRange[i])) {
-              console.log('user not in range')
+              console.log('proximity|inRange|' + getPlayer(object.entity) + '|left')
             }
           }
           for (let i = 0; i < usersInIntimateRange.length; i++) {
             if (!_usersInIntimateRange.includes(usersInIntimateRange[i])) {
-              console.log('user not in intimate range')
+              console.log('proximity|intimate|' + getPlayer(object.entity) + '|left')
             }
           }
           for (let i = 0; i < usersInHarassmentRange.length; i++) {
             if (!_usersInHarassmentRange.includes(usersInHarassmentRange[i])) {
-              console.log('user not in harassment range')
+              console.log('proximity|harassment|' + getPlayer(object.entity) + '|left')
             }
           }
           for (let i = 0; i < usersLookingTowards.length; i++) {
             if (!_usersLookingTowards.includes(usersLookingTowards[i])) {
-              console.log('user not looking towards')
+              console.log('proximity|lookAt|' + getPlayer(object.entity) + '|left')
             }
           }
 
