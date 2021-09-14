@@ -38,7 +38,7 @@
   "resolutions": {
     "@types/react": "17.0.20",
     "react": "17.0.2",
-    "terser": "5.7.2",
+    "terser": "5.8.0",
     "**/terser-webpack-plugin": "5.2.4"
   },
   "peerDependencies": {
