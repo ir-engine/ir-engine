@@ -1,7 +1,11 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { defaultIKPoseComponentValues, IKPose, IKPoseComponentType } from '@xrengine/engine/src/ikrig/components/IKPose'
-import { IKRig } from '@xrengine/engine/src/ikrig/components/IKRig'
+import {
+  defaultIKPoseComponentValues,
+  IKPoseComponent,
+  IKPoseComponentType
+} from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
+import { IKRigComponent } from '@xrengine/engine/src/ikrig/components/IKRigComponent'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { bones } from './pose1/ikrig.pose.bones'
 import { bones as tbones } from './ikrig.tpose.bones'
@@ -39,8 +43,8 @@ export function setupTestSourceEntity(sourceEntity: Entity): void {
   skinnedMesh.parent.scale.copy(sourceMeshTransform.scale)
 
   addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
-  const sourcePose = addComponent(sourceEntity, IKPose, defaultIKPoseComponentValues())
-  const rig = addComponent(sourceEntity, IKRig, {
+  const sourcePose = addComponent(sourceEntity, IKPoseComponent, defaultIKPoseComponentValues())
+  const rig = addComponent(sourceEntity, IKRigComponent, {
     tpose: null,
     pose: null,
     chains: {},
@@ -88,8 +92,8 @@ export function setupTestTargetEntity(targetEntity: Entity): void {
   skinnedMesh.parent.scale.copy(targetMeshTransform.scale)
 
   addComponent(targetEntity, IKObj, { ref: skinnedMesh })
-  const sourcePose = addComponent(targetEntity, IKPose, defaultIKPoseComponentValues())
-  const rig = addComponent(targetEntity, IKRig, {
+  const sourcePose = addComponent(targetEntity, IKPoseComponent, defaultIKPoseComponentValues())
+  const rig = addComponent(targetEntity, IKRigComponent, {
     tpose: null,
     pose: null,
     chains: {},

@@ -1,8 +1,8 @@
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKRig } from '../components/IKRig'
+import { IKRigComponent } from '../components/IKRigComponent'
 import { Not } from 'bitecs'
 // import DebugComponent from '../classes/Debug'
-import { IKPose } from '../components/IKPose'
+import { IKPoseComponent } from '../components/IKPoseComponent'
 import {
   applyIKPoseToIKRig,
   computeIKPose,
@@ -49,16 +49,16 @@ import { System } from '../../ecs/classes/System'
 // }
 
 export const IKRigSystem = async (world: World): Promise<System> => {
-  const targetRigsQuery = defineQuery([IKRig, Not(IKPose)])
-  const ikposeQuery = defineQuery([IKPose, IKRig])
+  const targetRigsQuery = defineQuery([IKRigComponent, Not(IKPoseComponent)])
+  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent])
 
   return () => {
     // d.reset() // For this example, Lets reset visual debug for every compute.
 
     // RUN
     for (const entity of ikposeQuery()) {
-      const ikPose = getComponent(entity, IKPose)
-      const rig = getComponent(entity, IKRig)
+      const ikPose = getComponent(entity, IKPoseComponent)
+      const rig = getComponent(entity, IKRigComponent)
       if (!ikPose.targetRigs) {
         continue
       }
@@ -81,7 +81,7 @@ export const IKRigSystem = async (world: World): Promise<System> => {
 
       // APPLY
       for (const targetEntity of targetRigsQuery()) {
-        const targetRig = getComponent(targetEntity, IKRig)
+        const targetRig = getComponent(targetEntity, IKRigComponent)
         applyIKPoseToIKRig(targetRig, ikPose)
       }
     }

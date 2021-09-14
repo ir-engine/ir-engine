@@ -17,13 +17,13 @@ import {
   worldToModel
 } from '../../src/ikrig/functions/IKFunctions'
 import {
-  IKPose,
+  IKPoseComponent,
   IKPoseComponentType,
   IKPoseLimbData,
   IKPoseLookTwist,
   IKPoseSpineData
-} from '../../src/ikrig/components/IKPose'
-import { IKRig, IKRigComponentType } from '../../src/ikrig/components/IKRig'
+} from '../../src/ikrig/components/IKPoseComponent'
+import { IKRigComponent, IKRigComponentType } from '../../src/ikrig/components/IKRigComponent'
 import {
   adoptBones,
   adoptIKPose,
@@ -54,7 +54,7 @@ describe('check Compute', () => {
   beforeEach(async () => {
     sourceEntity = createEntity()
     setupTestSourceEntity(sourceEntity)
-    const rig = getComponent(sourceEntity, IKRig)
+    const rig = getComponent(sourceEntity, IKRigComponent)
     // apply animation pose
     const animBonesStates = adoptBones(bones)
     applyTestPoseState(rig.pose, animBonesStates)
@@ -70,7 +70,7 @@ describe('check Compute', () => {
   test('correct test pose', async () => {
     const animBonesStates = adoptBones(bones)
     const tbonesStates = adoptBones(tbones)
-    const rig = getComponent(sourceEntity, IKRig)
+    const rig = getComponent(sourceEntity, IKRigComponent)
 
     expect(rig.tpose.bones[0].world.position).toBeCloseToVector(tbonesStates[0].world.position)
     expect(rig.tpose.bones[0].world.scale).toBeCloseToVector(tbonesStates[0].world.scale)
@@ -105,7 +105,7 @@ describe('check Compute', () => {
   })
 
   test('correct chains', async () => {
-    const rig = getComponent(sourceEntity, IKRig)
+    const rig = getComponent(sourceEntity, IKRigComponent)
 
     for (let chainsKey in rigDataApplied.chains) {
       const chain = rig.chains[chainsKey]
@@ -125,8 +125,8 @@ describe('check Compute', () => {
 
   it('computeHip', () => {
     const expectedHip = expectedIKPose.hip
-    const ikPose = getComponent(sourceEntity, IKPose)
-    const rig = getComponent(sourceEntity, IKRig)
+    const ikPose = getComponent(sourceEntity, IKPoseComponent)
+    const rig = getComponent(sourceEntity, IKRigComponent)
 
     computeHip(rig, ikPose)
 
@@ -139,8 +139,8 @@ describe('check Compute', () => {
   test.each(['leg_l', 'leg_r', 'arm_l', 'arm_r'])('compute limb %s', (limb) => {
     const expected: IKPoseLimbData = expectedIKPose[limb]
 
-    const ikPose = getComponent(sourceEntity, IKPose) as IKPoseComponentType
-    const rig = getComponent(sourceEntity, IKRig)
+    const ikPose = getComponent(sourceEntity, IKPoseComponent) as IKPoseComponentType
+    const rig = getComponent(sourceEntity, IKRigComponent)
 
     computeLimb(rig.pose, rig.chains[limb], ikPose[limb])
 
@@ -154,8 +154,8 @@ describe('check Compute', () => {
   test.each(['foot_l', 'foot_r', 'head'])('compute look/twist for %s', (chainName) => {
     const expected: IKPoseLookTwist = expectedIKPose[chainName]
 
-    const ikPose = getComponent(sourceEntity, IKPose) as IKPoseComponentType
-    const rig = getComponent(sourceEntity, IKRig)
+    const ikPose = getComponent(sourceEntity, IKPoseComponent) as IKPoseComponentType
+    const rig = getComponent(sourceEntity, IKRigComponent)
 
     computeLookTwist(rig, rig.points[chainName], ikPose[chainName], FORWARD, UP)
 
@@ -168,8 +168,8 @@ describe('check Compute', () => {
   test('compute spine', () => {
     const expected: IKPoseSpineData = expectedIKPose.spine
 
-    const ikPose = getComponent(sourceEntity, IKPose) as IKPoseComponentType
-    const rig = getComponent(sourceEntity, IKRig)
+    const ikPose = getComponent(sourceEntity, IKPoseComponent) as IKPoseComponentType
+    const rig = getComponent(sourceEntity, IKRigComponent)
 
     computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD)
 
@@ -199,8 +199,8 @@ describe('Check Apply', () => {
   beforeEach(() => {
     sourceEntity = createEntity()
     setupTestSourceEntity(sourceEntity)
-    const rig = getComponent(sourceEntity, IKRig)
-    ikPose = getComponent(sourceEntity, IKPose)
+    const rig = getComponent(sourceEntity, IKRigComponent)
+    ikPose = getComponent(sourceEntity, IKPoseComponent)
     // apply animation pose
     const animBonesStates = adoptBones(bones)
     applyTestPoseState(rig.pose, animBonesStates)
@@ -210,7 +210,7 @@ describe('Check Apply', () => {
     // init target entity and rig
     targetEntity = createEntity()
     setupTestTargetEntity(targetEntity)
-    targetRig = getComponent(targetEntity, IKRig)
+    targetRig = getComponent(targetEntity, IKRigComponent)
     // TODO: remove it when fixed
     targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
 

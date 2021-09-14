@@ -1,7 +1,13 @@
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKRig, IKRigComponentType, PointData } from '../components/IKRig'
+import { IKRigComponent, IKRigComponentType, PointData } from '../components/IKRigComponent'
 import { Bone, Object3D, Quaternion, Vector3 } from 'three'
-import { IKPose, IKPoseComponentType, IKPoseLimbData, IKPoseLookTwist, IKPoseSpineData } from '../components/IKPose'
+import {
+  IKPoseComponent,
+  IKPoseComponentType,
+  IKPoseLimbData,
+  IKPoseLookTwist,
+  IKPoseSpineData
+} from '../components/IKPoseComponent'
 import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '../../ikrig/constants/Vector3Constants'
 import { addChain, addPoint } from './RigFunctions'
 import { Entity } from '../../ecs/classes/Entity'
@@ -42,7 +48,7 @@ export function lawCosinesSSS(aLen: number, bLen: number, cLen: number): number 
   return Math.acos(v)
 }
 
-export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
+export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRigComponent.get>) {
   // console.log('setupMixamoIKRig', rig)
   rig.points = {}
   rig.chains = {}
@@ -73,7 +79,7 @@ export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRig.ge
   rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
 }
 
-export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>) {
+export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRigComponent.get>) {
   // console.log('setupTRexIKRig', rig)
   rig.points = {}
   rig.chains = {}
@@ -171,7 +177,7 @@ function updatePoseBonesFromSkeleton(rig: IKRigComponentType) {
   }
 }
 
-export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
+export function computeHip(rig: ReturnType<typeof IKRigComponent.get>, ik_pose) {
   // First thing we need is the Hip bone from the Animated Pose
   // Plus what the hip's Bind Pose as well.
   // We use these two states to determine what change the animation did to the tpose.
@@ -463,7 +469,7 @@ function applyPoseToRig(targetRig: IKRigComponentType) {
   targetRig.pose.skeleton.update()
 }
 
-export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigComponentType) {
+export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IKRigComponentType) {
   // First step is we need to get access to the Rig's TPose and Pose Hip Bone.
   // The idea is to transform our Bind Pose into a New Pose based on IK Data
   const boneInfo = rig.points.hip
@@ -524,7 +530,7 @@ export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigCompon
 // }
 
 export function applyLimb(
-  ikPose: ReturnType<typeof IKPose.get>,
+  ikPose: ReturnType<typeof IKPoseComponent.get>,
   rig: IKRigComponentType,
   chain: Chain,
   limb: IKPoseLimbData,

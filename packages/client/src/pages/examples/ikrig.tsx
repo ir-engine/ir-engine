@@ -10,8 +10,8 @@ import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/E
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
-import { defaultIKPoseComponentValues, IKPose } from '@xrengine/engine/src/ikrig/components/IKPose'
-import { IKRig, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRig'
+import { defaultIKPoseComponentValues, IKPoseComponent } from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
+import { IKRigComponent, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRigComponent'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { IKRigSystem } from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
@@ -196,7 +196,7 @@ const Page = () => {
 
     loadAndSetupModel(objectURL, sourceEntityRef.current, new Vector3(0, 0, 0), new Quaternion(), new Vector3(1, 1, 1))
       .then(({ entity, skeletonHelper }) => {
-        const rig = getComponent(entity, IKRig)
+        const rig = getComponent(entity, IKRigComponent)
         rig.name = 'custom'
         rig.tpose.apply()
 
@@ -362,8 +362,8 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
     animationSpeed: 1
   })
   addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
-  addComponent(sourceEntity, IKPose, defaultIKPoseComponentValues())
-  addComponent(sourceEntity, IKRig, {
+  addComponent(sourceEntity, IKPoseComponent, defaultIKPoseComponentValues())
+  addComponent(sourceEntity, IKRigComponent, {
     tpose: null,
     pose: null,
     chains: null,
@@ -372,8 +372,8 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
     // sourceRig: null
   })
 
-  const rig = getComponent(sourceEntity, IKRig) as IKRigComponentType
-  const sourcePose = getComponent(sourceEntity, IKPose)
+  const rig = getComponent(sourceEntity, IKRigComponent) as IKRigComponentType
+  const sourcePose = getComponent(sourceEntity, IKPoseComponent)
 
   // TODO check types!
   // @ts-ignore
@@ -476,16 +476,16 @@ async function loadAndSetupModel(
   // Create entity
   let targetEntity = createEntity()
   addComponent(targetEntity, IKObj, { ref: targetSkinnedMesh })
-  addComponent(targetEntity, IKRig, {
+  addComponent(targetEntity, IKRigComponent, {
     tpose: new Pose(targetEntity, true), // If Passing a TPose, it must have its world space computed.
     pose: new Pose(targetEntity, false),
     chains: null,
     points: null,
-    sourcePose: getComponent(sourceEntity, IKPose)
+    sourcePose: getComponent(sourceEntity, IKPoseComponent)
     // sourceRig: null
   })
 
-  const targetRig = getComponent(targetEntity, IKRig)
+  const targetRig = getComponent(targetEntity, IKRigComponent)
 
   // Set the skinned mesh reference
   const targetObj = getComponent(targetEntity, IKObj)

@@ -1,7 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import Pose from '../classes/Pose'
 import { Chain } from './Chain'
-import { IKPose } from './IKPose'
+import { IKPoseComponent } from './IKPoseComponent'
 
 export type PointData = { index: number }
 
@@ -11,8 +11,8 @@ export type IKRigComponentType = {
   chains?: Record<string, Chain> // IK Chains
   points?: Record<string, PointData> // Individual IK points (hands, head, feet)
 
-  sourcePose?: ReturnType<typeof IKPose.get>
+  sourcePose?: ReturnType<typeof IKPoseComponent.get>
   // sourceRig?: ReturnType<typeof IKRig.get>
 }
 
-export const IKRig = createMappedComponent<IKRigComponentType>('IKRig')
+export const IKRigComponent = createMappedComponent<IKRigComponentType>('IKRigComponent')

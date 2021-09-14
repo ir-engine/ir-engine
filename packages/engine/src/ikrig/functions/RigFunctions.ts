@@ -2,7 +2,7 @@ import { SkinnedMesh, Vector3 } from 'three'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../components/Chain'
 import { IKObj } from '../components/IKObj'
-import { IKRig } from '../components/IKRig'
+import { IKRigComponent } from '../components/IKRigComponent'
 import { ArmatureType } from '../enums/ArmatureType'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose from '../classes/Pose'
@@ -15,7 +15,7 @@ export function initRig(
   use_node_offset = false,
   arm_type: ArmatureType = ArmatureType.MIXAMO
 ) {
-  const rig = getComponent(entity, IKRig)
+  const rig = getComponent(entity, IKRigComponent)
   // const armature = getComponent(entity, Armature)
 
   // rig.arm = armature
@@ -76,7 +76,7 @@ function initMixamoRig(armature, rig) {
 
 export function addPoint(entity: Entity, name: string, boneName: string): void {
   const armature = getComponent(entity, IKObj).ref
-  const rig = getComponent(entity, IKRig)
+  const rig = getComponent(entity, IKRigComponent)
   rig.points[name] = {
     index: armature.skeleton.bones.findIndex((bone) => bone.name.includes(boneName))
   }
@@ -91,7 +91,7 @@ export function addChain(
   //  axis="z",
   let boneName: string, b
   const armature = getComponent(entity, IKObj).ref
-  const rig = getComponent(entity, IKRig)
+  const rig = getComponent(entity, IKRigComponent)
 
   const chain = new Chain() // axis
   for (boneName of nameArray) {
