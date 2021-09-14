@@ -10,8 +10,6 @@ import { Chain } from '../components/Chain'
 import { solveLimb } from './IKSolvers'
 // import { debug } from '../classes/Debug'
 
-// const tempQ = new Quaternion()
-// const tempV = new Vector3()
 const aToBVector = new Vector3()
 const boneAWorldPos = new Vector3()
 const boneBWorldPos = new Vector3()
@@ -114,6 +112,8 @@ export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>
 }
 
 export function computeIKPose(rig: IKRigComponentType, ikPose: IKPoseComponentType) {
+  updatePoseBonesFromSkeleton(rig)
+
   computeHip(rig, ikPose)
 
   computeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l)
@@ -128,6 +128,47 @@ export function computeIKPose(rig: IKRigComponentType, ikPose: IKPoseComponentTy
   computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r)
 
   computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP)
+}
+
+/**
+ * update pose bones states from animated skeleton bones,
+ * @param rig
+ */
+function updatePoseBonesFromSkeleton(rig: IKRigComponentType) {
+  const skeletonTransform = {
+    position: new Vector3(),
+    quaternion: new Quaternion(),
+    quaternionInverted: new Quaternion(),
+    scale: new Vector3()
+  }
+  const rootBone = rig.pose.skeleton.bones.find((b) => !(b.parent instanceof Bone))
+  if (rootBone.parent) {
+    rootBone.parent.getWorldPosition(skeletonTransform.position)
+    rootBone.parent.getWorldQuaternion(skeletonTransform.quaternion)
+    rootBone.parent.getWorldScale(skeletonTransform.scale)
+    skeletonTransform.quaternionInverted = skeletonTransform.quaternion.clone().invert()
+  }
+  const boneWorldPosition = new Vector3(),
+    boneWorldRotation = new Quaternion(),
+    boneWorldScale = new Vector3()
+
+  for (let i = 0; i < rig.pose.skeleton.bones.length; i++) {
+    const bone = rig.pose.skeleton.bones[i]
+    const pose = rig.pose.bones[i]
+
+    bone.getWorldPosition(boneWorldPosition)
+    bone.getWorldQuaternion(boneWorldRotation)
+    bone.getWorldScale(boneWorldScale)
+    worldToModel(boneWorldPosition, boneWorldRotation, boneWorldScale, skeletonTransform)
+
+    pose.world.position.copy(boneWorldPosition)
+    pose.world.quaternion.copy(boneWorldRotation)
+    pose.world.scale.copy(boneWorldScale)
+
+    pose.local.position.copy(bone.position)
+    pose.local.quaternion.copy(bone.quaternion)
+    pose.local.scale.copy(bone.scale)
+  }
 }
 
 export function computeHip(rig: ReturnType<typeof IKRig.get>, ik_pose) {
@@ -406,6 +447,10 @@ export function applyIKPoseToIKRig(targetRig: IKRigComponentType, ikPose: IKPose
   applyPoseToRig(targetRig)
 }
 
+/**
+ * update skeleton bones by pose bones states
+ * @param targetRig
+ */
 function applyPoseToRig(targetRig: IKRigComponentType) {
   for (let i = 0; i < targetRig.pose.bones.length; i++) {
     const poseBone = targetRig.pose.bones[i]
@@ -415,6 +460,7 @@ function applyPoseToRig(targetRig: IKRigComponentType) {
     armatureBone.quaternion.copy(poseBone.local.quaternion)
     armatureBone.scale.copy(poseBone.local.scale)
   }
+  targetRig.pose.skeleton.update()
 }
 
 export function applyHip(ikPose: ReturnType<typeof IKPose.get>, rig: IKRigComponentType) {
@@ -506,7 +552,7 @@ export function applyLimb(
   bindBone.getWorldScale(c_tran.scale)
 
   // TODO: handle this, we need transform in model space...
-  // rig.pose.get_parent_world(chain.first(), p_tran, c_tran)
+  rig.pose.get_parent_world(chain.first(), p_tran, c_tran)
 
   // How much of the Chain length to use to calc End Effector
   // let len = (rig.leg_len_lmt || chain.len) * limb.len_scale
@@ -625,15 +671,15 @@ export function applyLookTwist(
   // let bind 	= rig.tpose.bones[ b_info.idx ],
   // pose 	= rig.pose.bones[ b_info.idx ];
 
-  const bind = rig.tpose.bones[boneInfo.index].bone,
-    pose = rig.pose.bones[boneInfo.index].bone
+  const bind = rig.tpose.bones[boneInfo.index],
+    pose = rig.pose.bones[boneInfo.index]
 
   // ORIGINAL CODE
   // let p_rot 	= rig.pose.get_parent_rot( b_info.idx );
   // let c_rot 	= Quat.mul( p_rot, bind.local.rot );
   const rootQuaternion = rig.pose.getParentRotation(boneInfo.index)
 
-  const childRotation = new Quaternion().copy(rootQuaternion).multiply(bind.quaternion)
+  const childRotation = new Quaternion().copy(rootQuaternion).multiply(bind.local.quaternion)
 
   // Next we need to get the Foot's Quaternion Inverse Direction
   // Which matches up with the same Directions used to calculate the IK
@@ -642,9 +688,7 @@ export function applyLookTwist(
   // let q_inv 			= Quat.invert( bind.world.rot ),
   // alt_look_dir	= Vec3.transform_quat( look_dir, q_inv ),
   // alt_twist_dir	= Vec3.transform_quat( twist_dir, q_inv );
-  const quatInverse = new Quaternion()
-  bind.getWorldQuaternion(quatInverse)
-  quatInverse.invert()
+  const quatInverse = bind.world.quaternion.clone().invert()
 
   const altLookDirection = new Vector3().copy(lookDirection).applyQuaternion(quatInverse),
     altTwistDirection = new Vector3().copy(twistDirection).applyQuaternion(quatInverse)
@@ -675,15 +719,15 @@ export function applyLookTwist(
   const currentTwistDirection = new Vector3().copy(altTwistDirection).applyQuaternion(rotation)
   const twist = new Quaternion().setFromUnitVectors(currentTwistDirection, ik.twistDirection)
   rotation.premultiply(twist) // Apply Twist
-  const boneParentQuaternionInverse = new Quaternion()
-  pose.parent.getWorldQuaternion(boneParentQuaternionInverse)
-  boneParentQuaternionInverse.invert()
+  // const boneParentQuaternionInverse = new Quaternion()
+  // pose.parent.getWorldQuaternion(boneParentQuaternionInverse)
+  // boneParentQuaternionInverse.invert()
 
-  rotation.premultiply(boneParentQuaternionInverse) // To Local Space
+  rotation.premultiply(rootQuaternion.clone().invert()) // To Local Space
 
   rig.pose.setBone(boneInfo.index, rotation) // Save to pose.
-  // TODO: remove this
-  rig.pose.bones[boneInfo.index].bone.quaternion.copy(rotation)
+
+  // return { rootQuaternion, childRotation, rotation0, rotation1, rotationFinal, boneParentQuaternion }
 }
 
 export function applyGrounding(ikPose: IKPoseComponentType, y_lmt: number): void {
@@ -767,8 +811,6 @@ export function applySpine(
     currentLook = new Vector3(),
     currentTwist = new Vector3(),
     quat = new Quaternion()
-
-  debugger
 
   for (let i = 0; i <= cnt; i++) {
     // Prepare for the Iteration

@@ -97,15 +97,9 @@ export function addChain(entity: Entity, name: string, nameArray: string[], end_
     }
     const bone = armature.skeleton.bones[index]
 
-    const boneWorldPosition = new Vector3()
-    bone.getWorldPosition(boneWorldPosition)
-
     let length = 0
-
     if (bone.children.length > 0) {
-      const boneChildWorldPosition = new Vector3()
-      bone.children[0].getWorldPosition(boneChildWorldPosition)
-      length = boneWorldPosition.distanceTo(boneChildWorldPosition)
+      length = bone.children[0].position.length()
     }
     const o = { index, ref: bone, length }
 

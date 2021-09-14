@@ -517,7 +517,8 @@ describe('Check Apply', () => {
 
       applied.bone.getWorldPosition(boneWorldPosition)
       applied.bone.getWorldQuaternion(boneWorldRotation)
-      boneWorldPosition.sub(targetRig.pose.rootOffset.position)
+      applied.bone.getWorldScale(boneWorldScale)
+      worldToModel(boneWorldPosition, boneWorldRotation, boneWorldScale, targetMeshTransform)
 
       expect(boneWorldPosition).toBeCloseToVector(expected.world.position, 4)
       expect(boneWorldRotation).toBeCloseToQuaternion(expected.world.quaternion, 2)
@@ -604,12 +605,13 @@ describe('Check Apply', () => {
     const applied = targetRig.pose.bones[targetRig.points[boneName].index]
     const expected = expectedState[targetRig.points[boneName].index]
 
-    expect(applied.bone.position).toBeCloseToVector(expected.local.position, 4)
-    expect(applied.bone.quaternion).toBeCloseToQuaternion(expected.local.quaternion, 2)
+    expect(applied.local.position).toBeCloseToVector(expected.local.position, 4)
+    expect(applied.local.quaternion).toBeCloseToQuaternion(expected.local.quaternion, 2)
 
     applied.bone.getWorldPosition(boneWorldPosition)
     applied.bone.getWorldQuaternion(boneWorldRotation)
-    boneWorldPosition.sub(targetRig.pose.rootOffset.position)
+    applied.bone.getWorldScale(boneWorldScale)
+    worldToModel(boneWorldPosition, boneWorldRotation, boneWorldScale, targetMeshTransform)
 
     expect(boneWorldPosition).toBeCloseToVector(expected.world.position, 4)
     expect(boneWorldRotation).toBeCloseToQuaternion(expected.world.quaternion, 2)

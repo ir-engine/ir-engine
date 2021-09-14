@@ -82,8 +82,6 @@ class Pose {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Create Bone Transform Hierarchy to do transformations
     // without changing the actual armature.
-    const bWorldPosition = new Vector3()
-    const bChildWorldPosition = new Vector3()
     const skeletonTransform = {
       position: new Vector3(),
       quaternion: new Quaternion(),
@@ -285,8 +283,8 @@ class Pose {
     return q
   }
 
-  transformAdd_rev(pt, ct) {
-    pt.pos.mul(ct.scale).transform_quat(ct.quaternion).add(ct.position)
+  transformAdd_rev(pt: PoseBoneTransform, ct: PoseBoneTransform) {
+    pt.position.multiply(ct.scale).applyQuaternion(ct.quaternion).add(ct.position)
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // SCALE - parent.scale * child.scale
     pt.scale.multiply(ct.scale)
@@ -295,44 +293,51 @@ class Pose {
     pt.quaternion.premultiply(ct.quaternion) // Must Rotate from Parent->Child, need PMUL
   }
 
-  // get_parent_world(
-  //   b_idx: number,
-  //   pt: PoseBoneTransform = null,
-  //   ct: PoseBoneTransform = null,
-  //   t_offset: PoseBoneTransform = null
-  // ) {
-  //   const cbone = this.bones[b_idx]
-  //
-  //   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  //
-  //   // Child is a Root Bone, just reset since there is no parent.
-  //   if (cbone.p_idx == null) {
-  //     pt.clear()
-  //   } else {
-  //     // Parents Exist, loop till reaching the root
-  //     let b = this.bones[cbone.p_idx]
-  //     pt.copy(b.local)
-  //
-  //     while (b.p_idx != null) {
-  //       b = this.bones[b.p_idx]
-  //       this.transformAdd_rev(pt, b.local)
-  //     }
-  //   }
-  //
-  //   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  //
-  //   this.transformAdd_rev(pt, this.rootOffset) // Add Starting Offset
-  //   if (t_offset) {
-  //     this.transformAdd_rev(pt, t_offset) // Add Additional Starting Offset
-  //   }
-  //
-  //   if (ct) {
-  //     transformAdd()
-  //     ct.from_add(pt, cbone.local) // Requesting Child WS Info Too
-  //   }
-  //
-  //   return pt
-  // }
+  get_parent_world(
+    b_idx: number,
+    pt: PoseBoneTransform = null,
+    ct: PoseBoneTransform = null,
+    t_offset: PoseBoneTransform = null
+  ) {
+    const cbone = this.bones[b_idx]
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // Child is a Root Bone, just reset since there is no parent.
+    if (cbone.p_idx == null) {
+      pt.position.set(0, 0, 0)
+      pt.scale.set(0, 0, 0)
+      pt.quaternion.set(0, 0, 0, 0)
+    } else {
+      // Parents Exist, loop till reaching the root
+      let b = this.bones[cbone.p_idx]
+      pt.position.copy(b.local.position)
+      pt.scale.copy(b.local.scale)
+      pt.quaternion.copy(b.local.quaternion)
+
+      while (b.p_idx != null) {
+        b = this.bones[b.p_idx]
+        this.transformAdd_rev(pt, b.local)
+      }
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    this.transformAdd_rev(pt, this.rootOffset) // Add Starting Offset
+    if (t_offset) {
+      this.transformAdd_rev(pt, t_offset) // Add Additional Starting Offset
+    }
+
+    if (ct) {
+      ct.position.copy(pt.position)
+      ct.scale.copy(pt.scale)
+      ct.quaternion.copy(pt.quaternion)
+      transformAdd(ct, cbone.local) // Requesting Child WS Info Too
+      // ct.from_add(pt, cbone.local) // Requesting Child WS Info Too
+    }
+
+    return pt
+  }
 }
 
 export default Pose

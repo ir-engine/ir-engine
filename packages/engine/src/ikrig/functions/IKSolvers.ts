@@ -60,13 +60,13 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
   pose_a.world.scale.copy(p_wt.scale)
   transformAdd(
     // transform
-    pose_a.world.quaternion,
-    pose_a.world.position,
-    pose_a.world.scale,
+    pose_a.world,
     // add
-    rot,
-    bind_a.local.position,
-    bind_a.local.scale
+    {
+      quaternion: rot,
+      position: bind_a.local.position,
+      scale: bind_a.local.scale
+    }
   )
 
   //   .copy(p_wt)
@@ -96,13 +96,13 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
   // pose_b.world.add(rot, bind_b.local.pos, bind_b.local.scl)
   transformAdd(
     // transform
-    pose_b.world.quaternion,
-    pose_b.world.position,
-    pose_b.world.scale,
+    pose_b.world,
     // add
-    rot,
-    bind_b.local.position,
-    bind_b.local.scale
+    {
+      quaternion: rot,
+      position: bind_b.local.position,
+      scale: bind_b.local.scale
+    }
   )
 
   return {
@@ -115,33 +115,22 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
 // Computing Transforms, Parent -> Child
 /**
  *
- * @param pr parent quaternion (will be modified)
- * @param pp parent position (will be modified)
- * @param ps parent scale (will be modified)
- * @param cr child quaternion
- * @param cp child position
- * @param cs child scale
+ * @param target target transform (will be modified)
+ * @param source source transform
  */
-export function transformAdd(
-  pr: Quaternion,
-  pp: Vector3,
-  ps: Vector3,
-  cr: Quaternion,
-  cp: Vector3,
-  cs: Vector3 | null = null
-) {
+export function transformAdd(target: PoseBoneTransform, source: PoseBoneTransform) {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
   // pos.add( Vec3.mul( this.scl, cp ).transform_quat( this.rot ) );
-  pp.add(cp.clone().multiply(ps).applyQuaternion(pr))
+  target.position.add(source.position.clone().multiply(target.scale).applyQuaternion(target.quaternion))
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // SCALE - parent.scale * child.scale
-  if (cs) ps.multiply(cs)
+  if (source.scale) target.scale.multiply(source.scale)
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // ROTATION - parent.rotation * child.rotation
-  pr.multiply(cr)
+  target.quaternion.multiply(source.quaternion)
 }
 
 //// helpers
