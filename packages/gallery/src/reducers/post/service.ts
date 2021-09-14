@@ -194,7 +194,7 @@ export function setFeedNotFeatured(feedId: string) {
   }
 }
 
-export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: string) {
+export function removeFeed(feedId: string, previewImageUrl: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const findIdInUrl = (url) => {
@@ -205,7 +205,7 @@ export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: st
       }
 
       await client.service('static-resource').remove(findIdInUrl(previewImageUrl))
-      await client.service('static-resource').remove(findIdInUrl(videoUrl))
+      // await client.service('static-resource').remove(findIdInUrl(videoUrl))
       await client.service('feed').remove(feedId)
       dispatch(deleteFeed(feedId))
     } catch (err) {

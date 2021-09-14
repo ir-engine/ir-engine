@@ -9,7 +9,7 @@ import CardMedia from '@material-ui/core/CardMedia'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { selectCreatorsState } from '@xrengine/gallery/src/reducers/creator/selector'
 import { selectFeedsState } from '@xrengine/gallery/src/reducers/post/selector'
-import { getFeeds } from '@xrengine/gallery/src/reducers/post/service'
+import { getFeeds, removeFeed } from '@xrengine/gallery/src/reducers/post/service'
 import styles from './Featured.module.scss'
 import { useHistory } from 'react-router'
 
@@ -22,7 +22,8 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFeeds: bindActionCreators(getFeeds, dispatch)
+  getFeeds: bindActionCreators(getFeeds, dispatch),
+  removeFeed: bindActionCreators(removeFeed, dispatch)
 })
 interface Props {
   feedsState?: any
@@ -31,9 +32,10 @@ interface Props {
   type?: string
   creatorId?: string
   creatorState?: any
+  removeFeed?: any
 }
 
-const Featured = ({ feedsState, getFeeds, type, creatorId, authState }: Props) => {
+const Featured = ({ feedsState, getFeeds, type, creatorId, authState, removeFeed }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
   const history = useHistory()
@@ -71,6 +73,12 @@ const Featured = ({ feedsState, getFeeds, type, creatorId, authState }: Props) =
     [feedsState.get('feedsCreatorFetching'), feedsState.get('feedsCreator')]
   )
 
+  const handleRemove = (id, image) => {
+    // removeFeed(id, image)
+  }
+
+  console.log(feedsList)
+
   return (
     <section className={styles.feedContainer}>
       {feedsList && feedsList.length > 0
@@ -82,6 +90,7 @@ const Featured = ({ feedsState, getFeeds, type, creatorId, authState }: Props) =
                   image={item.previewUrl}
                   onClick={() => {
                     history.push('/post?postId=' + item.id)
+                    handleRemove(item.id, item.previewUrl)
                   }}
                 />
                 <span className={styles.descr}>{item.description}</span>
