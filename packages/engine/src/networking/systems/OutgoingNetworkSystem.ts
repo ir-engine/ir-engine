@@ -16,6 +16,7 @@ import { IncomingActionType } from '../interfaces/NetworkTransport'
 import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
+import { Euler, Quaternion } from '@etherealjs/core'
 
 function sendActions() {
   if (!isClient) {
@@ -84,6 +85,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       const networkObject = getComponent(entity, NetworkObjectComponent)
 
       let vel = undefined
+      let angVel = undefined
       if (hasComponent(entity, VelocityComponent)) {
         const velC = getComponent(entity, VelocityComponent)
         vel = velC.velocity.toArray()
@@ -95,7 +97,8 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       newWorldState.pose.push({
         networkId: networkObject.networkId,
         pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose,
-        velocity: vel !== undefined ? vel : 0
+        velocity: vel !== undefined ? vel : 0,
+        angularVelocity: angVel !== undefined ? angVel : 0
       })
     }
 
@@ -103,6 +106,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       const transformComponent = getComponent(Network.instance.localClientEntity, TransformComponent)
 
       let vel = undefined
+      let angVel = undefined
       if (hasComponent(Network.instance.localClientEntity, VelocityComponent)) {
         const velC = getComponent(Network.instance.localClientEntity, VelocityComponent)
         vel = velC.velocity.toArray()
@@ -111,7 +115,8 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       newWorldState.pose.push({
         networkId: getLocalNetworkId(),
         pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose,
-        velocity: vel !== undefined ? vel : 0
+        velocity: vel !== undefined ? vel : 0,
+        angularVelocity: angVel !== undefined ? angVel : 0
       })
     }
 

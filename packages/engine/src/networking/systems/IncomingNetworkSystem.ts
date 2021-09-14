@@ -91,6 +91,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               if (pose.velocity === 0) velC.velocity.setScalar(0)
               else velC.velocity.fromArray(pose.velocity)
             }
+            //get the angular velocity and apply if it has the appropriate component
 
             const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
             // networkObjectOwnerComponent && console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
