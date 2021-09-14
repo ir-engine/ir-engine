@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import { ControllerHitEvent, PhysXInstance } from 'three-physx'
+import { ControllerHitEvent, PhysXInstance } from '../physics/physx'
 import { defineQuery, enterQuery, exitQuery } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'

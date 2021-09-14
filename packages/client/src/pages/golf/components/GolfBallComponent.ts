@@ -1,4 +1,4 @@
-import { RaycastQuery } from 'three-physx'
+import { RaycastQuery } from '@xrengine/engine/src/physics/physx'
 import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { BALL_STATES } from '../prefab/GolfBallPrefab'
 

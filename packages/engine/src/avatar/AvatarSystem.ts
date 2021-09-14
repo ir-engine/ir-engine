@@ -1,5 +1,5 @@
 import { Group, Quaternion, Vector3 } from 'three'
-import { PhysXInstance } from 'three-physx'
+import { PhysXInstance } from '../physics/physx'
 import { isClient } from '../common/functions/isClient'
 import {
   addComponent,

@@ -1,4 +1,4 @@
-import { ColliderHitEvent } from 'three-physx'
+import { ColliderHitEvent } from '../../physics/physx'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../components/ColliderComponent'

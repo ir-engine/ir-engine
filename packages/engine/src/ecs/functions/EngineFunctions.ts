@@ -1,7 +1,7 @@
 /** Functions to provide engine level functionalities. */
 import * as bitecs from 'bitecs'
 import { Color } from 'three'
-import { PhysXInstance } from 'three-physx'
+import { PhysXInstance } from '../../physics/physx'
 import { ActionType, IncomingActionType } from '../..'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
@@ -206,10 +206,7 @@ export function createWorld() {
     async initSystems() {
       const loadSystem = (pipeline: SystemInitializeType<any>[]) => {
         return pipeline.map(async (s) => {
-          console.log('starting system', s.system)
-          const systemDefault = (await s.system).default(world, s.args)
-          console.log('Finished starting system', s.system)
-          return systemDefault
+          return (await s.system).default(world, s.args)
         })
       }
 

@@ -121,7 +121,7 @@
     "@types/three": "0.131.0",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.26",
+    "esbuild": "0.12.28",
     "eslint": "7.32.0",
     "rimraf": "3.0.2",
     "rollup": "2.56.3",
