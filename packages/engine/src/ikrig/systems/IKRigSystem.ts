@@ -1,6 +1,6 @@
-import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { IKRig } from '../components/IKRig'
-import { defineQuery, defineSystem, System } from 'bitecs'
+import { defineQuery, defineSystem, Not, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 // import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
@@ -51,11 +51,8 @@ import { AnimationAction } from 'three'
 // }
 
 export const IKRigSystem = async (): Promise<System> => {
-  const ikrigsQuery = defineQuery([IKRig])
-  const ikposeQuery = defineQuery([IKPose])
-
-  // TODO remove this const, it's just for testing
-  const processedAnimation = new Map<Entity, number>()
+  const targetRigsQuery = defineQuery([IKRig, Not(IKPose)])
+  const ikposeQuery = defineQuery([IKPose, IKRig])
 
   return defineSystem((world: ECSWorld) => {
     const { delta } = world
@@ -68,23 +65,6 @@ export const IKRigSystem = async (): Promise<System> => {
       const rig = getComponent(entity, IKRig)
       if (!ikPose.targetRigs) {
         continue
-      }
-
-      {
-        // TODO remove this block, it's just for testing
-        const ac = getComponent(entity, AnimationComponent)
-        // @ts-ignore
-        const actions: AnimationAction[] = ac.mixer._actions
-        if (!actions.length) {
-          continue
-        }
-        const animationTime = actions[0].time
-        if (processedAnimation.has(entity)) {
-          if (processedAnimation.get(entity) === animationTime) {
-            continue
-          }
-        }
-        processedAnimation.set(entity, animationTime)
       }
 
       // // COMPUTE
@@ -104,9 +84,10 @@ export const IKRigSystem = async (): Promise<System> => {
       // visualizeLookTwist(rig, rig.points.head, pose.head);
 
       // APPLY
-      ikPose.targetRigs.forEach((targetRig) => {
+      for (const targetEntity of targetRigsQuery(world)) {
+        const targetRig = getComponent(targetEntity, IKRig)
         applyIKPoseToIKRig(targetRig, ikPose)
-      })
+      }
     }
 
     return world
