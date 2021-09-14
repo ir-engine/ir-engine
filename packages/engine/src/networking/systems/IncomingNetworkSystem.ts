@@ -59,13 +59,13 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               newWorldState.pose.map((pose) => {
                 return {
                   networkId: pose.networkId,
-                  x: pose.pose[0],
-                  y: pose.pose[1],
-                  z: pose.pose[2],
-                  qX: pose.pose[3],
-                  qY: pose.pose[4],
-                  qZ: pose.pose[5],
-                  qW: pose.pose[6]
+                  x: pose.position[0],
+                  y: pose.position[1],
+                  z: pose.position[2],
+                  qX: pose.rotation[0],
+                  qY: pose.rotation[1],
+                  qZ: pose.rotation[2],
+                  qW: pose.rotation[3]
                 }
               })
             )
@@ -88,8 +88,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
             if (hasComponent(networkObject.entity, VelocityComponent)) {
               const velC = getComponent(networkObj.entity, VelocityComponent)
-              if (pose.linearVelocity === [0, 0, 0]) velC.velocity.setScalar(0)
-              else velC.velocity.fromArray(pose.linearVelocity)
+              velC.velocity.fromArray(pose.linearVelocity)
             }
             //get the angular velocity and apply if it has the appropriate component
 
@@ -128,7 +127,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
           xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPose, 3)
         }
       } catch (e) {
-        console.log('could not convert world state to a buffer, ' + e)
+        console.log('could not convert world state to a buffer, ' + e + ' ' + e.stack)
       }
     }
   }
