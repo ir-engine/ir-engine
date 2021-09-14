@@ -79,17 +79,12 @@ export default async function PhysicsSystem(
   let simulationEnabled = true
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-    console.log('Physics System got ENABLE_SCENE')
     if (typeof ev.physics !== 'undefined') {
       simulationEnabled = ev.physics
     }
   })
 
   world.receptors.add(avatarActionReceptor)
-  console.log('Added avatarActionReceptor to world')
-
-  world.physics = new Physics()
-  await world.physics.createScene()
 
   return () => {
     for (const entity of spawnRigidbodyQuery.enter()) {

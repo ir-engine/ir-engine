@@ -50,6 +50,8 @@ export class Physics {
   raycasts: Map<number, SceneQuery> = new Map<number, SceneQuery>()
   obstacles: Map<number, number> = new Map<number, number>()
 
+  dispose() {}
+
   onEvent(ev) {
     this.collisionEventQueue.push(ev)
   }
@@ -427,12 +429,6 @@ export class Physics {
     const shapes = actor.getShapes() as PhysX.PxShape
     this.shapeIDByPointer.set(shapes.$$.ptr, id)
     ;(actor as any)._type = BodyType.CONTROLLER
-    ;(controller as any)._filterData = new PhysX.PxFilterData(
-      config.collisionLayer ?? defaultMask,
-      config.collisionMask ?? defaultMask,
-      0,
-      0
-    )
     ;(controller as any)._id = id
     return controller
   }
@@ -488,44 +484,6 @@ export class Physics {
     this.bodies.delete(id)
     controller.release()
     // todo
-  }
-
-  addRaycastQuery(query: SceneQuery) {
-    const id = this._getNextAvailableRaycastID()
-    ;(query as any)._filterData = new PhysX.PxQueryFilterData()
-    ;(query as any)._filterData.setWords(query.collisionMask ?? 1, 0)
-    if (typeof query.flags === 'undefined') {
-      query.flags =
-        PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
-    }
-    ;(query as any)._filterData.setFlags(query.flags)
-    this.raycasts.set(id, query)
-    return query
-  }
-
-  // todo remove
-  updateRaycastQuery(id, newArgs: SceneQuery) {
-    const { flags, maxDistance, maxHits, collisionMask } = newArgs
-    const raycast = this.raycasts.get(id)
-    if (!raycast) return
-    if (typeof flags !== 'undefined') {
-      raycast.flags = flags
-    }
-    if (typeof maxDistance !== 'undefined') {
-      raycast.maxDistance = maxDistance
-    }
-    if (typeof maxHits !== 'undefined') {
-      raycast.maxHits = maxHits
-    }
-    if (typeof collisionMask !== 'undefined') {
-      raycast.collisionMask = collisionMask
-      ;(raycast as any)._filterData.setWords(raycast.collisionMask ?? 1, 0)
-    }
-    return newArgs
-  }
-
-  removeRaycastQuery(id: number) {
-    this.raycasts.delete(id)
   }
 
   addObstacle({ id, isCapsule, position, rotation, halfExtents, halfHeight, radius }) {

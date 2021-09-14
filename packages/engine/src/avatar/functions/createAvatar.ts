@@ -28,6 +28,7 @@ import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 import { World } from '../../ecs/classes/World'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -124,6 +125,8 @@ export const createAvatar = (
     flags
   })
 
+  addComponent(entity, CollisionComponent, { collisions: [] })
+
   if (isRemotePlayer) {
     const shape = world.physics.createShape(
       new PhysX.PxCapsuleGeometry(capsuleHeight / 2, avatarRadius),
@@ -173,8 +176,6 @@ export const createAvatarController = (entity: Entity) => {
       y: position.y + avatarHalfHeight,
       z: position.z
     },
-    collisionLayer: CollisionGroups.Avatars,
-    collisionMask: DefaultCollisionMask | CollisionGroups.Trigger,
     contactOffset: 0.01,
     stepOffset: 0.25,
     slopeLimit: 0,
@@ -199,6 +200,8 @@ export const createAvatarController = (entity: Entity) => {
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   addComponent(entity, AvatarControllerComponent, {
     controller,
+    filterData: new PhysX.PxFilterData(CollisionGroups.Avatars, DefaultCollisionMask | CollisionGroups.Trigger, 0, 0),
+    collisions: [false, false, false],
     movementEnabled: true,
     isJumping: false,
     isWalking: false,

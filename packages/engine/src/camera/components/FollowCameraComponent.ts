@@ -1,5 +1,4 @@
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { RaycastQuery } from '../../physics/classes/Physics'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../types/CameraMode'
 
@@ -24,11 +23,6 @@ export type FollowCameraComponentType = {
   shoulderSide: boolean
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
   locked: boolean
-  /** Camera physics raycast data */
-  raycastQuery: RaycastQuery
-  /** Camera physics raycast has hit */
-  rayHasHit: boolean
-  collisionMask: CollisionGroups
 }
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
@@ -41,10 +35,7 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   theta: Math.PI,
   phi: 0,
   shoulderSide: true,
-  locked: true,
-  raycastQuery: null,
-  rayHasHit: false,
-  collisionMask: CollisionGroups.Default
+  locked: true
 }
 
 export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>('FollowCameraComponent')

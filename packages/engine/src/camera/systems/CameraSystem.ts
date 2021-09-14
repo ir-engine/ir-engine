@@ -14,6 +14,8 @@ import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -116,13 +118,15 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   tempVec.applyQuaternion(avatarTransform.rotation)
   tempVec.add(avatarTransform.position)
 
+  const raycastComponent = getComponent(Engine.activeCameraEntity, RaycastComponent)
+
   // Raycast for camera
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const raycastDirection = tempVec1.setScalar(0).subVectors(cameraTransform.position, tempVec).normalize()
-  followCamera.raycastQuery.origin.copy(tempVec)
-  followCamera.raycastQuery.direction.copy(raycastDirection)
+  raycastComponent.origin.copy(tempVec)
+  raycastComponent.direction.copy(raycastDirection)
 
-  const closestHit = followCamera.raycastQuery.hits[0]
+  const closestHit = raycastComponent.hits[0]
   followCamera.rayHasHit = !!closestHit
 
   if (followCamera.rayHasHit && closestHit.distance < camDist) {
@@ -155,6 +159,23 @@ export default async function CameraSystem(world: World): Promise<System> {
 
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
+
+  const filterData = new PhysX.PxQueryFilterData()
+
+  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground, 0)
+  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
+  filterData.setFlags(flags)
+
+  addComponent(cameraEntity, RaycastComponent, {
+    filterData,
+    type: SceneQueryType.Closest,
+    hits: [],
+    origin: new Vector3(),
+    direction: new Vector3(0, -1, 0),
+    maxDistance: 10,
+    flags
+  })
+
   // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),
@@ -168,24 +189,11 @@ export default async function CameraSystem(world: World): Promise<System> {
     const { delta } = world
 
     for (const entity of followCameraQuery.enter()) {
-      const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycastQuery = world.physics.addRaycastQuery({
-        type: SceneQueryType.Closest,
-        origin: new Vector3(),
-        direction: new Vector3(0, -1, 0),
-        maxDistance: 10,
-        collisionMask: cameraFollow.collisionMask
-      })
       Engine.activeCameraFollowTarget = entity
     }
 
     for (const entity of followCameraQuery.exit()) {
-      const cameraFollow = getComponent(entity, FollowCameraComponent, true)
-      if (cameraFollow) world.physics.removeRaycastQuery(cameraFollow.raycastQuery)
-      const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
-      if (activeCameraComponent) {
-        Engine.activeCameraFollowTarget = null
-      }
+      Engine.activeCameraFollowTarget = null
     }
 
     for (const entity of followCameraQuery(world)) {

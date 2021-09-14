@@ -1,8 +1,6 @@
 /** Functions to provide engine level functionalities. */
 import * as bitecs from 'bitecs'
 import { Color } from 'three'
-import { PhysXInstance } from '../../physics/classes/Physics'
-import { ActionType, IncomingActionType } from '../..'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
@@ -19,6 +17,7 @@ import { removeEntity, createEntity } from '@xrengine/engine/src/ecs/functions/E
 import { InjectionPoint, SystemInitializeType } from './SystemFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { useWorld } from './SystemHooks'
+import { ActionType } from '../../networking/interfaces/NetworkTransport'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -132,7 +131,7 @@ export function createWorld() {
   const worldShape = {
     sceneMetadata: undefined as string | undefined,
     worldMetadata: {} as { [key: string]: string },
-    physics: undefined as Physics,
+    physics: new Physics(),
 
     delta: -1,
     elapsedTime: -1,

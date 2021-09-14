@@ -50,7 +50,7 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
 
   if (avatar.isGrounded) {
     const raycast = getComponent(entity, RaycastComponent)
-    const closestHit = raycast.raycastQuery.hits[0]
+    const closestHit = raycast.hits[0]
 
     if (closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0)
@@ -88,11 +88,7 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
 
   const world = useWorld()
 
-  const filters = new PhysX.PxControllerFilters(
-    (controller as any)._filterData,
-    world.physics.defaultCCTQueryCallback,
-    null
-  )
+  const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null)
   const collisionFlags = controller.controller.move(
     velocity.velocity,
     0.001,
@@ -100,10 +96,9 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
     filters,
     world.physics.obstacleContext
   )
-  const collisions = {
-    down: collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN) ? 1 : 0,
-    sides: collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES) ? 1 : 0,
-    up: collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP) ? 1 : 0
-  }
-  ;(controller as any)._collisions = [collisions.down, collisions.sides, collisions.up]
+  controller.collisions = [
+    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
+    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
+    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
+  ]
 }

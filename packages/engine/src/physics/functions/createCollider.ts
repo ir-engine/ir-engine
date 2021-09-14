@@ -8,6 +8,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { CollisionComponent } from '../components/CollisionComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -168,4 +169,5 @@ export const createCollider = (
   })
 
   addComponent(entity, ColliderComponent, { body })
+  addComponent(entity, CollisionComponent, { collisions: [] })
 }

@@ -4,6 +4,8 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AvatarControllerComponentType = {
   controller: PhysX.PxCapsuleController
+  filterData: PhysX.PxFilterData
+  collisions: [boolean, boolean, boolean]
   movementEnabled: boolean
   isJumping: boolean
   isWalking: boolean

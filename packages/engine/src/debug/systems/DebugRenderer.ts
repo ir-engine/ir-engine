@@ -222,7 +222,7 @@ export class DebugRenderer {
   private _createMesh(shape, type: SHAPES): Mesh | Points {
     let mesh: Mesh | Points
     let geometry: BufferGeometry
-    const material: Material = this._materials[shape.config.isTrigger ? 4 : type]
+    const material: Material = this._materials[shape.isTrigger ? 4 : type]
     let points: Vector3[] = []
 
     switch (shape.shape) {

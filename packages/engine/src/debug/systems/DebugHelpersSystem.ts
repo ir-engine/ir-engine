@@ -27,10 +27,10 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
-import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { isStaticBody } from '../../physics/classes/Physics'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
@@ -201,6 +201,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
 
     for (const entity of colliderQuery.enter()) {
       const collider = getComponent(entity, ColliderComponent)
+      if (isStaticBody(collider.body)) continue
 
       // view vector
       const origin = new Vector3(0, 2, 0)
@@ -208,7 +209,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       const hex = 0xffff00
 
       const arrowHelper = new ArrowHelper(
-        vector3.copy(collider.body.transform.translation).normalize(),
+        vector3.copy(collider.body.getGlobalPose().translation as Vector3).normalize(),
         origin,
         length,
         hex
@@ -232,15 +233,21 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as ArrowHelper
 
       if (arrowHelper != null) {
-        arrowHelper.setDirection(collider.body.transform.translation.clone().setY(0).normalize())
+        arrowHelper.setDirection(
+          new Vector3()
+            .copy(collider.body.getGlobalPose().translation as Vector3)
+            .setY(0)
+            .normalize()
+        )
         arrowHelper.position.copy(transform.position)
       }
 
       // velocity
       const velocityArrowHelper = DebugHelpers.helpersByEntity.velocityArrow.get(entity) as ArrowHelper
       if (velocityArrowHelper != null) {
-        velocityArrowHelper.setDirection(collider.body.transform.linearVelocity.clone().normalize())
-        velocityArrowHelper.setLength(collider.body.transform.linearVelocity.length() * 60)
+        const vel = new Vector3().copy(collider.body.getLinearVelocity() as Vector3)
+        velocityArrowHelper.setLength(vel.length() * 60)
+        velocityArrowHelper.setDirection(vel.normalize())
         velocityArrowHelper.position.copy(transform.position)
       }
     }
@@ -325,7 +332,6 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
 
-    DebugHelpers.physicsDebugRenderer.update()
-    return world
+    DebugHelpers.physicsDebugRenderer.update(world)
   }
 }

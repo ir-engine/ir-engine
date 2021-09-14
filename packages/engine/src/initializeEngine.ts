@@ -17,6 +17,7 @@ import { addClientInputListeners, removeClientInputListeners } from './input/fun
 import { Network } from './networking/classes/Network'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { FontManager } from './xrui/classes/FontManager'
+import { Physics } from './physics/classes/Physics'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -318,6 +319,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   } else if (options.type === EngineSystemPresets.SERVER) {
     await configureServer(options)
   }
+
+  await sceneWorld.physics.createScene()
 
   options.systems?.forEach((init) => {
     injectSystem(sceneWorld, init)

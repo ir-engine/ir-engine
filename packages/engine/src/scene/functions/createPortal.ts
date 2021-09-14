@@ -26,6 +26,7 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { BodyType, SHAPES, ShapeOptions } from '../../physics/types/PhysicsTypes'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 
 export type PortalProps = {
   locationName: string
@@ -133,6 +134,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
   })
 
   addComponent(entity, ColliderComponent, { body: portalBody })
+  addComponent(entity, CollisionComponent, { collisions: [] })
 
   addComponent(entity, PortalComponent, {
     location: locationName,

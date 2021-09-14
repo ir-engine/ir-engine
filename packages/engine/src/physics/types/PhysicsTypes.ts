@@ -96,8 +96,6 @@ export interface ControllerConfig {
   isCapsule: boolean
   position: Vec3Fragment
   material: PhysX.PxMaterial
-  collisionLayer?: number
-  collisionMask?: number
   userData?: any
   stepOffset?: number
   contactOffset?: number
