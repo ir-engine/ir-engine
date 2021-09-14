@@ -85,12 +85,13 @@ const Page = () => {
   const sourceEntityRef = useRef<Entity>(null)
   const animationClipActionRef = useRef<AnimationAction>(null)
 
+  console.log('RENDER', animationTimeScale, animationTime)
+
   useEffect(() => {
     if (worldRef.current) {
-      const ac = getComponent(sourceEntityRef.current, AnimationComponent)
-      ac.mixer.timeScale = animationTimeScale
+      console.log('useEffect animationTimeScale, set:', animationTimeScale)
+      animationClipActionRef.current.setEffectiveTimeScale(animationTimeScale)
     }
-    // animationClipActionRef.current?.setEffectiveTimeScale(animationTimeScale)
   }, [animationTimeScale])
 
   useEffect(() => {
@@ -144,7 +145,7 @@ const Page = () => {
           const clipAction = ac.mixer.clipAction(ac.animations[animationIndex])
           clipAction.time = animationTime
           clipAction.setEffectiveTimeScale(animationTimeScale).play()
-          ac.mixer.timeScale = animationTimeScale
+          //ac.mixer.timeScale = animationTimeScale
           clipAction.play()
           console.log('CLIP', clipAction)
           window['CLIP'] = clipAction
@@ -399,8 +400,8 @@ async function loadAndSetupModel(
 ): Promise<Entity> {
   let targetModel = await LoadGLTF(filename)
   targetModel.scene.position.copy(position)
-  // targetModel.scene.quaternion.copy(quaternion)
-  // targetModel.scene.scale.copy(scale)
+  targetModel.scene.quaternion.copy(quaternion)
+  targetModel.scene.scale.copy(scale)
   Engine.scene.add(targetModel.scene)
   // Engine.scene.add(new SkeletonHelper(targetModel.scene));
   let targetSkinnedMeshes = []
