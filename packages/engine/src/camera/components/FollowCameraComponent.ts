@@ -26,8 +26,7 @@ export type FollowCameraComponentType = {
   locked: boolean
   /** Camera physics raycast data */
   raycastQuery: RaycastQuery
-  /** Camera physics raycast has hit */
-  rayHasHit: boolean
+
   collisionMask: CollisionGroups
 }
 
@@ -43,7 +42,6 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   shoulderSide: true,
   locked: true,
   raycastQuery: null,
-  rayHasHit: false,
   collisionMask: CollisionGroups.Default
 }
 

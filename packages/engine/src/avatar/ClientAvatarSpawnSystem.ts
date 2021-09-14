@@ -48,7 +48,6 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
           shoulderSide: true,
           locked: true,
           raycastQuery: null,
-          rayHasHit: false,
           collisionMask: CollisionGroups.Default
         })
         addComponent(entity, PersistTagComponent, {})

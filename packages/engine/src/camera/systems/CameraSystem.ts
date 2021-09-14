@@ -5,9 +5,9 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
+import { FollowCameraComponent, FollowCameraComponentType } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
+import { PhysXInstance, RaycastHit, RaycastQuery, SceneQueryType } from 'three-physx'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
@@ -83,6 +83,30 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
+const cameraRayCast = (followCamera: FollowCameraComponentType, target: Vector3): RaycastHit[] => {
+  // Raycast to keep the line of sight with avatar
+  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const raycastDirection = tempVec1.setScalar(0).subVectors(cameraTransform.position, target).normalize()
+  followCamera.raycastQuery.origin.copy(target)
+  followCamera.raycastQuery.direction.copy(raycastDirection)
+  return followCamera.raycastQuery.hits
+}
+
+const calculateCameraTarget = (entity: Entity, target: Vector3) => {
+  const avatar = getComponent(entity, AvatarComponent)
+  const avatarTransform = getComponent(entity, TransformComponent)
+  const followCamera = getComponent(entity, FollowCameraComponent)
+
+  const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+  const side = followCamera.shoulderSide ? -1 : 1
+  const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
+  const heightOffset = lerp(0, 0.25, minDistanceRatio)
+
+  target.set(shoulderOffset, avatar.avatarHeight + heightOffset, 0)
+  target.applyQuaternion(avatarTransform.rotation)
+  target.add(avatarTransform.position)
+}
+
 const updateFollowCamera = (entity: Entity, delta: number) => {
   if (!entity) return
 
@@ -91,51 +115,41 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // Limit the pitch
   followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
 
+  calculateCameraTarget(entity, tempVec)
+
+  const hits = cameraRayCast(followCamera, tempVec)
+  const closestHit = hits[0]
+
+  let zoomDist = followCamera.zoomLevel
+
+  if (closestHit) {
+    // ground collision
+    if (followCamera.phi < -15 && closestHit.distance < zoomDist + 1) {
+      followCamera.distance = closestHit.distance - 1
+      zoomDist = followCamera.distance
+    } else if (closestHit.distance < zoomDist) {
+      zoomDist = closestHit.distance < 0.5 ? closestHit.distance : closestHit.distance - 0.5
+    }
+  }
+
   // Zoom smoothing
   followCamera.distance = smoothDamp(
     followCamera.distance,
-    followCamera.zoomLevel,
+    Math.min(followCamera.zoomLevel, zoomDist),
     followCamera.zoomVelocity,
     0.3,
     delta
   )
 
-  let camDist = followCamera.distance
   const theta = followCamera.theta
-  let phi = followCamera.phi
-
-  const avatar = getComponent(entity, AvatarComponent)
-  const avatarTransform = getComponent(entity, TransformComponent)
-
-  const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
-  const side = followCamera.shoulderSide ? -1 : 1
-  const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
-  const heightOffset = lerp(0, 0.25, minDistanceRatio)
-
-  tempVec.set(shoulderOffset, avatar.avatarHeight + heightOffset, 0)
-  tempVec.applyQuaternion(avatarTransform.rotation)
-  tempVec.add(avatarTransform.position)
-
-  // Raycast for camera
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
-  const raycastDirection = tempVec1.setScalar(0).subVectors(cameraTransform.position, tempVec).normalize()
-  followCamera.raycastQuery.origin.copy(tempVec)
-  followCamera.raycastQuery.direction.copy(raycastDirection)
-
-  const closestHit = followCamera.raycastQuery.hits[0]
-  followCamera.rayHasHit = !!closestHit
-
-  if (followCamera.rayHasHit && closestHit.distance < camDist) {
-    camDist = closestHit.distance < 0.5 ? closestHit.distance : closestHit.distance - 0.5
-  }
-
   const thetaRad = MathUtils.degToRad(theta)
-  const phiRad = MathUtils.degToRad(phi)
+  const phiRad = MathUtils.degToRad(followCamera.phi)
 
+  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   cameraTransform.position.set(
-    tempVec.x + camDist * Math.sin(thetaRad) * Math.cos(phiRad),
-    tempVec.y + camDist * Math.sin(phiRad),
-    tempVec.z + camDist * Math.cos(thetaRad) * Math.cos(phiRad)
+    tempVec.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
+    tempVec.y + followCamera.distance * Math.sin(phiRad),
+    tempVec.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
   )
 
   direction.copy(cameraTransform.position).sub(tempVec).normalize()
@@ -143,6 +157,9 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
+  const avatarTransform = getComponent(entity, TransformComponent)
+
+  // TODO: Can move avatar update code outside this function
   if (followCamera.locked) {
     const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
     avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 2)
