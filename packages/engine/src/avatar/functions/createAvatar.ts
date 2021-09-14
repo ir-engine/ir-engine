@@ -1,7 +1,7 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -11,7 +11,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
+import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from '../../physics/physx'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -22,6 +22,10 @@ import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
+import { isClient } from '../../common/functions/isClient'
+import { isBot } from '../../common/functions/isBot'
+import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -38,19 +42,25 @@ const avatarHalfHeight = avatarHeight / 2
 export const createAvatar = (
   entity: Entity,
   spawnTransform: { position: Vector3; rotation: Quaternion },
-  isRemotePlayer = false
+  isRemotePlayer = true
 ): void => {
+  if (isClient) {
+    if (isBot(window) && !hasComponent(entity, ProximityCheckerComponent))
+      addComponent(entity, ProximityCheckerComponent, {})
+    if (!hasComponent(entity, AfkCheckComponent))
+      addComponent(entity, AfkCheckComponent, {
+        isAfk: false,
+        prevPosition: new Vector3(0, 0, 0),
+        cStep: 0,
+        timer: 0
+      })
+  }
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
     rotation: new Quaternion().copy(spawnTransform.rotation),
     scale: new Vector3(1, 1, 1)
   })
 
-  addComponent(entity, InputComponent, {
-    schema: AvatarInputSchema,
-    data: new Map(),
-    prevData: new Map()
-  })
   addComponent(entity, VelocityComponent, {
     velocity: new Vector3()
   })
@@ -72,12 +82,14 @@ export const createAvatar = (
     avatarHalfHeight,
     avatarHeight,
     modelContainer,
-    isGrounded: false,
-    viewVector: new Vector3(0, 0, 1)
+    isGrounded: false
   })
+
   addComponent(entity, NameComponent, {
     name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
   })
+  console.log('uniqueID: ' + getComponent(entity, NetworkObjectComponent).uniqueId)
+  console.log('userID: ' + Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -140,6 +152,11 @@ export const createAvatar = (
 export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
+
+  addComponent(entity, InputComponent, {
+    schema: AvatarInputSchema,
+    data: new Map()
+  })
 
   const controller = PhysXInstance.instance.createController(
     new Controller({

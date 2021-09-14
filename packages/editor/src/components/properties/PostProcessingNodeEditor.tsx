@@ -352,7 +352,6 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
   return (
     <NodeEditor description={PostProcessingNodeEditor.description} {...props}>
       {renderEffects(node)}
-      {/* @ts-ignore */}
     </NodeEditor>
   )
 }

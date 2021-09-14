@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import StringInput from '../inputs/StringInput'
 import FormField from '../inputs/FormField'
 import PreviewDialog from './PreviewDialog'
@@ -63,11 +62,9 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
       onCancel={onCancelCallback}
       confirmLabel={t('editor:dialog.saveNewProject.lbl-confirm')}
     >
-      {/* @ts-ignore */}
       <FormField>
         <label htmlFor="name">{t('editor:dialog.saveNewProject.lbl-name')}</label>
         <StringInput
-          /* @ts-ignore */
           id="name"
           required
           pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}
@@ -80,16 +77,4 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
   )
 }
 
-/**
- * declaring propTypes for SaveNewProjectDialog.
- *
- * @author Robert Long
- * @type {Object}
- */
-SaveNewProjectDialog.propTypes = {
-  thumbnailUrl: PropTypes.string.isRequired,
-  initialName: PropTypes.string.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired
-}
 export default SaveNewProjectDialog

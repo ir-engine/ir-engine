@@ -7,8 +7,9 @@ Model userData properties
 
 ```ts
 {
-  [xrengine.entity]: name
-  [xrengine.component-type.property]: value
+  [realitypack.entity]: name
+  [realitypack.prefab-type.property]: value
+  [realitypack.component-type.property]: value
 }
 ```
 
@@ -16,9 +17,9 @@ Golf holes example
 
 ```ts
 {
-  "xrengine.entity": “GolfHole-0"
-  "xrengine.box-collider.isTrigger": true
-  "xrengine.box-collider.removeMesh": false
+  "realitypack.entity": “GolfHole-0"
+  "realitypack.box-collider.isTrigger": true
+  "realitypack.CustomComponent.value": 12345
 }
 ```
 
@@ -26,5 +27,6 @@ would result in an entity with components
 
 NameComponent { name: "GolfHole-0" }
 TransformComponent { position, rotation, scale } (from mesh relative to world origin)
-Object3DComponent { value: (the mesh this was loaded from) } (setting removeMesh would remove this component)
+Object3DComponent { value: (the mesh this was loaded from) }
 ColliderComponent { body: (a physics trigger box body) }
+CustomComponent: { value: 12345 }

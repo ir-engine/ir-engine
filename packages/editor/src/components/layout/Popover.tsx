@@ -1,8 +1,15 @@
-import React, { useRef, useState, useCallback } from 'react'
-import PropTypes from 'prop-types'
+import React, { useRef, useState, useCallback, ReactNode } from 'react'
 import Portal from './Portal'
 import Positioner from './Positioner'
 import Overlay from './Overlay'
+
+interface PopoverProp {
+  children?: ReactNode
+  padding?: any
+  position?: any
+  renderContent?: any
+  disabled?: boolean
+}
 
 /**
  *
@@ -15,7 +22,7 @@ import Overlay from './Overlay'
  * @param {any} rest
  * @returns
  */
-export function Popover({ children, padding, position, renderContent, disabled, ...rest }) {
+export function Popover({ children, padding, position, renderContent, disabled, ...rest }: PopoverProp) {
   const popoverTriggerRef = useRef()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -72,11 +79,4 @@ export function Popover({ children, padding, position, renderContent, disabled, 
   )
 }
 
-Popover.propTypes = {
-  disabled: PropTypes.bool,
-  children: PropTypes.node,
-  padding: PropTypes.number,
-  position: PropTypes.string,
-  renderContent: PropTypes.func.isRequired
-}
 export default Popover

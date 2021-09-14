@@ -1,4 +1,4 @@
-export const formValid = (rest, formErrors) => {
+export const validateSceneForm = (rest, formErrors) => {
   let valid = true
 
   // validate form errors being empty

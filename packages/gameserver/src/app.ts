@@ -104,6 +104,7 @@ export const createApp = (): Application => {
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               awaitEngineLoaded().then(() => {
+                console.log('engine is loaded, attaching socket query to feathers')
                 ;(socket as any).feathers.socketQuery = socket.handshake.query
                 ;(socket as any).socketQuery = socket.handshake.query
                 next()
@@ -163,11 +164,11 @@ export const createApp = (): Application => {
         ;(app as any).agonesSDK = agonesSDK
         setInterval(() => agonesSDK.health(), 1000)
 
-        // Create new gameserver instance
+        app.configure(channels)
+
+        console.log('Initializing WebRTCGameServer')
         WebRTCGameServer.instance.initialize(app).then(() => {
           console.log('Initialized new gameserver instance')
-          // Set up event channels (see channels.js)
-          app.configure(channels)
         })
       } else {
         console.warn('Did not create gameserver')

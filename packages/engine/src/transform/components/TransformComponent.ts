@@ -1,5 +1,5 @@
 import { Vector3, Quaternion } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -7,4 +7,4 @@ export type TransformComponentType = {
   scale: Vector3
 }
 
-export const TransformComponent = createMappedComponent<TransformComponentType>()
+export const TransformComponent = createMappedComponent<TransformComponentType>('TransformComponent')

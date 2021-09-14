@@ -4,7 +4,7 @@ import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import Video from '../classes/Video'
 import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
@@ -16,7 +16,6 @@ if (isBrowser()) {
   // import("volumetric").then(imported => {
   //   DracosisPlayer = imported;
   // });
-  // @ts-ignore
   // import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
 }
 

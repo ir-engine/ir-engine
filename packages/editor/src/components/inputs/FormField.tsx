@@ -1,6 +1,4 @@
-// @ts-ignore
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { ReactNode } from 'react'
 import styled from 'styled-components'
 
 /**
@@ -38,6 +36,11 @@ const InlineFormField = (styled as any).div`
   }
 `
 
+interface FormFieldProp {
+  inline?: any
+  children?: ReactNode
+}
+
 /**
  * FormField function component used to render form fields.
  *
@@ -47,7 +50,7 @@ const InlineFormField = (styled as any).div`
  * @param       {any} rest
  * @constructor
  */
-export function FormField({ inline, children, ...rest }) {
+export function FormField({ inline, children, ...rest }: FormFieldProp) {
   if (inline) {
     return <InlineFormField {...rest}>{children}</InlineFormField>
   }
@@ -55,14 +58,4 @@ export function FormField({ inline, children, ...rest }) {
   return <BlockFormField {...rest}>{children}</BlockFormField>
 }
 
-/**
- * Declairing propTypes for component.
- *
- * @author Robert Long
- * @type {Object}
- */
-FormField.propTypes = {
-  inline: PropTypes.bool,
-  children: PropTypes.node
-}
 export default FormField

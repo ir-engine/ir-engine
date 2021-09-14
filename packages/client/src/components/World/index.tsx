@@ -41,8 +41,7 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
       canvasId: engineRendererCanvasId
     },
     physics: {
-      simulationEnabled: false,
-      physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
+      simulationEnabled: false
     }
   }
 }
@@ -113,7 +112,6 @@ export const EnginePage = (props: Props) => {
   const selfUser = props.authState.get('user')
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
-
   let sceneId = null
 
   const userState = useUserState()
@@ -128,7 +126,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     addUIEvents()
-    if (!engineInitializeOptions.networking) {
+    if (!engineInitializeOptions.networking.schema.transport) {
       init(props.locationName)
     } else {
       props.doLoginAuto(true)

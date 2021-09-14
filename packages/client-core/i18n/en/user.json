@@ -134,6 +134,7 @@
             "phoneEmailError": "Valid Email or Phone number is required",
             "or": "Or",
             "lbl-wallet": "Login with Wallet",
+            "loginWithReadyPlayerMe":"Login with ready player me",
             "connectSocial": "Or connect with social accounts",
             "createOne": "If you don’t have an account, a new one will be created for you."
         },

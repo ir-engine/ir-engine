@@ -1,24 +1,23 @@
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { Vector3 } from 'three'
 import { getCoord, getScaleArg, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
-import { ECSWorld } from '../ecs/classes/World'
-import { getComponent } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
-import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { updateMap } from '../scene/functions/createMap'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
+import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 
-export const MapUpdateSystem = async (): Promise<System> => {
-  const moveQuery = defineQuery([Object3DComponent, LocalInputReceiverComponent])
-  const moveAddQuery = enterQuery(moveQuery)
+export default async function MapUpdateSystem(world: World): Promise<System> {
+  const moveQuery = defineQuery([Object3DComponent, LocalInputTagComponent])
   const labelsQuery = defineQuery([GeoLabelSetComponent])
   let updateStatus = false
 
-  return defineSystem((world: ECSWorld) => {
-    for (const entity of moveAddQuery(world)) {
+  return () => {
+    for (const entity of moveQuery.enter(world)) {
       const position = getComponent(entity, Object3DComponent).value.position
     }
 
@@ -41,14 +40,15 @@ export const MapUpdateSystem = async (): Promise<System> => {
         if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
           console.log('in center')
         } else {
-          updateMap(
-            {
-              scale: new Vector3(scaleArg, scaleArg, scaleArg)
-            },
-            longtitude,
-            latitude,
-            position
-          )
+          // NOTE: commenting this out for now since this was detrimenting player experience
+          // updateMap(
+          //   {
+          //     scale: new Vector3(scaleArg, scaleArg, scaleArg)
+          //   },
+          //   longtitude,
+          //   latitude,
+          //   position
+          // )
           updateStatus = true
         }
       } else {
@@ -64,7 +64,5 @@ export const MapUpdateSystem = async (): Promise<System> => {
         label.onUpdate(Engine.camera)
       }
     }
-
-    return world
-  })
+  }
 }

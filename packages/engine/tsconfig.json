@@ -4,13 +4,14 @@
     "lib": [
       "esnext",
       "dom",
-      "dom.iterable"
+      "dom.iterable",
+      "WebWorker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
-    "module": "esnext",
+    "module": "CommonJS",
     "strict": false,
     "noImplicitAny": false,
     "resolveJsonModule": true,
@@ -29,7 +30,9 @@
     "**/node_modules/**",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "**/*.test.js"
+    "**/*.test.js",
+    "tests/*",
+    "tests old/*"
   ],
   "include": [
     "./**/*.ts",

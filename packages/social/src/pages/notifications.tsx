@@ -1,15 +1,16 @@
 import React from 'react'
 
-import AppFooter from '@xrengine/client-core/src/socialmedia/components/Footer'
-import NotificationList from '@xrengine/client-core/src/socialmedia/components/NotificationList'
-import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
+import AppFooter from '@xrengine/social/src/components/Footer'
+import NotificationList from '@xrengine/social/src/components/NotificationList'
+import AppHeader from '@xrengine/social/src/components/Header'
 
+// @ts-ignore
 import styles from './index.module.scss'
 
 export default function NotificationsPage() {
   return (
     <div className={styles.viewport}>
-      <AppHeader logo="/assets/logoBlack.png" />
+      <AppHeader />
       <NotificationList />
       <AppFooter />
     </div>

@@ -27,7 +27,7 @@ import { AvatarAnimations, AvatarStates, WeightsParameterType } from '@xrengine/
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
 import { stopAutopilot } from '@xrengine/engine/src/navigation/functions/stopAutopilot'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AutoPilotComponent } from '@xrengine/engine/src/navigation/component/AutoPilotComponent'
 
@@ -87,7 +87,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const selfUser = authState.get('user') || {}
   const avatarList = authState.get('avatarList') || []
 
-  const [currentActiveMenu, setCurrentActiveMenu] = useState(enableSharing === false ? (menus[0] as any) : null)
+  const [currentActiveMenu, setCurrentActiveMenu] = useState(null)
   const [activeLocation, setActiveLocation] = useState(null)
 
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting)
@@ -216,8 +216,7 @@ const UserMenu = (props: UserMenuProps): any => {
         return null
     }
 
-    const Panel = menuPanel[currentActiveMenu.id]
-    // @ts-ignore
+    const Panel = menuPanel[currentActiveMenu.id] as any
     return <Panel {...args} />
   }
 

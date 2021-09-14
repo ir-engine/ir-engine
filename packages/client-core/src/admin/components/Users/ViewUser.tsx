@@ -22,9 +22,9 @@ import { fetchUserRole } from '../../reducers/admin/user/service'
 import { connect } from 'react-redux'
 import InputBase from '@material-ui/core/InputBase'
 import { updateUserRole, patchUser, fetchSingleUserAdmin, fetchStaticResource } from '../../reducers/admin/user/service'
-import { useStyles, useStyle } from './styles'
+import { useUserStyles, useUserStyle } from './styles'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
-import { formValid } from './validation'
+import { validateUserForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -38,7 +38,6 @@ interface Props {
   userAdmin: any
   authState?: any
   fetchUserRole?: any
-  fetchAdminParty?: any
   patchUser?: any
   closeViewModel?: any
   updateUserRole?: any
@@ -71,8 +70,8 @@ const Alert = (props) => {
 }
 
 const ViewUser = (props: Props) => {
-  const classx = useStyle()
-  const classes = useStyles()
+  const classx = useUserStyle()
+  const classes = useUserStyles()
   const {
     openView,
     closeViewModel,
@@ -201,7 +200,7 @@ const ViewUser = (props: Props) => {
       temp.scopeType = "Scope can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateUserForm(state, state.formErrors)) {
       patchUser(userAdmin.id, data)
       setState({
         ...state,

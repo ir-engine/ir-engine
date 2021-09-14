@@ -1,3 +1,4 @@
+import { ThermometerQuarter } from '@styled-icons/fa-solid'
 import React from 'react'
 
 /**
@@ -6,7 +7,7 @@ import React from 'react'
  * @author Robert Long
  * @type {Object}
  */
-const theme = {
+const editorTheme = {
   a: '',
   lato: "'Lato', sans-serif",
   zilla: "'Zilla Slab', sans-serif",
@@ -59,28 +60,28 @@ const theme = {
  * @author Robert Long
  * @type {Object}
  */
-theme['chartColors'] = [
-  theme.red,
-  theme.pink,
-  theme.purple,
-  theme.deepPurple,
-  theme.indigo,
-  theme.blue,
-  theme.lightBlue,
-  theme.cyan,
-  theme.teal,
-  theme.green,
-  theme.lightGreen,
-  theme.lime,
-  theme.yellow,
-  theme.amber,
-  theme.orange,
-  theme.deepOrange,
-  theme.brown
+editorTheme['chartColors'] = [
+  editorTheme.red,
+  editorTheme.pink,
+  editorTheme.purple,
+  editorTheme.deepPurple,
+  editorTheme.indigo,
+  editorTheme.blue,
+  editorTheme.lightBlue,
+  editorTheme.cyan,
+  editorTheme.teal,
+  editorTheme.green,
+  editorTheme.lightGreen,
+  editorTheme.lime,
+  editorTheme.yellow,
+  editorTheme.amber,
+  editorTheme.orange,
+  editorTheme.deepOrange,
+  editorTheme.brown
 ]
 
-export const ThemeContext = React.createContext(theme)
+export const ThemeContext = React.createContext(editorTheme)
 
-export type Theme = typeof theme
+export type EditorTheme = typeof editorTheme
 
-export default theme
+export default editorTheme

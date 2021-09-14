@@ -1,7 +1,6 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { IKRig } from '../components/IKRig'
-import { defineQuery, defineSystem, Not, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
+import { Not } from 'bitecs'
 // import DebugComponent from '../classes/Debug'
 import { IKPose } from '../components/IKPose'
 import {
@@ -12,10 +11,9 @@ import {
   visualizeLookTwist,
   visualizeSpine
 } from '../functions/IKFunctions'
-import { Entity } from '../../ecs/classes/Entity'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { AnimationAction } from 'three'
 
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 // export class DebugComponent {
 //   static points = null
 //   static lines = null
@@ -50,17 +48,15 @@ import { AnimationAction } from 'three'
 //   }
 // }
 
-export const IKRigSystem = async (): Promise<System> => {
+export const IKRigSystem = async (world: World): Promise<System> => {
   const targetRigsQuery = defineQuery([IKRig, Not(IKPose)])
   const ikposeQuery = defineQuery([IKPose, IKRig])
 
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
-
+  return () => {
     // d.reset() // For this example, Lets reset visual debug for every compute.
 
     // RUN
-    for (const entity of ikposeQuery(world)) {
+    for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPose)
       const rig = getComponent(entity, IKRig)
       if (!ikPose.targetRigs) {
@@ -84,12 +80,10 @@ export const IKRigSystem = async (): Promise<System> => {
       // visualizeLookTwist(rig, rig.points.head, pose.head);
 
       // APPLY
-      for (const targetEntity of targetRigsQuery(world)) {
+      for (const targetEntity of targetRigsQuery()) {
         const targetRig = getComponent(targetEntity, IKRig)
         applyIKPoseToIKRig(targetRig, ikPose)
       }
     }
-
-    return world
-  })
+  }
 }

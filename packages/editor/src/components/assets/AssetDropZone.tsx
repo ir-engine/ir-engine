@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { EditorContext } from '../contexts/EditorContext'
 import { useDrop } from 'react-dnd'
@@ -34,6 +33,11 @@ const DropZoneBackground = (styled as any).div`
   }
 `
 
+interface AssetDropZoneProp {
+  afterUpload?: any
+  uploadOptions?: any
+}
+
 /**
  * AssetDropZone function used to create view port where we can drag and drop objects.
  *
@@ -42,7 +46,7 @@ const DropZoneBackground = (styled as any).div`
  * @param       {any} uploadOptions
  * @constructor
  */
-export function AssetDropZone({ afterUpload, uploadOptions }) {
+export function AssetDropZone({ afterUpload, uploadOptions }: AssetDropZoneProp) {
   const editor = useContext(EditorContext)
   const { t } = useTranslation()
 
@@ -77,9 +81,4 @@ export function AssetDropZone({ afterUpload, uploadOptions }) {
   )
 }
 
-//creating propTypes for AssetDropZone
-AssetDropZone.propTypes = {
-  afterUpload: PropTypes.func,
-  uploadOptions: PropTypes.object
-}
 export default AssetDropZone

@@ -5,11 +5,11 @@ export const commondValidation = yup.object({
   description: yup.string().required()
 })
 
-export const formValid = (rest, formErrors) => {
+export const validateForm = (rest, formErrors): boolean => {
   let valid = true
 
   // validate form errors being empty
-  Object.values(formErrors).forEach((val) => {
+  Object.values<any>(formErrors).forEach((val) => {
     val.length > 0 && (valid = false)
   })
 

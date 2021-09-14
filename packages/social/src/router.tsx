@@ -31,7 +31,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
 
         {/* Admin Routes */}
         <Route path="/admin/armedia" component={React.lazy(() => import('./pages/admin/armedia'))} />
-        <Route path="/admin/tips-and-tricks" component={React.lazy(() => import('./pages/admin/tips-and-tricks'))} />
         <Route path="/admin/thefeeds" component={React.lazy(() => import('./pages/admin/thefeeds'))} />
         <Route path="/admin/feeds" component={React.lazy(() => import('./pages/admin/feeds'))} />
         <Route path="/admin/users" component={React.lazy(() => import('./pages/admin/users'))} />
@@ -71,6 +70,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/notifications" component={React.lazy(() => import('./pages/notifications'))} />
         <Route path="/onboarding" component={React.lazy(() => import('./pages/onboarding'))} />
         <Route path="/videorecord" component={React.lazy(() => import('./pages/videorecord'))} />
+        <Route path="/privacypolicy" component={React.lazy(() => import('./pages/privacypolicy'))} />
 
         <Route path="/:pid" component={React.lazy(() => import('./pages/[pid]'))} />
 

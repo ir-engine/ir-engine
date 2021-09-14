@@ -37,7 +37,7 @@ them to use relatively small instance types such as t3a.medium.
 #### Create launch template
 Go to EC2 -> Launch Templates and make a new one. Name it something like 'xrengine-production-gameserver'.
 Most settings can be left as-is, except for the following:
-* Storage -> Add a volume, set the size to ~80GB, and for Device name select '/dev/xvda'.
+* Storage -> Add a volume, set the size to ~20GB, and for Device name select '/dev/xvda'.
 * Network Interfaces -> Add one, and under 'Auto-assign public IP' select 'Enable'
 
 #### Create nodegroup for gameservers

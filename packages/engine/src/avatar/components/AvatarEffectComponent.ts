@@ -1,5 +1,5 @@
 import { Material } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type MaterialMap = {
   id: string
@@ -11,4 +11,4 @@ export type AvatarEffectComponentType = {
   originMaterials: Array<MaterialMap>
 }
 
-export const AvatarEffectComponent = createMappedComponent<AvatarEffectComponentType>()
+export const AvatarEffectComponent = createMappedComponent<AvatarEffectComponentType>('AvatarEffectComponent')

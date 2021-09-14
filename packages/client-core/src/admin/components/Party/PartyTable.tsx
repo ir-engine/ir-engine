@@ -10,10 +10,10 @@ import { fetchAdminParty } from '../../reducers/admin/party/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { selectAdminState } from '../../reducers/admin/selector'
-import { PropsTable, columns, Data } from './variables'
-import { useStyle, useStyles } from './style'
+import { PartyPropsTable, partyColumns, PartyData } from './variables'
+import { usePartyStyles, usePartyStyle } from './style'
 import { selectAdminPartyState } from '../../reducers/admin/party/selector'
+import { PARTY_PAGE_LIMIT } from '../../reducers/admin/party/reducers'
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
@@ -21,25 +21,27 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminState: selectAdminState(state),
     authState: selectAuthState(state),
     adminPartyState: selectAdminPartyState(state)
   }
 }
 
-const PartyTable = (props: PropsTable) => {
-  const classes = useStyle()
-  const classex = useStyles()
+const PartyTable = (props: PartyPropsTable) => {
+  const classes = usePartyStyle()
+  const classex = usePartyStyles()
   const { fetchAdminParty, authState, adminPartyState } = props
 
   const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(12)
+  const [rowsPerPage, setRowsPerPage] = React.useState(PARTY_PAGE_LIMIT)
 
   const user = authState.get('user')
   const adminParty = adminPartyState.get('parties')
   const adminPartyData = adminParty.get('parties').data ? adminParty.get('parties').data : []
+  const adminPartyCount = adminParty.get('total')
 
   const handlePageChange = (event: unknown, newPage: number) => {
+    const incDec = page < newPage ? 'increment' : 'decrement'
+    fetchAdminParty(incDec)
     setPage(newPage)
   }
 
@@ -49,7 +51,7 @@ const PartyTable = (props: PropsTable) => {
     }
   }, [authState, adminPartyState])
 
-  const createData = (id: string, instance: string, location: string): Data => {
+  const createData = (id: string, instance: string, location: string): PartyData => {
     return {
       id,
       instance,
@@ -87,7 +89,7 @@ const PartyTable = (props: PropsTable) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {partyColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -100,10 +102,10 @@ const PartyTable = (props: PropsTable) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            {rows.map((row) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
+                  {partyColumns.map((column) => {
                     const value = row[column.id]
                     return (
                       <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
@@ -118,9 +120,9 @@ const PartyTable = (props: PropsTable) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPageOptions={[PARTY_PAGE_LIMIT]}
         component="div"
-        count={rows.length}
+        count={adminPartyCount}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

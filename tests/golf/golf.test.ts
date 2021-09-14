@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { XREngineBot } from '@xrengine/bot'
+import { XREngineBot } from '@xrengine/bot/src/bot'
 import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import { teleportToBall } from './actions/teleportToBallTest'
@@ -7,7 +7,7 @@ import { hitBallTest } from './actions/hitBallTest'
 import { resetBall } from './actions/resetBallTest'
 
 const maxTimeout = 60 * 1000
-const bot = new XREngineBot({ name: 'bot-1', headless: false, autoLog: false })
+const bot = new XREngineBot({ name: 'bot-1', headless: true, verbose: false })
 
 const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently
@@ -16,7 +16,6 @@ const locationName = process.env.TEST_LOCATION_NAME
 const vector3 = new Vector3()
 
 describe.skip('Golf tests', () => {
-
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterLocation(`https://${domain}/golf/${locationName}`)
@@ -42,5 +41,4 @@ describe.skip('Golf tests', () => {
   teleportToBall(bot)
   hitBallTest(bot)
   // resetBall(bot)
-
 })

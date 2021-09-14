@@ -13,8 +13,7 @@ import {
 import { NetworkInterpolation } from '../classes/NetworkInterpolation'
 import { Network } from '../classes/Network'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ClientNetworkStateSystem } from '../systems/ClientNetworkStateSystem'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 /** Get snapshot factory.
@@ -51,9 +50,7 @@ export function createSnapshot(state: StateEntityClientGroup): Snapshot {
   return {
     id: '' + _id++,
     time: Date.now(),
-    //@ts-ignore
-    state: state,
-    timeCorrection: 0
+    state: state as StateEntityGroup
   }
 }
 
@@ -285,7 +282,6 @@ export function calculateInterpolation(parameters: string, arrayName = ''): Inte
   // find snapshots between which our time goes
   const shots = NetworkInterpolation.instance.get(serverTime)
   if (!shots) {
-    console.log('Skipping network interpolation, are you lagging or disconnected?')
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.CONNECTION_LOST,
       hasLostConnection: true

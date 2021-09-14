@@ -14,7 +14,7 @@ export const createBotAsAdmin =
   }
 
 export const fetchBotAsAdmin =
-  (offset: string) =>
+  (incDec?: 'increment' | 'decrement') =>
   async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       const user = getState().get('auth').get('user')
@@ -26,7 +26,7 @@ export const fetchBotAsAdmin =
             $sort: {
               name: 1
             },
-            $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
             $limit: limit,
             action: 'admin'
           }

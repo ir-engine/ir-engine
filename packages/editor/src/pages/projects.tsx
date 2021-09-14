@@ -26,9 +26,9 @@ import { useHistory } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import {
   ProfileButton,
-  ProjectsContainer,
-  ProjectsHeader,
-  ProjectsSection,
+  StyledProjectsContainer,
+  StyledProjectsHeader,
+  StyledProjectsSection,
   TabPanel,
   tapId,
   useStyles,
@@ -43,7 +43,7 @@ import {
 const contextMenuId = 'project-menu'
 
 /**
- *Declairing Props component.
+ *Declaring Props component.
  * @history is of type object.
  * @router is of type Router
  */
@@ -176,7 +176,7 @@ const ProjectsPage = (props: Props) => {
    */
   const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu)
 
-  // Declairing an array
+  // Declaring an array
   const topTemplates = []
 
   // Adding first four templates of tamplates array to topTemplate array.
@@ -195,18 +195,18 @@ const ProjectsPage = (props: Props) => {
   return (
     <>
       {!authUser ? (
-        <ProjectsSection>
-          <ProjectsContainer>
-            <ProjectsHeader>
+        <StyledProjectsSection>
+          <StyledProjectsContainer>
+            <StyledProjectsHeader>
               <h1>{t('editor.projects.header')}</h1>
-            </ProjectsHeader>
+            </StyledProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridContent>
                 <SignIn />
               </ProjectGridContent>
             </ProjectGridContainer>
-          </ProjectsContainer>
-        </ProjectsSection>
+          </StyledProjectsContainer>
+        </StyledProjectsSection>
       ) : (
         <ProjectGridHeader>
           <ProjectGridHeaderRow />
@@ -235,7 +235,7 @@ const ProjectsPage = (props: Props) => {
           {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
             <main>
               {projects.length === 0 && !loading ? (
-                <ProjectsSection flex={0}>
+                <StyledProjectsSection flex={0}>
                   <WelcomeContainer>
                     <h1>{t('editor.projects.welcomeMsg')}</h1>
                     <h2>{t('editor.projects.description')}</h2>
@@ -243,10 +243,10 @@ const ProjectsPage = (props: Props) => {
                       {t('editor.projects.lbl-startTutorial')}
                     </MediumButton>
                   </WelcomeContainer>
-                </ProjectsSection>
+                </StyledProjectsSection>
               ) : null}
-              <ProjectsSection>
-                <ProjectsContainer>
+              <StyledProjectsSection>
+                <StyledProjectsContainer>
                   <ProjectGridContainer>
                     <ProjectGridHeader>
                       <ProjectGridHeaderRow />
@@ -268,18 +268,18 @@ const ProjectsPage = (props: Props) => {
                       )}
                     </ProjectGridContent>
                   </ProjectGridContainer>
-                </ProjectsContainer>
-              </ProjectsSection>
+                </StyledProjectsContainer>
+              </StyledProjectsSection>
               <ProjectContextMenu />
             </main>
           )}
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <ProjectsSection>
-            <ProjectsContainer>
+          <StyledProjectsSection>
+            <StyledProjectsContainer>
               <LocationAdmin />
-            </ProjectsContainer>
-          </ProjectsSection>
+            </StyledProjectsContainer>
+          </StyledProjectsSection>
         </TabPanel>
       </div>
 

@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React from 'react'
-import PropTypes from 'prop-types'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 
@@ -62,6 +60,21 @@ const staticStyle = {
   })
 }
 
+interface SelectInputProp {
+  value: any
+  options: any
+  onChange?: Function
+  placeholder?: string
+  disabled?: boolean
+  error?: any
+  styles?: any
+  creatable?: any
+  filterOption?: (option: any, searchString: string) => boolean
+  getOptionLabel?: (option: any) => any
+  formatCreateLabel?: (value: any) => any
+  isValidNewOption?: (value: any) => boolean
+}
+
 /**
  *
  * @author Robert Long
@@ -76,7 +89,17 @@ const staticStyle = {
  * @param {any} rest
  * @returns
  */
-export function SelectInput({ value, options, onChange, placeholder, disabled, error, styles, creatable, ...rest }) {
+export function SelectInput({
+  value,
+  options,
+  onChange,
+  placeholder,
+  disabled,
+  error,
+  styles,
+  creatable,
+  ...rest
+}: SelectInputProp) {
   const selectedOption =
     options.find((o) => {
       if (o === null) {
@@ -112,7 +135,6 @@ export function SelectInput({ value, options, onChange, placeholder, disabled, e
     />
   )
 }
-
 SelectInput.defaultProps = {
   value: null,
   placeholder: 'Select...',
@@ -122,21 +144,5 @@ SelectInput.defaultProps = {
   error: false,
   disabled: false,
   creatable: false
-}
-
-SelectInput.propTypes = {
-  value: PropTypes.any,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.any,
-      label: PropTypes.string
-    })
-  ),
-  styles: PropTypes.object,
-  onChange: PropTypes.func,
-  placeholder: PropTypes.string,
-  error: PropTypes.bool,
-  disabled: PropTypes.bool,
-  creatable: PropTypes.bool
 }
 export default SelectInput

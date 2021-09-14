@@ -1,4 +1,3 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import * as authentication from '@feathersjs/authentication'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
@@ -7,7 +6,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
+    all: [authenticate('jwt')],
     find: [
       addAssociations({
         models: [
@@ -18,7 +17,22 @@ export default {
             model: 'location-settings'
           }
         ]
-      })
+      }),
+      async (context: HookContext) => {
+        const userId = context.params['identity-provider']?.userId
+        const scope = await context.app.service('scope').Model.findOne({
+          where: {
+            userId
+          },
+          raw: true,
+          nest: true
+        })
+        // if(scope){
+        //   throw new Error("scope is not defined")
+        // }
+        console.log(scope)
+        return context
+      }
     ],
     get: [
       addAssociations({
@@ -73,4 +87,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { ControlledStringInput } from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
@@ -20,15 +19,14 @@ const uploadOptions = {
  * @returns
  */
 export function ModelInput({ onChange, ...rest }) {
-  const onUpload = useUpload()
+  const onUpload = useUpload(uploadOptions)
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Model, ItemTypes.File],
     drop(item: any) {
       if (item.type === ItemTypes.Model) {
         onChange(item.value.url, item.value.initialProps || {})
       } else {
-        /* @ts-ignore */
-        onUpload(item.files, uploadOptions).then((assets) => {
+        onUpload(item.files).then((assets) => {
           if (assets && assets.length > 0) {
             onChange(assets[0].url, {})
           }
@@ -44,7 +42,6 @@ export function ModelInput({ onChange, ...rest }) {
   return (
     <ControlledStringInput
       ref={dropRef}
-      /* @ts-ignore */
       onChange={(value, e) => onChange(value, {}, e)}
       error={isOver && !canDrop}
       canDrop={isOver && canDrop}
@@ -53,7 +50,4 @@ export function ModelInput({ onChange, ...rest }) {
   )
 }
 
-ModelInput.propTypes = {
-  onChange: PropTypes.func.isRequired
-}
 export default ModelInput

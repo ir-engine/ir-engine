@@ -1,4 +1,3 @@
-// @ts-nocheck
 export default function eventToMessage(event) {
   if (!event) return ''
   if (event.message) return event.message
@@ -30,6 +29,7 @@ export class BaseError extends Error {
 }
 // Override the message of an error but append the existing stack trace.
 export class RethrownError extends BaseError {
+  originalError
   constructor(message, error) {
     super(`${message}:\n  Cause:\n    ${eventToMessage(error).replace(/\n/g, '\n    ')}`)
     this.originalError = error

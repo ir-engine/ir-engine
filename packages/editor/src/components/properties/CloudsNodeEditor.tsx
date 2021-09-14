@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
 import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
 import ImageInput from '@xrengine/editor/src/components/inputs/ImageInput'
@@ -24,12 +23,6 @@ type CloudsNodeEditorProps = {
  * @type {class component}
  */
 export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
-  // declaring propTypes for CloudsNodeEditor
-  static propTypes = {
-    editor: PropTypes.object,
-    node: PropTypes.object
-  }
-
   constructor(props: CloudsNodeEditorProps) {
     super(props)
     this.props = props
@@ -54,12 +47,10 @@ export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
     CloudsNodeEditor.description = this.props.t('editor:properties.clouds.description')
     return (
       <NodeEditor {...this.props} description={CloudsNodeEditor.description}>
-        {/* @ts-ignore */}
         <InputGroup name="Image" label={this.props.t('editor:properties.clouds.lbl-image')}>
           <ImageInput value={this.props.node.texture} onChange={this.onChangeProperty('texture')} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="World Scale" label={this.props.t('editor:properties.clouds.lbl-wroldScale')}>
           <Vector3Input
             value={this.props.node.worldScale}
@@ -70,7 +61,6 @@ export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Dimensions" label={this.props.t('editor:properties.clouds.lbl-dimensions')}>
           <Vector3Input
             value={this.props.node.dimensions}
@@ -81,7 +71,6 @@ export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Noise Zoom" label={this.props.t('editor:properties.clouds.lbl-noiseZoom')}>
           <Vector3Input
             value={this.props.node.noiseZoom}
@@ -92,7 +81,6 @@ export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Noise Offset" label={this.props.t('editor:properties.clouds.lbl-noiseOffset')}>
           <Vector3Input
             value={this.props.node.noiseOffset}
@@ -103,17 +91,14 @@ export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Sprite Scale" label={this.props.t('editor:properties.clouds.lbl-spriteScale')}>
           <Vector2Input value={this.props.node.spriteScaleRange} onChange={this.onChangeProperty('spriteScaleRange')} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Fog Color" label={this.props.t('editor:properties.clouds.lbl-fogColor')}>
           <ColorInput value={this.props.node.fogColor} onChange={this.onChangeProperty('fogColor')} disabled={false} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Fog Range" label={this.props.t('editor:properties.clouds.lbl-fogRange')}>
           <Vector2Input value={this.props.node.fogRange} onChange={this.onChangeProperty('fogRange')} />
         </InputGroup>

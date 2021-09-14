@@ -1,5 +1,6 @@
 import { Config } from '@xrengine/common/src/config'
-export const serverURL = Config.publicRuntimeConfig.apiServer
+
+const serverURL = Config.publicRuntimeConfig.apiServer
 
 /**
  * scaledThumbnailUrlFor function component for providing url for scaled thumbnail.

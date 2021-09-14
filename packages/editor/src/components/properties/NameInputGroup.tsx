@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import styled from 'styled-components'
@@ -31,12 +30,6 @@ type Types = {
  * @type {class component}
  */
 export class NameInputGroup extends Component<Types> {
-  //declaring propTypes for NameInputGroup
-  static propTypes = {
-    editor: PropTypes.object.isRequired,
-    node: PropTypes.object.isRequired
-  }
-
   // updating state and properties
   constructor(props) {
     super(props)
@@ -93,7 +86,6 @@ export class NameInputGroup extends Component<Types> {
     return (
       <StyledNameInputGroup name="Name" label={this.t('editor:properties.name.lbl-name')}>
         <StringInput
-          /* @ts-ignore */
           value={name}
           onChange={this.onUpdateName}
           onFocus={this.onFocus}

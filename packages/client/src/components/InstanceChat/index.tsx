@@ -23,6 +23,8 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 
 import defaultStyles from './InstanceChat.module.scss'
 
@@ -52,6 +54,7 @@ interface Props {
   CloseButton?: any
   SendButton?: any
   newMessageLabel?: string
+  setBottomDrawerOpen?: any
 }
 
 const InstanceChat = (props: Props): any => {
@@ -180,6 +183,7 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
+                    if (isClient && !isBot(window) && message.text.startsWith('/')) return undefined
                     return (
                       <ListItem
                         className={classNames({
@@ -251,9 +255,9 @@ const InstanceChat = (props: Props): any => {
                   }
                 }}
               />
-              <span className={styles.sendButton}>
+              {/*<span className={styles.sendButton}>
                 <SendButton onClick={packageMessage} />
-              </span>
+              </span>*/}
             </CardContent>
           </Card>
         </div>
@@ -266,13 +270,7 @@ const InstanceChat = (props: Props): any => {
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
           <Fab className={styles['chatBadge']} color="primary" onClick={() => toggleChatWindow()}>
-            {!chatWindowOpen ? (
-              <MessageButton />
-            ) : (
-              <div className={styles.iconContainer}>
-                <CloseButton onClick={() => toggleChatWindow()} />
-              </div>
-            )}
+            {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
           </Fab>
         </Badge>
       </div>

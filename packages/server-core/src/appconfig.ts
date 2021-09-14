@@ -17,7 +17,8 @@ if (globalThis.process?.env.NODE_ENV === 'development') {
 
 if (!kubernetesEnabled) {
   dotenv.config({
-    path: appRootPath.path
+    path: appRootPath.path,
+    silent: true
   })
 }
 
@@ -111,6 +112,15 @@ const gameserver = {
   port: process.env.GAMESERVER_PORT,
   mode: process.env.SERVER_MODE,
   locationName: process.env.PRELOAD_LOCATION_NAME
+}
+
+/**
+ * Analytics generator
+ */
+const analytics = {
+  enabled: process.env.ANALYTICS_ENABLED === 'true',
+  port: process.env.ANALYTICS_PORT,
+  processInterval: process.env.ANALYTICS_PROCESS_INTERVAL_SECONDS
 }
 
 /**
@@ -248,6 +258,7 @@ const redis = {
  */
 const config = {
   deployStage: process.env.DEPLOY_STAGE,
+  analytics,
   authentication,
   aws,
   chargebee,

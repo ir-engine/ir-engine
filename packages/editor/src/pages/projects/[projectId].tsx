@@ -16,7 +16,7 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 /**
- * Declairing Props interface having two props.
+ * Declaring Props interface having two props.
  *@authState can be of any type.
  *@doLoginAuto can be of type doLoginAuto component.
  *
@@ -61,10 +61,7 @@ const Project = (props: Props) => {
 
   const initializationOptions: InitializeOptions = {
     type: EngineSystemPresets.EDITOR,
-    publicPath: location.origin,
-    physics: {
-      physxWorker: () => new Worker('/scripts/loadPhysXClassic.js')
-    }
+    publicPath: location.origin
   }
 
   useEffect(() => {
@@ -88,10 +85,12 @@ const Project = (props: Props) => {
   return (
     hasMounted && (
       <Suspense fallback={React.Fragment}>
-        {authUser?.accessToken != null &&
-          authUser.accessToken.length > 0 &&
-          user?.id != null &&
-          engineIsInitialized && <EditorContainer Engine={Engine} {...props} />}
+        {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && engineIsInitialized ? (
+          <>
+            {/* @ts-ignore */}
+            <EditorContainer Engine={Engine} {...props} />
+          </>
+        ) : null}
       </Suspense>
     )
   )

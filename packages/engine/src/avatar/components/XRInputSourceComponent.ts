@@ -1,5 +1,5 @@
 import { Group } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type XRInputSourceComponentType = {
   /**
@@ -22,7 +22,7 @@ export type XRInputSourceComponentType = {
    * @property {Group} controllerGroup is the group that holds all the controller groups,
    * so they can be transformed together
    */
-  controllerGroup: Group
+  container: Group
 
   /**
    * @property {Group} head
@@ -30,4 +30,4 @@ export type XRInputSourceComponentType = {
   head: Group
 }
 
-export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>()
+export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>('XRInputSourceComponent')

@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import BooleanInput from '../inputs/BooleanInput'
 import FormField from '../inputs/FormField'
 import Dialog from './Dialog'
@@ -76,21 +75,13 @@ export function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
       confirmLabel={t('editor:dialog.exportProject.lbl-confirm')}
     >
       <FormContainer>
-        {/* @ts-ignore */}
         <FormField>
           <label htmlFor="combineMeshes">{t('editor:dialog.exportProject.lbl-combineMesh')}</label>
-          <BooleanInput
-            /* @ts-ignore */
-            id="combineMeshes"
-            value={options.combineMeshes}
-            onChange={onChangeCombineMeshes}
-          />
+          <BooleanInput id="combineMeshes" value={options.combineMeshes} onChange={onChangeCombineMeshes} />
         </FormField>
-        {/* @ts-ignore */}
         <FormField>
           <label htmlFor="removeUnusedObjects">{t('editor:dialog.exportProject.lbl-removeUnused')}</label>
           <BooleanInput
-            /* @ts-ignore */
             id="removeUnusedObjects"
             value={options.removeUnusedObjects}
             onChange={onChangeRemoveUnusedObjects}
@@ -101,15 +92,4 @@ export function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
   )
 }
 
-/**
- * declaring propTypes for ExportProjectDialog.
- *
- * @author Robert Long
- * @type {Object}
- */
-ExportProjectDialog.propTypes = {
-  defaultOptions: PropTypes.object.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired
-}
 export default ExportProjectDialog

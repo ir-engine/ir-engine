@@ -41,7 +41,6 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
 
   return (
     <NodeEditor {...props} description={description}>
-      {/* @ts-ignore */}
       <InputGroup
         name="Start at device's geolocation?"
         label={t('editor:properties.map.lbl-useDeviceGeolocation')}
@@ -49,23 +48,12 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
       >
         <BooleanInput value={node.useDeviceGeolocation} onChange={onChangeUseGeolocation} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Start Latitude" label={t('editor:properties.map.lbl-startLatitude')}>
-        <StringInput
-          /* @ts-ignore */
-          value={node.startLatitude}
-          onChange={onChangeStartLatitude}
-        />
+        <StringInput value={node.startLatitude} onChange={onChangeStartLatitude} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Start Longitude" label={t('editor:properties.map.lbl-startLongitude')}>
-        <StringInput
-          /* @ts-ignore */
-          value={node.startLongitude}
-          onChange={onChangeStartLongitude}
-        />
+        <StringInput value={node.startLongitude} onChange={onChangeStartLongitude} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup
         name="Show Raster Tiles?"
         label={t('editor:properties.map.lbl-showRasterTiles')}
@@ -73,7 +61,6 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
       >
         <BooleanInput value={node.showRasterTiles} onChange={onChangeShowRasterTiles} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup
         name="Enable debugging code?"
         label={t('editor:properties.map.lbl-enableDebug')}

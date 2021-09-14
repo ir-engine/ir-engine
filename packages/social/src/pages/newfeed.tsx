@@ -1,15 +1,16 @@
 import React from 'react'
 
-import AppFooter from '@xrengine/client-core/src/socialmedia/components/Footer'
-import FeedForm from '@xrengine/client-core/src/socialmedia/components/FeedForm'
-import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
+import AppFooter from '@xrengine/social/src/components/Footer'
+import FeedForm from '@xrengine/social/src/components/FeedForm'
+import AppHeader from '@xrengine/social/src/components/Header'
 
+// @ts-ignore
 import styles from './index.module.scss'
 
 export default function NewFeedPage() {
   return (
     <div className={styles.viewport}>
-      <AppHeader logo="/assets/logoBlack.png" />
+      <AppHeader />
       <FeedForm />
       <AppFooter />
     </div>

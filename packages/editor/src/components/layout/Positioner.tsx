@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, Children, cloneElement } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 /**
@@ -435,7 +434,7 @@ const PositionerContainer = (styled as any).div.attrs(({ transform, transformOri
  * @returns
  */
 export function Positioner({ children, position, padding, getTargetRef, ...rest }) {
-  const positionerContainerRef = useRef()
+  const positionerContainerRef = useRef<any>()
 
   const [transformProps, setTransformProps] = useState({
     finalPosition: position,
@@ -446,18 +445,12 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
 
   useEffect(() => {
     const onReposition = () => {
-      /* @ts-ignore */
       const positionerContainerRect = positionerContainerRef.current.getBoundingClientRect()
       const targetRect = getTargetRef().current.getBoundingClientRect()
       const viewportHeight = document.documentElement.clientHeight
       const viewportWidth = document.documentElement.clientWidth
 
-      // @ts-ignore
-      const {
-        rect,
-        position: finalPosition,
-        transformOrigin
-      } = getPosition({
+      const { rect, position: finalPosition } = getPosition({
         position,
         targetRect,
         targetOffset: padding,
@@ -468,7 +461,7 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
 
       setTransformProps({
         finalPosition,
-        transformOrigin,
+        transformOrigin: transformProps.transformOrigin,
         transform: `translate(${rect.left}px, ${rect.top}px)`,
         opacity: 1
       })
@@ -494,15 +487,9 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
   )
 }
 
-Positioner.propTypes = {
-  children: PropTypes.node,
-  position: PropTypes.string,
-  padding: PropTypes.number,
-  getTargetRef: PropTypes.func
-}
-
 Positioner.defaultProps = {
   padding: 8,
   position: 'bottom'
 }
+
 export default Positioner

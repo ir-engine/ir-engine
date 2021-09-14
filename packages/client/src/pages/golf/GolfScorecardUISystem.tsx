@@ -1,17 +1,18 @@
 import { State, useState } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { defineSystem } from 'bitecs'
 import React from 'react'
-import { Matrix4 } from 'three'
-import { getPlayerNumber } from './functions/golfBotHookFunctions'
+import { Matrix4, MathUtils } from 'three'
+import { getGolfPlayerNumber } from './functions/golfFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export function createScorecardUI() {
   return createXRUI(GolfScorecardView, GolfState)
@@ -27,6 +28,7 @@ const GolfLabelColumn = () => {
   return (
     <div
       id="labels"
+      xr-layer="true"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -109,6 +111,8 @@ const GolfHoleColumn = (props: { hole: number }) => {
   const holeState = useState(GolfState.holes)
   return (
     <div
+      className="hole"
+      xr-layer="true"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -134,7 +138,6 @@ const GolfHoleColumn = (props: { hole: number }) => {
         {props.hole}
       </div>
       <div
-        id="data"
         style={{
           width: '40px',
           height: '40px',
@@ -171,12 +174,12 @@ const GolfScorecardView = () => {
           position: 'relative',
           width: 'fit-content',
           height: 'fit-content',
-          background: ' rgba(0, 0, 0, 0.51)',
-          border: '10px solid #FFFFFF',
+          backgroundColor: '#000000dd',
+          border: '8px solid #FFFFFF',
           boxSizing: 'border-box',
-          filter: 'drop-shadow(0 0 20px rgba(0, 0, 0, 0.57))',
+          boxShadow: '#fff2 0 0 30px',
           borderRadius: '60px',
-          margin: '50px',
+          margin: '80px',
           fontFamily: 'Racing Sans One',
           fontStyle: 'normal',
           fontWeight: 'normal'
@@ -194,25 +197,36 @@ const GolfScorecardView = () => {
 
 const mat4 = new Matrix4()
 
-export const GolfScorecardUISystem = async () => {
+export const GolfScorecardUISystem = async (world: World) => {
   const ui = createScorecardUI()
 
-  return defineSystem((world) => {
+  return () => {
     // return world
 
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 
-    const cameraTransform = getHeadTransform(Network.instance.localClientEntity)
-    mat4.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
-
-    // const uiTransform = getComponent(ui.entity, TransformComponent)
     const layer = uiComponent.layer
-    layer.position.set(0, 0, -1)
+    layer.position.set(0, 0, -0.5)
     layer.quaternion.set(0, 0, 0, 1)
     layer.scale.setScalar(1)
-    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(mat4)
+    layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(Engine.camera.matrixWorld)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
+
+    const localPlayerNumber = getGolfPlayerNumber()
+    const viewingScorecard = GolfState.players[localPlayerNumber]?.viewingScorecard.value
+
+    const targetOpacity = viewingScorecard ? 1 : 0
+    layer.rootLayer.traverseLayersPreOrder((layer) => {
+      layer.contentMesh.material.opacity = MathUtils.lerp(
+        layer.contentMesh.material.opacity,
+        targetOpacity,
+        world.delta * 10
+      )
+      layer.contentMesh.material.needsUpdate = true
+    })
+
+    // uiComponent.layer.querySelector()
 
     // uiTransform.rotation.copy(cameraTransform.rotation)
     // uiTransform.position.copy(cameraTransform.position)
@@ -223,7 +237,7 @@ export const GolfScorecardUISystem = async () => {
     // uiTransform.position.y += avatarHeight + 0.3
 
     return world
-  })
+  }
 }
 
 const GolfScorecardUI = new Map<Entity, ReturnType<typeof createScorecardUI>>()

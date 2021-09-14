@@ -3,8 +3,8 @@ import { FollowCameraComponent } from '../../camera/components/FollowCameraCompo
 import { ProjectionType } from '../../camera/types/ProjectionType'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { CameraMode } from '../../camera/types/CameraMode'
 import { Network } from '../../networking/classes/Network'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 

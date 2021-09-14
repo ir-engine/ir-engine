@@ -29,7 +29,7 @@ export const initialChannelConnectionState = {
 
 let connectionSocket = null
 
-const immutableState = Immutable.fromJS(initialChannelConnectionState)
+const immutableState = Immutable.fromJS(initialChannelConnectionState) as any
 
 const channelConnectionReducer = (state = immutableState, action: ChannelServerAction): any => {
   let newValues, newInstance, newClient

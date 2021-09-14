@@ -1,17 +1,33 @@
 import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
-import { NameComponent } from '../components/NameComponent'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createCollider } from '../../physics/functions/createCollider'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Clouds } from '../classes/Clouds'
+import Image from '../classes/Image'
+import { Interior } from '../classes/Interior'
+import { Ocean } from '../classes/Ocean'
+import { Water } from '../classes/Water'
+import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
+import { NameComponent } from '../components/NameComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { PersistTagComponent } from '../components/PersistTagComponent'
+import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+import { ShadowComponent } from '../components/ShadowComponent'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { UpdatableComponent } from '../components/UpdatableComponent'
+import { UserdataComponent } from '../components/UserdataComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
+import { WalkableTagComponent } from '../components/Walkable'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { createDirectionalLight } from '../functions/createDirectionalLight'
 import { createGround } from '../functions/createGround'
@@ -27,24 +43,9 @@ import { loadModelAnimation } from '../functions/loadModelAnimation'
 import { setCameraProperties } from '../functions/setCameraProperties'
 import { setEnvMap } from '../functions/setEnvMap'
 import { setFog } from '../functions/setFog'
-import { Clouds } from '../classes/Clouds'
-import Image from '../classes/Image'
-import { Ocean } from '../classes/Ocean'
-import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
-import { PersistTagComponent } from '../components/PersistTagComponent'
-import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
-import { ShadowComponent } from '../components/ShadowComponent'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
-import { UpdatableComponent } from '../components/UpdatableComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { WalkableTagComponent } from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { Water } from '../classes/Water'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { UserdataComponent } from '../components/UserdataComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -68,6 +69,7 @@ export class WorldScene {
     WorldScene.isLoading = true
 
     // reset renderer settings for if we are teleporting and the new scene does not have an override
+    configureCSM(null, true)
     handleRendererSettings(null, true)
 
     const sceneProperty: ScenePropertyType = {
@@ -122,10 +124,13 @@ export class WorldScene {
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     switch (name) {
       case 'mtdata':
-        if (isClient && Engine.isBot) {
-          const { meta_data } = component.data
-          console.log('scene_metadata|' + meta_data)
-        }
+        //if (isClient && Engine.isBot) {
+        const { meta_data } = component.data
+
+        const world = Engine.defaultWorld
+        world.sceneMetadata = meta_data
+        console.log('scene_metadata|' + meta_data)
+        //}
         break
 
       case '_metadata':
@@ -134,11 +139,12 @@ export class WorldScene {
           addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
           const transform = getComponent(entity, TransformComponent)
 
-          if (isClient && Engine.isBot) {
-            const { _data } = component.data
-            const { x, y, z } = transform.data['position']
-            console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
-          }
+          // if (isClient && Engine.isBot) {
+          const { _data } = component.data
+          const { x, y, z } = transform.position
+          world.worldMetadata[_data] = x + ',' + y + ',' + z
+          console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
+          // }
         }
         break
 
@@ -186,7 +192,7 @@ export class WorldScene {
         break
 
       case 'ground-plane':
-        createGround(entity, component.data)
+        createGround(entity, component.data, isClient)
         break
 
       case 'image':
@@ -228,10 +234,6 @@ export class WorldScene {
 
       case 'transform':
         createTransformComponent(entity, component.data)
-        break
-
-      case 'walkable':
-        addComponent(entity, WalkableTagComponent, {})
         break
 
       case 'fog':
@@ -330,6 +332,10 @@ export class WorldScene {
         isClient && addComponent(entity, UpdatableComponent, {})
         break
 
+      case 'interior':
+        isClient && addObject3DComponent(entity, new Interior(), component.data)
+        break
+
       case 'postprocessing':
         EngineRenderer.instance?.configurePostProcessing(component.data.options)
         break
@@ -368,10 +374,6 @@ export class WorldScene {
 
       /* deprecated */
       case 'mesh-collider':
-        break
-
-      case 'mdata':
-        console.log('[SceneLoading]: Scene metadata not implemented')
         break
 
       default:

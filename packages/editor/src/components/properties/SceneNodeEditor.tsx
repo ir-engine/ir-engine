@@ -3,7 +3,6 @@ import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/sc
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import i18n from 'i18next'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -198,44 +197,33 @@ export function SceneNodeEditor(props) {
   // returning editor view for property editor for sceneNode
   return (
     <NodeEditor {...props} description={SceneNodeEditor.description}>
-      {/* @ts-ignore */}
       {/* <InputGroup
         name="Background Color"
         label={t('editor:properties.scene.lbl-bgcolor')}
       > */}
-      {/* @ts-ignore */}
       {/* <ColorInput value={node.background} onChange={onChangeBackground} /> */}
       {/* </InputGroup> */}
 
-      {/* @ts-ignore */}
       <InputGroup name="Metadata" label="Metadata">
-        {/* @ts-ignore */}
         <StringInput value={node.meta_data} onChange={onChangeMetaData} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Envmap Source" label="Envmap Source">
-        {/* @ts-ignore */}
         <SelectInput options={EnvMapSourceOptions} value={node.envMapSourceType} onChange={onChangeEnvmapSourceType} />
       </InputGroup>
       {node.envMapSourceType === EnvMapSourceType.Color && (
-        /* @ts-ignore */
         <InputGroup name="EnvMapColor" label="EnvMap Color">
-          {/* @ts-ignore */}
           <ColorInput value={new Color(node.envMapSourceColor)} onChange={onChangeEnvmapColorSource} />
         </InputGroup>
       )}
       {node.envMapSourceType === EnvMapSourceType.Texture && (
         <div>
-          {/* @ts-ignore */}
           <InputGroup name="Texture Type" label="Texture Type">
-            {/* @ts-ignore */}
             <SelectInput
               options={EnvMapTextureOptions}
               value={node.envMapTextureType}
               onChange={onChangeEnvmapTextureType}
             />
           </InputGroup>
-          {/* @ts-ignore */}
           <InputGroup name="Texture URL" label="Texture URL">
             <ImageInput value={node.envMapSourceURL} onChange={onChangeEnvmapURLSource} />
             {(props.node as SceneNode).errorInEnvmapURL && <div>Error Loading From URL </div>}
@@ -243,27 +231,20 @@ export function SceneNodeEditor(props) {
         </div>
       )}
 
-      {/* @ts-ignore */}
       <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
-        {/* @ts-ignore */}
         <CompoundNumericInput min={0} max={20} value={node.envMapIntensity} onChange={envMapIntensityChanged} />
       </InputGroup>
 
-      {/* @ts-ignore */}
       <InputGroup name="Fog Type" label={t('editor:properties.scene.lbl-fogType')}>
-        {/* @ts-ignore */}
         <SelectInput options={FogTypeOptions} value={node.fogType} onChange={onChangeFogType} />
       </InputGroup>
       {node.fogType !== FogType.Disabled && (
-        /* @ts-ignore */
         <InputGroup name="Fog Color" label={t('editor:properties.scene.lbl-fogColor')}>
-          {/* @ts-ignore */}
           <ColorInput value={node.fogColor} onChange={onChangeFogColor} />
         </InputGroup>
       )}
       {node.fogType === FogType.Linear && (
         <>
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Fog Near Distance"
             label={t('editor:properties.scene.lbl-forNearDistance')}
@@ -274,7 +255,6 @@ export function SceneNodeEditor(props) {
             value={node.fogNearDistance}
             onChange={onChangeFogNearDistance}
           />
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Fog Far Distance"
             label={t('editor:properties.scene.lbl-fogFarDistance')}
@@ -288,7 +268,6 @@ export function SceneNodeEditor(props) {
         </>
       )}
       {node.fogType === FogType.Exponential && (
-        /* @ts-ignore */
         <NumericInputGroup
           name="Fog Density"
           label={t('editor:properties.scene.lbl-fogDensity')}
@@ -300,19 +279,16 @@ export function SceneNodeEditor(props) {
           onChange={onChangeFogDensity}
         />
       )}
-      {/* @ts-ignore */}
       <InputGroup name="Override Audio Settings" label={t('editor:properties.scene.lbl-audioSettings')}>
         <BooleanInput value={node.usePositionalAudio} onChange={onChangeUserPositionalAudio} />
       </InputGroup>
       {node.usePositionalAudio && (
         <>
-          {/* @ts-ignore */}
           <InputGroup
             name="Avatar Distance Model"
             label={t('editor:properties.scene.lbl-avatarDistanceModel')}
             info={t('editor:properties.scene.info-avatarDistanceModel')}
           >
-            {/* @ts-ignore */}
             <SelectInput
               options={DistanceModelOptions}
               value={node.avatarDistanceModel}
@@ -321,7 +297,6 @@ export function SceneNodeEditor(props) {
           </InputGroup>
 
           {node.avatarDistanceModel === DistanceModelType.Linear ? (
-            /* @ts-ignore */
             <InputGroup
               name="Avatar Rolloff Factor"
               label={t('editor:properties.scene.lbl-avatarRolloffFactor')}
@@ -338,7 +313,6 @@ export function SceneNodeEditor(props) {
               />
             </InputGroup>
           ) : (
-            /* @ts-ignore */
             <NumericInputGroup
               name="Avatar Rolloff Factor"
               label={t('editor:properties.scene.lbl-avatarRolloffFactor')}
@@ -351,7 +325,6 @@ export function SceneNodeEditor(props) {
               onChange={onChangeAvatarRolloffFactor}
             />
           )}
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Avatar Ref Distance"
             label={t('editor:properties.scene.lbl-avatarRefDistance')}
@@ -364,7 +337,6 @@ export function SceneNodeEditor(props) {
             onChange={onChangeAvatarRefDistance}
             unit="m"
           />
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Avatar Max Distance"
             label={t('editor:properties.scene.lbl-avatarMaxDistance')}
@@ -377,17 +349,14 @@ export function SceneNodeEditor(props) {
             onChange={onChangeAvatarMaxDistance}
             unit="m"
           />
-          {/* @ts-ignore */}
           <InputGroup name="Media Volume" label={t('editor:properties.scene.lbl-mediaVolume')}>
             <CompoundNumericInput value={node.mediaVolume} onChange={onChangeMediaVolume} />
           </InputGroup>
-          {/* @ts-ignore */}
           <InputGroup
             name="Media Distance Model"
             label={t('editor:properties.scene.lbl-mediaDistanceModel')}
             info={t('editor:properties.scene.info-mediaDistanceModel')}
           >
-            {/* @ts-ignore */}
             <SelectInput
               options={DistanceModelOptions}
               value={node.mediaDistanceModel}
@@ -396,7 +365,6 @@ export function SceneNodeEditor(props) {
           </InputGroup>
 
           {node.mediaDistanceModel === DistanceModelType.Linear ? (
-            /* @ts-ignore */
             <InputGroup
               name="Media Rolloff Factor"
               label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
@@ -413,7 +381,6 @@ export function SceneNodeEditor(props) {
               />
             </InputGroup>
           ) : (
-            /* @ts-ignore */
             <NumericInputGroup
               name="Media Rolloff Factor"
               label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
@@ -426,7 +393,6 @@ export function SceneNodeEditor(props) {
               onChange={onChangeMediaRolloffFactor}
             />
           )}
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Media Ref Distance"
             label={t('editor:properties.scene.lbl-mediaRefDistance')}
@@ -439,7 +405,6 @@ export function SceneNodeEditor(props) {
             onChange={onChangeMediaRefDistance}
             unit="m"
           />
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Media Max Distance"
             label={t('editor:properties.scene.lbl-mediaMaxDistance')}
@@ -452,7 +417,6 @@ export function SceneNodeEditor(props) {
             onChange={onChangeMediaMaxDistance}
             unit="m"
           />
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Media Cone Inner Angle"
             label={t('editor:properties.scene.lbl-mediaConeInnerAngle')}
@@ -466,7 +430,6 @@ export function SceneNodeEditor(props) {
             onChange={onChangeMediaConeInnerAngle}
             unit="°"
           />
-          {/* @ts-ignore */}
           <NumericInputGroup
             name="Media Cone Outer Angle"
             label={t('editor:properties.scene.lbl-mediaConeOuterAngle')}
@@ -480,7 +443,6 @@ export function SceneNodeEditor(props) {
             onChange={onChangeMediaConeOuterAngle}
             unit="°"
           />
-          {/* @ts-ignore */}
           <InputGroup
             name="Media Cone Outer Gain"
             label={t('editor:properties.scene.lbl-mediaConeOuterGain')}
@@ -496,7 +458,6 @@ export function SceneNodeEditor(props) {
           </InputGroup>
         </>
       )}
-      {/* @ts-ignore */}
       <InputGroup
         name="Use Simple Materials"
         label={t('editor:properties.scene.lbl-simpleMaterials')}
@@ -504,30 +465,25 @@ export function SceneNodeEditor(props) {
       >
         <BooleanInput value={node.simpleMaterials} onChange={onChangeUseSimpleMaterials} />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup
         name="LODs"
         label={t('editor:properties.scene.lbl-lods')}
         info={t('editor:properties.scene.info-lods')}
       >
-        {/* @ts-ignore */}
         <Vector3Input
-          hideLabels={true}
+          hideLabels
           value={node.LODs}
-          /* @ts-ignore */
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
           onChange={onChangeLODs}
         />
       </InputGroup>
-      {/* @ts-ignore */}
       <InputGroup name="Override Renderer Settings" label={t('editor:properties.scene.lbl-rendererSettings')}>
         <BooleanInput value={node.overrideRendererSettings} onChange={onChangeOverrideRendererettings} />
       </InputGroup>
       {node.overrideRendererSettings && (
         <>
-          {/* @ts-ignore */}
           <InputGroup
             name="Use Cascading Shadow Maps"
             label={t('editor:properties.scene.lbl-csm')}
@@ -535,16 +491,13 @@ export function SceneNodeEditor(props) {
           >
             <BooleanInput value={node.csm} onChange={onChangeUseCSM} />
           </InputGroup>
-          {/* @ts-ignore */}
           <InputGroup
             name="Tone Mapping"
             label={t('editor:properties.scene.lbl-toneMapping')}
             info={t('editor:properties.scene.info-toneMapping')}
           >
-            {/* @ts-ignore */}
             <SelectInput options={ToneMappingOptions} value={node.toneMapping} onChange={onChangeUseToneMapping} />
           </InputGroup>
-          {/* @ts-ignore */}
           <InputGroup
             name="Tone Mapping Exposure"
             label={t('editor:properties.scene.lbl-toneMappingExposure')}
@@ -558,25 +511,17 @@ export function SceneNodeEditor(props) {
               onChange={onChangeUseToneMappingExposure}
             />
           </InputGroup>
-          {/* @ts-ignore */}
           <InputGroup
             name="Tone Mapping Exposure"
             label={t('editor:properties.scene.lbl-shadowMapType')}
             info={t('editor:properties.scene.info-shadowMapType')}
           >
-            {/* @ts-ignore */}
             <SelectInput options={ShadowTypeOptions} value={node.shadowMapType} onChange={onChangeUseShadowMapType} />
           </InputGroup>
         </>
       )}
     </NodeEditor>
   )
-}
-
-// declaring property types for sceneNode
-SceneNodeEditor.propTypes = {
-  editor: PropTypes.object,
-  node: PropTypes.object
 }
 
 // setting icon component with icon name

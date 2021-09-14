@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
-import { PAGE_LIMIT } from '../../reducers/admin/reducers'
+import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/reducers'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
 import styles from './Avatars.module.scss'
@@ -56,8 +56,7 @@ const Avatars = (props: Props) => {
 
   const user = authState.get('user')
   const adminAvatars = adminAvatarState.get('avatars').get('avatars')
-  const adminThumbnails = adminAvatarState.get('avatars').get('thumbnails')
-  const adminAvatarCount = adminAvatarState.get('avatars').get('total') / 2
+  const adminAvatarCount = adminAvatarState.get('avatars').get('total')
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -94,7 +93,8 @@ const Avatars = (props: Props) => {
       if (order !== 0) return order
       return a[1] - b[1]
     })
-    return stabilizedThis.map((el) => el[0])
+    const returned = stabilizedThis.map((el) => el[0])
+    return returned
   }
 
   interface EnhancedTableProps {
@@ -142,7 +142,7 @@ const Avatars = (props: Props) => {
   const [orderBy, setOrderBy] = useState<any>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedAvatars, setSelectedAvatars] = useState([])
@@ -179,19 +179,11 @@ const Avatars = (props: Props) => {
   }
 
   const handleCheck = (e: any, row: any) => {
-    const newItem = {
-      avatar: row,
-      thumbnail: adminThumbnails.find((thumbnail) => thumbnail.name === row.name)
-    }
-
-    const existingAvatarIndex = selectedAvatars.findIndex((avatar) => avatar.avatar.id === row.id)
+    const existingAvatarIndex = selectedAvatars.findIndex((avatar) => avatar.id === row.id)
     if (e.target.checked === true) {
-      if (existingAvatarIndex >= 0) setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1, newItem))
-      else setSelectedAvatars(selectedAvatars.concat(newItem))
+      if (existingAvatarIndex >= 0) setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1, row))
+      else setSelectedAvatars(selectedAvatars.concat(row))
     } else setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1))
-    setTimeout(() => {
-      console.log('selectedAvatars after', selectedAvatars)
-    }, 500)
   }
 
   const fetchTick = () => {
@@ -205,9 +197,9 @@ const Avatars = (props: Props) => {
     setAvatarSelectMenuOpen(false)
   }
 
-  useEffect(() => {
-    fetchTick()
-  }, [])
+  // useEffect(() => {
+  //   fetchTick()
+  // }, [])
 
   useEffect(() => {
     if (user?.id != null && (adminAvatarState.get('avatars').get('updateNeeded') === true || refetch === true)) {
@@ -267,60 +259,55 @@ const Avatars = (props: Props) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminAvatarCount / 2 || 0}
+              rowCount={adminAvatarCount || 0}
             />
             <TableBody>
-              {stableSort(
-                adminAvatars.filter((item) => item.staticResourceType === 'avatar'),
-                getComparator(order, orderBy)
-              )
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  return (
-                    <TableRow
-                      hover
-                      className={styles.trowHover}
-                      style={{ color: 'black !important' }}
-                      // onClick={(event) => handleLocationClick(event, row.id.toString())}
-                      tabIndex={-1}
-                      key={row.id}
+              {stableSort(adminAvatars, getComparator(order, orderBy)).map((row, index) => {
+                return (
+                  <TableRow
+                    hover
+                    className={styles.trowHover}
+                    style={{ color: 'black !important' }}
+                    // onClick={(event) => handleLocationClick(event, row.id.toString())}
+                    tabIndex={-1}
+                    key={row.id}
+                  >
+                    <TableCell
+                      className={styles.tcell}
+                      component="th"
+                      id={row.id.toString()}
+                      align="right"
+                      scope="row"
+                      padding="none"
                     >
-                      <TableCell
-                        className={styles.tcell}
-                        component="th"
-                        id={row.id.toString()}
-                        align="right"
-                        scope="row"
-                        padding="none"
-                      >
-                        {row.sid}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.name}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {row.key}
-                      </TableCell>
-                      <TableCell className={styles.tcell} align="right">
-                        {user.userRole === 'admin' && (
-                          <Checkbox
-                            className={styles.checkbox}
-                            onChange={(e) => handleCheck(e, row)}
-                            name="stereoscopic"
-                            color="primary"
-                          />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                      {row.sid}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.name}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {row.key}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole === 'admin' && (
+                        <Checkbox
+                          className={styles.checkbox}
+                          onChange={(e) => handleCheck(e, row)}
+                          name="stereoscopic"
+                          color="primary"
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </TableContainer>
 
         <div className={styles.tableFooter}>
           <TablePagination
-            rowsPerPageOptions={[PAGE_LIMIT]}
+            rowsPerPageOptions={[AVATAR_PAGE_LIMIT]}
             component="div"
             count={adminAvatarCount}
             rowsPerPage={rowsPerPage}

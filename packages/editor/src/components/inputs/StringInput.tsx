@@ -1,6 +1,4 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Input from './Input'
 
@@ -12,33 +10,36 @@ const StyledStringInput = (styled as any)(Input)`
   width: 100%;
 `
 
+interface StringInputProp {
+  id?: string
+  value?: any
+  onChange?: Function
+  required?: boolean
+  pattern?: string
+  title?: string
+  error?: boolean
+  canDrop?: boolean
+  onFocus?: Function
+  onBlur?: Function
+  onKeyUp?: Function
+  type?: string
+  placeholder?: string
+}
+
 /**
  * @author Robert Long
  */
-const StringInput = React.forwardRef(({ onChange, ...rest }, ref) => (
+const StringInput = React.forwardRef<{}, StringInputProp>(({ onChange, ...rest }, ref) => (
   <StyledStringInput onChange={(e) => onChange(e.target.value, e)} {...rest} ref={ref} />
 ))
 
 StringInput.displayName = 'StringInput'
-
-/**
- * @author Robert Long
- */
 StringInput.defaultProps = {
   value: '',
   onChange: () => {},
   type: 'text',
   required: false,
   placeholder: ''
-}
-
-StringInput.propTypes = {
-  id: PropTypes.string,
-  className: PropTypes.string,
-  type: PropTypes.string,
-  required: PropTypes.bool,
-  placeholder: PropTypes.string,
-  onChange: PropTypes.func
 }
 
 export default StringInput
@@ -51,7 +52,7 @@ const DropContainer = (styled as any).div`
 /**
  * @author Robert Long
  */
-export const ControlledStringInput = React.forwardRef((values, ref) => {
+export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((values, ref) => {
   const { onChange, value, ...rest } = values as any
   const inputRef = useRef()
 
@@ -59,7 +60,7 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
 
   const onKeyUp = useCallback((e) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
-      inputRef.current.blur()
+      ;(inputRef as any).current.blur()
     }
   }, [])
 
@@ -78,6 +79,13 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
     [setTempValue]
   )
 
+  ControlledStringInput.defaultProps = {
+    value: '',
+    onChange: () => {},
+    type: 'text',
+    required: false
+  }
+
   return (
     <DropContainer ref={ref}>
       <StyledStringInput
@@ -93,19 +101,3 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
 })
 
 ControlledStringInput.displayName = 'ControlledStringInput'
-
-ControlledStringInput.defaultProps = {
-  value: '',
-  onChange: () => {},
-  type: 'text',
-  required: false
-}
-
-ControlledStringInput.propTypes = {
-  className: PropTypes.string,
-  value: PropTypes.string,
-  type: PropTypes.string,
-  required: PropTypes.bool,
-  placeholder: PropTypes.string,
-  onChange: PropTypes.func
-}

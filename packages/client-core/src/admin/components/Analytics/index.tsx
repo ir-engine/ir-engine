@@ -1,11 +1,57 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Card from './CardNumber'
 import Grid from '@material-ui/core/Grid'
+import ToggleButton from '@material-ui/lab/ToggleButton'
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup'
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
-import ApiLinks from './ApiLinks'
-import Graph from './Graph'
-import ReactGa from 'react-ga'
+import UserGraph from './UserGraph'
+import ActivityGraph from './ActivityGraph'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { selectAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/selector'
+import {
+  fetchActiveParties,
+  fetchActiveLocations,
+  fetchActiveScenes,
+  fetchChannelUsers,
+  fetchInstanceUsers,
+  fetchActiveInstances,
+  fetchDailyUsers,
+  fetchDailyNewUsers
+} from '../../reducers/admin/analytics/service'
+
+interface Props {
+  adminGroupState?: any
+  fetchAdminGroup?: any
+  analyticsState?: any
+  authState?: any
+  fetchActiveParties?: any
+  fetchActiveLocations?: any
+  fetchActiveScenes?: any
+  fetchChannelUsers?: any
+  fetchInstanceUsers?: any
+  fetchActiveInstances?: any
+  fetchDailyUsers?: any
+  fetchDailyNewUsers?: any
+}
+
+const mapStateToProps = (state: any): any => ({
+  authState: selectAuthState(state),
+  analyticsState: selectAnalyticsState(state)
+})
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  fetchActiveParties: bindActionCreators(fetchActiveParties, dispatch),
+  fetchActiveLocations: bindActionCreators(fetchActiveLocations, dispatch),
+  fetchActiveInstances: bindActionCreators(fetchActiveInstances, dispatch),
+  fetchActiveScenes: bindActionCreators(fetchActiveScenes, dispatch),
+  fetchChannelUsers: bindActionCreators(fetchChannelUsers, dispatch),
+  fetchInstanceUsers: bindActionCreators(fetchInstanceUsers, dispatch),
+  fetchDailyUsers: bindActionCreators(fetchDailyUsers, dispatch),
+  fetchDailyNewUsers: bindActionCreators(fetchDailyNewUsers, dispatch)
+})
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,279 +71,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const dataTest = [
-  {
-    id: 'japan',
-    color: 'hsl(234, 70%, 50%)',
-    data: [
-      {
-        x: 'plane',
-        y: 91
-      },
-      {
-        x: 'helicopter',
-        y: 82
-      },
-      {
-        x: 'boat',
-        y: 225
-      },
-      {
-        x: 'train',
-        y: 276
-      },
-      {
-        x: 'subway',
-        y: 186
-      },
-      {
-        x: 'bus',
-        y: 146
-      },
-      {
-        x: 'car',
-        y: 163
-      },
-      {
-        x: 'moto',
-        y: 71
-      },
-      {
-        x: 'bicycle',
-        y: 185
-      },
-      {
-        x: 'horse',
-        y: 28
-      },
-      {
-        x: 'skateboard',
-        y: 46
-      },
-      {
-        x: 'others',
-        y: 153
-      }
-    ]
-  },
-  {
-    id: 'france',
-    color: 'hsl(126, 70%, 50%)',
-    data: [
-      {
-        x: 'plane',
-        y: 16
-      },
-      {
-        x: 'helicopter',
-        y: 263
-      },
-      {
-        x: 'boat',
-        y: 58
-      },
-      {
-        x: 'train',
-        y: 176
-      },
-      {
-        x: 'subway',
-        y: 58
-      },
-      {
-        x: 'bus',
-        y: 64
-      },
-      {
-        x: 'car',
-        y: 103
-      },
-      {
-        x: 'moto',
-        y: 133
-      },
-      {
-        x: 'bicycle',
-        y: 265
-      },
-      {
-        x: 'horse',
-        y: 12
-      },
-      {
-        x: 'skateboard',
-        y: 238
-      },
-      {
-        x: 'others',
-        y: 184
-      }
-    ]
-  },
-  {
-    id: 'us',
-    color: 'hsl(140, 70%, 50%)',
-    data: [
-      {
-        x: 'plane',
-        y: 258
-      },
-      {
-        x: 'helicopter',
-        y: 235
-      },
-      {
-        x: 'boat',
-        y: 208
-      },
-      {
-        x: 'train',
-        y: 195
-      },
-      {
-        x: 'subway',
-        y: 214
-      },
-      {
-        x: 'bus',
-        y: 146
-      },
-      {
-        x: 'car',
-        y: 225
-      },
-      {
-        x: 'moto',
-        y: 56
-      },
-      {
-        x: 'bicycle',
-        y: 231
-      },
-      {
-        x: 'horse',
-        y: 18
-      },
-      {
-        x: 'skateboard',
-        y: 240
-      },
-      {
-        x: 'others',
-        y: 31
-      }
-    ]
-  },
-  {
-    id: 'germany',
-    color: 'hsl(161, 70%, 50%)',
-    data: [
-      {
-        x: 'plane',
-        y: 97
-      },
-      {
-        x: 'helicopter',
-        y: 23
-      },
-      {
-        x: 'boat',
-        y: 113
-      },
-      {
-        x: 'train',
-        y: 32
-      },
-      {
-        x: 'subway',
-        y: 79
-      },
-      {
-        x: 'bus',
-        y: 188
-      },
-      {
-        x: 'car',
-        y: 229
-      },
-      {
-        x: 'moto',
-        y: 16
-      },
-      {
-        x: 'bicycle',
-        y: 119
-      },
-      {
-        x: 'horse',
-        y: 101
-      },
-      {
-        x: 'skateboard',
-        y: 227
-      },
-      {
-        x: 'others',
-        y: 250
-      }
-    ]
-  },
-  {
-    id: 'norway',
-    color: 'hsl(85, 70%, 50%)',
-    data: [
-      {
-        x: 'plane',
-        y: 222
-      },
-      {
-        x: 'helicopter',
-        y: 220
-      },
-      {
-        x: 'boat',
-        y: 259
-      },
-      {
-        x: 'train',
-        y: 128
-      },
-      {
-        x: 'subway',
-        y: 62
-      },
-      {
-        x: 'bus',
-        y: 278
-      },
-      {
-        x: 'car',
-        y: 175
-      },
-      {
-        x: 'moto',
-        y: 23
-      },
-      {
-        x: 'bicycle',
-        y: 100
-      },
-      {
-        x: 'horse',
-        y: 268
-      },
-      {
-        x: 'skateboard',
-        y: 27
-      },
-      {
-        x: 'others',
-        y: 114
-      }
-    ]
-  }
-]
-
 /**
  * Function for analytics on admin dashboard
  *
@@ -305,42 +78,141 @@ const dataTest = [
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
-const Analytics = () => {
-  const classes = useStyles()
-  const data = [
+const Analytics = (props: Props) => {
+  const {
+    analyticsState,
+    fetchActiveInstances,
+    fetchActiveParties,
+    fetchActiveLocations,
+    fetchActiveScenes,
+    fetchChannelUsers,
+    fetchInstanceUsers,
+    fetchDailyUsers,
+    fetchDailyNewUsers,
+    authState
+  } = props
+  const [refetch, setRefetch] = useState(false)
+  const [graphSelector, setGraphSelector] = useState('activity')
+  const activeLocations = analyticsState.get('activeLocations')
+  const activeParties = analyticsState.get('activeParties')
+  const activeScenes = analyticsState.get('activeScenes')
+  const activeInstances = analyticsState.get('activeInstances')
+  const instanceUsers = analyticsState.get('instanceUsers')
+  const channelUsers = analyticsState.get('channelUsers')
+  const dailyUsers = analyticsState.get('dailyUsers')
+  const dailyNewUsers = analyticsState.get('dailyNewUsers')
+
+  const fetchTick = () => {
+    setTimeout(() => {
+      setRefetch(true)
+      fetchTick()
+    }, 5000)
+  }
+
+  const activityGraphData = [
     {
-      number: '200K',
-      label: 'Parties'
+      id: 'Active Parties',
+      color: 'hsl(77, 70%, 20%)',
+      data: activeParties
     },
     {
-      number: '376K',
-      label: 'Active Sessions'
+      id: 'Active Locations',
+      color: 'hsl(128, 20%, 80%)',
+      data: activeLocations
     },
     {
-      number: '3456K',
-      label: 'Active Users'
+      id: 'Active Instances',
+      color: 'hsl(50, 20%, 80%)',
+      data: activeInstances
     },
     {
-      number: '453K',
-      label: 'Instances'
+      id: 'Active Scenes',
+      color: 'hsl(0, 20%, 80%)',
+      data: activeScenes
+    },
+    {
+      id: 'Instance Users',
+      color: 'hsl(212, 20%, 80%)',
+      data: instanceUsers
+    },
+    {
+      id: 'Channel Users',
+      color: 'hsl(250, 20%, 80%)',
+      data: channelUsers
+    }
+  ]
+
+  const userGraphData = [
+    {
+      id: 'Daily Users',
+      color: 'hsl(77, 70%, 20%)',
+      data: dailyUsers
+    },
+    {
+      id: 'Daily New Users',
+      color: 'hsl(250, 10%, 20%)',
+      data: dailyNewUsers
     }
   ]
 
   useEffect(() => {
-    ReactGa.initialize('UA-192756414-1', {
-      debug: true,
-      titleCase: false
-    })
+    if (refetch === true) {
+      fetchActiveParties()
+      fetchInstanceUsers()
+      fetchChannelUsers()
+      fetchActiveLocations()
+      fetchActiveScenes()
+      fetchActiveInstances()
+      fetchDailyUsers()
+      fetchDailyNewUsers()
+    }
+    setRefetch(false)
+  }, [refetch])
 
-    ReactGa.pageview('/admin')
+  useEffect(() => {
+    console.log('authState changed', authState.get('isLoggedIn'))
+    if (authState.get('isLoggedIn')) setRefetch(true)
+  }, [authState])
+
+  useEffect(() => {
+    fetchTick()
   }, [])
+
+  const classes = useStyles()
+  const data = [
+    {
+      number: activeParties[activeParties.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      label: 'Active Parties'
+    },
+    {
+      number: activeLocations[activeLocations.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      label: 'Active Locations'
+    },
+    {
+      number: activeScenes[activeScenes.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      label: 'Active Scenes'
+    },
+    {
+      number: activeInstances[activeInstances.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      label: 'Active Instances'
+    },
+    {
+      number: dailyUsers[dailyUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      label: 'Users Today'
+    },
+    {
+      number: dailyNewUsers[dailyNewUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      label: 'New Users Today'
+    }
+  ]
+  const graphData = graphSelector === 'activity' ? activityGraphData : userGraphData
 
   return (
     <div>
       <Grid container spacing={3}>
         {data.map((el) => {
           return (
-            <Grid item xs={3} key={el.number}>
+            <Grid item xs={3} key={el.label}>
               <Card data={el} />
             </Grid>
           )
@@ -348,14 +220,23 @@ const Analytics = () => {
       </Grid>
       <div className={classes.mtopp}>
         <Paper className={classes.paper}>
-          <Graph data={dataTest} />
+          <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
+            <ToggleButton value="activity" onClick={() => setGraphSelector('activity')}>
+              Activity
+            </ToggleButton>
+            <ToggleButton value="users" onClick={() => setGraphSelector('users')}>
+              Users
+            </ToggleButton>
+          </ToggleButtonGroup>
+          {graphSelector === 'users' && <UserGraph data={graphData} />}
+          {graphSelector === 'activity' && <ActivityGraph data={graphData} />}
         </Paper>
       </div>
-      <div className={classes.mtopp}>
-        <ApiLinks />
-      </div>
+      {/*<div className={classes.mtopp}>*/}
+      {/*  <ApiLinks />*/}
+      {/*</div>*/}
     </div>
   )
 }
 
-export default Analytics
+export default connect(mapStateToProps, mapDispatchToProps)(Analytics)

@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
@@ -32,7 +31,7 @@ function borderColor(props, defaultColor) {
  *
  * @author Robert Long
  */
-const Viewport = (styled as any).canvas`
+export const Viewport = (styled as any).canvas`
   width: 100%;
   height: 100%;
   position: relative;
@@ -44,7 +43,7 @@ const Viewport = (styled as any).canvas`
  * @author Robert Long
  * @type {[Styled component]}
  */
-const ViewportContainer = (styled as any).div`
+export const ViewportContainer = (styled as any).div`
   display: flex;
   flex: 1;
   position: relative;
@@ -138,14 +137,6 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
   )
 }
 
-// Declairing properties for IconToggle
-IconToggle.propTypes = {
-  icon: PropTypes.elementType,
-  value: PropTypes.bool,
-  onClick: PropTypes.func,
-  tooltip: PropTypes.string
-}
-
 /**
  * ViewportPanelContainer used to render viewport.
  *
@@ -222,8 +213,8 @@ export function ViewportPanelContainer() {
   const onAfterUploadAssets = useCallback(
     (assets) => {
       Promise.all(
-        assets.map(({ url }) => {
-          editor.addMedia(url)
+        assets.map(({ url, name, id }) => {
+          editor.addMedia({ url, name, id })
         })
       ).catch((err) => {
         editor.emit('error', err)

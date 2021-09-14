@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
@@ -34,15 +33,9 @@ type ParticleEmitterNodeEditorProps = {
  * @type {class component}
  */
 export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEditorProps> {
-  // declaring propTypes for ParticleEmitterNodeEditor
-  static propTypes = {
-    editor: PropTypes.object,
-    node: PropTypes.object
-  }
-
+  declare props: ParticleEmitterNodeEditorProps
   constructor(props: ParticleEmitterNodeEditorProps) {
     super(props)
-    this.props = props
   }
 
   //setting iconComponent name
@@ -50,8 +43,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
 
   //setting description and will appears on editor view
   static description = i18n.t('editor:properties.partileEmitter.description')
-
-  props: ParticleEmitterNodeEditorProps
 
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   updateParticles() {
@@ -172,7 +163,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
     ParticleEmitterNodeEditor.description = this.props.t('editor:properties.partileEmitter.description')
     return (
       <NodeEditor {...this.props} description={ParticleEmitterNodeEditor.description}>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Particle Count"
           label={this.props.t('editor:properties.partileEmitter.lbl-particleCount')}
@@ -184,12 +174,10 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           onChange={this.onChangeParticleCount}
         />
 
-        {/* @ts-ignore */}
         <InputGroup name="Image" label={this.props.t('editor:properties.partileEmitter.lbl-image')}>
           <ImageInput value={this.props.node.src} onChange={this.onChangeSrc} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Age Randomness"
           label={this.props.t('editor:properties.partileEmitter.lbl-ageRandomness')}
@@ -203,7 +191,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           unit="s"
         />
 
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Lifetime"
           label={this.props.t('editor:properties.partileEmitter.lbl-lifetime')}
@@ -217,7 +204,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           unit="s"
         />
 
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Lifetime Randomness"
           label={this.props.t('editor:properties.partileEmitter.lbl-lifetimeRandomness')}
@@ -231,13 +217,10 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           unit="s"
         />
 
-        {/* @ts-ignore */}
         <InputGroup name="Size Curve" label={this.props.t('editor:properties.partileEmitter.lbl-sizeCurve')}>
-          {/* @ts-ignore */}
           <SelectInput options={CurveOptions} value={this.props.node.sizeCurve} onChange={this.onChangeSizeCurve} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Start Particle Size"
           label={this.props.t('editor:properties.partileEmitter.lbl-startPSize')}
@@ -250,7 +233,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           unit="m"
         />
 
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="End Particle Size"
           label={this.props.t('editor:properties.partileEmitter.lbl-endPSize')}
@@ -263,7 +245,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           unit="m"
         />
 
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Size Randomness"
           label={this.props.t('editor:properties.partileEmitter.lbl-sizeRandomness')}
@@ -277,19 +258,14 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           unit="m"
         />
 
-        {/* @ts-ignore */}
         <InputGroup name="Color Curve" label={this.props.t('editor:properties.partileEmitter.lbl-colorCurve')}>
-          {/* @ts-ignore */}
           <SelectInput options={CurveOptions} value={this.props.node.colorCurve} onChange={this.onChangeColorCurve} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Start Color" label={this.props.t('editor:properties.partileEmitter.lbl-startColor')}>
-          {/* @ts-ignore */}
           <ColorInput value={this.props.node.startColor} onChange={this.onChangeStartColor} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Start Opacity" label={this.props.t('editor:properties.partileEmitter.lbl-startOpacity')}>
           <CompoundNumericInput
             min={0}
@@ -300,13 +276,10 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Middle Color" label={this.props.t('editor:properties.partileEmitter.lbl-middleColor')}>
-          {/* @ts-ignore */}
           <ColorInput value={this.props.node.middleColor} onChange={this.onChangeMiddleColor} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Middle Opacity" label={this.props.t('editor:properties.partileEmitter.lbl-middleOpacity')}>
           <CompoundNumericInput
             min={0}
@@ -317,13 +290,10 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="End Color" label={this.props.t('editor:properties.partileEmitter.lbl-endColor')}>
-          {/* @ts-ignore */}
           <ColorInput value={this.props.node.endColor} onChange={this.onChangeEndColor} />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="End Opacity" label={this.props.t('editor:properties.partileEmitter.lbl-endOpacity')}>
           <CompoundNumericInput
             min={0}
@@ -334,9 +304,7 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Velocity Curve" label={this.props.t('editor:properties.partileEmitter.lbl-velocityCurve')}>
-          {/* @ts-ignore */}
           <SelectInput
             options={CurveOptions}
             value={this.props.node.velocityCurve}
@@ -344,7 +312,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="Start Velocity" label={this.props.t('editor:properties.partileEmitter.lbl-startVelocity')}>
           <Vector3Input
             value={this.props.node.startVelocity}
@@ -355,7 +322,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <InputGroup name="End Velocity" label={this.props.t('editor:properties.partileEmitter.lbl-endVelocity')}>
           <Vector3Input
             value={this.props.node.endVelocity}
@@ -366,7 +332,6 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
           />
         </InputGroup>
 
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Angular Velocity"
           label={this.props.t('editor:properties.partileEmitter.lbl-angularVelocity')}

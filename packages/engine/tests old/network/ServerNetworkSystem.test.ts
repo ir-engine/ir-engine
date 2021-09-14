@@ -15,7 +15,7 @@ import {
 } from "../../src/networking/interfaces/WorldState";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
-import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
+import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/ComponentFunctions";
 import { CharacterComponent } from "../../src/avatar/components/CharacterComponent";
 import { ServerNetworkIncomingSystem } from "../../src/networking/systems/ServerNetworkIncomingSystem";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
@@ -32,7 +32,7 @@ import { RaycastResult } from "collision/RaycastResult";
 import { Body } from 'cannon-es';
 import { StateSystem } from "../../src/state/systems/StateSystem";
 import { InputAlias } from "../../src/input/types/InputAlias";
-import { ClientInputModel } from "../../src/networking/schema/clientInputSchema";
+import { ClientInputModel } from "../../src/networking/schema/networkSchema";
 import { ServerNetworkOutgoingSystem } from "../../src/networking/systems/ServerNetworkOutgoingSystem";
 import { expect } from "@jest/globals";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";

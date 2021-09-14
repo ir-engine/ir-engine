@@ -16,6 +16,16 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
+import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
+import {
+  getChatMessageSystem,
+  hasSubscribedToChatSystem,
+  removeMessageSystem
+} from '@xrengine/engine/src/networking/utils/chatSystem'
 
 export interface LoadedChannelsAction {
   type: string
@@ -115,6 +125,25 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
 }
 
 export function createdMessage(message: Message, selfUser: User): ChatAction {
+  if (message != undefined && message.text != undefined) {
+    if (isPlayerLocal(message.senderId)) {
+      if (handleCommand(message.text, Network.instance.localClientEntity, false, message.senderId)) return
+      else {
+        const system = getChatMessageSystem(message.text)
+        if (system !== 'none') {
+          message.text = removeMessageSystem(message.text)
+          if (!hasSubscribedToChatSystem(selfUser.id, system)) return
+        }
+      }
+    } else {
+      const system = getChatMessageSystem(message.text)
+      if (system !== 'none') {
+        message.text = removeMessageSystem(message.text)
+        if (!hasSubscribedToChatSystem(selfUser.id, system)) return
+      } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
+    }
+  }
+
   return {
     type: CREATED_MESSAGE,
     message: message,

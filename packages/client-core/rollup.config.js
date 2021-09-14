@@ -4,10 +4,12 @@ import replace from '@rollup/plugin-replace';
 import camelCase from 'lodash.camelcase';
 import livereload from 'rollup-plugin-livereload';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import scss from 'rollup-plugin-scss';
+import sass from 'rollup-plugin-sass';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
+import alias from '@rollup/plugin-alias';
+import css from 'rollup-plugin-css-only'
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
@@ -22,10 +24,17 @@ export default {
   ],
   inlineDynamicImports: true,
   plugins: [
+    alias({
+      entries: [
+        { find: 'buffer', replacement: 'buffer/'},
+      ]
+    }),
     nodePolyfills(),
     commonjs(),
-    scss({
-      exclude: /node_modules/,
+    css({
+      output: 'dist/index.css',
+    }),
+    sass({
       output: 'dist/index.css',
     }),
     json(),
@@ -41,7 +50,7 @@ export default {
     }),
     (isProd && terser()),
     (!isProd && livereload({
-      watch: 'dist',
+      watch: 'lib',
     })),
   ],
 };

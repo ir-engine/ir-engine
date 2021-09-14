@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { ControlledStringInput } from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
@@ -49,7 +48,6 @@ export function ImageInput({ onChange, ...rest }) {
   return (
     <ControlledStringInput
       ref={dropRef}
-      /* @ts-ignore */
       onChange={onChange}
       error={isOver && !canDrop}
       canDrop={isOver && canDrop}
@@ -58,13 +56,4 @@ export function ImageInput({ onChange, ...rest }) {
   )
 }
 
-/**
- * Declaring proptoTtypes for Component.
- *
- * @author Robert Long
- * @type {Object}
- */
-ImageInput.propTypes = {
-  onChange: PropTypes.func.isRequired
-}
 export default ImageInput

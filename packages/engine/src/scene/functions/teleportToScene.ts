@@ -1,25 +1,24 @@
 import { AmbientLight, PerspectiveCamera, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
+// import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
-import { PhysXInstance } from 'three-physx'
+import { PhysXInstance } from '../../physics/physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
-import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { World } from '../../ecs/classes/World'
 import { processLocationChange } from '../../ecs/functions/EngineFunctions'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 
@@ -27,7 +26,7 @@ export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
-  World.defaultWorld.isInPortal = true
+  Engine.defaultWorld.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
@@ -39,7 +38,7 @@ export const teleportToScene = async (
   )
   removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
   removeComponent(Network.instance.localClientEntity, InteractorComponent)
-  removeComponent(Network.instance.localClientEntity, LocalInputReceiverComponent)
+  removeComponent(Network.instance.localClientEntity, LocalInputTagComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
@@ -108,19 +107,18 @@ export const teleportToScene = async (
   )
 
   const avatar = getComponent(Network.instance.localClientEntity, AvatarComponent)
-  rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
+  // rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
   createAvatarController(Network.instance.localClientEntity)
-  addComponent(Network.instance.localClientEntity, LocalInputReceiverComponent, {})
-
-  const fadeOut = hyperspaceEffect.fadeOut(delta)
+  addComponent(Network.instance.localClientEntity, LocalInputTagComponent, {})
 
   await delay(250)
 
   Engine.camera.layers.enable(CameraLayers.Scene)
   light.removeFromParent()
+  light.dispose()
 
-  await fadeOut
+  await hyperspaceEffect.fadeOut(delta)
 
   playerObj.value.traverse((obj) => {
     obj.layers.enable(CameraLayers.Scene)
@@ -134,5 +132,5 @@ export const teleportToScene = async (
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  World.defaultWorld.isInPortal = false
+  Engine.defaultWorld.isInPortal = false
 }

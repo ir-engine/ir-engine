@@ -162,6 +162,13 @@ const Layout = (props: Props): any => {
 
   const toggleExpanded = () => setExpanded(!expanded)
 
+  const iOS = (): boolean => {
+    return (
+      ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
+      // iPad on iOS 13 detection
+      (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+    )
+  }
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
@@ -196,14 +203,18 @@ const Layout = (props: Props): any => {
               )}
             </header>
 
-            {props.hideFullscreen ? null : fullScreenActive && harmonyOpen !== true ? (
-              <button type="button" className={styles.fullScreen} onClick={handle.exit}>
-                <FullscreenExit />
-              </button>
-            ) : (
-              <button type="button" className={styles.fullScreen} onClick={handle.enter}>
-                <ZoomOutMap />
-              </button>
+            {!iOS() && (
+              <>
+                {props.hideFullscreen ? null : fullScreenActive && harmonyOpen !== true ? (
+                  <button type="button" className={styles.fullScreen} onClick={handle.exit}>
+                    <FullscreenExit />
+                  </button>
+                ) : (
+                  <button type="button" className={styles.fullScreen} onClick={handle.enter}>
+                    <ZoomOutMap />
+                  </button>
+                )}
+              </>
             )}
 
             <Harmony

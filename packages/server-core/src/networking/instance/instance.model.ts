@@ -22,6 +22,10 @@ export default (app: Application): any => {
       currentUsers: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+      },
+      ended: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       }
     },
     {

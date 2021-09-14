@@ -3,7 +3,7 @@ import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue
 import { isDev } from '@xrengine/engine/src/common/functions/isDev'
 import { NumericalType } from '@xrengine/engine/src/common/types/NumericalTypes'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InputValue } from '@xrengine/engine/src/input/interfaces/InputValue'
@@ -28,13 +28,12 @@ import {
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
-import { rotateViewVectorXZ } from '@xrengine/engine/src/camera/systems/CameraSystem'
 import { BALL_STATES, setBallState } from '../prefab/GolfBallPrefab'
 import { dispatchFromClient } from '@xrengine/engine/src/networking/functions/dispatch'
 import { GolfAction } from '../GolfAction'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -45,17 +44,18 @@ export enum GolfInput {
 
 const rotate90onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
 
-export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
+export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
   const inputs = getComponent(entityPlayer, InputComponent)
+  if (!inputs) return
 
   // override the default mapping and behavior of input schema and interact
-  inputs.schema.inputMap.set('k', GolfInput.TELEPORT)
+  inputs.schema.inputMap.set('KeyK', GolfInput.TELEPORT)
   inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT)
 
   inputs.schema.behaviorMap.set(
     GolfInput.TELEPORT,
-    (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
-      if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+    (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
+      if (inputValue.lifecycleState !== LifecycleValue.ENDED) return
       const playerNumber = getGolfPlayerNumber(entity)
       const ballEntity = getBall(world, playerNumber)
       console.log('k', playerNumber, ballEntity)
@@ -89,7 +89,7 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       controller.controller.updateTransform({
         translation: pos
       })
-      rotateViewVectorXZ(actor.viewVector, angle)
+      // rotateViewVectorXZ(actor.viewVector, angle)
 
       const transform = getComponent(entity, TransformComponent)
       const quat = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), angle)
@@ -99,12 +99,12 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
     }
   )
 
-  inputs.schema.inputMap.set('y', GolfInput.TOGGLECLUB)
+  inputs.schema.inputMap.set('KeyY', GolfInput.TOGGLECLUB)
   inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
 
   inputs.schema.behaviorMap.set(
     GolfInput.TOGGLECLUB,
-    (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+    (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
 
       const playerNumber = getGolfPlayerNumber(entity)
@@ -123,10 +123,10 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
     if (isClient) {
       const teleportballkey = 130
 
-      inputs.schema.inputMap.set('h', teleportballkey)
+      inputs.schema.inputMap.set('KeyH', teleportballkey)
       inputs.schema.behaviorMap.set(
         teleportballkey,
-        (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
@@ -144,10 +144,10 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       )
 
       const teleportballOut = 140
-      inputs.schema.inputMap.set('b', teleportballOut)
+      inputs.schema.inputMap.set('KeyB', teleportballOut)
       inputs.schema.behaviorMap.set(
         teleportballOut,
-        (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
           if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
           if (!isCurrentGolfPlayer(entity)) return
           const playerNumber = getGolfPlayerNumber(entity)
@@ -182,7 +182,7 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       )
       let xrSetup = false
       const setupBotKey = 141
-      inputs.schema.inputMap.set(';', setupBotKey)
+      inputs.schema.inputMap.set('Semicolon', setupBotKey)
       inputs.schema.behaviorMap.set(setupBotKey, () => {
         if (xrSetup) return
         xrSetup = true
@@ -191,10 +191,10 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
     }
 
     const swingClubKey = 142
-    inputs.schema.inputMap.set('l', swingClubKey)
+    inputs.schema.inputMap.set('KeyL', swingClubKey)
     inputs.schema.behaviorMap.set(
       swingClubKey,
-      (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+      (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
         updateHead({
           position: [0, 2, 1],
@@ -205,4 +205,16 @@ export const setupPlayerInput = (world: ECSWorld, entityPlayer: Entity) => {
       }
     )
   }
+
+  const showScorecardKey = 143
+  inputs.schema.inputMap.set('KeyI', showScorecardKey)
+  inputs.schema.inputMap.set(GamepadButtons.B, showScorecardKey)
+  inputs.schema.behaviorMap.set(
+    showScorecardKey,
+    (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
+      if (inputValue.lifecycleState !== LifecycleValue.ENDED) return
+      console.log('SHOW SCORECARD')
+      dispatchFromClient(GolfAction.showScorecard('toggle'))
+    }
+  )
 }

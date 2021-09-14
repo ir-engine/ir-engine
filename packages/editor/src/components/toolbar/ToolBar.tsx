@@ -1,3 +1,4 @@
+import { ButtonProps } from '@material-ui/core'
 import { Grid } from '@styled-icons/boxicons-regular/Grid'
 import { Pause } from '@styled-icons/fa-solid'
 import { ArrowsAlt } from '@styled-icons/fa-solid/ArrowsAlt'
@@ -12,8 +13,7 @@ import { SyncAlt } from '@styled-icons/fa-solid/SyncAlt'
 import { TransformSpace } from '@xrengine/editor/src/constants/TransformSpace'
 import { SnapMode } from '@xrengine/editor/src/controls/EditorControls'
 import { TransformMode, TransformPivot } from '@xrengine/engine/src/scene/constants/transformConstants'
-import PropTypes from 'prop-types'
-import React, { Component, useCallback, useContext, useEffect, useState } from 'react'
+import React, { Component, ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { EditorContext } from '../contexts/EditorContext'
 import { Button } from '../inputs/Button'
@@ -217,14 +217,6 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
   )
 }
 
-// Declairing properties for IconToggle
-IconToggle.propTypes = {
-  icon: PropTypes.elementType,
-  value: PropTypes.bool,
-  onClick: PropTypes.func,
-  tooltip: PropTypes.string
-}
-
 /**
  * ViewportToolbar used as warpper for IconToggle, SelectInput.
  *
@@ -264,10 +256,16 @@ function ViewportToolbar({ onToggleStats, showStats }) {
   return (
     <ViewportToolbarContainer>
       <IconToggle onClick={onToggleStats} value={showStats} tooltip="Toggle Stats" icon={ChartArea} />
-      {/* @ts-ignore */}
       <SelectInput value={renderMode} options={options} onChange={onChangeRenderMode} styles={selectInputStyles} />
     </ViewportToolbarContainer>
   )
+}
+
+type ToggleButtonProp = {
+  tooltip?: ReactNode
+  children?: ReactNode
+  onClick?: Function
+  value?: any
 }
 
 /**
@@ -278,23 +276,12 @@ function ViewportToolbar({ onToggleStats, showStats }) {
  * @param {any} rest
  * @returns
  */
-function ToggleButton({ tooltip, children, ...rest }) {
+function ToggleButton({ tooltip, children, ...rest }: ToggleButtonProp) {
   return (
     <InfoTooltip info={tooltip}>
       <StyledToggleButton {...rest}>{children}</StyledToggleButton>
     </InfoTooltip>
   )
-}
-
-ToggleButton.propTypes = {
-  tooltip: PropTypes.string,
-  children: PropTypes.node
-}
-
-// creating properties for  ViewportToolbar
-ViewportToolbar.propTypes = {
-  showStats: PropTypes.bool,
-  onToggleStats: PropTypes.func
 }
 
 /**
@@ -396,7 +383,14 @@ const initialLocation = {
     locationType: 'private'
   }
 }
-type ToolBarProps = {}
+type ToolBarProps = {
+  menu?: any
+  editor?: any
+  onPublish?: Function
+  isPublishedScene?: boolean
+  onOpenScene?: Function
+  queryParams?: any
+}
 
 /**
  *
@@ -416,14 +410,6 @@ type ToolBarState = {
  * @author Robert Long
  */
 export class ToolBar extends Component<ToolBarProps, ToolBarState> {
-  static propTypes = {
-    menu: PropTypes.array,
-    editor: PropTypes.object,
-    onPublish: PropTypes.func,
-    onOpenScene: PropTypes.func,
-    isPublishedScene: PropTypes.bool,
-    queryParams: PropTypes.object
-  }
   constructor(props) {
     super(props)
 
@@ -613,12 +599,10 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
         <ToolToggles>
           <ToolbarInputGroup id="transform-space">
             <InfoTooltip info="[Z] Toggle Transform Space" position="bottom">
-              {/* @ts-ignore */}
               <ToggleButton onClick={this.onToggleTransformSpace}>
                 <Globe size={12} />
               </ToggleButton>
             </InfoTooltip>
-            {/* @ts-ignore */}
             <SelectInput
               styles={selectInputStyles}
               onChange={(this as any).onChangeTransformSpace}
@@ -630,7 +614,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
             <ToggleButton onClick={this.onToggleTransformPivot} tooltip="[X] Toggle Transform Pivot">
               <Bullseye size={12} />
             </ToggleButton>
-            {/* @ts-ignore */}
             <SelectInput
               styles={selectInputStyles}
               onChange={this.onChangeTransformPivot}
@@ -646,7 +629,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
             >
               <Magnet size={12} />
             </ToggleButton>
-            {/* @ts-ignore */}
             <SelectInput
               styles={snapInputStyles}
               onChange={this.onChangeTranslationSnap}
@@ -657,7 +639,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
               isValidNewOption={(value) => value.trim() !== '' && !isNaN(value)}
               creatable
             />
-            {/* @ts-ignore */}
             <SelectInput
               styles={rightSnapInputStyles}
               onChange={this.onChangeRotationSnap}

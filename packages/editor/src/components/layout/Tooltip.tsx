@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
 import Portal from './Portal'
 import Positioner from './Positioner'
 import useHover from '../hooks/useHover'
@@ -13,6 +12,14 @@ const StyledTooltip = (styled as any).div`
   display: inherit;
 `
 
+interface TooltipProp {
+  children: any
+  padding?: any
+  position?: any
+  renderContent?: any
+  disabled?: boolean
+}
+
 /**
  *
  * @author Robert Long
@@ -24,7 +31,7 @@ const StyledTooltip = (styled as any).div`
  * @param {any} rest
  * @returns
  */
-export function Tooltip({ children, padding, position, renderContent, disabled, ...rest }) {
+export function Tooltip({ children, padding, position, renderContent, disabled, ...rest }: TooltipProp) {
   const [hoverRef, isHovered] = useHover()
 
   const getTargetRef = useCallback(() => {
@@ -43,14 +50,6 @@ export function Tooltip({ children, padding, position, renderContent, disabled, 
       )}
     </StyledTooltip>
   )
-}
-
-Tooltip.propTypes = {
-  disabled: PropTypes.bool,
-  children: PropTypes.node,
-  padding: PropTypes.number,
-  position: PropTypes.string,
-  renderContent: PropTypes.func.isRequired
 }
 
 /**
@@ -87,15 +86,10 @@ export function InfoTooltip({ info, children, ...rest }) {
   }
 
   return (
-    /* @ts-ignore */
     <Tooltip {...rest} renderContent={() => <TooltipContainer>{info}</TooltipContainer>}>
       {children}
     </Tooltip>
   )
 }
 
-InfoTooltip.propTypes = {
-  children: PropTypes.node,
-  info: PropTypes.string
-}
 export default Tooltip

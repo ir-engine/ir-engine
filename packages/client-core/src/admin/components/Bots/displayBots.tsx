@@ -92,7 +92,7 @@ const DisplayBots = (props: Props) => {
     setOpen(false)
   }
 
-  const sudmitCommandBot = (id: string) => {
+  const submitCommandBot = (id: string) => {
     const data = {
       name: name,
       description: description,
@@ -193,7 +193,7 @@ const DisplayBots = (props: Props) => {
                   style={{ color: '#fff', background: '#3a4149', marginBottom: '20px' }}
                   onClick={() => {
                     if (name) {
-                      sudmitCommandBot(bot.id)
+                      submitCommandBot(bot.id)
                     } else {
                       setOpen(true)
                     }

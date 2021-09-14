@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import AudioInput from '../inputs/AudioInput'
@@ -26,25 +25,12 @@ export function AudioNodeEditor(props) {
   //returning view to customize properties
   return (
     <NodeEditor description={AudioNodeEditor.description} {...props}>
-      {/* @ts-ignore */}
       <InputGroup name="Audio Url" label={t('editor:properties.audio.lbl-audiourl')}>
         <AudioInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>
   )
-}
-
-/**
- * PropTypes Defining properties for AudioNodeEditor component.
- *
- * @author Robert Long
- * @type {Object}
- */
-AudioNodeEditor.propTypes = {
-  editor: PropTypes.object,
-  node: PropTypes.object,
-  multiEdit: PropTypes.bool
 }
 
 //setting icon component name

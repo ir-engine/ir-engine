@@ -83,10 +83,14 @@ import {
   Vector3
 } from 'three'
 import { fetchContentType } from '@xrengine/engine/src/scene/functions/fetchContentType'
-import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import { guessContentType } from '@xrengine/engine/src/scene/functions/guessContentType'
 import AssetManifestSource from './assets/AssetManifestSource'
+import { UploadFileType } from './assets/sources/MyAssetsSource'
 import { loadEnvironmentMap } from './EnvironmentMap'
+import { Application, feathers } from '@feathersjs/feathers'
+import rest from '@feathersjs/rest-client'
+import { Config } from '@xrengine/common/src/config'
+import { getToken } from '@xrengine/engine/src'
 
 const tempMatrix1 = new Matrix4()
 const tempMatrix2 = new Matrix4()
@@ -148,6 +152,9 @@ export class Editor extends EventEmitter {
   playing: boolean
   Engine: Engine
   animationCallback = null
+  feathersClient: Application<any, any>
+  ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
+  currentOwnedFileIds: {}
 
   // initializing component properties with default value.
   constructor(settings = {}, Engine) {
@@ -158,12 +165,12 @@ export class Editor extends EventEmitter {
     this.settings = settings
     this.project = null
     this.helperScene = Engine.scene
-
+    this.ownedFileIds = {}
+    this.currentOwnedFileIds = {}
     this.selected = []
     this.selectedTransformRoots = []
 
     this.history = new History()
-
     this.renderer = null
     this.inputManager = null
     this.editorControls = null
@@ -201,6 +208,19 @@ export class Editor extends EventEmitter {
     this.initializing = false
     this.initialized = false
     this.sceneLoading = false
+  }
+
+  /**
+   * A Function to Initialize the FeathersClient with the auth token
+   * @author Abhishek Pathak
+   */
+  initializeFeathersClient(token) {
+    this.feathersClient = feathers()
+    const headers = {
+      authorization: `Bearer ${token}`
+    }
+    const restClient = rest(Config.publicRuntimeConfig.apiServer).fetch(window.fetch.bind(window), { headers })
+    this.feathersClient.configure(restClient)
   }
 
   /**
@@ -246,7 +266,7 @@ export class Editor extends EventEmitter {
    * @param  {any}  manifestUrl contains url of source
    */
   async installAssetSource(manifestUrl) {
-    const res = await fetchUrl(new URL(manifestUrl, (window as any).location).href)
+    const res = await fetch(new URL(manifestUrl, (window as any).location).href)
     const json = await res.json()
     this.sources.push(new AssetManifestSource(this, json.name, manifestUrl))
     this.emit('settingsChanged')
@@ -2693,16 +2713,17 @@ export class Editor extends EventEmitter {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        this.addMedia(url.href, null, null).catch((error) => this.emit('error', error))
+
+        this.addMedia({ url: url.href }, null, null).catch((error) => this.emit('error', error))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }
     }
   }
 
-  async addMedia(url, parent, before) {
+  async addMedia(params, parent, before) {
     let contentType = ''
-
+    const { url, name, id } = params
     const { hostname } = new URL(url)
 
     try {
@@ -2712,7 +2733,6 @@ export class Editor extends EventEmitter {
     }
 
     let node
-
     if (contentType.startsWith('model/gltf')) {
       node = new ModelNode(this)
       this.getSpawnPosition(node.position)
@@ -2745,7 +2765,8 @@ export class Editor extends EventEmitter {
       node.href = url
       this.addObject(node, parent, before)
     }
-
+    globalThis.Editor.currentOwnedFileIds[name] = id
+    this.emit('FileUploaded')
     return node
   }
 

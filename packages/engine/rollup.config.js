@@ -4,7 +4,7 @@ import replace from '@rollup/plugin-replace';
 import camelCase from 'lodash.camelcase';
 import livereload from 'rollup-plugin-livereload';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
-import scss from 'rollup-plugin-scss';
+import sass from 'rollup-plugin-sass';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import alias from '@rollup/plugin-alias';
@@ -30,7 +30,7 @@ export default {
     }),
     nodePolyfills(),
     commonjs(),
-    scss({
+    sass({
       exclude: /node_modules/,
       output: 'dist/index.css',
     }),
@@ -46,7 +46,7 @@ export default {
     }),
     (isProd && terser()),
     (!isProd && livereload({
-      watch: 'dist',
+      watch: 'lib',
     })),
   ],
 };

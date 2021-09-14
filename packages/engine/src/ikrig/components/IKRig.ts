@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import Pose from '../classes/Pose'
 import { Chain } from './Chain'
 import { IKPose } from './IKPose'
@@ -15,4 +15,4 @@ export type IKRigComponentType = {
   // sourceRig?: ReturnType<typeof IKRig.get>
 }
 
-export const IKRig = createMappedComponent<IKRigComponentType>()
+export const IKRig = createMappedComponent<IKRigComponentType>('IKRig')

@@ -1,6 +1,6 @@
 import React from 'react'
 import VideoRecorder from 'react-video-recorder'
-import AppHeader from '@xrengine/client-core/src/socialmedia/components/Header'
+import AppHeader from '@xrengine/social/src/components/Header'
 
 interface VideoProps {
   timeLimit: number
@@ -9,7 +9,7 @@ interface VideoProps {
 export const VideoRecording = ({ timeLimit = 5000 }: VideoProps) => {
   return (
     <section style={{ height: '100vh', width: '100vw' }}>
-      <AppHeader logo="/assets/logoBlack.png" />
+      <AppHeader />
       <VideoRecorder
         timeLimit={timeLimit}
         isOnInitially

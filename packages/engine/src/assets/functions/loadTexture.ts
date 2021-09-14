@@ -1,5 +1,6 @@
 import { TextureLoader } from 'three'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import { RethrownError } from '../../scene/functions/errors'
+
 // Texture loading function that returns a promise and uses the RethrownError class
 export default function loadTexture(src, textureLoader: any = new TextureLoader()) {
   return new Promise((resolve, reject) => {

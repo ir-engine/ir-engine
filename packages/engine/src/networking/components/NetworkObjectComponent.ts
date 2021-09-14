@@ -1,12 +1,10 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type NetworkObjectComponentType = {
   /** Network id of the object. */
   networkId: number
   /** Entity unique Id from editor scene. */
   uniqueId: string
-  /** Snapshot time of the object. */
-  snapShotTime: number
 }
 
-export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>()
+export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>('NetworkObjectComponent')

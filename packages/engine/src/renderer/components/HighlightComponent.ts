@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type HighlightComponentType = {
   color: number
@@ -6,4 +6,4 @@ export type HighlightComponentType = {
   edgeStrength: number
 }
 
-export const HighlightComponent = createMappedComponent<HighlightComponentType>()
+export const HighlightComponent = createMappedComponent<HighlightComponentType>('HighlightComponent')

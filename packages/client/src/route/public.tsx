@@ -5,10 +5,6 @@ import ProtectedRoute from './protected'
 import homePage from '../pages/index'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
-if (typeof globalThis.process === 'undefined') {
-  ;(globalThis as any).process = { env: {} }
-}
-
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
   static getDerivedStateFromError() {
     return { hasError: true }
@@ -52,7 +48,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/admin" component={ProtectedRoute} />
 
           {/* Dev Routes */}
-          <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
           <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
           <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
           <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
@@ -83,11 +78,11 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
 
           <Route path="/golf/:locationName" component={React.lazy(() => import('../pages/golf/[locationName]'))} />
-          <Route path="/event/:locationName" component={React.lazy(() => import('../pages/event/[locationName]'))} />
           <Route
             path="/offline/:locationName"
             component={React.lazy(() => import('../pages/offline/[locationName]'))}
           />
+          <Route path="/offline" component={React.lazy(() => import('../pages/offline/[locationName]'))} />
 
           {/* Harmony Routes */}
           <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />

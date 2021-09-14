@@ -19,6 +19,7 @@ import {
 } from 'three'
 import React, { useEffect } from 'react'
 import Player from 'volumetric/web/decoder/Player'
+// @ts-ignore
 import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker'
 
 class ARButton {
@@ -102,7 +103,7 @@ class ARButton {
 
       button.onclick = function () {
         if (currentSession === null) {
-          navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted)
+          ;(navigator as any).xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted)
         } else {
           currentSession.end()
         }
@@ -148,8 +149,7 @@ class ARButton {
       button.style.display = 'none'
 
       stylizeElement(button)
-
-      navigator.xr
+      ;(navigator as any).xr
         .isSessionSupported('immersive-ar')
         .then((supported) => {
           supported ? showStartAR() : showARNotSupported()

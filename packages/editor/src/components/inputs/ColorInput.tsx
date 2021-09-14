@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
 import SketchPicker from 'react-color/lib/Sketch'
 import Input from './Input'
 import { Color } from 'three'
@@ -66,6 +65,13 @@ const ColorInputPopover = (styled as any).div`
   margin-bottom: 3px;
 `
 
+interface ColorInputProp {
+  value: any
+  onChange?: Function
+  disabled?: boolean
+  isValueAsInteger?: boolean
+}
+
 /**
  * ColorInput used to render the view of component.
  *
@@ -77,7 +83,7 @@ const ColorInputPopover = (styled as any).div`
  * @constructor
  */
 
-export function ColorInput({ value, onChange, disabled, isValueAsInteger = false, ...rest }) {
+export function ColorInput({ value, onChange, disabled, isValueAsInteger = false, ...rest }: ColorInputProp) {
   const onChangePicker = useCallback(
     ({ hex }) => {
       onChange(isValueAsInteger ? new Color(hex).getHex() : new Color(hex))
@@ -91,7 +97,6 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
   //creating view for ColorInput
   return (
     <ColorInputContainer>
-      {/* @ts-ignore */}
       <Popover
         disabled={disabled}
         renderContent={() => (
@@ -109,26 +114,9 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
   )
 }
 
-/**
- * Declairing propTypes for ColorInput.
- *
- * @author Robert Long
- * @type {Object}
- */
-// ColorInput.propTypes = {
-//   disabled: PropTypes.bool,
-//   value: PropTypes.object.isRequired,
-//   onChange: PropTypes.func
-// };
-
-/**
- * Initializing defaultProps for ColorInput.
- *
- * @author Robert Long
- * @type {Object}
- */
 ColorInput.defaultProps = {
   value: new Color(),
   onChange: () => {}
 }
+
 export default ColorInput

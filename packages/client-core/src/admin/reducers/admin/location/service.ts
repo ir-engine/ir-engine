@@ -47,18 +47,23 @@ export function createLocation(location: any) {
   }
 }
 
-export function fetchAdminLocations() {
+export function fetchAdminLocations(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const locations = await client.service('location').find({
-      query: {
-        $sort: {
-          name: 1
-        },
-        $skip: getState().get('adminLocation').get('locations').get('skip'),
-        $limit: getState().get('adminLocation').get('locations').get('limit'),
-        adminnedLocations: true
-      }
-    })
-    dispatch(locationsRetrieved(locations))
+    try {
+      const locations = await client.service('location').find({
+        query: {
+          $sort: {
+            name: 1
+          },
+          $skip: getState().get('adminLocation').get('locations').get('skip'),
+          $limit: getState().get('adminLocation').get('locations').get('limit'),
+          adminnedLocations: true
+        }
+      })
+      dispatch(locationsRetrieved(locations))
+    } catch (error) {
+      console.log(error)
+      console.error(error)
+    }
   }
 }

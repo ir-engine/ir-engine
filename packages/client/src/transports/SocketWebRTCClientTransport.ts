@@ -19,17 +19,16 @@ import {
   subscribeToTrack
 } from './SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
-//@ts-ignore
-import { encode, decode } from 'msgpackr'
+// import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static EVENTS = {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
     PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
     INSTANCE_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
+    INSTANCE_WEBGL_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
     INSTANCE_KICKED: 'CORE_INSTANCE_KICKED',
     INSTANCE_RECONNECTED: 'CORE_INSTANCE_RECONNECTED',
     CHANNEL_DISCONNECTED: 'CORE_CHANNEL_DISCONNECTED',
@@ -86,15 +85,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log('Handling kick: ', socket)
   }
 
-  toBuffer(ab) {
-    const buf = Buffer.alloc(ab.byteLength)
-    const view = new Uint8Array(ab)
-    for (let i = 0; i < buf.length; ++i) {
-      buf[i] = view[i]
-    }
-    return buf
-  }
-
   close() {
     this.instanceRecvTransport?.close()
     this.instanceSendTransport?.close()
@@ -110,14 +100,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         this.instanceDataProducer.closed !== true &&
         this.instanceDataProducer.readyState === 'open'
       )
-        this.instanceDataProducer.send(this.toBuffer(data))
+        this.instanceDataProducer.send(data)
     } else {
       if (
         this.channelDataProducer &&
         this.channelDataProducer.closed !== true &&
         this.channelDataProducer.readyState === 'open'
       )
-        this.channelDataProducer.send(this.toBuffer(data))
+        this.channelDataProducer.send(data)
     }
   }
 
@@ -139,9 +129,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
     Network.instance.accessToken = query.token = token
+    console.log('Dispatching event CONNECT')
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: user.id })
+    console.log('Dispatched event CONNECT')
 
     this.mediasoupDevice = new mediasoupClient.Device()
+    console.log('new mediasoupDevice', this.mediasoupDevice)
+    console.log('current socket', socket)
     if (socket && socket.close) socket.close()
 
     this.channelType = channelType
@@ -152,50 +146,65 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.locationId == null) delete query.locationId
     if (query.sceneId == null) delete query.sceneId
     if (query.channelId == null) delete query.channelId
-    if (process.env.LOCAL_BUILD === 'true') {
+    if (process.env.VITE_LOCAL_BUILD === 'true') {
+      console.log('VITE_LOCAL_BUILD is true')
       socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
       })
     } else if (process.env.NODE_ENV === 'development') {
+      console.log('NODE_ENV is development')
       socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       })
     } else {
+      console.log('Normal deployment socket being set up')
       socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       })
     }
 
+    console.log('new socket', socket)
+
     if (instance === true) {
+      console.log('instance socket being set up')
       ;(socket as any).instance = true
       this.instanceSocket = socket
       Network.instance.instanceSocketId = socket.id
       this.instanceRequest = this.promisedRequest(socket)
     } else {
+      console.log('channel socket being set up')
       this.channelSocket = socket
       Network.instance.channelSocketId = socket.id
       this.channelRequest = this.promisedRequest(socket)
     }
 
+    console.log('Creating socket.on(connect) listener')
     socket.on('connect', async () => {
+      console.log('connect')
       if (this.reconnecting === true) {
         this.reconnecting = false
         return
       }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken }
-      const { success } = await request(MessageTypes.Authorization.toString(), payload)
+
+      const { success } = await new Promise<any>((resolve) => {
+        const interval = setInterval(async () => {
+          const response = await request(MessageTypes.Authorization.toString(), payload)
+          clearInterval(interval)
+          resolve(response)
+        }, 1000)
+      })
 
       if (!success) return console.error('Unable to connect with credentials')
 
       let ConnectToWorldResponse
-
       try {
         ConnectToWorldResponse = await Promise.race([
           await request(MessageTypes.ConnectToWorld.toString()),
           new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error('Connect timed out')), 10000)
+            setTimeout(() => !ConnectToWorldResponse && reject(new Error('Connect timed out')), 10000)
           })
         ])
       } catch (err) {
@@ -206,11 +215,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         })
         return
       }
-      const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any
-      Network.instance.incomingMessageQueueReliable.add(worldState)
+      const { connectedClients, routerRtpCapabilities } = ConnectToWorldResponse as any
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        worldState: WorldStateModel.fromBuffer(worldState),
+        connectedClients,
         instance: instance === true
       })
 
@@ -277,6 +285,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         dataConsumer.on('message', (message: any) => {
           try {
             Network.instance.incomingMessageQueueUnreliable.add(message)
+            Network.instance.incomingMessageQueueUnreliableIDs.add(options.dataProducerId)
           } catch (error) {
             console.warn('Error handling data from consumer:')
             console.warn(error)

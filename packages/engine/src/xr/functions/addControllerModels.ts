@@ -14,7 +14,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { getLoader } from '../../assets/functions/LoadGLTF'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const addControllerModels = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -40,7 +40,9 @@ export const addControllerModels = (entity: Entity) => {
     })
 
     controller.addEventListener('disconnected', (ev) => {
-      controller.targetRay.visible = false
+      if (controller?.targetRay) {
+        controller.targetRay.visible = false
+      }
     })
   })
 

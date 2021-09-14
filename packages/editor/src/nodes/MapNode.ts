@@ -79,16 +79,14 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
     Object.values(this.mapLayers).forEach((layer) => {
       if (layer) {
-        this.applyScale(layer)
         this.add(layer)
       }
     })
     safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
 
-    this.labels = createLabels(vectorTiles, center, this.scale.x)
+    this.labels = createLabels(vectorTiles, center)
 
     this.labels.forEach((label) => {
-      label.scale.copy(this.scale)
       this.add(label.object3d)
     })
   }
@@ -131,7 +129,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       this.addMap(this.editor)
     }
   }
-  onUpdate(delta: number, time: number) {
+  onUpdate(delta: number, time?: number) {
     void delta
     void time
     this.labels?.forEach((label) => {

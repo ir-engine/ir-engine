@@ -8,7 +8,7 @@ import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 type HemisphereLightNodeEditorProps = {
   editor?: object
-  node?: object
+  node?: any
   t: Function
 }
 
@@ -45,22 +45,13 @@ export class HemisphereLightNodeEditor extends Component<HemisphereLightNodeEdit
     HemisphereLightNodeEditor.description = this.props.t('editor:properties.hemisphere.description')
     const node = this.props.node
     return (
-      <NodeEditor
-        {...this.props}
-        /* @ts-ignore */
-        description={HemisphereLightNodeEditor.description}
-      >
-        {/* @ts-ignore */}
+      <NodeEditor {...this.props} description={HemisphereLightNodeEditor.description}>
         <InputGroup name="Sky Color" label={this.props.t('editor:properties.hemisphere.lbl-skyColor')}>
-          {/* @ts-ignore */}
           <ColorInput value={node.skyColor} onChange={this.onChangeSkyColor} />
         </InputGroup>
-        {/* @ts-ignore */}
         <InputGroup name="Ground Color" label={this.props.t('editor:properties.hemisphere.lbl-groundColor')}>
-          {/* @ts-ignore */}
-          <ColorInput value={(node as any).groundColor} onChange={this.onChangeGroundColor} />
+          <ColorInput value={node.groundColor} onChange={this.onChangeGroundColor} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Intensity"
           label={this.props.t('editor:properties.hemisphere.lbl-intensity')}

@@ -1,10 +1,6 @@
-import { defineSystem, System } from 'bitecs'
 import { MathUtils, Quaternion, Vector3 } from 'three'
-import { DebugHelpers } from '../../debug/systems/DebugHelpersSystem'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BotHooks, XRBotHooks } from '../enums/BotHooks'
@@ -13,7 +9,6 @@ import {
   moveControllerStick,
   overrideXR,
   pressControllerButton,
-  sendXRInputData,
   startXR,
   tweenXRInputSource,
   updateController,
@@ -22,21 +17,12 @@ import {
   xrSupported
 } from './xrBotHookFunctions'
 
-export const BotHookSystem = async (): Promise<System> => {
-  return defineSystem((world: ECSWorld) => {
-    if (Engine.isBot && Boolean(Engine.xrSession)) {
-      sendXRInputData()
-    }
-
-    return world
-  })
-}
-
 export const BotHookFunctions = {
   [BotHooks.InitializeBot]: initializeBot,
   [BotHooks.LocationLoaded]: locationLoaded,
   [BotHooks.GetPlayerPosition]: getPlayerPosition,
   [BotHooks.RotatePlayer]: rotatePlayer,
+  [BotHooks.GetClients]: getClients,
   [XRBotHooks.OverrideXR]: overrideXR,
   [XRBotHooks.XRSupported]: xrSupported,
   [XRBotHooks.XRInitialized]: xrInitialized,
@@ -52,8 +38,8 @@ export const BotHookFunctions = {
 export function initializeBot() {
   Engine.isBot = true
 
-  DebugHelpers.toggleDebugPhysics(true)
-  DebugHelpers.toggleDebugAvatar(true)
+  // DebugHelpers.toggleDebugPhysics(true)
+  // DebugHelpers.toggleDebugAvatar(true)
 }
 
 // === ENGINE === //
@@ -71,7 +57,10 @@ export function getPlayerPosition() {
  * @param {number} args.angle in degrees
  */
 export function rotatePlayer({ angle }) {
-  console.log('===============rotatePlayer', angle)
   const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
   transform.rotation.multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(angle)))
+}
+
+export function getClients() {
+  return Network.instance.clients
 }

@@ -58,17 +58,10 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
     DirectionalLightNodeEditor.description = this.props.t('editor:properties.directionalLight.description')
     const { node, editor } = this.props as any
     return (
-      <NodeEditor
-        {...this.props}
-        /* @ts-ignore */
-        description={DirectionalLightNodeEditor.description}
-      >
-        {/* @ts-ignore */}
+      <NodeEditor {...this.props} description={DirectionalLightNodeEditor.description}>
         <InputGroup name="Color" label={this.props.t('editor:properties.directionalLight.lbl-color')}>
-          {/* @ts-ignore */}
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="Intensity"
           label={this.props.t('editor:properties.directionalLight.lbl-intensity')}
@@ -81,14 +74,12 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
           unit="cd"
         />
         <LightShadowProperties node={node} editor={editor} />
-        {/* @ts-ignore */}
         <InputGroup
           name="Camera Debugger"
           label={this.props.t('editor:properties.directionalLight.lbl-showCameraHelper')}
         >
           <BooleanInput value={(node as any).showCameraHelper} onChange={this.onChangeshowCameraHelper} />
         </InputGroup>
-        {/* @ts-ignore */}
         <NumericInputGroup
           name="CameraFar"
           label={this.props.t('editor:properties.directionalLight.lbl-cameraFar')}

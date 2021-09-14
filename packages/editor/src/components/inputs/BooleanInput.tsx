@@ -1,6 +1,4 @@
-// @ts-ignore
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import Input from './Input'
 import styled from 'styled-components'
 import { Check } from '@styled-icons/fa-solid'
@@ -50,29 +48,27 @@ const BooleanCheck = (styled as any)(Check)`
   color: ${(props) => props.theme.blue};
 `
 
+interface BooleanInputProp {
+  id?: string
+  value: any
+  onChange: Function
+}
+
 /**
  * BooleanInput component used to provide view for checkbox.
  *
  * @author Robert Long
  * @type {class component}
  */
-export class BooleanInput extends Component {
-  // declaring propTypes for BooleanInput
-  static propTypes = {
-    value: PropTypes.bool,
-    onChange: PropTypes.func
-  }
-
-  // initializing defaultProps  for BooleanInput
-  static defaultProps = {
-    value: false,
-    onChange: () => {}
-  }
-
+export class BooleanInput extends Component<BooleanInputProp, {}> {
   //initializing checkboxId for BooleanInput
   constructor(props) {
     super(props)
     this.checkboxId = `boolean-input-${uniqueId++}`
+  }
+  static defaultProps = {
+    value: false,
+    onChange: () => {}
   }
 
   // declaring checkboxId
@@ -96,4 +92,5 @@ export class BooleanInput extends Component {
     )
   }
 }
+
 export default BooleanInput
