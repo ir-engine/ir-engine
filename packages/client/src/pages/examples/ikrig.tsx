@@ -128,10 +128,10 @@ const Page = () => {
 
   useEffect(() => {
     ;(async function () {
-      await initializeEngine()
+      await initializeEngine({ scene: { disabled: true } })
       // Register our systems to do stuff
-      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: AnimationSystem }))
-      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: IKRigSystem }))
+      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: AnimationSystem }))
+      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: IKRigSystem }))
       registerSystem(SystemUpdateType.Free, Promise.resolve({ default: RenderSystem }))
       await Engine.defaultWorld.initSystems()
 
