@@ -41,6 +41,7 @@ import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { initRig } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
 import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 
 const AnimationSystem = async (world: World): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
@@ -186,7 +187,7 @@ const Page = () => {
       const obj = getComponent(customModelEntityRef.current, IKObj)
       console.log('obj', obj)
       obj.ref.parent.removeFromParent()
-      removeEntity(customModelEntityRef.current, worldRef.current.ecsWorld)
+      removeEntity(customModelEntityRef.current)
       customModelSkeletonHelperRef.current.removeFromParent()
 
       customModelSkeletonHelperRef.current = null
