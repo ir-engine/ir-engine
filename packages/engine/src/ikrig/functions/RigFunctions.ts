@@ -56,7 +56,6 @@ export function initRig(
   // // Known Skeleton Structures.
   switch (arm_type) {
     case ArmatureType.MIXAMO:
-    case ArmatureType.VEGETA:
       setupMixamoIKRig(entity, rig)
       break
     case ArmatureType.TREX:
