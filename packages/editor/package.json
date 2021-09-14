@@ -118,7 +118,7 @@
     "@types/node": "14.17.15",
     "@types/react": "17.0.20",
     "@types/react-dom": "17.0.9",
-    "@types/three": "0.131.0",
+    "@types/three": "0.131.1",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "esbuild": "0.12.28",
