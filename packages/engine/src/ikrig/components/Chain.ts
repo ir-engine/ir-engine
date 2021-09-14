@@ -1,6 +1,7 @@
 import { Bone, Quaternion, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { FORWARD, UP } from '../constants/Vector3Constants'
+import { IKSolverFunction } from '../functions/IKSolvers'
 
 type ChainBoneData = { index: number; ref: Bone; length: number }
 
@@ -13,6 +14,8 @@ export class Chain {
   cnt: number
   altForward: Vector3
   altUp: Vector3
+  ikSolver: IKSolverFunction
+
   constructor() {
     this.chainBones = [] // Index to a bone in an armature / pose
     this.length = 0 // Chain Length

@@ -576,30 +576,24 @@ describe('Check Apply', () => {
         0.9448577761650085
       ),
       childRotation: new Quaternion(0.34075674414634705, -0.23856309056282043, 0.04488848149776459, 0.9082719087600708),
-      rotation0: new Quaternion(-0.23243141174316406, -0.02831265516579151, 0.02757553569972515, 0.9718096256256104),
+      rotation0: new Quaternion(0.23243141174316406, -0.02831265516579151, 0.02757553569972515, 0.9718096256256104),
       rotation1: new Quaternion(0.2326979637145996, -0.028849102556705475, 0.019845880568027496, 0.9719186425209045),
-      rotationFinal: new Quaternion(0.010649281553924084, 0.2095302939414978, -0.04442760348320007, 0.9767343401908875),
-      boneParentQuaternion: new Quaternion(
-        0.21981044113636017,
-        -0.24237382411956787,
-        0.013499671593308449,
-        0.9448577761650085
-      )
+      rotationFinal: new Quaternion(0.010649281553924084, 0.2095302939414978, -0.04442760348320007, 0.9767343401908875)
     }
   }
   test.each(['foot_l', 'foot_r', 'head'])('apply look/twist %s', (boneName) => {
     const targetAnimBonesStates = adoptBones(poseBonesWithAppliedHipLegsSpine)
     applyTestPoseState(targetRig.pose, targetAnimBonesStates)
 
-    // const { rootQuaternion, childRotation, rotation0, rotation1, rotationFinal, boneParentQuaternion } = applyLookTwist(
-    applyLookTwist(targetRig, targetRig.points[boneName], ikPose[boneName], FORWARD, UP)
+    // const { rootQuaternion, childRotation, rotation0, rotation1, rotationFinal } = applyLookTwist(
+    applyLookTwist(ikPose, targetRig, boneName, FORWARD, UP)
+    applyIKPoseToIKRig(targetRig, ikPose)
 
     // const expLTV = expLTVars[boneName]
     // expect(rootQuaternion).toBeCloseToQuaternion(expLTV.rootQuaternion)
     // expect(childRotation).toBeCloseToQuaternion(expLTV.childRotation)
     // expect(rotation0).toBeCloseToQuaternion(expLTV.rotation0)
     // expect(rotation1).toBeCloseToQuaternion(expLTV.rotation1)
-    // expect(boneParentQuaternion).toBeCloseToQuaternion(expLTV.boneParentQuaternion)
     // expect(rotationFinal).toBeCloseToQuaternion(expLTV.rotationFinal)
 
     const applied = targetRig.pose.bones[targetRig.points[boneName].index]
@@ -630,7 +624,8 @@ describe('Check Apply', () => {
 
       boneState.bone.getWorldPosition(boneWorldPosition)
       boneState.bone.getWorldQuaternion(boneWorldRotation)
-      boneWorldPosition.sub(targetRig.pose.rootOffset.position)
+      boneState.bone.getWorldScale(boneWorldScale)
+      worldToModel(boneWorldPosition, boneWorldRotation, boneWorldScale, targetMeshTransform)
 
       expect(boneWorldPosition).toBeCloseToVector(expected.world.position, 4)
       expect(boneWorldRotation).toBeCloseToQuaternion(expected.world.quaternion, 2)

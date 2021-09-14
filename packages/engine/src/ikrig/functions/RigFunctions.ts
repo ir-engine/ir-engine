@@ -7,6 +7,7 @@ import { ArmatureType } from '../enums/ArmatureType'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose from '../classes/Pose'
 import { setupMixamoIKRig, setupTRexIKRig } from './IKFunctions'
+import { IKSolverFunction, solveLimb } from './IKSolvers'
 
 export function initRig(
   entity: Entity,
@@ -81,7 +82,13 @@ export function addPoint(entity: Entity, name: string, boneName: string): void {
     index: armature.skeleton.bones.findIndex((bone) => bone.name.includes(boneName))
   }
 }
-export function addChain(entity: Entity, name: string, nameArray: string[], end_name: string | null = null) {
+export function addChain(
+  entity: Entity,
+  name: string,
+  nameArray: string[],
+  end_name: string | null = null,
+  ikSolver: IKSolverFunction | null = null
+) {
   //  axis="z",
   let boneName: string, b
   const armature = getComponent(entity, IKObj).ref
@@ -113,6 +120,8 @@ export function addChain(entity: Entity, name: string, nameArray: string[], end_
       bone.name.toLowerCase().includes(end_name.toLowerCase())
     )
   }
+
+  chain.ikSolver = ikSolver ?? solveLimb
 
   rig.chains[name] = chain
 }

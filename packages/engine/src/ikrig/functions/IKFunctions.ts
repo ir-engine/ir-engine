@@ -7,7 +7,7 @@ import { addChain, addPoint } from './RigFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { Chain } from '../components/Chain'
-import { solveLimb } from './IKSolvers'
+import { solveLimb, solveThreeBone } from './IKSolvers'
 // import { debug } from '../classes/Debug'
 
 const aToBVector = new Vector3()
@@ -92,8 +92,8 @@ export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRig.get>
 
   // addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', 'three_bone') //"z",
   // addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', 'three_bone') // "z",
-  addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot') //"z",
-  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot') // "z",
+  addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', solveThreeBone) //"z",
+  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', solveThreeBone) // "z",
   addChain(entity, 'spine', ['Spine', 'Spine1'])
   addChain(entity, 'tail', ['tail_1', 'tail_2', 'tail_3', 'tail_4', 'tail_5', 'tail_6', 'tail_7'])
   // TODO: create set_leg_lmt and apply?
@@ -434,14 +434,14 @@ export function applyIKPoseToIKRig(targetRig: IKRigComponentType, ikPose: IKPose
   applyLimb(ikPose, targetRig, targetRig.chains.leg_l, ikPose.leg_l)
   applyLimb(ikPose, targetRig, targetRig.chains.leg_r, ikPose.leg_r)
 
-  applyLookTwist(targetRig, targetRig.points.foot_l, ikPose.foot_l, FORWARD, UP)
-  applyLookTwist(targetRig, targetRig.points.foot_r, ikPose.foot_r, FORWARD, UP)
+  applyLookTwist(ikPose, targetRig, 'foot_l', FORWARD, UP)
+  applyLookTwist(ikPose, targetRig, 'foot_r', FORWARD, UP)
   applySpine(ikPose, targetRig, targetRig.chains.spine, ikPose.spine, UP, FORWARD)
 
   if (targetRig.chains.arm_l) applyLimb(ikPose, targetRig, targetRig.chains.arm_l, ikPose.arm_l)
   if (targetRig.chains.arm_r) applyLimb(ikPose, targetRig, targetRig.chains.arm_r, ikPose.arm_r)
 
-  applyLookTwist(targetRig, targetRig.points.head, ikPose.head, FORWARD, UP)
+  applyLookTwist(ikPose, targetRig, 'head', FORWARD, UP)
 
   // update real bones with calculated
   applyPoseToRig(targetRig)
@@ -551,7 +551,19 @@ export function applyLimb(
   bindBone.getWorldQuaternion(c_tran.quaternion)
   bindBone.getWorldScale(c_tran.scale)
 
-  // TODO: handle this, we need transform in model space...
+  const expectedVars = {
+    p_tran: {
+      pos: new Vector3(0, 0, 0.005501061677932739),
+      rot: new Quaternion(0.0012618519831448793, -0.017835982143878937, -0.011710396967828274, 0.9997715353965759),
+      scl: new Vector3(1, 1, 1)
+    },
+    c_tran: {
+      pos: new Vector3(0.08992571383714676, -0.06811448186635971, -0.000022773630917072296),
+      rot: new Quaternion(-0.997866153717041, 0.010610141791403294, -0.01851150207221508, 0.061707753688097),
+      scl: new Vector3(1, 1, 0.9999760985374451)
+    }
+  }
+
   rig.pose.get_parent_world(chain.first(), p_tran, c_tran)
 
   // How much of the Chain length to use to calc End Effector
@@ -595,7 +607,7 @@ export function applyLimb(
   if (grounding) applyGrounding(ikPose, grounding)
 
   // --------- IK Solver
-  const solveLimbVars = solveLimb(chain, rig.tpose, rig.pose, ikPose.axis, ikPose.length, p_tran)
+  chain.ikSolver(chain, rig.tpose, rig.pose, ikPose.axis, ikPose.length, p_tran)
 
   // apply calculated positions to "real" bones
   chain.chainBones.forEach(({ index: boneIndex }) => {
@@ -605,12 +617,6 @@ export function applyLimb(
     poseBone.bone.quaternion.copy(poseBone.local.quaternion)
     poseBone.bone.scale.copy(poseBone.local.scale)
   })
-
-  return {
-    preTargetVars,
-    preGroundingVars,
-    solveLimbVars
-  }
 }
 
 /**
@@ -657,9 +663,9 @@ function from_mul(out: Quaternion, a: Quaternion, b: Quaternion) {
 }
 
 export function applyLookTwist(
+  ikPose: IKPoseComponentType,
   rig: IKRigComponentType,
-  boneInfo: PointData,
-  ik: IKPoseLookTwist,
+  boneName: string,
   lookDirection: Vector3,
   twistDirection: Vector3
 ) {
@@ -670,6 +676,8 @@ export function applyLookTwist(
   // ORIGINAL CODE
   // let bind 	= rig.tpose.bones[ b_info.idx ],
   // pose 	= rig.pose.bones[ b_info.idx ];
+  const boneInfo = rig.points[boneName],
+    ik: IKPoseLookTwist = ikPose[boneName]
 
   const bind = rig.tpose.bones[boneInfo.index],
     pose = rig.pose.bones[boneInfo.index]
@@ -706,9 +714,11 @@ export function applyLookTwist(
   // let rot = Quat
   // .unit_vecs( now_look_dir, ik.look_dir )	// Create our Swing Rotation
   // .mul( c_rot );							// Then Apply to our foot
-  const rotation = new Quaternion()
-    .setFromUnitVectors(currentLookDirection, ik.lookDirection) // Create our Swing Rotation
-    .multiply(childRotation) // Then Apply to our foot
+  const rotation = new Quaternion().setFromUnitVectors(currentLookDirection, ik.lookDirection) // Create our Swing Rotation
+  const rotation0X = rotation.clone()
+  rotation.multiply(childRotation) // Then Apply to our foot
+
+  const rotation0 = rotation.clone()
 
   // Now we need to know where the Twist Direction points to after
   // swing rotation has been applied. Then use it to compute our twist rotation.
@@ -719,6 +729,8 @@ export function applyLookTwist(
   const currentTwistDirection = new Vector3().copy(altTwistDirection).applyQuaternion(rotation)
   const twist = new Quaternion().setFromUnitVectors(currentTwistDirection, ik.twistDirection)
   rotation.premultiply(twist) // Apply Twist
+  const rotation1 = rotation.clone()
+
   // const boneParentQuaternionInverse = new Quaternion()
   // pose.parent.getWorldQuaternion(boneParentQuaternionInverse)
   // boneParentQuaternionInverse.invert()
@@ -727,7 +739,17 @@ export function applyLookTwist(
 
   rig.pose.setBone(boneInfo.index, rotation) // Save to pose.
 
-  // return { rootQuaternion, childRotation, rotation0, rotation1, rotationFinal, boneParentQuaternion }
+  const rotationFinal = rotation.clone()
+
+  return {
+    rootQuaternion,
+    childRotation,
+    rotation0,
+    rotation1,
+    rotationFinal,
+    currentLookDirection,
+    ikLookDirection: ik.lookDirection
+  }
 }
 
 export function applyGrounding(ikPose: IKPoseComponentType, y_lmt: number): void {

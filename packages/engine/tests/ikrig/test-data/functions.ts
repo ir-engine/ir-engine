@@ -46,12 +46,12 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
     pose: null,
     chains: {},
     points: {},
-    sourcePose: null,
-    sourceRig: null
+    sourcePose: null
+    // sourceRig: null
   })
 
-  // @ts-ignore
-  rig.sourceRig = skinnedMesh
+  // // @ts-ignore
+  // rig.sourceRig = skinnedMesh
   rig.sourcePose = sourcePose
 
   rig.pose = new Pose(sourceEntity, false)
@@ -95,12 +95,12 @@ export function setupTestTargetEntity(targetEntity: Entity, world: World): void 
     pose: null,
     chains: {},
     points: {},
-    sourcePose: null,
-    sourceRig: null
+    sourcePose: null
+    // sourceRig: null
   })
 
-  // @ts-ignore
-  rig.sourceRig = rig
+  // // @ts-ignore
+  // rig.sourceRig = rig
   rig.sourcePose = sourcePose
 
   rig.pose = new Pose(targetEntity, false)

@@ -12,7 +12,7 @@ export type IKRigComponentType = {
   points?: Record<string, PointData> // Individual IK points (hands, head, feet)
 
   sourcePose?: ReturnType<typeof IKPose.get>
-  sourceRig?: ReturnType<typeof IKRig.get>
+  // sourceRig?: ReturnType<typeof IKRig.get>
 }
 
 export const IKRig = createMappedComponent<IKRigComponentType>()

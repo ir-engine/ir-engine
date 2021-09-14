@@ -18,13 +18,13 @@ import {
   DirectionalLight,
   GridHelper,
   PerspectiveCamera,
+  Quaternion,
   Scene,
-  SkinnedMesh,
   SkeletonHelper,
+  SkinnedMesh,
   Vector2,
   Vector3,
-  WebGLRenderer,
-  Quaternion
+  WebGLRenderer
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import Debug from '../../components/Debug'
@@ -320,8 +320,8 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
     pose: null,
     chains: null,
     points: null,
-    sourcePose: null,
-    sourceRig: null
+    sourcePose: null
+    // sourceRig: null
   })
 
   const rig = getComponent(sourceEntity, IKRig) as IKRigComponentType
@@ -329,10 +329,12 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
 
   // TODO check types!
   // @ts-ignore
-  rig.sourceRig = skinnedMesh
+  // rig.sourceRig = skinnedMesh
   rig.sourcePose = sourcePose
 
   initRig(sourceEntity, null, false, ArmatureType.MIXAMO)
+
+  console.log('source rig', rig)
 
   ////////////////////////////////////////////////////////////////////////////
   let loadModels = []
@@ -343,14 +345,15 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
       MODEL_A_FILE,
       sourceEntity,
       new Vector3(1, 0, 0),
-      new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 1, 1).normalize()),
-      new Vector3(0.5, 0.5, 0.5),
-      ArmatureType.VEGETA
+      new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(-1, 0, 1).normalize()),
+      new Vector3(0.5, 0.5, 0.5)
     ).then((entity) => {
       const rig = getComponent(entity, IKRig)
       rig.name = 'rigA-Vegeta'
       sourcePose.targetRigs.push(rig)
       rig.tpose.apply()
+
+      console.log('target rig', rig.name, rig)
 
       targetEntities.push(entity)
     })
@@ -360,7 +363,7 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
       MODEL_B_FILE,
       sourceEntity,
       new Vector3(-1, 0, 0),
-      new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(-1, 1, 1).normalize()),
+      new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(1, 0, 1).normalize()),
       new Vector3(2, 2, 2)
     ).then((entity) => {
       const rig = getComponent(entity, IKRig)
@@ -368,20 +371,28 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
       sourcePose.targetRigs.push(rig)
       rig.tpose.apply()
 
+      console.log('target rig', rig.name, rig)
+
       targetEntities.push(entity)
     })
   )
-  // loadModels.push(loadAndSetupModel(MODEL_C_FILE, sourceEntity, new Vector3(-2, 0, 0), ArmatureType.TREX).then((entity) => {
-  //   const rig = getComponent(entity, IKRig)
-  //   rig.name = 'rigTRex'
-  //   sourcePose.targetRigs.push(rig)
-  //   rig.tpose.apply()
-  //
-  //   targetEntities.push(entity)
-  // }))
+  loadModels.push(
+    loadAndSetupModel(
+      MODEL_C_FILE,
+      sourceEntity,
+      new Vector3(-2, 0, 0),
+      new Quaternion(),
+      new Vector3(1, 1, 1),
+      ArmatureType.TREX
+    ).then((entity) => {
+      const rig = getComponent(entity, IKRig)
+      rig.name = 'rigTRex'
+      sourcePose.targetRigs.push(rig)
+      rig.tpose.apply()
 
-  // // TODO: Fix me
-  // targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
+      targetEntities.push(entity)
+    })
+  )
 
   await Promise.all(loadModels)
 
@@ -428,13 +439,13 @@ async function loadAndSetupModel(
     pose: null,
     chains: null,
     points: null,
-    sourcePose: null,
-    sourceRig: null
+    sourcePose: null
+    // sourceRig: null
   })
 
   const targetRig = getComponent(targetEntity, IKRig)
 
-  targetRig.sourceRig = targetRig
+  // targetRig.sourceRig = targetRig
   targetRig.sourcePose = getComponent(sourceEntity, IKPose)
 
   // Set the skinned mesh reference
@@ -466,8 +477,10 @@ async function loadAndSetupModel(
   const helper = new SkeletonHelper(targetRig.pose.bones[0].bone)
   Engine.scene.add(helper)
 
-  // TODO: remove it when fixed
-  targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
+  if (armatureType === ArmatureType.MIXAMO) {
+    // TODO: remove it when fixed
+    targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
+  }
 
   // targetRig.tpose.align_leg(['LeftUpLeg', 'LeftLeg'])
   // targetRig.tpose.align_leg(['RightUpLeg', 'RightLeg'])
