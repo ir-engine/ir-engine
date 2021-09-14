@@ -14,6 +14,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
@@ -49,6 +50,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
         const newWorldState = WorldStateModel.fromBuffer(buffer)
 
         if (isClient) {
+          //add velocity to player to check how it works and apply here the read of velocities
           Network.instance.tick = newWorldState.tick
 
           // on client, all incoming object poses handled by Interpolation
@@ -79,23 +81,31 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
             if (hasComponent(networkObject.entity, AvatarComponent)) {
               if (hasComponent(networkObject.entity, AvatarControllerComponent)) continue
               const transformComponent = getComponent(networkObject.entity, TransformComponent)
-              transformComponent.position.fromArray(pose.pose)
-              transformComponent.rotation.fromArray(pose.pose, 3)
+              transformComponent.position.fromArray(pose.position)
+              transformComponent.rotation.fromArray(pose.rotation)
               continue
             }
+
+            if (hasComponent(networkObject.entity, VelocityComponent)) {
+              const velC = getComponent(networkObj.entity, VelocityComponent)
+              if (pose.linearVelocity === [0, 0, 0]) velC.velocity.setScalar(0)
+              else velC.velocity.fromArray(pose.linearVelocity)
+            }
+            //get the angular velocity and apply if it has the appropriate component
+
             const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
             // networkObjectOwnerComponent && console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
             if (networkObjectOwnerComponent && networkObjectOwnerComponent.networkId === incomingNetworkId) {
               const transform = getComponent(networkObject.entity, TransformComponent)
               if (transform) {
-                transform.position.fromArray(pose.pose)
-                transform.rotation.fromArray(pose.pose, 3)
+                transform.position.fromArray(pose.position)
+                transform.rotation.fromArray(pose.rotation)
               }
               const collider = getComponent(networkObject.entity, ColliderComponent)
               if (collider) {
                 collider.body.updateTransform({
-                  translation: { x: pose.pose[0], y: pose.pose[1], z: pose.pose[2] },
-                  rotation: { x: pose.pose[3], y: pose.pose[4], z: pose.pose[5], w: pose.pose[6] }
+                  translation: { x: pose.position[0], y: pose.position[1], z: pose.position[2] },
+                  rotation: { x: pose.rotation[0], y: pose.rotation[1], z: pose.rotation[2], w: pose.rotation[3] }
                 })
               }
             }
@@ -118,7 +128,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
           xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPose, 3)
         }
       } catch (e) {
-        console.log('could not read world state from buffer')
+        console.log('could not convert world state to a buffer, ' + e)
       }
     }
   }
