@@ -1,6 +1,7 @@
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Quaternion, Vector3 } from 'three'
-import { createEntity, getComponent } from '../../src/ecs/functions/EntityFunctions'
+import { createEntity } from '../../src/ecs/functions/EntityFunctions'
+import { getComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { Entity } from '../../src/ecs/classes/Entity'
 import {
   applyHip,
@@ -38,19 +39,21 @@ import { bones as poseBonesForLegs } from './test-data/rig2.pose.bones'
 import { bones as poseBonesWithAppliedHipLegsSpine } from './test-data/rig2.pose.bones-after-hip-legs-spine'
 import { ikpose as ikposeData } from './test-data/pose1/ikpose.computed'
 import { rigData as rigDataApplied } from './test-data/rig2.data.applied'
-import { UP, FORWARD } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
+import { FORWARD, UP } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
 import { PoseBoneLocalState } from '../../src/ikrig/classes/Pose'
 import '../custom-matchers'
+import { createWorld } from '../../src/ecs/functions/EngineFunctions'
+import { Engine } from '../../src/ecs/classes/Engine'
 
-let world: World, sourceEntity: Entity, expectedIKPose
+let sourceEntity: Entity, expectedIKPose
 beforeAll(() => {
-  world = new World()
+  Engine.currentWorld = createWorld()
 })
 
 describe('check Compute', () => {
   beforeEach(async () => {
-    sourceEntity = createEntity(world.ecsWorld)
-    setupTestSourceEntity(sourceEntity, world)
+    sourceEntity = createEntity()
+    setupTestSourceEntity(sourceEntity)
     const rig = getComponent(sourceEntity, IKRig)
     // apply animation pose
     const animBonesStates = adoptBones(bones)
@@ -194,8 +197,8 @@ describe('Check Apply', () => {
   })
 
   beforeEach(() => {
-    sourceEntity = createEntity(world.ecsWorld)
-    setupTestSourceEntity(sourceEntity, world)
+    sourceEntity = createEntity()
+    setupTestSourceEntity(sourceEntity)
     const rig = getComponent(sourceEntity, IKRig)
     ikPose = getComponent(sourceEntity, IKPose)
     // apply animation pose
@@ -205,8 +208,8 @@ describe('Check Apply', () => {
     computeIKPose(rig, ikPose)
 
     // init target entity and rig
-    targetEntity = createEntity(world.ecsWorld)
-    setupTestTargetEntity(targetEntity, world)
+    targetEntity = createEntity()
+    setupTestTargetEntity(targetEntity)
     targetRig = getComponent(targetEntity, IKRig)
     // TODO: remove it when fixed
     targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.

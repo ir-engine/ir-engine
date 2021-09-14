@@ -1,8 +1,7 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { defaultIKPoseComponentValues, IKPose, IKPoseComponentType } from '@xrengine/engine/src/ikrig/components/IKPose'
-import { IKRig, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRig'
+import { IKRig } from '@xrengine/engine/src/ikrig/components/IKRig'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { bones } from './pose1/ikrig.pose.bones'
 import { bones as tbones } from './ikrig.tpose.bones'
@@ -31,7 +30,7 @@ export const targetMeshTransform = {
   scale: new Vector3(0.5, 0.5, 0.5)
 }
 
-export function setupTestSourceEntity(sourceEntity: Entity, world: World): void {
+export function setupTestSourceEntity(sourceEntity: Entity): void {
   const bonesStates = adoptBones(bones)
   const tbonesStates = adoptBones(tbones)
   const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
@@ -81,7 +80,7 @@ export function setupTestSourceEntity(sourceEntity: Entity, world: World): void 
   rig.tpose.apply()
 }
 
-export function setupTestTargetEntity(targetEntity: Entity, world: World): void {
+export function setupTestTargetEntity(targetEntity: Entity): void {
   const tbonesStates = adoptBones(rig2Data.tpose.bones)
   const { mesh: skinnedMesh } = createSkinnedMesh(tbonesStates)
   skinnedMesh.parent.position.copy(targetMeshTransform.position)
