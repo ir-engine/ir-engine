@@ -14,7 +14,15 @@ import {
   Vector3,
   Quaternion
 } from 'three'
-import { Body, BodyType, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES, ShapeType } from 'three-physx'
+import {
+  Body,
+  BodyType,
+  PhysXInstance,
+  RaycastQuery,
+  SceneQueryType,
+  SHAPES,
+  ShapeType
+} from '@xrengine/engine/src/physics/physx'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'

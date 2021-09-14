@@ -637,7 +637,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       project = await getProject(projectId)
-      globalThis.ownedFileIds = JSON.parse(project.ownedFileIds)
+      globalThis.Editor.ownedFileIds = JSON.parse(project.ownedFileIds)
       globalThis.currentProjectID = project.project_id
       const projectIndex = project.project_url.split('collection/')[1]
       const projectFile = await globalThis.Editor.feathersClient.service(`collection`).get(projectIndex, {

@@ -129,9 +129,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
     Network.instance.accessToken = query.token = token
+    console.log('Dispatching event CONNECT')
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: user.id })
+    console.log('Dispatched event CONNECT')
 
     this.mediasoupDevice = new mediasoupClient.Device()
+    console.log('new mediasoupDevice', this.mediasoupDevice)
+    console.log('current socket', socket)
     if (socket && socket.close) socket.close()
 
     this.channelType = channelType
@@ -143,31 +147,39 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.sceneId == null) delete query.sceneId
     if (query.channelId == null) delete query.channelId
     if (process.env.VITE_LOCAL_BUILD === 'true') {
+      console.log('VITE_LOCAL_BUILD is true')
       socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
       })
     } else if (process.env.NODE_ENV === 'development') {
+      console.log('NODE_ENV is development')
       socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       })
     } else {
+      console.log('Normal deployment socket being set up')
       socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       })
     }
 
+    console.log('new socket', socket)
+
     if (instance === true) {
+      console.log('instance socket being set up')
       ;(socket as any).instance = true
       this.instanceSocket = socket
       Network.instance.instanceSocketId = socket.id
       this.instanceRequest = this.promisedRequest(socket)
     } else {
+      console.log('channel socket being set up')
       this.channelSocket = socket
       Network.instance.channelSocketId = socket.id
       this.channelRequest = this.promisedRequest(socket)
     }
 
+    console.log('Creating socket.on(connect) listener')
     socket.on('connect', async () => {
       console.log('connect')
       if (this.reconnecting === true) {

@@ -210,7 +210,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
       editor.addObject(node)
       if (item.projectId && globalThis.currentProjectID !== item.projectId) {
-        globalThis.currentOwnedFileIds[item.label] = item.fileId
+        globalThis.Editor.currentOwnedFileIds[item.label] = item.fileId
       }
     },
     [editor]
@@ -228,7 +228,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
       editor.addObject(node)
       if (item.projectId && globalThis.currentProjectID !== item.projectId)
-        globalThis.currentOwnedFileIds[item.label] = item.fileId
+        globalThis.Editor.currentOwnedFileIds[item.label] = item.fileId
     },
     [editor]
   )
