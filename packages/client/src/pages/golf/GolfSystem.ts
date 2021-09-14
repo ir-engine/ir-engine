@@ -237,18 +237,20 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
         const entityHole = getHole(world, currentHole)
 
         // if hole in ball or player has had too many shots, finish their round
-        if (
-          getComponent(entityBall, GolfBallComponent).state === BALL_STATES.IN_HOLE ||
-          currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
-        ) {
-          console.log('=== PLAYER FINISHED HOLE')
-          currentPlayer.scores.set([
-            ...currentPlayer.scores.value,
-            currentPlayer.stroke.value - s.holes[currentHole].par.value
-          ])
-        }
+        if (typeof entityBall !== 'undefined') {
+          if (
+            getComponent(entityBall, GolfBallComponent).state === BALL_STATES.IN_HOLE ||
+            currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
+          ) {
+            console.log('=== PLAYER FINISHED HOLE')
+            currentPlayer.scores.set([
+              ...currentPlayer.scores.value,
+              currentPlayer.stroke.value - s.holes[currentHole].par.value
+            ])
+          }
 
-        setBallState(entityBall, BALL_STATES.INACTIVE)
+          setBallState(entityBall, BALL_STATES.INACTIVE)
+        }
 
         // TODO: get player with fewest number of holes completed
         // const currentHole = s.players.reduce(() => {

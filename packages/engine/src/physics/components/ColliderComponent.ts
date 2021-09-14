@@ -1,4 +1,4 @@
-import { Body } from 'three-physx'
+import { Body } from '../../physics/physx'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
