@@ -26,7 +26,7 @@ import {
   BodyType,
   SHAPES,
   Shape
-} from 'three-physx'
+} from '../../physics/physx'
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 
 const parentMatrix = new Matrix4()
