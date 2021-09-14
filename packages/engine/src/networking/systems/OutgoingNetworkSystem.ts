@@ -96,9 +96,10 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
       newWorldState.pose.push({
         networkId: networkObject.networkId,
-        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose,
-        velocity: vel !== undefined ? vel : 0,
-        angularVelocity: angVel !== undefined ? angVel : 0
+        position: transformComponent.position.toArray(),
+        rotation: transformComponent.rotation.toArray(),
+        linearVelocity: vel !== undefined ? vel : [0, 0, 0],
+        angularVelocity: angVel !== undefined ? angVel : [0, 0, 0]
       })
     }
 
@@ -114,9 +115,10 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
 
       newWorldState.pose.push({
         networkId: getLocalNetworkId(),
-        pose: transformComponent.position.toArray().concat(transformComponent.rotation.toArray()) as Pose,
-        velocity: vel !== undefined ? vel : 0,
-        angularVelocity: angVel !== undefined ? angVel : 0
+        position: transformComponent.position.toArray(),
+        rotation: transformComponent.rotation.toArray(),
+        linearVelocity: vel !== undefined ? vel : [0, 0, 0],
+        angularVelocity: angVel !== undefined ? angVel : [0, 0, 0]
       })
     }
 

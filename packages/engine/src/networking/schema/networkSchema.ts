@@ -1,3 +1,4 @@
+import { Vector3 } from 'three'
 import { string, float32, Schema, uint32, uint8, uint64 } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
 import { setVelocityScaleAt } from '../../particles/classes/ParticleMesh'
@@ -11,8 +12,9 @@ import { Pose } from '../../transform/TransformInterfaces'
 
 const poseSchema = new Schema({
   networkId: uint32,
-  pose: [float32],
-  velocity: [float32],
+  position: [float32],
+  rotation: [float32],
+  linearVelocity: [float32],
   angularVelocity: [float32]
 })
 
@@ -39,9 +41,10 @@ export interface WorldStateInterface {
   /** transform of world. */
   pose: {
     networkId: number
-    pose: Pose
-    velocity: any
-    angularVelocity: any
+    position: number[]
+    rotation: number[]
+    linearVelocity: number[]
+    angularVelocity: number[]
   }[]
   /** transform of ik avatars. */
   ikPose: {
