@@ -54,7 +54,7 @@
     "dotenv-flow": "3.2.0",
     "feathers-hooks-common": "5.0.6",
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
-    "http-server": "13.0.1",
+    "http-server": "13.0.2",
     "mime-types": "2.1.32",
     "node-fetch": "2.6.2",
     "sequelize": "6.6.5",
