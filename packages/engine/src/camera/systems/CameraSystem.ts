@@ -15,7 +15,6 @@ import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraMode } from '../types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
-import { PhysXInstance, RaycastQuery, SceneQueryType } from '../../physics/physx'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { World } from '../../ecs/classes/World'
@@ -23,6 +22,7 @@ import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -286,15 +286,13 @@ export default async function CameraSystem(world: World): Promise<System> {
 
     for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
-        new RaycastQuery({
-          type: SceneQueryType.Closest,
-          origin: new Vector3(),
-          direction: new Vector3(0, -1, 0),
-          maxDistance: 10,
-          collisionMask: cameraFollow.collisionMask
-        })
-      )
+      cameraFollow.raycastQuery = world.physics.addRaycastQuery({
+        type: SceneQueryType.Closest,
+        origin: new Vector3(),
+        direction: new Vector3(0, -1, 0),
+        maxDistance: 10,
+        collisionMask: cameraFollow.collisionMask
+      })
       Engine.activeCameraFollowTarget = entity
       if (hasComponent(Engine.activeCameraEntity, DesiredTransformComponent)) {
         removeComponent(Engine.activeCameraEntity, DesiredTransformComponent)
@@ -311,7 +309,7 @@ export default async function CameraSystem(world: World): Promise<System> {
 
     for (const entity of followCameraQuery.exit()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
-      if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
+      if (cameraFollow) world.physics.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
       if (activeCameraComponent) {
         Engine.activeCameraFollowTarget = null

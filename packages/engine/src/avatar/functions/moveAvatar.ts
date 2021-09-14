@@ -8,6 +8,7 @@ import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -47,9 +48,6 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
 
   newVelocity.applyQuaternion(quat)
 
-  controller.controller.velocity.x = newVelocity.x
-  controller.controller.velocity.z = newVelocity.z
-
   if (avatar.isGrounded) {
     const raycast = getComponent(entity, RaycastComponent)
     const closestHit = raycast.raycastQuery.hits[0]
@@ -62,14 +60,14 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
       onGroundVelocity.applyMatrix4(mat4)
     }
 
-    controller.controller.velocity.y = onGroundVelocity.y
+    velocity.velocity.y = onGroundVelocity.y
 
     if (controller.isJumping) {
       controller.isJumping = false
     }
 
     if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
-      controller.controller.velocity.y = AvatarSettings.instance.jumpHeight * multiplier
+      velocity.velocity.y = AvatarSettings.instance.jumpHeight * multiplier
       controller.isJumping = true
     }
 
@@ -86,10 +84,26 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
   }
 
   // apply gravity
-  controller.controller.velocity.y -= 0.2 * deltaTime
+  velocity.velocity.y -= 0.2 * deltaTime
 
-  // move according to controller's velocity
-  controller.controller.delta.x += controller.controller.velocity.x
-  controller.controller.delta.y += controller.controller.velocity.y
-  controller.controller.delta.z += controller.controller.velocity.z
+  const world = useWorld()
+
+  const filters = new PhysX.PxControllerFilters(
+    (controller as any)._filterData,
+    world.physics.defaultCCTQueryCallback,
+    null
+  )
+  const collisionFlags = controller.controller.move(
+    velocity.velocity,
+    0.001,
+    world.fixedDelta,
+    filters,
+    world.physics.obstacleContext
+  )
+  const collisions = {
+    down: collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN) ? 1 : 0,
+    sides: collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES) ? 1 : 0,
+    up: collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP) ? 1 : 0
+  }
+  ;(controller as any)._collisions = [collisions.down, collisions.sides, collisions.up]
 }

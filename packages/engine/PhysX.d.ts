@@ -408,7 +408,7 @@ declare namespace PhysX {
       origin: PxVec3,
       unitDir: PxVec3,
       maxDistance: PxReal,
-      flags: number,
+      outputFlags: number,
       hit: PxRaycastHit,
       filterData: PxQueryFilterData
     ): boolean
@@ -460,11 +460,11 @@ declare namespace PhysX {
     createScene(a: PxSceneDesc): PxScene
     createRigidDynamic(a: PxTransform | any): PxRigidDynamic
     createRigidStatic(a: PxTransform | any): PxRigidStatic
-    createMaterial(staticFriction: number, dynamicFriction: number, restitution: number): Material
+    createMaterial(staticFriction: number, dynamicFriction: number, restitution: number): PxMaterial
     //shapeFlags = PxShapeFlag:: eVISUALIZATION | PxShapeFlag:: eSCENE_QUERY_SHAPE | PxShapeFlag:: eSIMULATION_SHAPE
     createShape(
       geometry: PxGeometry,
-      material: Material,
+      material: PxMaterial,
       isExclusive?: boolean | false,
       shapeFlags?: number | PxShapeFlags
     ): PxShape
@@ -504,7 +504,7 @@ declare namespace PhysX {
   class PxControllerDesc {
     position: PxVec3
     isValid(): boolean
-    setMaterial(material: Material): void
+    setMaterial(material: PxMaterial): void
     stepOffset: number
     contactOffset: number
     maxJumpHeight: number
@@ -542,6 +542,8 @@ declare namespace PhysX {
 
   class PxQueryFilterData {
     constructor()
+    setWords(word0: number, word1: number)
+    setFlags(flags: number)
   }
 
   class PxQueryFilterCallback {

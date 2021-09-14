@@ -11,7 +11,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from '../../physics/physx'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -26,6 +25,9 @@ import { ProximityCheckerComponent } from '../../proximityChecker/components/Pro
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
+import { World } from '../../ecs/classes/World'
+import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -40,6 +42,7 @@ const avatarHalfHeight = avatarHeight / 2
  * @param isRemotePlayer
  */
 export const createAvatar = (
+  world: World,
   entity: Entity,
   spawnTransform: { position: Vector3; rotation: Quaternion },
   isRemotePlayer = true
@@ -106,43 +109,47 @@ export const createAvatar = (
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
 
-  const raycastQuery = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
-      origin: new Vector3(0, avatarHalfHeight, 0),
-      direction: new Vector3(0, -1, 0),
-      maxDistance: avatarHalfHeight + 0.05,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
-    })
-  )
-  addComponent(entity, RaycastComponent, { raycastQuery })
+  const filterData = new PhysX.PxQueryFilterData()
+  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground, 0)
+  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
+  filterData.setFlags(flags)
+
+  addComponent(entity, RaycastComponent, {
+    filterData,
+    type: SceneQueryType.Closest,
+    hits: [],
+    origin: new Vector3(0, avatarHalfHeight, 0),
+    direction: new Vector3(0, -1, 0),
+    maxDistance: avatarHalfHeight + 0.05,
+    flags
+  })
 
   if (isRemotePlayer) {
-    const body = PhysXInstance.instance.addBody(
-      new Body({
-        shapes: [
-          {
-            shape: SHAPES.Capsule,
-            options: { halfHeight: capsuleHeight / 2, radius: avatarRadius },
-            config: {
-              collisionLayer: CollisionGroups.Avatars,
-              collisionMask: DefaultCollisionMask
-            }
-          }
-        ],
-        type: BodyType.STATIC,
-        transform: {
-          translation: {
-            x: transform.position.x,
-            y: transform.position.y + avatarHalfHeight,
-            z: transform.position.z
-          }
-        },
-        userData: {
-          entity
-        }
-      })
+    const shape = world.physics.createShape(
+      new PhysX.PxCapsuleGeometry(capsuleHeight / 2, avatarRadius),
+      world.physics.physics.createMaterial(0, 0, 0),
+      new Vector3(),
+      new Quaternion(),
+      {
+        collisionLayer: CollisionGroups.Avatars,
+        collisionMask: DefaultCollisionMask
+      }
     )
+    const body = world.physics.addBody({
+      shapes: [shape],
+      type: BodyType.STATIC,
+      transform: {
+        translation: {
+          x: transform.position.x,
+          y: transform.position.y + avatarHalfHeight,
+          z: transform.position.z
+        },
+        rotation: new Quaternion()
+      },
+      userData: {
+        entity
+      }
+    })
     addComponent(entity, ColliderComponent, { body })
   } else {
     createAvatarController(entity)
@@ -157,30 +164,26 @@ export const createAvatarController = (entity: Entity) => {
     schema: AvatarInputSchema,
     data: new Map()
   })
-
-  const controller = PhysXInstance.instance.createController(
-    new Controller({
-      isCapsule: true,
-      collisionLayer: CollisionGroups.Avatars,
-      collisionMask: DefaultCollisionMask | CollisionGroups.Trigger,
-      height: capsuleHeight,
-      contactOffset: 0.01,
-      stepOffset: 0.25,
-      slopeLimit: 0,
-      radius: avatarRadius,
-      position: {
-        x: position.x,
-        y: position.y + avatarHalfHeight,
-        z: position.z
-      },
-      material: {
-        dynamicFriction: 0.1
-      },
-      userData: {
-        entity
-      }
-    })
-  )
+  const world = useWorld()
+  const controller = world.physics.createController({
+    isCapsule: true,
+    material: world.physics.createMaterial(),
+    position: {
+      x: position.x,
+      y: position.y + avatarHalfHeight,
+      z: position.z
+    },
+    collisionLayer: CollisionGroups.Avatars,
+    collisionMask: DefaultCollisionMask | CollisionGroups.Trigger,
+    contactOffset: 0.01,
+    stepOffset: 0.25,
+    slopeLimit: 0,
+    height: capsuleHeight,
+    radius: avatarRadius,
+    userData: {
+      entity
+    }
+  })
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   frustumCamera.position.setY(avatarHalfHeight)

@@ -59,35 +59,13 @@ export enum BodyType {
   CONTROLLER
 }
 
-export interface ShapeType {
-  id?: number
-  shape?: SHAPES
-  transform?: TransformType
-  config?: ShapeConfigType
-  _debugNeedsUpdate?: any
-  options?: {
-    vertices?: number[]
-    indices?: number[]
-    boxExtents?: Vec3
-    radius?: number
-    halfHeight?: number
-  }
+export interface ShapeOptions {
   userData?: any
-}
-
-export interface MaterialConfigType {
-  staticFriction?: number
-  dynamicFriction?: number
-  restitution?: number
-}
-
-export interface ShapeConfigType {
   restOffset?: number
   contactOffset?: number
   isTrigger?: boolean
   collisionLayer?: number
   collisionMask?: number
-  material?: MaterialConfigType
 }
 
 export interface BodyConfig {
@@ -101,12 +79,9 @@ export interface BodyConfig {
 }
 
 export interface RigidBody extends BodyConfig {
-  id: number
   transform: TransformType
-  updateTransform?: ({ translation, rotation }: { translation?: Vec3Fragment; rotation?: QuatFragment }) => void
-  shapes: ShapeType[]
+  shapes: PhysX.PxShape[]
   userData?: any
-  [x: string]: any
 }
 
 export interface ControllerRigidBody extends RigidBody {
@@ -118,35 +93,32 @@ export interface ControllerRigidBody extends RigidBody {
 }
 
 export interface ControllerConfig {
-  id?: number
+  isCapsule: boolean
+  position: Vec3Fragment
+  material: PhysX.PxMaterial
+  collisionLayer?: number
+  collisionMask?: number
   userData?: any
-  position?: Vec3Fragment
-  positionDelta?: Vec3Fragment
   stepOffset?: number
   contactOffset?: number
   slopeLimit?: number
   maxJumpHeight?: number
   invisibleWallHeight?: number
-  isCapsule?: boolean
-  resize?: number
-  material?: MaterialConfigType
-  collisionLayer?: number
-  collisionMask?: number
-  // capsule
-  height?: number
-  radius?: number
+}
+
+export interface CapsuleControllerConfig extends ControllerConfig {
+  height: number
+  radius: number
   climbingMode?: PhysX.PxCapsuleClimbingMode
-  // box
-  halfForwardExtent?: number
-  halfHeight?: number
-  halfSideExtent?: number
-  // api
-  delta?: Vec3
-  velocity?: Vec3
+}
+
+export interface BoxControllerConfig extends ControllerConfig {
+  halfForwardExtent: number
+  halfHeight: number
+  halfSideExtent: number
 }
 
 export interface ObstacleType {
-  id?: number
   isCapsule?: boolean
 }
 
@@ -157,7 +129,6 @@ export enum SceneQueryType {
   Closest
 }
 export interface SceneQuery {
-  id?: number
   type: SceneQueryType
   flags?: number
   collisionMask?: number
@@ -189,4 +160,36 @@ export enum CollisionEvents {
   TRIGGER_START = 'TRIGGER_START',
   TRIGGER_PERSIST = 'TRIGGER_PERSIST',
   TRIGGER_END = 'TRIGGER_END'
+}
+
+export type ControllerHitEvent = {
+  type: ControllerEvents
+  shape: PhysX.PxShape
+  body: RigidBody
+  position: Vec3
+  normal: Vec3
+  length: number
+}
+
+export type ControllerObstacleHitEvent = {
+  type: ControllerEvents
+  obstacle: ObstacleType
+  position: Vec3
+  normal: Vec3
+  length: number
+}
+
+type ContactData = {
+  points: Vec3
+  normal: Vec3
+  impulse: number
+}
+
+export type ColliderHitEvent = {
+  type: CollisionEvents
+  bodySelf: PhysX.PxRigidActor
+  bodyOther: PhysX.PxRigidActor
+  shapeSelf: PhysX.PxShape
+  shapeOther: PhysX.PxShape
+  contacts: ContactData[]
 }

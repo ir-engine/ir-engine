@@ -3,20 +3,27 @@ import {
   PhysXConfig,
   BodyType,
   RigidBody,
-  ShapeType,
-  ControllerConfig,
+  ShapeOptions,
   SceneQuery,
   CollisionEvents,
-  ControllerEvents
+  ControllerEvents,
+  SceneQueryType,
+  CapsuleControllerConfig,
+  BoxControllerConfig
 } from '../types/PhysicsTypes'
 import { putIntoPhysXHeap } from '../functions/physxHelpers'
-import { getShape } from './getShape'
+import { Quaternion, Vector3 } from 'three'
+import { RaycastComponent } from '../components/RaycastComponent'
+import { ComponentType } from '../../ecs/functions/ComponentFunctions'
 
 const defaultMask = 0
 
-export class Physics {
-  instance: Physics = null
+let nextAvailableBodyIndex = 0
+let nextAvailableShapeID = 0
+let nextAvailableRaycastID = 0
+let nextAvailableObstacleID = 0
 
+export class Physics {
   physxVersion: number
   defaultErrorCallback: PhysX.PxDefaultErrorCallback
   allocator: PhysX.PxDefaultAllocator
@@ -30,16 +37,22 @@ export class Physics {
   obstacleContext: PhysX.PxObstacleContext
   defaultCCTQueryCallback: PhysX.PxQueryFilterCallback
 
-  private bodies: Map<number, PhysX.PxRigidActor> = new Map<number, PhysX.PxRigidActor>()
-  private dynamic: Map<number, PhysX.PxRigidActor> = new Map<number, PhysX.PxRigidActor>()
-  private shapes: Map<number, PhysX.PxShape> = new Map<number, PhysX.PxShape>()
-  private shapeIDByPointer: Map<number, number> = new Map<number, number>()
-  private controllerIDByPointer: Map<number, number> = new Map<number, number>()
-  private bodyIDByShapeID: Map<number, number> = new Map<number, number>()
-  private indices: Map<number, number> = new Map<number, number>()
-  private controllers: Map<number, PhysX.PxController> = new Map<number, PhysX.PxController>()
-  private raycasts: Map<number, SceneQuery> = new Map<number, SceneQuery>()
-  private obstacles: Map<number, number> = new Map<number, number>()
+  stepTime: number = 1000 / 60
+  substeps: number = 1
+  collisionEventQueue = []
+
+  bodies: Map<number, PhysX.PxRigidActor> = new Map<number, PhysX.PxRigidActor>()
+  shapes: Map<number, PhysX.PxShape> = new Map<number, PhysX.PxShape>()
+  shapeIDByPointer: Map<number, number> = new Map<number, number>()
+  controllerIDByPointer: Map<number, number> = new Map<number, number>()
+  bodyIDByShapeID: Map<number, number> = new Map<number, number>()
+  controllers: Map<number, PhysX.PxController> = new Map<number, PhysX.PxController>()
+  raycasts: Map<number, SceneQuery> = new Map<number, SceneQuery>()
+  obstacles: Map<number, number> = new Map<number, number>()
+
+  onEvent(ev) {
+    this.collisionEventQueue.push(ev)
+  }
 
   async createScene(config: PhysXConfig = {}) {
     await loadPhysX()
@@ -72,48 +85,50 @@ export class Physics {
             })
           }
         }
-        this.onEvent({
-          event: CollisionEvents.COLLISION_START,
-          idA: this.shapeIDByPointer.get(shapeA.$$.ptr),
-          idB: this.shapeIDByPointer.get(shapeB.$$.ptr),
+        this.collisionEventQueue.push({
+          type: CollisionEvents.COLLISION_START,
+          shapeA,
+          shapeB,
           contacts
         })
       },
       onContactEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-        this.onEvent({
-          event: CollisionEvents.COLLISION_END,
-          idA: this.shapeIDByPointer.get(shapeA.$$.ptr),
-          idB: this.shapeIDByPointer.get(shapeB.$$.ptr)
+        this.collisionEventQueue.push({
+          type: CollisionEvents.COLLISION_END,
+          shapeA,
+          shapeB
         })
       },
       onContactPersist: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-        this.onEvent({
-          event: CollisionEvents.COLLISION_PERSIST,
-          idA: this.shapeIDByPointer.get(shapeA.$$.ptr),
-          idB: this.shapeIDByPointer.get(shapeB.$$.ptr)
+        this.collisionEventQueue.push({
+          type: CollisionEvents.COLLISION_PERSIST,
+          shapeA,
+          shapeB
         })
       },
       onTriggerBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
         // console.log('onTriggerBegin', shapeA, shapeB)
-        this.onEvent({
-          event: CollisionEvents.TRIGGER_START,
-          idA: this.shapeIDByPointer.get(shapeA.$$.ptr),
-          idB: this.shapeIDByPointer.get(shapeB.$$.ptr)
+        this.collisionEventQueue.push({
+          type: CollisionEvents.TRIGGER_START,
+          shapeA,
+          shapeB
         })
       },
       // onTriggerPersist: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-      //   this.onEvent({
+      //   this.collisionEventQueue.push({
       //     event: CollisionEvents.TRIGGER_PERSIST,
-      //     idA: this.shapeIDByPointer.get(shapeA.$$.ptr),
-      //     idB: this.shapeIDByPointer.get(shapeB.$$.ptr),
+      // bodyA,
+      // bodyB,
+      // shapeA,
+      // shapeB,
       //   });
       // },
       onTriggerEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
         // console.log('onTriggerEnd', shapeA, shapeB)
-        this.onEvent({
+        this.collisionEventQueue.push({
           event: CollisionEvents.TRIGGER_END,
-          idA: this.shapeIDByPointer.get(shapeA.$$.ptr),
-          idB: this.shapeIDByPointer.get(shapeB.$$.ptr)
+          shapeA,
+          shapeB
         })
       }
     }
@@ -152,174 +167,158 @@ export class Physics {
     }
   }
 
-  addBody = (config: RigidBody) => {
-    const { id, transform, shapes, type } = config
+  addBody(config: RigidBody) {
+    const { transform, shapes, type } = config
+    const id = this._getNextAvailableBodyID()
 
-    let rigidBody: PhysX.PxRigidStatic | PhysX.PxRigidDynamic
+    const rigidBody =
+      type === BodyType.STATIC
+        ? this.physics.createRigidStatic(transform)
+        : (this.physics.createRigidDynamic(transform) as PhysX.PxRigidStatic | PhysX.PxRigidDynamic)
 
-    if (type === BodyType.STATIC) {
-      rigidBody = this.physics.createRigidStatic(transform)
-    } else {
-      rigidBody = this.physics.createRigidDynamic(transform)
-    }
     ;(rigidBody as any)._type = type
+    ;(rigidBody as any)._id = id
 
-    shapes.forEach(({ id: shapeID, shape, transform, options, config }: ShapeType) => {
-      const bodyShape = getShape(this, {
-        shape,
-        transform,
-        options,
-        config
-      })
-      if (!bodyShape) return
-      let collisionLayer = defaultMask
-      let collisionMask = defaultMask
-      if (typeof config?.collisionLayer !== 'undefined') {
-        collisionLayer = config.collisionLayer
-      }
-      if (typeof config?.collisionMask !== 'undefined') {
-        collisionMask = config.collisionMask
-      }
-      ;(bodyShape as any)._collisionLayer = collisionLayer
-      ;(bodyShape as any)._collisionMask = collisionMask
-      bodyShape.setSimulationFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
-      bodyShape.setQueryFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
-      rigidBody.attachShape(bodyShape)
-      this.shapeIDByPointer.set(bodyShape.$$.ptr, shapeID)
-      this.shapes.set(shapeID, bodyShape)
-      this.bodyIDByShapeID.set(shapeID, id)
-    })
+    for (const shape of shapes as PhysX.PxShape[]) {
+      rigidBody.attachShape(shape)
+      this.bodyIDByShapeID.set((shape as any)._id, id)
+    }
+
     this.bodies.set(id, rigidBody)
     this.scene.addActor(rigidBody, null)
 
-    delete config.type
-    this.updateBody(config)
-  }
-
-  updateBody = (config: RigidBody) => {
-    const body = this.bodies.get(config.id)
-    if (!isStaticBody(body)) {
+    if (!isStaticBody(rigidBody)) {
       if (typeof config.useCCD !== 'undefined') {
-        ;(body as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eENABLE_CCD, config.useCCD)
+        ;(rigidBody as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eENABLE_CCD, config.useCCD)
       }
       if (typeof config.type !== 'undefined') {
-        const transform = body.getGlobalPose()
+        const transform = rigidBody.getGlobalPose()
         if (config.type === BodyType.KINEMATIC) {
-          ;(body as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, true)
-          ;(body as any)._type = BodyType.KINEMATIC
+          ;(rigidBody as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, true)
+          ;(rigidBody as any)._type = BodyType.KINEMATIC
         } else {
-          ;(body as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, false)
-          ;(body as any)._type = BodyType.DYNAMIC
+          ;(rigidBody as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, false)
+          ;(rigidBody as any)._type = BodyType.DYNAMIC
         }
-        body.setGlobalPose(transform, true)
+        rigidBody.setGlobalPose(transform, true)
       }
       if (config.mass) {
-        ;(body as PhysX.PxRigidDynamic).setMass(config.mass)
+        ;(rigidBody as PhysX.PxRigidDynamic).setMass(config.mass)
       }
       if (config.linearDamping) {
-        ;(body as PhysX.PxRigidDynamic).setLinearDamping(config.linearDamping)
+        ;(rigidBody as PhysX.PxRigidDynamic).setLinearDamping(config.linearDamping)
       }
       if (config.angularDamping) {
-        ;(body as PhysX.PxRigidDynamic).setAngularDamping(config.angularDamping)
+        ;(rigidBody as PhysX.PxRigidDynamic).setAngularDamping(config.angularDamping)
       }
     }
-    if (config.linearVelocity) {
-      const linearVelocity = body.getLinearVelocity()
-      body.setLinearVelocity(
-        {
-          x: config.linearVelocity.x ?? linearVelocity.x,
-          y: config.linearVelocity.y ?? linearVelocity.x,
-          z: config.linearVelocity.z ?? linearVelocity.z
-        },
-        true
-      )
-    }
-    if (config.angularVelocity) {
-      const angularVelocity = body.getAngularVelocity()
-      body.setAngularVelocity(
-        {
-          x: config.angularVelocity.x ?? angularVelocity.x,
-          y: config.angularVelocity.y ?? angularVelocity.x,
-          z: config.angularVelocity.z ?? angularVelocity.z
-        },
-        true
-      )
-    }
-    if (config.transform) {
-      const transform = body.getGlobalPose()
-      if (config.transform.translation) {
-        transform.translation.x = config.transform.translation.x ?? transform.translation.x
-        transform.translation.y = config.transform.translation.y ?? transform.translation.y
-        transform.translation.z = config.transform.translation.z ?? transform.translation.z
-      }
-      if (config.transform.rotation) {
-        transform.rotation.x = config.transform.rotation.x ?? transform.rotation.x
-        transform.rotation.y = config.transform.rotation.y ?? transform.rotation.y
-        transform.rotation.z = config.transform.rotation.z ?? transform.rotation.z
-        transform.rotation.w = config.transform.rotation.w ?? transform.rotation.w
-      }
-      body.setGlobalPose(transform, true)
-    }
-    config.shapes?.forEach((shape) => this.updateShape(shape))
+    ;(rigidBody as any).userData = config.userData
+    return rigidBody
   }
 
-  updateShape = ({ id, config, options, shape, transform }: ShapeType) => {
-    if (!config) config = {}
-    const shapePx = this.shapes.get(id)
-    if (!shapePx) return
-    if (typeof config.collisionLayer !== 'undefined') {
-      ;(shapePx as any)._collisionLayer = config.collisionLayer
-    }
-    if (typeof config.collisionMask !== 'undefined') {
-      ;(shapePx as any)._collisionMask = config.collisionMask
-    }
-    if (typeof config.collisionLayer !== 'undefined' || typeof config.collisionMask !== 'undefined') {
-      shapePx.setSimulationFilterData(
-        new PhysX.PxFilterData((shapePx as any)._collisionLayer, (shapePx as any)._collisionMask, 0, 0)
-      )
-      shapePx.setQueryFilterData(
-        new PhysX.PxFilterData((shapePx as any)._collisionLayer, (shapePx as any)._collisionMask, 0, 0)
-      )
-    }
-    if (typeof config.material !== 'undefined') {
-      const materials = shapePx.getMaterials() as PhysX.PxMaterial
-      if (typeof config.material.staticFriction !== 'undefined') {
-        materials.setStaticFriction(config.material.staticFriction)
-      }
-      if (typeof config.material.dynamicFriction !== 'undefined') {
-        materials.setDynamicFriction(config.material.dynamicFriction)
-      }
-      if (typeof config.material.restitution !== 'undefined') {
-        materials.setRestitution(config.material.restitution)
-      }
-    }
-    if (typeof config.contactOffset !== 'undefined') {
-      shapePx.setContactOffset(config.contactOffset)
-    }
-    if (typeof config.restOffset !== 'undefined') {
-      shapePx.setRestOffset(config.restOffset)
-    }
-    if (typeof transform !== 'undefined') {
-      if (transform) {
-        const localPose = shapePx.getLocalPose()
-        if (localPose.translation) {
-          localPose.translation.x = transform.translation.x ?? localPose.translation.x
-          localPose.translation.y = transform.translation.y ?? localPose.translation.y
-          localPose.translation.z = transform.translation.z ?? localPose.translation.z
-        }
-        if (transform.rotation) {
-          localPose.rotation.x = transform.rotation.x ?? localPose.rotation.x
-          localPose.rotation.y = transform.rotation.y ?? localPose.rotation.y
-          localPose.rotation.z = transform.rotation.z ?? localPose.rotation.z
-          localPose.rotation.w = transform.rotation.w ?? localPose.rotation.w
-        }
-        shapePx.setLocalPose(localPose)
-      }
-    }
+  createMaterial(staticFriction: number = 0, dynamicFriction: number = 0, restitution: number = 0) {
+    return this.physics.createMaterial(staticFriction, dynamicFriction, restitution)
   }
 
-  removeBody = ({ id }) => {
-    const body = this.bodies.get(id)
+  createShape(
+    geometry: PhysX.PxGeometry,
+    material = this.createMaterial(),
+    translation = new Vector3(),
+    rotation = new Quaternion(),
+    options: ShapeOptions = {}
+  ): PhysX.PxShape {
+    if (!geometry) return
+
+    const id = this._getNextAvailableShapeID()
+
+    const flags = new PhysX.PxShapeFlags(
+      PhysX.PxShapeFlag.eSCENE_QUERY_SHAPE.value |
+        (options?.isTrigger ? PhysX.PxShapeFlag.eTRIGGER_SHAPE.value : PhysX.PxShapeFlag.eSIMULATION_SHAPE.value)
+    )
+
+    const newTransform = {
+      translation: new Vector3().copy(translation),
+      rotation: new Quaternion().copy(rotation)
+    }
+
+    const shape = this.physics.createShape(geometry, material, false, flags)
+    // // rotate 90 degrees on Z axis as PhysX capsule extend along X axis not the Y axis
+    // if (shapetype === SHAPES.Capsule) {
+    //   quat1.setFromAxisAngle(zVec, halfPI)
+    //   quat2.copy(rotation)
+    //   quat2.multiply(quat1)
+    //   newTransform.rotation.copy(quat2)
+    // }
+    // // rotate -90 degrees on Y axis as PhysX plane is X+ normaled
+    // if (shapetype === SHAPES.Plane) {
+    //   quat1.setFromAxisAngle(yVec, -halfPI)
+    //   quat2.copy(rotation)
+    //   quat2.multiply(quat1)
+    //   newTransform.rotation.copy(quat2)
+    // }
+    shape.setLocalPose(newTransform as any)
+
+    let collisionLayer = options.collisionLayer ?? defaultMask
+    let collisionMask = options.collisionMask ?? defaultMask
+
+    ;(shape as any)._collisionLayer = collisionLayer
+    ;(shape as any)._collisionMask = collisionMask
+
+    shape.setSimulationFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
+    shape.setQueryFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
+    ;(shape as any)._id = id
+
+    this.shapeIDByPointer.set(shape.$$.ptr, id)
+    this.shapes.set(id, shape)
+
+    if (typeof options.contactOffset !== 'undefined') {
+      shape.setContactOffset(options.contactOffset)
+    }
+    if (typeof options.restOffset !== 'undefined') {
+      shape.setRestOffset(options.restOffset)
+    }
+
+    return shape
+  }
+
+  createTrimesh(scale: Vector3, vertices: ArrayLike<number>, indices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry {
+    const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
+    const indicesPtr = putIntoPhysXHeap(PhysX.HEAPF32, indices)
+    const trimesh = this.cooking.createTriMesh(
+      verticesPtr,
+      vertices.length / 3,
+      indicesPtr,
+      indices.length / 3,
+      false,
+      this.physics
+    )
+
+    if (trimesh === null) return
+
+    const meshScale = new PhysX.PxMeshScale(scale, new Quaternion())
+    const geometry = new PhysX.PxTriangleMeshGeometry(trimesh, meshScale, new PhysX.PxMeshGeometryFlags(0))
+
+    PhysX._free(verticesPtr)
+    PhysX._free(indicesPtr)
+
+    return geometry
+  }
+
+  createConvexMesh(scale: Vector3, vertices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry {
+    const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
+
+    const convexMesh = this.cooking.createConvexMesh(verticesPtr, vertices.length / 3, this.physics)
+
+    const meshScale = new PhysX.PxMeshScale(scale, new Quaternion())
+    const geometry = new PhysX.PxConvexMeshGeometry(convexMesh, meshScale, new PhysX.PxConvexMeshGeometryFlags(0))
+
+    PhysX._free(verticesPtr)
+
+    return geometry
+  }
+
+  removeBody(body) {
+    const id = (body as any)._id
     const shapes = body.getShapes()
     const shapesArray = ((shapes as PhysX.PxShape[]).length ? shapes : [shapes]) as PhysX.PxShape[]
     shapesArray.forEach((shape) => {
@@ -339,18 +338,22 @@ export class Physics {
     }
   }
 
-  createController = ({ id, config }: { id: number; config: ControllerConfig }) => {
+  createController(config: CapsuleControllerConfig | BoxControllerConfig) {
+    const id = this._getNextAvailableBodyID()
     const controllerDesc = config.isCapsule ? new PhysX.PxCapsuleControllerDesc() : new PhysX.PxBoxControllerDesc()
+    controllerDesc.setMaterial(config.material)
     controllerDesc.position = { x: config.position?.x ?? 0, y: config.position?.y ?? 0, z: config.position?.z ?? 0 }
     if (config.isCapsule) {
-      ;(controllerDesc as PhysX.PxCapsuleControllerDesc).height = config.height
-      ;(controllerDesc as PhysX.PxCapsuleControllerDesc).radius = config.radius
+      ;(controllerDesc as PhysX.PxCapsuleControllerDesc).height = (config as CapsuleControllerConfig).height
+      ;(controllerDesc as PhysX.PxCapsuleControllerDesc).radius = (config as CapsuleControllerConfig).radius
       ;(controllerDesc as PhysX.PxCapsuleControllerDesc).climbingMode =
-        config.climbingMode ?? PhysX.PxCapsuleClimbingMode.eEASY
+        (config as CapsuleControllerConfig).climbingMode ?? PhysX.PxCapsuleClimbingMode.eEASY
     } else {
-      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfForwardExtent = config.halfForwardExtent
-      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfHeight = config.halfHeight
-      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfSideExtent = config.halfSideExtent
+      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfForwardExtent = (
+        config as BoxControllerConfig
+      ).halfForwardExtent
+      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfHeight = (config as BoxControllerConfig).halfHeight
+      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfSideExtent = (config as BoxControllerConfig).halfSideExtent
     }
     controllerDesc.stepOffset = config.stepOffset ?? 0.1
     controllerDesc.maxJumpHeight = config.maxJumpHeight ?? 0.1
@@ -366,9 +369,9 @@ export class Physics {
           const position = event.getWorldPos()
           const normal = event.getWorldNormal()
           const length = event.getLength()
-          this.onEvent({
-            event: ControllerEvents.CONTROLLER_SHAPE_HIT,
-            controllerID: id,
+          this.collisionEventQueue.push({
+            type: ControllerEvents.CONTROLLER_SHAPE_HIT,
+            controller,
             bodyID,
             shapeID,
             position,
@@ -383,9 +386,9 @@ export class Physics {
           const position = event.getWorldPos()
           const normal = event.getWorldNormal()
           const length = event.getLength()
-          this.onEvent({
-            event: ControllerEvents.CONTROLLER_CONTROLLER_HIT,
-            controllerID: id,
+          this.collisionEventQueue.push({
+            type: ControllerEvents.CONTROLLER_CONTROLLER_HIT,
+            controller,
             bodyID,
             shapeID,
             position,
@@ -400,9 +403,9 @@ export class Physics {
           const position = event.getWorldPos()
           const normal = event.getWorldNormal()
           const length = event.getLength()
-          this.onEvent({
-            event: ControllerEvents.CONTROLLER_OBSTACLE_HIT,
-            controllerID: id,
+          this.collisionEventQueue.push({
+            type: ControllerEvents.CONTROLLER_OBSTACLE_HIT,
+            controller,
             obstacleID,
             position,
             normal,
@@ -410,13 +413,6 @@ export class Physics {
           })
         }
       })
-    )
-    controllerDesc.setMaterial(
-      this.physics.createMaterial(
-        config.material?.staticFriction ?? 0,
-        config.material?.dynamicFriction ?? 0,
-        config.material?.restitution ?? 0
-      )
     )
     if (!controllerDesc.isValid()) {
       console.warn('[WARN] Controller Description invalid!')
@@ -429,8 +425,7 @@ export class Physics {
     const actor = controller.getActor()
     this.bodies.set(id, actor as any)
     const shapes = actor.getShapes() as PhysX.PxShape
-    this.shapeIDByPointer.set(shapes.$$.ptr, config.id)
-    ;(controller as any)._collisions = []
+    this.shapeIDByPointer.set(shapes.$$.ptr, id)
     ;(actor as any)._type = BodyType.CONTROLLER
     ;(controller as any)._filterData = new PhysX.PxFilterData(
       config.collisionLayer ?? defaultMask,
@@ -438,61 +433,53 @@ export class Physics {
       0,
       0
     )
-    ;(controller as any)._delta = { x: 0, y: 0, z: 0 }
-    this.updateController(config)
+    ;(controller as any)._id = id
+    return controller
   }
 
-  updateController = (config: ControllerConfig) => {
-    const controller = this.controllers.get(config.id)
-    if (!controller) return
-    if (typeof config.positionDelta !== 'undefined') {
-      const currentPos = controller.getPosition()
-      controller.setPosition({
-        x: currentPos.x + (config.positionDelta.x ?? 0),
-        y: currentPos.y + (config.positionDelta.y ?? 0),
-        z: currentPos.z + (config.positionDelta.z ?? 0)
-      })
-    }
-    if (typeof config.position !== 'undefined') {
-      const currentPos = controller.getPosition()
-      controller.setPosition({
-        x: config.position.x ?? currentPos.x,
-        y: config.position.y ?? currentPos.y,
-        z: config.position.z ?? currentPos.z
-      })
-    }
-    if (typeof config.height !== 'undefined') {
-      ;(controller as PhysX.PxCapsuleController).setHeight(config.height)
-    }
-    if (typeof config.resize !== 'undefined') {
-      ;(controller as PhysX.PxController).resize(config.resize)
-    }
-    if (typeof config.radius !== 'undefined') {
-      ;(controller as PhysX.PxCapsuleController).setRadius(config.radius)
-    }
-    if (typeof config.climbingMode !== 'undefined') {
-      ;(controller as PhysX.PxCapsuleController).setClimbingMode(config.climbingMode)
-    }
-    if (typeof config.halfForwardExtent !== 'undefined') {
-      ;(controller as PhysX.PxBoxController).setHalfForwardExtent(config.halfForwardExtent)
-    }
-    if (typeof config.halfHeight !== 'undefined') {
-      ;(controller as PhysX.PxBoxController).setHalfHeight(config.halfHeight)
-    }
-    if (typeof config.halfSideExtent !== 'undefined') {
-      ;(controller as PhysX.PxBoxController).setHalfSideExtent(config.halfSideExtent)
-    }
-    if (typeof config.collisionLayer !== 'undefined') {
-      ;(controller as any)._filterData.word0 = config.collisionLayer
-    }
-    if (typeof config.collisionMask !== 'undefined') {
-      ;(controller as any)._filterData.word1 = config.collisionMask
-    }
-  }
+  // @todo:
 
-  removeController = ({ id }) => {
-    const controller = this.controllers.get(id)
-    if (!controller) return
+  // updateController = (controller: PhysX.PxController) => {
+  //   if (typeof config.position !== 'undefined') {
+  //     const currentPos = controller.getPosition()
+  //     controller.setPosition({
+  //       x: config.position.x ?? currentPos.x,
+  //       y: config.position.y ?? currentPos.y,
+  //       z: config.position.z ?? currentPos.z
+  //     })
+  //   }
+  //   if (typeof config.height !== 'undefined') {
+  //     ; (controller as PhysX.PxCapsuleController).setHeight(config.height)
+  //   }
+  //   if (typeof config.resize !== 'undefined') {
+  //     ; (controller as PhysX.PxController).resize(config.resize)
+  //   }
+  //   if (typeof config.radius !== 'undefined') {
+  //     ; (controller as PhysX.PxCapsuleController).setRadius(config.radius)
+  //   }
+  //   if (typeof config.climbingMode !== 'undefined') {
+  //     ; (controller as PhysX.PxCapsuleController).setClimbingMode(config.climbingMode)
+  //   }
+  //   if (typeof config.halfForwardExtent !== 'undefined') {
+  //     ; (controller as PhysX.PxBoxController).setHalfForwardExtent(config.halfForwardExtent)
+  //   }
+  //   if (typeof config.halfHeight !== 'undefined') {
+  //     ; (controller as PhysX.PxBoxController).setHalfHeight(config.halfHeight)
+  //   }
+  //   if (typeof config.halfSideExtent !== 'undefined') {
+  //     ; (controller as PhysX.PxBoxController).setHalfSideExtent(config.halfSideExtent)
+  //   }
+  //   if (typeof config.collisionLayer !== 'undefined') {
+  //     ; (controller as any)._filterData.word0 = config.collisionLayer
+  //   }
+  //   if (typeof config.collisionMask !== 'undefined') {
+  //     ; (controller as any)._filterData.word1 = config.collisionMask
+  //   }
+  //   return config
+  // }
+
+  removeController(controller: PhysX.PxController) {
+    const id = (controller as any)._id
     const actor = controller.getActor()
     const shapes = actor.getShapes() as PhysX.PxShape
     this.controllerIDByPointer.delete(controller.$$.ptr)
@@ -503,7 +490,8 @@ export class Physics {
     // todo
   }
 
-  addRaycastQuery = (query: SceneQuery) => {
+  addRaycastQuery(query: SceneQuery) {
+    const id = this._getNextAvailableRaycastID()
     ;(query as any)._filterData = new PhysX.PxQueryFilterData()
     ;(query as any)._filterData.setWords(query.collisionMask ?? 1, 0)
     if (typeof query.flags === 'undefined') {
@@ -511,11 +499,13 @@ export class Physics {
         PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
     }
     ;(query as any)._filterData.setFlags(query.flags)
-    this.raycasts.set(query.id, query)
+    this.raycasts.set(id, query)
+    return query
   }
 
-  updateRaycastQuery = (newArgs: SceneQuery) => {
-    const { id, flags, maxDistance, maxHits, collisionMask } = newArgs
+  // todo remove
+  updateRaycastQuery(id, newArgs: SceneQuery) {
+    const { flags, maxDistance, maxHits, collisionMask } = newArgs
     const raycast = this.raycasts.get(id)
     if (!raycast) return
     if (typeof flags !== 'undefined') {
@@ -531,13 +521,14 @@ export class Physics {
       raycast.collisionMask = collisionMask
       ;(raycast as any)._filterData.setWords(raycast.collisionMask ?? 1, 0)
     }
+    return newArgs
   }
 
-  removeRaycastQuery = (id: number) => {
+  removeRaycastQuery(id: number) {
     this.raycasts.delete(id)
   }
 
-  addObstacle = ({ id, isCapsule, position, rotation, halfExtents, halfHeight, radius }) => {
+  addObstacle({ id, isCapsule, position, rotation, halfExtents, halfHeight, radius }) {
     const obstacle = new (isCapsule ? PhysX.PxCapsuleObstacle : PhysX.PxBoxObstacle)()
     // todo: allow for more than a single int in memory for userData
     obstacle.setUserData(putIntoPhysXHeap(PhysX.HEAPU32, [id]))
@@ -550,46 +541,98 @@ export class Physics {
     this.obstacles.set(id, handle)
   }
 
-  removeObstacle = (id: number) => {
+  removeObstacle(id: number) {
     const handle = this.obstacles.get(id)
     this.obstacleContext.removeObstacle(handle)
     this.obstacles.delete(id)
   }
+
+  getRigidbodyShapes(body: PhysX.PxRigidActor) {
+    const shapes = body.getShapes()
+    return ((shapes as PhysX.PxShape[]).length ? shapes : [shapes]) as PhysX.PxShape[]
+  }
+
+  doRaycast(raycastQuery: ComponentType<typeof RaycastComponent>) {
+    raycastQuery.hits = []
+    if (raycastQuery.type === SceneQueryType.Closest) {
+      const buffer = new PhysX.PxRaycastHit()
+      // todo - implement query filter bindings
+      // const queryCallback = PhysX.PxQueryFilterCallback.implement({
+      //   preFilter: (filterData, shape, actor) => { return PhysX.PxQueryHitType.eBLOCK },
+      //   postFilter: (filterData, hit) => { return PhysX.PxQueryHitType.eBLOCK  }
+      // });
+      const hasHit = this.scene.raycastSingle(
+        raycastQuery.origin,
+        raycastQuery.direction,
+        raycastQuery.maxDistance,
+        raycastQuery.flags,
+        buffer,
+        raycastQuery.filterData
+      )
+      if (hasHit) {
+        const shape = buffer.getShape()
+        if (shape) {
+          raycastQuery.hits.push({
+            distance: buffer.distance,
+            normal: buffer.normal,
+            position: buffer.position,
+            _bodyID: this.bodyIDByShapeID.get(this.shapeIDByPointer.get(shape.$$.ptr))
+          })
+        }
+      }
+    }
+    // const buffer: PhysX.PxRaycastBuffer = PhysX.allocateRaycastHitBuffers(raycastQuery.maxHits);
+    // const hasHit = this.scene.raycast(raycastQuery.origin, raycastQuery.direction, raycastQuery.maxDistance, buffer);
+    // if (hasHit) {
+
+    // if(raycastQuery.flags) {
+    //   for (let index = 0; index < buffer.getNbTouches(); index++) {
+
+    //   }
+    // } else {
+    //   for (let index = 0; index < buffer.getNbAnyHits(); index++) {
+    //     const touch = buffer.getAnyHit(index);
+    //     const shape = this.shapeIDByPointer.get(touch.getShape().$$.ptr);
+    //     hits.push({
+    //       shape,
+    //     });
+    //   }
+    // }
+    // }
+  }
+  private _getNextAvailableBodyID() {
+    // todo, make this smart
+    return nextAvailableBodyIndex++
+  }
+
+  private _getNextAvailableShapeID() {
+    // todo, make this smart
+    return nextAvailableShapeID++
+  }
+
+  private _getNextAvailableRaycastID() {
+    // todo, make this smart
+    return nextAvailableRaycastID++
+  }
+
+  private _getNextAvailableObstacleID() {
+    // todo, make this smart
+    return nextAvailableObstacleID++
+  }
 }
 
-const isKinematicBody = (body: PhysX.PxRigidActor) => {
+export const isKinematicBody = (body: PhysX.PxRigidActor) => {
   return (body as any)._type === BodyType.KINEMATIC
 }
 
-const isControllerBody = (body: PhysX.PxRigidActor) => {
+export const isControllerBody = (body: PhysX.PxRigidActor) => {
   return (body as any)._type === BodyType.CONTROLLER
 }
 
-const isDynamicBody = (body: PhysX.PxRigidActor) => {
+export const isDynamicBody = (body: PhysX.PxRigidActor) => {
   return (body as any)._type === BodyType.DYNAMIC
 }
 
-const isStaticBody = (body: PhysX.PxRigidActor) => {
+export const isStaticBody = (body: PhysX.PxRigidActor) => {
   return (body as any)._type === BodyType.STATIC
-}
-
-const getBodyData = (body: PhysX.PxRigidActor) => {
-  const transform = body.getGlobalPose()
-  const linVel = body.getLinearVelocity()
-  const angVel = body.getAngularVelocity()
-  return [
-    transform.translation.x,
-    transform.translation.y,
-    transform.translation.z,
-    transform.rotation.x,
-    transform.rotation.y,
-    transform.rotation.z,
-    transform.rotation.w,
-    linVel.x,
-    linVel.y,
-    linVel.z,
-    angVel.x,
-    angVel.y,
-    angVel.z
-  ]
 }

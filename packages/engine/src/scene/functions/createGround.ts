@@ -31,7 +31,8 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
   console.log('create ground', entity, args, isClient)
-  const body = createCollider(
+
+  createCollider(
     entity,
     {
       userData: {
@@ -51,8 +52,6 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
     const navMesh = generateNavMesh(vectorTiles, center, mesh.scale.x * METERS_PER_DEGREE_LL)
     addComponent(entity, NavMeshComponent, { yukaNavMesh: navMesh, navTarget: mesh })
   }
-
-  addComponent(entity, ColliderComponent, { body })
 
   return mesh
 }

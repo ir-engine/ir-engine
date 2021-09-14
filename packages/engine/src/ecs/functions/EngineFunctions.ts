@@ -1,7 +1,7 @@
 /** Functions to provide engine level functionalities. */
 import * as bitecs from 'bitecs'
 import { Color } from 'three'
-import { PhysXInstance } from '../../physics/physx'
+import { PhysXInstance } from '../../physics/classes/Physics'
 import { ActionType, IncomingActionType } from '../..'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
@@ -18,6 +18,7 @@ import { hasComponent, MappedComponent, removeAllComponents } from './ComponentF
 import { removeEntity, createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InjectionPoint, SystemInitializeType } from './SystemFunctions'
 import { Physics } from '../../physics/classes/Physics'
+import { useWorld } from './SystemHooks'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -84,11 +85,13 @@ export async function reset(): Promise<void> {
 }
 
 export const processLocationChange = async (): Promise<void> => {
+  const world = useWorld()
+
   const entitiesToRemove = []
   const removedEntities = []
   const sceneObjectsToRemove = []
 
-  Engine.defaultWorld.entities.forEach((entity) => {
+  world.entities.forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)
@@ -96,7 +99,7 @@ export const processLocationChange = async (): Promise<void> => {
     }
   })
 
-  Engine.defaultWorld.execute(1 / 60)
+  world.execute(1 / 60)
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -116,16 +119,9 @@ export const processLocationChange = async (): Promise<void> => {
 
   isClient && EngineRenderer.instance.resetPostProcessing()
 
-  Engine.defaultWorld.execute(1 / 60)
+  world.execute(1 / 60)
 
-  await resetPhysics()
-}
-
-export const resetPhysics = async (): Promise<void> => {
-  Engine.physxWorker.terminate()
-  Engine.workers.splice(Engine.workers.indexOf(Engine.physxWorker), 1)
-  PhysXInstance.instance.dispose()
-  PhysXInstance.instance = new PhysXInstance()
+  world.physics.dispose()
 }
 
 type SystemGroupInterface = (() => void)[]

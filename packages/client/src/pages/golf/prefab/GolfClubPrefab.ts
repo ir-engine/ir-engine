@@ -14,15 +14,6 @@ import {
   Vector3,
   Quaternion
 } from 'three'
-import {
-  Body,
-  BodyType,
-  PhysXInstance,
-  RaycastQuery,
-  SceneQueryType,
-  SHAPES,
-  ShapeType
-} from '@xrengine/engine/src/physics/physx'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -38,6 +29,8 @@ import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
+import { BodyType, SceneQueryType, SHAPES, ShapeType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -211,24 +204,22 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
 
   const color = GolfColours[playerNumber].clone()
 
-  const raycast = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
-      origin: new Vector3(),
-      direction: new Vector3(0, -1, 0),
-      maxDistance: rayLength,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
-    })
-  )
-  const raycast1 = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
-      origin: new Vector3(),
-      direction: new Vector3(0, -1, 0),
-      maxDistance: rayLength,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
-    })
-  )
+  const world = useWorld()
+
+  const raycast = world.physics.addRaycastQuery({
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: new Vector3(0, -1, 0),
+    maxDistance: rayLength,
+    collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
+  })
+  const raycast1 = world.physics.addRaycastQuery({
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: new Vector3(0, -1, 0),
+    maxDistance: rayLength,
+    collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
+  })
 
   const handleObject = new Mesh(
     new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25),
@@ -269,15 +260,13 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
         collisionMask: GolfCollisionGroups.Ball
       }
     }
-    const body = PhysXInstance.instance.addBody(
-      new Body({
-        shapes: [shapeHead],
-        type: BodyType.STATIC,
-        transform: {
-          translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-        }
-      })
-    )
+    const body = world.physics.addBody({
+      shapes: [shapeHead],
+      type: BodyType.STATIC,
+      transform: {
+        translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
+      }
+    })
     addComponent(entityClub, ColliderComponent, { body })
   }
 

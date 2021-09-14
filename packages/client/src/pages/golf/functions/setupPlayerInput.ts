@@ -86,9 +86,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
 
       const pos = new Vector3(position.x, position.y, position.z)
       pos.y += actor.avatarHalfHeight
-      controller.controller.updateTransform({
-        translation: pos
-      })
+      controller.controller.setPosition()
       // rotateViewVectorXZ(actor.viewVector, angle)
 
       const transform = getComponent(entity, TransformComponent)

@@ -1,14 +1,13 @@
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { ShapeType, SHAPES, Body, BodyType, PhysXInstance } from '../../physics/physx'
-import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, MeshNormalMaterial } from 'three'
+import { Vector3, Quaternion, CylinderBufferGeometry, Mesh } from 'three'
 import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
-import { ColliderTypes } from '../types/PhysicsTypes'
+import { BodyType, ColliderTypes, SHAPES, ShapeOptions } from '../types/PhysicsTypes'
 import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3'
-import { Engine } from '../../ecs/classes/Engine'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -32,15 +31,43 @@ type ColliderData = {
   indices?: number[]
   collisionLayer?: number | string
   collisionMask?: number | string
+  contactOffset?: number | string
+  restOffset?: number | string
 }
 
-export function createCollider(
+export const getCollisionLayer = (userData: ColliderData) => {
+  if (userData.type === 'ground') {
+    return CollisionGroups.Ground
+  }
+  if (typeof userData.collisionLayer === 'undefined') {
+    return userData.isTrigger ? CollisionGroups.Trigger : CollisionGroups.Default
+  }
+  return Number(userData.collisionLayer)
+}
+
+export const getCollisionMask = (userData: ColliderData) => {
+  switch (userData.collisionMask) {
+    case undefined:
+    case -1:
+    case '-1':
+    case '':
+      return DefaultCollisionMask
+    default:
+      if (/all/i.test(userData.collisionMask as string)) {
+        return DefaultCollisionMask
+      }
+      return Number(userData.collisionMask)
+  }
+}
+
+export const createCollider = (
   entity: Entity,
   mesh: Mesh | any,
-  pos = new Vector3(),
-  rot = new Quaternion(),
+  translation = new Vector3(),
+  rotation = new Quaternion(),
   scale = new Vector3(1, 1, 1)
-): Body {
+) => {
+  const world = useWorld()
   const userData = mesh.userData as ColliderData
   // console.log(mesh, userData, pos, rot, scale)
 
@@ -62,28 +89,22 @@ export function createCollider(
   if (typeof userData.collisionMask === 'undefined' && typeof (userData as any).collisionmask !== 'undefined')
     userData.collisionMask = (userData as any).collisionmask
 
-  const shapeArgs: ShapeType = { config: {} }
+  let geometry: PhysX.PxGeometry
   switch (userData.type) {
     case 'box':
-      shapeArgs.shape = SHAPES.Box
-      shapeArgs.options = { boxExtents: { x: Math.abs(scale.x), y: Math.abs(scale.y), z: Math.abs(scale.z) } }
+      geometry = new PhysX.PxBoxGeometry(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
       break
 
     case 'ground':
-      shapeArgs.shape = SHAPES.Plane
-      quat1.setFromAxisAngle(xVec, -halfPI)
-      quat2.set(rot.x, rot.y, rot.z, rot.w)
-      rot = quat2.multiply(quat1)
+      geometry = new PhysX.PxPlaneGeometry()
       break
 
     case 'sphere':
-      shapeArgs.shape = SHAPES.Sphere
-      shapeArgs.options = { radius: Math.abs(scale.x) }
+      geometry = new PhysX.PxSphereGeometry(Math.abs(scale.x))
       break
 
     case 'capsule':
-      shapeArgs.shape = SHAPES.Capsule
-      shapeArgs.options = { halfHeight: Math.abs(scale.y), radius: Math.abs(scale.x) }
+      geometry = new PhysX.PxCapsuleGeometry(Math.abs(scale.x), Math.abs(scale.y))
       break
 
     // physx doesnt have cylinder shapes, default to convex
@@ -103,58 +124,43 @@ export function createCollider(
       }
     // yes, don't break here - use convex for cylinder
     case 'convex':
-      shapeArgs.shape = SHAPES.ConvexMesh
-      shapeArgs.options = { vertices: [...userData.vertices], indices: [...userData.indices] }
+      geometry = world.physics.createTrimesh(scale, userData.vertices, userData.indices)
       break
 
     case 'trimesh':
-      shapeArgs.shape = SHAPES.TriangleMesh
-      shapeArgs.options = { vertices: [...userData.vertices], indices: [...userData.indices] }
+      geometry = world.physics.createConvexMesh(scale, userData.vertices)
       break
 
     default:
       console.error('unknown shape', userData.type)
   }
 
-  shapeArgs.config.material = {
-    staticFriction: userData.staticFriction ?? 0.1,
-    dynamicFriction: userData.dynamicFriction ?? 0.1,
-    restitution: userData.restitution ?? 0.1
-  }
-
-  shapeArgs.config.collisionLayer = Number(
-    userData.collisionLayer ?? (userData.isTrigger ? CollisionGroups.Trigger : CollisionGroups.Default)
+  const material = world.physics.physics.createMaterial(
+    userData.staticFriction ?? 0.1,
+    userData.dynamicFriction ?? 0.1,
+    userData.restitution ?? 0.1
   )
-  switch (userData.collisionMask) {
-    case undefined:
-    case -1:
-    case '-1':
-    case '':
-      shapeArgs.config.collisionMask = DefaultCollisionMask
-      break
-    default:
-      if (/all/i.test(userData.collisionMask as string)) shapeArgs.config.collisionMask = DefaultCollisionMask
-      else shapeArgs.config.collisionMask = Number(userData.collisionMask)
-      break
-  }
 
-  if (userData.type === 'ground') {
-    shapeArgs.config.collisionLayer = CollisionGroups.Ground
-  }
+  const collisionLayer = getCollisionLayer(userData)
+  const collisionMask = getCollisionMask(userData)
 
-  if (userData.isTrigger) {
-    shapeArgs.config.isTrigger = Boolean(userData.isTrigger)
-  }
+  const contactOffset = typeof userData.contactOffset === 'undefined' ? 0 : Number(userData.contactOffset)
+  const restOffset = typeof userData.restOffset === 'undefined' ? 0 : Number(userData.restOffset)
 
-  const body = new Body({
-    shapes: [shapeArgs],
+  const shape = world.physics.createShape(geometry, material, new Vector3(), new Quaternion(), {
+    isTrigger: Boolean(userData.isTrigger),
+    collisionLayer,
+    collisionMask,
+    contactOffset,
+    restOffset
+  })
+
+  const body = useWorld().physics.addBody({
+    shapes: [shape],
     type: userData.bodytype ?? BodyType.STATIC,
     transform: {
-      translation: { x: pos.x, y: pos.y, z: pos.z },
-      rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
-      // scale: { x: scale.x, y: scale.y, z: scale.z }, // this actually does nothing, physx doesn't have a scale param apparently...
-      linearVelocity: { x: 0, y: 0, z: 0 },
-      angularVelocity: { x: 0, y: 0, z: 0 }
+      translation,
+      rotation
     },
     userData: {
       entity
@@ -162,8 +168,4 @@ export function createCollider(
   })
 
   addComponent(entity, ColliderComponent, { body })
-
-  PhysXInstance.instance.addBody(body)
-
-  return body
 }

@@ -16,18 +16,10 @@ import {
   Material,
   BufferAttribute
 } from 'three'
-import {
-  Body,
-  BoxObstacle,
-  CapsuleObstacle,
-  Controller,
-  Obstacle,
-  PhysXInstance,
-  BodyType,
-  SHAPES,
-  Shape
-} from '../../physics/physx'
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
+import { World } from '../../ecs/classes/World'
+import { isControllerBody } from '../../physics/classes/Physics'
+import { BodyType, SHAPES } from '../../physics/types/PhysicsTypes'
 
 const parentMatrix = new Matrix4()
 const childMatrix = new Matrix4()
@@ -36,6 +28,7 @@ const rot = new Quaternion()
 const quat = new Quaternion()
 const scale = new Vector3(1, 1, 1)
 const scale2 = new Vector3(1, 1, 1)
+
 export class DebugRenderer {
   private scene: Scene
   private _meshes: Map<number, any> = new Map<number, any>()
@@ -86,61 +79,53 @@ export class DebugRenderer {
     }
   }
 
-  public update() {
+  public update(world: World) {
     if (!this.enabled) {
       return
     }
 
-    PhysXInstance.instance._bodies.forEach((body: Body) => {
-      pos.set(body.transform.translation.x, body.transform.translation.y, body.transform.translation.z)
-      if (body.type === BodyType.CONTROLLER) {
-        const controllerShapeID = (body as Controller)._shape.id
-        this._updateController(body as Controller, controllerShapeID)
+    world.physics.bodies.forEach((body: PhysX.PxRigidActor) => {
+      const pose = body.getGlobalPose()
+      pos.set(pose.translation.x, pose.translation.y, pose.translation.z)
+      if (isControllerBody(body)) {
+        const controllerShapeID = (body as any)._shape.id
+        this._updateController(body as any, controllerShapeID)
         this._meshes.get(controllerShapeID).position.copy(pos)
         return
       }
-      rot.set(
-        body.transform.rotation.x,
-        body.transform.rotation.y,
-        body.transform.rotation.z,
-        body.transform.rotation.w
-      )
+      rot.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w)
       parentMatrix.compose(pos, rot, scale)
 
-      body.shapes.forEach((shape: Shape) => {
-        this._updateMesh(body, shape.id, shape)
+      world.physics.getRigidbodyShapes(body).forEach((shape) => {
+        const localPose = shape.getLocalPose()
+        this._updateMesh(body, (shape as any)._id, shape)
 
-        if (this._meshes.get(shape.id)) {
+        if (this._meshes.get((shape as any).id)) {
           // Copy to meshes
-          pos.set(shape.transform.translation.x, shape.transform.translation.y, shape.transform.translation.z)
-          rot.set(
-            shape.transform.rotation.x,
-            shape.transform.rotation.y,
-            shape.transform.rotation.z,
-            shape.transform.rotation.w
-          )
+          pos.set(localPose.translation.x, localPose.translation.y, localPose.translation.z)
+          rot.set(localPose.rotation.x, localPose.rotation.y, localPose.rotation.z, localPose.rotation.w)
           childMatrix.compose(pos, rot, scale)
           childMatrix.premultiply(parentMatrix)
           childMatrix.decompose(pos, rot, scale2)
-          this._meshes.get(shape.id).position.copy(pos)
-          this._meshes.get(shape.id).quaternion.copy(rot)
+          this._meshes.get((shape as any).id).position.copy(pos)
+          this._meshes.get((shape as any).id).quaternion.copy(rot)
         }
       })
     })
-    PhysXInstance.instance._raycasts.forEach((raycast, id) => {
+    world.physics.raycasts.forEach((raycast, id) => {
       this._updateRaycast(raycast, id)
     })
-    PhysXInstance.instance._obstacles.forEach((obstacle, id) => {
+    world.physics.obstacles.forEach((obstacle, id) => {
       this._updateObstacle(obstacle, id)
     })
     this._obstacles.forEach((mesh, id) => {
-      if (!PhysXInstance.instance._obstacles.has(id)) {
+      if (!world.physics.obstacles.has(id)) {
         this.scene.remove(mesh)
         this._meshes.delete(id)
       }
     })
     this._meshes.forEach((mesh, id) => {
-      if (!PhysXInstance.instance._shapes.has(id)) {
+      if (!world.physics.shapes.has(id)) {
         this.scene.remove(mesh)
         this._meshes.delete(id)
       }
@@ -167,19 +152,11 @@ export class DebugRenderer {
     }
   }
 
-  private _updateObstacle(obstacle: Obstacle, id) {
+  private _updateObstacle(obstacle, id) {
     if (!this._obstacles.get(id)) {
       const geom = obstacle.isCapsule
-        ? new CapsuleBufferGeometry(
-            (obstacle as CapsuleObstacle).radius,
-            (obstacle as CapsuleObstacle).radius,
-            (obstacle as CapsuleObstacle).halfHeight * 2
-          )
-        : new BoxBufferGeometry(
-            (obstacle as BoxObstacle).halfExtents.x * 2,
-            (obstacle as BoxObstacle).halfExtents.y * 2,
-            (obstacle as BoxObstacle).halfExtents.z * 2
-          )
+        ? new CapsuleBufferGeometry(obstacle.radius, obstacle.radius, obstacle.halfHeight * 2)
+        : new BoxBufferGeometry(obstacle.halfExtents.x * 2, obstacle.halfExtents.y * 2, obstacle.halfExtents.z * 2)
       const mesh = new Mesh(geom, this._materials[5])
       mesh.position.copy(obstacle.position)
       mesh.quaternion.copy(obstacle.rotation)
@@ -188,33 +165,33 @@ export class DebugRenderer {
     }
   }
 
-  private _updateController(controller: Controller, id: number) {
+  private _updateController(controller: PhysX.PxController, id: number) {
     let mesh = this._meshes.get(id)
     let needsUpdate = false
-    if (controller._debugNeedsUpdate) {
+    if ((controller as any)._debugNeedsUpdate) {
       if (mesh) {
         this.scene.remove(mesh)
         needsUpdate = true
       }
-      delete controller._debugNeedsUpdate
+      delete (controller as any)._debugNeedsUpdate
     }
 
     if (!mesh || needsUpdate) {
-      if (controller._shape.isCapsule) {
+      if ((controller as any)._shape.isCapsule) {
         mesh = new Mesh(
           new CapsuleBufferGeometry(
-            clampNonzeroPositive(controller.radius),
-            clampNonzeroPositive(controller.radius),
-            clampNonzeroPositive(controller.height)
+            clampNonzeroPositive((controller as any).radius),
+            clampNonzeroPositive((controller as any).radius),
+            clampNonzeroPositive((controller as any).height)
           ),
           this._materials[BodyType.CONTROLLER]
         )
       } else {
         mesh = new Mesh(
           new BoxBufferGeometry(
-            clampNonzeroPositive(controller.halfSideExtent * 2),
-            clampNonzeroPositive(controller.halfHeight * 2),
-            clampNonzeroPositive(controller.halfForwardExtent * 2)
+            clampNonzeroPositive((controller as any).halfSideExtent * 2),
+            clampNonzeroPositive((controller as any).halfHeight * 2),
+            clampNonzeroPositive((controller as any).halfForwardExtent * 2)
           ),
           this._materials[BodyType.CONTROLLER]
         )
@@ -224,25 +201,25 @@ export class DebugRenderer {
     }
   }
 
-  private _updateMesh(body: Body, id: number, shape: Shape) {
+  private _updateMesh(body: PhysX.PxRigidActor, id: number, shape: PhysX.PxShape) {
     let mesh = this._meshes.get(id)
     let needsUpdate = false
-    if (shape._debugNeedsUpdate) {
+    if ((shape as any)._debugNeedsUpdate) {
       if (mesh) {
         this.scene.remove(mesh)
         needsUpdate = true
         this._scaleMesh(mesh, shape)
       }
-      delete shape._debugNeedsUpdate
+      delete (shape as any)._debugNeedsUpdate
     }
     if (!mesh || needsUpdate) {
-      mesh = this._createMesh(shape, body.type)
+      mesh = this._createMesh(shape, (body as any)._type)
       this._meshes.set(id, mesh)
       this._scaleMesh(mesh, shape)
     }
   }
 
-  private _createMesh(shape: Shape, type: BodyType): Mesh | Points {
+  private _createMesh(shape, type: SHAPES): Mesh | Points {
     let mesh: Mesh | Points
     let geometry: BufferGeometry
     const material: Material = this._materials[shape.config.isTrigger ? 4 : type]
@@ -304,7 +281,7 @@ export class DebugRenderer {
     return mesh
   }
 
-  private _scaleMesh(mesh: Mesh | Points, shape: Shape) {
+  private _scaleMesh(mesh: Mesh | Points, shape) {
     const scale = shape.transform.scale as Vector3
     if (shape.shape === SHAPES.Sphere) {
       const radius = clampNonzeroPositive(shape.options.radius)

@@ -11,15 +11,6 @@ import {
   Vector4,
   ConeGeometry
 } from 'three'
-import {
-  Body,
-  BodyType,
-  ShapeType,
-  SHAPES,
-  RaycastQuery,
-  SceneQueryType,
-  PhysXInstance
-} from '@xrengine/engine/src/physics/physx'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -46,6 +37,8 @@ import { PlaySoundEffect } from '@xrengine/engine/src/audio/components/PlaySound
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { BodyType, SceneQueryType, SHAPES, ShapeType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -387,40 +380,36 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
 
   const isMyBall = isEntityLocalClient(ownerEntity)
 
-  const body = PhysXInstance.instance.addBody(
-    new Body({
-      shapes: [shape],
-      // make static on server and remote player's balls so we can still detect collision with hole
-      type: isMyBall ? BodyType.DYNAMIC : BodyType.STATIC,
-      transform: {
-        translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-      },
-      userData: { entity: ballEntity }
-    })
-  )
+  const world = useWorld()
+
+  const body = world.physics.addBody({
+    shapes: [shape],
+    // make static on server and remote player's balls so we can still detect collision with hole
+    type: isMyBall ? BodyType.DYNAMIC : BodyType.STATIC,
+    transform: {
+      translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
+    },
+    userData: { entity: ballEntity }
+  })
   addComponent(ballEntity, ColliderComponent, { body })
 
   // for track ground
-  const groundRaycast = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
-      origin: transform.position,
-      direction: new Vector3(0, -1, 0),
-      maxDistance: 1,
-      collisionMask: GolfCollisionGroups.Course
-    })
-  )
+  const groundRaycast = world.physics.addRaycastQuery({
+    type: SceneQueryType.Closest,
+    origin: transform.position,
+    direction: new Vector3(0, -1, 0),
+    maxDistance: 1,
+    collisionMask: GolfCollisionGroups.Course
+  })
 
   // for track wall
-  const wallRaycast = PhysXInstance.instance.addRaycastQuery(
-    new RaycastQuery({
-      type: SceneQueryType.Closest,
-      origin: transform.position,
-      direction: new Vector3(0, 0, 0),
-      maxDistance: 0.5,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
-    })
-  )
+  const wallRaycast = world.physics.addRaycastQuery({
+    type: SceneQueryType.Closest,
+    origin: transform.position,
+    direction: new Vector3(0, 0, 0),
+    maxDistance: 0.5,
+    collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
+  })
 
   addComponent(ballEntity, GolfBallComponent, {
     groundRaycast,
