@@ -1,6 +1,12 @@
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  removeComponent,
+  removeEntity
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
@@ -20,6 +26,7 @@ import {
   PerspectiveCamera,
   Quaternion,
   Scene,
+  Group,
   SkeletonHelper,
   SkinnedMesh,
   Vector2,
@@ -84,6 +91,8 @@ const Page = () => {
   const executeIKRef = useRef<(delta: number, elapsedTime: number) => void>(null)
   const sourceEntityRef = useRef<Entity>(null)
   const animationClipActionRef = useRef<AnimationAction>(null)
+  const customModelEntityRef = useRef<Entity>(null)
+  const customModelSkeletonHelperRef = useRef<SkeletonHelper>(null)
 
   console.log('RENDER', animationTimeScale, animationTime)
 
@@ -99,6 +108,25 @@ const Page = () => {
       animationClipActionRef.current.time = animationTime
     }
   }, [animationTime])
+
+  useEffect(() => {
+    if (sourceEntityRef.current) {
+      console.log('switch animation to', animationIndex)
+
+      const ac = getComponent(sourceEntityRef.current, AnimationComponent)
+      const clipAction = ac.mixer.clipAction(ac.animations[animationIndex])
+      console.log('new anim', ac.animations[animationIndex].name)
+      console.log('new clip', clipAction)
+      clipAction.setEffectiveTimeScale(animationTimeScale).play()
+
+      animationClipActionRef.current.crossFadeTo(clipAction, 1, false)
+
+      console.log('CLIP', clipAction)
+      window['CLIP'] = clipAction
+
+      animationClipActionRef.current = clipAction
+    }
+  }, [animationIndex])
 
   useEffect(() => {
     ;(async function () {
@@ -142,6 +170,7 @@ const Page = () => {
       initExample(world)
         .then(({ sourceEntity, targetEntities }) => {
           const ac = getComponent(sourceEntity, AnimationComponent)
+          setAnimationsList([...ac.animations])
           const clipAction = ac.mixer.clipAction(ac.animations[animationIndex])
           clipAction.time = animationTime
           clipAction.setEffectiveTimeScale(animationTimeScale).play()
@@ -179,6 +208,43 @@ const Page = () => {
     setAnimationTimeScale(0)
   }
 
+  function loadGLTFfromFile(input: HTMLInputElement) {
+    if (!input.files) {
+      return
+    }
+    const objectURL = window.URL.createObjectURL(input.files[0])
+
+    if (customModelEntityRef.current) {
+      // cleanup
+      const obj = getComponent(customModelEntityRef.current, IKObj)
+      console.log('obj', obj)
+      obj.ref.parent.removeFromParent()
+      removeEntity(customModelEntityRef.current, worldRef.current.ecsWorld)
+      customModelSkeletonHelperRef.current.removeFromParent()
+
+      customModelSkeletonHelperRef.current = null
+      customModelEntityRef.current = null
+    }
+
+    loadAndSetupModel(objectURL, sourceEntityRef.current, new Vector3(0, 0, 0), new Quaternion(), new Vector3(1, 1, 1))
+      .then(({ entity, skeletonHelper }) => {
+        const rig = getComponent(entity, IKRig)
+        rig.name = 'custom'
+        rig.tpose.apply()
+
+        console.log('target rig', rig.name, rig)
+
+        window.URL.revokeObjectURL(objectURL)
+
+        customModelEntityRef.current = entity
+        customModelSkeletonHelperRef.current = skeletonHelper
+      })
+      .catch((error) => {
+        alert('Failed to load avatar, check console for more info')
+        console.error(error)
+      })
+  }
+
   const animationTimeScaleSelect = (
     <select value={animationTimeScale} onChange={(e) => setAnimationTimeScale(parseFloat(e.target.value))}>
       <option>0</option>
@@ -186,6 +252,17 @@ const Page = () => {
       <option>0.2</option>
       <option>0.5</option>
       <option>1</option>
+    </select>
+  )
+
+  const animationsOptions = animationsList.map((clip, index) => (
+    <option value={index} key={clip.uuid}>
+      {clip.name}
+    </option>
+  ))
+  const animationsSelect = (
+    <select value={animationIndex} onChange={(e) => setAnimationIndex(parseInt(e.target.value))}>
+      {animationsOptions}
     </select>
   )
 
@@ -198,11 +275,13 @@ const Page = () => {
 
   // Some JSX to keep the compiler from complaining
   return (
-    <>
-      {animationTimeScaleSelect}
+    <div style={{ position: 'absolute' }}>
+      anim:{animationsSelect}
+      timescale:{animationTimeScaleSelect}
       {doAnimationStepButtons}
+      <input type="file" onChange={(e) => loadGLTFfromFile(e.target)} />
       <Debug />
-    </>
+    </div>
   )
 }
 
@@ -279,6 +358,7 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
   let rigModel = await LoadGLTF(RIG_FILE)
   // Set up skinned meshes
   let skinnedMeshes = []
+  rigModel.scene.position.set(0, 0, -1)
   Engine.scene.add(rigModel.scene)
   Engine.scene.add(new SkeletonHelper(rigModel.scene))
   rigModel.scene.traverse((node) => {
@@ -340,59 +420,56 @@ async function initExample(world): Promise<{ sourceEntity: Entity; targetEntitie
   let loadModels = []
 
   // LOAD MESH A
-  loadModels.push(
-    loadAndSetupModel(
-      MODEL_A_FILE,
-      sourceEntity,
-      new Vector3(1, 0, 0),
-      new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(-1, 0, 1).normalize()),
-      new Vector3(0.5, 0.5, 0.5)
-    ).then((entity) => {
-      const rig = getComponent(entity, IKRig)
-      rig.name = 'rigA-Vegeta'
-      sourcePose.targetRigs.push(rig)
-      rig.tpose.apply()
-
-      console.log('target rig', rig.name, rig)
-
-      targetEntities.push(entity)
-    })
-  )
-  loadModels.push(
-    loadAndSetupModel(
-      MODEL_B_FILE,
-      sourceEntity,
-      new Vector3(-1, 0, 0),
-      new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(1, 0, 1).normalize()),
-      new Vector3(2, 2, 2)
-    ).then((entity) => {
-      const rig = getComponent(entity, IKRig)
-      rig.name = 'rigB'
-      sourcePose.targetRigs.push(rig)
-      rig.tpose.apply()
-
-      console.log('target rig', rig.name, rig)
-
-      targetEntities.push(entity)
-    })
-  )
-  loadModels.push(
-    loadAndSetupModel(
-      MODEL_C_FILE,
-      sourceEntity,
-      new Vector3(-2, 0, 0),
-      new Quaternion(),
-      new Vector3(1, 1, 1),
-      ArmatureType.TREX
-    ).then((entity) => {
-      const rig = getComponent(entity, IKRig)
-      rig.name = 'rigTRex'
-      sourcePose.targetRigs.push(rig)
-      rig.tpose.apply()
-
-      targetEntities.push(entity)
-    })
-  )
+  // loadModels.push(
+  //   loadAndSetupModel(
+  //     MODEL_A_FILE,
+  //     sourceEntity,
+  //     new Vector3(1, 0, -2),
+  //     new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(-1, 0, 1).normalize()),
+  //     new Vector3(0.5, 0.5, 0.5)
+  //   ).then(({ entity }) => {
+  //     const rig = getComponent(entity, IKRig)
+  //     rig.name = 'rigA-Vegeta'
+  //     rig.tpose.apply()
+  //
+  //     console.log('target rig', rig.name, rig)
+  //
+  //     targetEntities.push(entity)
+  //   })
+  // )
+  // loadModels.push(
+  //   loadAndSetupModel(
+  //     MODEL_B_FILE,
+  //     sourceEntity,
+  //     new Vector3(-1, 0, -2),
+  //     new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(1, 0, 1).normalize()),
+  //     new Vector3(2, 2, 2)
+  //   ).then(({ entity }) => {
+  //     const rig = getComponent(entity, IKRig)
+  //     rig.name = 'rigB'
+  //     rig.tpose.apply()
+  //
+  //     console.log('target rig', rig.name, rig)
+  //
+  //     targetEntities.push(entity)
+  //   })
+  // )
+  // loadModels.push(
+  //   loadAndSetupModel(
+  //     MODEL_C_FILE,
+  //     sourceEntity,
+  //     new Vector3(-2, 0, -2),
+  //     new Quaternion(),
+  //     new Vector3(1, 1, 1),
+  //     ArmatureType.TREX
+  //   ).then(({ entity }) => {
+  //     const rig = getComponent(entity, IKRig)
+  //     rig.name = 'rigTRex'
+  //     rig.tpose.apply()
+  //
+  //     targetEntities.push(entity)
+  //   })
+  // )
 
   await Promise.all(loadModels)
 
@@ -408,12 +485,9 @@ async function loadAndSetupModel(
   quaternion,
   scale,
   armatureType = ArmatureType.MIXAMO
-): Promise<Entity> {
+): Promise<{ entity: Entity; skeletonHelper: SkeletonHelper }> {
   let targetModel = await LoadGLTF(filename)
-  targetModel.scene.position.copy(position)
-  targetModel.scene.quaternion.copy(quaternion)
-  targetModel.scene.scale.copy(scale)
-  Engine.scene.add(targetModel.scene)
+
   // Engine.scene.add(new SkeletonHelper(targetModel.scene));
   let targetSkinnedMeshes = []
   targetModel.scene.traverse((node) => {
@@ -435,24 +509,18 @@ async function loadAndSetupModel(
   let targetEntity = createEntity()
   addComponent(targetEntity, IKObj, { ref: targetSkinnedMesh })
   addComponent(targetEntity, IKRig, {
-    tpose: null,
-    pose: null,
+    tpose: new Pose(targetEntity, true), // If Passing a TPose, it must have its world space computed.
+    pose: new Pose(targetEntity, false),
     chains: null,
     points: null,
-    sourcePose: null
+    sourcePose: getComponent(sourceEntity, IKPose)
     // sourceRig: null
   })
 
   const targetRig = getComponent(targetEntity, IKRig)
 
-  // targetRig.sourceRig = targetRig
-  targetRig.sourcePose = getComponent(sourceEntity, IKPose)
-
   // Set the skinned mesh reference
   const targetObj = getComponent(targetEntity, IKObj)
-
-  targetRig.pose = new Pose(targetEntity, false)
-  targetRig.tpose = new Pose(targetEntity, true) // If Passing a TPose, it must have its world space computed.
 
   const rootQuaternion = new Quaternion()
   const rootPosition = new Vector3()
@@ -490,7 +558,12 @@ async function loadAndSetupModel(
   // targetRig.tpose.align_foot('RightFoot')
   //targetRig.tpose.build()
 
-  return targetEntity
+  targetModel.scene.position.copy(position)
+  targetModel.scene.quaternion.copy(quaternion)
+  targetModel.scene.scale.copy(scale)
+  Engine.scene.add(targetModel.scene)
+
+  return { entity: targetEntity, skeletonHelper: helper }
 }
 
 async function initThree() {
