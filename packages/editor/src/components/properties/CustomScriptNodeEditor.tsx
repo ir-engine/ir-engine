@@ -7,6 +7,8 @@ import SelectInput from '../inputs/SelectInput'
 import InputGroup from '../inputs/InputGroup'
 import Editor from '../Editor'
 import CustomScriptNode from '../../nodes/CustomScriptNode'
+import { getUrlFromId } from '@xrengine/engine/src/scene/functions/getUrlFromId'
+import StringInput from '../inputs/StringInput'
 
 /**
  * Define properties for CustomScriptNode component.
@@ -16,7 +18,7 @@ import CustomScriptNode from '../../nodes/CustomScriptNode'
  */
 type CustomScriptNodeEditorProps = {
   editor?: Editor
-  node?: object
+  node?: CustomScriptNode
   t: Function
 }
 
@@ -32,36 +34,19 @@ export class CustomScriptNodeEditor extends Component<CustomScriptNodeEditorProp
   static iconComponent = Description
   static description = i18n.t('editor:properties.customscriptnode.description')
 
-  getScriptOptions = () => {
-    const options = []
-    const files = {}
-    Object.assign(files, globalThis.Editor.currentOwnedFileIds)
-    Object.assign(files, globalThis.Editor.ownedFileIds)
-    Object.keys(files).forEach((element, index) => {
-      options.push({ label: element, value: index })
-    })
-    return options
-  }
-
-  onChangeScriptSelected = (scriptSelected) => {
-    this.props.editor.setPropertySelected('scriptSelected', scriptSelected)
+  onChangeScript = (val) => {
+    this.props.editor.setPropertySelected('scriptUrl', val)
   }
 
   render() {
-    const node = this.props.node as CustomScriptNode
+    const node = this.props.node
     CustomScriptNodeEditor.description = this.props.t('editor:properties.customscriptnode.description')
     return (
       <NodeEditor description={CustomScriptNodeEditor.description} {...this.props}>
         {/**@ts-ignore */}
-        <InputGroup name="Select Script" label={this.props.t('editor:properties.customscriptnode.lbl-selectscript')}>
+        <InputGroup name="Code URL" label={this.props.t('editor:properties.customscriptnode.lbl-scripturl')}>
           {/**@ts-ignore */}
-          <SelectInput
-            onChange={this.onChangeScriptSelected}
-            options={this.getScriptOptions()}
-            value={node.scriptSelected}
-          >
-            {this.props.t('editor:properties.customscriptnode.lbl-attachscript')}
-          </SelectInput>
+          <StringInput onChange={this.onChangeScript} value={node.scriptUrl} />
         </InputGroup>
       </NodeEditor>
     )

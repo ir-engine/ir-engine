@@ -1,3 +1,4 @@
+import { getUrlFromId } from '@xrengine/engine/src'
 import { Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 
@@ -10,25 +11,38 @@ export default class CustomScriptNode extends EditorNodeMixin(Object3D) {
   static disableTransform = true
   static haveStaticTags = false
 
-  scriptID = ''
-  scriptSelected = 0
+  _scriptUrl: string
+  static initialElementProps = {
+    src: ''
+  }
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const { scriptID, scriptSelected } = json.components.find((c) => c.name === 'customscript').props
-    node.scriptID = scriptID
-    node.scriptSelected = scriptSelected
+    const { scriptUrl } = json.components.find((c) => c.name === 'customscript').props
+    node.scriptUrl = scriptUrl
     return node
   }
   constructor(editor) {
     super(editor)
   }
 
+  set src(val) {
+    this.scriptUrl = val
+  }
+
+  set scriptUrl(val) {
+    this._scriptUrl = val
+    this.editor.emit('selectionChanged')
+  }
+
+  get scriptUrl() {
+    return this._scriptUrl
+  }
+
   async serialize(projectID) {
     return await super.serialize(projectID, {
       customscript: {
-        scriptID: this.scriptID,
-        scriptSelected: this.scriptSelected
+        scriptUrl: this.scriptUrl
       }
     })
   }

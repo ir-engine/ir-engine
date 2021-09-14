@@ -422,7 +422,7 @@
         "customscriptnode": {
             "description": "Attach Custom Scripts.",
             "lbl-attachscript": "Attach Custom Script",
-            "lbl-selectscript": "Select Custom Script"
+            "lbl-scripturl": "Custom Script URL"
         },
         "portal": {
             "lbl-portal": "Linked Portal",

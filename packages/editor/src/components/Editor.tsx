@@ -85,12 +85,11 @@ import {
 import { fetchContentType } from '@xrengine/engine/src/scene/functions/fetchContentType'
 import { guessContentType } from '@xrengine/engine/src/scene/functions/guessContentType'
 import AssetManifestSource from './assets/AssetManifestSource'
-import { UploadFileType } from './assets/sources/MyAssetsSource'
 import { loadEnvironmentMap } from './EnvironmentMap'
 import { Application, feathers } from '@feathersjs/feathers'
 import rest from '@feathersjs/rest-client'
 import { Config } from '@xrengine/common/src/config'
-import { getToken } from '@xrengine/engine/src'
+import CustomScriptNode from '../nodes/CustomScriptNode'
 
 const tempMatrix1 = new Matrix4()
 const tempMatrix2 = new Matrix4()
@@ -2754,6 +2753,11 @@ export class Editor extends EventEmitter {
       this.getSpawnPosition(node.position)
       this.addObject(node, parent, before)
       await node.load(url)
+    } else if (contentType.startsWith('application/')) {
+      node = new CustomScriptNode(this)
+      this.getSpawnPosition(node.position)
+      this.addObject(node, parent, before)
+      node.scriptUrl = url
     } else if (url.contains('.uvol')) {
       console.log('Dracosis volumetric file detected')
       node = new VolumetricNode(this)
