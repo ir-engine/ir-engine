@@ -16,7 +16,6 @@ import { IncomingActionType } from '../interfaces/NetworkTransport'
 import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
-import { Euler, Quaternion } from '@etherealjs/core'
 
 function sendActions() {
   if (!isClient) {
