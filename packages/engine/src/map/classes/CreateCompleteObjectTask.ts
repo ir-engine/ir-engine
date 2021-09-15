@@ -1,8 +1,9 @@
 import { Feature } from 'geojson'
 import Task from './Task'
-import { FeatureKey, MapDerivedFeatureComplete, MapDerivedFeatureGeometry } from '../types'
+import { FeatureKey, ILayerName, MapDerivedFeatureComplete, MapDerivedFeatureGeometry } from '../types'
 import FeatureCache from './FeatureCache'
-import { createCompleteObjectsUsingCache as createCompleteObjectUsingCache } from '../functions/createCompleteObjects'
+import createCompleteObject from '../functions/createCompleteObject'
+import createUsingCache from '../functions/createUsingCache'
 
 export default class CreateCompleteObjectTask extends Task<MapDerivedFeatureComplete> {
   featureCache: FeatureCache<Feature>
@@ -30,18 +31,17 @@ export default class CreateCompleteObjectTask extends Task<MapDerivedFeatureComp
     this.y = y
     this.tileIndex = tileIndex
   }
-  exec() {
-    const key: FeatureKey = [this.layerName, this.x, this.y, this.tileIndex]
+
+  createCompleteObjectUsingCache = createUsingCache((...key: FeatureKey) => {
+    const [layerName] = key
+
     const feature = this.featureCache.get(key)
     const geometry = this.geometryCache.get(key)
-    return createCompleteObjectUsingCache(
-      this.completeObjectsCache,
-      this.layerName,
-      this.x,
-      this.y,
-      this.tileIndex,
-      geometry,
-      feature
-    )
+    return createCompleteObject(layerName as ILayerName, geometry, feature)
+  })
+
+  exec() {
+    const key: FeatureKey = [this.layerName, this.x, this.y, this.tileIndex]
+    return this.createCompleteObjectUsingCache(this.completeObjectsCache, key)
   }
 }

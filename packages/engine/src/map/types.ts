@@ -44,7 +44,7 @@ export interface MapDerivedFeatureGeometry {
 
 export interface MapDerivedFeatureComplete {
   mesh: Mesh
-  geographicCenterPoint: [number, number]
+  centerPoint: [number, number]
   boundingCircleRadius: number
   // TODO add label
 }
