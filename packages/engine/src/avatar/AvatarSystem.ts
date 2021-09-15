@@ -27,6 +27,7 @@ import { World } from '../ecs/classes/World'
 import { System } from '../ecs/classes/System'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
+import { detectUserInTrigger } from './functions/detectUserInTrigger'
 
 export default async function AvatarSystem(world: World): Promise<System> {
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
@@ -109,6 +110,8 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
+
+      detectUserInTrigger(entity)
 
       // TODO: implement scene lower bounds parameter
       if (!isClient && transform.position.y < -10) {

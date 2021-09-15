@@ -111,7 +111,7 @@ export const createAvatar = (
   addComponent(entity, Object3DComponent, { value: tiltContainer })
 
   const filterData = new PhysX.PxQueryFilterData()
-  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground, 0)
+  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
   const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
   filterData.setFlags(flags)
 
