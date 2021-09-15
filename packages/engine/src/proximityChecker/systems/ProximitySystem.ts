@@ -1,21 +1,21 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ProximityCheckerComponent } from '../components/ProximityCheckerComponent'
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
-import { isEntityLocal } from '../../networking/utils/isPlayerLocal'
 import { getUserId } from '../../networking/utils/getUser'
+import { System } from '../../ecs/classes/System'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 
 const maxDistance: number = 10
 
-export const ProximitySystem = async (): Promise<System> => {
+export default async function ProximitySystem(world: World): Promise<System> {
   const proximityCheckerQuery = defineQuery([TransformComponent, ProximityCheckerComponent])
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     for (const eid of proximityCheckerQuery(world)) {
-      if (isEntityLocal(eid)) {
+      if (isEntityLocalClient(eid)) {
         const userId = getUserId(eid)
         const transform = getComponent(eid, TransformComponent)
         let remoteTransform
@@ -43,7 +43,5 @@ export const ProximitySystem = async (): Promise<System> => {
         }
       }
     }
-
-    return world
-  })
+  }
 }

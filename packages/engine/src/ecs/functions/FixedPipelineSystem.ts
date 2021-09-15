@@ -1,27 +1,24 @@
-import { defineSystem, System } from 'bitecs'
-import { now } from '../../common/functions/now'
-import { ECSWorld } from '../../ecs/classes/World'
+import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { World } from '../classes/World'
+import { System } from '../classes/System'
 
 /**
  * System for running simulation logic with fixed time intervals
  * @author Josh Field <github.com/hexafield>
+ * @author Gheric Speiginer <github.com/speigg>
  */
-
-export const FixedPipelineSystem = async (args: { updatesPerSecond: number }): Promise<System> => {
-  const subsequentErrorsLimit = 10
-  const subsequentErrorsResetLimit = 1000
-  let subsequentErrorsShown = 0
-  let shownErrorPreviously = false
+export default async function FixedPipelineSystem(world: World, args: { updatesPerSecond: number }): Promise<System> {
+  console.log(args)
   let accumulator = 0
 
   const timestep = 1 / args.updatesPerSecond
   const limit = timestep * 1000
   const updatesLimit = args.updatesPerSecond
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     world.fixedDelta = timestep
 
-    const start = now()
+    const start = nowMilliseconds()
     let timeUsed = 0
     let updatesCount = 0
 
@@ -32,36 +29,21 @@ export const FixedPipelineSystem = async (args: { updatesPerSecond: number }): P
     let updatesLimitReached = updatesCount > updatesLimit
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      world.world.logicPipeline(world)
+      world.fixedElapsedTime += world.fixedDelta
+
+      for (const s of world.fixedSystems) s(world)
 
       accumulator -= timestep
       ++updatesCount
 
-      timeUsed = now() - start
+      timeUsed = nowMilliseconds() - start
       accumulatorDepleted = accumulator < timestep
       timeout = timeUsed > limit
       updatesLimitReached = updatesCount >= updatesLimit
     }
 
     if (!accumulatorDepleted) {
-      if (subsequentErrorsShown <= subsequentErrorsLimit) {
-      } else {
-        if (subsequentErrorsShown > subsequentErrorsResetLimit) {
-          subsequentErrorsShown = subsequentErrorsLimit - 1
-        }
-      }
-
-      if (shownErrorPreviously) {
-        subsequentErrorsShown++
-      }
-      shownErrorPreviously = true
-
       accumulator = accumulator % timestep
-    } else {
-      subsequentErrorsShown = 0
-      shownErrorPreviously = false
     }
-
-    return world
-  })
+  }
 }

@@ -1,12 +1,13 @@
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { System } from '@xrengine/engine/src/ecs/classes/System'
 import {
   addComponent,
-  createEntity,
   createMappedComponent,
   getComponent
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createPipeline, registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
@@ -29,14 +30,14 @@ import {
   WebGLRenderer
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
-import { defineQuery, defineSystem, System, Types } from 'bitecs'
-import { AnimationClip, AnimationMixer } from 'three'
-import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
+import { defineQuery } from 'bitecs'
 import { NavMeshBuilder } from '@xrengine/engine/src/map/NavMeshBuilder'
 // import { fetchVectorTiles } from '@xrengine/engine/src/map/functions/fetchVectorTile'
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import pc from 'polygon-clipping'
 import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { World } from '@xrengine/engine/src'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner
@@ -49,13 +50,13 @@ type NavigationComponentType = {
   navigationMesh
 }
 
-const NavigationComponent = createMappedComponent<NavigationComponentType>()
+const NavigationComponent = createMappedComponent<NavigationComponentType>('NavigationComponent')
 
-const RenderSystem = async (): Promise<System> => {
-  return defineSystem((world: ECSWorld) => {
+const RenderSystem = async (world: World): Promise<System> => {
+  return () => {
     Engine.renderer.render(Engine.scene, Engine.camera)
     return world
-  })
+  }
 }
 
 const pathMaterial = new LineBasicMaterial({ color: 0xff0000 })
@@ -166,7 +167,7 @@ async function startDemo(entity) {
   }
 }
 
-export const NavigationSystem = async (): Promise<System> => {
+export const NavigationSystem = async (world: World): Promise<System> => {
   const entity = createEntity()
   addComponent(entity, NavigationComponent, {
     pathPlanner: new PathPlanner(),
@@ -182,7 +183,7 @@ export const NavigationSystem = async (): Promise<System> => {
 
   const navigationQuery = defineQuery([NavigationComponent])
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     const { delta } = world
 
     for (const entity of navigationQuery(world)) {
@@ -235,42 +236,19 @@ export const NavigationSystem = async (): Promise<System> => {
       vehicleMesh.instanceMatrix.needsUpdate = true
     }
     return world
-  })
+  }
 }
 
 // This is a functional React component
 const Page = () => {
   useEffect(() => {
     ;(async function () {
+      await initializeEngine()
       // Register our systems to do stuff
+      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: NavigationSystem }))
+      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: RenderSystem }))
+      await Engine.defaultWorld.initSystems()
 
-      registerSystem(SystemUpdateType.Fixed, NavigationSystem)
-      registerSystem(SystemUpdateType.Free, RenderSystem)
-
-      const fixedPipeline = await createPipeline(SystemUpdateType.Fixed)
-      const freePipeline = await createPipeline(SystemUpdateType.Free)
-      const networkPipeline = await createPipeline(SystemUpdateType.Network)
-
-      const executePipeline = (world: World, pipeline) => {
-        return (delta, elapsedTime) => {
-          world.ecsWorld.delta = delta
-          world.ecsWorld.time = elapsedTime
-          pipeline(world.ecsWorld)
-          world.ecsWorld._removedComponents.clear()
-        }
-      }
-
-      const world = World.defaultWorld
-
-      Engine.engineTimer = Timer(
-        {
-          networkUpdate: executePipeline(world, networkPipeline),
-          fixedUpdate: executePipeline(world, fixedPipeline),
-          update: executePipeline(world, freePipeline)
-        },
-        Engine.physicsFrameRate,
-        Engine.networkFramerate
-      )
       // Set up rendering and basic scene for demo
       const canvas = document.createElement('canvas')
       document.body.appendChild(canvas) // adds the canvas to the body element

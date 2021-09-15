@@ -16,7 +16,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
@@ -27,10 +27,10 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
 import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
@@ -81,42 +81,23 @@ export class DebugHelpers {
   }
 }
 
-export const DebugHelpersSystem = async (): Promise<System> => {
+export default async function DebugHelpersSystem(world: World): Promise<System> {
   DebugHelpers.physicsDebugRenderer = new DebugRenderer(Engine.scene)
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
-  const avatarDebugAddQuery = enterQuery(avatarDebugQuery)
-  const avatarDebugRemoveQuery = exitQuery(avatarDebugQuery)
-
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
-  const boundingBoxAddQuery = enterQuery(boundingBoxQuery)
-  const boundingBoxRemoveQuery = exitQuery(boundingBoxQuery)
-
   const colliderQuery = defineQuery([ColliderComponent])
-  const colliderAddQuery = enterQuery(colliderQuery)
-  const colliderRemoveQuery = exitQuery(colliderQuery)
-
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
-  const arrowHelperAddQuery = enterQuery(arrowHelperQuery)
-  const arrowHelperRemoveQuery = exitQuery(arrowHelperQuery)
-
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
-  const ikAvatarAddQuery = enterQuery(ikAvatarQuery)
-  const ikAvatarRemoveQuery = exitQuery(ikAvatarQuery)
-
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
-  const navmeshAddQuery = enterQuery(navmeshQuery)
-  const navmeshRemoveQuery = exitQuery(navmeshQuery)
-
   // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
+  return () => {
     // ===== AVATAR ===== //
 
-    for (const entity of avatarDebugAddQuery(world)) {
+    for (const entity of avatarDebugQuery.enter()) {
       const avatar = getComponent(entity, AvatarComponent)
 
       // view vector
@@ -140,7 +121,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       DebugHelpers.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
     }
 
-    for (const entity of avatarDebugRemoveQuery(world)) {
+    for (const entity of avatarDebugQuery.exit()) {
       // view vector
       // const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as Object3D
       // Engine.scene.remove(arrowHelper)
@@ -152,7 +133,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       DebugHelpers.helpersByEntity.velocityArrow.delete(entity)
     }
 
-    for (const entity of avatarDebugQuery(world)) {
+    for (const entity of avatarDebugQuery()) {
       // view vector
       const avatar = getComponent(entity, AvatarComponent)
       const velocity = getComponent(entity, VelocityComponent)
@@ -173,7 +154,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of ikAvatarAddQuery(world)) {
+    for (const entity of ikAvatarQuery.enter()) {
       const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red'), side: DoubleSide }))
       const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
       const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
@@ -186,7 +167,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       DebugHelpers.helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
     }
 
-    for (const entity of ikAvatarQuery(world)) {
+    for (const entity of ikAvatarQuery()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const [debugHead, debugLeft, debugRight] = DebugHelpers.helpersByEntity.ikExtents.get(entity) as Object3D[]
       debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
@@ -197,7 +178,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
     }
 
-    for (const entity of ikAvatarRemoveQuery(world)) {
+    for (const entity of ikAvatarQuery.exit()) {
       ;(DebugHelpers.helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
         obj.removeFromParent()
       })
@@ -206,7 +187,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
 
     // ===== COLLIDERS ===== //
 
-    for (const entity of colliderRemoveQuery(world)) {
+    for (const entity of colliderQuery.exit()) {
       // view vector
       const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
@@ -218,7 +199,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       DebugHelpers.helpersByEntity.velocityArrow.delete(entity)
     }
 
-    for (const entity of colliderAddQuery(world)) {
+    for (const entity of colliderQuery.enter()) {
       const collider = getComponent(entity, ColliderComponent)
 
       // view vector
@@ -244,7 +225,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       DebugHelpers.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
     }
 
-    for (const entity of colliderQuery(world)) {
+    for (const entity of colliderQuery()) {
       // view vector
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -267,7 +248,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
     // ===== INTERACTABLES ===== //
 
     // bounding box
-    for (const entity of boundingBoxAddQuery(world)) {
+    for (const entity of boundingBoxQuery.enter()) {
       DebugHelpers.helpersByEntity.box.set(entity, [])
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       const box3 = new Box3()
@@ -282,7 +263,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
     }
 
-    for (const entity of boundingBoxRemoveQuery(world)) {
+    for (const entity of boundingBoxQuery.exit()) {
       const boxes = DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]
       boxes.forEach((box) => {
         Engine.scene.remove(box)
@@ -292,7 +273,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
 
     // ===== CUSTOM ===== //
 
-    for (const entity of arrowHelperAddQuery(world)) {
+    for (const entity of arrowHelperQuery.enter()) {
       const arrow = getComponent(entity, DebugArrowComponent)
       const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, arrow.color)
       arrowHelper.visible = DebugHelpers.physicsDebugEnabled
@@ -300,13 +281,13 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       DebugHelpers.helpersByEntity.helperArrow.set(entity, arrowHelper)
     }
 
-    for (const entity of arrowHelperRemoveQuery(world)) {
+    for (const entity of arrowHelperQuery.exit()) {
       const arrowHelper = DebugHelpers.helpersByEntity.helperArrow.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
       DebugHelpers.helpersByEntity.helperArrow.delete(entity)
     }
 
-    for (const entity of arrowHelperQuery(world)) {
+    for (const entity of arrowHelperQuery()) {
       const arrow = getComponent(entity, DebugArrowComponent)
       const arrowHelper = DebugHelpers.helpersByEntity.helperArrow.get(entity) as ArrowHelper
       if (arrowHelper != null) {
@@ -317,7 +298,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
     }
 
     // ===== NAVMESH Helper ===== //
-    for (const entity of navmeshAddQuery(world)) {
+    for (const entity of navmeshQuery.enter()) {
       console.log('add navmesh helper!')
       const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
       const convexHelper = createConvexRegionHelper(navMesh)
@@ -329,14 +310,14 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       Engine.scene.add(helper)
       DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
     }
-    for (const entity of navmeshQuery(world)) {
+    for (const entity of navmeshQuery()) {
       // update
       const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
       const transform = getComponent(entity, TransformComponent)
       helper.position.copy(transform.position)
       // helper.quaternion.copy(transform.rotation)
     }
-    for (const entity of navmeshRemoveQuery(world)) {
+    for (const entity of navmeshQuery.exit()) {
       const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
       Engine.scene.remove(helper)
       DebugHelpers.helpersByEntity.navmesh.delete(entity)
@@ -346,5 +327,5 @@ export const DebugHelpersSystem = async (): Promise<System> => {
 
     DebugHelpers.physicsDebugRenderer.update()
     return world
-  })
+  }
 }

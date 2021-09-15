@@ -5,7 +5,7 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 

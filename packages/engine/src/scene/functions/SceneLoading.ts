@@ -3,8 +3,8 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import { addComponent, createEntity, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
@@ -126,7 +126,9 @@ export class WorldScene {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
         const { meta_data } = component.data
-        World.sceneMetadata = meta_data
+
+        const world = Engine.defaultWorld
+        world.sceneMetadata = meta_data
         console.log('scene_metadata|' + meta_data)
         //}
         break
@@ -140,7 +142,7 @@ export class WorldScene {
           // if (isClient && Engine.isBot) {
           const { _data } = component.data
           const { x, y, z } = transform.position
-          World.worldMetadata[_data] = x + ',' + y + ',' + z
+          world.worldMetadata[_data] = x + ',' + y + ',' + z
           console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
           // }
         }
@@ -232,10 +234,6 @@ export class WorldScene {
 
       case 'transform':
         createTransformComponent(entity, component.data)
-        break
-
-      case 'walkable':
-        addComponent(entity, WalkableTagComponent, {})
         break
 
       case 'fog':

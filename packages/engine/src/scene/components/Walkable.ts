@@ -1,3 +1,3 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const WalkableTagComponent = createMappedComponent<{}>()
+export const WalkableTagComponent = createMappedComponent('WalkableTagComponent')

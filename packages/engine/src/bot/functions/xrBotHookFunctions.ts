@@ -4,7 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 
 export async function overrideXR() {
@@ -202,7 +202,6 @@ export type InputSourceTweenProps = {
   quaternionTo: Quaternion
   callback: () => void
 }
-let last
 
 export function tweenXRInputSource(args: InputSourceTweenProps) {
   let counter = 0
@@ -216,9 +215,6 @@ export function tweenXRInputSource(args: InputSourceTweenProps) {
       args.callback()
     }
     counter++
-    const now = Date.now()
-    console.log(now - last)
-    last = now
   }
   tweens.push(tweenFunction)
 }

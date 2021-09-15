@@ -1,5 +1,5 @@
-import { RaycastQuery } from 'three-physx'
-import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { RaycastQuery } from '@xrengine/engine/src/physics/physx'
+import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { BALL_STATES } from '../prefab/GolfBallPrefab'
 
 export type GolfBallComponentType = {
@@ -9,4 +9,4 @@ export type GolfBallComponentType = {
   state: BALL_STATES
 }
 
-export const GolfBallComponent = createMappedComponent<GolfBallComponentType>()
+export const GolfBallComponent = createMappedComponent<GolfBallComponentType>('GolfBallComponent')

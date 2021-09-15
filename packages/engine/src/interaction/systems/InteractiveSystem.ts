@@ -3,11 +3,12 @@ import { FollowCameraComponent } from '../../camera/components/FollowCameraCompo
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import {
   addComponent,
-  createEntity,
+  defineQuery,
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -25,32 +26,21 @@ import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
 import { Engine } from '../../ecs/classes/Engine'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
-import { ECSWorld } from '../../ecs/classes/World'
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 const upVec = new Vector3(0, 1, 0)
 
-export const InteractiveSystem = async (): Promise<System> => {
+export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
-
   const interactiveQuery = defineQuery([InteractableComponent])
-  const interactiveAddQuery = enterQuery(interactiveQuery)
-
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
-
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
-  const focusAddQuery = enterQuery(focusQuery)
-  const focusRemoveQuery = enterQuery(focusQuery)
-
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
-  const subfocusAddQuery = enterQuery(subfocusQuery)
-  const subfocusRemoveQuery = enterQuery(subfocusQuery)
-
   const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
   const interactedQuery = defineQuery([InteractedComponent])
-  const interactedAddQuery = enterQuery(interactedQuery)
 
   const geometry = FontManager.instance.create3dText('INTERACT', new Vector3(0.8, 1, 0.2))
 
@@ -71,10 +61,10 @@ export const InteractiveSystem = async (): Promise<System> => {
   transformComponent.scale.setScalar(0)
   textGroup.visible = false
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     const { elapsedTime } = world
 
-    for (const entity of interactiveAddQuery(world)) {
+    for (const entity of interactiveQuery.enter(world)) {
       if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
         createBoxComponent(entity)
       }
@@ -109,22 +99,22 @@ export const InteractiveSystem = async (): Promise<System> => {
     }
 
     // removal is the first because the hint must first be deleted, and then a new one appears
-    for (const entity of focusRemoveQuery(world)) {
+    for (const entity of focusQuery.exit()) {
       hideInteractText(interactTextEntity)
     }
 
-    for (const entity of focusAddQuery(world)) {
+    for (const entity of focusQuery.enter()) {
       showInteractText(interactTextEntity, entity)
     }
 
-    for (const entity of subfocusAddQuery(world)) {
+    for (const entity of subfocusQuery.enter()) {
       addComponent(entity, HighlightComponent, { color: 0xff0000, hiddenColor: 0x0000ff, edgeStrength: 1 })
     }
-    for (const entity of subfocusRemoveQuery(world)) {
+    for (const entity of subfocusQuery.exit()) {
       removeComponent(entity, HighlightComponent)
     }
 
-    for (const entity of interactedAddQuery(world)) {
+    for (const entity of interactedQuery.enter()) {
       const interactiveComponent = getComponent(entity, InteractableComponent)
       if (hasComponent(entity, AudioTagComponent)) {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
@@ -139,7 +129,7 @@ export const InteractiveSystem = async (): Promise<System> => {
     }
 
     // TODO: move to free update
-    for (const entity of localUserQuery(world)) {
+    for (const entity of localUserQuery()) {
       // animate the interact text up and down if it's visible
       const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) continue
@@ -154,7 +144,5 @@ export const InteractiveSystem = async (): Promise<System> => {
         interactTextObject.lookAt(x, interactTextObject.position.y, z)
       }
     }
-
-    return world
-  })
+  }
 }

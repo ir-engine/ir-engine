@@ -4,11 +4,15 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { getTheFeedsNew } from '../../reducers/thefeeds/service'
-import { selectTheFeedsState } from '../../reducers/thefeeds/selector'
+// import { selectAuthState } from '../../../user/reducers/auth/selector';
+// import { selectFeedsState } from '../../reducers/feed/selector';
+// import { getFeeds } from '../../reducers/feed/service';
+import { getTheFeedsNew } from '@xrengine/social/src/reducers/thefeeds/service'
+import { selectTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/selector'
 
 import TheFeedsCard from '../TheFeedsCard'
 
+// @ts-ignore
 import styles from './TheFeed.module.scss'
 
 const mapStateToProps = (state: any): any => {
@@ -35,7 +39,7 @@ const TheFeed = ({ theFeedsState, getTheFeedsNew }: Props) => {
       {TheFeedsList && TheFeedsList.length > 0 ? (
         TheFeedsList.map((item, key) => <TheFeedsCard key={key} feed={item} />)
       ) : (
-        <p className={styles.noContent}>More news will be available soon.</p>
+        <p className={styles.noContent}>Coming soon...</p>
       )}
     </section>
   )

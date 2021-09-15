@@ -1,4 +1,4 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { DoubleSide, EquirectangularRefractionMapping, MeshLambertMaterial, TextureLoader } from 'three'
@@ -18,7 +18,7 @@ export const getPortalDetails = async () => {
 
   // @TODO make a global ref to all portals instead of getting all components
   await Promise.all(
-    World.defaultWorld.portalEntities.map(async (entity: Entity): Promise<void> => {
+    Engine.defaultWorld.portalEntities.map(async (entity: Entity): Promise<void> => {
       const portal = getComponent(entity, PortalComponent)
       try {
         const portalDetails = await (await fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)).json()

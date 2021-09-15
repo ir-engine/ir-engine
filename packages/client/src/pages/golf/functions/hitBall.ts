@@ -1,9 +1,10 @@
 import { Vector3 } from 'three'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
+import { VelocityComponent } from '@xrengine/engine/src'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -37,8 +38,6 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
   // take the angle of incidence, and get the same angle on the other side of the normal, the angle of reflection
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
-
-  console.log(golfClubComponent.velocity)
 
   vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor)
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);

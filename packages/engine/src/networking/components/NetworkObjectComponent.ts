@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type NetworkObjectComponentType = {
   /** Network id of the object. */
@@ -7,4 +7,4 @@ export type NetworkObjectComponentType = {
   uniqueId: string
 }
 
-export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>()
+export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>('NetworkObjectComponent')

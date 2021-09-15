@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Vector3 } from 'three'
 
 export type AutoPilotOverrideComponentType = {
@@ -6,4 +6,5 @@ export type AutoPilotOverrideComponentType = {
   overridePosition: Vector3
 }
 
-export const AutoPilotOverrideComponent = createMappedComponent<AutoPilotOverrideComponentType>()
+export const AutoPilotOverrideComponent =
+  createMappedComponent<AutoPilotOverrideComponentType>('AutoPilotOverrideComponent')

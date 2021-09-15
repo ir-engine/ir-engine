@@ -10,12 +10,7 @@ const SearchParty = () => {
 
   return (
     <Paper component="form" className={classes.searchRoot}>
-      <InputBase
-        className={classes.input}
-        placeholder={`Search for party`}
-        inputProps={{ 'aria-label': 'search for users ' }}
-        //  onChange={handleChange}
-      />
+      <InputBase className={classes.input} placeholder={`Search for party`} inputProps={{ 'aria-label': 'party ' }} />
       <IconButton type="submit" className={classes.iconButton} aria-label="search">
         <SearchIcon />
       </IconButton>

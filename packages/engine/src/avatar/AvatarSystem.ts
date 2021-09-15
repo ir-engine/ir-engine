@@ -1,9 +1,13 @@
 import { Group, Quaternion, Vector3 } from 'three'
-import { PhysXInstance } from 'three-physx'
+import { PhysXInstance } from '../physics/physx'
 import { isClient } from '../common/functions/isClient'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../ecs/classes/World'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -20,20 +24,18 @@ import {
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { dispatchFromServer } from '../networking/functions/dispatch'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { World } from '../ecs/classes/World'
+import { System } from '../ecs/classes/System'
+import { detectUserInTrigger } from './functions/detectUserInTrigger'
 
-export const AvatarSystem = async (): Promise<System> => {
+export default async function AvatarSystem(world: World): Promise<System> {
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
   const avatarQuery = defineQuery([AvatarComponent, ColliderComponent])
-  const avatarRemovedQuery = exitQuery(avatarQuery)
-
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
-  const raycastRemovedQuery = exitQuery(raycastQuery)
-
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
-  const xrInputQueryAddQuery = enterQuery(xrInputQuery)
 
-  function avatarActionReceptor(world: ECSWorld, action: NetworkWorldActionType) {
+  function avatarActionReceptor(action: NetworkWorldActionType) {
     switch (action.type) {
       case NetworkWorldActions.ENTER_VR: {
         const entity = Network.instance.networkObjects[action.networkId]?.entity
@@ -88,20 +90,10 @@ export const AvatarSystem = async (): Promise<System> => {
     }
   }
 
-  return defineSystem((world: ECSWorld) => {
-    const { delta } = world
+  world.receptors.add(avatarActionReceptor)
 
-    for (const action of Network.instance.incomingActions) avatarActionReceptor(world, action as any)
-
-    for (const entity of avatarRemovedQuery(world)) {
-      const collider = getComponent(entity, ColliderComponent, true)
-
-      if (collider?.body) {
-        PhysXInstance.instance.removeBody(collider.body)
-      }
-    }
-
-    for (const entity of raycastRemovedQuery(world)) {
+  return () => {
+    for (const entity of raycastQuery.exit(world)) {
       const raycast = getComponent(entity, RaycastComponent, true)
 
       if (raycast?.raycastQuery) {
@@ -109,7 +101,7 @@ export const AvatarSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of xrInputQueryAddQuery(world)) {
+    for (const entity of xrInputQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 
@@ -131,6 +123,8 @@ export const AvatarSystem = async (): Promise<System> => {
       raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
 
+      detectUserInTrigger(entity)
+
       // TODO: implement scene lower bounds parameter
       if (!isClient && transform.position.y < -10) {
         const { position, rotation } = SpawnPoints.instance.getRandomSpawnPoint()
@@ -150,7 +144,5 @@ export const AvatarSystem = async (): Promise<System> => {
         continue
       }
     }
-
-    return world
-  })
+  }
 }

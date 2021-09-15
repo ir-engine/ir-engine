@@ -1,6 +1,4 @@
 import { DoorOpen } from '@styled-icons/fa-solid'
-import { Config } from '@xrengine/common/src/config'
-import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import i18n from 'i18next'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
@@ -112,12 +110,13 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
   }
 
   loadPortals = async () => {
-    const portalsDetail = await fetchUrl(`${Config.publicRuntimeConfig.apiServer}/portal/list`)
-      .then((res) => res.json())
-      .catch((err) => {
-        console.error(err)
-        return []
-      })
+    let portalsDetail
+    try {
+      portalsDetail = await globalThis.Editor.feathersClient.service('portal/list').find()
+    } catch (error) {
+      throw new Error(error)
+      return []
+    }
     const portals = []
 
     portalsDetail.forEach((portal) => {

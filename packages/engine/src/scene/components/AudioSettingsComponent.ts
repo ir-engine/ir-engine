@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type PositionalAudioSettingsComponentType = {
   avatarDistanceModel: string
@@ -16,4 +16,6 @@ export type PositionalAudioSettingsComponentType = {
   usePositionalAudio: boolean
 }
 
-export const PositionalAudioSettingsComponent = createMappedComponent<PositionalAudioSettingsComponentType>()
+export const PositionalAudioSettingsComponent = createMappedComponent<PositionalAudioSettingsComponentType>(
+  'PositionalAudioSettingsComponent'
+)

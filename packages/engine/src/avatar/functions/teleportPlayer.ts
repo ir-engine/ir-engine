@@ -1,6 +1,6 @@
 import { Euler, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 // import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'

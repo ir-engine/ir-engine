@@ -1,12 +1,11 @@
-import { defineQuery, defineSystem, System } from 'bitecs'
 import { Engine } from '../../ecs/classes/Engine'
-import { ECSWorld } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 
-export const XRUISystem = async (): Promise<System> => {
+export default async function XRUISystem(world: World): Promise<System> {
   XRUIManager.instance = new XRUIManager(await import('ethereal'))
 
   const uiQuery = defineQuery([XRUIComponent])
@@ -14,7 +13,7 @@ export const XRUISystem = async (): Promise<System> => {
   // const adapterQuery = defineQuery([Object3DComponent, XRUIAdapterComponent])
   // const adapterAddQuery = enterQuery(adapterQuery)
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     const interactionRays = []
 
     for (const entity of uiQuery(world)) {
@@ -35,7 +34,5 @@ export const XRUISystem = async (): Promise<System> => {
     XRUIManager.instance.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
     Engine.renderer.getSize(XRUIManager.instance.layoutSystem.viewResolution)
     XRUIManager.instance.layoutSystem.update(world.delta, world.elapsedTime)
-
-    return world
-  })
+  }
 }

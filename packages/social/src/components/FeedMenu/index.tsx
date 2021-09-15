@@ -7,16 +7,18 @@ import React, { useRef, useState } from 'react'
 import Creators from '../Creators'
 import Featured from '../Featured'
 import TheFeed from '../TheFeed'
+// import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
 
+// @ts-ignore
 import styles from './FeedMenu.module.scss'
 
-const FeedMenu = () => {
+const FeedMenu = ({ view, setView }) => {
   const containerRef = useRef<HTMLInputElement>()
   const featuredRef = useRef<HTMLInputElement>()
   const creatorsRef = useRef<HTMLInputElement>()
   const thefeedRef = useRef<HTMLInputElement>()
-  const [view, setView] = useState('featured')
+  const tipsandtricksRef = useRef<HTMLInputElement>()
   const { t } = useTranslation()
 
   const padding = 40
@@ -30,6 +32,9 @@ const FeedMenu = () => {
         break
       case 'thefeed':
         leftScrollPos = thefeedRef.current.offsetLeft - padding
+        break
+      case 'tipsandtricks':
+        leftScrollPos = tipsandtricksRef.current.offsetLeft - padding
         break
       default:
         leftScrollPos = 0
@@ -45,6 +50,9 @@ const FeedMenu = () => {
     case 'thefeed':
       content = <TheFeed />
       break
+    // case 'tipsandtricks':
+    //   content = <TipsAndTricks />
+    //   break
     default:
       content = <Featured />
       break
@@ -52,7 +60,8 @@ const FeedMenu = () => {
   const classes = {
     featured: [styles.featuredButton, view === 'featured' && styles.active],
     creators: [styles.creatorsButton, view === 'creators' && styles.active],
-    thefeed: [styles.thefeedButton, view === 'thefeed' && styles.active]
+    thefeed: [styles.thefeedButton, view === 'thefeed' && styles.active],
+    tipsandtricks: [styles.tipsandtricksButton, view === 'tipsandtricks' && styles.active]
   }
   return (
     <>
@@ -75,14 +84,22 @@ const FeedMenu = () => {
             >
               {t('social:feedMenu.creators')}
             </Button>
-            <Button
-              ref={thefeedRef}
-              variant="contained"
-              className={classes['thefeed'].join(' ')}
-              onClick={() => handleMenuClick('thefeed')}
-            >
-              {t('social:feedMenu.feed')}
-            </Button>
+            {/*<Button*/}
+            {/*  ref={thefeedRef}*/}
+            {/*  variant="contained"*/}
+            {/*  className={classes['thefeed'].join(' ')}*/}
+            {/*  onClick={() => handleMenuClick('thefeed')}*/}
+            {/*>*/}
+            {/*  {t('social:feedMenu.feed')}*/}
+            {/*</Button>*/}
+            {/*<Button*/}
+            {/*  ref={tipsandtricksRef}*/}
+            {/*  variant="contained"*/}
+            {/*  className={classes['tipsandtricks'].join(' ')}*/}
+            {/*  onClick={() => handleMenuClick('tipsandtricks')}*/}
+            {/*>*/}
+            {/*  {t('social:feedMenu.tips')}*/}
+            {/*</Button>*/}
           </section>
         </section>
       </nav>

@@ -1,5 +1,3 @@
-import { createMappedComponent, hasComponent, addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type ProximityCheckerComponentType = {}
-
-export const ProximityCheckerComponent = createMappedComponent<ProximityCheckerComponentType>()
+export const ProximityCheckerComponent = createMappedComponent<{}>('ProximityCheckerComponent')

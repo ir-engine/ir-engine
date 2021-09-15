@@ -1,7 +1,7 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -11,7 +11,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
+import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from '../../physics/physx'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -25,6 +25,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
+import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -43,8 +44,16 @@ export const createAvatar = (
   spawnTransform: { position: Vector3; rotation: Quaternion },
   isRemotePlayer = true
 ): void => {
-  if (isClient && isBot(window)) {
-    if (!hasComponent(entity, ProximityCheckerComponent)) addComponent(entity, ProximityCheckerComponent, {})
+  if (isClient) {
+    if (isBot(window) && !hasComponent(entity, ProximityCheckerComponent))
+      addComponent(entity, ProximityCheckerComponent, {})
+    if (!hasComponent(entity, AfkCheckComponent))
+      addComponent(entity, AfkCheckComponent, {
+        isAfk: false,
+        prevPosition: new Vector3(0, 0, 0),
+        cStep: 0,
+        timer: 0
+      })
   }
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
@@ -103,7 +112,7 @@ export const createAvatar = (
       origin: new Vector3(0, avatarHalfHeight, 0),
       direction: new Vector3(0, -1, 0),
       maxDistance: avatarHalfHeight + 0.05,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
     })
   )
   addComponent(entity, RaycastComponent, { raycastQuery })

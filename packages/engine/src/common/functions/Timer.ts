@@ -1,5 +1,5 @@
 import { isClient } from './isClient'
-import { now } from './now'
+import { nowMilliseconds } from './nowMilliseconds'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Engine } from '../../ecs/classes/Engine'
 
@@ -8,10 +8,7 @@ type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
-export function Timer(
-  update: TimerUpdateCallback,
-  fixedFrameRate?: number
-): { start: Function; stop: Function; clear: Function } {
+export function Timer(update: TimerUpdateCallback): { start: Function; stop: Function; clear: Function } {
   let lastTime = null
   let elapsedTime = 0
   let delta = 0
@@ -43,9 +40,7 @@ export function Timer(
     if (lastTime !== null) {
       delta = (time - lastTime) / 1000
       elapsedTime += delta
-      if (update) {
-        update(delta, elapsedTime)
-      }
+      update(delta, elapsedTime)
     }
     lastTime = time
   }
@@ -90,19 +85,19 @@ export function Timer(
       tpsMeasureStartData.set(name, measureData)
     }
     measureData.ticks = Engine.tick
-    measureData.time = now()
+    measureData.time = nowMilliseconds()
   }
   function tpsSubMeasureEnd(name) {
     const measureData = tpsMeasureStartData.get(name)
     newEngineTicks[name] += Engine.tick - measureData.ticks
-    newEngineTimeSpent[name] += now() - measureData.time
+    newEngineTimeSpent[name] += nowMilliseconds() - measureData.time
   }
 
   function tpsReset() {
     tpsPrevTicks = Engine.tick
-    timerStartTime = now()
-    tpsPrevTime = now()
-    nextTpsReportTime = now() + TPS_REPORT_INTERVAL_MS
+    timerStartTime = nowMilliseconds()
+    tpsPrevTime = nowMilliseconds()
+    nextTpsReportTime = nowMilliseconds() + TPS_REPORT_INTERVAL_MS
   }
 
   function tpsPrintReport(time: number): void {
@@ -178,7 +173,7 @@ export function Timer(
       frameId = window.requestAnimationFrame(_onFrame)
     } else {
       serverLoop = () => {
-        const time = now()
+        const time = nowMilliseconds()
         if (time - lastTime >= expectedDelta) {
           onFrame(time)
           lastTime = time

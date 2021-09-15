@@ -1,5 +1,5 @@
 import { Network } from '../classes/Network'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { NetworkObjectList } from '../interfaces/NetworkObjectList'
 

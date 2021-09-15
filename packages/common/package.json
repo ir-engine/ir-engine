@@ -34,6 +34,6 @@
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851",
   "dependencies": {
-    "cross-env": "^7.0.3"
+    "react-lottie": "^1.2.3"
   }
 }

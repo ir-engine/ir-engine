@@ -1,6 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
 import Twitch from 'twitch-m3u8'
-// import { getComponent } from '../../ecs/functions/EntityFunctions'
+// import { getComponent } from '../../ecs/functions/ComponentFunctions'
 // import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent'
 
 export const startLivestreamOnServer = async (entity: Entity): Promise<void> => {

@@ -1,5 +1,5 @@
 import { Entity } from '../ecs/classes/Entity'
-import { getComponent, hasComponent, removeComponent } from '../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { Quaternion, Vector3 } from 'three'
@@ -9,8 +9,8 @@ import { Network } from '../networking/classes/Network'
 import { PrefabType } from '../networking/templates/PrefabType'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { AvatarTagComponent } from './components/AvatarTagComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
-import { ECSWorld } from '../ecs/classes/World'
+import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -50,23 +50,20 @@ export class SpawnPoints {
   }
 }
 
-export const ServerAvatarSpawnSystem = async (): Promise<System> => {
+export default async function ServerAvatarSpawnSystem(world: World): Promise<System> {
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
-  const spawnPointAddQuery = enterQuery(spawnPointQuery)
-  const spawnPointRemoveQuery = exitQuery(spawnPointQuery)
   const spawnPlayerQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
-  const spawnPlayerAddQuery = enterQuery(spawnPlayerQuery)
 
-  return defineSystem((world: ECSWorld) => {
+  return () => {
     // Keep a list of spawn points so we can send our user to one
-    for (const entity of spawnPointAddQuery(world)) {
+    for (const entity of spawnPointQuery.enter(world)) {
       if (!hasComponent(entity, TransformComponent)) {
         console.warn("Can't add spawn point, no transform component on entity")
         continue
       }
       SpawnPoints.instance.spawnPoints.push(entity)
     }
-    for (const entity of spawnPointRemoveQuery(world)) {
+    for (const entity of spawnPointQuery.exit(world)) {
       const index = SpawnPoints.instance.spawnPoints.indexOf(entity)
 
       if (index > -1) {
@@ -74,12 +71,10 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entity of spawnPlayerAddQuery(world)) {
+    for (const entity of spawnPlayerQuery.enter(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
       createAvatar(entity, parameters)
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_USER_LOADED, networkId, uniqueId })
     }
-
-    return world
-  })
+  }
 }
