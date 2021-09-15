@@ -224,7 +224,7 @@ export default {
           const app = context.app
           let result = context.result
           if (Array.isArray(result)) result = result[0]
-          if (result?.userRole !== 'guest' && result?.inviteCode == null) {
+          if (result && result.userRole !== 'guest' && result.inviteCode == null) {
             const code = await getFreeInviteCode(app)
             await app.service('user').patch(result.id, {
               inviteCode: code

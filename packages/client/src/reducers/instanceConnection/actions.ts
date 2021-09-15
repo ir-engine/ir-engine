@@ -50,7 +50,6 @@ export function instanceServerProvisioned(
   locationId: string | null,
   sceneId: string | null
 ): InstanceServerProvisionedAction {
-  console.log('Calling instanceServerProvision')
   return {
     type: INSTANCE_SERVER_PROVISIONED,
     ipAddress: provisionResult.ipAddress,
