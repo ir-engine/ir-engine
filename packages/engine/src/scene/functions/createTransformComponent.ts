@@ -1,6 +1,6 @@
 import { Euler, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 interface XYZInterface {

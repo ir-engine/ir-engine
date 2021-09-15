@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type SpawnNetworkObjectComponentType = {
   uniqueId: string
@@ -6,4 +6,5 @@ export type SpawnNetworkObjectComponentType = {
   parameters: any
 }
 
-export const SpawnNetworkObjectComponent = createMappedComponent<SpawnNetworkObjectComponentType>()
+export const SpawnNetworkObjectComponent =
+  createMappedComponent<SpawnNetworkObjectComponentType>('SpawnNetworkObjectComponent')

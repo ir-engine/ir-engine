@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
+import { ProjectManager } from '../../managers/ProjectManager'
 
 /**
  * AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object.
@@ -212,7 +213,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
       CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
 
       if (item.projectId && globalThis.currentProjectID !== item.projectId) {
-        globalThis.currentOwnedFileIds[item.label] = item.fileId
+        ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
       }
     },
     []
@@ -230,7 +231,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
       if (item.projectId && globalThis.currentProjectID !== item.projectId)
-        globalThis.currentOwnedFileIds[item.label] = item.fileId
+        ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
     },
     []
   )

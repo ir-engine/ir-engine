@@ -1,6 +1,6 @@
-import { Vector3, Matrix4, Quaternion } from 'three'
+import { Vector3, Matrix4, Quaternion, Plane } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -19,6 +19,7 @@ const mat4 = new Matrix4()
 const newVelocity = new Vector3()
 const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
+const forward = new Vector3(0, 0, -1)
 const multiplier = 1 / 60
 
 export const moveAvatar = (entity: Entity, deltaTime): void => {
@@ -37,6 +38,9 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
   velocity.velocity.copy(newVelocity)
 
   quat.copy(Engine.camera.quaternion)
+  Engine.camera.getWorldDirection(vec3)
+  vec3.setY(0).normalize()
+  quat.setFromUnitVectors(forward, vec3)
 
   // threejs camera is weird, when not in VR we have to invert the direction
   if (!hasComponent(entity, XRInputSourceComponent)) newVelocity.multiplyScalar(-1)

@@ -1,11 +1,7 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
-
-/**
- * @author HydraFire <github.com/HydraFire>
- */
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type NameComponentType = {
   name: string
 }
 
-export const NameComponent = createMappedComponent<NameComponentType>()
+export const NameComponent = createMappedComponent<NameComponentType>('NameComponent')

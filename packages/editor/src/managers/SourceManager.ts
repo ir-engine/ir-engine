@@ -1,4 +1,3 @@
-import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import { AssetManifestSource } from '../components/assets/AssetManifestSource'
 import { BaseSource } from "../components/assets/sources"
 import EditorEvents from "../constants/EditorEvents"
@@ -42,7 +41,7 @@ export class SourceManager {
    * @param  {any}  manifestUrl contains url of source
    */
   async installAssetSource(manifestUrl) {
-    const res = await fetchUrl(new URL(manifestUrl, (window as any).location).href)
+    const res = await fetch(new URL(manifestUrl, (window as any).location).href)
     const json = await res.json()
     this.sources.push(new AssetManifestSource(json.name, manifestUrl))
     CommandManager.instance.emitEvent(EditorEvents.SETTINGS_CHANGED)

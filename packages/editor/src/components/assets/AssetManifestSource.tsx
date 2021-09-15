@@ -5,7 +5,6 @@ import ImageNode from '../../nodes/ImageNode'
 import VideoNode from '../../nodes/VideoNode'
 import ModelNode from '../../nodes/ModelNode'
 import VolumetricNode from '../../nodes/VolumetricNode'
-import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import { NodeManager } from '../../managers/NodeManager'
 function hasTags(result, tags) {
   for (const { value } of tags) {
@@ -62,14 +61,11 @@ export class AssetManifestSource extends BaseSource {
    * @return {Promise}
    */
   async load() {
-    // calling api using manifestUrl
-    const response = await fetchUrl(this.manifestUrl)
-
+    const response = await fetch(this.manifestUrl)
     //getting json using response
     const manifest = await response.json().catch((err) => {
       console.log(err)
     })
-
     //initializing placeholder if there exist manifest.searchPlaceholder
     if (manifest.searchPlaceholder) {
       this.searchPlaceholder = manifest.searchPlaceholder
@@ -106,12 +102,10 @@ export class AssetManifestSource extends BaseSource {
       minMatchCharLength: 1,
       keys: ['label', 'tags']
     }
-
     //Creating a new Fuse search instance using options for assets
     this.fuse = new Fuse(this.assets, options)
     this.loaded = true
   }
-
   /**
    * function used to search assets.
    *
@@ -126,20 +120,16 @@ export class AssetManifestSource extends BaseSource {
     if (!this.loaded) {
       await this.load()
     }
-
     //adding all assets to results
     let results = this.assets
-
     //check if params contains tag then filter assets having tag
     if (params.tags && params.tags.length > 0) {
       results = results.filter((result) => hasTags(result, params.tags))
     }
-
     //check if params contains query option then search using fuse
     if (params.query) {
       results = this.fuse.search(params.query)
     }
-
     //returning searched assets results
     return {
       results,

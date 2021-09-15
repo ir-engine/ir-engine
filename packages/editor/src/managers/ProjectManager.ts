@@ -1,4 +1,7 @@
 import { Vector3 } from 'three'
+import { Application, feathers } from '@feathersjs/feathers'
+import rest from '@feathersjs/rest-client'
+import { Config } from '@xrengine/common/src/config'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { MultiError } from '@xrengine/engine/src/scene/functions/errors'
 import { loadEnvironmentMap } from '../components/EnvironmentMap'
@@ -21,6 +24,10 @@ export class ProjectManager {
   initializing: boolean
   initialized: boolean
 
+  feathersClient: Application<any, any>
+  ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
+  currentOwnedFileIds: {}
+
   static buildProjectManager(settings?: any) {
     this.instance = new ProjectManager(settings)
   }
@@ -33,8 +40,23 @@ export class ProjectManager {
 
     this.initializing = false
     this.initialized = false
+
+    this.ownedFileIds = {}
+    this.currentOwnedFileIds = {}
   }
 
+   /**
+   * A Function to Initialize the FeathersClient with the auth token
+   * @author Abhishek Pathak
+   */
+  initializeFeathersClient(token) {
+    this.feathersClient = feathers()
+    const headers = {
+      authorization: `Bearer ${token}`
+    }
+    const restClient = rest(Config.publicRuntimeConfig.apiServer).fetch(window.fetch.bind(window), { headers })
+    this.feathersClient.configure(restClient)
+  }
 
   /**
    * init called when component get initialized.

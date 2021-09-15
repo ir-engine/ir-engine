@@ -367,6 +367,10 @@ export class XREngineBot {
     this.browser = await puppeteer.launch(options)
 
     this.page = await this.browser.newPage()
+    this.page.on('close', () => {
+      console.log('[XRENGINE BOT]: page closed')
+      this.page = undefined
+    })
 
     if (this.verbose) {
       this.page.on('console', (consoleObj) => console.log('>> ', consoleObj.text()))

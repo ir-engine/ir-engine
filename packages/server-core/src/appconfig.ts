@@ -17,7 +17,8 @@ if (globalThis.process?.env.NODE_ENV === 'development') {
 
 if (!kubernetesEnabled) {
   dotenv.config({
-    path: appRootPath.path
+    path: appRootPath.path,
+    silent: true
   })
 }
 

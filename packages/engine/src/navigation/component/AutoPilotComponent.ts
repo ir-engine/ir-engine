@@ -1,6 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { Path } from 'yuka'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
  * @author xiani_zp <github.com/xiani>
@@ -11,4 +11,4 @@ export type AutoPilotComponentType = {
   path: Path
 }
 
-export const AutoPilotComponent = createMappedComponent<AutoPilotComponentType>()
+export const AutoPilotComponent = createMappedComponent<AutoPilotComponentType>('AutoPilotComponent')

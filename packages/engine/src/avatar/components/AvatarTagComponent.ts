@@ -1,2 +1,2 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
-export const AvatarTagComponent = createMappedComponent<{}>()
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+export const AvatarTagComponent = createMappedComponent()

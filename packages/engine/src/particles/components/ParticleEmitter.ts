@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { ParticleEmitterMesh } from '../functions/ParticleEmitterMesh'
 
 export type ParticleEmitterComponentType = {
@@ -40,4 +40,4 @@ export type ParticleEmitterComponentType = {
   // colors: any[];
 }
 
-export const ParticleEmitterComponent = createMappedComponent<ParticleEmitterComponentType>()
+export const ParticleEmitterComponent = createMappedComponent<ParticleEmitterComponentType>('ParticleEmitterComponent')

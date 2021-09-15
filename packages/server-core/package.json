@@ -107,12 +107,12 @@
     "@types/lodash": "4.14.172",
     "@types/mime-types": "2.1.1",
     "@types/multer": "1.4.7",
-    "@types/node": "14.17.14",
+    "@types/node": "14.17.16",
     "@types/node-fetch": "2.5.12",
     "@types/nodemailer-smtp-transport": "2.7.5",
     "@types/pug": "2.0.5",
-    "@typescript-eslint/eslint-plugin": "4.31.0",
-    "@typescript-eslint/parser": "4.31.0",
+    "@typescript-eslint/eslint-plugin": "4.31.1",
+    "@typescript-eslint/parser": "4.31.1",
     "app-root-path": "3.0.0",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
@@ -120,8 +120,8 @@
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
-    "typedoc": "0.21.9",
-    "typescript": "4.4.2"
+    "typedoc": "0.22.3",
+    "typescript": "4.4.3"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

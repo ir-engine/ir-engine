@@ -1,7 +1,7 @@
-import { ColliderHitEvent, ControllerHitEvent, ControllerObstacleHitEvent } from 'three-physx'
+import { ColliderHitEvent, ControllerHitEvent, ControllerObstacleHitEvent } from '../../physics/physx'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../components/ColliderComponent'
 
 type ControllerCollisionHit = {

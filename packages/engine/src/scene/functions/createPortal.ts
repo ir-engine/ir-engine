@@ -11,13 +11,14 @@ import {
   Quaternion,
   Vector3
 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
+import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from '../../physics/physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'

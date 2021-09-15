@@ -35,13 +35,35 @@ import Collapse from '@material-ui/core/Collapse'
 const SideMenuItem = ({ location: { pathname } }) => {
   const classes = useStylesForDashboard()
   const { t } = useTranslation()
-  const [open, setOpen] = React.useState(false)
+  const [openSetting, setOpenSeting] = React.useState(false)
   const [openScene, setOpenScene] = React.useState(false)
   const [openUser, setOpenUser] = React.useState(false)
   const [openLocation, setOpenLocation] = React.useState(false)
 
-  const handleClick = () => {
-    setOpen(!open)
+  const handleSetting = () => {
+    setOpenSeting(!openSetting)
+    setOpenScene(false)
+    setOpenUser(false)
+    setOpenLocation(false)
+  }
+  const handleScene = () => {
+    setOpenScene(!openScene)
+    setOpenSeting(false)
+    setOpenUser(false)
+    setOpenLocation(false)
+  }
+
+  const handleUser = () => {
+    setOpenUser(!openUser)
+    setOpenSeting(false)
+    setOpenScene(false)
+    setOpenLocation(false)
+  }
+  const handleLocation = () => {
+    setOpenLocation(!openLocation)
+    setOpenSeting(false)
+    setOpenScene(false)
+    setOpenUser(false)
   }
 
   return (
@@ -63,7 +85,7 @@ const SideMenuItem = ({ location: { pathname } }) => {
         </Link>
 
         <Link to="/admin/locations" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button onClick={() => setOpenLocation(!openLocation)}>
+          <ListItem style={{ color: 'white' }} button onClick={handleLocation}>
             <ListItemIcon>
               <NearMe style={{ color: 'white' }} />
             </ListItemIcon>
@@ -132,7 +154,7 @@ const SideMenuItem = ({ location: { pathname } }) => {
           </ListItem>
         </Link> */}
         <Link to="/admin/users" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button onClick={() => setOpenUser(!openUser)}>
+          <ListItem style={{ color: 'white' }} button onClick={handleUser}>
             <ListItemIcon>
               <SupervisorAccount style={{ color: 'white' }} />
             </ListItemIcon>
@@ -186,7 +208,7 @@ const SideMenuItem = ({ location: { pathname } }) => {
           </Link>
         </Collapse>
 
-        <ListItem style={{ color: 'white' }} button onClick={() => setOpenScene(!openScene)}>
+        <ListItem style={{ color: 'white' }} button onClick={handleScene}>
           <ListItemIcon>
             <Casino style={{ color: 'white' }} />
           </ListItemIcon>
@@ -198,7 +220,7 @@ const SideMenuItem = ({ location: { pathname } }) => {
             <ListItem
               classes={{ selected: classes.selected }}
               selected={'/admin/scenes' === pathname}
-              style={{ color: 'white' }}
+              style={{ color: 'white', background: '#15171B !important' }}
               className={classes.nested}
               button
             >
@@ -239,14 +261,28 @@ const SideMenuItem = ({ location: { pathname } }) => {
           </Link>
         </Collapse>
 
-        <ListItem style={{ color: 'white' }} button onClick={handleClick}>
+        <ListItem style={{ color: 'white' }} button onClick={handleSetting}>
           <ListItemIcon>
             <Settings style={{ color: 'white' }} />
           </ListItemIcon>
           <ListItemText primary="Setting" />
-          {open ? <ExpandLess /> : <ExpandMore />}
+          {openSetting ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
-        <Collapse in={open} timeout="auto" unmountOnExit>
+        <Collapse in={openSetting} timeout="auto" unmountOnExit>
+          <Link to="/admin/settings" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              className={classes.nested}
+              selected={'/admin/settings' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <ListItemIcon>
+                <Settings style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={'Setting'} />
+            </ListItem>
+          </Link>
           <Link to="/admin/bots" className={classes.textLink}>
             <ListItem
               classes={{ selected: classes.selected }}

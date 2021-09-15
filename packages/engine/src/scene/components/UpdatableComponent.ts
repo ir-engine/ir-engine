@@ -1,2 +1,2 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
-export const UpdatableComponent = createMappedComponent<{}>()
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+export const UpdatableComponent = createMappedComponent('UpdatableComponent')

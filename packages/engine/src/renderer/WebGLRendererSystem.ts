@@ -423,7 +423,7 @@ export class EngineRenderer {
   }
 }
 
-export const WebGLRendererSystem = async (world: World, props: EngineRendererProps) => {
+export default async function WebGLRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
   new EngineRenderer(props)
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()

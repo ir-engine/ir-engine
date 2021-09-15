@@ -14,6 +14,7 @@ import { NodeManager } from '../../managers/NodeManager'
 import EditorEvents from '../../constants/EditorEvents'
 import { SourceManager } from '../../managers/SourceManager'
 import { CommandManager } from '../../managers/CommandManager'
+import { ProjectManager } from '../../managers/ProjectManager'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -89,8 +90,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   const renderProjectFiles = async (index) => {
     const ownedIds = {}
-    Object.assign(ownedIds, globalThis.ownedFileIds)
-    Object.assign(ownedIds, globalThis.currentOwnedFileIds)
+    Object.assign(ownedIds, ProjectManager.instance.ownedFileIds)
+    Object.assign(ownedIds, ProjectManager.instance.currentOwnedFileIds)
     projects[0].ownedFileIds = JSON.stringify(ownedIds)
     projects[0].sid = globalThis.currentProjectID
     const ownedFileIdsString = projects[index]?.ownedFileIds

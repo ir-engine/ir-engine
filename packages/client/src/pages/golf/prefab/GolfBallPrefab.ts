@@ -11,12 +11,20 @@ import {
   Vector4,
   ConeGeometry
 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
+import {
+  Body,
+  BodyType,
+  ShapeType,
+  SHAPES,
+  RaycastQuery,
+  SceneQueryType,
+  PhysXInstance
+} from '@xrengine/engine/src/physics/physx'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
@@ -69,6 +77,7 @@ enum BALL_SFX {
 }
 
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
+  if (typeof entityBall === 'undefined') return
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   console.log('setBallState', golfBallComponent.number, Object.values(BALL_STATES)[ballState])
   golfBallComponent.state = ballState
@@ -230,6 +239,7 @@ const wallHitSFX = (entityBall: Entity) => {
 
 export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
+  if (!collider) return
   const ballPosition = collider.body.transform.translation
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   golfBallComponent.groundRaycast.origin.copy(ballPosition)
@@ -367,7 +377,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
       restOffset: -golfBallColliderExpansion,
       // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
       // this will not reverse the expansion for trigger colliders
-      contactOffset: golfBallColliderExpansion,
+      contactOffset: -0.005, //golfBallColliderExpansion,
       material: { staticFriction: 0.2, dynamicFriction: 0.2, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask:

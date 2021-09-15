@@ -3,12 +3,12 @@ import { FollowCameraComponent } from '../../camera/components/FollowCameraCompo
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import {
   addComponent,
-  createEntity,
   defineQuery,
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -29,10 +29,11 @@ import { createBoxComponent } from '../functions/createBoxComponent'
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 
 const upVec = new Vector3(0, 1, 0)
 
-export const InteractiveSystem = async (): Promise<System> => {
+export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
   const interactiveQuery = defineQuery([InteractableComponent])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
@@ -60,7 +61,7 @@ export const InteractiveSystem = async (): Promise<System> => {
   transformComponent.scale.setScalar(0)
   textGroup.visible = false
 
-  return (world) => {
+  return () => {
     const { elapsedTime } = world
 
     for (const entity of interactiveQuery.enter(world)) {

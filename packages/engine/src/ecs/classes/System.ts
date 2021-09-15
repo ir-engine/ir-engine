@@ -1,3 +1,1 @@
-import { World } from './World'
-
-export type System = (world: World) => void
+export type System = () => void

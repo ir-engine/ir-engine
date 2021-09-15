@@ -24,6 +24,7 @@ import { convertCubemapToEquiImageData, uploadCubemap } from '@xrengine/engine/s
 import SkyboxNode from './SkyboxNode'
 import { deleteAsset } from '@xrengine/engine/src/scene/functions/deleteAsset'
 import { SceneManager } from '../managers/SceneManager'
+import { ProjectManager } from '../managers/ProjectManager'
 
 export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'Cubemap Bake'
@@ -169,11 +170,11 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   onRemove() {
     this.currentEnvMap?.dispose()
     SceneManager.instance.scene.unregisterEnvironmentMapNode(this)
-    const fileID = globalThis.ownedFileIds[this.ownedFileIdentifier]
+    const fileID = ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
     if (fileID) {
       const id = fileID
       if (id) deleteAsset(id, globalThis.currentProjectID, this.ownedFileIdentifier)
-      delete globalThis.ownedFileIds[this.ownedFileIdentifier]
+      delete ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
     }
   }
 
@@ -191,7 +192,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       file_id: fileId,
       meta: { access_token: fileToken }
     } = value
-    globalThis.ownedFileIds[this.ownedFileIdentifier] = fileId
+    ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier] = fileId
   }
 
   setEnvMap() {

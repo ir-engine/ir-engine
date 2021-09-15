@@ -29,6 +29,7 @@ import ImageNode from "../nodes/ImageNode"
 import VolumetricNode from "../nodes/VolumetricNode"
 import LinkNode from "../nodes/LinkNode"
 import { SceneManager } from "./SceneManager"
+import { ProjectManager } from "./ProjectManager"
 
 export class CommandManager extends EventEmitter {
   static instance: CommandManager
@@ -285,7 +286,7 @@ export class CommandManager extends EventEmitter {
     SceneManager.instance.getSpawnPosition(node.position)
     this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parent, before })
 
-    globalThis.currentOwnedFileIds[name] = id
+    ProjectManager.instance.currentOwnedFileIds[name] = id
     this.emit('FileUploaded')
     return node
   }

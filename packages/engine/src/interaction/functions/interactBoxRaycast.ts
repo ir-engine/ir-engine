@@ -1,6 +1,6 @@
 import { Box3, Frustum, Matrix4, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'

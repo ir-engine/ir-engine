@@ -398,6 +398,7 @@
             "lbl-leaveComponent": "Leave Component",
             "lbl-leaveProperty": "Leave Property",
             "lbl-leaveValue": "Leave Value",
+            "lbl-showHelper": "Show Helper Mesh",
             "ph-errorNode": "Error missing node.",
             "ph-selectNode": "Select node...",
             "ph-selectComponent": "Select component...",

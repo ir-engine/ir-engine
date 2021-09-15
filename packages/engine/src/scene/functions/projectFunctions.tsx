@@ -1,13 +1,9 @@
 import { Config } from '@xrengine/common/src/config'
 import i18n from 'i18next'
-import { fetchUrl } from './fetchUrl'
 import { getToken } from './getToken'
 import { upload } from './upload'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
-
-globalThis.ownedFileIds = globalThis.ownedFileIds ?? {}
-globalThis.currentOwnedFileIds = {}
 
 /**
  * getProjects used to get list projects created by user.
@@ -22,7 +18,7 @@ export const getProjects = async (): Promise<any> => {
     authorization: `Bearer ${token}`
   }
 
-  const response = await fetchUrl(`${serverURL}/project`, { headers })
+  const response = await fetch(`${serverURL}/project`, { headers })
 
   const json = await response.json().catch((err) => {
     console.log('Error fetching JSON')
@@ -45,19 +41,13 @@ export const getProjects = async (): Promise<any> => {
  * @returns
  */
 export const getProject = async (projectId): Promise<JSON> => {
-  const token = getToken()
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
+  try {
+    const json = await globalThis.Editor.feathersClient.service('project').get(projectId)
+    return json
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
-
-  const response = await fetchUrl(`${serverURL}/project/${projectId}`, {
-    headers
-  })
-  const json = await response.json()
-  console.log('Response: ' + Object.values(response))
-
-  return json
 }
 
 /**
@@ -106,13 +96,6 @@ export const createProject = async (
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
-  }
-
   const project = {
     name: scene.name,
     thumbnailOwnedFileId: {
@@ -127,26 +110,19 @@ export const createProject = async (
   if (parentSceneId) {
     project['parent_scene_id'] = parentSceneId
   }
-  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
-  globalThis.currentOwnedFileIds = {}
+  Object.assign(globalThis.Editor.ownedFileIds, globalThis.Editor.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, globalThis.Editor.ownedFileIds)
+  globalThis.Editor.currentOwnedFileIds = {}
 
-  const body = JSON.stringify({ project })
-
-  const projectEndpoint = `${serverURL}/project`
-
-  const resp = await fetchUrl(projectEndpoint, { method: 'POST', headers, body, signal })
-  console.log('Response: ' + Object.values(resp))
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+  let json = {}
+  try {
+    json = await globalThis.Editor.feathersClient.service('project').create({ project })
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
 
-  if (resp.status !== 200) {
-    throw new Error(i18n.t('editor:errors.projectCreationFail', { reason: await resp.text() }))
-  }
-
-  return await resp.json()
+  return json
 }
 
 /**
@@ -166,7 +142,7 @@ export const deleteProject = async (projectId): Promise<any> => {
 
   const projectEndpoint = `${serverURL}/project/${projectId}`
 
-  const resp = await fetchUrl(projectEndpoint, { method: 'DELETE', headers })
+  const resp = await fetch(projectEndpoint, { method: 'DELETE', headers })
   console.log('Response: ' + Object.values(resp))
 
   if (resp.status === 401) {
@@ -223,13 +199,6 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
-  }
-
   const project = {
     name: editor.scene.name,
     thumbnailOwnedFileId: {
@@ -247,30 +216,16 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     project['scene_id'] = sceneId
   }
 
-  Object.assign(globalThis.ownedFileIds, globalThis.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, globalThis.ownedFileIds)
-  globalThis.currentOwnedFileIds = {}
+  Object.assign(globalThis.Editor.ownedFileIds, globalThis.Editor.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, globalThis.Editor.ownedFileIds)
+  globalThis.Editor.currentOwnedFileIds = {}
 
-  const body = JSON.stringify({
-    project
-  })
-  // console.log("EDITOR JSON IS");
-  // console.log(project);
-
-  const projectEndpoint = `${serverURL}/project/${projectId}`
-  // Calling api to save project
-  const resp = await fetchUrl(projectEndpoint, { method: 'PATCH', headers, body, signal })
-  console.log('Response: ' + Object.values(resp))
-
-  const json = await resp.json()
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+  let json = {}
+  try {
+    json = await globalThis.Editor.feathersClient.service('project').patch(projectId, { project })
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
-
-  if (resp.status !== 200) {
-    throw new Error(i18n.t('editor:errors.savingProjectFail', { reason: await resp.text() }))
-  }
-
   return json
 }

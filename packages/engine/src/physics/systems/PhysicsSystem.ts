@@ -5,10 +5,10 @@ import {
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { BodyType, PhysXInstance } from 'three-physx'
+import { BodyType, PhysXInstance } from '../../physics/physx'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
@@ -79,23 +79,29 @@ const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObj
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-export const PhysicsSystem = async (
+
+export default async function PhysicsSystem(
   world: World,
-  attributes: { simulationEnabled?: boolean } = {}
-): Promise<System> => {
+  attributes: { simulationEnabled?: boolean }
+): Promise<System> {
+  console.log('PhysicsSystem being initialized')
   let simulationEnabled = false
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+    console.log('Physics System got ENABLE_SCENE')
     if (typeof ev.physics !== 'undefined') {
       simulationEnabled = ev.physics
     }
   })
 
   simulationEnabled = attributes.simulationEnabled ?? true
+  console.log('simulationEnabled', simulationEnabled)
 
   world.receptors.add(avatarActionReceptor)
+  console.log('Added avatarActionReceptor to world')
 
   await createPhysXWorker()
+  console.log('created PhysXWorker')
 
   return () => {
     for (const entity of spawnRigidbodyQuery.enter()) {
@@ -116,16 +122,8 @@ export const PhysicsSystem = async (
       }
     }
 
-    for (const entity of colliderQuery.enter()) {
-      const colliderComponent = getComponent(entity, ColliderComponent)
-      const nameComponent = getComponent(entity, NameComponent)
-      console.log(`COLLIDER BODY ADDED ${nameComponent.name}`, colliderComponent.body)
-    }
-
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
-      const nameComponent = getComponent(entity, NameComponent, true)
-      console.log(`COLLIDER BODY REMOVED ${nameComponent.name}`, colliderComponent.body)
       if (colliderComponent?.body) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }

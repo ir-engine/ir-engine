@@ -5,7 +5,7 @@ import {
   addComponent,
   getComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
 import { AutoPilotComponent } from './AutoPilotComponent'
 import { AutoPilotRequestComponent } from './AutoPilotRequestComponent'
 
@@ -31,4 +31,4 @@ export const removeFollowComponent = (eid: number): void => {
   }
 }
 
-export const FollowComponent = createMappedComponent<FollowComponentType>()
+export const FollowComponent = createMappedComponent<FollowComponentType>('FollowComponent')

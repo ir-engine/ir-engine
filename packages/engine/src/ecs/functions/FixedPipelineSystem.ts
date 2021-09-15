@@ -1,5 +1,5 @@
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { World } from '../../ecs/classes/World'
+import { World } from '../classes/World'
 import { System } from '../classes/System'
 
 /**
@@ -7,7 +7,8 @@ import { System } from '../classes/System'
  * @author Josh Field <github.com/hexafield>
  * @author Gheric Speiginer <github.com/speigg>
  */
-export const FixedPipelineSystem = async (world: World, args: { updatesPerSecond: number }): Promise<System> => {
+export default async function FixedPipelineSystem(world: World, args: { updatesPerSecond: number }): Promise<System> {
+  console.log(args)
   let accumulator = 0
 
   const timestep = 1 / args.updatesPerSecond

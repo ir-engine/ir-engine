@@ -1,5 +1,5 @@
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { ShapeType, SHAPES, Body, BodyType, PhysXInstance } from 'three-physx'
+import { ShapeType, SHAPES, Body, BodyType, PhysXInstance } from '../../physics/physx'
 import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
 import { ColliderTypes } from '../types/PhysicsTypes'
@@ -7,6 +7,8 @@ import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPoin
 import { Engine } from '../../ecs/classes/Engine'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
+import { ColliderComponent } from '../components/ColliderComponent'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -158,6 +160,8 @@ export function createCollider(
       entity
     }
   })
+
+  addComponent(entity, ColliderComponent, { body })
 
   PhysXInstance.instance.addBody(body)
 

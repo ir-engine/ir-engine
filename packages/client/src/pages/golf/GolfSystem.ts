@@ -18,9 +18,8 @@ import {
   addComponent,
   defineQuery,
   getComponent,
-  removeComponent,
-  removeEntity
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   BALL_STATES,
@@ -57,7 +56,6 @@ import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/X
 import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { getPlayer } from '@xrengine/engine/src'
 
 export function getHole(world: World, i: number) {
   return world.namedEntities.get(`GolfHole-${i}`)
@@ -239,18 +237,20 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
         const entityHole = getHole(world, currentHole)
 
         // if hole in ball or player has had too many shots, finish their round
-        if (
-          getComponent(entityBall, GolfBallComponent).state === BALL_STATES.IN_HOLE ||
-          currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
-        ) {
-          console.log('=== PLAYER FINISHED HOLE')
-          currentPlayer.scores.set([
-            ...currentPlayer.scores.value,
-            currentPlayer.stroke.value - s.holes[currentHole].par.value
-          ])
-        }
+        if (typeof entityBall !== 'undefined') {
+          if (
+            getComponent(entityBall, GolfBallComponent).state === BALL_STATES.IN_HOLE ||
+            currentPlayer.stroke.value > 5 /**s.holes.value[s.currentHole].par.value + 3*/
+          ) {
+            console.log('=== PLAYER FINISHED HOLE')
+            currentPlayer.scores.set([
+              ...currentPlayer.scores.value,
+              currentPlayer.stroke.value - s.holes[currentHole].par.value
+            ])
+          }
 
-        setBallState(entityBall, BALL_STATES.INACTIVE)
+          setBallState(entityBall, BALL_STATES.INACTIVE)
+        }
 
         // TODO: get player with fewest number of holes completed
         // const currentHole = s.players.reduce(() => {
@@ -311,6 +311,12 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
        */
       case 'puttclub.NEXT_HOLE': {
         s.currentHole.set((s.currentHole.value + 1) % s.holes.length) // TODO: earliest incomplete hole
+        if (s.currentHole.value === 0) {
+          console.log('finished game! resetting player scores')
+          for (const [i, p] of s.players.entries()) {
+            p.scores.set([])
+          }
+        }
         // Set all player strokes to 0
         for (const [i, p] of s.players.entries()) {
           p.stroke.set(0)
@@ -355,7 +361,7 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
 globalThis.GolfState = GolfState
 let ballTimer = 0
 
-export const GolfSystem = async (world: World) => {
+export default async function GolfSystem(world: World) {
   const playerQuery = defineQuery([AvatarComponent, NetworkObjectComponent])
   const namedComponentQuery = defineQuery([NameComponent])
   const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
@@ -458,7 +464,7 @@ export const GolfSystem = async (world: World) => {
 
     const currentPlayerNumber = GolfState.currentPlayer.value
     const activeBallEntity = getBall(world, currentPlayerNumber)
-    if (activeBallEntity) {
+    if (typeof activeBallEntity !== 'undefined') {
       const golfBallComponent = getComponent(activeBallEntity, GolfBallComponent)
       updateBall(activeBallEntity)
 

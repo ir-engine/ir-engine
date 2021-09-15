@@ -1,5 +1,5 @@
 import { Vector3, Quaternion } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type DesiredTransformComponentType = {
   position: Vector3
@@ -9,4 +9,5 @@ export type DesiredTransformComponentType = {
   lockRotationAxis: [boolean, boolean, boolean]
 }
 
-export const DesiredTransformComponent = createMappedComponent<DesiredTransformComponentType>()
+export const DesiredTransformComponent =
+  createMappedComponent<DesiredTransformComponentType>('DesiredTransformComponent')

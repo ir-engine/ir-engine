@@ -1,7 +1,8 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { SkinnedMesh } from 'three'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 type IKObjType = {
-  ref?: any
+  ref?: SkinnedMesh | null
 }
 
-export const IKObj = createMappedComponent<IKObjType>()
+export const IKObj = createMappedComponent<IKObjType>('IKObj')

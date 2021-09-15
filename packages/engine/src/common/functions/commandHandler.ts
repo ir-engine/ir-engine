@@ -2,7 +2,7 @@ import { Vector3, Vector2 } from 'three'
 import { AnimationGraph } from '../../avatar/animations/AnimationGraph'
 import { AvatarAnimations, AvatarStates } from '../../avatar/animations/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { getComponent, hasComponent, addComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent, addComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { AutoPilotClickRequestComponent } from '../../navigation/component/AutoPilotClickRequestComponent'
 import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
@@ -13,7 +13,7 @@ import {
   unsubscribeFromChatSystem,
   getSubscribedChatSystems
 } from '../../networking/utils/chatSystem'
-import { getPlayerEntity } from '../../networking/utils/getUser'
+import { getPlayerEntity, getPlayers } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
@@ -225,6 +225,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 
       return true
     }
+    case 'listAllusers': {
+      if (isServer) return false
+
+      handleListAllUsersCommand(userId)
+
+      return true
+    }
     default: {
       console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
       if (!isServer) return true
@@ -411,7 +418,6 @@ function handleGetTransformCommand(player: string) {
   console.log(player + ' transform: ' + JSON.stringify(transform))
 }
 function handleFollowCommand(param: string, eid: number) {
-  console.log('follow: ' + param)
   if (param === 'stop') {
     removeFollowComponent(eid)
   } else {
@@ -420,6 +426,15 @@ function handleFollowCommand(param: string, eid: number) {
     if (targetEid === undefined || eid === targetEid) return
     createFollowComponent(eid, targetEid)
   }
+}
+function handleListAllUsersCommand(userId) {
+  console.log('listallusers, local id: ' + userId)
+  if (userId === undefined) return
+
+  const players: string[] = getPlayers(userId, true)
+  if (players === undefined) return
+
+  console.log('players|' + players)
 }
 
 function runAnimation(eid: any, emote: string, emoteParams: any) {

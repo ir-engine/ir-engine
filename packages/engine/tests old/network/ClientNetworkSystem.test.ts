@@ -13,7 +13,7 @@ import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import * as initializeNetworkObjectModule from "../../src/networking/functions/initializeNetworkObject";
 import { NetworkObject } from "../../src/networking/components/NetworkObject";
 import { TransformComponent } from "../../src/transform/components/TransformComponent";
-import { getComponent, hasComponent } from "../../src/ecs/functions/EntityFunctions";
+import { getComponent, hasComponent } from "../../src/ecs/functions/ComponentFunctions";
 import { CharacterComponent } from "../../src/avatar/components/CharacterComponent";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';

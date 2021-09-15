@@ -1,24 +1,19 @@
-import { addComponent, createEntity, defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
-import { IKRig } from '../components/IKRig'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { IKRigComponent } from '../components/IKRigComponent'
+import { Not } from 'bitecs'
 // import DebugComponent from '../classes/Debug'
-import { IKPose } from '../components/IKPose'
-import { FORWARD, UP } from '../constants/Vector3Constants'
+import { IKPoseComponent } from '../components/IKPoseComponent'
 import {
-  applyHip,
-  applyLimb,
-  applyLookTwist,
-  applySpine,
-  computeHip,
-  computeLimb,
-  computeLookTwist,
-  computeSpine,
+  applyIKPoseToIKRig,
+  computeIKPose,
   visualizeHip,
   visualizeLimb,
   visualizeLookTwist,
   visualizeSpine
 } from '../functions/IKFunctions'
-import { World } from '../../ecs/classes/World'
 
+import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 // export class DebugComponent {
 //   static points = null
 //   static lines = null
@@ -53,33 +48,23 @@ import { World } from '../../ecs/classes/World'
 //   }
 // }
 
-export const IKRigSystem = async (world: World) => {
-  const ikrigsQuery = defineQuery([IKRig])
-  const ikposeQuery = defineQuery([IKPose])
+export const IKRigSystem = async (world: World): Promise<System> => {
+  const targetRigsQuery = defineQuery([IKRigComponent, Not(IKPoseComponent)])
+  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent])
 
   return () => {
     // d.reset() // For this example, Lets reset visual debug for every compute.
 
     // RUN
     for (const entity of ikposeQuery()) {
-      const ikPose = getComponent(entity, IKPose)
-      const rig = getComponent(entity, IKRig)
+      const ikPose = getComponent(entity, IKPoseComponent)
+      const rig = getComponent(entity, IKRigComponent)
+      if (!ikPose.targetRigs) {
+        continue
+      }
 
       // // COMPUTE
-      computeHip(rig, ikPose)
-
-      computeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l)
-      computeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r)
-
-      computeLookTwist(rig, rig.points.foot_l, ikPose.foot_l, FORWARD, UP) // Look = Fwd, Twist = Up
-      computeLookTwist(rig, rig.points.foot_r, ikPose.foot_r, FORWARD, UP)
-
-      computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD)
-
-      computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l)
-      computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r)
-
-      computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP)
+      computeIKPose(rig, ikPose)
 
       // // // VISUALIZE
       // visualizeHip(rig, ikPose);
@@ -95,21 +80,10 @@ export const IKRigSystem = async (world: World) => {
       // visualizeLookTwist(rig, rig.points.head, pose.head);
 
       // APPLY
-      applyHip(ikPose)
-
-      applyLimb(ikPose, rig.chains.leg_l, ikPose.leg_l)
-      applyLimb(ikPose, rig.chains.leg_r, ikPose.leg_r)
-
-      applyLookTwist(entity, rig.points.foot_l, ikPose.foot_l, FORWARD, UP)
-      applyLookTwist(entity, rig.points.foot_r, ikPose.foot_r, FORWARD, UP)
-      applySpine(entity, rig.chains.spine, ikPose.spine, UP, FORWARD)
-
-      applyLimb(ikPose, rig.chains.arm_l, ikPose.arm_l)
-      applyLimb(ikPose, rig.chains.arm_r, ikPose.arm_r)
-
-      // applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP);
-
-      // rig.pose.apply();
+      for (const targetEntity of targetRigsQuery()) {
+        const targetRig = getComponent(targetEntity, IKRigComponent)
+        applyIKPoseToIKRig(targetRig, ikPose)
+      }
     }
   }
 }

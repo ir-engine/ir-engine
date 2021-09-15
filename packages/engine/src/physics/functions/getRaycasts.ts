@@ -1,5 +1,5 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../components/RaycastComponent'
 
 export const getRaycasts = (entity: Entity, component: ComponentConstructor<any, any>): Entity => {

@@ -186,6 +186,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     if (this.socketIO != null)
       (this.socketIO as any).of('/').on('connect', (socket: Socket) => {
+        console.log('Got client connect')
         let listenersSetUp = false
         // Authorize user and make sure everything is valid before allowing them to join the world
         socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
