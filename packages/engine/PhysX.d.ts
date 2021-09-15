@@ -82,6 +82,16 @@ declare namespace PhysX {
     eDISABLE_SIMULATION = 1 << 3
   }
 
+  class PxGeometryType {
+    static eSPHERE: { value: number }
+    static ePLANE: { value: number }
+    static eCAPSULE: { value: number }
+    static eBOX: { value: number }
+    static eCONVEXMESH: { value: number }
+    static eTRIANGLEMESH: { value: number }
+    static eHEIGHTFIELD: { value: number }
+  }
+
   class PxShapeFlags {
     constructor(flags: PxShapeFlag | number)
     isSet(flag: PxShapeFlag): boolean
@@ -223,27 +233,58 @@ declare namespace PhysX {
     $$: ClassHandle
   }
 
+  class PxGeometryHelper {
+    getType(): PxGeometryType
+  }
+
   class PxGeometry {
     getType(): number
+    isValid(): boolean
   }
   class PxBoxGeometry extends PxGeometry {
     constructor(x: number, y: number, z: number)
+    readonly halfExtents: PxVec3
+    setHalfExtents(halfExtents: PxVec3): void
   }
   class PxSphereGeometry extends PxGeometry {
-    constructor(r: number)
+    constructor(radius: number)
+    setRadius(radius: number): void
+    readonly radius: number
   }
   class PxCapsuleGeometry extends PxGeometry {
-    constructor(r: number, h: number)
+    constructor(radius: number, halfHeight: number)
+    setRadius(radius: number): void
+    setHalfHeight(halfHeight: PxVec3): void
+    readonly radius: number
+    readonly halfHeight: PxVec3
   }
   class PxPlaneGeometry extends PxGeometry {
     constructor()
   }
   class PxTriangleMeshGeometry extends PxGeometry {
-    constructor(a: any, b: any, c: any)
+    constructor(mesh: PxTriangleMesh, meshScale: PxMeshScale, flags: PxMeshGeometryFlags)
+    getTriangleMesh(): PxTriangleMesh
+    setScale(scale: PxMeshScale): void
+    getScale(): PxMeshScale
+    getMeshFlags(): PxMeshGeometryFlags
+  }
+
+  class PxConvexMesh {
+    constructor()
+    getVertices(): PxVec3[]
+    getIndexBuffer(): number[]
   }
 
   class PxConvexMeshGeometry extends PxGeometry {
-    constructor(a: any, b: any, c: any)
+    constructor(mesh: PxConvexMesh, meshScale: PxMeshScale, flags: PxConvexMeshGeometryFlags)
+    getConvexMesh(): PxConvexMesh
+    setScale(scale: PxMeshScale): void
+    getScale(): PxMeshScale
+    getMeshFlags(): PxConvexMeshGeometryFlags
+  }
+
+  class PxHeightFieldGeometry extends PxGeometry {
+    constructor(heightfield: PxHeightField, flags: PxMeshGeometryFlags, a: number, b: number, c: number)
   }
 
   class PxMaterial extends Base {
@@ -272,10 +313,14 @@ declare namespace PhysX {
     release(): void
     setLocalPose(transform: PxTransform): void
     getLocalPose(): PxTransform
-    // setGeometry(geometry: PxGeometry): void; // TO DO
-    // getBoxGeometry(geometry: PxGeometry): void; // TO DO
-    // getSphereGeometry(geometry: PxGeometry): void; // TO DO
-    // getPlaneGeometry(geometry: PxGeometry): void; // TO DO
+    getGeometry(): PxGeometryHelper
+    setGeometry(geometry: PxGeometry): void // TO DO
+    getBoxGeometry(): PxBoxGeometry // TO DO
+    getSphereGeometry(): PxSphereGeometry // TO DO
+    getCapsuleGeometry(): PxCapsuleGeometry // TO DO
+    getConvexMeshGeometry(): PxConvexMeshGeometry // TO DO
+    getTriangleMeshGeometry(): PxTriangleMeshGeometry // TO DO
+    getHeightFieldGeometry(): PxHeightFieldGeometry // TO DO
     setRestOffset(restOffset: number): void
     // setMaterials(materials: PxMaterial[]): void; // TO DO
     getMaterials(): PxMaterial[] | PxMaterial // TO DO
@@ -436,6 +481,8 @@ declare namespace PhysX {
 
   class PxTriangleMesh {
     constructor(x: number, y: number, z: number)
+    getVertices(): PxVec3[]
+    getIndexBuffer(): number[]
   }
 
   class PxMeshGeometryFlags {
@@ -450,9 +497,9 @@ declare namespace PhysX {
       indexCount: number,
       isU16: boolean,
       physics: PxPhysics
-    ): void
+    ): PxTriangleMesh
     // todo: createConvexMeshFromVectors();
-    createConvexMesh(verticesPtr: number, vertCount: number, physics: PxPhysics): void
+    createConvexMesh(verticesPtr: number, vertCount: number, physics: PxPhysics): PxConvexMesh
   }
 
   class PxPhysics {

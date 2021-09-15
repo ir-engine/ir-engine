@@ -10,15 +10,6 @@ export interface PhysXConfig {
   gravity?: Vec3
 }
 
-export enum SHAPES {
-  Sphere,
-  Plane,
-  Capsule,
-  Box,
-  ConvexMesh,
-  TriangleMesh,
-  HeightField
-}
 export interface Vec3Fragment {
   x?: number
   y?: number

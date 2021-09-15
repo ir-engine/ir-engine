@@ -18,8 +18,8 @@ import {
 } from 'three'
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 import { World } from '../../ecs/classes/World'
-import { isControllerBody } from '../../physics/classes/Physics'
-import { BodyType, SHAPES } from '../../physics/types/PhysicsTypes'
+import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
+import { BodyType } from '../../physics/types/PhysicsTypes'
 
 const parentMatrix = new Matrix4()
 const childMatrix = new Matrix4()
@@ -87,43 +87,43 @@ export class DebugRenderer {
     world.physics.bodies.forEach((body: PhysX.PxRigidActor) => {
       const pose = body.getGlobalPose()
       pos.set(pose.translation.x, pose.translation.y, pose.translation.z)
-      if (isControllerBody(body)) {
-        const controllerShapeID = (body as any)._shape.id
-        this._updateController(body as any, controllerShapeID)
-        this._meshes.get(controllerShapeID).position.copy(pos)
-        return
-      }
+      // if (isControllerBody(body)) {
+      //   const controllerShapeID = (body.getShapes() as any)._id
+      //   this._updateController(body as any, controllerShapeID)
+      //   this._meshes.get(controllerShapeID).position.copy(pos)
+      //   return
+      // }
       rot.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w)
       parentMatrix.compose(pos, rot, scale)
-
-      world.physics.getRigidbodyShapes(body).forEach((shape) => {
+      ;(body as any)._shapes?.forEach((shape: PhysX.PxShape) => {
         const localPose = shape.getLocalPose()
+        console.log(shape, (shape as any)._id)
         this._updateMesh(body, (shape as any)._id, shape)
 
-        if (this._meshes.get((shape as any).id)) {
+        if (this._meshes.get((shape as any)._id)) {
           // Copy to meshes
           pos.set(localPose.translation.x, localPose.translation.y, localPose.translation.z)
           rot.set(localPose.rotation.x, localPose.rotation.y, localPose.rotation.z, localPose.rotation.w)
           childMatrix.compose(pos, rot, scale)
           childMatrix.premultiply(parentMatrix)
           childMatrix.decompose(pos, rot, scale2)
-          this._meshes.get((shape as any).id).position.copy(pos)
-          this._meshes.get((shape as any).id).quaternion.copy(rot)
+          this._meshes.get((shape as any)._id).position.copy(pos)
+          this._meshes.get((shape as any)._id).quaternion.copy(rot)
         }
       })
     })
-    world.physics.raycasts.forEach((raycast, id) => {
-      this._updateRaycast(raycast, id)
-    })
-    world.physics.obstacles.forEach((obstacle, id) => {
-      this._updateObstacle(obstacle, id)
-    })
-    this._obstacles.forEach((mesh, id) => {
-      if (!world.physics.obstacles.has(id)) {
-        this.scene.remove(mesh)
-        this._meshes.delete(id)
-      }
-    })
+    // world.physics.raycasts.forEach((raycast, id) => {
+    //   this._updateRaycast(raycast, id)
+    // })
+    // world.physics.obstacles.forEach((obstacle, id) => {
+    //   this._updateObstacle(obstacle, id)
+    // })
+    // this._obstacles.forEach((mesh, id) => {
+    //   if (!world.physics.obstacles.has(id)) {
+    //     this.scene.remove(mesh)
+    //     this._meshes.delete(id)
+    //   }
+    // })
     this._meshes.forEach((mesh, id) => {
       if (!world.physics.shapes.has(id)) {
         this.scene.remove(mesh)
@@ -208,69 +208,91 @@ export class DebugRenderer {
       if (mesh) {
         this.scene.remove(mesh)
         needsUpdate = true
-        this._scaleMesh(mesh, shape)
       }
       delete (shape as any)._debugNeedsUpdate
     }
+    console.log(mesh, needsUpdate)
     if (!mesh || needsUpdate) {
-      mesh = this._createMesh(shape, (body as any)._type)
+      mesh = this._createMesh(shape, body)
       this._meshes.set(id, mesh)
-      this._scaleMesh(mesh, shape)
     }
   }
 
-  private _createMesh(shape, type: SHAPES): Mesh | Points {
-    let mesh: Mesh | Points
-    let geometry: BufferGeometry
-    const material: Material = this._materials[shape.isTrigger ? 4 : type]
-    let points: Vector3[] = []
+  private _createMesh(shape: PhysX.PxShape, body: PhysX.PxRigidActor): Mesh | Points {
+    const isTrigger = isTriggerShape(shape)
+    const geometryType = getGeometryType(shape)
+    let mesh: Mesh
+    const material: Material = this._materials[isTrigger ? 4 : (body as any)._type]
 
-    switch (shape.shape) {
-      case SHAPES.Sphere:
+    switch (geometryType) {
+      case PhysX.PxGeometryType.eSPHERE.value: {
+        const geometry = shape.getSphereGeometry()
+        const radius = clampNonzeroPositive(geometry.radius)
         mesh = new Mesh(this._sphereGeometry, material)
+        mesh.scale.set(radius, radius, radius)
         break
+      }
 
-      case SHAPES.Capsule:
+      case PhysX.PxGeometryType.eCAPSULE.value: {
+        const geometry = shape.getCapsuleGeometry()
         mesh = new Mesh(
           new CapsuleBufferGeometry(
-            clampNonzeroPositive(shape.options.radius),
-            clampNonzeroPositive(shape.options.radius),
-            clampNonzeroPositive(shape.options.halfHeight) * 2
+            clampNonzeroPositive(geometry.radius),
+            clampNonzeroPositive(geometry.radius),
+            clampNonzeroPositive(geometry.halfHeight) * 2
           ),
           material
         )
         break
+      }
 
-      case SHAPES.Box:
+      case PhysX.PxGeometryType.eBOX.value: {
+        const geometry = shape.getBoxGeometry()
+        const { x, y, z } = geometry.halfExtents
         mesh = new Mesh(this._boxGeometry, material)
+        mesh.scale.set(clampNonzeroPositive(x), clampNonzeroPositive(y), clampNonzeroPositive(z)).multiplyScalar(2)
         break
+      }
 
-      case SHAPES.Plane:
+      case PhysX.PxGeometryType.ePLANE.value:
+        console.log('plane!!!!!')
         mesh = new Mesh(this._planeGeometry, material)
         break
 
-      case SHAPES.ConvexMesh:
-        geometry = new BufferGeometry()
-        points = []
-        for (let i = 0; i < shape.options.vertices.length; i += 3) {
-          const [x, y, z] = [shape.options.vertices[i], shape.options.vertices[i + 1], shape.options.vertices[i + 2]]
+      case PhysX.PxGeometryType.eCONVEXMESH.value: {
+        const geometry = shape.getConvexMeshGeometry()
+        const geometryMesh = geometry.getConvexMesh()
+        const verts = geometryMesh.getVertices()
+        const bufferGeom = new BufferGeometry()
+        const points = []
+        for (let i = 0; i < verts.length; i++) {
+          const [x, y, z] = [verts[i].x, verts[i].y, verts[i].z]
           points.push(new Vector3(x, y, z))
         }
-        geometry.setFromPoints(points)
-        mesh = new Mesh(geometry, material)
-
+        bufferGeom.setFromPoints(points)
+        mesh = new Mesh(bufferGeom, material)
         break
+      }
 
-      case SHAPES.TriangleMesh:
-        geometry = new BufferGeometry()
-        points = []
-        geometry.setAttribute('position', new BufferAttribute(new Float32Array(shape.options.vertices), 3))
-        geometry.setIndex(shape.options.indices)
-        mesh = new Mesh(geometry, material)
+      case PhysX.PxGeometryType.eTRIANGLEMESH.value: {
+        const geometry = shape.getTriangleMeshGeometry()
+        const geometryMesh = geometry.getTriangleMesh()
+        const verts = geometryMesh.getVertices()
+        const indices = geometryMesh.getIndexBuffer()
+        console.log(verts, indices)
+        const bufferGeometry = new BufferGeometry()
+        const points = []
+        for (let i = 0; i < verts.length; i++) {
+          const [x, y, z] = [verts[i].x, verts[i].y, verts[i].z]
+          points.push(new Vector3(x, y, z))
+        }
+        bufferGeometry.setAttribute('position', new BufferAttribute(new Float32Array(points), 3))
+        bufferGeometry.setIndex(indices)
+        mesh = new Mesh(bufferGeometry, material)
         break
+      }
       default:
         mesh = new Mesh()
-
         break
     }
 
@@ -278,19 +300,9 @@ export class DebugRenderer {
       this.scene.add(mesh)
     }
 
-    return mesh
-  }
+    console.log('mesh', mesh)
 
-  private _scaleMesh(mesh: Mesh | Points, shape) {
-    const scale = shape.transform.scale as Vector3
-    if (shape.shape === SHAPES.Sphere) {
-      const radius = clampNonzeroPositive(shape.options.radius)
-      mesh.scale.set(radius, radius, radius)
-    } else if (shape.shape === SHAPES.Box) {
-      const { x, y, z } = shape.options.boxExtents
-      mesh.scale.set(clampNonzeroPositive(x), clampNonzeroPositive(y), clampNonzeroPositive(z)).multiplyScalar(2)
-    }
-    mesh.scale.multiply(scale)
+    return mesh
   }
 }
 const clampNonzeroPositive = (num) => {

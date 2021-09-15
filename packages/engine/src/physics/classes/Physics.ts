@@ -180,6 +180,7 @@ export class Physics {
 
     ;(rigidBody as any)._type = type
     ;(rigidBody as any)._id = id
+    ;(rigidBody as any)._shapes = shapes
 
     for (const shape of shapes as PhysX.PxShape[]) {
       rigidBody.attachShape(shape)
@@ -280,6 +281,8 @@ export class Physics {
       shape.setRestOffset(options.restOffset)
     }
 
+    ;(shape as any)._debugNeedsUpdate = true
+    console.log(shape)
     return shape
   }
 
@@ -306,7 +309,7 @@ export class Physics {
     return geometry
   }
 
-  createConvexMesh(scale: Vector3, vertices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry {
+  createConvexMesh(scale: Vector3, vertices: ArrayLike<number>): PhysX.PxConvexMeshGeometry {
     const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
 
     const convexMesh = this.cooking.createConvexMesh(verticesPtr, vertices.length / 3, this.physics)
@@ -577,6 +580,16 @@ export class Physics {
     // todo, make this smart
     return nextAvailableObstacleID++
   }
+}
+
+// TODO double check this
+export const isTriggerShape = (shape: PhysX.PxShape) => {
+  return shape.getFlags().isSet(PhysX.PxShapeFlag.eTRIGGER_SHAPE)
+}
+
+// TODO double check this
+export const getGeometryType = (shape: PhysX.PxShape) => {
+  return (shape.getGeometry().getType() as any).value
 }
 
 export const isKinematicBody = (body: PhysX.PxRigidActor) => {
