@@ -17,7 +17,7 @@ interface Props {
   completeAction: () => void
 }
 
-export const  = (props: Props): any => {
+export const ResetPassword = (props: Props): any => {
   const { token, completeAction } = props
   const dispatch = useDispatch()
   const initialState = { password: '', isSubmitted: false }
