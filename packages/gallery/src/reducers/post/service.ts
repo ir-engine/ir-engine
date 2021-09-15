@@ -126,15 +126,19 @@ export function addViewToFeed(feedId: string) {
   }
 }
 
-export function createFeed({ title, description, preview }: any) {
+export function createFeed({ title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds())
+      const storedVideo = (await upload(video, null)) as any
       const storedPreview = (await upload(preview, null)) as any
-      if (storedPreview) {
-        const feed = await client.service('feed').create({ title, description, previewId: storedPreview.file_id })
+
+      if (storedVideo && storedPreview) {
+        const feed = await client
+          .service('feed')
+          .create({ title, description, videoId: storedVideo.file_id, previewId: storedPreview.file_id })
         dispatch(addFeed(feed))
-        const mediaLinks = { preview: storedPreview.origin }
+        const mediaLinks = { video: storedVideo.origin, preview: storedPreview.origin }
         return mediaLinks
       }
     } catch (err) {
@@ -190,7 +194,7 @@ export function setFeedNotFeatured(feedId: string) {
   }
 }
 
-export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: string) {
+export function removeFeed(feedId: string, previewImageUrl: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const findIdInUrl = (url) => {
@@ -201,7 +205,7 @@ export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: st
       }
 
       await client.service('static-resource').remove(findIdInUrl(previewImageUrl))
-      await client.service('static-resource').remove(findIdInUrl(videoUrl))
+      // await client.service('static-resource').remove(findIdInUrl(videoUrl))
       await client.service('feed').remove(feedId)
       dispatch(deleteFeed(feedId))
     } catch (err) {

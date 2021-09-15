@@ -17,8 +17,8 @@ import {
   Typography
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
-import { createFeed } from '../../reducers/post/service'
-import { selectCreatorsState } from '../../../../social/src/reducers/creator/selector'
+import { createFeed } from '@xrengine/gallery/src/reducers/post/service'
+import { selectCreatorsState } from '@xrengine/gallery/src/reducers/creator/selector'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -50,6 +50,7 @@ const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
   const { t } = useTranslation()
   const classes = useStyles()
   const [preview, setPreview] = useState(null)
+  const [video, setVideo] = useState(null)
   const [titleFile, setTitleFile] = useState('')
   const [userRole, setUserRole] = useState('')
   const [open, setOpen] = useState(false)
@@ -63,6 +64,7 @@ const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
 
   const handlePickFiles = async (file) => {
     setPreview(file.target.files[0])
+    setVideo(file.target.files[0])
     setTitleFile(file.target.files[0].name)
     setOpen(true)
   }
@@ -77,7 +79,8 @@ const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
     const newPost = {
       title: titleFile,
       description: descrText,
-      preview
+      preview,
+      video
     } as any
 
     createFeed(newPost)
