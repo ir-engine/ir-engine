@@ -131,7 +131,8 @@ export const createCollidersFromModel = (entity: Entity, asset: any) => {
       transform.rotation,
       transform.scale
     )
-    createCollider(entity, mesh, position, quaternion, scale)
+    createCollider(entity, mesh)
+    // createCollider(entity, mesh, position, quaternion, scale)
     mesh.removeFromParent()
   })
 }

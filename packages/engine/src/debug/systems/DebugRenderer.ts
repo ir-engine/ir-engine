@@ -28,6 +28,7 @@ const rot = new Quaternion()
 const quat = new Quaternion()
 const scale = new Vector3(1, 1, 1)
 const scale2 = new Vector3(1, 1, 1)
+const halfPI = Math.PI / 2
 
 export class DebugRenderer {
   private scene: Scene
@@ -87,17 +88,16 @@ export class DebugRenderer {
     world.physics.bodies.forEach((body: PhysX.PxRigidActor) => {
       const pose = body.getGlobalPose()
       pos.set(pose.translation.x, pose.translation.y, pose.translation.z)
-      // if (isControllerBody(body)) {
-      //   const controllerShapeID = (body.getShapes() as any)._id
-      //   this._updateController(body as any, controllerShapeID)
-      //   this._meshes.get(controllerShapeID).position.copy(pos)
-      //   return
-      // }
+      if (isControllerBody(body)) {
+        const controllerShapeID = (body as any)._shapes[0]._id
+        this._updateController(body as any)
+        this._meshes.get(controllerShapeID).position.copy(pos)
+        return
+      }
       rot.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w)
       parentMatrix.compose(pos, rot, scale)
       ;(body as any)._shapes?.forEach((shape: PhysX.PxShape) => {
         const localPose = shape.getLocalPose()
-        console.log(shape, (shape as any)._id)
         this._updateMesh(body, (shape as any)._id, shape)
 
         if (this._meshes.get((shape as any)._id)) {
@@ -165,37 +165,44 @@ export class DebugRenderer {
     }
   }
 
-  private _updateController(controller: PhysX.PxController, id: number) {
+  private _updateController(body: PhysX.PxRigidActor) {
+    const shape = (body as any)._shapes[0] as PhysX.PxShape
+    const id = (shape as any)._id
     let mesh = this._meshes.get(id)
     let needsUpdate = false
-    if ((controller as any)._debugNeedsUpdate) {
+    if ((body as any)._debugNeedsUpdate) {
       if (mesh) {
         this.scene.remove(mesh)
         needsUpdate = true
       }
-      delete (controller as any)._debugNeedsUpdate
+      delete (body as any)._debugNeedsUpdate
     }
 
     if (!mesh || needsUpdate) {
-      if ((controller as any)._shape.isCapsule) {
+      const geometryType = getGeometryType(shape)
+      if (geometryType === PhysX.PxGeometryType.eCAPSULE.value) {
+        console.log('geom')
+        const geometry = new PhysX.PxCapsuleGeometry(1, 1)
+        shape.getCapsuleGeometry(geometry)
+        console.log(geometry, geometry.radius, geometry.halfHeight)
         mesh = new Mesh(
           new CapsuleBufferGeometry(
-            clampNonzeroPositive((controller as any).radius),
-            clampNonzeroPositive((controller as any).radius),
-            clampNonzeroPositive((controller as any).height)
+            clampNonzeroPositive(geometry.radius),
+            clampNonzeroPositive(geometry.radius),
+            clampNonzeroPositive(geometry.halfHeight * 2)
           ),
           this._materials[BodyType.CONTROLLER]
         )
       } else {
+        const geometry = new PhysX.PxBoxGeometry(1, 1, 1)
+        shape.getBoxGeometry(geometry)
+        const { x, y, z } = geometry.halfExtents
         mesh = new Mesh(
-          new BoxBufferGeometry(
-            clampNonzeroPositive((controller as any).halfSideExtent * 2),
-            clampNonzeroPositive((controller as any).halfHeight * 2),
-            clampNonzeroPositive((controller as any).halfForwardExtent * 2)
-          ),
+          new BoxBufferGeometry(clampNonzeroPositive(x * 2), clampNonzeroPositive(y * 2), clampNonzeroPositive(z * 2)),
           this._materials[BodyType.CONTROLLER]
         )
       }
+      console.log('adding mesh id', id, mesh)
       this._meshes.set(id, mesh)
       this.scene.add(mesh)
     }
@@ -211,7 +218,6 @@ export class DebugRenderer {
       }
       delete (shape as any)._debugNeedsUpdate
     }
-    console.log(mesh, needsUpdate)
     if (!mesh || needsUpdate) {
       mesh = this._createMesh(shape, body)
       this._meshes.set(id, mesh)
@@ -226,7 +232,8 @@ export class DebugRenderer {
 
     switch (geometryType) {
       case PhysX.PxGeometryType.eSPHERE.value: {
-        const geometry = shape.getSphereGeometry()
+        const geometry = new PhysX.PxSphereGeometry(1)
+        shape.getSphereGeometry(geometry)
         const radius = clampNonzeroPositive(geometry.radius)
         mesh = new Mesh(this._sphereGeometry, material)
         mesh.scale.set(radius, radius, radius)
@@ -234,7 +241,8 @@ export class DebugRenderer {
       }
 
       case PhysX.PxGeometryType.eCAPSULE.value: {
-        const geometry = shape.getCapsuleGeometry()
+        const geometry = new PhysX.PxCapsuleGeometry(1, 1)
+        shape.getCapsuleGeometry(geometry)
         mesh = new Mesh(
           new CapsuleBufferGeometry(
             clampNonzeroPositive(geometry.radius),
@@ -247,20 +255,25 @@ export class DebugRenderer {
       }
 
       case PhysX.PxGeometryType.eBOX.value: {
-        const geometry = shape.getBoxGeometry()
+        const geometry = new PhysX.PxBoxGeometry(1, 1, 1)
+        shape.getBoxGeometry(geometry)
         const { x, y, z } = geometry.halfExtents
         mesh = new Mesh(this._boxGeometry, material)
         mesh.scale.set(clampNonzeroPositive(x), clampNonzeroPositive(y), clampNonzeroPositive(z)).multiplyScalar(2)
         break
       }
 
-      case PhysX.PxGeometryType.ePLANE.value:
-        console.log('plane!!!!!')
-        mesh = new Mesh(this._planeGeometry, material)
+      case PhysX.PxGeometryType.ePLANE.value: {
+        mesh = new Mesh(this._planeGeometry.clone(), material)
+        // idk
+        mesh.geometry.rotateY(-halfPI)
+        mesh.geometry.rotateX(-halfPI)
         break
+      }
 
       case PhysX.PxGeometryType.eCONVEXMESH.value: {
-        const geometry = shape.getConvexMeshGeometry()
+        const geometry = new PhysX.PxConvexMeshGeometry(null, null, null)
+        shape.getConvexMeshGeometry(geometry)
         const geometryMesh = geometry.getConvexMesh()
         const verts = geometryMesh.getVertices()
         const bufferGeom = new BufferGeometry()
@@ -275,7 +288,8 @@ export class DebugRenderer {
       }
 
       case PhysX.PxGeometryType.eTRIANGLEMESH.value: {
-        const geometry = shape.getTriangleMeshGeometry()
+        const geometry = new PhysX.PxTriangleMeshGeometry(null, null, null)
+        shape.getTriangleMeshGeometry(geometry)
         const geometryMesh = geometry.getTriangleMesh()
         const verts = geometryMesh.getVertices()
         const indices = geometryMesh.getIndexBuffer()
@@ -305,6 +319,7 @@ export class DebugRenderer {
     return mesh
   }
 }
+
 const clampNonzeroPositive = (num) => {
   return Math.max(0.00001, num)
 }

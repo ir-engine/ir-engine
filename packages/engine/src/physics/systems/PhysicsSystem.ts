@@ -29,9 +29,10 @@ import { AvatarControllerComponent } from '../../avatar/components/AvatarControl
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { isDynamicBody, isKinematicBody, isStaticBody, Physics } from '../classes/Physics'
+import { isDynamicBody, isKinematicBody, isStaticBody } from '../classes/Physics'
 import { teleportRigidbody } from '../functions/teleportRigidbody'
 import { CollisionComponent } from '../components/CollisionComponent'
+import { createRigidbody } from '../functions/createRigidbody'
 
 function avatarActionReceptor(action: NetworkWorldActionType) {
   switch (action.type) {
@@ -83,6 +84,12 @@ export default async function PhysicsSystem(
       simulationEnabled = ev.physics
     }
   })
+
+  if (isClient) {
+    setInterval(() => {
+      createRigidbody(world)
+    }, 1000)
+  }
 
   world.receptors.add(avatarActionReceptor)
 

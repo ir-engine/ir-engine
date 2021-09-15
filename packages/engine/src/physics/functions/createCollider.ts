@@ -6,22 +6,17 @@ import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPoin
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../components/CollisionComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
 
-// its for static world colliders (wall, floar)
-const quat1 = new Quaternion()
-const quat2 = new Quaternion()
-const xVec = new Vector3(1, 0, 0)
-const halfPI = Math.PI / 2
-
-type ColliderData = {
+export type ColliderData = {
   type?: ColliderTypes // TODO: rename this `shape`
   bodytype?: BodyType // TODO: rename this `bodyType`
   isTrigger?: boolean
@@ -61,13 +56,9 @@ export const getCollisionMask = (userData: ColliderData) => {
   }
 }
 
-export const createCollider = (
-  entity: Entity,
-  mesh: Mesh | any,
-  translation = new Vector3(),
-  rotation = new Quaternion(),
-  scale = new Vector3(1, 1, 1)
-) => {
+export const createCollider = (entity: Entity, mesh: Mesh | any) => {
+  const { position, rotation, scale } = getComponent(entity, TransformComponent)
+
   const world = useWorld()
   const userData = mesh.userData as ColliderData
   // console.log(mesh, userData, pos, rot, scale)
@@ -160,7 +151,7 @@ export const createCollider = (
     shapes: [shape],
     type: userData.bodytype ?? BodyType.STATIC,
     transform: {
-      translation,
+      translation: position,
       rotation
     },
     userData: {

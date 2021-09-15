@@ -23,6 +23,12 @@ let nextAvailableShapeID = 0
 let nextAvailableRaycastID = 0
 let nextAvailableObstacleID = 0
 
+const quat1 = new Quaternion()
+const quat2 = new Quaternion()
+const xVec = new Vector3(1, 0, 0)
+const yVec = new Vector3(0, 1, 0)
+const halfPI = Math.PI / 2
+
 export class Physics {
   physxVersion: number
   defaultErrorCallback: PhysX.PxDefaultErrorCallback
@@ -54,6 +60,10 @@ export class Physics {
 
   onEvent(ev) {
     this.collisionEventQueue.push(ev)
+  }
+
+  getOriginalShapeObject(shape: PhysX.PxShape) {
+    return this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr))
   }
 
   async createScene(config: PhysXConfig = {}) {
@@ -89,31 +99,32 @@ export class Physics {
         }
         this.collisionEventQueue.push({
           type: CollisionEvents.COLLISION_START,
-          shapeA,
-          shapeB,
+          // we have to get our original object ref
+          shapeA: this.getOriginalShapeObject(shapeA),
+          shapeB: this.getOriginalShapeObject(shapeB),
           contacts
         })
       },
       onContactEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
         this.collisionEventQueue.push({
           type: CollisionEvents.COLLISION_END,
-          shapeA,
-          shapeB
+          shapeA: this.getOriginalShapeObject(shapeA),
+          shapeB: this.getOriginalShapeObject(shapeB)
         })
       },
       onContactPersist: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
         this.collisionEventQueue.push({
           type: CollisionEvents.COLLISION_PERSIST,
-          shapeA,
-          shapeB
+          shapeA: this.getOriginalShapeObject(shapeA),
+          shapeB: this.getOriginalShapeObject(shapeB)
         })
       },
       onTriggerBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
         // console.log('onTriggerBegin', shapeA, shapeB)
         this.collisionEventQueue.push({
           type: CollisionEvents.TRIGGER_START,
-          shapeA,
-          shapeB
+          shapeA: this.getOriginalShapeObject(shapeA),
+          shapeB: this.getOriginalShapeObject(shapeB)
         })
       },
       // onTriggerPersist: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
@@ -129,8 +140,8 @@ export class Physics {
         // console.log('onTriggerEnd', shapeA, shapeB)
         this.collisionEventQueue.push({
           event: CollisionEvents.TRIGGER_END,
-          shapeA,
-          shapeB
+          shapeA: this.getOriginalShapeObject(shapeA),
+          shapeB: this.getOriginalShapeObject(shapeB)
         })
       }
     }
@@ -253,12 +264,13 @@ export class Physics {
     //   newTransform.rotation.copy(quat2)
     // }
     // // rotate -90 degrees on Y axis as PhysX plane is X+ normaled
-    // if (shapetype === SHAPES.Plane) {
-    //   quat1.setFromAxisAngle(yVec, -halfPI)
-    //   quat2.copy(rotation)
-    //   quat2.multiply(quat1)
-    //   newTransform.rotation.copy(quat2)
-    // }
+    const geometryType = getGeometryType(shape)
+    if (geometryType === PhysX.PxGeometryType.ePLANE.value) {
+      quat1.setFromAxisAngle(yVec, -halfPI)
+      quat2.copy(rotation)
+      quat2.multiply(quat1)
+      newTransform.rotation.copy(quat2)
+    }
     shape.setLocalPose(newTransform as any)
 
     let collisionLayer = options.collisionLayer ?? defaultMask
@@ -282,7 +294,6 @@ export class Physics {
     }
 
     ;(shape as any)._debugNeedsUpdate = true
-    console.log(shape)
     return shape
   }
 
@@ -428,10 +439,15 @@ export class Physics {
     this.controllers.set(id, controller)
     this.controllerIDByPointer.set(controller.$$.ptr, id)
     const actor = controller.getActor()
-    this.bodies.set(id, actor as any)
+    this.bodies.set(id, actor)
     const shapes = actor.getShapes() as PhysX.PxShape
+    const shapeid = this._getNextAvailableShapeID()
+    ;(actor as any)._shapes = [shapes]
     this.shapeIDByPointer.set(shapes.$$.ptr, id)
+    this.shapes.set(shapeid, shapes)
+    ;(shapes as any)._id = shapeid
     ;(actor as any)._type = BodyType.CONTROLLER
+    ;(actor as any)._debugNeedsUpdate = true
     ;(controller as any)._id = id
     return controller
   }

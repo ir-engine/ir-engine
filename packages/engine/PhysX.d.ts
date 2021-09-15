@@ -254,9 +254,9 @@ declare namespace PhysX {
   class PxCapsuleGeometry extends PxGeometry {
     constructor(radius: number, halfHeight: number)
     setRadius(radius: number): void
-    setHalfHeight(halfHeight: PxVec3): void
+    setHalfHeight(halfHeight: number): void
     readonly radius: number
-    readonly halfHeight: PxVec3
+    readonly halfHeight: number
   }
   class PxPlaneGeometry extends PxGeometry {
     constructor()
@@ -314,17 +314,17 @@ declare namespace PhysX {
     setLocalPose(transform: PxTransform): void
     getLocalPose(): PxTransform
     getGeometry(): PxGeometryHelper
-    setGeometry(geometry: PxGeometry): void // TO DO
-    getBoxGeometry(): PxBoxGeometry // TO DO
-    getSphereGeometry(): PxSphereGeometry // TO DO
-    getCapsuleGeometry(): PxCapsuleGeometry // TO DO
-    getConvexMeshGeometry(): PxConvexMeshGeometry // TO DO
-    getTriangleMeshGeometry(): PxTriangleMeshGeometry // TO DO
-    getHeightFieldGeometry(): PxHeightFieldGeometry // TO DO
+    setGeometry(geometry: PxGeometry): void
+    getBoxGeometry(geom: PxBoxGeometry): boolean
+    getSphereGeometry(geom: PxSphereGeometry): boolean
+    getCapsuleGeometry(geom: PxCapsuleGeometry): boolean
+    getConvexMeshGeometry(geom: PxConvexMeshGeometry): boolean
+    getTriangleMeshGeometry(geom: PxTriangleMeshGeometry): boolean
+    getHeightFieldGeometry(geom: PxHeightFieldGeometry): boolean
     setRestOffset(restOffset: number): void
-    // setMaterials(materials: PxMaterial[]): void; // TO DO
-    getMaterials(): PxMaterial[] | PxMaterial // TO DO
-    // getWorldBounds(actor: PxActor, inflation: number): PxBounds3; // TO DO
+    // setMaterials(materials: PxMaterial[]): void;
+    getMaterials(): PxMaterial[] | PxMaterial
+    // getWorldBounds(actor: PxActor, inflation: number): PxBounds3;
   }
 
   class PxActor extends Base {

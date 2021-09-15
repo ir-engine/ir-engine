@@ -278,19 +278,12 @@ export class WorldScene {
 
       case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
-        const transform = getComponent(entity, TransformComponent)
-        createCollider(
-          entity,
-          {
-            userData: {
-              type: 'box',
-              ...boxColliderProps
-            }
-          },
-          transform.position,
-          transform.rotation,
-          transform.scale // convert from half extents to full extents
-        )
+        createCollider(entity, {
+          userData: {
+            type: 'box',
+            ...boxColliderProps
+          }
+        })
         if (
           boxColliderProps.removeMesh === 'true' ||
           (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)

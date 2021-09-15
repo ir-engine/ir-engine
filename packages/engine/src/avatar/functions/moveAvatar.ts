@@ -32,7 +32,7 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
 
   vec3.copy(controller.localMovementDirection).multiplyScalar(multiplier)
   controller.velocitySimulator.target.copy(vec3)
-  controller.velocitySimulator.simulate(deltaTime * (avatar.isGrounded ? 1 : 0.5))
+  controller.velocitySimulator.simulate(deltaTime * (controller.collisions[0] ? 1 : 0.5))
 
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
@@ -48,7 +48,7 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
 
   newVelocity.applyQuaternion(quat)
 
-  if (avatar.isGrounded) {
+  if (controller.collisions[0]) {
     const raycast = getComponent(entity, RaycastComponent)
     const closestHit = raycast.hits[0]
 
@@ -82,9 +82,8 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
     // 	newVelocity.add(threeFromCannonVector(pointVelocity));
     // }
   }
-
   // apply gravity
-  velocity.velocity.y -= 0.2 * deltaTime
+  // velocity.velocity.y -= 0.1
 
   const world = useWorld()
 
