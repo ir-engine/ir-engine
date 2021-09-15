@@ -4,7 +4,7 @@ import { System } from "../../src/ecs/classes/System";
 import {
   getComponent,
   hasComponent, removeEntity,
-} from "../../src/ecs/functions/EntityFunctions";
+} from "../../src/ecs/functions/ComponentFunctions";
 import { registerSystem, unregisterSystem } from "../../src/ecs/functions/SystemFunctions";
 import { createPrefab } from "../../src/common/functions/createPrefab";
 import { Entity } from "../../src/ecs/classes/Entity";

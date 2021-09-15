@@ -86,7 +86,7 @@ export const authReceptor = (action: AuthActionType): void => {
           r[(resource as any).staticResourceType] = resource
           avatarData[(resource as any).name] = r
         }
-
+        
         return s.merge({ avatarList: Object.keys(avatarData).map((key) => avatarData[key]) })
       }
     }

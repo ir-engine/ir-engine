@@ -43,9 +43,7 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @author Abhishek Pathak
    */
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
-    console.log('Find')
     const source = params?.query?.source
-    console.log(source)
     let result
 
     // TODO: Add work from black list item

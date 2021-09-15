@@ -12,12 +12,13 @@ import { createArMedia, getArMedia } from '../../reducers/arMedia/service'
 import { selectArMediaState } from '../../reducers/arMedia/selector'
 import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service'
 // import {  Plugins } from '@capacitor/core';
+import Preloader from '@xrengine/social/src/components/Preloader'
 
+// @ts-ignore
 import styles from './ArMedia.module.scss'
 
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
-import Preloader from '../Preloader'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -74,13 +75,13 @@ const ArMedia = ({ getArMedia, arMediaState, updateArMediaState, updateWebXRStat
         >
           {t('social:arMedia.clip')}
         </Button>
-        <Button
-          variant={type === 'background' ? 'contained' : 'text'}
-          className={styles.switchButton + (type === 'background' ? ' ' + styles.active : '')}
-          onClick={() => setType('background')}
-        >
-          {t('social:arMedia.backgrounds')}
-        </Button>
+        {/*<Button*/}
+        {/*  variant={type === 'background' ? 'contained' : 'text'}*/}
+        {/*  className={styles.switchButton + (type === 'background' ? ' ' + styles.active : '')}*/}
+        {/*  onClick={() => setType('background')}*/}
+        {/*>*/}
+        {/*  {t('social:arMedia.backgrounds')}*/}
+        {/*</Button>*/}
       </section>
       <section className={styles.flexContainer}>
         {list?.map((item, itemIndex) => (
@@ -90,13 +91,14 @@ const ArMedia = ({ getArMedia, arMediaState, updateArMediaState, updateWebXRStat
           </section>
         ))}
       </section>
+      {type == 'background' ? <text className={styles.textC}>Coming soon ...</text> : ' '}
       {!selectedItem ? null : (
         <Button
           className={styles.startRecirding}
           onClick={async () => {
             setPreloading(true)
-            if ((XRPlugin as any).uploadFiles !== undefined) {
-              await (XRPlugin as any).uploadFiles({
+            if (XRPlugin.uploadFiles !== undefined) {
+              await XRPlugin.uploadFiles({
                 audioPath: selectedItem.audioUrl,
                 audioId: selectedItem.audioId
               })

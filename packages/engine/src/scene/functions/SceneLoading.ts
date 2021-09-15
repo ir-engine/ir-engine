@@ -3,8 +3,8 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import { addComponent, createEntity, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
@@ -234,10 +234,6 @@ export class WorldScene {
 
       case 'transform':
         createTransformComponent(entity, component.data)
-        break
-
-      case 'walkable':
-        addComponent(entity, WalkableTagComponent, {})
         break
 
       case 'fog':

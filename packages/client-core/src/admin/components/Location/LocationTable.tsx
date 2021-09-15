@@ -79,6 +79,7 @@ const LocationTable = (props: LocationProps) => {
   const adminLocationCount = adminLocationState.get('locations').get('total')
   const { t } = useTranslation()
 
+  console.log(adminLocations)
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     fetchAdminLocations(incDec)

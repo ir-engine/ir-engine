@@ -14,9 +14,8 @@ import { useAuthState } from '../../reducers/auth/AuthState'
 import { showDialog, closeDialog } from '../../../common/reducers/dialog/service'
 import SignUp from './Register'
 import ForgotPassword from './ForgotPassword'
-import styles from './Auth.module.scss'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { AuthService } from '../../reducers/auth/service'
+import styles from './Auth.module.scss' 
+import { AuthService } from '../../reducers/auth/AuthService'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {

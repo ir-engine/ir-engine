@@ -1,5 +1,5 @@
 import AvatarConsole from '@xrengine/client-core/src/admin/components/Avatars/Avatars'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 

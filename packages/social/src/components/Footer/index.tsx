@@ -6,6 +6,7 @@ import React from 'react'
 import HomeIcon from '@material-ui/icons/Home'
 // import WhatshotIcon from '@material-ui/icons/Whatshot';
 
+// @ts-ignore
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -14,6 +15,7 @@ import { useEffect } from 'react'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getLoggedCreator } from '../../reducers/creator/service'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
+// import IndexPage from "@xrengine/social/pages/login";
 import {
   updateArMediaState,
   updateCreatorFormState,
@@ -24,6 +26,7 @@ import {
 } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import ViewMode from '../ViewMode/ViewMode'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -50,6 +53,7 @@ interface Props {
   updateFeedPageState?: typeof updateFeedPageState
   updateArMediaState?: typeof updateArMediaState
   updateShareFormState?: typeof updateShareFormState
+  setView?: any
 }
 const AppFooter = ({
   creatorState,
@@ -59,7 +63,8 @@ const AppFooter = ({
   updateCreatorFormState,
   updateFeedPageState,
   updateArMediaState,
-  updateShareFormState
+  updateShareFormState,
+  setView
 }: Props) => {
   useEffect(() => getLoggedCreator(), [])
 
@@ -75,6 +80,7 @@ const AppFooter = ({
     updateNewFeedPageState(false)
     updateArMediaState(false)
     updateShareFormState(false)
+    setView('featured')
   }
 
   return (

@@ -4,7 +4,7 @@ import { GeneralStateList, setAppSpecificOnBoardingStep } from '@xrengine/client
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'

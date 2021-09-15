@@ -1,4 +1,3 @@
-import { FullscreenExit, ZoomOutMap } from '@material-ui/icons'
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'

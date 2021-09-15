@@ -11,7 +11,7 @@ const EditorContainer = lazy(() => import('../../components/EditorContainer'))
 import { connect, useDispatch } from 'react-redux'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'

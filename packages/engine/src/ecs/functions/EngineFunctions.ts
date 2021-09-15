@@ -1,24 +1,22 @@
 /** Functions to provide engine level functionalities. */
 import * as bitecs from 'bitecs'
 import { Color } from 'three'
-import { PhysXInstance } from 'three-physx'
-import { ActionType, IncomingActionType } from '../..'
+import { PhysXInstance } from '../../physics/physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
-import { createPhysXWorker } from '../../physics/functions/createPhysXWorker'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
-import { createEntity, hasComponent, removeAllComponents, removeEntity } from './EntityFunctions'
-import { SystemInitializeType } from './SystemFunctions'
-import { useWorld } from './SystemHooks'
+import { hasComponent, MappedComponent, removeAllComponents } from './ComponentFunctions'
+import { InjectionPoint, SystemInitializeType } from './SystemFunctions'
+import { removeEntity, createEntity } from './EntityFunctions'
+import { ActionType } from '../../networking/interfaces/NetworkTransport'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -129,6 +127,8 @@ export const resetPhysics = async (): Promise<void> => {
   PhysXInstance.instance = new PhysXInstance()
 }
 
+type SystemGroupInterface = (() => void)[]
+
 export function createWorld() {
   console.log('Creating world')
 
@@ -144,21 +144,38 @@ export function createWorld() {
     entities: [] as Entity[],
     portalEntities: [] as Entity[],
     isInPortal: false,
-    _removedComponents: new Map<Entity, any>(),
+    _removedComponents: new Map<Entity, Set<MappedComponent<any, any>>>(),
     _freePipeline: [] as SystemInitializeType<any>[],
     _fixedPipeline: [] as SystemInitializeType<any>[],
+    _injectedPipelines: {
+      [InjectionPoint.UPDATE]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.FIXED_EARLY]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.FIXED]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.FIXED_LATE]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.PRE_RENDER]: [] as SystemInitializeType<any>[],
+      [InjectionPoint.POST_RENDER]: [] as SystemInitializeType<any>[]
+    },
 
     /**
      * Systems that run only once every frame.
      * Ideal for cosmetic updates (e.g., particles), animation, rendering, etc.
      */
-    freeSystems: [] as ((world: bitecs.IWorld) => void)[],
+    freeSystems: [] as SystemGroupInterface,
 
     /**
      * Systems that run once for every fixed time interval (in simulation time).
      * Ideal for game logic, ai logic, simulation logic, etc.
      */
-    fixedSystems: [] as ((world: bitecs.IWorld) => void)[],
+    fixedSystems: [] as SystemGroupInterface,
+
+    injectedSystems: {
+      [InjectionPoint.UPDATE]: [] as SystemGroupInterface,
+      [InjectionPoint.FIXED_EARLY]: [] as SystemGroupInterface,
+      [InjectionPoint.FIXED]: [] as SystemGroupInterface,
+      [InjectionPoint.FIXED_LATE]: [] as SystemGroupInterface,
+      [InjectionPoint.PRE_RENDER]: [] as SystemGroupInterface,
+      [InjectionPoint.POST_RENDER]: [] as SystemGroupInterface
+    },
 
     /**
      * Entities mapped by name
@@ -179,25 +196,38 @@ export function createWorld() {
     execute(delta: number, elapsedTime?: number) {
       world.delta = delta
       world.elapsedTime = elapsedTime
-      for (const system of world.freeSystems) system(world)
+      for (const system of world.freeSystems) system()
+      for (const [entity, components] of world._removedComponents) {
+        for (const c of components) c.delete(entity)
+      }
       world._removedComponents.clear()
     },
 
     async initSystems() {
-      const fixedSystems = await Promise.all(
-        world._fixedPipeline.map((s) => {
-          console.log(`Initializing fixed system: ${s.system.name}`)
-          return s.system(world, s.args)
+      const loadSystem = (pipeline: SystemInitializeType<any>[]) => {
+        return pipeline.map(async (s) => {
+          return (await s.system).default(world, s.args)
+        })
+      }
+
+      const _fixedSystems = Promise.all(loadSystem(world._fixedPipeline))
+      const _freeSystems = Promise.all(loadSystem(world._freePipeline))
+      const _injectedSystems = Promise.all(
+        Object.entries(world._injectedPipelines).map(async ([pipelineType, pipeline]) => {
+          return [pipelineType, await Promise.all(loadSystem(pipeline))]
         })
       )
-      const freeSystems = await Promise.all(
-        world._freePipeline.map((s) => {
-          console.log(`Initializing free system: ${s.system.name}`)
-          return s.system(world, s.args)
-        })
-      )
+
+      console.log('awaiting all systems starting')
+      const [fixedSystems, freeSystems, injectedSystems] = await Promise.all([
+        _fixedSystems,
+        _freeSystems,
+        _injectedSystems
+      ])
+      console.log('all systems started!')
       world.fixedSystems = fixedSystems
       world.freeSystems = freeSystems
+      world.injectedSystems = Object.fromEntries(injectedSystems)
     }
   }
 

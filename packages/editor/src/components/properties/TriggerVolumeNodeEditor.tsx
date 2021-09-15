@@ -26,6 +26,20 @@ const componentOptions = [
     ]
   },
   {
+    label: 'volumetric',
+    value: 'volumetric',
+    nodeNames: ['Volumetric'],
+    propertyOptions: [
+      {
+        label: 'paused',
+        value: 'paused',
+        component: 'volumetric',
+        input: BooleanInput,
+        default: false
+      }
+    ]
+  },
+  {
     label: 'loop-animation',
     value: 'loop-animation',
     nodeNames: ['Model'],
@@ -86,6 +100,11 @@ export class TriggerVolumeNodeEditor extends Component<TriggerVolumeNodeEditorPr
 
   //initializing description and will appears on editor view
   static description = i18n.t('editor:properties.triggereVolume.description')
+
+  //function to handle the changes in showHelper property
+  onChangeShowHelperValue = (value) => {
+    ;(this.props.editor as any).setPropertySelected('showHelper', value)
+  }
 
   //function to handle the changes in target
   onChangeTarget = (target) => {
@@ -172,6 +191,9 @@ export class TriggerVolumeNodeEditor extends Component<TriggerVolumeNodeEditorPr
     const LeaveInput = leavePropertyOption && leavePropertyOption.input
     return (
       <NodeEditor description={TriggerVolumeNodeEditor.description} {...this.props}>
+        <InputGroup name="Show Helper" label={this.props.t('editor:properties.triggereVolume.lbl-showHelper')}>
+          <BooleanInput value={node.showHelper} onChange={this.onChangeShowHelperValue} disabled={false} />
+        </InputGroup>
         <InputGroup name="Target" label={this.props.t('editor:properties.triggereVolume.lbl-target')}>
           <SelectInput
             error={targetNotFound}

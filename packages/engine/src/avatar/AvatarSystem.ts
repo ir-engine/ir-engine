@@ -1,5 +1,5 @@
 import { Group, Quaternion, Vector3 } from 'three'
-import { PhysXInstance } from 'three-physx'
+import { PhysXInstance } from '../physics/physx'
 import { isClient } from '../common/functions/isClient'
 import {
   addComponent,
@@ -7,7 +7,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent
-} from '../ecs/functions/EntityFunctions'
+} from '../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -25,8 +25,10 @@ import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { dispatchFromServer } from '../networking/functions/dispatch'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { World } from '../ecs/classes/World'
+import { System } from '../ecs/classes/System'
+import { detectUserInTrigger } from './functions/detectUserInTrigger'
 
-export const AvatarSystem = async (world: World) => {
+export default async function AvatarSystem(world: World): Promise<System> {
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
   const avatarQuery = defineQuery([AvatarComponent, ColliderComponent])
@@ -91,14 +93,6 @@ export const AvatarSystem = async (world: World) => {
   world.receptors.add(avatarActionReceptor)
 
   return () => {
-    for (const entity of avatarQuery.exit(world)) {
-      const collider = getComponent(entity, ColliderComponent, true)
-
-      if (collider?.body) {
-        PhysXInstance.instance.removeBody(collider.body)
-      }
-    }
-
     for (const entity of raycastQuery.exit(world)) {
       const raycast = getComponent(entity, RaycastComponent, true)
 
@@ -128,6 +122,8 @@ export const AvatarSystem = async (world: World) => {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
+
+      detectUserInTrigger(entity)
 
       // TODO: implement scene lower bounds parameter
       if (!isClient && transform.position.y < -10) {

@@ -1,9 +1,9 @@
 import { Quaternion, Vector3 } from 'three'
-import { ControllerHitEvent, PhysXInstance } from 'three-physx'
+import { ControllerHitEvent, PhysXInstance } from '../physics/physx'
 import { defineQuery, enterQuery, exitQuery } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'
-import { getComponent } from '../ecs/functions/EntityFunctions'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
@@ -11,6 +11,7 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
+import { World } from '../ecs/classes/World'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -19,7 +20,7 @@ export class AvatarSettings {
   jumpHeight = 4
 }
 
-export const AvatarControllerSystem = async (): Promise<System> => {
+export default async function AvatarControllerSystem(world: World): Promise<System> {
   const vector3 = new Vector3()
   const quat = new Quaternion()
   const quat2 = new Quaternion()
@@ -31,7 +32,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
   const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
 
-  return (world) => {
+  return () => {
     const { delta } = world
 
     for (const entity of avatarControllerRemovedQuery(world)) {

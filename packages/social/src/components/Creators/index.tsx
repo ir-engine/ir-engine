@@ -11,7 +11,8 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getCreators } from '../../reducers/creator/service'
+import { getBlockedList, getCreators } from '../../reducers/creator/service'
+// @ts-ignore
 import styles from './Creators.module.scss'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { updateCreatorPageState } from '../../reducers/popupsState/service'
@@ -26,7 +27,8 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getCreators: bindActionCreators(getCreators, dispatch),
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch)
+  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
+  getBlockedList: bindActionCreators(getBlockedList, dispatch)
 })
 
 interface Props {
@@ -34,44 +36,68 @@ interface Props {
   popupsState?: any
   getCreators?: any
   updateCreatorPageState?: typeof updateCreatorPageState
+  getBlockedList?: typeof getBlockedList
 }
 
-const Creators = ({ creatorsState, getCreators, popupsState, updateCreatorPageState }: Props) => {
+const Creators = ({ creatorsState, getCreators, popupsState, updateCreatorPageState, getBlockedList }: Props) => {
   useEffect(() => getCreators(), [])
   const creators =
     creatorsState && creatorsState.get('creators') && creatorsState.get('fetchingCreators') === false
       ? creatorsState.get('creators')
       : null
+
   const handleCreatorView = (id) => {
     updateCreatorPageState(false)
     updateCreatorPageState(true, id)
+  }
+
+  const currentCreator = creatorsState.get('currentCreator')
+  useEffect(() => {
+    getBlockedList(currentCreator)
+  }, [])
+  const blackList = creatorsState?.get('blocked')
+  // console.log(Array.from(new Set(blackList?.map((item: any) => item.id))))
+  for (var i = creators?.length - 1; i >= 0; i--) {
+    for (var j = 0; j < blackList?.length; j++) {
+      if (creators[i] && creators[i].id === blackList[j].id) {
+        creators.splice(i, 1)
+      }
+    }
   }
 
   return (
     <section className={styles.creatorContainer}>
       {/*     <h3>Featured Creators</h3> */}
       {creators &&
+        blackList &&
         creators.length > 0 &&
-        creators?.map((item, itemIndex) => (
-          <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={() => handleCreatorView(item.id)}>
-            {item.avatar ? (
-              <CardMedia className={styles.previewImage} image={item.avatar || <PersonPinIcon />} title={item.name} />
-            ) : (
-              <section className={styles.previewImage}>
-                <Avatar className={styles.avatarPlaceholder} />
-              </section>
-            )}
-            <CardContent>
-              <Typography className={styles.titleContainer}>
-                {item.name}
-                {item.verified === 1 && (
-                  <VerifiedUserIcon htmlColor="#007AFF" style={{ fontSize: '13px', margin: '0 0 0 5px' }} />
-                )}
-              </Typography>
-              <Typography className={styles.usernameContainer}>{item.username}</Typography>
-            </CardContent>
-          </Card>
-        ))}
+        creators
+          ?.filter((person) => person.isBlocked < 1)
+          .map((item, itemIndex) => (
+            <Card
+              className={styles.creatorItem}
+              elevation={0}
+              key={itemIndex}
+              onClick={() => handleCreatorView(item.id)}
+            >
+              {item.avatar ? (
+                <CardMedia className={styles.previewImage} image={item.avatar || <PersonPinIcon />} title={item.name} />
+              ) : (
+                <section className={styles.previewImage}>
+                  <Avatar className={styles.avatarPlaceholder} />
+                </section>
+              )}
+              <CardContent>
+                <Typography className={styles.titleContainer}>
+                  {item.name}
+                  {item.verified === 1 && (
+                    <VerifiedUserIcon htmlColor="#007AFF" style={{ fontSize: '13px', margin: '0 0 0 5px' }} />
+                  )}
+                </Typography>
+                <Typography className={styles.usernameContainer}>{item.username}</Typography>
+              </CardContent>
+            </Card>
+          ))}
     </section>
   )
 }

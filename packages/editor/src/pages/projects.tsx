@@ -6,7 +6,7 @@ import LocationAdmin from '@xrengine/client-core/src/admin/components/Location'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { Button, MediumButton } from '@xrengine/editor/src/components/inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '@xrengine/editor/src/components/layout/ContextMenu'
 import {

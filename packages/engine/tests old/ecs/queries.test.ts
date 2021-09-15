@@ -7,7 +7,7 @@ import {
   removeEntity,
   removeComponent,
   getMutableComponent, hasComponent, hasAllComponents, hasAnyComponents
-} from "../../src/ecs/functions/EntityFunctions";
+} from "../../src/ecs/functions/ComponentFunctions";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { Types } from "../../src/ecs/types/Types";
 import { Not } from "../../src/ecs/functions/ComponentFunctions";

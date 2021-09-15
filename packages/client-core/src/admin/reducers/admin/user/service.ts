@@ -104,7 +104,6 @@ export const updateUserRole = (id: string, role: string) => {
 export const searchUserAction = (data: any, offset: string) => {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      //const user = getState().get('auth').get('user')
       const skip = getState().get('adminUser').get('users').get('skip')
       const limit = getState().get('adminUser').get('users').get('limit')
       const result = await client.service('user').find({

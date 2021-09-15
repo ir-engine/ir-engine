@@ -14,21 +14,30 @@ import {
   Vector3,
   Quaternion
 } from 'three'
-import { Body, BodyType, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES, ShapeType } from 'three-physx'
+import {
+  Body,
+  BodyType,
+  PhysXInstance,
+  RaycastQuery,
+  SceneQueryType,
+  SHAPES,
+  ShapeType
+} from '@xrengine/engine/src/physics/physx'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
-import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { getGolfPlayerNumber } from '../functions/golfFunctions'
-import { isClient } from '@xrengine/engine/src/common/functions/isClient'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
+import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
+import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -47,8 +56,7 @@ export const spawnClub = (entityPlayer: Entity): void => {
     playerNumber: getGolfPlayerNumber(entityPlayer)
   }
 
-  // this spawns the club on the server
-  spawnPrefab(GolfPrefabTypes.Club, uuid, networkId, parameters)
+  dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, GolfPrefabTypes.Club, parameters))
 }
 
 export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {
@@ -177,8 +185,8 @@ export const updateClub = (entityClub: Entity): void => {
  * @author Josh Field <github.com/HexaField>
  */
 
-const clubHalfWidth = 0.03
-const clubPutterLength = 0.1
+const clubHalfWidth = 0.04
+const clubPutterLength = 0.12
 const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength)
 const clubLength = 1.5
 const rayLength = clubLength * 1.1
@@ -251,7 +259,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
   addComponent(entityClub, Object3DComponent, { value: meshGroup })
 
   // since hitting balls are client authored, we only need the club collider on the local client
-  if (isClient) {
+  if (isEntityLocalClient(ownerEntity)) {
     const shapeHead: ShapeType = {
       shape: SHAPES.Box,
       options: { boxExtents: clubColliderSize },

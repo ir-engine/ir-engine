@@ -1,6 +1,6 @@
 import { useLocation, withRouter } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { AuthService } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import { useAuthState } from '../../reducers/auth/AuthState'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect, useDispatch } from 'react-redux'

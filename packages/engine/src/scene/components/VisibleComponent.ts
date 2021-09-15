@@ -1,7 +1,7 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type VisibleComponentType = {
   value: boolean
 }
 
-export const VisibleComponent = createMappedComponent<VisibleComponentType>()
+export const VisibleComponent = createMappedComponent<VisibleComponentType>('VisibleComponent')

@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type FogComponentType = {
   type: string
@@ -8,4 +8,4 @@ export type FogComponentType = {
   far: number
 }
 
-export const FogComponent = createMappedComponent<FogComponentType>()
+export const FogComponent = createMappedComponent<FogComponentType>('FogComponent')

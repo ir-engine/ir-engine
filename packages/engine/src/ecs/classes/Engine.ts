@@ -147,8 +147,15 @@ export class Engine {
 
 export const awaitEngineLoaded = (): Promise<void> => {
   return new Promise<void>((resolve) => {
-    if (Engine.isInitialized) resolve()
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
+    console.log('awaiting engine loaded')
+    if (Engine.isInitialized) {
+      console.log('Engine was already initialized, resolving immediately')
+      resolve()
+    }
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, () => {
+      console.log('Event INITIALIZED_ENGING received, resolving')
+      resolve()
+    })
   })
 }
 

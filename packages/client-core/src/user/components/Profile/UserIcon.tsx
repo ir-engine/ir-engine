@@ -6,7 +6,7 @@ import { connect, useDispatch } from 'react-redux'
 import styles from './Profile.module.scss'
 import TextField from '@material-ui/core/TextField'
 import classNames from 'classnames'
-import { AuthService } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import { useTranslation } from 'react-i18next'
 import { useAuthState } from '../../reducers/auth/AuthState'
 

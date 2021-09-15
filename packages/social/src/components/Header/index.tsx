@@ -2,6 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
+// @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -28,9 +29,8 @@ interface Props {
   getLoggedCreator?: any
   logo?: string
   updateCreatorFormState?: typeof updateCreatorFormState
-  title?: string
 }
-const AppHeader = ({ creatorState, getLoggedCreator, logo, title, updateCreatorFormState }: Props) => {
+const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState }: Props) => {
   const { t } = useTranslation()
   useEffect(() => getLoggedCreator(), [])
   const creator =
@@ -40,8 +40,7 @@ const AppHeader = ({ creatorState, getLoggedCreator, logo, title, updateCreatorF
 
   return (
     <nav className={styles.headerContainer}>
-      {logo && <img src={logo} className="header-logo" alt="CREATOR" />}
-      {title && <span>{title}</span>}
+      <img src="/assets/LogoColored.png" className={styles.headerLogo} alt="ARC" />
       {creator &&
         {
           /*!checkGuest*/

@@ -12,7 +12,7 @@ import { Visibility, VisibilityOff } from '@material-ui/icons'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 
 import { useAuthState } from '../../reducers/auth/AuthState'
-import { AuthService } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import styles from './Auth.module.scss'
 import { createCreator } from '@xrengine/social/src/reducers/creator/service'

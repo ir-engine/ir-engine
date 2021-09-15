@@ -1,7 +1,7 @@
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraMode } from '../camera/types/CameraMode'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { addComponent, defineQuery, removeComponent } from '../ecs/functions/EntityFunctions'
+import { addComponent, defineQuery, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { Network } from '../networking/classes/Network'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
@@ -14,10 +14,11 @@ import { createAvatar } from './functions/createAvatar'
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 import { Quaternion, Vector3 } from 'three'
 import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 
 const spawnQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
 
-export const ClientAvatarSpawnSystem = async (): Promise<System> => {
+export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
   return () => {
     for (const entity of spawnQuery.enter()) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
@@ -38,6 +39,8 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
         addComponent(entity, FollowCameraComponent, {
           mode: CameraMode.ThirdPerson,
           distance: 5,
+          zoomLevel: 5,
+          zoomVelocity: { value: 0 },
           minDistance: 2,
           maxDistance: 7,
           theta: Math.PI,

@@ -1,12 +1,12 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectType } from '@xrengine/engine/src/networking/interfaces/NetworkObjectList'
 import { GolfState } from '../GolfSystem'
 
 export const getGolfPlayerNumber = (entity: Entity = Network.instance.localClientEntity) => {
-  const uniqueId = getComponent(entity, NetworkObjectComponent)?.uniqueId
+  const uniqueId = getComponent(entity, NetworkObjectComponent, true)?.uniqueId
   if (!uniqueId) return undefined
   const number = GolfState.players.findIndex((player) => player.id.value === uniqueId)
   if (number < 0) return undefined

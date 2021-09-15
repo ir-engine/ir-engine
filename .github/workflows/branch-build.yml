@@ -26,4 +26,3 @@ jobs:
       - run: npm run lint
       - run: npm run test-ci
       - run: npm run build-docker
-      - run: npm run build-publish

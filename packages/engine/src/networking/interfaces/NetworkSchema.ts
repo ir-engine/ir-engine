@@ -1,4 +1,4 @@
-import { ComponentConstructor } from '../../ecs/functions/EntityFunctions'
+import { ComponentConstructor } from '../../ecs/functions/ComponentFunctions'
 
 /** Interface for Network schema. */
 export interface NetworkSchema {

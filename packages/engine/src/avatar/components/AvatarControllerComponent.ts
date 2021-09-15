@@ -1,7 +1,7 @@
-import type { Controller } from 'three-physx'
-import { PerspectiveCamera, Vector3 } from 'three'
+import type { Controller } from '../../physics/physx'
+import { Vector3 } from 'three'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AvatarControllerComponentType = {
   controller: Controller
@@ -12,4 +12,5 @@ export type AvatarControllerComponentType = {
   velocitySimulator: VectorSpringSimulator
 }
 
-export const AvatarControllerComponent = createMappedComponent<AvatarControllerComponentType>()
+export const AvatarControllerComponent =
+  createMappedComponent<AvatarControllerComponentType>('AvatarControllerComponent')

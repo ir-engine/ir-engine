@@ -17,7 +17,7 @@ import * as polyfill from 'credential-handler-polyfill'
 import styles from '../MapUserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 
 interface Props {
   changeActiveMenu?: any

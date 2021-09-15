@@ -6,6 +6,8 @@ import { updateShareFormState } from '../../../reducers/popupsState/service'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 import ShareForm from '../../ShareForm/ShareForm'
+
+//@ts-ignore
 import styles from './SharedFormPopup.module.scss'
 
 const mapStateToProps = (state: any): any => {
@@ -21,8 +23,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   popupsState?: any
   updateShareFormState?: typeof updateShareFormState
+  setView?: any
 }
-export const SharedFormPopup = ({ popupsState, updateShareFormState }: Props) => {
+export const SharedFormPopup = ({ popupsState, updateShareFormState, setView }: Props) => {
   //common for share form page
   const handleShareFormClose = () => {
     updateShareFormState(false)
@@ -36,7 +39,7 @@ export const SharedFormPopup = ({ popupsState, updateShareFormState }: Props) =>
       >
         <ShareForm />
         <div className={styles.popUpFooter}>
-          <AppFooter />
+          <AppFooter setView={setView} />
         </div>
       </SharedModal>
     )

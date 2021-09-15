@@ -1,10 +1,10 @@
 import { isClient } from '../../common/functions/isClient'
-import { defineQuery, getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { BodyType } from 'three-physx'
+import { BodyType } from '../../physics/physx'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -18,6 +18,7 @@ import { Network } from '../../networking/classes/Network'
 import { equipEntity, unequipEntity } from '../functions/equippableFunctions'
 import { System } from '../../ecs/classes/System'
 import { Not } from 'bitecs'
+import { World } from '../../ecs/classes/World'
 
 const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
 const equippableQuery = defineQuery([EquipperComponent])
@@ -50,7 +51,7 @@ function equippableActionReceptor(action: NetworkWorldActionType) {
 /**
  * @author Josh Field <github.com/HexaField>
  */
-export const EquippableSystem = async (world): Promise<System> => {
+export default async function EquippableSystem(world: World): Promise<System> {
   world.receptors.add(equippableActionReceptor)
 
   return () => {

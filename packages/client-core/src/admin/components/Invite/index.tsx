@@ -11,7 +11,8 @@ import Box from '@material-ui/core/Box'
 import SentInvite from './SentInvite'
 import ReceivedInvite from './ReceivedInvite'
 import Button from '@material-ui/core/Button'
-import Search from '../Search'
+// import Search from '../Search'
+import Search from './searchInvites'
 import styles from '../Admin.module.scss'
 import InviteModel from './InviteModel'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
@@ -20,6 +21,7 @@ import { selectAdminState } from '../../reducers/admin/selector'
 import { ConfirmProvider } from 'material-ui-confirm'
 import Grid from '@material-ui/core/Grid'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import { inviteStyles } from './styles'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -52,7 +54,7 @@ const a11yProps = (index: any) => {
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: '#43484F !important'
   },
   marginBottom: {
     marginBottom: '10px'
@@ -93,7 +95,7 @@ const InvitesConsole = (props: Props) => {
     retrieveReceivedInvites,
     adminUserState
   } = props
-  const classes = useStyles()
+  const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
   const [inviteModelOpen, setInviteModelOpen] = React.useState(false)
@@ -146,23 +148,22 @@ const InvitesConsole = (props: Props) => {
       <ConfirmProvider>
         <Grid container spacing={3} className={classes.marginBottom}>
           <Grid item xs={9}>
-            <Search typeName="invites" />
+            <Search />
           </Grid>
           <Grid item xs={3}>
-            <Button
-              className={styles.createLocation}
-              type="submit"
-              variant="contained"
-              color="primary"
-              onClick={openModelInvite}
-            >
+            <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModelInvite}>
               Send Invite
             </Button>
           </Grid>
         </Grid>
         <div className={classes.root}>
-          <AppBar position="static" style={{ backgroundColor: '#fff', color: '#000' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+          <AppBar position="static" style={{ backgroundColor: '#343b41', color: '#f1f1f1' }}>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              aria-label="simple tabs example"
+              classes={{ indicator: classes.indicator }}
+            >
               <Tab label="Received Invite" {...a11yProps(0)} />
               <Tab label="Sent Invite" {...a11yProps(1)} />
             </Tabs>
@@ -174,8 +175,8 @@ const InvitesConsole = (props: Props) => {
             <SentInvite invites={invites} />
           </TabPanel>
         </div>
-        <InviteModel open={inviteModelOpen} handleClose={closeModelInvite} users={adminUsers} />
       </ConfirmProvider>
+      <InviteModel open={inviteModelOpen} handleClose={closeModelInvite} users={adminUsers} />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { AvatarTagComponent } from '../../avatar/components/AvatarTagComponent'
-import { MappedComponent } from '../../ecs/functions/EntityFunctions'
+import { MappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyTagComponent } from '../../physics/components/RigidBodyTagComponent'
 import { MessageTypes } from '../enums/MessageTypes'
 import { NetworkSchema } from '../interfaces/NetworkSchema'

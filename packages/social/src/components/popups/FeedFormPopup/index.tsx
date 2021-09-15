@@ -18,8 +18,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   popupsState?: any
   updateNewFeedPageState?: typeof updateNewFeedPageState
+  setView?: any
 }
-export const FeedFormPopup = ({ popupsState, updateNewFeedPageState }: Props) => {
+export const FeedFormPopup = ({ popupsState, updateNewFeedPageState, setView }: Props) => {
   //common for new feed page
   const handleNewFeedClose = () => {
     updateNewFeedPageState(false)

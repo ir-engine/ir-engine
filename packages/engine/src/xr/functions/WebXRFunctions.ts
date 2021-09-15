@@ -1,7 +1,7 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../../networking/classes/Network'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'

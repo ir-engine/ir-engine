@@ -52,7 +52,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       node.cubemapPath = prop.cubemapPath
       node.backgroundType = prop.backgroundType
       node.turbidity = prop.skyboxProps.turbidity
-      node.turbidity = prop.skyboxProps.turbidity
       node.rayleigh = prop.skyboxProps.rayleigh
       node.luminance = prop.skyboxProps.luminance
       node.mieCoefficient = prop.skyboxProps.mieCoefficient

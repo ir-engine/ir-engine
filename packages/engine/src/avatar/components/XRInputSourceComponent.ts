@@ -1,5 +1,5 @@
 import { Group } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type XRInputSourceComponentType = {
   /**
@@ -30,4 +30,4 @@ export type XRInputSourceComponentType = {
   head: Group
 }
 
-export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>()
+export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>('XRInputSourceComponent')

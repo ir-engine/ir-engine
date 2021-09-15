@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import styles from './Auth.module.scss'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -17,7 +17,7 @@ interface Props {
   completeAction: () => void
 }
 
-export const ResetPassword = (props: Props): any => {
+export const  = (props: Props): any => {
   const { token, completeAction } = props
   const dispatch = useDispatch()
   const initialState = { password: '', isSubmitted: false }

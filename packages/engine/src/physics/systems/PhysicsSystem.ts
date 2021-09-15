@@ -5,10 +5,10 @@ import {
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { BodyType, PhysXInstance } from 'three-physx'
+import { BodyType, PhysXInstance } from '../../physics/physx'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
@@ -70,7 +70,7 @@ function avatarActionReceptor(action: NetworkWorldActionType) {
 }
 
 const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
-const colliderQuery = defineQuery([Not(AvatarComponent), ColliderComponent, TransformComponent])
+const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
 const raycastQuery = defineQuery([RaycastComponent])
 const networkObjectQuery = defineQuery([NetworkObjectComponent])
 const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObjectOwnerComponent, ColliderComponent])
@@ -79,23 +79,29 @@ const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObj
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-export const PhysicsSystem = async (
+
+export default async function PhysicsSystem(
   world: World,
-  attributes: { simulationEnabled?: boolean } = {}
-): Promise<System> => {
+  attributes: { simulationEnabled?: boolean }
+): Promise<System> {
+  console.log('PhysicsSystem being initialized')
   let simulationEnabled = false
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+    console.log('Physics System got ENABLE_SCENE')
     if (typeof ev.physics !== 'undefined') {
       simulationEnabled = ev.physics
     }
   })
 
   simulationEnabled = attributes.simulationEnabled ?? true
+  console.log('simulationEnabled', simulationEnabled)
 
   world.receptors.add(avatarActionReceptor)
+  console.log('Added avatarActionReceptor to world')
 
   await createPhysXWorker()
+  console.log('created PhysXWorker')
 
   return () => {
     for (const entity of spawnRigidbodyQuery.enter()) {
@@ -166,16 +172,6 @@ export const PhysicsSystem = async (
         const transform = getComponent(entity, TransformComponent)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       }
-    }
-
-    // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
-    for (const entity of networkObjectQuery.exit()) {
-      const networkObject = getComponent(entity, NetworkObjectComponent, true)
-      delete Network.instance.networkObjects[networkObject.networkId]
-      const nameComponent = getComponent(entity, NameComponent)
-      nameComponent
-        ? console.log(`removed prefab with name ${nameComponent.name} network id: ${networkObject.networkId}`)
-        : console.log('removed prefab with id ', networkObject.networkId)
     }
 
     if (simulationEnabled) PhysXInstance.instance?.update()

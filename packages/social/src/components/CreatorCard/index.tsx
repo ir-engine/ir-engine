@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
@@ -17,12 +17,24 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 // import InstagramIcon from '@material-ui/icons/Instagram';
 // import TitleIcon from '@material-ui/icons/Title';
 // import SimpleModal from '../SimpleModal';
+// @ts-ignore
 import styles from './CreatorCard.module.scss'
 import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getCreator } from '../../reducers/creator/service'
+import {
+  blockCreator,
+  followCreator,
+  getBlockedList,
+  getCreator,
+  getFollowersList,
+  getFollowingList,
+  unFollowCreator,
+  updateCreator
+} from '../../reducers/creator/service'
 import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { clearCreatorFeatured } from '../../reducers/feed/service'
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
+import SimpleModal from '../SimpleModal'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -35,11 +47,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getCreator: bindActionCreators(getCreator, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
   updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
-  clearCreatorFeatured: bindActionCreators(clearCreatorFeatured, dispatch)
-  // followCreator: bindActionCreators(followCreator, dispatch),
-  // unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
-  // getFollowersList: bindActionCreators(getFollowersList, dispatch),
-  // getFollowingList: bindActionCreators(getFollowingList, dispatch),
+  clearCreatorFeatured: bindActionCreators(clearCreatorFeatured, dispatch),
+  updateCreator: bindActionCreators(updateCreator, dispatch),
+
+  followCreator: bindActionCreators(followCreator, dispatch),
+  unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
+  getFollowersList: bindActionCreators(getFollowersList, dispatch),
+  getFollowingList: bindActionCreators(getFollowingList, dispatch),
+  blockCreator: bindActionCreators(blockCreator, dispatch),
+  getBlockedList: bindActionCreators(getBlockedList, dispatch)
 })
 
 interface Props {
@@ -50,10 +66,13 @@ interface Props {
   updateCreatorPageState?: typeof updateCreatorPageState
   updateCreatorFormState?: typeof updateCreatorFormState
   clearCreatorFeatured?: typeof clearCreatorFeatured
-  // followCreator?: typeof followCreator;
-  // unFollowCreator?: typeof unFollowCreator;
-  // getFollowersList?:typeof getFollowersList;
-  // getFollowingList?:typeof getFollowingList;
+  updateCreator?: typeof updateCreator
+  followCreator?: typeof followCreator
+  unFollowCreator?: typeof unFollowCreator
+  getFollowersList?: typeof getFollowersList
+  getFollowingList?: typeof getFollowingList
+  blockCreator?: typeof blockCreator
+  getBlockedList?: typeof getBlockedList
 }
 
 const CreatorCard = ({
@@ -62,13 +81,20 @@ const CreatorCard = ({
   updateCreatorPageState,
   clearCreatorFeatured,
   popupsState,
-  updateCreatorFormState
+  updateCreatorFormState,
+  updateCreator,
+  followCreator,
+  unFollowCreator,
+  getFollowersList,
+  getFollowingList,
+  blockCreator,
+  getBlockedList
 }: Props) => {
   const isMe = creator?.id === creatorState?.get('currentCreator').id
   const { t } = useTranslation()
-
-  // const [openFiredModal, setOpenFiredModal] = useState(false);
-  // const [creatorsType, setCreatorsType] = useState('followers');
+  const [openBlock, setOpenBlock] = React.useState(false)
+  const [openFiredModal, setOpenFiredModal] = useState(false)
+  const [creatorsType, setCreatorsType] = useState('followers')
 
   // const [anchorEl, setAnchorEl] = useState(null);
   // const handleClick = (event) => {
@@ -82,19 +108,50 @@ const CreatorCard = ({
   //     // history.push('/creatorEdit');
   // };
 
-  // const handleFollowCreator = creatorId => followCreator(creatorId);
-  // const handleUnFollowCreator = creatorId => unFollowCreator(creatorId);
+  // const handleFollowCreator = (creatorId) => followCreator(creatorId)
+  // const handleUnFollowCreator = (creatorId) => unFollowCreator(creatorId)
 
-  // const handleFollowersByCreator = creatorId => {
-  //     getFollowersList(creatorId);
-  //     setOpenFiredModal(true);
-  //     setCreatorsType('followers');
-  // };
-  // const handleFollowingByCreator = creatorId => {
-  //     getFollowingList(creatorId);
-  //     setOpenFiredModal(true);
-  //     setCreatorsType('following');
-  // };
+  // const handleFollowersByCreator = (creatorId) => {
+  //   getFollowersList(creatorId)
+  //   setOpenFiredModal(true)
+  //   setCreatorsType('followers')
+  // }
+  // const handleFollowingByCreator = (creatorId) => {
+  //   getFollowingList(creatorId)
+  //   setOpenFiredModal(true)
+  //   setCreatorsType('following')
+  //   console.log(creatorState)
+  // }
+
+  const currentCreator = creatorState.get('currentCreator')
+  useEffect(() => {
+    getBlockedList(currentCreator)
+  }, [])
+
+  const blackList = creatorState?.get('blocked')
+  const checkId = (obj) => obj.id === creator?.id
+  const isBlockedByMe = blackList?.some(checkId)
+  console.log(isBlockedByMe)
+
+  const handleBlockCreator = (creatorId) => {
+    blockCreator(creatorId)
+    setOpenBlock(false)
+    updateCreatorPageState(false)
+  }
+
+  const handleBlockedList = (creatorId) => {
+    getBlockedList(creatorId)
+    setOpenFiredModal(true)
+    setCreatorsType('blocked')
+  }
+
+  const openBlockConfirm = () => {
+    setOpenBlock(true)
+  }
+
+  const closeBlockConfirm = () => {
+    setOpenBlock(false)
+  }
   // const renderSocials = () =>  <>
   //         {creator.twitter && <a target="_blank" href={'http://twitter.com/'+creator.twitter}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.twitter}</Typography></a>}
   //         {creator.instagram && <a target="_blank" href={'http://instagram.com/'+creator.instagram}><Typography variant="h4" component="p" align="center"><InstagramIcon />{creator.instagram}</Typography></a>}
@@ -149,13 +206,60 @@ const CreatorCard = ({
           <Typography className={styles.titleContainer}>{creator.name}</Typography>
           <Typography className={styles.tags}>{creator.tags}</Typography>
           <Typography>{creator.bio}</Typography>
+          {isMe ? (
+            <Button
+              variant={'outlined'}
+              color="primary"
+              className={styles.followButton}
+              onClick={() => handleBlockedList(creator.id)}
+            >
+              Blocked List
+            </Button>
+          ) : (
+            ' '
+          )}
+          {isMe || isBlockedByMe ? (
+            ''
+          ) : (
+            <Button onClick={openBlockConfirm} variant={'outlined'} color="primary" className={styles.followButton}>
+              Block User
+            </Button>
+          )}
+          <Dialog
+            open={openBlock}
+            onClose={closeBlockConfirm}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">{'Block this user?'}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                You will not see the user's profile and content
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={closeBlockConfirm} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={() => handleBlockCreator(creator.id)} color="primary" autoFocus>
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
 
-          {/* {!isMe && creator.followed === false && <Button variant={'contained'} color='primary' className={styles.followButton} 
+          {/* 
+          {!isMe && creator.followed === false && <Button variant={'contained'} color='primary' className={styles.followButton} 
                             onClick={()=>handleFollowCreator(creator.id)}>Follow</Button>}
                     {!isMe && creator.followed === true && <Button variant={'outlined'} color='primary' className={styles.followButton} 
                         onClick={()=>handleUnFollowCreator(creator.id)}>UnFollow</Button>} */}
           {/*hided for now*/}
           {/* {renderSocials()} */}
+          <SimpleModal
+            type={creatorsType}
+            list={creatorState.get('blocked')}
+            open={openFiredModal}
+            onClose={() => setOpenFiredModal(false)}
+          />
         </CardContent>
       </Card>
     </>

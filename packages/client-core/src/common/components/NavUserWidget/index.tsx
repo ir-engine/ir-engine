@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { AuthService } from '../../../user/reducers/auth/service'
+import { AuthService } from '../../../user/reducers/auth/AuthService'
 import { showDialog } from '../../reducers/dialog/service'
 import SignIn from '../../../user/components/Auth/Login'
 import Dropdown from '../../../user/components/Profile/ProfileDropdown'
@@ -53,7 +53,7 @@ const NavUserBadge = (props: Props): any => {
     <div className={styles.userWidget}>
       {isLoggedIn && (
         <div className={styles.flex}>
-          <Dropdown avatarUrl={user && user.avatarUrl} auth={auth} logoutUser={logoutUser} />
+          <Dropdown avatarUrl={user && user.avatarUrl} auth={auth} logoutUser={handleLogout} />
         </div>
       )}
       {!isLoggedIn && login === true && (

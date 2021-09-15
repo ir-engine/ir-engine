@@ -22,7 +22,7 @@ import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { AuthService } from '../../../user/reducers/auth/service'
+import { AuthService } from '../../../user/reducers/auth/AuthService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

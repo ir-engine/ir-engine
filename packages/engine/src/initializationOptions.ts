@@ -2,7 +2,7 @@ import { AvatarInputSchema } from './avatar/AvatarInputSchema'
 import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
-import { PhysXConfig } from 'three-physx'
+import { PhysXConfig } from '../../physics/physx'
 import { SystemInjectionType } from './ecs/functions/SystemFunctions'
 
 export enum EngineSystemPresets {

@@ -91,8 +91,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   const renderProjectFiles = async (index) => {
     const ownedIds = {}
-    Object.assign(ownedIds, globalThis.ownedFileIds)
-    Object.assign(ownedIds, globalThis.currentOwnedFileIds)
+    Object.assign(ownedIds, globalThis.Editor.ownedFileIds)
+    Object.assign(ownedIds, globalThis.Editor.currentOwnedFileIds)
     projects[0].ownedFileIds = JSON.stringify(ownedIds)
     projects[0].sid = globalThis.currentProjectID
     const ownedFileIdsString = projects[index]?.ownedFileIds
