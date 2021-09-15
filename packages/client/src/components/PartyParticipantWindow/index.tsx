@@ -260,6 +260,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
+        setVideoProducerPaused(videoStream.paused)
         const originalTrackEnabledInterval = setInterval(() => {
           if (videoStream.track.enabled) {
             clearInterval(originalTrackEnabledInterval)
