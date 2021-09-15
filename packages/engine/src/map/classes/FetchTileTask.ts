@@ -1,9 +1,10 @@
 import AsyncTask from './AsyncTask'
-import { VectorTile } from '../types'
+import { TileKey, VectorTile } from '../types'
 import TileCache from './TileCache'
-import FeatureCache from './FeatureCache'
-import { Feature } from 'geojson'
-import { fetchVectorTileUsingCache } from '../functions/fetchVectorTile'
+import fetchVectorTile from '../functions/fetchVectorTile'
+import fetchUsingCache from '../functions/fetchUsingCache'
+
+export const fetchVectorTileUsingCache = fetchUsingCache<TileKey, VectorTile>(fetchVectorTile)
 
 export default class FetchTileTask extends AsyncTask<VectorTile> {
   tileCache: TileCache<VectorTile>
@@ -16,6 +17,6 @@ export default class FetchTileTask extends AsyncTask<VectorTile> {
     this.y = y
   }
   start() {
-    return fetchVectorTileUsingCache(this.tileCache, this.x, this.y)
+    return fetchVectorTileUsingCache(this.tileCache, [this.x, this.y])
   }
 }

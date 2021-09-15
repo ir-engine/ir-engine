@@ -1,11 +1,8 @@
-import { VectorTile } from '@mapbox/vector-tile'
 import { Config } from '@xrengine/common/src/config'
-import TileCache from '../classes/TileCache'
 import { TILE_ZOOM } from '../constants'
+import { VectorTile } from '../types'
 import { vectors } from '../vectors'
 import getMapboxUrl from './getMapboxUrl'
-
-// TODO move the caching logic to a decorator?
 
 export default async function fetchVectorTile(x: number, y: number): Promise<VectorTile> {
   const url = getMapboxUrl(
@@ -23,21 +20,4 @@ export default async function fetchVectorTile(x: number, y: number): Promise<Vec
       resolve(tile)
     })
   })
-}
-
-export async function fetchVectorTileUsingCache(
-  tileCache: TileCache<VectorTile>,
-  x: number,
-  y: number
-): Promise<VectorTile> {
-  const cachedTile = tileCache.get(x, y)
-  let tile: VectorTile
-  if (cachedTile) {
-    tile = cachedTile
-  } else {
-    tile = await fetchVectorTile(x, y)
-
-    tileCache.set(x, y, tile)
-  }
-  return tile
 }
