@@ -1,12 +1,15 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import AssetDropZone from '../assets/AssetDropZone'
-import { EditorContext } from '../contexts/EditorContext'
 import { addAssetAtCursorPositionOnDrop, AssetTypes, ItemTypes } from '../dnd'
 import * as styles from './Viewport.module.scss'
 import editorTheme from '../theme'
+import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
+import { ControlManager } from '../../managers/ControlManager'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -15,7 +18,6 @@ import editorTheme from '../theme'
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const editor = useContext(EditorContext)
   const canvasRef = React.createRef<HTMLCanvasElement>()
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
   const [objectSelected, setObjectSelected] = useState(false)
@@ -24,11 +26,11 @@ export function ViewportPanelContainer() {
   const { t } = useTranslation()
 
   const onSelectionChanged = useCallback(() => {
-    setObjectSelected(editor?.selected.length > 0)
+    setObjectSelected(CommandManager.instance.selected.length > 0)
   }, [])
 
   const onFlyModeChanged = useCallback(() => {
-    setFlyModeEnabled(editor?.flyControls.enabled)
+    setFlyModeEnabled(ControlManager.instance.flyControls.enabled)
   }, [])
 
   const onTransformModeChanged = useCallback((mode) => {
@@ -36,30 +38,28 @@ export function ViewportPanelContainer() {
   }, [])
 
   const onEditorInitialized = useCallback(() => {
-    editor.addListener('selectionChanged', onSelectionChanged)
-    editor.editorControls.addListener('flyModeChanged', onFlyModeChanged)
-    editor.editorControls.addListener('transformModeChanged', onTransformModeChanged)
-  }, [editor])
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+    ControlManager.instance.editorControls.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
+  }, [])
 
   useEffect(() => {
-    if (!editor) return
-
-    editor.addListener('initialized', onEditorInitialized)
-    editor.initializeRenderer(canvasRef.current)
+    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), onEditorInitialized)
+    SceneManager.instance.initializeRenderer(canvasRef.current)
 
     return () => {
-      editor.removeListener('selectionChanged', onSelectionChanged)
+      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
 
-      if (editor.editorControls) {
-        editor.editorControls.removeListener('flyModeChanged', onFlyModeChanged)
-        editor.editorControls.removeListener('transformModeChanged', onTransformModeChanged)
+      if (ControlManager.instance.editorControls) {
+        ControlManager.instance.editorControls.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+        ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
       }
 
-      if (editor.renderer) {
-        editor.renderer.dispose()
+      if (SceneManager.instance.renderer) {
+        SceneManager.instance.renderer.dispose()
       }
     }
-  }, [editor])
+  }, [])
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Node, ...AssetTypes],
@@ -68,14 +68,14 @@ export function ViewportPanelContainer() {
 
       if (item.type === ItemTypes.Node) {
         if (item.multiple) {
-          editor.reparentToSceneAtCursorPosition(item.value, mousePos)
+          SceneManager.instance.reparentToSceneAtCursorPosition(item.value, mousePos)
         } else {
-          editor.reparentToSceneAtCursorPosition([item.value], mousePos)
+          SceneManager.instance.reparentToSceneAtCursorPosition([item.value], mousePos)
         }
 
         return
       }
-      addAssetAtCursorPositionOnDrop(editor, item, mousePos)
+      addAssetAtCursorPositionOnDrop(item, mousePos)
     },
     collect: (monitor) => ({
       canDrop: monitor.canDrop(),
@@ -87,13 +87,13 @@ export function ViewportPanelContainer() {
     (assets) => {
       Promise.all(
         assets.map(({ url, name, id }) => {
-          editor.addMedia({ url, name, id })
+          CommandManager.instance.addMedia({ url, name, id })
         })
       ).catch((err) => {
-        editor.emit('error', err)
+        CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
       })
     },
-    [editor]
+    []
   )
 
   let controlsText

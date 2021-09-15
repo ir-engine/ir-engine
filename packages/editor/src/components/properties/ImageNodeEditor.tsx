@@ -23,23 +23,23 @@ const imageTransparencyOptions = Object.values(ImageAlphaMode).map(mapValue)
  * @constructor
  */
 export function ImageNodeEditor(props) {
-  const { editor, node } = props
+  const { node } = props
   const { t } = useTranslation()
 
   //function used to handle the change in src property  of ImageNodeEditor
-  const onChangeSrc = useSetPropertySelected(editor, 'src')
+  const onChangeSrc = useSetPropertySelected('src')
 
   //function used to handle the change in controls property used as a checkbox in customization view
-  const onChangeControls = useSetPropertySelected(editor, 'controls')
+  const onChangeControls = useSetPropertySelected('controls')
 
   //function used to handle the change in Projection property
-  const onChangeProjection = useSetPropertySelected(editor, 'projection')
+  const onChangeProjection = useSetPropertySelected('projection')
 
   //function used to handle the change in alphaMode property
-  const onChangeTransparencyMode = useSetPropertySelected(editor, 'alphaMode')
+  const onChangeTransparencyMode = useSetPropertySelected('alphaMode')
 
   //function used to handle the change in alphaCutoff property
-  const onChangeAlphaCutoff = useSetPropertySelected(editor, 'alphaCutoff')
+  const onChangeAlphaCutoff = useSetPropertySelected('alphaCutoff')
 
   //creating image customization view
   return (

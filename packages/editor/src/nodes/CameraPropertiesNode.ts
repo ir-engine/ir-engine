@@ -6,8 +6,8 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'cameraproperties'
   static nodeName = 'Camera Properties'
 
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const {
       name,
       fov,
@@ -40,8 +40,8 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
     node.startPhi = startPhi ?? 10
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
   }
   copy(source) {
     super.copy(source)

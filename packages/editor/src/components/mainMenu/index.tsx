@@ -1,9 +1,8 @@
 import React from 'react'
 import { Bars } from '@styled-icons/fa-solid/Bars'
-import { ErrorDialog, ProgressDialog, ToolButton } from '../..'
+import { ToolButton } from '../..'
 import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
 import { withTranslation, TFunction } from 'react-i18next'
-import { saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
 
 interface Command {
   name: string

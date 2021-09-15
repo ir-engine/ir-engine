@@ -6,8 +6,8 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Certificate } from '@styled-icons/fa-solid/Certificate'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 type HemisphereLightNodeEditorProps = {
-  editor?: object
   node?: any
   t: Function
 }
@@ -27,17 +27,17 @@ export class HemisphereLightNodeEditor extends Component<HemisphereLightNodeEdit
 
   //function handle change in skyColor property
   onChangeSkyColor = (skyColor) => {
-    ;(this.props.editor as any).setPropertySelected('skyColor', skyColor)
+    CommandManager.instance.setPropertyOnSelection('skyColor', skyColor)
   }
 
   //function to handle changes in ground property
   onChangeGroundColor = (groundColor) => {
-    ;(this.props.editor as any).setPropertySelected('groundColor', groundColor)
+    CommandManager.instance.setPropertyOnSelection('groundColor', groundColor)
   }
 
   //function to handle changes in intensity property
   onChangeIntensity = (intensity) => {
-    ;(this.props.editor as any).setPropertySelected('intensity', intensity)
+    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
   }
 
   //renders view to customize HemisphereLightNode

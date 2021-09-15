@@ -1,11 +1,12 @@
 import Fuse from 'fuse.js'
 import { BaseSource, SearchResult } from './sources'
 import { ItemTypes } from '../dnd'
-import ImageNode from '@xrengine/editor/src/nodes/ImageNode'
-import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
-import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
-import VolumetricNode from '@xrengine/editor/src/nodes/VolumetricNode'
+import ImageNode from '../../nodes/ImageNode'
+import VideoNode from '../../nodes/VideoNode'
+import ModelNode from '../../nodes/ModelNode'
+import VolumetricNode from '../../nodes/VolumetricNode'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
+import { NodeManager } from '../../managers/NodeManager'
 function hasTags(result, tags) {
   for (const { value } of tags) {
     if (result.tags.indexOf(value) === -1) {
@@ -36,7 +37,6 @@ const assetTypeToNodeClass = {
  * @type {class component}
  */
 export class AssetManifestSource extends BaseSource {
-  editor: any
   manifestUrl: any
   assets: any[]
   tags: any[]
@@ -44,9 +44,8 @@ export class AssetManifestSource extends BaseSource {
   searchPlaceholder: any
   fuse: Fuse<any>
 
-  constructor(editor, name, manifestUrl) {
+  constructor(name, manifestUrl) {
     super()
-    this.editor = editor
     this.id = manifestUrl
     this.name = name
     this.manifestUrl = new URL(manifestUrl, (window as any).location).href
@@ -80,7 +79,7 @@ export class AssetManifestSource extends BaseSource {
       // get proxied asset url using manifestUrl
       const assetUrl = new URL(asset.url, this.manifestUrl).href
       const nodeClass = assetTypeToNodeClass[asset.type]
-      const nodeEditor = this.editor.nodeEditors.get(nodeClass)
+      const nodeEditor = NodeManager.instance.getNodeEditor(nodeClass)
       //creationg array assets by pushing assets one by one
       this.assets.push({
         id: asset.id,

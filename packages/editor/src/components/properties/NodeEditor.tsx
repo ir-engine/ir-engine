@@ -6,7 +6,6 @@ type NodeEditorProps = {
   name?: string
   description?: string
   node?: object
-  editor?: object
   disableTransform?: boolean
 }
 

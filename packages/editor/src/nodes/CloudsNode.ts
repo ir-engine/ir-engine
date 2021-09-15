@@ -22,15 +22,15 @@ export default class CloudsNode extends EditorNodeMixin(Clouds) {
     fogRange: new Vector2(-100, 3000)
   }
 
-  static async deserialize(editor, json, loadAsync?, onError?): Promise<CloudsNode> {
-    const node = (await super.deserialize(editor, json)) as CloudsNode
+  static async deserialize(json, loadAsync?, onError?): Promise<CloudsNode> {
+    const node = (await super.deserialize(json)) as CloudsNode
     const props = json.components.find((c) => c.name === 'clouds').props
     Object.assign(node, props)
     return node
   }
 
-  constructor(editor) {
-    super(editor, null)
+  constructor() {
+    super(null)
     this.disableOutline = true
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false

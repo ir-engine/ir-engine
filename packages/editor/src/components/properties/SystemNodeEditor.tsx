@@ -4,7 +4,7 @@ import React from 'react'
 import { withTranslation } from 'react-i18next'
 import NodeEditor from './NodeEditor'
 
-export function SystemNodeEditor(props: { editor?: any; node?: any; t: any }) {
+export function SystemNodeEditor(props: { node?: any; t: any }) {
   const description = i18n.t('editor:properties.game.description')
 
   return <NodeEditor {...props} description={description} />

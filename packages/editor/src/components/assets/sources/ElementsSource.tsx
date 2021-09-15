@@ -2,8 +2,9 @@ import Fuse from 'fuse.js'
 import { BaseSource, SearchResult } from './index'
 import { ItemTypes } from '../../dnd'
 import MediaSourcePanel from '../MediaSourcePanel'
-import Editor from '../../Editor'
 import i18n from 'i18next'
+import EditorEvents from '../../../constants/EditorEvents'
+import { NodeManager } from '../../../managers/NodeManager'
 
 /**
  * ElementsSource component used to provide a container for EditorNodes.
@@ -14,18 +15,16 @@ import i18n from 'i18next'
  */
 export class ElementsSource extends BaseSource {
   component: typeof MediaSourcePanel
-  editor: Editor
   disableUrl: boolean
 
   //initializing variables for this component
-  constructor(editor: Editor) {
+  constructor() {
     super()
     this.component = MediaSourcePanel
-    this.editor = editor
     this.id = 'elements'
     this.name = i18n.t('editor:sources.element.name')
-    this.editor.addListener('settingsChanged', this.onSettingsChanged)
-    this.editor.addListener('sceneGraphChanged', this.onSceneGraphChanged)
+    this.addListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onSettingsChanged)
+    this.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), this.onSceneGraphChanged)
     this.disableUrl = true
     this.searchDebounceTimeout = 0
   }
@@ -42,15 +41,14 @@ export class ElementsSource extends BaseSource {
 
   // function to hanlde the search and to call API if there is any change in search input.
   async search(params): Promise<SearchResult> {
-    const editor = this.editor
-    let results = Array.from<any>(editor.nodeTypes).reduce((acc: any, nodeType: any) => {
-      if (!nodeType.canAddNode(editor)) {
+    let results = Array.from<any>(NodeManager.instance.nodeTypes).reduce((acc: any, nodeType: any) => {
+      if (!nodeType.canAddNode()) {
         return acc
       }
       if (nodeType.hideInElementsPanel) {
         return acc
       }
-      const nodeEditor = editor.nodeEditors.get(nodeType)
+      const nodeEditor = NodeManager.instance.getNodeEditor(nodeType)
       acc.push({
         id: nodeType.nodeName,
         iconComponent: nodeEditor.WrappedComponent

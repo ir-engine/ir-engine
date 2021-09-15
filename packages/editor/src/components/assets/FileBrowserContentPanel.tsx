@@ -1,16 +1,19 @@
-import React, { useContext, useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
-import { EditorContext } from '../contexts/EditorContext'
 // @ts-ignore
 import styles from './styles.module.scss'
 import { useAssetSearch } from './useAssetSearch'
-import { AssetPanelContentContainer, getSources } from './AssetsPanel'
+import { AssetPanelContentContainer } from './AssetsPanel'
 import AssetGrid from './AssetGrid'
 import SelectInput from '../inputs/SelectInput'
 import InputGroup from '../inputs/InputGroup'
 import { UploadFileType } from './sources/MyAssetsSource'
 import { getUrlFromId } from '@xrengine/engine/src/scene/functions/getUrlFromId'
 import { getContentType } from '@xrengine/engine/src/scene/functions/getContentType'
+import { NodeManager } from '../../managers/NodeManager'
+import EditorEvents from '../../constants/EditorEvents'
+import { SourceManager } from '../../managers/SourceManager'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -19,11 +22,8 @@ import { getContentType } from '@xrengine/engine/src/scene/functions/getContentT
  */
 
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
-  //initializing editor with EditorContext
-  const editor = useContext(EditorContext)
-
-  //initializing sources using getSources from editor
-  const [sources, setSources] = useState(getSources(editor))
+  //initializing sources
+  const [sources, setSources] = useState(SourceManager.instance.sources)
 
   //initializing selectedSource as the first element of sources array
   const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[1] : null)
@@ -36,21 +36,20 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
     // function to handle changes in authentication
     const onSettingsChanged = () => {
-      const nextSources = getSources(editor)
+      const nextSources = SourceManager.instance.sources
       setSources(nextSources)
     }
 
-    //adding listeners to editor component
-    editor.addListener('settingsChanged', onSettingsChanged)
-    editor.addListener('setSource', onSetSource)
+    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), onSettingsChanged)
+    CommandManager.instance.addListener(EditorEvents.SOURCE_CHANGED.toString(), onSetSource)
 
-    //removing listeners from editor component
     return () => {
-      editor.removeListener('setSource', onSetSource)
+      CommandManager.instance.removeListener(EditorEvents.SOURCE_CHANGED.toString(), onSetSource)
+      CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), onSettingsChanged)
     }
-  }, [editor, setSelectedSource, sources, setSources, selectedSource])
+  }, [setSelectedSource, sources, setSources, selectedSource])
 
-  const { params, setParams, isLoading, loadMore, hasMore, results } = useAssetSearch(selectedSource)
+  const { loadMore, hasMore, results } = useAssetSearch(selectedSource)
 
   const currentProject = {
     name: 'Current',
@@ -104,7 +103,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         if (!url) continue
         const contentType = await getContentType(new URL(url))
         const nodeClass = UploadFileType[contentType]
-        const nodeEditor = editor.nodeEditors.get(nodeClass)
+        const nodeEditor = NodeManager.instance.getNodeEditor(nodeClass)
         const returningObject = {
           description: url,
           fileId: fileId,
@@ -142,9 +141,9 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }
 
   useEffect(() => {
-    editor.addListener('FileUploaded', onFileUploaded)
+    CommandManager.instance.addListener(EditorEvents.FILE_UPLOADED.toString(), onFileUploaded)
     return () => {
-      editor.removeListener('FileUploaded', onFileUploaded)
+      CommandManager.instance.removeListener(EditorEvents.FILE_UPLOADED.toString(), onFileUploaded)
     }
   }, [])
 

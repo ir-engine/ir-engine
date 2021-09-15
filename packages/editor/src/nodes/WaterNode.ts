@@ -20,15 +20,15 @@ export default class WaterNode extends EditorNodeMixin(Water) {
     })
   }
 
-  static async deserialize(editor, json, loadAsync?, onError?): Promise<WaterNode> {
-    const node = (await super.deserialize(editor, json)) as WaterNode
+  static async deserialize(json, loadAsync?, onError?): Promise<WaterNode> {
+    const node = (await super.deserialize(json)) as WaterNode
     const props = json.components.find((c) => c.name === 'water').props
     Object.assign(node, props)
     return node
   }
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.disableOutline = true
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false

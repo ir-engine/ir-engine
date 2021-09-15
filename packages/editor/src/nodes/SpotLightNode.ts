@@ -5,8 +5,8 @@ export default class SpotLightNode extends EditorNodeMixin(PhysicalSpotLight) {
   static legacyComponentName = 'spot-light'
   static nodeName = 'Spot Light'
   static ignoreRaycast = true
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const {
       color,
       intensity,
@@ -31,8 +31,8 @@ export default class SpotLightNode extends EditorNodeMixin(PhysicalSpotLight) {
     }
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.helper = new EditorSpotLightHelper(this)
     this.helper.visible = false
     this.add(this.helper)

@@ -7,8 +7,8 @@ import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto, logoutUser } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { Button, MediumButton } from '@xrengine/editor/src/components/inputs/Button'
-import { connectMenu, ContextMenu, MenuItem } from '@xrengine/editor/src/components/layout/ContextMenu'
+import { Button, MediumButton } from '../components/inputs/Button'
+import { connectMenu, ContextMenu, MenuItem } from '../components/layout/ContextMenu'
 import {
   ErrorMessage,
   ProjectGrid,
@@ -16,8 +16,8 @@ import {
   ProjectGridContent,
   ProjectGridHeader,
   ProjectGridHeaderRow
-} from '@xrengine/editor/src/components/projects/ProjectGrid'
-import templates from '@xrengine/editor/src/components/projects/templates'
+} from '../components/projects/ProjectGrid'
+import templates from '../components/projects/templates'
 import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'

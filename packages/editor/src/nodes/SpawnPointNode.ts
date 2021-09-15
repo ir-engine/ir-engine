@@ -18,8 +18,8 @@ export default class SpawnPointNode extends EditorNodeMixin(Object3D) {
   helperBox: BoxHelper
   helperModel: Group
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     if (spawnPointHelperModel) {
       this.helperModel = spawnPointHelperModel.clone()
       this.add(this.helperModel)

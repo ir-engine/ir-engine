@@ -20,7 +20,6 @@ import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
 import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
-import { EditorContextProvider } from './contexts/EditorContext'
 import { defaultSettings, SettingsContextProvider } from './contexts/SettingsContext'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
@@ -28,10 +27,8 @@ import ExportProjectDialog from './dialogs/ExportProjectDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
 import DragLayer from './dnd/DragLayer'
-import Editor from './Editor'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
-import { createEditor } from './Nodes'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import defaultTemplateUrl from './templates/crater.json'
 import tutorialTemplateUrl from './templates/tutorial.json'
@@ -50,6 +47,15 @@ import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/
 import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
+import { CommandManager } from '../managers/CommandManager'
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { SceneManager } from '../managers/SceneManager'
+import { ControlManager } from '../managers/ControlManager'
+import { NodeManager, registerPredefinedNodes } from '../managers/NodeManager'
+import { registerPredefinedSources, SourceManager } from '../managers/SourceManager'
+import { CacheManager } from '../managers/CacheManager'
+import { ProjectManager } from '../managers/ProjectManager'
 
 const maxUploadSize = 25
 
@@ -67,21 +73,20 @@ export const getSceneUrl = (sceneId): string => `${configs.APP_URL}/scenes/${sce
  *
  * @author Robert Long
  * @param  {any}  project
- * @param  {any}  editor
  * @param  {any}  showDialog
  * @param  {any}  hideDialog
  * @return {Promise}            [returns published project data]
  */
-export const publishProject = async (project, editor, showDialog, hideDialog?): Promise<any> => {
+export const publishProject = async (project, showDialog, hideDialog?): Promise<any> => {
   let screenshotUrl
   try {
-    const scene = editor.scene
+    const scene = SceneManager.instance.scene
 
     const abortController = new AbortController()
     const signal = abortController.signal
 
     // Save the scene if it has been modified.
-    if (editor.sceneModified) {
+    if (SceneManager.instance.sceneModified) {
       showDialog(ProgressDialog, {
         title: i18n.t('editor:saving'),
         message: i18n.t('editor:savingMsg'),
@@ -91,7 +96,7 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
         }
       })
       // saving project.
-      project = await saveProject(project.project_id, editor, signal, showDialog, hideDialog)
+      project = await saveProject(project.project_id, SceneManager.instance, signal, showDialog, hideDialog)
 
       if (signal.aborted) {
         const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
@@ -109,7 +114,7 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
     await new Promise((resolve) => setTimeout(resolve, 5))
 
     // Take a screenshot of the scene from the current camera position to use as the thumbnail
-    const screenshot = await editor.takeScreenshot()
+    const screenshot = await SceneManager.instance.takeScreenshot()
     console.log('Screenshot is')
     console.log(screenshot)
     const { blob: screenshotBlob, cameraTransform: screenshotCameraTransform } = screenshot
@@ -128,7 +133,7 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
 
     let { name } = scene.metadata
 
-    name = (project.scene && project.scene.name) || name || editor.scene.name
+    name = (project.scene && project.scene.name) || name || SceneManager.instance.scene.name
 
     // Display the publish dialog and wait for the user to submit / cancel
     const publishParams: any = await new Promise((resolve) => {
@@ -167,7 +172,7 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
     })
 
     // Clone the existing scene, process it for exporting, and then export as a glb blob
-    const { glbBlob, scores } = await editor.exportScene(abortController.signal, { scores: true })
+    const { glbBlob, chunks } = await SceneManager.instance.exportScene({ scores: true })
 
     if (signal.aborted) {
       const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
@@ -177,7 +182,7 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
 
     const performanceCheckResult = await new Promise((resolve) => {
       showDialog(PerformanceCheckDialog, {
-        scores,
+        chunks,
         onCancel: () => resolve(false),
         onConfirm: () => resolve(true)
       })
@@ -190,7 +195,7 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
     }
 
     // Serialize Editor scene
-    const serializedScene = await editor.scene.serialize(project.project_id)
+    const serializedScene = await SceneManager.instance.scene.serialize(project.project_id)
     const sceneBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
 
     showDialog(ProgressDialog, {
@@ -399,7 +404,6 @@ type EditorContainerProps = {
   fetchAdminScenes?: any
   fetchLocationTypes?: any
   t: any
-  Engine: any
   match: any
   location: any
   history: any
@@ -410,7 +414,6 @@ type EditorContainerState = {
   // templateUrl: any;
   settingsContext: any
   // error: null;
-  editor: Editor
   creatingProject: any
   DialogComponent: any
   pathParams: Map<string, unknown>
@@ -427,23 +430,30 @@ type EditorContainerState = {
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   constructor(props) {
     super(props)
-    const { Engine } = props
     let settings = defaultSettings
     const storedSettings = localStorage.getItem('editor-settings')
     if (storedSettings) {
       settings = JSON.parse(storedSettings)
     }
 
-    const editor = createEditor(settings, Engine)
-    ;(window as any).editor = editor
-    editor.init()
-    editor.addListener('initialized', this.onEditorInitialized)
+    ProjectManager.buildProjectManager(settings)
+    CommandManager.buildCommandManager()
+    ControlManager.buildControlManager()
+    SceneManager.buildSceneManager()
+    NodeManager.buildNodeManager(SceneManager.instance.scene)
+    SourceManager.buildSourceManager()
+    CacheManager.init()
+
+    registerPredefinedNodes()
+    registerPredefinedSources()
+
+    ProjectManager.instance.init()
+    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
 
     this.state = {
       // error: null,
       project: null,
       parentSceneId: null,
-      editor,
       pathParams: new Map(Object.entries(props.match.params)),
       queryParams: new Map(new URLSearchParams(window.location.search).entries()),
       settingsContext: {
@@ -516,13 +526,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentWillUnmount() {
-    const editor = this.state.editor
-    editor.removeListener('sceneModified', this.onSceneModified)
-    editor.removeListener('saveProject', this.onSaveProject)
-    editor.removeListener('initialized', this.onEditorInitialized)
-    editor.removeListener('error', this.onEditorError)
-    editor.removeListener('projectLoaded', this.onProjectLoaded)
-    editor.dispose()
+    CommandManager.instance.removeListener(EditorEvents.SCENE_MODIFIED.toString(), this.onSceneModified)
+    CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
+    CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
+    CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), this.onEditorError)
+    CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
+    ProjectManager.instance.dispose()
   }
 
   t: Function
@@ -539,17 +548,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: this.t('editor:loadingMsg')
     })
 
-    const editor = this.state.editor
-
     try {
-      await editor.init()
+      await ProjectManager.instance.init()
 
       if (templateFile.metadata) {
         delete templateFile.metadata.sceneUrl
         delete templateFile.metadata.sceneId
       }
 
-      await editor.loadProject(templateFile)
+      await ProjectManager.instance.loadProject(templateFile)
 
       this.hideDialog()
     } catch (error) {
@@ -575,16 +582,14 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: this.t('editor:loadingMsg')
     })
 
-    const editor = this.state.editor
-
     try {
       const scene: any = await getScene(sceneId)
       console.warn('loadScene:scene', scene)
       const projectFile = scene.data
 
-      await editor.init()
+      await ProjectManager.instance.init()
 
-      await editor.loadProject(projectFile)
+      await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()
     } catch (error) {
@@ -612,14 +617,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: this.t('editor:loadingMsg')
     })
 
-    const editor = this.state.editor
-
     try {
-      await editor.init()
+      await ProjectManager.instance.init()
 
-      await editor.loadProject(projectFile)
+      await ProjectManager.instance.loadProject(projectFile)
 
-      editor.sceneModified = true
+      SceneManager.instance.sceneModified = true
       this.updateModifiedState()
 
       this.hideDialog()
@@ -651,8 +654,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: this.t('editor:loadingMsg')
     })
 
-    const editor = this.state.editor
-
     let project
 
     try {
@@ -661,9 +662,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       globalThis.currentProjectID = project.project_id
       const projectFile = await fetchUrl(project.project_url).then((response) => response.json())
 
-      await editor.init()
+      await ProjectManager.instance.init()
 
-      await editor.loadProject(projectFile)
+      await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()
     } catch (error) {
@@ -684,7 +685,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   updateModifiedState(then?) {
-    const nextModified = this.state.editor.sceneModified && !this.state.creatingProject
+    const nextModified = SceneManager.instance.sceneModified && !this.state.creatingProject
 
     if (nextModified !== this.state.modified) {
       this.setState({ modified: nextModified }, then)
@@ -728,9 +729,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onEditorInitialized = () => {
-    const editor = this.state.editor
-
-    const gl = this.state.editor.renderer.renderer.getContext()
+    const gl = SceneManager.instance.renderer.renderer.getContext()
 
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
 
@@ -742,10 +741,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
     }
 
-    editor.addListener('projectLoaded', this.onProjectLoaded)
-    editor.addListener('error', this.onEditorError)
-    editor.addListener('sceneModified', this.onSceneModified)
-    editor.addListener('saveProject', this.onSaveProject)
+    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
+    CommandManager.instance.addListener(EditorEvents.ERROR.toString(), this.onEditorError)
+    CommandManager.instance.addListener(EditorEvents.SCENE_MODIFIED.toString(), this.onSceneModified)
+    CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
   }
 
   /**
@@ -801,9 +800,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   updateSetting(key, value) {
     const settings = Object.assign(this.state.settingsContext.settings, { [key]: value })
     localStorage.setItem('editor-settings', JSON.stringify(settings))
-    const editor = this.state.editor
-    editor.settings = settings
-    editor.emit('settingsChanged')
+    ProjectManager.instance.settings = settings
+    CommandManager.instance.emitEvent(EditorEvents.SETTINGS_CHANGED)
     this.setState({
       settingsContext: {
         ...this.state.settingsContext,
@@ -817,7 +815,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
    */
 
   createProject = async () => {
-    const { editor, parentSceneId } = this.state as any
+    const { parentSceneId } = this.state as any
     this.showDialog(ProgressDialog, {
       title: this.t('editor:generateScreenshot'),
       message: this.t('editor:generateScreenshotMsg')
@@ -826,12 +824,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
-    const blob = await editor.takeScreenshot(512, 320)
+    const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     const result: any = (await new Promise((resolve) => {
       this.showDialog(SaveNewProjectDialog, {
         thumbnailUrl: URL.createObjectURL(blob),
-        initialName: editor.scene.name,
+        initialName: SceneManager.instance.scene.name,
         onConfirm: resolve,
         onCancel: resolve
       })
@@ -854,11 +852,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       }
     })
 
-    editor.setProperty(editor.scene, 'name', result.name, false)
-    editor.scene.setMetadata({ name: result.name })
+    CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, SceneManager.instance.scene, { properties: { name: result.name } })
+    SceneManager.instance.scene.setMetadata({ name: result.name })
 
     const project = await createProject(
-      editor.scene,
+      SceneManager.instance.scene,
       parentSceneId,
       blob,
       abortController.signal,
@@ -866,7 +864,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       this.hideDialog
     )
 
-    editor.sceneModified = false
+    SceneManager.instance.sceneModified = false
     globalThis.currentProjectID = project.project_id
 
     const pathParams = this.state.pathParams
@@ -902,9 +900,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
     await new Promise((resolve) => setTimeout(resolve, 5))
     try {
-      const editor = this.state.editor
       const newProject = await this.createProject()
-      editor.sceneModified = false
+      SceneManager.instance.sceneModified = false
       this.updateModifiedState()
 
       this.hideDialog()
@@ -924,7 +921,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   onExportProject = async () => {
     const options = await new Promise((resolve) => {
       this.showDialog(ExportProjectDialog, {
-        defaultOptions: Object.assign({}, Editor.DefaultExportOptions),
+        defaultOptions: Object.assign({}, SceneManager.DefaultExportOptions),
         onConfirm: resolve,
         onCancel: resolve
       })
@@ -945,14 +942,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
 
     try {
-      const editor = this.state.editor
-
-      const { glbBlob } = await editor.exportScene(abortController.signal, options)
+      const { glbBlob } = await SceneManager.instance.exportScene(options)
 
       this.hideDialog()
 
       const el = document.createElement('a')
-      el.download = editor.scene.name + '.glb'
+      el.download = SceneManager.instance.scene.name + '.glb'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -1011,8 +1006,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onExportLegacyProject = async () => {
-    const { editor, project } = this.state
-    const projectFile = await editor.scene.serialize(project.project_id)
+    const { project } = this.state
+    const projectFile = await SceneManager.instance.scene.serialize(project.project_id)
 
     if (projectFile.metadata) {
       delete projectFile.metadata.sceneUrl
@@ -1022,7 +1017,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = this.state.editor.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = SceneManager.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.world'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
@@ -1047,11 +1042,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     await new Promise((resolve) => setTimeout(resolve, 5))
 
     try {
-      const { editor, project } = this.state
+      const { project } = this.state
       if (project) {
         const newProject = await saveProject(
           project.project_id,
-          editor,
+          SceneManager.instance,
           abortController.signal,
           this.showDialog,
           this.hideDialog
@@ -1065,7 +1060,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         await this.createProject()
       }
 
-      editor.sceneModified = false
+      SceneManager.instance.sceneModified = false
       this.updateModifiedState()
 
       this.hideDialog()
@@ -1082,7 +1077,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   // Currently doesn't work
   onPublishProject = async (): Promise<void> => {
     try {
-      const editor = this.state.editor
       let project = this.state.project
 
       if (!project) {
@@ -1093,13 +1087,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         return
       }
 
-      project = await publishProject(project, editor, this.showDialog, this.hideDialog)
+      project = await publishProject(project, this.showDialog, this.hideDialog)
 
       if (!project) {
         return
       }
 
-      editor.sceneModified = false
+      SceneManager.instance.sceneModified = false
       this.updateModifiedState()
 
       this.setState({ project })
@@ -1119,9 +1113,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   getSceneId() {
-    const { editor, project } = this.state as any
+    const { project } = this.state as any
     return (
-      (project && project.scene && project.scene.scene_id) || (editor.scene.metadata && editor.scene.metadata.sceneId)
+      (project && project.scene && project.scene.scene_id) || (SceneManager.instance.scene.metadata && SceneManager.instance.scene.metadata.sceneId)
     )
   }
 
@@ -1135,7 +1129,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   render() {
-    const { DialogComponent, dialogProps, modified, settingsContext, editor } = this.state
+    const { DialogComponent, dialogProps, modified, settingsContext } = this.state
     const toolbarMenu = this.generateToolbarMenu()
     const isPublishedScene = !!this.getSceneId()
     const locations = this.props.adminLocationState.get('locations').get('locations')
@@ -1218,14 +1212,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     return (
       <StyledEditorContainer id="editor-container">
         <SettingsContextProvider value={settingsContext}>
-          <EditorContextProvider value={editor}>
+          {/* <EditorContextProvider value={editor}> */}
             <DialogContextProvider value={this.dialogContext}>
               <DndProvider backend={HTML5Backend}>
                 <DragLayer />
                 {toolbarMenu && (
                   <ToolBar
                     menu={toolbarMenu}
-                    editor={editor}
                     onPublish={this.onPublishProject}
                     isPublishedScene={isPublishedScene}
                     onOpenScene={this.onOpenScene}
@@ -1255,7 +1248,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                 </Modal>
               </DndProvider>
             </DialogContextProvider>
-          </EditorContextProvider>
+          {/* </EditorContextProvider> */}
         </SettingsContextProvider>
       </StyledEditorContainer>
     )

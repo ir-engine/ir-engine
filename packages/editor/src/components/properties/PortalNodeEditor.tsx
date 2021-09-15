@@ -7,16 +7,16 @@ import { withTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 import PortalNode from '../../nodes/PortalNode'
 import CubemapBakeNode from '../../nodes/CubemapBakeNode'
-import Editor from '../Editor'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
 
 type PortalNodeEditorProps = {
-  editor?: Editor
   node?: object
   t: Function
 }
@@ -60,43 +60,43 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
   }
 
   onChangeLocationName = (locationName) => {
-    this.props.editor.setPropertySelected('locationName', locationName)
+    CommandManager.instance.setPropertyOnSelection('locationName', locationName)
   }
 
   onChangeLinkedPortalId = (linkedPortalId) => {
-    this.props.editor.setPropertySelected('linkedPortalId', linkedPortalId)
+    CommandManager.instance.setPropertyOnSelection('linkedPortalId', linkedPortalId)
   }
 
   onChangeModelUrl = (modelUrl) => {
-    this.props.editor.setPropertySelected('modelUrl', modelUrl)
+    CommandManager.instance.setPropertyOnSelection('modelUrl', modelUrl)
   }
 
   onChangeDisplayText = (displayText) => {
-    this.props.editor.setPropertySelected('displayText', displayText)
+    CommandManager.instance.setPropertyOnSelection('displayText', displayText)
   }
 
   onChangeSpawnPosition = (spawnPosition) => {
-    this.props.editor.setPropertySelected('spawnPosition', spawnPosition)
+    CommandManager.instance.setPropertyOnSelection('spawnPosition', spawnPosition)
   }
 
   onChangeSpawnRotation = (spawnRotation) => {
-    this.props.editor.setPropertySelected('spawnRotation', spawnRotation)
+    CommandManager.instance.setPropertyOnSelection('spawnRotation', spawnRotation)
   }
 
   onChangeTriggerPosition = (triggerPosition) => {
-    this.props.editor.setPropertySelected('triggerPosition', triggerPosition)
+    CommandManager.instance.setPropertyOnSelection('triggerPosition', triggerPosition)
   }
 
   onChangeTriggerRotation = (triggerRotation) => {
-    this.props.editor.setPropertySelected('triggerRotation', triggerRotation)
+    CommandManager.instance.setPropertyOnSelection('triggerRotation', triggerRotation)
   }
 
   onChangeTriggerScale = (triggerScale) => {
-    this.props.editor.setPropertySelected('triggerScale', triggerScale)
+    CommandManager.instance.setPropertyOnSelection('triggerScale', triggerScale)
   }
 
   onChangeCubemapBake = (cubemapBakeId) => {
-    this.props.editor.setPropertySelected('cubemapBakeId', cubemapBakeId)
+    CommandManager.instance.setPropertyOnSelection('cubemapBakeId', cubemapBakeId)
   }
 
   componentDidUpdate() {
@@ -159,7 +159,7 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
         </InputGroup>
         <InputGroup name="Cubemap Bake" label={this.props.t('editor:properties.portal.lbl-cubemapBake')}>
           <SelectInput
-            options={this.props.editor.scene.children
+            options={SceneManager.instance.scene.children
               .filter((obj: Object3D) => {
                 return (obj as any).nodeName === CubemapBakeNode.nodeName
               })

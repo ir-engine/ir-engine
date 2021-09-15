@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { SceneManager } from '../../../managers/SceneManager'
 import styles from './styles.module.scss'
 
 /**
  * Stats used to show stats of  memory and  render.
  *
  * @author Robert Long
- * @param   {any} editor
  * @constructor
  */
-export function Stats({ editor }) {
+export function Stats({}) {
   const [info, setInfo] = useState<any>({})
   const { t } = useTranslation()
 
   useEffect(() => {
-    editor.renderer.onUpdateStats = (info) => {
+    SceneManager.instance.renderer.onUpdateStats = (info) => {
       if (info.render.frame % 3 === 0) {
         setInfo({
           geometries: info.memory.geometries,
@@ -30,9 +30,9 @@ export function Stats({ editor }) {
     }
 
     return () => {
-      editor.renderer.onUpdateStats = undefined
+      SceneManager.instance.renderer.onUpdateStats = undefined
     }
-  }, [editor])
+  }, [])
 
   /**
    * Rendering stats view in ViewportToolbar and shows when click on toggleStats

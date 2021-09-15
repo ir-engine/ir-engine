@@ -1,4 +1,3 @@
-import { Grid } from '@styled-icons/boxicons-regular/Grid'
 import { Pause } from '@styled-icons/fa-solid'
 import { ArrowsAlt } from '@styled-icons/fa-solid/ArrowsAlt'
 import { ArrowsAltV } from '@styled-icons/fa-solid/ArrowsAltV'
@@ -8,20 +7,23 @@ import { Globe } from '@styled-icons/fa-solid/Globe'
 import { Magnet } from '@styled-icons/fa-solid/Magnet'
 import { Play } from '@styled-icons/fa-solid/Play'
 import { SyncAlt } from '@styled-icons/fa-solid/SyncAlt'
-import { TransformSpace } from '@xrengine/editor/src/constants/TransformSpace'
-import { SnapMode } from '@xrengine/editor/src/controls/EditorControls'
+import { TransformSpace } from '../../constants/TransformSpace'
+import { SnapMode } from '../../controls/EditorControls'
 import { TransformMode, TransformPivot } from '@xrengine/engine/src/scene/constants/transformConstants'
-import React, { Component, ReactNode, useCallback, useContext, useEffect, useState } from 'react'
+import React, { Component, ReactNode, useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { EditorContext } from '../contexts/EditorContext'
+import EditorEvents from '../../constants/EditorEvents'
+import { ControlManager } from '../../managers/ControlManager'
+import { SceneManager } from '../../managers/SceneManager'
 import { Button } from '../inputs/Button'
-import NumericStepperInput from '../inputs/NumericStepperInput'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
 import MainMenu from '../mainMenu'
 import styledTheme from '../theme'
-import StatsFuc from './StatsFuc'
 import ToolButton from './ToolButton'
+import GridTool from './tools/GridTool'
+import { CommandManager } from '../../managers/CommandManager'
+import Stats from './tools/Stats'
 /**
  *
  * @author Robert Long
@@ -224,9 +226,8 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
  * @constructor
  */
 function ViewportToolbar({ onToggleStats, showStats }) {
-  const editor = useContext(EditorContext)
 
-  const renderer = editor.renderer
+  const renderer = SceneManager.instance.renderer
   const [renderMode, setRenderMode] = useState(renderer && renderer.renderMode)
 
   const options = renderer
@@ -237,17 +238,18 @@ function ViewportToolbar({ onToggleStats, showStats }) {
     : []
 
   useEffect(() => {
-    editor.addListener('initialized', () => {
-      setRenderMode(editor.renderer.renderMode)
-    })
-  }, [editor])
+    const setRM = () => setRenderMode(SceneManager.instance.renderer.renderMode)
+    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), setRM),
+
+    () => CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), setRM)
+  }, [])
 
   const onChangeRenderMode = useCallback(
     (mode) => {
-      editor.renderer.setRenderMode(mode)
+      SceneManager.instance.renderer.setRenderMode(mode)
       setRenderMode(mode)
     },
-    [editor, setRenderMode]
+    [setRenderMode]
   )
 
   // creating ToolBar view
@@ -292,30 +294,6 @@ const ToolbarInputGroup = (styled as any).div`
   border: 1px solid ${(props) => props.theme.border};
   border-radius: 4px;
   margin: 0 4px;
-`
-
-/**
- *
- * @author Robert Long
- */
-const ToolbarNumericStepperInput = (styled as any)(NumericStepperInput)`
-  width: 100px;
-
-  input {
-    border-width: 0;
-  }
-
-  button {
-    border-width: 0px 1px 0px 1px;
-
-    &:first-child {
-      border-radius: 0;
-    }
-
-    &:last-child {
-      border-right-width: 0;
-    }
-  }
 `
 
 /**
@@ -383,7 +361,6 @@ const initialLocation = {
 }
 type ToolBarProps = {
   menu?: any
-  editor?: any
   onPublish?: Function
   isPublishedScene?: boolean
   onOpenScene?: Function
@@ -422,35 +399,28 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
   }
 
   componentDidMount() {
-    const editor = (this.props as any).editor
-    editor.addListener('initialized', this.onEditorInitialized)
-    editor.addListener('playModeChanged', this.onForceUpdate)
-    editor.addListener('settingsChanged', this.onForceUpdate)
+    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
+    CommandManager.instance.addListener(EditorEvents.PLAY_MODE_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
   }
 
   componentWillUnmount() {
-    const editor = (this.props as any).editor
-    editor.removeListener('initialized', this.onEditorInitialized)
-    if (editor.editorControls) {
-      editor.editorControls.removeListener('transformModeChanged', this.onForceUpdate)
-      editor.editorControls.removeListener('transformSpaceChanged', this.onForceUpdate)
-      editor.editorControls.removeListener('transformPivotChanged', this.onForceUpdate)
-      editor.editorControls.removeListener('snapSettingsChanged', this.onForceUpdate)
-      editor.removeListener('gridHeightChanged', this.onForceUpdate)
-      editor.removeListener('gridVisibilityChanged', this.onForceUpdate)
-      editor.removeListener('playModeChanged', this.onForceUpdate)
-      editor.removeListener('settingsChanged', this.onForceUpdate)
+    CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
+    if (ControlManager.instance.editorControls) {
+      ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), this.onForceUpdate)
+      ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), this.onForceUpdate)
+      ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), this.onForceUpdate)
+      ControlManager.instance.editorControls.removeListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), this.onForceUpdate)
+      CommandManager.instance.removeListener(EditorEvents.PLAY_MODE_CHANGED.toString(), this.onForceUpdate)
+      CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
     }
   }
 
   onEditorInitialized = () => {
-    const editor = (this.props as any).editor
-    editor.editorControls.addListener('transformModeChanged', this.onForceUpdate)
-    editor.editorControls.addListener('transformSpaceChanged', this.onForceUpdate)
-    editor.editorControls.addListener('transformPivotChanged', this.onForceUpdate)
-    editor.editorControls.addListener('snapSettingsChanged', this.onForceUpdate)
-    editor.addListener('gridHeightChanged', this.onForceUpdate)
-    editor.addListener('gridVisibilityChanged', this.onForceUpdate)
+    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), this.onForceUpdate)
+    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), this.onForceUpdate)
+    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), this.onForceUpdate)
+    ControlManager.instance.editorControls.addListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), this.onForceUpdate)
     this.setState({ editorInitialized: true })
   }
 
@@ -459,60 +429,52 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
   }
 
   onSelectTranslate = () => {
-    ;(this.props as any).editor.editorControls.setTransformMode(TransformMode.Translate)
+    ControlManager.instance.editorControls.setTransformMode(TransformMode.Translate)
   }
 
   onSelectRotate = () => {
-    ;(this.props as any).editor.editorControls.setTransformMode(TransformMode.Rotate)
+    ControlManager.instance.editorControls.setTransformMode(TransformMode.Rotate)
   }
 
   onSelectScale = () => {
-    ;(this.props as any).editor.editorControls.setTransformMode(TransformMode.Scale)
+    ControlManager.instance.editorControls.setTransformMode(TransformMode.Scale)
   }
 
   onToggleTransformSpace = () => {
-    ;(this.props as any).editor.editorControls.toggleTransformSpace()
+    ControlManager.instance.editorControls.toggleTransformSpace()
   }
 
   onChangeTransformPivot = (transformPivot) => {
-    ;(this.props as any).editor.editorControls.setTransformPivot(transformPivot)
+    ControlManager.instance.editorControls.setTransformPivot(transformPivot)
   }
 
   onToggleTransformPivot = () => {
-    ;(this.props as any).editor.editorControls.changeTransformPivot()
+    ControlManager.instance.editorControls.changeTransformPivot()
   }
 
   onToggleSnapMode = () => {
-    ;(this.props as any).editor.editorControls.toggleSnapMode()
+    ControlManager.instance.editorControls.toggleSnapMode()
   }
 
   onChangeTranslationSnap = (translationSnap) => {
-    ;(this.props as any).editor.editorControls.setTranslationSnap(parseFloat(translationSnap))
-    ;(this.props as any).editor.editorControls.setSnapMode(SnapMode.Grid)
+    ControlManager.instance.editorControls.setTranslationSnap(parseFloat(translationSnap))
+    ControlManager.instance.editorControls.setSnapMode(SnapMode.Grid)
   }
 
   onChangeScaleSnap = (scaleSnap) => {
-    ;(this.props as any).editor.editorControls.setScaleSnap(scaleSnap)
+    ControlManager.instance.editorControls.setScaleSnap(scaleSnap)
   }
 
   onChangeRotationSnap = (rotationSnap) => {
-    ;(this.props as any).editor.editorControls.setRotationSnap(parseFloat(rotationSnap))
-    ;(this.props as any).editor.editorControls.setSnapMode(SnapMode.Grid)
-  }
-
-  onChangeGridHeight = (value) => {
-    ;(this.props as any).editor.setGridHeight(value)
-  }
-
-  onToggleGridVisible = () => {
-    ;(this.props as any).editor.toggleGridVisible()
+    ControlManager.instance.editorControls.setRotationSnap(parseFloat(rotationSnap))
+    ControlManager.instance.editorControls.setSnapMode(SnapMode.Grid)
   }
 
   onTogglePlayMode = () => {
-    if ((this.props as any).editor.playing) {
-      ;(this.props as any).editor.leavePlayMode()
+    if (ControlManager.instance.isInPlayMode) {
+      ControlManager.instance.leavePlayMode()
     } else {
-      ;(this.props as any).editor.enterPlayMode()
+      ControlManager.instance.enterPlayMode()
     }
   }
 
@@ -523,9 +485,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
       return <StyledToolbar />
     }
 
-    const { transformMode, transformSpace, transformPivot, snapMode, translationSnap, rotationSnap } = (
-      this.props as any
-    ).editor.editorControls
+    const { transformMode, transformSpace, transformPivot, snapMode, translationSnap, rotationSnap } = ControlManager.instance.editorControls
 
     const queryParams = (this.props as any).queryParams
 
@@ -609,28 +569,13 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
               creatable
             />
           </ToolbarInputGroup>
-          <ToolbarInputGroup id="transform-grid">
-            <ToggleButton onClick={this.onToggleGridVisible} tooltip="Toggle Grid Visibility">
-              <Grid size={16} />
-            </ToggleButton>
-            <ToolbarNumericStepperInput
-              value={(this.props as any).editor.grid.position.y}
-              onChange={this.onChangeGridHeight}
-              precision={0.01}
-              smallStep={0.25}
-              mediumStep={1.5}
-              largeStep={4.5}
-              unit="m"
-              incrementTooltip="[-] Increment Grid Height"
-              decrementTooltip="[=] Decrement Grid Height"
-            />
-          </ToolbarInputGroup>
+          <GridTool />
           <ToolbarInputGroup id="preview">
             <ToggleButton
               onClick={this.onTogglePlayMode}
-              tooltip={(this.props as any).editor.playing ? 'Stop Previewing Scene' : 'Preview Scene'}
+              tooltip={ControlManager.instance.isInPlayMode ? 'Stop Previewing Scene' : 'Preview Scene'}
             >
-              {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
+              {ControlManager.instance.isInPlayMode ? <Pause size={14} /> : <Play size={14} />}
             </ToggleButton>
           </ToolbarInputGroup>
           <ViewportToolbar
@@ -639,7 +584,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
           />
         </ToolToggles>
         <Spacer />
-        {this.state.showStats && <StatsFuc />}
+        {this.state.showStats && <Stats />}
       </StyledToolbar>
     )
   }

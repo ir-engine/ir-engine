@@ -1,7 +1,7 @@
 import { BaseSource } from './sources'
 import { ItemTypes } from '../dnd'
 import ModelSourcePanel from './ModelSourcePanel'
-import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
+import ModelNode from '../../nodes/ModelNode'
 import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'
 
 /**

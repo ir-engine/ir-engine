@@ -8,14 +8,14 @@ export default class LinkNode extends EditorNodeMixin(Object3D) {
   static async load() {
     linkHelperTexture = await loadTexture('/editor/link-icon.png')
   }
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { href } = json.components.find((c) => c.name === 'link').props
     node.href = href
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.href = ''
     const geometry = new PlaneBufferGeometry()
     const material = new MeshBasicMaterial()

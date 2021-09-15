@@ -2,9 +2,9 @@ import { useCallback, useContext } from 'react'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { DialogContext } from '../contexts/DialogContext'
-import { EditorContext } from '../contexts/EditorContext'
 import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { SourceManager } from '../../managers/SourceManager'
 
 /**
  * useUpload used to upload asset file.
@@ -16,17 +16,14 @@ import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 export default function useUpload(options: any = {}) {
   const { t } = useTranslation()
 
-  // initializing editor using EditorContext
-  const editor = useContext(EditorContext)
-
   // initializing showDialog, hideDialog using dialogContext
   const { showDialog, hideDialog } = useContext(DialogContext)
 
   // initializing multiple if options contains multiple.
   const multiple = options.multiple === undefined ? false : options.multiple
 
-  // initializing source if options contains source else use editor.defaultUploadSource
-  const source = options.source || editor.defaultUploadSource
+  // initializing source if options contains source else use Source manager's defaultUploadSource
+  const source = options.source || SourceManager.instance.defaultUploadSource
 
   //initializing accepts options using options.accepts
   //if options.accepts is not empty else set all types
@@ -109,7 +106,7 @@ export default function useUpload(options: any = {}) {
       }
       return assets
     },
-    [showDialog, hideDialog, source, multiple, accepts, editor]
+    [showDialog, hideDialog, source, multiple, accepts]
   )
   return onUpload
 }
