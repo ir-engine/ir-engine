@@ -203,6 +203,21 @@ declare namespace PhysX {
     simulationCallback: PxSimulationEventCallback
   ): PxSceneDesc
   function getDefaultCCTQueryFilter(): PxQueryFilterCallback
+
+  // TODO - figure out these typings properly
+  class PxTransformLike {
+    translation: {
+      x: number
+      y: number
+      z: number
+    }
+    rotation: {
+      x: number
+      y: number
+      z: number
+      w: number
+    }
+  }
   class PxTransform {
     constructor(p: number[], q: number[])
     constructor()
@@ -311,7 +326,7 @@ declare namespace PhysX {
     setFlag(flag: PxShapeFlag, value: boolean): void
     getFlags(): PxShapeFlags
     release(): void
-    setLocalPose(transform: PxTransform): void
+    setLocalPose(transform: PxTransformLike): void
     getLocalPose(): PxTransform
     getGeometry(): PxGeometryHelper
     setGeometry(geometry: PxGeometry): void
@@ -337,7 +352,7 @@ declare namespace PhysX {
     detachShape(shape: PxShape, wakeOnLostTouch?: boolean | true): void
     getShapes(): PxShape[] | PxShape
     getGlobalPose(): PxTransform
-    setGlobalPose(transform: PxTransform, autoAwake: boolean): void
+    setGlobalPose(transform: PxTransformLike, autoAwake: boolean): void
     setLinearVelocity(value: PxVec3, autoAwake: boolean): void
     getLinearVelocity(): PxVec3
     setAngularVelocity(value: PxVec3, autoAwake: boolean): void
@@ -351,7 +366,7 @@ declare namespace PhysX {
     getLinearDamping(): number
     setMass(value: number): void
     getMass(): number
-    setCMassLocalPose(value: PxTransform): void
+    setCMassLocalPose(value: PxTransformLike): void
     clearForce(): void
     clearTorque(): void
     addForce(force: PxVec3): void
@@ -386,7 +401,7 @@ declare namespace PhysX {
     getWakeCounter(): void
     setSleepThreshold(threshold: number): void
     getSleepThreshold(): number
-    setKinematicTarget(transform: PxTransform): void
+    setKinematicTarget(transform: PxTransformLike): void
     setRigidDynamicLockFlag(flags: PxRigidDynamicLockFlag, value: boolean): void
     setRigidDynamicLockFlags(flags: PxRigidDynamicLockFlags): void
     getRigidDynamicLockFlags(flags: PxRigidDynamicLockFlag): void
@@ -467,7 +482,13 @@ declare namespace PhysX {
     // raycastMultiple(origin: PxVec3, unitDir: PxVec3, maxDistance: PxReal, flags: number, hits: PxRaycastHit[], hbsize: number, filterData: PxQueryFilterData): boolean;
     setBounceThresholdVelocity(threshold: number): void
     getBounceThresholdVelocity(): number
-    sweep(geometry: PxGeometry, pose: PxTransform, unitDir: PxVec3, maxDistance: PxReal, hit: PxRaycastBuffer): boolean
+    sweep(
+      geometry: PxGeometry,
+      pose: PxTransformLike,
+      unitDir: PxVec3,
+      maxDistance: PxReal,
+      hit: PxRaycastBuffer
+    ): boolean
   }
 
   class PxCookingParams {
@@ -505,8 +526,8 @@ declare namespace PhysX {
   class PxPhysics {
     createSceneDesc(): PxSceneDesc
     createScene(a: PxSceneDesc): PxScene
-    createRigidDynamic(a: PxTransform | any): PxRigidDynamic
-    createRigidStatic(a: PxTransform | any): PxRigidStatic
+    createRigidDynamic(a: PxTransformLike): PxRigidDynamic
+    createRigidStatic(a: PxTransformLike): PxRigidStatic
     createMaterial(staticFriction: number, dynamicFriction: number, restitution: number): PxMaterial
     //shapeFlags = PxShapeFlag:: eVISUALIZATION | PxShapeFlag:: eSCENE_QUERY_SHAPE | PxShapeFlag:: eSIMULATION_SHAPE
     createShape(

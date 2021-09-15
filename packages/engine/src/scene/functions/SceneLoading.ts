@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
+import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -8,7 +8,9 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
-import { createCollider } from '../../physics/functions/createCollider'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { createBody, createCollider, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -272,7 +274,13 @@ export class WorldScene {
         break
 
       case 'collider': {
-        // TODO
+        const object3d = getComponent(entity, Object3DComponent)
+        if (object3d) {
+          const shapes = getAllShapesFromObject3D(entity, object3d.value as any, component.data)
+          const body = createBody(entity, component.data, shapes)
+          addComponent(entity, ColliderComponent, { body })
+          addComponent(entity, CollisionComponent, { collisions: [] })
+        }
         break
       }
 
@@ -280,10 +288,10 @@ export class WorldScene {
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(entity, {
           userData: {
-            type: 'box',
+            type: 'box' as any,
             ...boxColliderProps
           }
-        })
+        } as any)
         if (
           boxColliderProps.removeMesh === 'true' ||
           (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)

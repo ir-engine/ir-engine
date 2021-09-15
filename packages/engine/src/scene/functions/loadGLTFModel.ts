@@ -6,11 +6,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import {
-  applyTransformToMesh,
-  applyTransformToMeshWorld,
-  createCollidersFromModel
-} from '../../physics/functions/parseModelColliders'
+import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
@@ -99,9 +95,6 @@ export const parseGLTFModel = (
   // console.log(sceneLoader, entity, component, sceneProperty, scene)
 
   addComponent(entity, Object3DComponent, { value: scene })
-
-  // legacy physics loader
-  createCollidersFromModel(entity, scene)
 
   // DIRTY HACK TO LOAD NAVMESH
   if (component.data.src.match(/navmesh/)) {

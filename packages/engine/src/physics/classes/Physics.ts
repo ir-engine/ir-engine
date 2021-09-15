@@ -25,8 +25,8 @@ let nextAvailableObstacleID = 0
 
 const quat1 = new Quaternion()
 const quat2 = new Quaternion()
-const xVec = new Vector3(1, 0, 0)
 const yVec = new Vector3(0, 1, 0)
+const zVec = new Vector3(0, 0, 1)
 const halfPI = Math.PI / 2
 
 export class Physics {
@@ -256,15 +256,15 @@ export class Physics {
     }
 
     const shape = this.physics.createShape(geometry, material, false, flags)
-    // // rotate 90 degrees on Z axis as PhysX capsule extend along X axis not the Y axis
-    // if (shapetype === SHAPES.Capsule) {
-    //   quat1.setFromAxisAngle(zVec, halfPI)
-    //   quat2.copy(rotation)
-    //   quat2.multiply(quat1)
-    //   newTransform.rotation.copy(quat2)
-    // }
-    // // rotate -90 degrees on Y axis as PhysX plane is X+ normaled
     const geometryType = getGeometryType(shape)
+    // rotate 90 degrees on Z axis as PhysX capsule extend along X axis not the Y axis
+    if (geometryType === PhysX.PxGeometryType.eCAPSULE.value) {
+      quat1.setFromAxisAngle(zVec, halfPI)
+      quat2.copy(rotation)
+      quat2.multiply(quat1)
+      newTransform.rotation.copy(quat2)
+    }
+    // rotate -90 degrees on Y axis as PhysX plane is X+ normaled
     if (geometryType === PhysX.PxGeometryType.ePLANE.value) {
       quat1.setFromAxisAngle(yVec, -halfPI)
       quat2.copy(rotation)

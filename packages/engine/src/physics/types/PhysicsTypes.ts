@@ -35,14 +35,6 @@ export interface Quat {
   w: number
 }
 
-export interface TransformType {
-  translation?: Vec3Fragment
-  rotation?: QuatFragment
-  scale?: Vec3Fragment
-  linearVelocity?: Vec3Fragment
-  angularVelocity?: Vec3Fragment
-}
-
 export enum BodyType {
   STATIC,
   DYNAMIC,
@@ -70,7 +62,7 @@ export interface BodyConfig {
 }
 
 export interface RigidBody extends BodyConfig {
-  transform: TransformType
+  transform: PhysX.PxTransformLike
   shapes: PhysX.PxShape[]
   userData?: any
 }

@@ -17,7 +17,6 @@ import { addClientInputListeners, removeClientInputListeners } from './input/fun
 import { Network } from './networking/classes/Network'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { FontManager } from './xrui/classes/FontManager'
-import { Physics } from './physics/classes/Physics'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {

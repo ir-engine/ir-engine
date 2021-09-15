@@ -14,7 +14,8 @@ import {
   Line,
   MeshStandardMaterial,
   Material,
-  BufferAttribute
+  BufferAttribute,
+  Float32BufferAttribute
 } from 'three'
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 import { World } from '../../ecs/classes/World'
@@ -181,10 +182,8 @@ export class DebugRenderer {
     if (!mesh || needsUpdate) {
       const geometryType = getGeometryType(shape)
       if (geometryType === PhysX.PxGeometryType.eCAPSULE.value) {
-        console.log('geom')
         const geometry = new PhysX.PxCapsuleGeometry(1, 1)
         shape.getCapsuleGeometry(geometry)
-        console.log(geometry, geometry.radius, geometry.halfHeight)
         mesh = new Mesh(
           new CapsuleBufferGeometry(
             clampNonzeroPositive(geometry.radius),
@@ -202,7 +201,6 @@ export class DebugRenderer {
           this._materials[BodyType.CONTROLLER]
         )
       }
-      console.log('adding mesh id', id, mesh)
       this._meshes.set(id, mesh)
       this.scene.add(mesh)
     }
@@ -248,7 +246,7 @@ export class DebugRenderer {
             clampNonzeroPositive(geometry.radius),
             clampNonzeroPositive(geometry.radius),
             clampNonzeroPositive(geometry.halfHeight) * 2
-          ),
+          ).rotateZ(-halfPI),
           material
         )
         break
@@ -272,35 +270,20 @@ export class DebugRenderer {
       }
 
       case PhysX.PxGeometryType.eCONVEXMESH.value: {
-        const geometry = new PhysX.PxConvexMeshGeometry(null, null, null)
-        shape.getConvexMeshGeometry(geometry)
-        const geometryMesh = geometry.getConvexMesh()
-        const verts = geometryMesh.getVertices()
-        const bufferGeom = new BufferGeometry()
-        const points = []
-        for (let i = 0; i < verts.length; i++) {
-          const [x, y, z] = [verts[i].x, verts[i].y, verts[i].z]
-          points.push(new Vector3(x, y, z))
-        }
-        bufferGeom.setFromPoints(points)
-        mesh = new Mesh(bufferGeom, material)
+        const verts = (shape as any)._vertices
+        const indices = (shape as any)._indices
+        const bufferGeometry = new BufferGeometry()
+        bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
+        bufferGeometry.setIndex(indices)
+        mesh = new Mesh(bufferGeometry, material)
         break
       }
 
       case PhysX.PxGeometryType.eTRIANGLEMESH.value: {
-        const geometry = new PhysX.PxTriangleMeshGeometry(null, null, null)
-        shape.getTriangleMeshGeometry(geometry)
-        const geometryMesh = geometry.getTriangleMesh()
-        const verts = geometryMesh.getVertices()
-        const indices = geometryMesh.getIndexBuffer()
-        console.log(verts, indices)
+        const verts = (shape as any)._vertices
+        const indices = (shape as any)._indices
         const bufferGeometry = new BufferGeometry()
-        const points = []
-        for (let i = 0; i < verts.length; i++) {
-          const [x, y, z] = [verts[i].x, verts[i].y, verts[i].z]
-          points.push(new Vector3(x, y, z))
-        }
-        bufferGeometry.setAttribute('position', new BufferAttribute(new Float32Array(points), 3))
+        bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
         bufferGeometry.setIndex(indices)
         mesh = new Mesh(bufferGeometry, material)
         break
@@ -313,8 +296,6 @@ export class DebugRenderer {
     if (mesh && mesh.geometry) {
       this.scene.add(mesh)
     }
-
-    console.log('mesh', mesh)
 
     return mesh
   }

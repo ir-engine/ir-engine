@@ -23,20 +23,23 @@ const vec3 = new Vector3()
 const forward = new Vector3(0, 0, -1)
 const multiplier = 1 / 60
 
-export const moveAvatar = (entity: Entity, deltaTime): void => {
+export const moveAvatar = (entity: Entity, deltaTime: number): void => {
   const avatar = getComponent(entity, AvatarComponent)
   const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   if (!controller.movementEnabled) return
 
+  const onGround = controller.collisions[0] || avatar.isGrounded
+
   vec3.copy(controller.localMovementDirection).multiplyScalar(multiplier)
   controller.velocitySimulator.target.copy(vec3)
-  controller.velocitySimulator.simulate(deltaTime * (controller.collisions[0] ? 1 : 0.5))
+  controller.velocitySimulator.simulate(deltaTime * (onGround ? 1 : 0.2))
 
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
-  velocity.velocity.copy(newVelocity)
+  velocity.velocity.setX(newVelocity.x)
+  velocity.velocity.setZ(newVelocity.z)
 
   quat.copy(Engine.camera.quaternion)
   Engine.camera.getWorldDirection(vec3)
@@ -48,7 +51,7 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
 
   newVelocity.applyQuaternion(quat)
 
-  if (controller.collisions[0]) {
+  if (onGround) {
     const raycast = getComponent(entity, RaycastComponent)
     const closestHit = raycast.hits[0]
 
@@ -83,8 +86,8 @@ export const moveAvatar = (entity: Entity, deltaTime): void => {
     // }
   }
   // apply gravity
-  // velocity.velocity.y -= 0.1
-
+  velocity.velocity.y -= 0.15 * deltaTime
+  console.log(onGround, velocity.velocity)
   const world = useWorld()
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null)
