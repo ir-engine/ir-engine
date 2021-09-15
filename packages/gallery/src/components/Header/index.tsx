@@ -17,8 +17,8 @@ import {
   Typography
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
-import { createFeed } from '@xrengine/gallery/src/reducers/post/service'
-import { selectCreatorsState } from '@xrengine/gallery/src/reducers/creator/selector'
+import { createFeed } from '../../reducers/post/service'
+import { selectCreatorsState } from '../../reducers/creator/selector'
 
 const mapStateToProps = (state: any): any => {
   return {

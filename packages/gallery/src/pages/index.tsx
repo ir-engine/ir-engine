@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
-import AppHeader from '@xrengine/gallery/src/components/Header'
-import FeedMenu from '@xrengine/gallery/src/components/FeedMenu'
-import { selectCreatorsState } from '@xrengine/gallery/src/reducers/creator/selector'
+import AppHeader from '../components/Header'
+import FeedMenu from '../components/FeedMenu'
+import { selectCreatorsState } from '../reducers/creator/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { createCreator } from '@xrengine/gallery/src/reducers/creator/service'
+import { createCreator } from '../reducers/creator/service'
 // @ts-ignore
 import styles from './index.module.scss'
 

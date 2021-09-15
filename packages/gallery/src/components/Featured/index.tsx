@@ -7,9 +7,9 @@ import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
 
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { selectCreatorsState } from '@xrengine/gallery/src/reducers/creator/selector'
-import { selectFeedsState } from '@xrengine/gallery/src/reducers/post/selector'
-import { getFeeds, removeFeed } from '@xrengine/gallery/src/reducers/post/service'
+import { selectCreatorsState } from '../../reducers/creator/selector'
+import { selectFeedsState } from '../../reducers/post/selector'
+import { getFeeds, removeFeed } from '../../reducers/post/service'
 import styles from './Featured.module.scss'
 import { useHistory } from 'react-router'
 
