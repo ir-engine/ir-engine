@@ -115,12 +115,12 @@ export class Feed extends Service {
     }
 
     if (action === 'creator') {
-      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl
-         FROM \`feed\` as feed
-         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
-         WHERE feed.creatorId=:creatorId
-         ORDER BY feed.createdAt DESC    
-         LIMIT :skip, :limit `
+      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        WHERE feed.creatorId=:creatorId
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit `
 
       queryParamsReplacements.creatorId = params.query?.creatorId ? params.query.creatorId : creatorId
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {

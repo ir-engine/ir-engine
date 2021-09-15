@@ -1,7 +1,7 @@
 import { Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'

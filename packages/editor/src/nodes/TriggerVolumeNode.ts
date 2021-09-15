@@ -24,6 +24,7 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     node.leaveComponent = props.leaveComponent
     node.leaveProperty = props.leaveProperty
     node.leaveValue = props.leaveValue
+    node.showHelper = props.showHelper
     return node
   }
   constructor(editor) {
@@ -40,6 +41,7 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     this.leaveComponent = null
     this.leaveProperty = null
     this.leaveValue = null
+    this.showHelper = false
   }
   copy(source, recursive = true) {
     if (recursive) {
@@ -59,6 +61,7 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     this.leaveComponent = source.leaveComponent
     this.leaveProperty = source.leaveProperty
     this.leaveValue = source.leaveValue
+    this.showHelper = source.showHelper
     return this
   }
   async serialize(projectID) {
@@ -70,7 +73,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
         enterValue: this.enterValue,
         leaveComponent: this.leaveComponent,
         leaveProperty: this.leaveProperty,
-        leaveValue: this.leaveValue
+        leaveValue: this.leaveValue,
+        showHelper: this.showHelper
       }
     })
   }
@@ -93,7 +97,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
       enterValue: this.enterValue,
       leaveComponent: this.leaveComponent,
       leaveProperty: this.leaveProperty,
-      leaveValue: this.leaveValue
+      leaveValue: this.leaveValue,
+      showHelper: this.showHelper
     })
   }
 }

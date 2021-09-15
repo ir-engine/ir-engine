@@ -30,7 +30,7 @@ import {
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
 import { defineQuery } from 'bitecs'
-import { initializeEngine } from '@xrengine/engine/src'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 
