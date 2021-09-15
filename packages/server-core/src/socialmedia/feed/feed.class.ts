@@ -95,7 +95,8 @@ export class Feed extends Service {
     //Featured menu item for Guest
     //Featured menu item
     if (action === 'featuredGuest' || action === 'featured') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl FROM feed
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title
+       FROM feed
        JOIN static_resource as sr ON sr.id=feed.previewId
        WHERE creatorId NOT IN (select blockedId from block_creator where 
          creatorId = '${creatorId}')
