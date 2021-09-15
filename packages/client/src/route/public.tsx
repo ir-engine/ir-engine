@@ -49,7 +49,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
 
           {/* Dev Routes */}
           <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
-          {/* <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} /> */}
+          <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
           <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
           <Route
             path="/examples/navmeshbuilder"
