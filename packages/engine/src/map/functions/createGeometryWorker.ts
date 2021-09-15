@@ -4,6 +4,7 @@ import { Feature } from 'geojson'
 import createTaskWorker from '../../common/functions/createTaskWorker'
 import { IStyles } from '../styles'
 import { LongLat, toMetersFromCenter, METERS_PER_LONGLAT } from '../units'
+import { computeBoundingCircleRadius } from '../GeoJSONFns'
 
 declare function importScripts(...urls: string[]): void
 // TODO eliminate duplicate code
@@ -71,7 +72,7 @@ function transformFeaturePoint(featurePoint: LongLat, featureCenterPointInScene:
 
 function buildGeometry(
   feature: Feature,
-  llCenter: LongLat,
+  center: LongLat,
   style: IStyles
 ): { geometry: BufferGeometry; centerPoint: LongLat } | null {
   const shape = new Shape()
@@ -100,16 +101,17 @@ function buildGeometry(
   }
 
   const centerPointLongLat = turf.center(turf.points(coords)).geometry.coordinates
-  const centerPoint = toMetersFromCenter(centerPointLongLat, llCenter)
+  const centerPoint = toMetersFromCenter(centerPointLongLat, center)
+  const boundingCircleRadius = computeBoundingCircleRadius(feature)
 
-  var point = transformFeaturePoint(coords[0], centerPoint, llCenter)
+  var point = transformFeaturePoint(coords[0], centerPoint, center)
   shape.moveTo(point[0], point[1])
 
   coords.slice(1).forEach((coord: LongLat) => {
-    point = transformFeaturePoint(coord, centerPoint, llCenter)
+    point = transformFeaturePoint(coord, centerPoint, center)
     shape.lineTo(point[0], point[1])
   })
-  point = transformFeaturePoint(coords[0], centerPoint, llCenter)
+  point = transformFeaturePoint(coords[0], centerPoint, center)
   shape.lineTo(point[0], point[1])
 
   let height: number
@@ -163,7 +165,7 @@ function buildGeometry(
     colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
   }
 
-  return { geometry: threejsGeometry, centerPoint }
+  return { geometry: threejsGeometry, centerPoint, boundingCircleRadius }
 }
 
 export function createTaskHandler() {
@@ -209,6 +211,7 @@ interface SerializedGeometry {
     }
   }
   centerPoint: [number, number]
+  boundingCircleRadius: number
 }
 
 export default () => {
@@ -221,6 +224,7 @@ export default () => {
     baseColorByFeatureType,
     toMetersFromCenter,
     METERS_PER_LONGLAT,
-    getTemp
+    getTemp,
+    computeBoundingCircleRadius
   })
 }

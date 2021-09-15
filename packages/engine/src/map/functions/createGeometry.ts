@@ -17,7 +17,8 @@ export default async function createGeometry(
   const style = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
   const {
     geometry: { json, transfer },
-    centerPoint
+    centerPoint,
+    boundingCircleRadius
   } = await geometryWorker.postTask(taskId, feature, center, style)
 
   const geometry = geometryLoader.parse(json)
@@ -25,6 +26,5 @@ export default async function createGeometry(
     const { array, itemSize, normalized } = transfer.attributes[attributeName]
     geometry.setAttribute(attributeName, new BufferAttribute(array, itemSize, normalized))
   }
-  // TODO compute boundingCircleRadius
-  return { geometry, centerPoint, boundingCircleRadius: 5 }
+  return { geometry, centerPoint, boundingCircleRadius }
 }

@@ -2,7 +2,7 @@ import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 import rewind from '@mapbox/geojson-rewind'
 import { groupBy } from 'lodash'
 import polygonClipping from 'polygon-clipping'
-import { multiPolygon, polygon } from '@turf/turf'
+import { bbox, feature, multiPolygon, polygon } from '@turf/turf'
 
 /**
  * Assumptions:
@@ -139,4 +139,10 @@ export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: Po
   }
 
   return geometry
+}
+
+export function computeBoundingCircleRadius(feature: Feature) {
+  const [minX, minY, maxX, maxY] = bbox(feature)
+
+  return Math.max(maxX - minX, maxY - minY) / 2
 }

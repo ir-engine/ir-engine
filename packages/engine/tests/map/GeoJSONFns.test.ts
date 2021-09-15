@@ -1,6 +1,7 @@
-import { subtract, copy, computeBoundingBox, unifyFeatures } from './GeoJSONFns'
+import { subtract, copy, computeBoundingBox, unifyFeatures, computeBoundingCircleRadius } from '../../src/map/GeoJSONFns'
 import polygonClipping from 'polygon-clipping'
 import { Feature, Geometry, Polygon, MultiPolygon, Position } from 'geojson'
+import {feature, geometry} from '@turf/turf'
 const boxCoords = [
   [-1, -1],
   [1, -1],
@@ -215,6 +216,15 @@ describe('unifyFeatures', () => {
     ]
 
     const output = unifyFeatures(input, {tileIndex: true})
-    expect(output[0].properties.tileIndex).toBe('4,2')
+    expect(output[0].properties.tileIndex).toBe('4&2')
   })
 })
+
+test("computeBoundingCircleRadius", () => {
+  const wideBox = feature(geometry("Polygon", [scalePolygon(boxCoords, 6, 1)]))
+  const longBox = feature(geometry("Polygon", [scalePolygon(boxCoords, 1, 8)]))
+
+  expect(computeBoundingCircleRadius(wideBox)).toBe(6)
+  expect(computeBoundingCircleRadius(longBox)).toBe(8)
+})
+
