@@ -1,7 +1,8 @@
 import evictLeastRecentlyUsedItems from '../functions/evictLeastRecentlyUsedItems'
+import { IArrayKeyedMap } from '../types'
 import ArrayKeyedMap from './ArrayKeyedMap'
 
-export default class MapCache<Key extends any[], Value> {
+export default class MapCache<Key extends any[], Value> implements IArrayKeyedMap<Key, Value> {
   /** ordered by time last used, ascending */
   map = new ArrayKeyedMap<Key, Value>()
   maxSize: number

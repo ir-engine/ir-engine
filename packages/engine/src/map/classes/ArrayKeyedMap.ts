@@ -1,4 +1,6 @@
-export default class ArrayKeyedMap<KeySource extends any[], Value> {
+import { IArrayKeyedMap } from '../types'
+
+export default class ArrayKeyedMap<KeySource extends any[], Value> implements IArrayKeyedMap<KeySource, Value> {
   /** ordered by time last used, ascending */
   map = new Map<string, Value>()
   keySources = new Map<string, KeySource>()

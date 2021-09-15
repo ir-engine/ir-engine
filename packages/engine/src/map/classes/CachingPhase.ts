@@ -1,4 +1,4 @@
-import createCachingly from '../functions/createCachingly'
+import createUsingCache from '../functions/createUsingCache'
 import ArrayKeyedMap from './ArrayKeyedMap'
 import AsyncTask from './AsyncTask'
 import MapCache from './MapCache'
@@ -17,8 +17,9 @@ export default abstract class CachingPhase<
   abstract cache: MapCache<TaskKey, TaskResult>
   taskMap = new ArrayKeyedMap<TaskKey, TaskType>();
   *getTasks(): Iterable<TaskType> {
+    const createTaskUsingCache = createUsingCache(this.createTask)
     for (const createArgs of this.getTaskKeys()) {
-      yield createCachingly(this.taskMap, this.createTask, createArgs)
+      yield createTaskUsingCache(this.taskMap, createArgs)
     }
   }
   cleanup() {
