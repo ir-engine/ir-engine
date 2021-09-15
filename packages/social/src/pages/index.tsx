@@ -27,12 +27,13 @@ import FeedOnboarding from '@xrengine/social/src/components/FeedOnboarding'
 import styles from './index.module.scss'
 import Button from '@material-ui/core/Button'
 
-import image from '/static/images/image.jpg'
-import mockupIPhone from '/static/images/mockupIPhone.jpg'
+// import image from '/static/images/image.jpg'
+// import mockupIPhone from '/static/images/mockupIPhone.jpg'
 import Splash from '@xrengine/social/src/components/Splash'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
+import Registration from '@xrengine/social/src/components/Registration'
 import { WebXRStart } from '../components/popups/WebXR'
 
 const mapStateToProps = (state: any): any => {
@@ -79,6 +80,7 @@ const Home = ({
   const [feedOnborded, setFeedOnborded] = useState(true)
   const [splashTimeout, setSplashTimeout] = useState(true)
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
+  const [registrationForm, setRegistrationForm] = useState(true)
   const [view, setView] = useState('featured')
 
   const currentCreator = creatorsState.get('currentCreator')
@@ -116,6 +118,9 @@ const Home = ({
         <Blocked />
       </div>
     )
+  }
+  if (registrationForm) {
+    return <Registration />
   }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />

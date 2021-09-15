@@ -26,7 +26,7 @@ import { TwitterIcon } from '../../../../client-core/src/common/components/Icons
 import { getAvatarURLFromNetwork, Views } from './util'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
-import styles from '../UserMenu.module.scss'
+import styles from './Registration.module.scss'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
