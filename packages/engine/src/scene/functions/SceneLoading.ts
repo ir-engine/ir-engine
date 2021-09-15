@@ -46,6 +46,7 @@ import { setFog } from '../functions/setFog'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { loadCustomScript } from './loadCustomScript'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -133,6 +134,14 @@ export class WorldScene {
         //}
         break
 
+      case 'customscript':
+        const url = component.props.scriptUrl
+        if (!url) {
+          console.log('Script Not Found')
+          break
+        }
+        loadCustomScript(this, entity, component, sceneProperty)
+        break
       case '_metadata':
         {
           addObject3DComponent(entity, new Object3D(), component.data)

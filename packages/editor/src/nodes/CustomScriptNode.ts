@@ -1,4 +1,3 @@
-import { getUrlFromId } from '@xrengine/engine/src'
 import { Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 

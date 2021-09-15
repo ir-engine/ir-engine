@@ -3,11 +3,9 @@ import NodeEditor from './NodeEditor'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 import { Description } from '@material-ui/icons'
-import SelectInput from '../inputs/SelectInput'
 import InputGroup from '../inputs/InputGroup'
 import Editor from '../Editor'
 import CustomScriptNode from '../../nodes/CustomScriptNode'
-import { getUrlFromId } from '@xrengine/engine/src/scene/functions/getUrlFromId'
 import StringInput from '../inputs/StringInput'
 
 /**
