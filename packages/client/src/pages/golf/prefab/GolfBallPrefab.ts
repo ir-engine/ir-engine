@@ -11,7 +11,15 @@ import {
   Vector4,
   ConeGeometry
 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
+import {
+  Body,
+  BodyType,
+  ShapeType,
+  SHAPES,
+  RaycastQuery,
+  SceneQueryType,
+  PhysXInstance
+} from '@xrengine/engine/src/physics/physx'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -69,6 +77,7 @@ enum BALL_SFX {
 }
 
 export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
+  if (typeof entityBall === 'undefined') return
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
   console.log('setBallState', golfBallComponent.number, Object.values(BALL_STATES)[ballState])
   golfBallComponent.state = ballState

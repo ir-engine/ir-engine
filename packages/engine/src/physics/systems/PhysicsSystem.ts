@@ -8,7 +8,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { BodyType, PhysXInstance } from 'three-physx'
+import { BodyType, PhysXInstance } from '../../physics/physx'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
@@ -84,19 +84,24 @@ export default async function PhysicsSystem(
   world: World,
   attributes: { simulationEnabled?: boolean }
 ): Promise<System> {
+  console.log('PhysicsSystem being initialized')
   let simulationEnabled = false
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+    console.log('Physics System got ENABLE_SCENE')
     if (typeof ev.physics !== 'undefined') {
       simulationEnabled = ev.physics
     }
   })
 
   simulationEnabled = attributes.simulationEnabled ?? true
+  console.log('simulationEnabled', simulationEnabled)
 
   world.receptors.add(avatarActionReceptor)
+  console.log('Added avatarActionReceptor to world')
 
   await createPhysXWorker()
+  console.log('created PhysXWorker')
 
   return () => {
     for (const entity of spawnRigidbodyQuery.enter()) {

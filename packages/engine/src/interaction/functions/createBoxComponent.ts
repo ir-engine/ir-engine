@@ -1,5 +1,5 @@
 import { Box3, Mesh, Vector3 } from 'three'
-import { BodyType } from 'three-physx'
+import { BodyType } from '../../physics/physx'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'

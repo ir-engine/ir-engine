@@ -4,7 +4,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { BodyType } from 'three-physx'
+import { BodyType } from '../../physics/physx'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'

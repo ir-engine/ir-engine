@@ -118,7 +118,7 @@ export class Feed extends Service {
     }
 
     if (action === 'creator') {
-      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl
+      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title
         FROM \`feed\` as feed
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
         WHERE feed.creatorId=:creatorId

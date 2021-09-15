@@ -24,7 +24,7 @@
   },
   "resolutions": {
     "socket.io": "4.2.0",
-    "@types/react": "17.0.20",
+    "@types/react": "17.0.21",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -48,7 +48,7 @@
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.14",
-    "@vladmandic/face-api": "1.5.1",
+    "@vladmandic/face-api": "1.5.2",
     "@xrengine/client-core": "^0.4.0",
     "@xrengine/editor": "^0.4.0",
     "@xrengine/engine": "^0.4.0",
@@ -99,22 +99,21 @@
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "sass": "1.39.2",
+    "sass": "1.40.1",
     "semantic-ui-react": "2.0.3",
     "shaka-player": "3.2.0",
     "socket.io-client": "4.2.0",
     "styled-components": "5.3.1",
-    "three-physx": "0.0.37",
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
-    "vite": "2.5.6",
+    "vite": "2.5.7",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
     "@types/node": "14.17.15",
-    "@types/react": "17.0.20",
+    "@types/react": "17.0.21",
     "@types/react-dom": "17.0.9",
     "comlink": "4.3.1",
     "config": "3.3.6",

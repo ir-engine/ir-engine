@@ -1,4 +1,4 @@
-import type { Controller } from 'three-physx'
+import type { Controller } from '../../physics/physx'
 import { Vector3 } from 'three'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
