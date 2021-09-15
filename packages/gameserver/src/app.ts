@@ -83,7 +83,6 @@ export const createApp = (): Application => {
 
       // Set up Plugins and providers
       app.configure(rest())
-      console.log('gameserver clientHost:', config.gameserver.clientHost)
       app.configure(
         socketio(
           {
@@ -104,7 +103,6 @@ export const createApp = (): Application => {
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               awaitEngineLoaded().then(() => {
-                console.log('engine is loaded, attaching socket query to feathers')
                 ;(socket as any).feathers.socketQuery = socket.handshake.query
                 ;(socket as any).socketQuery = socket.handshake.query
                 next()
@@ -166,7 +164,6 @@ export const createApp = (): Application => {
 
         app.configure(channels)
 
-        console.log('Initializing WebRTCGameServer')
         WebRTCGameServer.instance.initialize(app).then(() => {
           console.log('Initialized new gameserver instance')
         })

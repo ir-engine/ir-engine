@@ -47,7 +47,7 @@ export const userReceptor = (action: UserActionType): void => {
       case 'REMOVED_LAYER_USER': {
         const layerUsers = s.layerUsers
         const idx = layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id !== action.user.id
+          return layerUser != null && layerUser.value.id === action.user.id
         })
         return s.layerUsers[idx].set(none)
       }
@@ -76,7 +76,7 @@ export const userReceptor = (action: UserActionType): void => {
       case 'REMOVED_CHANNEL_LAYER_USER':
         const newUser = action.user
         const idx = s.channelLayerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id !== newUser.id
+          return layerUser != null && layerUser.value.id === newUser.id
         })
         return s.channelLayerUsers[idx].set(none)
       case 'USER_TOAST':

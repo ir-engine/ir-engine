@@ -21,7 +21,6 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
   return () => {
     for (const action of Network.instance.incomingActions) {
-      console.log(`\n\nACTION ${action.type}`, action, '\n\n')
       for (const receptor of world.receptors) receptor(action)
     }
 

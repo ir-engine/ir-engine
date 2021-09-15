@@ -56,6 +56,8 @@ export default (app: Application): void => {
             const gsResult = await agonesSDK.getGameServer()
             const { status } = gsResult
 
+            ;(app as any).isChannelInstance = channelId != null
+
             console.log('Creating new GS or updating current one')
             console.log('agones state is', status.state)
             console.log('app instance is', (app as any).instance)
@@ -70,13 +72,14 @@ export default (app: Application): void => {
 
             if (isReady || isNeedingNewServer) {
               logger.info('Starting new instance')
-              const localIp = await getLocalServerIp()
+              const localIp = await getLocalServerIp((app as any).isChannelInstance)
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
               const newInstance = {
                 currentUsers: 1,
                 sceneId: sceneId,
-                ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:3031` : selfIpAddress
+                ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
               } as any
+              console.log('newInstance:', newInstance)
               console.log('channelId: ' + channelId)
               console.log('locationId: ' + locationId)
               // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
@@ -94,13 +97,11 @@ export default (app: Application): void => {
               }
               if (channelId != null) {
                 newInstance.channelId = channelId
-                ;(app as any).isChannelInstance = true
                 //While there's no scene, this will still signal that the engine is ready
                 //to handle events, particularly for NetworkFunctions:handleConnectToWorld
                 EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
               } else if (locationId != null) {
                 newInstance.locationId = locationId
-                ;(app as any).isChannelInstance = false
               }
               console.log('Creating new instance:', newInstance)
               const instanceResult = await app.service('instance').create(newInstance)
@@ -240,7 +241,7 @@ export default (app: Application): void => {
                   (partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true
                 )
                 const emittedIp = !config.kubernetes.enabled
-                  ? await getLocalServerIp()
+                  ? await getLocalServerIp((app as any).isChannelInstance)
                   : {
                       ipAddress: status.address,
                       port: status.portsList[0].port
@@ -295,7 +296,6 @@ export default (app: Application): void => {
           if (identityProvider != null && identityProvider.id != null) {
             const userId = identityProvider.userId
             const user = await app.service('user').get(userId)
-            logger.info('Socket disconnect from ' + userId)
             const instanceId = !config.kubernetes.enabled ? (connection as any).instanceId : (app as any).instance?.id
             let instance
             try {

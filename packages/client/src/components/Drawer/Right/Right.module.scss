@@ -60,11 +60,10 @@
     }
 
     button {
-        color: black !important;
+        color: white !important;
 
-        &[class*='Mui-selected'],
-        &.send-button {
-            color: white !important;
+        &[class*='Mui-selected'] {
+            color: lighten(cyan, 15%) !important;
         }
 
         &.send-button {
@@ -108,7 +107,15 @@
 
 .group-select,
 .friend-select {
+    background-color: darken(gray, 10%);
+    border-radius: 10px;
+    padding: 6px;
+    color: white;
     min-width: 100px !important;
+
+    [class*='Mui-focused'] {
+        color: white !important;
+    }
 }
 
 .flex-justify-center {

@@ -66,7 +66,7 @@ export default (app: Application): void => {
                 )
                 .seed()
                 .then(() => {
-                  console.log('API Server Ready')
+                  console.log('Server Ready')
                   return Promise.resolve()
                 })
                 .catch((err) => {

@@ -32,7 +32,7 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",
+    "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\" \"cd ../gameserver && npm run dev-channel\"",
     "golf": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run golf\" \"npm run serve-local-files\"",
     "mappa": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run mappa\" \"npm run serve-local-files\"",
     "dev-windows": "concurrently -i \"cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"npm run serve-local-files\"",
