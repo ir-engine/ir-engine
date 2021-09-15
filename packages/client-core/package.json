@@ -60,7 +60,7 @@
     "credential-handler-polyfill": "2.2.1",
     "cross-env": "7.0.3",
     "device-detector-js": "2.2.10",
-    "dompurify": "2.3.1",
+    "dompurify": "2.3.2",
     "emailjs-com": "3.2.0",
     "esbuild-plugin-sass": "0.6.0",
     "eventemitter3": "4.0.7",
