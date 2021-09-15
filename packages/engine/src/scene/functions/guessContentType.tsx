@@ -14,7 +14,8 @@ export const CommonKnownContentTypes = {
   mp4: 'video/mp4',
   mp3: 'audio/mpeg',
   tsx: 'application/octet-stream',
-  ts: 'application/octet-stream'
+  ts: 'application/octet-stream',
+  js: 'application/octet-stream'
 }
 
 /**

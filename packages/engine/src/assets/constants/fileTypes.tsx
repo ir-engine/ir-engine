@@ -7,7 +7,7 @@ export const ImageFileTypes = ['.png', '.jpeg', '.jpg', '.gif', 'image/png', 'im
 //array containing model file type.
 export const ModelFileTypes = ['.glb', 'model/gltf-binary']
 //array containing custom script type.
-export const CustomScriptFileTypes = ['.tsx', '.ts']
+export const CustomScriptFileTypes = ['.tsx', '.ts', '.js']
 //array contains arrays of all files types.
 export const AllFileTypes = [
   ...AudioFileTypes,
