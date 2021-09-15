@@ -1,19 +1,19 @@
-import { Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
+import { Intersection, Material, MathUtils, Matrix4, Quaternion, Raycaster, SkinnedMesh, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
-import { FollowCameraComponent, FollowCameraComponentType } from '../components/FollowCameraComponent'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { PhysXInstance, RaycastHit, RaycastQuery, SceneQueryType } from '../../physics/physx'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { CameraLayers } from '../constants/CameraLayers'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -83,13 +83,15 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
-const cameraRayCast = (followCamera: FollowCameraComponentType, target: Vector3): RaycastHit[] => {
+const cameraRayCast = (entity: Entity, target: Vector3): Intersection[] => {
+  const followCamera = getComponent(entity, FollowCameraComponent)
+
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const raycastDirection = tempVec1.setScalar(0).subVectors(cameraTransform.position, target).normalize()
-  followCamera.raycastQuery.origin.copy(target)
-  followCamera.raycastQuery.direction.copy(raycastDirection)
-  return followCamera.raycastQuery.hits
+  followCamera.raycaster.far = followCamera.maxDistance
+  followCamera.raycaster.set(target, raycastDirection)
+  return followCamera.raycaster.intersectObjects(Engine.scene.children, true)
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
@@ -117,7 +119,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
 
   calculateCameraTarget(entity, tempVec)
 
-  const hits = cameraRayCast(followCamera, tempVec)
+  const hits = cameraRayCast(entity, tempVec)
   const closestHit = hits[0]
 
   let zoomDist = followCamera.zoomLevel
@@ -186,21 +188,14 @@ export default async function CameraSystem(world: World): Promise<System> {
 
     for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
-        new RaycastQuery({
-          type: SceneQueryType.Closest,
-          origin: new Vector3(),
-          direction: new Vector3(0, -1, 0),
-          maxDistance: 10,
-          collisionMask: cameraFollow.collisionMask
-        })
-      )
+      cameraFollow.raycaster = new Raycaster()
+      cameraFollow.raycaster.layers.set(CameraLayers.Scene) // Ignore avatars
+      ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
+      cameraFollow.raycaster.far = cameraFollow.maxDistance
       Engine.activeCameraFollowTarget = entity
     }
 
     for (const entity of followCameraQuery.exit()) {
-      const cameraFollow = getComponent(entity, FollowCameraComponent, true)
-      if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
       if (activeCameraComponent) {
         Engine.activeCameraFollowTarget = null
