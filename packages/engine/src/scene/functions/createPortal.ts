@@ -11,7 +11,7 @@ import {
   Quaternion,
   Vector3
 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
+import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from '../../physics/physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'

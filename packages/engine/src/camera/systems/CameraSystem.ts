@@ -7,7 +7,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent, FollowCameraComponentType } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { PhysXInstance, RaycastHit, RaycastQuery, SceneQueryType } from 'three-physx'
+import { PhysXInstance, RaycastHit, RaycastQuery, SceneQueryType } from '../../physics/physx'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
