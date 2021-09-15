@@ -2,7 +2,6 @@
 import * as bitecs from 'bitecs'
 import { Color } from 'three'
 import { PhysXInstance } from '../../physics/physx'
-import { ActionType, IncomingActionType } from '../..'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
@@ -15,8 +14,9 @@ import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { hasComponent, MappedComponent, removeAllComponents } from './ComponentFunctions'
-import { removeEntity, createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InjectionPoint, SystemInitializeType } from './SystemFunctions'
+import { removeEntity, createEntity } from './EntityFunctions'
+import { ActionType } from '../../networking/interfaces/NetworkTransport'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {

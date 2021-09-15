@@ -30,8 +30,11 @@ export default class Model extends Object3D {
     this.load(value).catch(console.error)
   }
   async loadGLTF(src) {
+    console.log('gltf is')
     // const gltf = await new GLTFLoader(src).loadGLTF();
     const gltf = await LoadGLTF(src)
+    console.log(gltf)
+
     const model = gltf.scene
     model.animations = this.hasAvatarAnimations ? AnimationManager.instance._animations : model.animations || []
     return model
@@ -43,7 +46,6 @@ export default class Model extends Object3D {
       this.model = null
     }
     const model = await this.loadGLTF(src)
-    model.animations = this.hasAvatarAnimations ? AnimationManager.instance._animations : model.animations || []
     this.model = model
     ;(this as any).add(model)
     if (model.animations && model.animations.length > 0) {
@@ -54,6 +56,8 @@ export default class Model extends Object3D {
     return this
   }
   getClipOptions() {
+    console.log('CLIP OPTIONS')
+    console.log(this.model)
     const clipOptions =
       this.model && this.model.animations
         ? this.model.animations.map((clip, index) => ({
