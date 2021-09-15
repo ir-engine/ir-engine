@@ -1,0 +1,42 @@
+import evictLeastRecentlyUsedItems from '../functions/evictLeastRecentlyUsedItems'
+import ArrayKeyedMap from './ArrayKeyedMap'
+
+export default class MapCache<Key extends any[], Value> {
+  /** ordered by time last used, ascending */
+  map = new ArrayKeyedMap<Key, Value>()
+  maxSize: number
+  constructor(maxSize: number) {
+    this.maxSize = maxSize
+  }
+
+  set(key: Key, value: Value) {
+    // Update cache, ensuring time-last-used order
+    this.map.delete(key)
+    this.map.set(key, value)
+    return this
+  }
+
+  updateLastUsedTime(key: Key) {
+    this.set(key, this.map.get(key))
+  }
+
+  get(key: Key) {
+    this.updateLastUsedTime(key)
+    return this.map.get(key)
+  }
+
+  delete(key: Key) {
+    return this.map.delete(key)
+  }
+
+  *evictLeastRecentlyUsedItems() {
+    for (const key of evictLeastRecentlyUsedItems(this.map.map, this.maxSize)) {
+      yield this.map.getKeySource(key)
+    }
+  }
+
+  // This should probably be implemented on ArrayKeyedMap
+  keys() {
+    return this.map.keys()
+  }
+}

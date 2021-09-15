@@ -6,14 +6,27 @@ import { LongLat } from './units'
  * @fileoverview a place for all types that are shared by multiple modules but not conceptually owned by any
  */
 
-export interface TileFeaturesByLayer {
-  building: Feature[]
-  road: Feature[]
-  water: Feature[]
-  waterway: Feature[]
-  landuse: Feature[]
+export interface VectorTile {
+  /** There are more, these are the only ones we care about for now. */
+  layers: {
+    building: VectorTileLayer
+    road: VectorTileLayer
+    water: VectorTileLayer
+    waterway: VectorTileLayer
+    landuse: VectorTileLayer
+  }
+  feature(index: number): RawFeature
 }
-export type ILayerName = keyof TileFeaturesByLayer
+
+export interface VectorTileLayer {
+  length: number
+}
+
+export interface RawFeature {
+  toGeoJSON(x: number, y: number, zoom: number): Feature
+}
+
+export type ILayerName = keyof VectorTile['layers']
 
 export interface FeatureWithTileIndex extends Feature {
   properties: {
@@ -25,11 +38,16 @@ export interface FeatureWithTileIndex extends Feature {
 
 export interface MapDerivedFeatureGeometry {
   geometry: BufferGeometry | InstancedBufferGeometry
-  geographicCenterPoint: LongLat
+  centerPoint: [number, number]
+  boundingCircleRadius: number
 }
 
 export interface MapDerivedFeatureComplete {
   mesh: Mesh
-  geographicCenterPoint: LongLat
+  geographicCenterPoint: [number, number]
+  boundingCircleRadius: number
   // TODO add label
 }
+
+export type TileKey = [number, number]
+export type FeatureKey = [string, number, number, string]

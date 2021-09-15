@@ -7,7 +7,7 @@ import getMapboxUrl from './getMapboxUrl'
 
 // TODO move the caching logic to a decorator?
 
-async function fetchVectorTile(x: number, y: number): Promise<VectorTile> {
+export default async function fetchVectorTile(x: number, y: number): Promise<VectorTile> {
   const url = getMapboxUrl(
     'mapbox.mapbox-streets-v8',
     x,
@@ -25,7 +25,7 @@ async function fetchVectorTile(x: number, y: number): Promise<VectorTile> {
   })
 }
 
-export default async function fetchVectorTileUsingCache(
+export async function fetchVectorTileUsingCache(
   tileCache: TileCache<VectorTile>,
   x: number,
   y: number

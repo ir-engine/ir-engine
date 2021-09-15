@@ -128,6 +128,7 @@ function copyAndScale(vector: Vector3, scalar: number) {
 }
 
 function setPosition(object3d: Object3D, geographicPoint: LongLat, mapOriginalCenter: LongLat) {
+  // TODO: do this in worker
   const scenePoint = toMetersFromCenter(geographicPoint, mapOriginalCenter)
   // Note that latitude values are flipped relative to our scene's Z axis
   object3d.position.set(scenePoint[0], 0, -scenePoint[1])
