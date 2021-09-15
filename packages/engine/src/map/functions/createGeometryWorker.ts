@@ -73,7 +73,7 @@ function buildGeometry(
   feature: Feature,
   llCenter: LongLat,
   style: IStyles
-): { geometry: BufferGeometry; geographicCenterPoint: LongLat } | null {
+): { geometry: BufferGeometry; centerPoint: LongLat } | null {
   const shape = new Shape()
 
   const { geometry } =
@@ -99,17 +99,17 @@ function buildGeometry(
     // TODO handle feature.geometry.type === 'GeometryCollection'?
   }
 
-  const geographicCenterPoint = turf.center(turf.points(coords)).geometry.coordinates
-  const geometryCenter = toMetersFromCenter(geographicCenterPoint, llCenter)
+  const centerPointLongLat = turf.center(turf.points(coords)).geometry.coordinates
+  const centerPoint = toMetersFromCenter(centerPointLongLat, llCenter)
 
-  var point = transformFeaturePoint(coords[0], geometryCenter, llCenter)
+  var point = transformFeaturePoint(coords[0], centerPoint, llCenter)
   shape.moveTo(point[0], point[1])
 
   coords.slice(1).forEach((coord: LongLat) => {
-    point = transformFeaturePoint(coord, geometryCenter, llCenter)
+    point = transformFeaturePoint(coord, centerPoint, llCenter)
     shape.lineTo(point[0], point[1])
   })
-  point = transformFeaturePoint(coords[0], geometryCenter, llCenter)
+  point = transformFeaturePoint(coords[0], centerPoint, llCenter)
   shape.lineTo(point[0], point[1])
 
   let height: number
@@ -163,7 +163,7 @@ function buildGeometry(
     colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
   }
 
-  return { geometry: threejsGeometry, geographicCenterPoint }
+  return { geometry: threejsGeometry, centerPoint }
 }
 
 export function createTaskHandler() {
@@ -177,7 +177,7 @@ export function createTaskHandler() {
   Object.assign(this, { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, ExtrudeGeometry })
 
   return function handleBuildGeometryTask(feature: Feature, llCenter: LongLat, style: IStyles) {
-    const { geometry, geographicCenterPoint } = buildGeometry(feature, llCenter, style)
+    const { geometry, centerPoint } = buildGeometry(feature, llCenter, style)
 
     const bufferGeometry = new BufferGeometry().copy(geometry)
 
@@ -195,7 +195,7 @@ export function createTaskHandler() {
     }
 
     this.postResult(
-      { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, geographicCenterPoint },
+      { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, centerPoint },
       arrayBuffers
     )
   }
@@ -208,7 +208,7 @@ interface SerializedGeometry {
       attributes: { [attributeName: string]: { array: Int32Array; itemSize: number; normalized: boolean } }
     }
   }
-  geographicCenterPoint: LongLat
+  centerPoint: [number, number]
 }
 
 export default () => {

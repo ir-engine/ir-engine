@@ -1,14 +1,15 @@
 import { Feature } from 'geojson'
 import AsyncTask from './AsyncTask'
 import FeatureCache from './FeatureCache'
-import { MapDerivedFeatureGeometry } from '../types'
+import { FeatureKey, ILayerName, MapDerivedFeatureGeometry } from '../types'
 import { LongLat } from '../units'
-import { createGeometryUsingCache } from '../functions/createGeometry'
+import createGeometry from '../functions/createGeometry'
+import fetchUsingCache from '../functions/fetchUsingCache'
 
 export default class CreateGeometryTask extends AsyncTask<MapDerivedFeatureGeometry> {
   featureCache: FeatureCache<Feature>
   geometryCache: FeatureCache<MapDerivedFeatureGeometry>
-  layerName: string
+  layerName: ILayerName
   x: number
   y: number
   tileIndex: string
@@ -16,7 +17,7 @@ export default class CreateGeometryTask extends AsyncTask<MapDerivedFeatureGeome
   constructor(
     featureCache: FeatureCache<Feature>,
     geometryCache: FeatureCache<MapDerivedFeatureGeometry>,
-    layerName: string,
+    layerName: ILayerName,
     x: number,
     y: number,
     tileIndex: string,
@@ -31,16 +32,14 @@ export default class CreateGeometryTask extends AsyncTask<MapDerivedFeatureGeome
     this.tileIndex = tileIndex
     this.center = center
   }
+
+  /** using fetchUsingCache since createGeometry returns a promise */
+  createGeometryUsingCache = fetchUsingCache((...key: FeatureKey) => {
+    const feature = this.featureCache.get(key)
+    return createGeometry(this.geometryCache.map.getKey(key), this.layerName, feature, this.center)
+  })
+
   start() {
-    const feature = this.featureCache.get([this.layerName, this.x, this.y, this.tileIndex])
-    return createGeometryUsingCache(
-      this.geometryCache,
-      this.layerName,
-      this.x,
-      this.y,
-      this.tileIndex,
-      feature,
-      this.center
-    )
+    return this.createGeometryUsingCache(this.geometryCache, [this.layerName, this.x, this.y, this.tileIndex])
   }
 }
