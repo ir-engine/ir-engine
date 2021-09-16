@@ -17,6 +17,10 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
     return this
   }
 
+  setWithoutAffectingLastUsedTime(key: Key, value: Value) {
+    this.map.set(key, value)
+  }
+
   updateLastUsedTime(key: Key) {
     this.set(key, this.map.get(key))
   }
@@ -36,8 +40,10 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
     }
   }
 
-  // This should probably be implemented on ArrayKeyedMap
   keys() {
     return this.map.keys()
+  }
+  values() {
+    return this.map.values()
   }
 }

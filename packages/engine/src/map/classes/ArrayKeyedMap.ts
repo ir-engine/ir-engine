@@ -37,4 +37,8 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
       yield this.getKeySource(key)
     }
   }
+
+  values() {
+    return this.map.values()
+  }
 }

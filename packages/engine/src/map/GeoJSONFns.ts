@@ -1,8 +1,13 @@
 import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 import rewind from '@mapbox/geojson-rewind'
-import { groupBy } from 'lodash'
-import polygonClipping from 'polygon-clipping'
-import { bbox, feature, multiPolygon, polygon } from '@turf/turf'
+import { bbox } from '@turf/turf'
+
+export function scalePolygon(coords: Position[], xFactor: number, zFactor: number): Position[] {
+  return coords.map(([x, z]) => [x * xFactor, z * zFactor])
+}
+export function translatePolygon(coords: Position[], xDiff: number, zDiff: number): Position[] {
+  return coords.map(([x, z]) => [x + xDiff, z + zDiff])
+}
 
 /**
  * Assumptions:
@@ -83,41 +88,6 @@ export function addTileIndex(featuresFromTile: Feature[]) {
   featuresFromTile.forEach(({ properties }, index) => {
     properties.tileIndex = `${index}`
   })
-}
-
-/** Useful for when a feature is split across multiple vector tiles */
-export function unifyFeatures(features: Feature[], options: { tileIndex?: boolean } = {}): Feature[] {
-  const featuresById = groupBy(features, 'id')
-
-  const featuresByIdArray = Object.values(featuresById)
-
-  return featuresByIdArray.map((features) => {
-    if (features.length > 1) {
-      const allCoords = features.map(getCoords)
-
-      const unifiedCoords = polygonClipping.union.apply(null, allCoords)
-      let maxHeight = 0
-
-      features.forEach((f) => {
-        maxHeight = f.properties.height ? Math.max(f.properties.height) : maxHeight
-      })
-      const unifiedProperties = {
-        ...features[0].properties,
-        ...(options.tileIndex ? { tileIndex: features.map((feature) => feature.properties.tileIndex).join('&') } : {}),
-        height: maxHeight
-      }
-
-      return unifiedCoords.length === 1
-        ? polygon(unifiedCoords[0] as any, unifiedProperties)
-        : multiPolygon(unifiedCoords as any, unifiedProperties)
-    } else {
-      return features[0]
-    }
-  })
-
-  function getCoords(f: Feature): polygonClipping.Polygon | polygonClipping.MultiPolygon {
-    return (f.geometry as Polygon).coordinates as any
-  }
 }
 
 export function scaleAndTranslatePosition(position: Position, llCenter: Position, scale = 1) {

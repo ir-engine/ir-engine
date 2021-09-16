@@ -50,7 +50,7 @@ export interface MapDerivedFeatureComplete {
 }
 
 export type TileKey = [number, number]
-export type FeatureKey = [string, number, number, string]
+export type FeatureKey = [ILayerName, number, number, string]
 
 export interface IArrayKeyedMap<Key extends any[], Value> {
   set(keySource: Key, value: Value): IArrayKeyedMap<Key, Value>

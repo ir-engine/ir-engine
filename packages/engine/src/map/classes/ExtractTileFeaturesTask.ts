@@ -5,6 +5,7 @@ import FeatureCache from './FeatureCache'
 import TileCache from './TileCache'
 import { SUPPORTED_LAYERS, TILE_ZOOM } from '../constants'
 import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
+import zipIndexes from '../zipIndexes'
 
 export default class ExtractTileFeaturesTask extends Task<void> {
   tileCache: TileCache<VectorTile>
@@ -28,8 +29,10 @@ export default class ExtractTileFeaturesTask extends Task<void> {
         if (!layer) continue
 
         // TODO how to handle navMesh?
-        for (const feature of getFeaturesFromVectorTileLayer(layerName, vectorTile, this.x, this.y, TILE_ZOOM)) {
-          this.featureCache.set([layerName, this.x, this.y, feature.properties.tileIndex], feature)
+        for (const [index, feature] of zipIndexes(
+          getFeaturesFromVectorTileLayer(layerName, vectorTile, this.x, this.y, TILE_ZOOM)
+        )) {
+          this.featureCache.set([layerName, this.x, this.y, `${index}`], feature)
         }
       }
     }
