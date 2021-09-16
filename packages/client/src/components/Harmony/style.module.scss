@@ -642,6 +642,15 @@ $mobileControllButtonsSize: 3em;
     margin-right: 3px;
 }
 
+[class*='MuiAccordionSummary-expandIcon'] {
+    padding: 6px;
+    background-color: gray;
+
+    &:hover {
+        background-color: lighten(gray, 10%)
+    }
+}
+
 .profileMenu {
     position: fixed;
     bottom: 25px;

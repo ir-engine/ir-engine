@@ -661,7 +661,7 @@ export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: strin
 
         const modelCloudfrontURL = `https://${modelURL.cacheDomain}/${modelURL.fields.Key}`
         const thumbnailCloudfrontURL = `https://${thumbnailURL.cacheDomain}/${thumbnailURL.fields.Key}`
-        const selfUser = (store.getState() as any).get('auth').get('user')
+        const selfUser = (getState() as any).get('auth').get('user')
         const existingModel = await client.service('static-resource').find({
           query: {
             name: name,

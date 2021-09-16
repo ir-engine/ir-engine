@@ -26,6 +26,8 @@ import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPl
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
+import { provisionChannelServer } from '../../reducers/channelConnection/service'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -78,12 +80,14 @@ interface Props {
   engineInitializeOptions?: InitializeOptions
   instanceConnectionState?: any
   doLoginAuto?: typeof doLoginAuto
+  provisionChannelServer?: typeof provisionChannelServer
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
   setAppSpecificOnBoardingStep?: typeof setAppSpecificOnBoardingStep
   showTouchpad?: boolean
   engineCallbacks?: EngineCallbacks
   children?: any
+  chatState?: any
 }
 
 const mapStateToProps = (state: any) => {
@@ -92,12 +96,14 @@ const mapStateToProps = (state: any) => {
     authState: selectAuthState(state),
     instanceConnectionState: selectInstanceConnectionState(state), //
     locationState: selectLocationState(state),
-    partyState: selectPartyState(state)
+    partyState: selectPartyState(state),
+    chatState: selectChatState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
   setAppSpecificOnBoardingStep: bindActionCreators(setAppSpecificOnBoardingStep, dispatch)
@@ -169,6 +175,7 @@ export const EnginePage = (props: Props) => {
           instanceId = query.instanceId
         }
 
+        if (sceneId === null) sceneId = currentLocation.sceneId
         props.provisionInstanceServer(currentLocation.id, instanceId || undefined, sceneId)
       }
 
@@ -194,6 +201,14 @@ export const EnginePage = (props: Props) => {
       reinit()
     }
   }, [props.instanceConnectionState])
+
+  useEffect(() => {
+    if (props.chatState.get('instanceChannelFetched')) {
+      const channels = props.chatState.get('channels').get('channels')
+      const instanceChannel = [...channels.entries()].find((channel) => channel[1].channelType === 'instance')
+      props.provisionChannelServer(null, instanceChannel[0])
+    }
+  }, [props.chatState.get('instanceChannelFetched')])
 
   useEffect(() => {
     return (): void => {
