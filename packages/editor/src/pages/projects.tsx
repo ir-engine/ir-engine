@@ -18,7 +18,7 @@ import {
   ProjectGridHeaderRow
 } from '../components/projects/ProjectGrid'
 import templates from '../components/projects/templates'
-import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
+import { deleteProject, getProjects } from '../functions/projectFunctions'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'

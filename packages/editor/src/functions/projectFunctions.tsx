@@ -1,7 +1,9 @@
-import { Config } from '@xrengine/common/src/config'
 import i18n from 'i18next'
-import { getToken } from './getToken'
-import { upload } from './upload'
+import { Config } from '@xrengine/common/src/config'
+import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
+import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { ProjectManager } from '../managers/ProjectManager'
+import { SceneManager } from '../managers/SceneManager'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
 
@@ -42,7 +44,7 @@ export const getProjects = async (): Promise<any> => {
  */
 export const getProject = async (projectId): Promise<JSON> => {
   try {
-    const json = await globalThis.Editor.feathersClient.service('project').get(projectId)
+    const json = await ProjectManager.instance.feathersClient.service('project').get(projectId)
     return json
   } catch (error) {
     console.log('Error in Getting Project:' + error)
@@ -110,13 +112,13 @@ export const createProject = async (
   if (parentSceneId) {
     project['parent_scene_id'] = parentSceneId
   }
-  Object.assign(globalThis.Editor.ownedFileIds, globalThis.Editor.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, globalThis.Editor.ownedFileIds)
-  globalThis.Editor.currentOwnedFileIds = {}
+  Object.assign(ProjectManager.instance.ownedFileIds, ProjectManager.instance.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, ProjectManager.instance.ownedFileIds)
+  ProjectManager.instance.currentOwnedFileIds = {}
 
   let json = {}
   try {
-    json = await globalThis.Editor.feathersClient.service('project').create({ project })
+    json = await ProjectManager.instance.feathersClient.service('project').create({ project })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
@@ -162,18 +164,15 @@ export const deleteProject = async (projectId): Promise<any> => {
  * @author Robert Long
  * @author Abhishek Pathak
  * @param  {any}  projectId
- * @param  {any}  editor
  * @param  {any}  signal
- * @param  {any}  showDialog [used to show the message dialog]
- * @param  {any}  hideDialog
  * @return {Promise}
  */
-export const saveProject = async (projectId, editor, signal, showDialog, hideDialog): Promise<any> => {
+export const saveProject = async (projectId, signal): Promise<any> => {
   if (signal.aborted) {
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const thumbnailBlob = await editor.takeScreenshot(512, 320) // Fixed blob undefined
+  const thumbnailBlob = await SceneManager.instance.takeScreenshot(512, 320) // Fixed blob undefined
 
   if (signal.aborted) {
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
@@ -188,7 +187,8 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const serializedScene = await editor.scene.serialize(projectId)
+  const scene = SceneManager.instance.scene
+  const serializedScene = await scene.serialize(projectId)
   const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
   const {
     file_id: projectFileId,
@@ -200,7 +200,7 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
   }
 
   const project = {
-    name: editor.scene.name,
+    name: scene.name,
     thumbnailOwnedFileId: {
       file_id: thumbnailFileId,
       file_token: thumbnailFileToken
@@ -210,19 +210,19 @@ export const saveProject = async (projectId, editor, signal, showDialog, hideDia
     project_file_token: projectFileToken
   }
 
-  const sceneId = editor.scene.metadata && editor.scene.metadata.sceneId ? editor.scene.metadata.sceneId : null
+  const sceneId = scene.metadata && scene.metadata.sceneId ? scene.metadata.sceneId : null
 
   if (sceneId) {
     project['scene_id'] = sceneId
   }
 
-  Object.assign(globalThis.Editor.ownedFileIds, globalThis.Editor.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, globalThis.Editor.ownedFileIds)
-  globalThis.Editor.currentOwnedFileIds = {}
+  Object.assign(ProjectManager.instance.ownedFileIds, ProjectManager.instance.currentOwnedFileIds)
+  Object.assign(project.ownedFileIds, ProjectManager.instance.ownedFileIds)
+  ProjectManager.instance.currentOwnedFileIds = {}
 
   let json = {}
   try {
-    json = await globalThis.Editor.feathersClient.service('project').patch(projectId, { project })
+    json = await ProjectManager.instance.feathersClient.service('project').patch(projectId, { project })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

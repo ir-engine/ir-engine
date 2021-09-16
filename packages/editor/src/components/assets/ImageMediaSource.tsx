@@ -1,5 +1,5 @@
 import { BaseSource } from './sources'
-import { ItemTypes } from '../dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
 import ImageSourcePanel from './ImageSourcePanel'
 import ImageNode from '../../nodes/ImageNode'
 import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'

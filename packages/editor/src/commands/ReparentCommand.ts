@@ -6,8 +6,8 @@ import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { Matrix4 } from 'yuka'
-import { TransformSpace } from '..'
 import { SceneManager } from '../managers/SceneManager'
+import { TransformSpace } from '../constants/TransformSpace'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */

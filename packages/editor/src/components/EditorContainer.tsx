@@ -15,7 +15,7 @@ import Modal from 'react-modal'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
-import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
+import { createProject, getProject, saveProject } from '../functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
@@ -95,7 +95,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
         }
       })
       // saving project.
-      project = await saveProject(project.project_id, SceneManager.instance, signal, showDialog, hideDialog)
+      project = await saveProject(project.project_id, signal)
 
       if (signal.aborted) {
         const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
@@ -1031,10 +1031,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       if (project) {
         const newProject = await saveProject(
           project.project_id,
-          SceneManager.instance,
           abortController.signal,
-          this.showDialog,
-          this.hideDialog
         )
 
         this.setState({ project: newProject })

@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js'
 import { BaseSource, SearchResult } from './index'
-import { ItemTypes } from '../../dnd'
+import { ItemTypes } from '../../../constants/AssetTypes'
 import MediaSourcePanel from '../MediaSourcePanel'
 import i18n from 'i18next'
 import EditorEvents from '../../../constants/EditorEvents'

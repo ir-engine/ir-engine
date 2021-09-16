@@ -6,7 +6,7 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FixedSizeList, areEqual } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { ItemTypes, addAssetOnDrop, isAsset, AssetTypes } from '../dnd'
+import { addAssetOnDrop } from '../dnd'
 import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
 import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
 import useUpload from '../assets/useUpload'
@@ -21,6 +21,7 @@ import EditorCommands from '../../constants/EditorCommands'
 import { NodeManager } from '../../managers/NodeManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
+import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.

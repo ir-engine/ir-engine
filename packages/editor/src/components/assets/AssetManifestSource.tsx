@@ -1,11 +1,12 @@
 import Fuse from 'fuse.js'
 import { BaseSource, SearchResult } from './sources'
-import { ItemTypes } from '../dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
 import ImageNode from '../../nodes/ImageNode'
 import VideoNode from '../../nodes/VideoNode'
 import ModelNode from '../../nodes/ModelNode'
 import VolumetricNode from '../../nodes/VolumetricNode'
 import { NodeManager } from '../../managers/NodeManager'
+
 function hasTags(result, tags) {
   for (const { value } of tags) {
     if (result.tags.indexOf(value) === -1) {

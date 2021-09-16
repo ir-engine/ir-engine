@@ -3,13 +3,14 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import AssetDropZone from '../assets/AssetDropZone'
-import { addAssetAtCursorPositionOnDrop, AssetTypes, ItemTypes } from '../dnd'
+import { addAssetAtCursorPositionOnDrop } from '../dnd'
 import * as styles from './Viewport.module.scss'
 import editorTheme from '../theme'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
+import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 
 /**
  * ViewportPanelContainer used to render viewport.

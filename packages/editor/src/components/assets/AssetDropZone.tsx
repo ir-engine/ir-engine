@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
-import { ItemTypes } from '../dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from './useUpload'
 import { CloudUploadAlt } from '@styled-icons/fa-solid/CloudUploadAlt'
 import { useTranslation } from 'react-i18next'

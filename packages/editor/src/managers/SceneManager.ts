@@ -1,5 +1,4 @@
 import i18n from 'i18next'
-import { Engine, GLTFExporter, RethrownError } from "@xrengine/engine/src"
 import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding, Clock } from "three"
 import EditorInfiniteGridHelper from "../classes/EditorInfiniteGridHelper"
 import SceneNode from "../nodes/SceneNode"
@@ -15,6 +14,9 @@ import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import isEmptyObject from '../functions/isEmptyObject'
 import { ControlManager } from './ControlManager'
 import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
+import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 
 export class SceneManager {
   static instance: SceneManager

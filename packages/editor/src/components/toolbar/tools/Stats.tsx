@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SceneManager } from '../../../managers/SceneManager'
-import styles from './styles.module.scss'
+import styles from '../styles.module.scss'
 
 /**
  * Stats used to show stats of  memory and  render.

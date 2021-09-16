@@ -1,6 +1,6 @@
 import React from 'react'
 import { Bars } from '@styled-icons/fa-solid/Bars'
-import { ToolButton } from '../..'
+import ToolButton from '../toolbar/ToolButton'
 import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
 import { withTranslation, TFunction } from 'react-i18next'
 
