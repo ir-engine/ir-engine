@@ -279,7 +279,11 @@ export class Physics {
     if (trimesh === null) return
 
     const meshScale = new PhysX.PxMeshScale(scale, new Quaternion())
-    const geometry = new PhysX.PxTriangleMeshGeometry(trimesh, meshScale, new PhysX.PxMeshGeometryFlags(0))
+    const geometry = new PhysX.PxTriangleMeshGeometry(
+      trimesh,
+      meshScale,
+      new PhysX.PxMeshGeometryFlags(PhysX.PxMeshGeometryFlag.eDOUBLE_SIDED.value)
+    )
 
     PhysX._free(verticesPtr)
     PhysX._free(indicesPtr)

@@ -256,7 +256,6 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
       return
     }
 
-    console.log('NNNNN=====CREATE COLLIDER', mesh)
     const shape = createShape(entity, mesh, mesh.userData as any)
     if (!shape) return
     shapes.push(shape)

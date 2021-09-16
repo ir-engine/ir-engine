@@ -81,6 +81,10 @@ declare namespace PhysX {
     eDISABLE_SIMULATION = 1 << 3
   }
 
+  class PxMeshGeometryFlag {
+    static eDOUBLE_SIDED: { value: number }
+  }
+
   class PxGeometryType {
     static eSPHERE: { value: number }
     static ePLANE: { value: number }
