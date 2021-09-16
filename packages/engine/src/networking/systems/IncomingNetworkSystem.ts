@@ -101,10 +101,13 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               }
               const collider = getComponent(networkObject.entity, ColliderComponent)
               if (collider) {
-                collider.body.updateTransform({
-                  translation: { x: pose.position[0], y: pose.position[1], z: pose.position[2] },
-                  rotation: { x: pose.rotation[0], y: pose.rotation[1], z: pose.rotation[2], w: pose.rotation[3] }
-                })
+                collider.body.setGlobalPose(
+                  {
+                    translation: { x: pose.position[0], y: pose.position[1], z: pose.position[2] },
+                    rotation: { x: pose.rotation[0], y: pose.rotation[1], z: pose.rotation[2], w: pose.rotation[3] }
+                  },
+                  true
+                )
               }
             }
           }

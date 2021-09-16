@@ -65,7 +65,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   // type is required
   if (!shapeOptions.type) return
 
-  const { scale } = mesh
+  const scale = mesh.scale ?? new Vector3(1, 1, 1)
 
   const world = useWorld()
 
@@ -206,16 +206,19 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
   })
 
   shapeObjs.forEach((mesh: Mesh) => {
+    // if(!mesh.isMesh) return
     mesh.updateMatrixWorld()
-    if (mesh.scale) {
-      if (mesh.scale.x === 0) mesh.scale.x = EPSILON
-      if (mesh.scale.y === 0) mesh.scale.y = EPSILON
-      if (mesh.scale.z === 0) mesh.scale.z = EPSILON
+    if (mesh.scale.x === 0) mesh.scale.x = EPSILON
+    if (mesh.scale.y === 0) mesh.scale.y = EPSILON
+    if (mesh.scale.z === 0) mesh.scale.z = EPSILON
+    try {
+      const shape = createShape(entity, mesh, mesh.userData as any)
+      if (!shape) return
+      shapes.push(shape)
+      mesh.removeFromParent()
+    } catch (e) {
+      console.log(e, mesh)
     }
-    const shape = createShape(entity, mesh, mesh.userData as any)
-    if (!shape) return
-    shapes.push(shape)
-    mesh.removeFromParent()
   })
 
   return shapes.filter((val) => {

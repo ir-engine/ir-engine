@@ -38,8 +38,11 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
 
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
+
   velocity.velocity.setX(newVelocity.x)
   velocity.velocity.setZ(newVelocity.z)
+  // apply gravity
+  velocity.velocity.y -= 0.15 * deltaTime
 
   quat.copy(Engine.camera.quaternion)
   Engine.camera.getWorldDirection(vec3)
@@ -85,14 +88,15 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
     // 	newVelocity.add(threeFromCannonVector(pointVelocity));
     // }
   }
-  // apply gravity
-  velocity.velocity.y -= 0.15 * deltaTime
-  console.log(onGround, velocity.velocity)
   const world = useWorld()
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null)
   const collisionFlags = controller.controller.move(
-    velocity.velocity,
+    {
+      x: newVelocity.x,
+      y: velocity.velocity.y,
+      z: newVelocity.z
+    },
     0.001,
     world.fixedDelta,
     filters,

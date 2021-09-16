@@ -5,6 +5,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
@@ -124,12 +125,12 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
+    const world = useWorld()
     switch (name) {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
         const { meta_data } = component.data
 
-        const world = Engine.defaultWorld
         world.sceneMetadata = meta_data
         console.log('scene_metadata|' + meta_data)
         //}
@@ -286,12 +287,20 @@ export class WorldScene {
 
       case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
-        createCollider(entity, {
-          userData: {
-            type: 'box' as any,
-            ...boxColliderProps
-          }
-        } as any)
+        const transform = getComponent(entity, TransformComponent)
+
+        const shape = world.physics.createShape(
+          new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
+          undefined,
+          undefined,
+          undefined,
+          boxColliderProps as any
+        )
+
+        const body = createBody(entity, { bodyType: 0 }, [shape])
+        addComponent(entity, ColliderComponent, { body })
+        addComponent(entity, CollisionComponent, { collisions: [] })
+
         if (
           boxColliderProps.removeMesh === 'true' ||
           (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)

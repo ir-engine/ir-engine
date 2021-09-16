@@ -29,8 +29,10 @@ import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { BodyType, SceneQueryType, SHAPES, ShapeType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { BodyType, SceneQueryType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { RaycastComponentType } from '@xrengine/engine/src/physics/components/RaycastComponent'
+import { CollisionComponent } from '@xrengine/engine/src/physics/components/CollisionComponent'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -91,10 +93,13 @@ export const updateClub = (entityClub: Entity): void => {
   const handTransform = getHandTransform(ownerEntity)
   const { position, rotation } = handTransform
 
-  collider.body.updateTransform({
-    translation: position,
-    rotation
-  })
+  collider.body.setGlobalPose(
+    {
+      translation: position,
+      rotation
+    },
+    true
+  )
 
   transformClub.position.copy(position)
   transformClub.rotation.copy(rotation)
@@ -146,10 +151,10 @@ export const updateClub = (entityClub: Entity): void => {
 
   golfClubComponent.velocity.copy(vector0)
   // console.log(golfClubComponent.velocity.clone().lengthSq())
-
-  collider.body.transform.linearVelocity.x = vector0.x
-  collider.body.transform.linearVelocity.y = vector0.y
-  collider.body.transform.linearVelocity.z = vector0.z
+  const linearVelocity = collider.body.getLinearVelocity()
+  linearVelocity.x = vector0.x
+  linearVelocity.y = vector0.y
+  linearVelocity.z = vector0.z
   // now shift all previous positions down the list
   for (let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
     golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1])
@@ -164,14 +169,17 @@ export const updateClub = (entityClub: Entity): void => {
   vector1.applyQuaternion(golfClubComponent.headGroup.quaternion)
   vector0.add(vector1)
 
-  collider.body.shapes[0].transform = {
+  const shape = useWorld().physics.getOriginalShapeObject(collider.body.getShapes())
+
+  shape.setLocalPose({
     translation: {
       x: vector0.x,
       y: vector0.y,
       z: vector0.z
     },
     rotation: golfClubComponent.headGroup.quaternion
-  }
+  })
+  ;(shape as any)._debugNeedsUpdate = true
 }
 
 /**
@@ -180,7 +188,6 @@ export const updateClub = (entityClub: Entity): void => {
 
 const clubHalfWidth = 0.04
 const clubPutterLength = 0.12
-const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength)
 const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
@@ -206,20 +213,30 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
 
   const world = useWorld()
 
-  const raycast = world.physics.addRaycastQuery({
+  const filterData = new PhysX.PxQueryFilterData()
+  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course, 0)
+  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
+  filterData.setFlags(flags)
+
+  const raycast: RaycastComponentType = {
+    filterData,
     type: SceneQueryType.Closest,
+    hits: [],
     origin: new Vector3(),
     direction: new Vector3(0, -1, 0),
     maxDistance: rayLength,
-    collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
-  })
-  const raycast1 = world.physics.addRaycastQuery({
+    flags
+  }
+
+  const raycast1: RaycastComponentType = {
+    filterData,
     type: SceneQueryType.Closest,
+    hits: [],
     origin: new Vector3(),
     direction: new Vector3(0, -1, 0),
     maxDistance: rayLength,
-    collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
-  })
+    flags
+  }
 
   const handleObject = new Mesh(
     new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25),
@@ -251,23 +268,28 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
 
   // since hitting balls are client authored, we only need the club collider on the local client
   if (isEntityLocalClient(ownerEntity)) {
-    const shapeHead: ShapeType = {
-      shape: SHAPES.Box,
-      options: { boxExtents: clubColliderSize },
-      config: {
-        isTrigger: true,
+    const shapeHead = world.physics.createShape(
+      new PhysX.PxBoxGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength),
+      world.physics.physics.createMaterial(0, 0, 0),
+      new Vector3(),
+      new Quaternion(),
+      {
+        // isTrigger: true,
         collisionLayer: GolfCollisionGroups.Club,
         collisionMask: GolfCollisionGroups.Ball
       }
-    }
+    )
     const body = world.physics.addBody({
       shapes: [shapeHead],
-      type: BodyType.STATIC,
+      type: BodyType.DYNAMIC,
       transform: {
-        translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-      }
+        translation: transform.position,
+        rotation: new Quaternion()
+      },
+      userData: { entity: entityClub }
     })
     addComponent(entityClub, ColliderComponent, { body })
+    addComponent(entityClub, CollisionComponent, { collisions: [] })
   }
 
   addComponent(entityClub, DebugArrowComponent, {

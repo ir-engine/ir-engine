@@ -34,6 +34,7 @@ import { GolfAction } from '../GolfAction'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -84,16 +85,12 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
       const controller = getComponent(entity, AvatarControllerComponent)
       const actor = getComponent(entity, AvatarComponent)
 
-      const pos = new Vector3(position.x, position.y, position.z)
-      pos.y += actor.avatarHalfHeight
-      controller.controller.setPosition()
-      // rotateViewVectorXZ(actor.viewVector, angle)
+      const pos = new Vector3(position.x, position.y + actor.avatarHalfHeight, position.z)
+      controller.controller.setPosition(pos)
 
       const transform = getComponent(entity, TransformComponent)
       const quat = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), angle)
       transform.rotation.copy(quat)
-
-      controller.controller.velocity.setScalar(0)
     }
   )
 
@@ -153,24 +150,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
           const collider = getComponent(ballEntity, ColliderComponent)
           const velocity = getComponent(ballEntity, VelocityComponent)
           velocity.velocity.set(0, 0, 0)
-          collider.body.updateTransform({
-            translation: {
-              x: 2,
-              y: 1,
-              z: -4
-            },
-            rotation: {
-              x: 0,
-              y: 0,
-              z: 0,
-              w: 1
-            },
-            linearVelocity: {
-              x: 0,
-              y: 0,
-              z: 0
-            }
-          })
+          teleportRigidbody(collider.body, new Vector3(2, 1, -4))
           collider.body.setLinearVelocity(new Vector3(), true)
 
           const { uniqueId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)

@@ -38,7 +38,9 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { BodyType, SceneQueryType, SHAPES, ShapeType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { BodyType, ColliderHitEvent, SceneQueryType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { RaycastComponentType } from '@xrengine/engine/src/physics/components/RaycastComponent'
+import { CollisionComponent } from '@xrengine/engine/src/physics/components/CollisionComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -79,10 +81,6 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
     const ballGroup = getComponent(entityBall, Object3DComponent).value as BallGroupType
     switch (ballState) {
       case BALL_STATES.INACTIVE: {
-        const collider = getComponent(entityBall, ColliderComponent)
-        collider?.body.updateTransform({
-          rotation: new Quaternion()
-        })
         // hide ball
         ballGroup.quaternion.identity()
         if (GolfState.players.value[golfBallComponent.number].stroke === 0) {
@@ -127,10 +125,13 @@ export const setBallState = (entityBall: Entity, ballState: BALL_STATES) => {
 export const resetBall = (entityBall: Entity, position: number[]) => {
   const collider = getComponent(entityBall, ColliderComponent)
   if (collider) {
-    collider.body.updateTransform({
-      translation: new Vector3(...position),
-      rotation: new Quaternion()
-    })
+    collider.body.setGlobalPose(
+      {
+        translation: new Vector3(...position),
+        rotation: new Quaternion()
+      },
+      true
+    )
   } else {
     const transform = getComponent(entityBall, TransformComponent)
     transform.position.fromArray(position)
@@ -190,7 +191,7 @@ const updateOSIndicator = (ballGroup: BallGroupType): void => {
 /**
  * @author Mohsen Heydari <github.com/mohsenheydari>
  */
-
+const vec3 = new Vector3()
 const playVelocityBasedSFX = (
   entity: Entity,
   index: number,
@@ -199,9 +200,8 @@ const playVelocityBasedSFX = (
   minVol: number,
   maxVol: number
 ) => {
-  const collider = getComponent(entity, ColliderComponent)
-  const body = collider.body
-  const vel = body.transform.linearVelocity.length()
+  const velocity = getComponent(entity, VelocityComponent)
+  const vel = velocity.velocity.length()
   const volume = Math.max(Math.min((vel - minVel) / (maxVel - minVel), maxVol), minVol)
   addComponent(entity, PlaySoundEffect, { index, volume })
 }
@@ -211,11 +211,10 @@ const playVelocityBasedSFX = (
  */
 
 const wallHitSFX = (entityBall: Entity) => {
-  const collider = getComponent(entityBall, ColliderComponent)
-  const body = collider.body
+  const collisions = getComponent(entityBall, CollisionComponent).collisions as ColliderHitEvent[]
 
-  if (body.collisionEvents.length > 0 && body.collisionEvents[0].contacts && body.collisionEvents[0].contacts.length) {
-    const norm = body.collisionEvents[0].contacts[0].normal
+  if (collisions.length > 0 && collisions[0].contacts && collisions[0].contacts.length) {
+    const norm = collisions[0].contacts[0].normal
     const dot = norm.y
 
     // Hitting vertical surface
@@ -233,9 +232,9 @@ const wallHitSFX = (entityBall: Entity) => {
 export const updateBall = (entityBall: Entity): void => {
   const collider = getComponent(entityBall, ColliderComponent)
   if (!collider) return
-  const ballPosition = collider.body.transform.translation
+  const ballPosition = collider.body.getGlobalPose().translation
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  golfBallComponent.groundRaycast.origin.copy(ballPosition)
+  golfBallComponent.groundRaycast.origin.copy(ballPosition as Vector3)
 
   if (isClient) {
     const ballGroup = getComponent(entityBall, Object3DComponent).value as BallGroupType
@@ -362,54 +361,73 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
     })
   }
 
-  const shape: ShapeType = {
-    shape: SHAPES.Sphere,
-    options: { radius: golfBallRadius + golfBallColliderExpansion },
-    config: {
+  const geometry = new PhysX.PxSphereGeometry(golfBallRadius + golfBallColliderExpansion)
+
+  const world = useWorld()
+
+  const shape = world.physics.createShape(
+    geometry,
+    world.physics.physics.createMaterial(0.2, 0.2, 0.9),
+    new Vector3(),
+    new Quaternion(),
+    {
       // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
       restOffset: -golfBallColliderExpansion,
       // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
       // this will not reverse the expansion for trigger colliders
       contactOffset: -0.005, //golfBallColliderExpansion,
-      material: { staticFriction: 0.2, dynamicFriction: 0.2, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask:
         CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course | GolfCollisionGroups.Hole
     }
-  }
+  )
 
   const isMyBall = isEntityLocalClient(ownerEntity)
-
-  const world = useWorld()
 
   const body = world.physics.addBody({
     shapes: [shape],
     // make static on server and remote player's balls so we can still detect collision with hole
     type: isMyBall ? BodyType.DYNAMIC : BodyType.STATIC,
     transform: {
-      translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
+      translation: transform.position,
+      rotation: new Quaternion()
     },
     userData: { entity: ballEntity }
   })
   addComponent(ballEntity, ColliderComponent, { body })
+  addComponent(ballEntity, CollisionComponent, { collisions: [] })
+
+  const filterDataGround = new PhysX.PxQueryFilterData()
+  filterDataGround.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
+  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
+  filterDataGround.setFlags(flags)
 
   // for track ground
-  const groundRaycast = world.physics.addRaycastQuery({
+  const groundRaycast: RaycastComponentType = {
+    filterData: filterDataGround,
     type: SceneQueryType.Closest,
+    hits: [],
     origin: transform.position,
     direction: new Vector3(0, -1, 0),
     maxDistance: 1,
-    collisionMask: GolfCollisionGroups.Course
-  })
+    flags
+  }
+
+  const filterDataWall = new PhysX.PxQueryFilterData()
+  filterDataWall.setWords(CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course, 0)
+  const flags2 = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
+  filterDataWall.setFlags(flags2)
 
   // for track wall
-  const wallRaycast = world.physics.addRaycastQuery({
+  const wallRaycast: RaycastComponentType = {
+    filterData: filterDataWall,
     type: SceneQueryType.Closest,
+    hits: [],
     origin: transform.position,
     direction: new Vector3(0, 0, 0),
     maxDistance: 0.5,
-    collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
-  })
+    flags: flags2
+  }
 
   addComponent(ballEntity, GolfBallComponent, {
     groundRaycast,

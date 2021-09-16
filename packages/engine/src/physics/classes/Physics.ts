@@ -62,7 +62,8 @@ export class Physics {
     this.collisionEventQueue.push(ev)
   }
 
-  getOriginalShapeObject(shape: PhysX.PxShape) {
+  getOriginalShapeObject(shapes: PhysX.PxShape | PhysX.PxShape[]) {
+    const shape: PhysX.PxShape = (shapes as any).length ? shapes[0] : shapes
     return this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr))
   }
 

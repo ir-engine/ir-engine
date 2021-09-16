@@ -2,7 +2,6 @@ declare module '*.wasm' {
   const value: any
   export = value
 }
-
 declare namespace PhysX {
   class PxQueryFlag {
     static eSTATIC: { value: number }
