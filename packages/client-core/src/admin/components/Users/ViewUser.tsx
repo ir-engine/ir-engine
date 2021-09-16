@@ -32,6 +32,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 
 interface Props {
   openView: boolean
@@ -46,6 +47,7 @@ interface Props {
   fetchStaticResource?: any
   adminScopeState?: any
   getScopeTypeService?: any
+  doLoginAuto?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -62,7 +64,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUserRole: bindActionCreators(updateUserRole, dispatch),
   fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
   fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch),
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 })
 
 const Alert = (props) => {
@@ -84,7 +87,8 @@ const ViewUser = (props: Props) => {
     adminUserState,
     fetchStaticResource,
     adminScopeState,
-    getScopeTypeService
+    getScopeTypeService,
+    doLoginAuto
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
@@ -121,6 +125,7 @@ const ViewUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
+      doLoginAuto(false)
       await fetchUserRole()
     }
     if (adminUserState.get('users').get('updateNeeded') === true && user.id) fetchData()
