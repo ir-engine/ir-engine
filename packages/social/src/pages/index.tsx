@@ -72,6 +72,7 @@ const Home = ({
       const userId = user ? user.id : null
       if (userId) {
       }
+      // Первичное создание
       createCreator()
     }
   }, [auth])

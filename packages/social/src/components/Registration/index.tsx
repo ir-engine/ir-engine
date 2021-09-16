@@ -15,6 +15,9 @@ import {
   updateUsername,
   updateUserSettings
 } from '../../../../client-core/src/user/reducers/auth/service'
+import MySnackbar from '../MySnackbar'
+import { selectCreatorsState } from '../../reducers/creator/selector'
+import { updateCreator } from '../../reducers/creator/service'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -43,11 +46,14 @@ interface Props {
   logoutUser?: any
   removeUser?: any
   hideLogin?: any
+  creatorsState: any
+  updateCreator: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state)
+    authState: selectAuthState(state),
+    creatorsState: selectCreatorsState(state)
   }
 }
 
@@ -60,7 +66,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
   addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
-  removeUser: bindActionCreators(removeUser, dispatch)
+  removeUser: bindActionCreators(removeUser, dispatch),
+  updateCreator: bindActionCreators(updateCreator, dispatch)
 })
 
 const Registration = (props: Props): any => {
@@ -72,13 +79,16 @@ const Registration = (props: Props): any => {
     loginUserByOAuth,
     logoutUser,
     changeActiveMenu,
-    setRegistrationOpen
+    setRegistrationOpen,
+    creatorsState,
+    updateCreator
   } = props
   const { t } = useTranslation()
 
   const selfUser = authState.get('user') || {}
 
-  const [username, setUsername] = useState(selfUser?.name)
+  // const [username, setUsername] = useState(selfUser?.name)
+  const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator'))
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
@@ -102,9 +112,9 @@ const Registration = (props: Props): any => {
     loadCredentialHandler()
   }, []) // Only run once
 
-  useEffect(() => {
-    selfUser && setUsername(selfUser.name)
-  }, [selfUser.name])
+  // useEffect(() => {
+  //   selfUser && setUsername(selfUser.name)
+  // }, [selfUser.name])
 
   const updateUserName = (e) => {
     e.preventDefault()
@@ -112,16 +122,38 @@ const Registration = (props: Props): any => {
   }
 
   const handleUsernameChange = (e) => {
-    setUsername(e.target.value)
-    if (!e.target.value) setErrorUsername(true)
+    setCreator({
+      ...creator,
+      username: e.target.value
+    })
+  }
+
+  const [openSnackbar, setOpenSnackbar] = useState({
+    open: false,
+    type: ''
+  })
+  const handleOpenSnackbar = (type: string) => {
+    setOpenSnackbar({
+      open: true,
+      type
+    })
+  }
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar({
+      open: false,
+      type: ''
+    })
+  }
+  const showSnackbar = (str: string) => {
+    if (str === 'succes') {
+      handleOpenSnackbar(str)
+    } else if (str === 'reject') {
+      handleOpenSnackbar(str)
+    }
   }
 
   const handleUpdateUsername = () => {
-    const name = username.trim()
-    if (!name) return
-    if (selfUser.name.trim() !== name) {
-      updateUsername(selfUser.id, name)
-    }
+    updateCreator(creator, showSnackbar)
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
 
@@ -181,7 +213,7 @@ const Registration = (props: Props): any => {
                 size="small"
                 label={t('user:usermenu.profile.lbl-username')}
                 variant="outlined"
-                value={username || ''}
+                value={creator.username || ''}
                 onChange={handleUsernameChange}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') updateUserName(e)
@@ -292,6 +324,7 @@ const Registration = (props: Props): any => {
           </section>
         )}
       </section>
+      <MySnackbar openSnackbar={openSnackbar} handleCloseSnackbar={handleCloseSnackbar} />
     </div>
   )
 }
