@@ -37,7 +37,8 @@
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
     "dev": "cross-env NODE_ENV=development ts-eager src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "validate": "npm run build && npm run test"
+    "validate": "npm run build && npm run test",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
     "@feathersjs/cli": "4.5.0",
