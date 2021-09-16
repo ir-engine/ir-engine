@@ -365,22 +365,16 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
 
   const world = useWorld()
 
-  const shape = world.physics.createShape(
-    geometry,
-    world.physics.physics.createMaterial(0.2, 0.2, 0.9),
-    new Vector3(),
-    new Quaternion(),
-    {
-      // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
-      restOffset: -golfBallColliderExpansion,
-      // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
-      // this will not reverse the expansion for trigger colliders
-      contactOffset: -0.005, //golfBallColliderExpansion,
-      collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask:
-        CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course | GolfCollisionGroups.Hole
-    }
-  )
+  const shape = world.physics.createShape(geometry, world.physics.physics.createMaterial(0.2, 0.2, 0.9), {
+    // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
+    restOffset: -golfBallColliderExpansion,
+    // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
+    // this will not reverse the expansion for trigger colliders
+    contactOffset: -0.005, //golfBallColliderExpansion,
+    collisionLayer: GolfCollisionGroups.Ball,
+    collisionMask:
+      CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course | GolfCollisionGroups.Hole
+  })
 
   const isMyBall = isEntityLocalClient(ownerEntity)
 

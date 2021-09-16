@@ -35,13 +35,13 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
 
   addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
-  createCollider(entity, {
-    userData: {
-      type: 'ground',
-      collisionLayer: CollisionGroups.Ground,
-      collisionMask: CollisionGroups.Default
-    }
-  })
+  mesh.userData = {
+    type: 'ground',
+    collisionLayer: CollisionGroups.Ground,
+    collisionMask: CollisionGroups.Default
+  }
+
+  createCollider(entity, mesh)
 
   if (isClient) {
     const center: Position = [mesh.position.x, mesh.position.y, mesh.position.z]

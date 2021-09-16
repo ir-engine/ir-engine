@@ -1,7 +1,7 @@
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, Object3D } from 'three'
 import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
-import { BodyType, ColliderTypes } from '../types/PhysicsTypes'
+import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
 import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
@@ -11,11 +11,18 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getTransform } from './parseModelColliders'
+import { getGeometryType } from '../classes/Physics'
 
 /**
- * @author HydraFire <github.com/HydraFire>
- * @author Josh Field <github.com/hexafield>
+ * @author Josh Field <github.com/HexaField>
  */
+
+const quat1 = new Quaternion()
+const quat2 = new Quaternion()
+const xVec = new Vector3(1, 0, 0)
+const yVec = new Vector3(0, 1, 0)
+const zVec = new Vector3(0, 0, 1)
+const halfPI = Math.PI / 2
 
 export type BodyOptions = {
   bodyType?: BodyType
@@ -147,7 +154,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   const contactOffset = typeof shapeOptions.contactOffset === 'undefined' ? 0 : Number(shapeOptions.contactOffset)
   const restOffset = typeof shapeOptions.restOffset === 'undefined' ? 0 : Number(shapeOptions.restOffset)
 
-  const shape = world.physics.createShape(geometry, material, new Vector3(), new Quaternion(), {
+  const shape = world.physics.createShape(geometry, material, {
     isTrigger: Boolean(shapeOptions.isTrigger),
     collisionLayer,
     collisionMask,
@@ -158,13 +165,26 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
     }
   })
 
+  const newTransform = {
+    translation: new Vector3().copy(mesh.position),
+    rotation: new Quaternion().copy(mesh.quaternion)
+  }
+
+  const geometryType = getGeometryType(shape)
+  // rotate 90 degrees on Z axis as PhysX capsule extend along X axis not the Y axis
+  if (geometryType === PhysX.PxGeometryType.eCAPSULE.value) {
+    quat1.setFromAxisAngle(zVec, halfPI)
+    newTransform.rotation.multiply(quat1)
+  }
+  // rotate -90 degrees on Y axis as PhysX plane is X+ normaled
+  if (geometryType === PhysX.PxGeometryType.ePLANE.value) {
+    quat1.setFromAxisAngle(yVec, -halfPI)
+    newTransform.rotation.multiply(quat1)
+  }
+  shape.setLocalPose(newTransform as any)
+
   Object.entries(shapeOptions).forEach(([key, val]) => {
     shape['_' + key] = val
-  })
-
-  shape.setLocalPose({
-    translation: mesh.position,
-    rotation: mesh.quaternion
   })
 
   return shape
@@ -193,6 +213,25 @@ export const createCollider = (entity: Entity, mesh: Mesh) => {
   addComponent(entity, CollisionComponent, { collisions: [] })
 }
 
+export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
+  const transform = getComponent(entity, TransformComponent)
+  const [position, quaternion, scale] = getTransform(
+    mesh.getWorldPosition(new Vector3()),
+    mesh.getWorldQuaternion(new Quaternion()),
+    mesh.getWorldScale(new Vector3()),
+    transform.position,
+    transform.rotation,
+    transform.scale
+  )
+  const config: ObstacleConfig = {
+    isCapsule: mesh.userData.isCapsule,
+    radius: scale.x,
+    halfHeight: scale.y,
+    halfExtents: scale
+  }
+  useWorld().physics.createObstacle(position, quaternion, config)
+}
+
 const EPSILON = 1e-6
 export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: BodyOptions | ShapeOptions) => {
   const shapes = []
@@ -206,19 +245,22 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
   })
 
   shapeObjs.forEach((mesh: Mesh) => {
-    // if(!mesh.isMesh) return
-    mesh.updateMatrixWorld()
+    mesh.updateMatrixWorld(true)
     if (mesh.scale.x === 0) mesh.scale.x = EPSILON
     if (mesh.scale.y === 0) mesh.scale.y = EPSILON
     if (mesh.scale.z === 0) mesh.scale.z = EPSILON
-    try {
-      const shape = createShape(entity, mesh, mesh.userData as any)
-      if (!shape) return
-      shapes.push(shape)
+
+    if (mesh.userData.type === 'obstacle') {
+      createObstacleFromMesh(entity, mesh)
       mesh.removeFromParent()
-    } catch (e) {
-      console.log(e, mesh)
+      return
     }
+
+    console.log('NNNNN=====CREATE COLLIDER', mesh)
+    const shape = createShape(entity, mesh, mesh.userData as any)
+    if (!shape) return
+    shapes.push(shape)
+    mesh.removeFromParent()
   })
 
   return shapes.filter((val) => {

@@ -114,14 +114,17 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
   const portalShape = world.physics.createShape(
     new PhysX.PxBoxGeometry(triggerScale.x * 0.5, triggerScale.y * 0.5, triggerScale.z * 0.5),
     world.physics.createMaterial(),
-    new Vector3(triggerPosition.x, triggerPosition.y, triggerPosition.z),
-    new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z)),
     {
       isTrigger: true,
       collisionLayer: CollisionGroups.Trigger,
       collisionMask: CollisionGroups.Trigger
     }
   )
+
+  portalShape.setLocalPose({
+    translation: new Vector3(triggerPosition.x, triggerPosition.y, triggerPosition.z),
+    rotation: new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
+  })
 
   const portalBody = world.physics.addBody({
     shapes: [portalShape],

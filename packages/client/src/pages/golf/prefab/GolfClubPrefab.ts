@@ -271,8 +271,6 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
     const shapeHead = world.physics.createShape(
       new PhysX.PxBoxGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength),
       world.physics.physics.createMaterial(0, 0, 0),
-      new Vector3(),
-      new Quaternion(),
       {
         // isTrigger: true,
         collisionLayer: GolfCollisionGroups.Club,

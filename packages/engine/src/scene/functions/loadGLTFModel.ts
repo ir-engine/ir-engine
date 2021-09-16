@@ -36,7 +36,7 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
     delete mesh.userData.name
 
     // apply root mesh's world transform to this mesh locally
-    applyTransformToMeshWorld(entity, mesh)
+    // applyTransformToMeshWorld(entity, mesh)
     addComponent(e, TransformComponent, {
       position: mesh.getWorldPosition(new Vector3()),
       rotation: mesh.getWorldQuaternion(new Quaternion()),
@@ -95,6 +95,14 @@ export const parseGLTFModel = (
   // console.log(sceneLoader, entity, component, sceneProperty, scene)
 
   addComponent(entity, Object3DComponent, { value: scene })
+
+  const transform = getComponent(entity, TransformComponent)
+  if (transform) {
+    scene.position.copy(transform.position)
+    scene.quaternion.copy(transform.rotation)
+    scene.scale.copy(transform.scale)
+    scene.updateMatrixWorld()
+  }
 
   // DIRTY HACK TO LOAD NAVMESH
   if (component.data.src.match(/navmesh/)) {

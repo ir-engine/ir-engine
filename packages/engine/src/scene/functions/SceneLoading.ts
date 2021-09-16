@@ -11,7 +11,7 @@ import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { createBody, createCollider, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
+import { createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -291,8 +291,6 @@ export class WorldScene {
 
         const shape = world.physics.createShape(
           new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
-          undefined,
-          undefined,
           undefined,
           boxColliderProps as any
         )

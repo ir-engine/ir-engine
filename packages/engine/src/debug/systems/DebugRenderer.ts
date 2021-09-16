@@ -116,15 +116,15 @@ export class DebugRenderer {
     // world.physics.raycasts.forEach((raycast, id) => {
     //   this._updateRaycast(raycast, id)
     // })
-    // world.physics.obstacles.forEach((obstacle, id) => {
-    //   this._updateObstacle(obstacle, id)
-    // })
-    // this._obstacles.forEach((mesh, id) => {
-    //   if (!world.physics.obstacles.has(id)) {
-    //     this.scene.remove(mesh)
-    //     this._meshes.delete(id)
-    //   }
-    // })
+    world.physics.obstacles.forEach((obstacle, id) => {
+      this._updateObstacle(obstacle, id)
+    })
+    this._obstacles.forEach((mesh, id) => {
+      if (!world.physics.obstacles.has(id)) {
+        this.scene.remove(mesh)
+        this._meshes.delete(id)
+      }
+    })
     this._meshes.forEach((mesh, id) => {
       if (!world.physics.shapes.has(id)) {
         this.scene.remove(mesh)
@@ -153,14 +153,20 @@ export class DebugRenderer {
     }
   }
 
-  private _updateObstacle(obstacle, id) {
+  private _updateObstacle(obstacle: PhysX.PxObstacle, id) {
     if (!this._obstacles.get(id)) {
-      const geom = obstacle.isCapsule
-        ? new CapsuleBufferGeometry(obstacle.radius, obstacle.radius, obstacle.halfHeight * 2)
-        : new BoxBufferGeometry(obstacle.halfExtents.x * 2, obstacle.halfExtents.y * 2, obstacle.halfExtents.z * 2)
+      let geom
+      if ((obstacle as any)._isCapsule) {
+        const radius = (obstacle as PhysX.PxCapsuleObstacle).getRadius()
+        const halfHeight = (obstacle as PhysX.PxCapsuleObstacle).getHalfHeight()
+        geom = new CapsuleBufferGeometry(radius, radius, halfHeight * 2)
+      } else {
+        const halfExtents = (obstacle as PhysX.PxBoxObstacle).getHalfExtents()
+        geom = new BoxBufferGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2)
+      }
       const mesh = new Mesh(geom, this._materials[5])
-      mesh.position.copy(obstacle.position)
-      mesh.quaternion.copy(obstacle.rotation)
+      mesh.position.copy(obstacle.getPosition() as Vector3)
+      mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
       this.scene.add(mesh)
       this._obstacles.set(id, mesh)
     }
@@ -263,6 +269,7 @@ export class DebugRenderer {
 
       case PhysX.PxGeometryType.ePLANE.value: {
         mesh = new Mesh(this._planeGeometry.clone(), material)
+        mesh.quaternion.copy(shape.getLocalPose().rotation as Quaternion)
         // idk
         mesh.geometry.rotateY(-halfPI)
         mesh.geometry.rotateX(-halfPI)

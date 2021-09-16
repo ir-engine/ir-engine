@@ -51,8 +51,6 @@ describe('Scene Loader', () => {
 
   test('Can load physics objects from gltf metadata', async () => {
 
-    await initializeEngine(engineTestSetup)
-
     const entity = createEntity()
     addComponent(entity, TransformComponent, { position: new Vector3(), rotation: new Quaternion(), scale: new Vector3(1,1,1), })
     const entityName = 'physics test entity'
@@ -64,8 +62,9 @@ describe('Scene Loader', () => {
 
     const mesh = new Mesh()
     mesh.userData = {
-      
+      'type': 'box'
     }
+    parentGroup.add(mesh)
 
 
     createShape()

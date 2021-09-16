@@ -9,7 +9,8 @@ import {
   ControllerEvents,
   SceneQueryType,
   CapsuleControllerConfig,
-  BoxControllerConfig
+  BoxControllerConfig,
+  ObstacleConfig
 } from '../types/PhysicsTypes'
 import { putIntoPhysXHeap } from '../functions/physxHelpers'
 import { Quaternion, Vector3 } from 'three'
@@ -20,14 +21,7 @@ const defaultMask = 0
 
 let nextAvailableBodyIndex = 0
 let nextAvailableShapeID = 0
-let nextAvailableRaycastID = 0
 let nextAvailableObstacleID = 0
-
-const quat1 = new Quaternion()
-const quat2 = new Quaternion()
-const yVec = new Vector3(0, 1, 0)
-const zVec = new Vector3(0, 0, 1)
-const halfPI = Math.PI / 2
 
 export class Physics {
   physxVersion: number
@@ -47,14 +41,14 @@ export class Physics {
   substeps: number = 1
   collisionEventQueue = []
 
-  bodies: Map<number, PhysX.PxRigidActor> = new Map<number, PhysX.PxRigidActor>()
-  shapes: Map<number, PhysX.PxShape> = new Map<number, PhysX.PxShape>()
-  shapeIDByPointer: Map<number, number> = new Map<number, number>()
-  controllerIDByPointer: Map<number, number> = new Map<number, number>()
-  bodyIDByShapeID: Map<number, number> = new Map<number, number>()
-  controllers: Map<number, PhysX.PxController> = new Map<number, PhysX.PxController>()
-  raycasts: Map<number, SceneQuery> = new Map<number, SceneQuery>()
-  obstacles: Map<number, number> = new Map<number, number>()
+  bodies = new Map<number, PhysX.PxRigidActor>()
+  shapes = new Map<number, PhysX.PxShape>()
+  shapeIDByPointer = new Map<number, number>()
+  controllerIDByPointer = new Map<number, number>()
+  bodyIDByShapeID = new Map<number, number>()
+  controllers = new Map<number, PhysX.PxController>()
+  raycasts = new Map<number, SceneQuery>()
+  obstacles = new Map<number, PhysX.PxObstacle>()
 
   dispose() {}
 
@@ -235,13 +229,7 @@ export class Physics {
     return this.physics.createMaterial(staticFriction, dynamicFriction, restitution)
   }
 
-  createShape(
-    geometry: PhysX.PxGeometry,
-    material = this.createMaterial(),
-    translation = new Vector3(),
-    rotation = new Quaternion(),
-    options: ShapeOptions = {}
-  ): PhysX.PxShape {
+  createShape(geometry: PhysX.PxGeometry, material = this.createMaterial(), options: ShapeOptions = {}): PhysX.PxShape {
     if (!geometry) return
 
     const id = this._getNextAvailableShapeID()
@@ -250,29 +238,7 @@ export class Physics {
       PhysX.PxShapeFlag.eSCENE_QUERY_SHAPE.value |
         (options?.isTrigger ? PhysX.PxShapeFlag.eTRIGGER_SHAPE.value : PhysX.PxShapeFlag.eSIMULATION_SHAPE.value)
     )
-
-    const newTransform = {
-      translation: new Vector3().copy(translation),
-      rotation: new Quaternion().copy(rotation)
-    }
-
     const shape = this.physics.createShape(geometry, material, false, flags)
-    const geometryType = getGeometryType(shape)
-    // rotate 90 degrees on Z axis as PhysX capsule extend along X axis not the Y axis
-    if (geometryType === PhysX.PxGeometryType.eCAPSULE.value) {
-      quat1.setFromAxisAngle(zVec, halfPI)
-      quat2.copy(rotation)
-      quat2.multiply(quat1)
-      newTransform.rotation.copy(quat2)
-    }
-    // rotate -90 degrees on Y axis as PhysX plane is X+ normaled
-    if (geometryType === PhysX.PxGeometryType.ePLANE.value) {
-      quat1.setFromAxisAngle(yVec, -halfPI)
-      quat2.copy(rotation)
-      quat2.multiply(quat1)
-      newTransform.rotation.copy(quat2)
-    }
-    shape.setLocalPose(newTransform as any)
 
     let collisionLayer = options.collisionLayer ?? defaultMask
     let collisionMask = options.collisionMask ?? defaultMask
@@ -453,47 +419,6 @@ export class Physics {
     return controller
   }
 
-  // @todo:
-
-  // updateController = (controller: PhysX.PxController) => {
-  //   if (typeof config.position !== 'undefined') {
-  //     const currentPos = controller.getPosition()
-  //     controller.setPosition({
-  //       x: config.position.x ?? currentPos.x,
-  //       y: config.position.y ?? currentPos.y,
-  //       z: config.position.z ?? currentPos.z
-  //     })
-  //   }
-  //   if (typeof config.height !== 'undefined') {
-  //     ; (controller as PhysX.PxCapsuleController).setHeight(config.height)
-  //   }
-  //   if (typeof config.resize !== 'undefined') {
-  //     ; (controller as PhysX.PxController).resize(config.resize)
-  //   }
-  //   if (typeof config.radius !== 'undefined') {
-  //     ; (controller as PhysX.PxCapsuleController).setRadius(config.radius)
-  //   }
-  //   if (typeof config.climbingMode !== 'undefined') {
-  //     ; (controller as PhysX.PxCapsuleController).setClimbingMode(config.climbingMode)
-  //   }
-  //   if (typeof config.halfForwardExtent !== 'undefined') {
-  //     ; (controller as PhysX.PxBoxController).setHalfForwardExtent(config.halfForwardExtent)
-  //   }
-  //   if (typeof config.halfHeight !== 'undefined') {
-  //     ; (controller as PhysX.PxBoxController).setHalfHeight(config.halfHeight)
-  //   }
-  //   if (typeof config.halfSideExtent !== 'undefined') {
-  //     ; (controller as PhysX.PxBoxController).setHalfSideExtent(config.halfSideExtent)
-  //   }
-  //   if (typeof config.collisionLayer !== 'undefined') {
-  //     ; (controller as any)._filterData.word0 = config.collisionLayer
-  //   }
-  //   if (typeof config.collisionMask !== 'undefined') {
-  //     ; (controller as any)._filterData.word1 = config.collisionMask
-  //   }
-  //   return config
-  // }
-
   removeController(controller: PhysX.PxController) {
     const id = (controller as any)._id
     const actor = controller.getActor()
@@ -506,21 +431,30 @@ export class Physics {
     // todo
   }
 
-  addObstacle({ id, isCapsule, position, rotation, halfExtents, halfHeight, radius }) {
+  createObstacle(position: Vector3, rotation: Quaternion, config: ObstacleConfig) {
+    const { isCapsule, halfExtents, halfHeight, radius } = config
+    const id = this._getNextAvailableObstacleID()
     const obstacle = new (isCapsule ? PhysX.PxCapsuleObstacle : PhysX.PxBoxObstacle)()
+    ;(obstacle as any)._id = id
+    ;(obstacle as any)._isCapsule = isCapsule
     // todo: allow for more than a single int in memory for userData
     obstacle.setUserData(putIntoPhysXHeap(PhysX.HEAPU32, [id]))
     obstacle.setPosition(position)
     obstacle.setRotation(rotation)
-    halfExtents && (obstacle as PhysX.PxBoxObstacle).setHalfExtents(halfExtents)
-    halfHeight && (obstacle as PhysX.PxCapsuleObstacle).setHalfHeight(halfHeight)
-    radius && (obstacle as PhysX.PxCapsuleObstacle).setRadius(radius)
+    if (isCapsule) {
+      ;(obstacle as PhysX.PxCapsuleObstacle).setHalfHeight(halfHeight)
+      ;(obstacle as PhysX.PxCapsuleObstacle).setRadius(radius)
+    } else {
+      ;(obstacle as PhysX.PxBoxObstacle).setHalfExtents(halfExtents)
+    }
     const handle = this.obstacleContext.addObstacle(obstacle)
-    this.obstacles.set(id, handle)
+    ;(obstacle as any)._handle = handle
+    this.obstacles.set(id, obstacle)
   }
 
-  removeObstacle(id: number) {
-    const handle = this.obstacles.get(id)
+  removeObstacle(obstacle: PhysX.PxObstacle) {
+    const handle = (obstacle as any)._handle
+    const id = (obstacle as any)._id
     this.obstacleContext.removeObstacle(handle)
     this.obstacles.delete(id)
   }
@@ -586,11 +520,6 @@ export class Physics {
   private _getNextAvailableShapeID() {
     // todo, make this smart
     return nextAvailableShapeID++
-  }
-
-  private _getNextAvailableRaycastID() {
-    // todo, make this smart
-    return nextAvailableRaycastID++
   }
 
   private _getNextAvailableObstacleID() {

@@ -131,8 +131,6 @@ export const createAvatar = (
     const shape = world.physics.createShape(
       new PhysX.PxCapsuleGeometry(capsuleHeight / 2, avatarRadius),
       world.physics.physics.createMaterial(0, 0, 0),
-      new Vector3(),
-      new Quaternion(),
       {
         collisionLayer: CollisionGroups.Avatars,
         collisionMask: DefaultCollisionMask

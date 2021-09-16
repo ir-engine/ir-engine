@@ -99,6 +99,13 @@ export interface BoxControllerConfig extends ControllerConfig {
   halfSideExtent: number
 }
 
+export interface ObstacleConfig {
+  isCapsule?: boolean
+  halfExtents?: Vec3
+  halfHeight?: number
+  radius?: number
+}
+
 export interface ObstacleType {
   isCapsule?: boolean
 }

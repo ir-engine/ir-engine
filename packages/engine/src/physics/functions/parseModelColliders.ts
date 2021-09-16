@@ -89,13 +89,13 @@ export function getTransform(posM, queM, scaM, posE, queE, scaE): [Vector3, Quat
 
 export const makeCollidersInvisible = (asset: any) => {
   const parseColliders = (mesh) => {
-    if (mesh.userData.data === 'physics') {
-      // mesh.visible = false
-      if (mesh.material) {
-        mesh.material.opacity = 0.2
-        mesh.material.transparent = true
-        // mesh.material.wireframe = true
-      }
+    if (mesh.userData.data === 'physics' || mesh.userData.type || mesh.userData['realitypack.collider.type']) {
+      mesh.visible = false
+      // if (mesh.material) {
+      //   mesh.material.opacity = 0.2
+      //   mesh.material.transparent = true
+      //   // mesh.material.wireframe = true
+      // }
     }
   }
   asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders)
