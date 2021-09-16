@@ -4,10 +4,9 @@ import { encodeFloat } from './bitConverter'
 import { combine } from './miscUtils'
 
 export function encodeVector3(pos: Vector3) {
-  return [pos.x, pos.y, pos.z]
   const bx = encodeFloat(pos.x)
-  const by = encodeFloat(pos.x)
-  const bz = encodeFloat(pos.x)
+  const by = encodeFloat(pos.y)
+  const bz = encodeFloat(pos.z)
 
   return combine(bx, by, bz)
 }

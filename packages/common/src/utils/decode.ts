@@ -3,7 +3,6 @@ import { Quaternion } from 'yuka'
 import { decodeFloat } from './bitConverter'
 
 export function decodeVector3(array): Vector3 {
-  return new Vector3().fromArray(array)
   const xArray = []
   const yArray = []
   const zArray = []
