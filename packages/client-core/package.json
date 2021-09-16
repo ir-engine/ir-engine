@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -50,8 +50,8 @@
     "@types/styled-components": "5.1.14",
     "@typescript-eslint/eslint-plugin": "4.31.1",
     "@typescript-eslint/parser": "4.31.1",
-    "@xrengine/common": "^0.4.0",
-    "@xrengine/engine": "^0.4.0",
+    "@xrengine/common": "^0.4.1",
+    "@xrengine/engine": "^0.4.1",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.3.4",
