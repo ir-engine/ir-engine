@@ -5,7 +5,7 @@ import TileCache from '../classes/TileCache'
 import FeatureCache from '../classes/FeatureCache'
 import { MapDerivedFeatureComplete, MapDerivedFeatureGeometry, VectorTile } from '../types'
 import FetchTilesPhase from '../classes/FetchTilesPhase'
-import ConvertTilesToFeaturesPhase from '../classes/ConvertTilesToFeaturesPhase'
+import ExtractTileFeaturesPhase from '../classes/ExtractTileFeaturesPhase'
 import UnifyFeaturesPhase from '../classes/UnifyFeaturesPhase'
 import CreateGeometryPhase from '../classes/CreateGeometryPhase'
 import CreateCompleteObjectPhase from '../classes/CreateCompleteObjectPhase'
@@ -22,7 +22,7 @@ export function createProductionPhases(
 ) {
   return [
     new FetchTilesPhase(tileCache, center, minimumSceneRadius),
-    new ConvertTilesToFeaturesPhase(tileCache, featureCache),
+    new ExtractTileFeaturesPhase(tileCache, featureCache),
     new UnifyFeaturesPhase(featureCache),
     new CreateGeometryPhase(featureCache, geometryCache, center),
     new CreateCompleteObjectPhase(featureCache, geometryCache, completeObjects, viewerPosition, minimumSceneRadius)

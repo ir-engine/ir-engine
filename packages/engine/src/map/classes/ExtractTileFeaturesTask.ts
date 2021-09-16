@@ -6,7 +6,7 @@ import TileCache from './TileCache'
 import { SUPPORTED_LAYERS, TILE_ZOOM } from '../constants'
 import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
 
-export default class ConvertTileToFeaturesTask extends Task<void> {
+export default class ExtractTileFeaturesTask extends Task<void> {
   tileCache: TileCache<VectorTile>
   featureCache: FeatureCache<Feature>
   x: number
