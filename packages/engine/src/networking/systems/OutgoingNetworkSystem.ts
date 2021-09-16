@@ -16,6 +16,7 @@ import { IncomingActionType } from '../interfaces/NetworkTransport'
 import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
+import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/encode'
 
 function sendActions() {
   if (!isClient) {
@@ -51,12 +52,6 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
     : defineQuery([XRInputSourceComponent])
 
-  const velQuery = isClient
-    ? defineQuery([NetworkObjectOwnerComponent, NetworkObjectComponent, VelocityComponent])
-    : defineQuery([NetworkObjectComponent, VelocityComponent])
-
-  // TODO: reduce quaternions over network to three components
-
   return () => {
     if (Engine.offlineMode) {
       sendActions()
@@ -87,7 +82,8 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       let angVel = undefined
       if (hasComponent(entity, VelocityComponent)) {
         const velC = getComponent(entity, VelocityComponent)
-        vel = velC.velocity.toArray()
+        if (isZero(velC.velocity)) vel = [0]
+        else vel = encodeVector3(velC.velocity)
       }
 
       // const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
@@ -95,10 +91,10 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
       newWorldState.pose.push({
         networkId: networkObject.networkId,
-        position: transformComponent.position.toArray(),
-        rotation: transformComponent.rotation.toArray(),
-        linearVelocity: vel !== undefined ? vel : [0, 0, 0],
-        angularVelocity: angVel !== undefined ? angVel : [0, 0, 0]
+        position: encodeVector3(transformComponent.position),
+        rotation: encodeQuaternion(transformComponent.rotation),
+        linearVelocity: vel !== undefined ? vel : [0],
+        angularVelocity: angVel !== undefined ? angVel : [0]
       })
     }
 
@@ -109,15 +105,16 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       let angVel = undefined
       if (hasComponent(Network.instance.localClientEntity, VelocityComponent)) {
         const velC = getComponent(Network.instance.localClientEntity, VelocityComponent)
-        vel = velC.velocity.toArray()
+        if (isZero(velC.velocity)) vel = [0]
+        else vel = encodeVector3(velC.velocity)
       }
 
       newWorldState.pose.push({
         networkId: getLocalNetworkId(),
-        position: transformComponent.position.toArray(),
-        rotation: transformComponent.rotation.toArray(),
-        linearVelocity: vel !== undefined ? vel : [0, 0, 0],
-        angularVelocity: angVel !== undefined ? angVel : [0, 0, 0]
+        position: encodeVector3(transformComponent.position),
+        rotation: encodeQuaternion(transformComponent.rotation),
+        linearVelocity: vel !== undefined ? vel : [0],
+        angularVelocity: angVel !== undefined ? angVel : [0]
       })
     }
 
@@ -125,24 +122,21 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       const networkObject = getComponent(entity, NetworkObjectComponent)
 
       const xrInputs = getComponent(entity, XRInputSourceComponent)
-      const headPose = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray()) as Pose
-      const leftPose = xrInputs.controllerLeft.position
-        .toArray()
-        .concat(xrInputs.controllerLeft.quaternion.toArray()) as Pose
-      const rightPose = xrInputs.controllerRight.position
-        .toArray()
-        .concat(xrInputs.controllerRight.quaternion.toArray()) as Pose
 
       newWorldState.ikPose.push({
         networkId: networkObject.networkId,
-        headPose,
-        leftPose,
-        rightPose
+        headPosePosition: encodeVector3(xrInputs.head.position),
+        headPoseRotation: encodeQuaternion(xrInputs.head.quaternion),
+        leftPosePosition: encodeVector3(xrInputs.controllerLeft.position),
+        leftPoseRotation: encodeQuaternion(xrInputs.controllerLeft.quaternion),
+        rightPosePosition: encodeVector3(xrInputs.controllerRight.position),
+        rightPoseRotation: encodeQuaternion(xrInputs.controllerRight.quaternion)
       })
     }
 
     try {
       const buffer = WorldStateModel.toBuffer(newWorldState)
+      //if (isClient)      console.log(JSON.stringify(newWorldState))
       Network.instance.transport.sendData(buffer)
     } catch (e) {
       console.log('could not convert world state to a buffer, ' + e)
