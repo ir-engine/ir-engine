@@ -1,10 +1,11 @@
 import { Feature } from 'geojson'
-import computeDistanceFromBoundingCircle from '../functions/computeDistanceFromBoundingCircle'
+import computeDistanceFromCircle from '../functions/computeDistanceFromCircle'
 import { FeatureKey, MapDerivedFeatureComplete, MapDerivedFeatureGeometry } from '../types'
 import CreateCompleteObjectTask from './CreateCompleteObjectTask'
 import FeatureCache from './FeatureCache'
 import { Vector3 } from 'three'
 import CachingPhase from './CachingPhase'
+import { vector3ToArray2 } from '../util'
 
 export default class CreateCompleteObjectPhase extends CachingPhase<
   CreateCompleteObjectTask,
@@ -39,8 +40,11 @@ export default class CreateCompleteObjectPhase extends CachingPhase<
       // TODO convert geographicCenterPoint to meters in worker and rename to centerPoint
       if (
         geometry &&
-        computeDistanceFromBoundingCircle(this.viewerPosition, geometry.centerPoint, geometry.boundingCircleRadius) <
-          this.minimumSceneRadius
+        computeDistanceFromCircle(
+          vector3ToArray2(this.viewerPosition),
+          geometry.centerPoint,
+          geometry.boundingCircleRadius
+        ) < this.minimumSceneRadius
       ) {
         yield key
       }
