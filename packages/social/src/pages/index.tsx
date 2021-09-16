@@ -64,9 +64,14 @@ const Home = ({
 
   useEffect(() => {
     if (auth) {
-      // const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser')?.identityProvider as User;
-      //   const userId = user ? user.id : null;
-      //   if(userId){}
+      console.log(auth.get('authUser'))
+      const user =
+        auth.get('authUser')?.identityProvider.type === 'guest'
+          ? (auth.get('user') as User)
+          : (auth.get('authUser')?.identityProvider as User)
+      const userId = user ? user.id : null
+      if (userId) {
+      }
       createCreator()
     }
   }, [auth])
@@ -119,7 +124,7 @@ const Home = ({
       </div>
     )
   }
-  if (registrationForm) {
+  if (auth.get('user').userRole !== 'user') {
     return <Registration />
   }
 

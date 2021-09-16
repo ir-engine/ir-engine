@@ -15,7 +15,6 @@ import {
   updateUsername,
   updateUserSettings
 } from '../../../../client-core/src/user/reducers/auth/service'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -23,11 +22,12 @@ import { FacebookIcon } from '../../../../client-core/src/common/components/Icon
 import { GoogleIcon } from '../../../../client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../client-core/src/common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../client-core/src/common/components/Icons/TwitterIcon'
-import { getAvatarURLFromNetwork, Views } from './util'
+
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from './Registration.module.scss'
 import { useTranslation } from 'react-i18next'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
 interface Props {
   changeActiveMenu?: any
@@ -70,11 +70,9 @@ const Registration = (props: Props): any => {
     addConnectionByEmail,
     addConnectionBySms,
     loginUserByOAuth,
-    loginUserByXRWallet,
     logoutUser,
     changeActiveMenu,
-    setRegistrationOpen,
-    hideLogin
+    setRegistrationOpen
   } = props
   const { t } = useTranslation()
 
@@ -84,7 +82,7 @@ const Registration = (props: Props): any => {
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
-
+  const [emailPhoneForm, setEmailPhoneForm] = useState(false)
   let type = ''
 
   const loadCredentialHandler = async () => {
@@ -145,12 +143,14 @@ const Registration = (props: Props): any => {
     if (!validate()) return
     if (type === 'email') addConnectionByEmail(emailPhone, selfUser?.id)
     else if (type === 'sms') addConnectionBySms(emailPhone, selfUser?.id)
-
     return
   }
 
   const handleOAuthServiceClick = (e) => {
     loginUserByOAuth(e.currentTarget.id)
+  }
+  const handleGoEmailClick = () => {
+    setEmailPhoneForm(!emailPhoneForm)
   }
 
   const handleLogout = async (e) => {
@@ -160,168 +160,113 @@ const Registration = (props: Props): any => {
     // window.location.reload()
   }
 
-  const handleWalletLoginClick = async (e) => {
-    const domain = window.location.origin
-    const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
-
-    console.log('Sending DIDAuth query...')
-
-    const didAuthQuery: any = {
-      web: {
-        VerifiablePresentation: {
-          query: [
-            {
-              type: 'DIDAuth'
-            }
-          ],
-          challenge,
-          domain // e.g.: requestingparty.example.com
-        }
-      }
-    }
-
-    // Use Credential Handler API to authenticate
-    const result: any = await navigator.credentials.get(didAuthQuery)
-    console.log(result)
-
-    loginUserByXRWallet(result)
-  }
-
   return (
     <div className={styles.menuPanel}>
       <section className={styles.profilePanel}>
-        <section className={styles.profileBlock}>
-          <div className={styles.avatarBlock}>
-            <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id)} />
-            {changeActiveMenu != null && (
-              <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple>
-                <Create />
-              </Button>
-            )}
-          </div>
-          <div className={styles.headerBlock}>
-            <span className={styles.inputBlock}>
+        <div className={styles.logo}>
+          <img src="/assets/splash/ARC_Splash.png" alt="logo" crossOrigin="anonymous" className="logo" />
+        </div>
+        {emailPhoneForm && (
+          <div className={styles.emailPhoneSection}>
+            <div className={styles.socialBack} onClick={handleGoEmailClick}>
+              <ArrowBackIosIcon />
+            </div>
+            <Typography align="center" variant="body1">
+              {t('user:usermenu.registration.connect')}
+            </Typography>
+            <form onSubmit={handleSubmit}>
               <TextField
-                margin="none"
+                className={styles.emailField}
                 size="small"
-                label={t('user:usermenu.profile.lbl-username')}
-                name="username"
+                placeholder={t('user:usermenu.registration.ph-phoneEmail')}
                 variant="outlined"
-                value={username || ''}
-                onChange={handleUsernameChange}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') updateUserName(e)
-                }}
-                className={styles.usernameInput}
-                error={errorUsername}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
-                        <Check className={styles.primaryForeground} />
-                      </a>
-                    </InputAdornment>
-                  )
-                }}
+                onChange={handleInputChange}
+                onBlur={validate}
+                error={error}
+                helperText={error ? t('user:usermenu.registration.ph-phoneEmail') : null}
               />
-            </span>
-            <h2>
-              {selfUser?.userRole === 'admin'
-                ? t('user:usermenu.profile.youAreAn')
-                : t('user:usermenu.profile.youAreA')}{' '}
-              <span>{selfUser?.userRole}</span>.
-            </h2>
-            <h4>
-              {(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && (
-                <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>
-              )}
-            </h4>
-            {selfUser?.inviteCode != null && (
-              <h2>
-                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode}
-              </h2>
-            )}
+              <Button className={styles.logIn} variant="contained" onClick={handleSubmit}>
+                Log in
+              </Button>
+            </form>
           </div>
-        </section>
-        {!hideLogin && (
-          <>
-            {selfUser?.userRole === 'guest' && (
-              <section className={styles.emailPhoneSection}>
-                <Typography variant="h1" className={styles.panelHeader}>
-                  {t('user:usermenu.profile.connectPhone')}
-                </Typography>
-
-                <form onSubmit={handleSubmit}>
-                  <TextField
-                    className={styles.emailField}
-                    size="small"
-                    placeholder={t('user:usermenu.profile.ph-phoneEmail')}
-                    variant="outlined"
-                    onChange={handleInputChange}
-                    onBlur={validate}
-                    error={error}
-                    helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end" onClick={handleSubmit}>
-                          <a href="#" className={styles.materialIconBlock}>
-                            <Send className={styles.primaryForeground} />
-                          </a>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </form>
-              </section>
-            )}
-            {selfUser?.userRole === 'guest' && (
-              <section className={styles.walletSection}>
+        )}
+        {!emailPhoneForm && (
+          <section className={styles.socialBlock}>
+            <div className={styles.socialContainer}>
+              <div className={styles.socialWrap} onClick={handleGoEmailClick}>
+                <a href="#">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    width="42"
+                    height="42"
+                    viewBox="0 0 42 42"
+                    fill="none"
+                  >
+                    <rect width="42" height="42" transform="matrix(-1 0 0 1 42 0)" fill="url(#pattern0)" />
+                    <defs>
+                      <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+                        <use xlinkHref="#image0" transform="scale(0.0208333)" />
+                      </pattern>
+                      <image
+                        id="image0"
+                        width="48"
+                        height="48"
+                        xlinkHref="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwAAAAJChIMDBkWGCIOEBcOEBcJCg8QEhwNDxQUFiAAAAAAAAAVFyMDBAYQEhsWGCMAAAD5xs1FAAAAEHRSTlMA7zAQ33+jXkIgxt/B72+Q9PCfEQAAASBJREFUSMftVMsSgyAM5CUEENT//9k2aEesQNLeOtM9EciSLCwI8cd30GDNugbrmPnwzN5hWJRprTB9mM9guD0NhFC2DIEgYP9G7WNfAkYB/4oUXQLbsGe4XMMGwnVLIHvCHuorfItJgiAJpta8q06khul6aGFIyLilfkXlIsZ+0gn3PBga6yXPsJKB07WkmUJxUAohlUGgX4+pzRo8470tZ/6iWU/O29JOssB/1grA//K35LONctvkHDJHB8xbhZn6mdQlHRGHVbLc7sgD5x19ZKXxh81HuWmcP0N95yOGwzX5ptKVJpvSfcR8dTsGZMiWCUt11Tg4nG/8Zr7bbG7vhAViWxwe1nKbjT1tz8tHFbdZ2S3QWXNRdn0zWvtFPAAmbxZPKTUEzQAAAABJRU5ErkJggg=="
+                      />
+                    </defs>
+                  </svg>
+                </a>
                 <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.profile.or')}
+                  {t('user:usermenu.registration.ph-phoneEmail')}
                 </Typography>
-                {/*<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
-                  {t('user:usermenu.profile.lbl-wallet')}
-                </Button>
-                <br/>*/}
-                <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
-                  {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-                </Button>
-              </section>
-            )}
-
-            {selfUser?.userRole === 'guest' && (
-              <section className={styles.socialBlock}>
-                <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.profile.connectSocial')}
-                </Typography>
-                <div className={styles.socialContainer}>
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="google" onClick={handleOAuthServiceClick}>
-                    <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
-                    <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
-                    <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="github" onClick={handleOAuthServiceClick}>
-                    <GitHub />
-                  </a>
-                </div>
-                <Typography variant="h4" className={styles.smallTextBlock}>
-                  {t('user:usermenu.profile.createOne')}
-                </Typography>
-              </section>
-            )}
-            {setRegistrationOpen != null && (
-              <div className={styles.closeButton} onClick={() => setRegistrationOpen(false)}>
-                <Close />
               </div>
-            )}
-          </>
+              <div className={styles.socialWrap} id="facebook" onClick={handleOAuthServiceClick}>
+                <a href="#">
+                  <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
+                </a>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.registration.facebook')}
+                </Typography>
+              </div>
+              <div className={styles.socialWrap} id="google" onClick={handleOAuthServiceClick}>
+                <a href="#">
+                  <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                </a>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.registration.google')}
+                </Typography>
+              </div>
+              <div className={styles.socialWrap} id="linkedin2" onClick={handleOAuthServiceClick}>
+                <a href="#">
+                  <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
+                </a>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.registration.linkedin')}
+                </Typography>
+              </div>
+              <div className={styles.socialWrap} id="twitter" onClick={handleOAuthServiceClick}>
+                <a href="#">
+                  <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
+                </a>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.registration.twitter')}
+                </Typography>
+              </div>
+              <div className={styles.socialWrap} id="github" onClick={handleOAuthServiceClick}>
+                <a href="#">
+                  <GitHub />
+                </a>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.registration.gitHub')}
+                </Typography>
+              </div>
+            </div>
+            <Typography variant="h4" className={styles.smallTextBlock}>
+              {t('user:usermenu.profile.createOne')}
+            </Typography>
+          </section>
         )}
       </section>
     </div>
