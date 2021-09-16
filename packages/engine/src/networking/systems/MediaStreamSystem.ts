@@ -325,7 +325,7 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
 
     if (nearbyAvatarTick > 500) {
       nearbyAvatarTick = 0
-      if (isClient) {
+      if (isClient && MediaStreams.instance.channelType === 'instance') {
         MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Network.instance.userId)
         const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
         EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
