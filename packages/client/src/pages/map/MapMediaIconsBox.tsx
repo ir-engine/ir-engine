@@ -70,7 +70,7 @@ const MediaIconsBox = (props) => {
   const handleMicClick = async () => {
     const partyId =
       currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId.value
-    if (await configureMediaTransports(['audio'], partyId, true)) {
+    if (await configureMediaTransports(['audio'], partyId)) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()

@@ -20,6 +20,7 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
+import { connectToChannelServer, resetChannelServer } from '../../reducers/channelConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { EngineCallbacks } from './'
 import { incomingNetworkReceptor } from '@xrengine/engine/src/networking/functions/incomingNetworkReceptor'
@@ -139,7 +140,7 @@ export const initEngine = async (
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Store.store.dispatch(setAppLoaded(true))
 
-  // 4. Joing to new world
+  // 4. Join to new world
   if (!isOffline) {
     // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     let spawnTransform

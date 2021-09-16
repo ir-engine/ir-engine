@@ -99,7 +99,7 @@ export default (app: Application): any => {
         //     }
         //   });
         // }
-        if (data.dataValues != null) {
+        if (data?.dataValues != null) {
           data.dataValues.user = await app.service('user').get(data.userId)
           data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
         } else {

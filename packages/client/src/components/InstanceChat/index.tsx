@@ -70,7 +70,7 @@ const InstanceChat = (props: Props): any => {
 
   let activeChannel
   const messageRef = React.useRef<HTMLInputElement>()
-  const user = useAuthState().user
+  const user = useAuthState().user.value
   const channelState = chatState.get('channels')
   const channels = channelState.get('channels')
   const [composingMessage, setComposingMessage] = useState('')
@@ -81,10 +81,14 @@ const InstanceChat = (props: Props): any => {
   }
 
   useEffect(() => {
-    if (instanceConnectionState.get('connected') === true && channelState.get('fetchingInstanceChannel') !== true) {
+    if (
+      user?.instanceId != null &&
+      instanceConnectionState.get('connected') === true &&
+      channelState.get('fetchingInstanceChannel') !== true
+    ) {
       getInstanceChannel()
     }
-  }, [instanceConnectionState])
+  }, [user?.instanceId])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -94,7 +98,7 @@ const InstanceChat = (props: Props): any => {
   const packageMessage = (): void => {
     if (composingMessage.length > 0) {
       createMessage({
-        targetObjectId: user.instanceId.value,
+        targetObjectId: user.instanceId,
         targetObjectType: 'instance',
         text: composingMessage
       })
@@ -116,13 +120,13 @@ const InstanceChat = (props: Props): any => {
 
   const getMessageUser = (message): string => {
     let returned = message.sender?.name
-    if (message.senderId === user.id.value) returned += ' (you)'
+    if (message.senderId === user.id) returned += ' (you)'
     //returned += ': '
     return returned
   }
 
   const isMessageSentBySelf = (message): boolean => {
-    return message.senderId === user.id.value
+    return message.senderId === user.id
   }
 
   useEffect(() => {

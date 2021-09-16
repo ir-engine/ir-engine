@@ -71,16 +71,7 @@ export const sendNewProducer =
     const userId = getUserIdFromSocketId(socket.id)
     const selfClient = Network.instance.clients[userId]
     if (selfClient?.socketId != null) {
-      const nearbyUsers = getNearbyUsers(userId)
-      const nearbyUserIds = nearbyUsers != null ? nearbyUsers.map((user) => user.id) : []
       Object.entries(Network.instance.clients).forEach(([name, value]) => {
-        if (
-          name === userId ||
-          (channelType === 'instance' && nearbyUserIds.includes(name) === false) ||
-          value.media == null ||
-          value.socketId == null
-        )
-          return
         logger.info(`Sending media for ${name}`)
         Object.entries(value.media).map(([subName, subValue]) => {
           if (
@@ -103,6 +94,7 @@ export const sendNewProducer =
 // Create consumer for each client!
 export const sendCurrentProducers = async (
   socket: SocketIO.Socket,
+  userIds: string[],
   channelType: string,
   channelId?: string
 ): Promise<void> => {
@@ -110,12 +102,10 @@ export const sendCurrentProducers = async (
   const userId = getUserIdFromSocketId(socket.id)
   const selfClient = Network.instance.clients[userId]
   if (selfClient?.socketId != null) {
-    const nearbyUsers = getNearbyUsers(userId)
-    const nearbyUserIds = nearbyUsers == null ? [] : nearbyUsers.map((user) => user.id)
     Object.entries(Network.instance.clients).forEach(([name, value]) => {
       if (
         name === userId ||
-        (channelType === 'instance' && nearbyUserIds.includes(name) === false) ||
+        (userIds.length > 0 && userIds.includes(name) === false) ||
         value.media == null ||
         value.socketId == null
       )
@@ -206,9 +196,8 @@ export async function closeProducer(producer): Promise<void> {
 }
 
 export async function closeProducerAndAllPipeProducers(producer): Promise<void> {
+  console.log('closing producer and all pipe producer ' + producer?.id, producer?.appData)
   if (producer != null) {
-    console.log('closing producer and all pipe producer ' + producer.id, producer.appData)
-
     // remove this producer from our roomState.producers list
     if (MediaStreams.instance)
       MediaStreams.instance.producers = MediaStreams.instance?.producers.filter((p) => p.id !== producer.id)
@@ -230,7 +219,6 @@ export async function closeProducerAndAllPipeProducers(producer): Promise<void> 
 }
 
 export async function closeConsumer(consumer): Promise<void> {
-  logger.info('closing consumer', consumer.id)
   await consumer.close()
 
   if (MediaStreams.instance)
@@ -267,7 +255,7 @@ export async function createWebRtcTransport({
   }
 
   const routerList =
-    channelType === 'instance'
+    channelType === 'instance' && channelId == null
       ? networkTransport.routers.instance
       : networkTransport.routers[`${channelType}:${channelId}`]
   const sortedRouterList = routerList.sort((a, b) => a._transports.size - b._transports.size)
@@ -491,10 +479,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
       appData: { ...appData, peerId: userId, transportId }
     })
 
-    const routers =
-      appData.channelType === 'instance'
-        ? networkTransport.routers.instance
-        : networkTransport.routers[`${appData.channelType}:${appData.channelId}`]
+    const routers = networkTransport.routers[`${appData.channelType}:${appData.channelId}`]
     const currentRouter = routers.find((router) => router._internal.routerId === (transport as any)._internal.routerId)
 
     await Promise.all(
@@ -555,10 +540,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         ? p._appData.channelType === channelType
         : p._appData.channelType === channelType && p._appData.channelId === channelId)
   )
-  const router =
-    channelType === 'instance'
-      ? networkTransport.routers.instance[0]
-      : networkTransport.routers[`${channelType}:${channelId}`][0]
+  const router = networkTransport.routers[`${channelType}:${channelId}`][0]
   if (producer == null || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
     const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`
     console.error(`recv-track: ${userId} ${msg}`)
@@ -675,7 +657,6 @@ export async function handleWebRtcResumeConsumer(socket, data, callback): Promis
 export async function handleWebRtcCloseConsumer(socket, data, callback): Promise<any> {
   const { consumerId } = data,
     consumer = MediaStreams.instance?.consumers.find((c) => c.id === consumerId)
-  logger.info(`Close Consumer handler: ${consumerId}`)
   if (consumer != null) await closeConsumer(consumer)
   callback({ closed: true })
 }
@@ -738,20 +719,33 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
   callback({ paused: true })
 }
 
-export async function handleWebRtcRequestCurrentProducers(socket, data, callback): Promise<any> {
-  const { channelType, channelId } = data
+export async function handleWebRtcRequestNearbyUsers(socket, data, callback): Promise<any> {
+  networkTransport = Network.instance.transport as any
+  const userId = getUserIdFromSocketId(socket.id)
+  const selfClient = Network.instance.clients[userId]
+  if (selfClient?.socketId != null) {
+    const nearbyUsers = getNearbyUsers(userId)
+    const nearbyUserIds = nearbyUsers == null ? [] : nearbyUsers.map((user) => user.id)
+    callback({ userIds: nearbyUserIds })
+  } else {
+    callback({ userIds: [] })
+  }
+}
 
-  await sendCurrentProducers(socket, channelType, channelId)
+export async function handleWebRtcRequestCurrentProducers(socket, data, callback): Promise<any> {
+  const { userIds, channelType, channelId } = data
+
+  await sendCurrentProducers(socket, userIds || [], channelType, channelId)
   callback({ requested: true })
 }
 
 export async function handleWebRtcInitializeRouter(socket, data, callback): Promise<any> {
   const { channelType, channelId } = data
-  if (channelType !== 'instance') {
+  if (!(channelType === 'instance' && channelId == null)) {
     const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
     const networkTransport = Network.instance.transport as any
     if (networkTransport.routers[`${channelType}:${channelId}`] == null) {
-      console.log('Making new routers for channel')
+      console.log('Making new routers for channel', channelId)
       networkTransport.routers[`${channelType}:${channelId}`] = []
       await Promise.all(
         networkTransport.workers.map(async (worker) => {

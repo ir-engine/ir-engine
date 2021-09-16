@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -28,13 +29,15 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
+import { selectChannelConnectionState } from '../../reducers/channelConnection/selector'
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
     locationState: selectLocationState(state),
-    mediastream: state.get('mediastream')
+    mediastream: state.get('mediastream'),
+    chatState: selectChatState(state),
+    channelConnectionState: selectChannelConnectionState(state)
   }
 }
 
@@ -43,12 +46,16 @@ const mapDispatchToProps = (dispatch): any => ({
 })
 
 const MediaIconsBox = (props) => {
-  const { locationState, mediastream, changeFaceTrackingState } = props
+  const { locationState, mediastream, chatState, changeFaceTrackingState, channelConnectionState } = props
   const [xrSupported, setXRSupported] = useState(false)
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const user = useAuthState().user
+  const channelState = chatState.get('channels')
+  const channels = channelState.get('channels')
+  const channelEntries = [...channels.entries()]
+  const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
   const currentLocation = locationState.get('currentLocation').get('location')
 
   const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false
@@ -81,14 +88,13 @@ const MediaIconsBox = (props) => {
   const handleFaceClick = async () => {
     const partyId =
       currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId.value
-    if (await configureMediaTransports(['video', 'audio'], partyId, !isFaceTrackingEnabled)) {
-      changeFaceTrackingState(!isFaceTrackingEnabled)
-      if (!isFaceTrackingEnabled) {
+    if (isFaceTrackingEnabled) {
+      stopFaceTracking()
+      stopLipsyncTracking()
+    } else {
+      if (await configureMediaTransports(['video', 'audio'], partyId)) {
         startFaceTracking()
         startLipsyncTracking()
-      } else {
-        stopFaceTracking()
-        stopLipsyncTracking()
       }
     }
   }
@@ -96,17 +102,16 @@ const MediaIconsBox = (props) => {
   const checkEndVideoChat = async () => {
     if (
       (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null)
+      (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null) &&
+      (Network.instance.transport as any).channelType !== 'instance'
     ) {
       await endVideoChat({})
       if ((Network.instance.transport as any).channelSocket?.connected === true) await leave(false)
     }
   }
   const handleMicClick = async () => {
-    const partyId =
-      currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId.value
-    if (await configureMediaTransports(['audio'], partyId, true)) {
-      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
+    if (await configureMediaTransports(['audio'], 'instance', instanceChannel[0])) {
+      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer('instance', instanceChannel[0])
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
@@ -118,10 +123,8 @@ const MediaIconsBox = (props) => {
   }
 
   const handleCamClick = async () => {
-    const partyId =
-      currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId.value
-    if (await configureMediaTransports(['video'], partyId, true)) {
-      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(partyId)
+    if (await configureMediaTransports(['video'], 'instance', instanceChannel[0])) {
+      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer('instance', instanceChannel[0])
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
         if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
@@ -141,7 +144,7 @@ const MediaIconsBox = (props) => {
 
   return (
     <section className={styles.drawerBox}>
-      {instanceMediaChatEnabled && hasAudioDevice ? (
+      {instanceMediaChatEnabled && hasAudioDevice && channelConnectionState.get('connected') === true ? (
         <button
           type="button"
           id="UserAudio"
@@ -151,7 +154,7 @@ const MediaIconsBox = (props) => {
           <MicIcon />
         </button>
       ) : null}
-      {videoEnabled && hasVideoDevice ? (
+      {videoEnabled && hasVideoDevice && channelConnectionState.get('connected') === true ? (
         <>
           <button
             type="button"

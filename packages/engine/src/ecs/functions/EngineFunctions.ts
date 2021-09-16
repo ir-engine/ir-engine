@@ -218,13 +218,11 @@ export function createWorld() {
         })
       )
 
-      console.log('awaiting all systems starting')
       const [fixedSystems, freeSystems, injectedSystems] = await Promise.all([
         _fixedSystems,
         _freeSystems,
         _injectedSystems
       ])
-      console.log('all systems started!')
       world.fixedSystems = fixedSystems
       world.freeSystems = freeSystems
       world.injectedSystems = Object.fromEntries(injectedSystems)

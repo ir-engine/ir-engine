@@ -169,6 +169,7 @@ const Layout = (props: Props): any => {
   }
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
+
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>
@@ -185,7 +186,7 @@ const Layout = (props: Props): any => {
                 <>
                   {expanded ? (
                     <section className={styles.locationUserMenu}>
-                      {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && <Me />}
+                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
                       <PartyVideoWindows />
                     </section>
                   ) : null}
@@ -256,7 +257,7 @@ const Layout = (props: Props): any => {
                 />
               </Fragment>
             )}
-            {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
+            {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
               <Fragment>
                 <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
               </Fragment>

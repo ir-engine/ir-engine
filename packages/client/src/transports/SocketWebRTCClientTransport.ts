@@ -15,6 +15,7 @@ import {
   endVideoChat,
   initReceiveTransport,
   initSendTransport,
+  initRouter,
   leave,
   subscribeToTrack
 } from './SocketWebRTCClientFunctions'
@@ -129,13 +130,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
     Network.instance.accessToken = query.token = token
-    console.log('Dispatching event CONNECT')
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: user.id })
-    console.log('Dispatched event CONNECT')
 
     this.mediasoupDevice = new mediasoupClient.Device()
-    console.log('new mediasoupDevice', this.mediasoupDevice)
-    console.log('current socket', socket)
     if (socket && socket.close) socket.close()
 
     this.channelType = channelType
@@ -147,41 +144,32 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.sceneId == null) delete query.sceneId
     if (query.channelId == null) delete query.channelId
     if (process.env.VITE_LOCAL_BUILD === 'true') {
-      console.log('VITE_LOCAL_BUILD is true')
       socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
       })
     } else if (process.env.NODE_ENV === 'development') {
-      console.log('NODE_ENV is development')
       socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       })
     } else {
-      console.log('Normal deployment socket being set up')
       socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       })
     }
 
-    console.log('new socket', socket)
-
     if (instance === true) {
-      console.log('instance socket being set up')
       ;(socket as any).instance = true
       this.instanceSocket = socket
       Network.instance.instanceSocketId = socket.id
       this.instanceRequest = this.promisedRequest(socket)
     } else {
-      console.log('channel socket being set up')
       this.channelSocket = socket
       Network.instance.channelSocketId = socket.id
       this.channelRequest = this.promisedRequest(socket)
     }
 
-    console.log('Creating socket.on(connect) listener')
     socket.on('connect', async () => {
-      console.log('connect')
       if (this.reconnecting === true) {
         this.reconnecting = false
         return
@@ -259,7 +247,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           self.channelType = 'instance'
           self.channelId = ''
         }
-        if ((socket as any).instance === true) await endVideoChat({ endConsumers: true })
+        // if ((socket as any).instance === true) await endVideoChat({ endConsumers: true })
       })
 
       socket.on(MessageTypes.Kick.toString(), async (message) => {
@@ -304,14 +292,17 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             MediaStreams.instance?.camVideoProducer?.id,
             MediaStreams.instance?.camAudioProducer?.id
           ]
+
           if (
             producerId != null &&
-            channelType === self.channelType &&
-            selfProducerIds.indexOf(producerId) < 0
+            // channelType === self.channelType &&
+            selfProducerIds.indexOf(producerId) < 0 &&
             // (MediaStreams.instance?.consumers?.find(
             //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
             // ) == null /*&&
-            //   (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
+            (channelType === 'instance'
+              ? this.channelType === 'instance'
+              : this.channelType === channelType && this.channelId === channelId)
           ) {
             // that we don't already have consumers for...
             await subscribeToTrack(socketId, mediaTag, channelType, channelId)
@@ -319,18 +310,45 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         }
       )
 
+      socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {
+        if (MediaStreams.instance) {
+          const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
+          consumer.pause()
+        }
+      })
+
+      socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (consumerId) => {
+        if (MediaStreams.instance) {
+          const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
+          consumer.resume()
+        }
+      })
+
       socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
         if (MediaStreams.instance)
-          MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter((c) => c.id !== consumerId)
+          MediaStreams.instance.consumers = MediaStreams.instance.consumers.filter((c) => c.id !== consumerId)
         EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
       })
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       if ((socket as any).instance === true) {
-        // console.log('Initializing instance transports');
-        // console.log(socket);
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')])
-        await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId)
+        await createDataProducer('instance')
+      } else {
+        await initRouter(channelType, this.channelId)
+        await Promise.all([
+          initSendTransport(channelType, this.channelId),
+          initReceiveTransport(channelType, this.channelId)
+        ])
+        let userIds
+        if (channelType === 'instance')
+          ({ userIds } = await this.instanceRequest(MessageTypes.WebRTCRequestNearbyUsers.toString()))
+
+        await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
+          userIds: userIds || [],
+          channelType: channelType,
+          channelId: this.channelId
+        })
       }
 
       ;(socket.io as any).on('reconnect', async () => {
@@ -345,14 +363,20 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         })
       })
 
-      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
-        await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' })
-        triggerUpdateNearbyLayerUsers()
-      })
-      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) => {
-        console.log('closeConsumer', consumer)
-        closeConsumer(consumer.consumer)
-      })
+      if (instance === true) {
+        EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
+          const { userIds } = await this.instanceRequest(MessageTypes.WebRTCRequestNearbyUsers.toString())
+          await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
+            userIds: userIds || [],
+            channelType: 'instance',
+            channelId: this.channelId
+          })
+          triggerUpdateNearbyLayerUsers()
+        })
+        EngineEvents.instance.addEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) =>
+          closeConsumer(consumer.consumer)
+        )
+      }
     })
   }
 }
