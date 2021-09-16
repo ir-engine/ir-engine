@@ -36,8 +36,7 @@ export default class CreateCompleteObjectPhase extends CachingPhase<
   *getTaskKeys() {
     for (const key of this.featureCache.keys()) {
       const geometry = this.geometryCache.get(key)
-      // TODO create separate working for geographicCenterPoint and boundingCircleRadius?
-      // TODO convert geographicCenterPoint to meters in worker and rename to centerPoint
+      // TODO create separate worker for centerPoint and boundingCircleRadius? that way we could do this check in an earlier phase
       if (
         geometry &&
         computeDistanceFromCircle(
