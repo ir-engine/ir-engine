@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "repository": {
     "type": "git",
@@ -49,9 +49,9 @@
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.14",
     "@vladmandic/face-api": "1.5.2",
-    "@xrengine/client-core": "^0.4.0",
-    "@xrengine/editor": "^0.4.0",
-    "@xrengine/engine": "^0.4.0",
+    "@xrengine/client-core": "^0.4.1",
+    "@xrengine/editor": "^0.4.1",
+    "@xrengine/engine": "^0.4.1",
     "axios": "0.21.4",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
