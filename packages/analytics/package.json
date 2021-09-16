@@ -7,6 +7,9 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "homepage": "a",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "three",
     "three.js",
