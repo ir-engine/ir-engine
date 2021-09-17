@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.4.0",
+  "version": "0.4.5",
   "private": true,
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
     "socket.io": "4.2.0"
   },
   "dependencies": {
-    "@capacitor/core": "3.2.2",
+    "@capacitor/core": "3.2.3",
     "@feathersjs/client": "5.0.0-pre.9",
     "@hookstate/core": "3.0.11",
     "@material-ui/core": "4.12.3",
@@ -48,10 +48,10 @@
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.14",
-    "@vladmandic/face-api": "1.5.2",
-    "@xrengine/client-core": "^0.4.0",
-    "@xrengine/editor": "^0.4.0",
-    "@xrengine/engine": "^0.4.0",
+    "@vladmandic/face-api": "1.5.3",
+    "@xrengine/client-core": "^0.4.2",
+    "@xrengine/editor": "^0.4.2",
+    "@xrengine/engine": "^0.4.2",
     "axios": "0.21.4",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
@@ -65,7 +65,7 @@
     "fuse.js": "6.4.6",
     "i18next": "20.6.1",
     "i18next-browser-languagedetector": "6.1.2",
-    "immutable": "4.0.0-rc.14",
+    "immutable": "4.0.0-rc.15",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
     "mediasoup-client": "3.6.41",
@@ -99,7 +99,7 @@
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "sass": "1.41.0",
+    "sass": "1.41.1",
     "semantic-ui-react": "2.0.3",
     "shaka-player": "3.2.0",
     "socket.io-client": "4.2.0",
@@ -112,7 +112,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
-    "@types/node": "14.17.16",
+    "@types/node": "14.17.17",
     "@types/react": "17.0.21",
     "@types/react-dom": "17.0.9",
     "comlink": "4.3.1",

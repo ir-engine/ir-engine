@@ -17,6 +17,7 @@ import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
+import { selectScopeErrorState } from '../../../common/reducers/error/selector'
 import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
@@ -30,6 +31,7 @@ import Button from '@material-ui/core/Button'
 import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
 import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
+import FormDialog from '../UI/SubmitDialog'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -37,7 +39,8 @@ const mapStateToProps = (state: any): any => {
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
-    adminSceneState: selectAdminSceneState(state)
+    adminSceneState: selectAdminSceneState(state),
+    adminScopeErrorState: selectScopeErrorState(state)
   }
 }
 
@@ -63,6 +66,7 @@ const LocationTable = (props: LocationProps) => {
     adminUserState,
     adminInstanceState,
     adminSceneState,
+    adminScopeErrorState,
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)
@@ -74,12 +78,10 @@ const LocationTable = (props: LocationProps) => {
 
   const authState = useAuthState()
   const user = authState.user
-
+  const adminScopeReadErrMsg = adminScopeErrorState.get('readError').get('scopeErrorMessage')
   const adminLocations = adminLocationState.get('locations').get('locations')
   const adminLocationCount = adminLocationState.get('locations').get('total')
   const { t } = useTranslation()
-
-  console.log(adminLocations)
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     fetchAdminLocations(incDec)
@@ -92,7 +94,7 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (user?.id.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
+    if (user?.id?.value !== null && adminLocationState.get('locations').get('updateNeeded') && !adminScopeReadErrMsg) {
       fetchAdminLocations()
     }
     if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
@@ -202,50 +204,52 @@ const LocationTable = (props: LocationProps) => {
 
   return (
     <div>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {locationColumns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  className={classex.tableCellHeader}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, id) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {locationColumns.map((column) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[LOCATION_PAGE_LIMIT]}
-        component="div"
-        count={adminLocationCount}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        className={classex.tableFooter}
-      />
+      <React.Fragment>
+        <TableContainer className={classes.container}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {locationColumns.map((column) => (
+                  <TableCell
+                    key={column.id}
+                    align={column.align}
+                    style={{ minWidth: column.minWidth }}
+                    className={classex.tableCellHeader}
+                  >
+                    {column.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                    {locationColumns.map((column) => {
+                      const value = row[column.id]
+                      return (
+                        <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
+                          {value}
+                        </TableCell>
+                      )
+                    })}
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[12]}
+          component="div"
+          count={adminLocationCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
+          className={classex.tableFooter}
+        />
+      </React.Fragment>
       <Dialog
         open={popConfirmOpen}
         onClose={() => setPopConfirmOpen(false)}

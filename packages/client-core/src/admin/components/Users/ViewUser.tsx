@@ -19,7 +19,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { bindActionCreators, Dispatch } from 'redux'
 import { fetchUserRole } from '../../reducers/admin/user/service'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import InputBase from '@material-ui/core/InputBase'
 import { updateUserRole, patchUser, fetchSingleUserAdmin, fetchStaticResource } from '../../reducers/admin/user/service'
 import { useUserStyles, useUserStyle } from './styles'
@@ -32,6 +32,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 
 interface Props {
   openView: boolean
@@ -45,6 +46,7 @@ interface Props {
   fetchStaticResource?: any
   adminScopeState?: any
   getScopeTypeService?: any
+  //doLoginAuto?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -61,6 +63,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
   fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
   getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
+  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 })
 
 const Alert = (props) => {
@@ -70,6 +73,8 @@ const Alert = (props) => {
 const ViewUser = (props: Props) => {
   const classx = useUserStyle()
   const classes = useUserStyles()
+  const dispatch = useDispatch()
+
   const {
     openView,
     closeViewModel,
@@ -82,6 +87,7 @@ const ViewUser = (props: Props) => {
     fetchStaticResource,
     adminScopeState,
     getScopeTypeService
+    //doLoginAuto
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
@@ -118,6 +124,7 @@ const ViewUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
+      dispatch(AuthService.doLoginAuto(false))
       await fetchUserRole()
     }
     if (adminUserState.get('users').get('updateNeeded') === true && user.id.value) fetchData()

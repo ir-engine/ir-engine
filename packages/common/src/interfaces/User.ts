@@ -10,6 +10,10 @@ export interface UserSetting {
   microphone: number
 }
 
+export interface UserScope {
+  type: string
+}
+
 export interface User {
   id: string
   name: string
@@ -26,6 +30,7 @@ export interface User {
   locationBans?: LocationBan[]
   user_setting?: UserSetting
   inviteCode?: string
+  scopes?: UserScope[]
 }
 
 export const UserSeed: User = {

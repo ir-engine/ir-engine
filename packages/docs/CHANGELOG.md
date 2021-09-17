@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+
+
+**Note:** Version bump only for package @xrengine/docs
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/docs
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/docs
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/docs
+
+
+
+
+
 ## [0.2.27](https://github.com/barankyle/xrengine/compare/v0.2.26...v0.2.27) (2021-05-13)
 
 **Note:** Version bump only for package @xrengine/docs
