@@ -1,13 +1,15 @@
 {
   "name": "@xrengine/social",
   "version": "0.4.4",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
     "node": ">= 16.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "npmClient": "npm",
   "jest": "ts-jest",
@@ -16,7 +18,8 @@
     "dev": "vite --host",
     "build": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js www/server.js",
     "validate": "npm run test",
-    "start": "cp src/server.js www/server.js && node www/server.js"
+    "start": "cp src/server.js www/server.js && node www/server.js",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
     "socket.io": "4.2.0",
