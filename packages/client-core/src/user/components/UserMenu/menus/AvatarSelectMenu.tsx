@@ -227,6 +227,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
   }
 
   uploadAvatar = () => {
+    if (this.state.obj == null) return
     const error = this.validate(this.state.obj)
     if (error) {
       this.setState({ error })

@@ -9,20 +9,17 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import { ChevronLeft, ChevronRight, Menu } from '@material-ui/icons'
 import Avatar from '@material-ui/core/Avatar'
-import { selectAuthState } from '../../reducers/auth/selector'
+import { useAuthState } from '../../reducers/auth/AuthState'
 import { connect } from 'react-redux'
 import { useStylesForDashboard } from './styles'
 import SideMenu from './SideMenuItem'
 
 interface Props {
   children?: any
-  authState?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
+  return {}
 }
 
 /**
@@ -33,12 +30,13 @@ const mapStateToProps = (state: any): any => {
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
-const Dashboard = ({ children, authState }: Props) => {
+const Dashboard = ({ children }: Props) => {
+  const authState = useAuthState()
   const classes = useStylesForDashboard()
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
-  const admin = authState.get('user')
-  const isLoggedIn = authState.get('isLoggedIn')
+  const admin = authState.user
+  const isLoggedIn = authState.isLoggedIn.value
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -71,11 +69,11 @@ const Dashboard = ({ children, authState }: Props) => {
             <Menu />
           </IconButton>
           <Typography variant="h6">Dashboard</Typography>
-          {admin?.name && (
+          {admin?.name.value && (
             <div className={classes.avatarPosition}>
-              <Avatar className={classes.orange}>{admin?.name?.charAt(0)?.toUpperCase()}</Avatar>
+              <Avatar className={classes.orange}>{admin?.name?.value.charAt(0)?.toUpperCase()}</Avatar>
               <Typography variant="h6" className={classes.marginLft}>
-                {admin?.name}
+                {admin?.name.value}
               </Typography>
             </div>
           )}

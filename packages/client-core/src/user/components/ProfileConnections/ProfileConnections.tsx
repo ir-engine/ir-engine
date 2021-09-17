@@ -6,8 +6,8 @@ import { connect } from 'react-redux'
 import SingleConnection from './SingleConnection'
 import { User } from '@xrengine/common/src/interfaces/User'
 import styles from './ProfileConnections.module.scss'
-import { selectAuthState } from '../../reducers/auth/selector'
 import { useTranslation } from 'react-i18next'
+import { useAuthState } from '../../reducers/auth/AuthState'
 
 interface Props {
   auth: any
@@ -15,9 +15,7 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    auth: selectAuthState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (): any => ({})
@@ -25,7 +23,7 @@ const mapDispatchToProps = (): any => ({})
 const ProfileConnections = (props: Props): any => {
   const { classes } = props
   const { t } = useTranslation()
-  const user = props.auth.get('user') as User
+  const user = useAuthState().user.value
 
   if (!user) {
     // window.location.href = '/'
