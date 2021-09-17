@@ -17,6 +17,7 @@ import {
   ProjectGridHeader,
   ProjectGridHeaderRow
 } from '@xrengine/editor/src/components/projects/ProjectGrid'
+import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
 import templates from '@xrengine/editor/src/components/projects/templates'
 import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import React, { useEffect, useState } from 'react'
@@ -95,6 +96,20 @@ const ProjectsPage = (props: Props) => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false) // constant profileMenuOpen initialized as false
   const authUser = authState.get('authUser') // authUser initialized by getting property from authState object.
   const user = authState.get('user') // user initialized by getting value from authState object.
+  const scopes = user.scopes || []
+  let isLocationAllowed = false
+  let isEditorAllowed = false
+
+  for (const scope of scopes) {
+    if (scope.type.split(':')[0] === 'location' && scope.type.split(':')[1] === 'read') {
+      isLocationAllowed = true
+    }
+    if (scope.type.split(':')[0] === 'editor' && scope.type.split(':')[1] === 'write') {
+      isEditorAllowed = true
+      if (isLocationAllowed) break
+    }
+  }
+
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -217,72 +232,78 @@ const ProjectsPage = (props: Props) => {
           </ProjectGridHeaderRow>
         </ProjectGridHeader>
       )}
-
-      <div className={classes.root}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          aria-label="scrollable auto tabs example"
-          orientation="vertical"
-          className={classes.tabs}
-          classes={{ indicator: classes.indicator }}
-        >
-          <Tab label={t('editor.projects.projectHeader')} {...tapId(0)} />
-          <Tab label={t('editor.projects.locationHeader')} {...tapId(1)} />
-        </Tabs>
-        <TabPanel value={value} index={0}>
-          {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
-            <main>
-              {projects.length === 0 && !loading ? (
-                <StyledProjectsSection flex={0}>
-                  <WelcomeContainer>
-                    <h1>{t('editor.projects.welcomeMsg')}</h1>
-                    <h2>{t('editor.projects.description')}</h2>
-                    <MediumButton onClick={routeTo('/editor/tutorial')}>
-                      {t('editor.projects.lbl-startTutorial')}
-                    </MediumButton>
-                  </WelcomeContainer>
-                </StyledProjectsSection>
-              ) : null}
-              <StyledProjectsSection>
-                <StyledProjectsContainer>
-                  <ProjectGridContainer>
-                    <ProjectGridHeader>
-                      <ProjectGridHeaderRow />
-                      <ProjectGridHeaderRow>
-                        <Button onClick={routeTo('/editor/create')}>{t('editor.projects.lbl-newProject')}</Button>
-                      </ProjectGridHeaderRow>
-                    </ProjectGridHeader>
-                    <ProjectGridContent>
-                      {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
-                      {!error && (
-                        <ProjectGrid
-                          loading={loading}
-                          projects={projects}
-                          // newProjectPath="/editor/templates"
-                          newProjectPath="/editor/create"
-                          newProjectLabel={t('editor.projects.lbl-newProject')}
-                          contextMenuId={contextMenuId}
-                        />
-                      )}
-                    </ProjectGridContent>
-                  </ProjectGridContainer>
-                </StyledProjectsContainer>
-              </StyledProjectsSection>
-              <ProjectContextMenu />
-            </main>
-          )}
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <StyledProjectsSection>
-            <StyledProjectsContainer>
-              <LocationAdmin />
-            </StyledProjectsContainer>
-          </StyledProjectsSection>
-        </TabPanel>
-      </div>
-
+      {authUser && (
+        <div className={classes.root}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            indicatorColor="primary"
+            aria-label="scrollable auto tabs example"
+            orientation="vertical"
+            className={classes.tabs}
+            classes={{ indicator: classes.indicator }}
+          >
+            <Tab label={t('editor.projects.projectHeader')} {...tapId(0)} />
+            {isLocationAllowed && <Tab label={t('editor.projects.locationHeader')} {...tapId(1)} />}
+          </Tabs>
+          <TabPanel value={value} index={0}>
+            {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
+              <main>
+                {isEditorAllowed ? (
+                  <>
+                    {projects.length === 0 && !loading ? (
+                      <StyledProjectsSection flex={0}>
+                        <WelcomeContainer>
+                          <h1>{t('editor.projects.welcomeMsg')}</h1>
+                          <h2>{t('editor.projects.description')}</h2>
+                          <MediumButton onClick={routeTo('/editor/tutorial')}>
+                            {t('editor.projects.lbl-startTutorial')}
+                          </MediumButton>
+                        </WelcomeContainer>
+                      </StyledProjectsSection>
+                    ) : null}
+                    <StyledProjectsSection>
+                      <StyledProjectsContainer>
+                        <ProjectGridContainer>
+                          <ProjectGridHeader>
+                            <ProjectGridHeaderRow />
+                            <ProjectGridHeaderRow>
+                              <Button onClick={routeTo('/editor/create')}>{t('editor.projects.lbl-newProject')}</Button>
+                            </ProjectGridHeaderRow>
+                          </ProjectGridHeader>
+                          <ProjectGridContent>
+                            {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
+                            {!error && (
+                              <ProjectGrid
+                                loading={loading}
+                                projects={projects}
+                                // newProjectPath="/editor/templates"
+                                newProjectPath="/editor/create"
+                                newProjectLabel={t('editor.projects.lbl-newProject')}
+                                contextMenuId={contextMenuId}
+                              />
+                            )}
+                          </ProjectGridContent>
+                        </ProjectGridContainer>
+                      </StyledProjectsContainer>
+                    </StyledProjectsSection>
+                    <ProjectContextMenu />
+                  </>
+                ) : (
+                  <FormDialog />
+                )}
+              </main>
+            )}
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <StyledProjectsSection>
+              <StyledProjectsContainer>
+                <LocationAdmin />
+              </StyledProjectsContainer>
+            </StyledProjectsSection>
+          </TabPanel>
+        </div>
+      )}
       {profileMenuOpen && (
         <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
           {/* <div className={styles.profileMenu}> */}

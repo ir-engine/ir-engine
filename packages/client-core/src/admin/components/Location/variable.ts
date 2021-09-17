@@ -86,4 +86,5 @@ export interface LocationProps {
   adminInstanceState?: any
   adminSceneState?: any
   removeLocation?: any
+  adminScopeErrorState?: any
 }
