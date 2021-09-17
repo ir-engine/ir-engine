@@ -13,7 +13,7 @@ import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
 import { IKRigComponent, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRigComponent'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
-import { IKRigSystem } from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
+import IKRigSystem from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect, useRef, useState } from 'react'
 import {
@@ -99,7 +99,7 @@ const Page = () => {
   console.log('RENDER', animationTimeScale, animationTime)
 
   useEffect(() => {
-    if (worldRef.current) {
+    if (animationClipActionRef.current) {
       console.log('useEffect animationTimeScale, set:', animationTimeScale)
       animationClipActionRef.current.setEffectiveTimeScale(animationTimeScale)
     }
@@ -127,6 +127,13 @@ const Page = () => {
       window['CLIP'] = clipAction
 
       animationClipActionRef.current = clipAction
+
+      if (customModelEntityRef.current) {
+        const ac = getComponent(customModelEntityRef.current, AnimationComponent)
+        ac.mixer.stopAllAction()
+        const newClipAction = ac.mixer.clipAction(ac.animations[animationIndex])
+        newClipAction.setEffectiveTimeScale(animationTimeScale).play()
+      }
     }
   }, [animationIndex])
 
@@ -200,30 +207,56 @@ const Page = () => {
 
     const sourceSkeleton = getComponent(sourceEntityRef.current, IKObj).ref
 
-    loadAndSetupModel(
-      objectURL,
-      SkeletonUtils.clone(sourceSkeleton),
-      sourceEntityRef.current,
-      new Vector3(0, 0, 0),
-      new Quaternion(),
-      new Vector3(1, 1, 1)
-    )
-      .then(({ entity, skeletonHelper }) => {
-        const rig = getComponent(entity, IKRigComponent)
-        rig.name = 'custom'
-        rig.tpose.apply()
+    const justLoad = false
+    if (justLoad) {
+      LoadGLTF(objectURL)
+        .then((gltf) => {
+          const helper = new SkeletonHelper(gltf.scene)
+          Engine.scene.add(helper)
+          Engine.scene.add(gltf.scene)
+        })
+        .finally(() => {
+          window.URL.revokeObjectURL(objectURL)
+        })
+    } else {
+      const result = getBaseSkeletonGroup()
 
-        console.log('target rig', rig.name, rig)
+      loadAndSetupModel(
+        objectURL,
+        result.group,
+        sourceEntityRef.current,
+        new Vector3(0, 0, 0),
+        new Quaternion(),
+        new Vector3(1, 1, 1)
+      )
+        .then(({ entity, skeletonHelper }) => {
+          const rig = getComponent(entity, IKRigComponent)
+          rig.name = 'custom'
+          // rig.tpose.apply()
 
-        window.URL.revokeObjectURL(objectURL)
+          console.log('target rig', rig.name, rig)
 
-        customModelEntityRef.current = entity
-        customModelSkeletonHelperRef.current = skeletonHelper
-      })
-      .catch((error) => {
-        alert('Failed to load avatar, check console for more info')
-        console.error(error)
-      })
+          const ac = addComponent(entity, AnimationComponent, {
+            mixer: new AnimationMixer(rig.pose.skeleton.bones[0].parent),
+            animations: animationsList,
+            animationSpeed: 1
+          })
+          // const ac = getComponent(entity, AnimationComponent)
+          const clipAction = ac.mixer.clipAction(ac.animations[17])
+          clipAction.setEffectiveTimeScale(animationTimeScale).play()
+          clipAction.play()
+
+          customModelEntityRef.current = entity
+          customModelSkeletonHelperRef.current = skeletonHelper
+        })
+        .catch((error) => {
+          alert('Failed to load avatar, check console for more info')
+          console.error(error)
+        })
+        .finally(() => {
+          window.URL.revokeObjectURL(objectURL)
+        })
+    }
   }
 
   const animationTimeScaleSelect = (
@@ -267,6 +300,33 @@ const Page = () => {
 }
 
 export default Page
+
+function getBaseSkeletonGroup(): { group: Group; skinnedMesh: SkinnedMesh } {
+  const bones = []
+  bonesData2.forEach((data) => {
+    const bone = new Bone()
+    bone.name = data.name
+    bone.position.fromArray(data.position)
+    bone.quaternion.fromArray(data.quaternion)
+    bone.scale.fromArray(data.scale)
+    bones.push(bone)
+  })
+
+  bonesData2.forEach((data, index) => {
+    if (data.parentIndex !== null) {
+      bones[data.parentIndex].add(bones[index])
+    }
+  })
+
+  const group = new Group()
+  const skinnedMesh = new SkinnedMesh()
+  const skeleton = new Skeleton(bones)
+  skinnedMesh.bind(skeleton)
+  group.add(skinnedMesh)
+  group.add(bones[0]) // we assume that root bone is the first one
+
+  return { group, skinnedMesh }
+}
 
 async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: Entity[] }> {
   await initThree() // Set up the three.js scene with grid, light, etc
@@ -412,29 +472,10 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
     const hipsBone = rigModel.scene.getObjectByName('Hips')
     hipsBone.removeFromParent()
     skinnedMesh.removeFromParent()
-    const bones = []
-    bonesData2.forEach((data) => {
-      const bone = new Bone()
-      bone.name = data.name
-      bone.position.fromArray(data.position)
-      bone.quaternion.fromArray(data.quaternion)
-      bone.scale.fromArray(data.scale)
-      bones.push(bone)
-    })
 
-    bonesData2.forEach((data, index) => {
-      if (data.parentIndex !== null) {
-        bones[data.parentIndex].add(bones[index])
-      }
-    })
-
-    const group = new Group()
-    skinnedMesh = new SkinnedMesh()
-    const skeleton = new Skeleton(bones)
-    skinnedMesh.bind(skeleton)
-    group.add(skinnedMesh)
-    group.add(bones[0]) // we assume that root bone is the first one
-    rigModel.scene.add(group)
+    const result = getBaseSkeletonGroup()
+    skinnedMesh = result.skinnedMesh
+    rigModel.scene.add(result.group)
   }
 
   Engine.scene.add(rigModel.scene)
@@ -517,6 +558,16 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
       rig.name = 'rigTRex'
       rig.tpose.apply()
 
+      const ac = addComponent(entity, AnimationComponent, {
+        mixer: new AnimationMixer(rig.pose.skeleton.bones[0].parent),
+        animations: animModel.animations,
+        animationSpeed: 1
+      })
+      // const ac = getComponent(entity, AnimationComponent)
+      const clipAction = ac.mixer.clipAction(ac.animations[2])
+      clipAction.setEffectiveTimeScale(1).play()
+      clipAction.play()
+
       targetEntities.push(entity)
     })
   )
@@ -573,17 +624,6 @@ async function loadAndSetupModel(
   // // Set the skinned mesh reference
   // const targetObj = getComponent(targetEntity, IKObj)
   //
-  // const rootQuaternion = new Quaternion()
-  // const rootPosition = new Vector3()
-  // const rootScale = new Vector3()
-  //
-  // targetObj.ref.parent.getWorldQuaternion(rootQuaternion)
-  // targetObj.ref.parent.getWorldPosition(rootPosition)
-  // targetObj.ref.parent.getWorldScale(rootScale)
-  //
-  // targetRig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
-  // targetRig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
-  // console.log('---setOffset', rootQuaternion, rootPosition, rootScale)
 
   //setupIKRig(targetEntity, targetRig)
   const targetRig = addTargetRig(targetEntity, targetSkinnedMesh.parent, null, false, armatureType)
@@ -591,10 +631,10 @@ async function loadAndSetupModel(
   // Set the skinned mesh reference
   const targetObj = getComponent(targetEntity, IKObj)
 
-  for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
-    const bone = targetObj.ref.skeleton.bones[index]
-    targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale)
-  }
+  // for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
+  //   const bone = targetObj.ref.skeleton.bones[index]
+  //   targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale)
+  // }
 
   const helper = new SkeletonHelper(targetRig.pose.bones[0].bone)
   Engine.scene.add(helper)

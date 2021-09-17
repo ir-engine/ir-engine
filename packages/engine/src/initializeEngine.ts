@@ -167,6 +167,8 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.Fixed, import('./avatar/ClientAvatarSpawnSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./avatar/AvatarControllerSystem'))
+  // Avatar IKRig
+  registerSystem(SystemUpdateType.Fixed, import('./ikrig/systems/IKRigSystem'))
 
   // FIXED UPDATE INJECTION POINT
   registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {

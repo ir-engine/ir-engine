@@ -1,6 +1,6 @@
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { IKRigComponent, IKRigComponentType, PointData } from '../components/IKRigComponent'
-import { Bone, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import {
   IKPoseComponent,
   IKPoseComponentType,
@@ -76,6 +76,9 @@ export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRigCom
   rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
   rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
   rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
+
+  // TODO: remove it when fixed
+  rig.points.head.index = rig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
 }
 
 export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRigComponent.get>) {
@@ -457,6 +460,11 @@ export function applyIKPoseToIKRig(targetRig: IKRigComponentType, ikPose: IKPose
  * @param targetRig
  */
 function applyPoseToRig(targetRig: IKRigComponentType) {
+  // TODO: this is just a test, remove it!
+  const siblingSkinnedMeshes = targetRig.pose.bones[0].bone.parent.children.filter(
+    (child) => child.type === 'SkinnedMesh'
+  ) as SkinnedMesh[]
+
   for (let i = 0; i < targetRig.pose.bones.length; i++) {
     const poseBone = targetRig.pose.bones[i]
     const armatureBone = poseBone.bone
@@ -464,8 +472,20 @@ function applyPoseToRig(targetRig: IKRigComponentType) {
     armatureBone.position.copy(poseBone.local.position)
     armatureBone.quaternion.copy(poseBone.local.quaternion)
     armatureBone.scale.copy(poseBone.local.scale)
+    siblingSkinnedMeshes.forEach((mesh) => {
+      const siblingBone = mesh.skeleton?.bones[i]
+      if (!siblingBone || siblingBone === armatureBone || siblingBone.name !== armatureBone.name) {
+        return
+      }
+      siblingBone.position.copy(poseBone.local.position)
+      siblingBone.quaternion.copy(poseBone.local.quaternion)
+      siblingBone.scale.copy(poseBone.local.scale)
+    })
   }
   targetRig.pose.skeleton.update()
+  siblingSkinnedMeshes.forEach((mesh) => {
+    mesh.skeleton?.update()
+  })
 }
 
 export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IKRigComponentType) {

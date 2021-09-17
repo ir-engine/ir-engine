@@ -47,7 +47,7 @@ import { System } from '../../ecs/classes/System'
 //   }
 // }
 
-export const IKRigSystem = async (world: World): Promise<System> => {
+export default async function IKRigSystem(world: World): Promise<System> {
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
 
   return () => {

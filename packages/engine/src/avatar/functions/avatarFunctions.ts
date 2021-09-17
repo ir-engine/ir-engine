@@ -1,7 +1,7 @@
-import { AnimationMixer, Group } from 'three'
+import { AnimationMixer, Bone, Group, Skeleton, SkeletonHelper, SkinnedMesh } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -22,6 +22,12 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { DissolveEffect } from '../DissolveEffect'
+import { bonesData2 } from '../DefaultSkeletonBones'
+import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
+import { IKObj } from '../../ikrig/components/IKObj'
+import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 
 export const setAvatar = (entity, avatarId, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -65,6 +71,10 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
       receiveShadow: true
     },
     (gltf: any) => {
+      const avatar = getComponent(entity, AvatarComponent)
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+
       const model = SkeletonUtils.clone(gltf.scene)
 
       model.traverse((o) => {
@@ -74,9 +84,16 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         }
       })
 
-      const avatar = getComponent(entity, AvatarComponent)
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      // animation will be applied to this skeleton instead of avatar
+      const sourceSkeletonRoot = SkeletonUtils.clone(getDefaultSkeleton().parent)
+      const sourceSkinnedMesh = sourceSkeletonRoot.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+      {
+        // setup ikrig ==========================================
+        // TODO: find the way to get Armature Type
+        // TODO: find the way to separate them, we will have two rigs on same entity
+        addComponent(entity, IKObj, { ref: sourceSkinnedMesh })
+        addRig(entity, sourceSkeletonRoot)
+      }
 
       animationComponent.mixer.stopAllAction()
       avatar.modelContainer.children.forEach((child) => child.removeFromParent())
@@ -94,15 +111,40 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         }
       })
 
-      animationComponent.mixer = new AnimationMixer(avatar.modelContainer)
+      animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
       model.children.forEach((child) => avatar.modelContainer.add(child))
 
       if (avatarAnimationComponent.currentState) {
         AnimationRenderer.mountCurrentState(entity)
       }
 
+      // TODO: find skinned mesh in avatar.modelContainer
+      const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+      console.log('avatarSkinnedMesh', avatarSkinnedMesh)
+      addComponent(entity, IKObj, { ref: avatarSkinnedMesh })
+      const rig = addTargetRig(entity, avatar.modelContainer)
+      console.log('avatar rig', rig)
+      const ikpose = addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
+      console.log('avatar ikpose', ikpose)
+      console.log('ac', animationComponent)
+
+      const sh0 = new SkeletonHelper(avatar.modelContainer)
+      Engine.scene.add(sh0)
+
+      //avatar.modelContainer.add(sourceSkeletonRoot)
+      const sh = new SkeletonHelper(sourceSkeletonRoot)
+      Engine.scene.add(sh)
+      Engine.scene.add(sourceSkeletonRoot)
+
       // advance animation for a frame to eliminate potential t-pose
       animationComponent.mixer.update(1 / 60)
+
+      console.log(
+        'entity has all 3',
+        hasComponent(entity, IKRigComponent),
+        hasComponent(entity, IKRigTargetComponent),
+        hasComponent(entity, IKPoseComponent)
+      )
 
       loadGrowingEffectObject(entity, materialList)
     }
@@ -152,4 +194,31 @@ const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<Ma
     opacityMultiplier: 0,
     originMaterials: originalMatList
   })
+}
+
+export function getDefaultSkeleton(): SkinnedMesh {
+  const bones = []
+  bonesData2.forEach((data) => {
+    const bone = new Bone()
+    bone.name = data.name
+    bone.position.fromArray(data.position)
+    bone.quaternion.fromArray(data.quaternion)
+    bone.scale.fromArray(data.scale)
+    bones.push(bone)
+  })
+
+  bonesData2.forEach((data, index) => {
+    if (data.parentIndex !== null) {
+      bones[data.parentIndex].add(bones[index])
+    }
+  })
+
+  const group = new Group()
+  const skinnedMesh = new SkinnedMesh()
+  const skeleton = new Skeleton(bones)
+  skinnedMesh.bind(skeleton)
+  group.add(skinnedMesh)
+  group.add(bones[0]) // we assume that root bone is the first one
+
+  return skinnedMesh
 }

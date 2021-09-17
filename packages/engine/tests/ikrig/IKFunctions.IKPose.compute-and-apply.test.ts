@@ -23,7 +23,7 @@ import {
   IKPoseLookTwist,
   IKPoseSpineData
 } from '../../src/ikrig/components/IKPoseComponent'
-import { IKRigComponent, IKRigComponentType } from '../../src/ikrig/components/IKRigComponent'
+import { IKRigComponent, IKRigComponentType, IKRigTargetComponent } from '../../src/ikrig/components/IKRigComponent'
 import {
   adoptBones,
   adoptIKPose,
@@ -210,9 +210,7 @@ describe('Check Apply', () => {
     // init target entity and rig
     targetEntity = createEntity()
     setupTestTargetEntity(targetEntity)
-    targetRig = getComponent(targetEntity, IKRigComponent)
-    // TODO: remove it when fixed
-    targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
+    targetRig = getComponent(targetEntity, IKRigTargetComponent)
 
     // apply animation pose
     const targetAnimBonesStates = adoptBones(poseBonesForLegs)
