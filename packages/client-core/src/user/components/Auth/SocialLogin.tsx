@@ -5,20 +5,11 @@ import Container from '@material-ui/core/Container'
 import GitHubIcon from '@material-ui/icons/GitHub'
 import FacebookIcon from '@material-ui/icons/Facebook'
 import LinkedinIcon from '@material-ui/icons/LinkedIn'
-import TwitterIcon from '@material-ui/icons/Twitter'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import TwitterIcon from '@material-ui/icons/Twitter' 
 import styles from './Auth.module.scss'
-import { loginUserByOAuth } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import { useTranslation } from 'react-i18next'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch)
-})
+import { useDispatch } from 'react-redux'
 
 interface Props {
   auth?: any
@@ -27,43 +18,36 @@ interface Props {
   enableGoogleSocial?: boolean
   enableLinkedInSocial?: boolean
   enableTwitterSocial?: boolean
-  loginUserByOAuth?: typeof loginUserByOAuth
 }
 
 const SocialLogin = (props: Props): any => {
-  const {
-    enableFacebookSocial,
-    enableGithubSocial,
-    enableGoogleSocial,
-    enableLinkedInSocial,
-    enableTwitterSocial,
-    loginUserByOAuth
-  } = props
+  const { enableFacebookSocial, enableGithubSocial, enableGoogleSocial, enableLinkedInSocial, enableTwitterSocial } =
+    props
   const { t } = useTranslation()
-
+  const dispatch = useDispatch()
   const handleGithubLogin = (e: any): void => {
     e.preventDefault()
-    loginUserByOAuth('github')
+    dispatch(AuthService.loginUserByOAuth('github'))
   }
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    loginUserByOAuth('google')
+    dispatch(AuthService.loginUserByOAuth('google'))
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    loginUserByOAuth('facebook')
+    dispatch(AuthService.loginUserByOAuth('facebook'))
   }
 
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault()
-    loginUserByOAuth('linkedin2')
+    dispatch(AuthService.loginUserByOAuth('linkedin2'))
   }
 
   const handleTwitterLogin = (e: any): void => {
     e.preventDefault()
-    loginUserByOAuth('twitter')
+    dispatch(AuthService.loginUserByOAuth('twitter'))
   }
 
   const githubButton = enableGithubSocial ? (
@@ -154,4 +138,4 @@ const SocialLogin = (props: Props): any => {
 
 const SocialLoginWrapper = (props: Props): any => <SocialLogin {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(SocialLoginWrapper)
+export default SocialLoginWrapper

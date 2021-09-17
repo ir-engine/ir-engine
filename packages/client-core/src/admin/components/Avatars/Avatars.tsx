@@ -11,10 +11,10 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/reducers'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
@@ -22,39 +22,36 @@ import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { uploadAvatarModel } from '../../../user/reducers/auth/service'
+import { AuthService } from '../../../user/reducers/auth/AuthService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
 interface Props {
-  authState?: any
   locationState?: any
   fetchAdminAvatars?: any
   fetchLocationTypes?: any
   adminAvatarState?: any
-  uploadAvatarModel?: Function
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     adminAvatarState: selectAdminAvatarState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminAvatars: bindActionCreators(fetchAdminAvatars, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
-  uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch)
+  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
 })
 
 const Avatars = (props: Props) => {
-  const { authState, fetchAdminAvatars, adminAvatarState, uploadAvatarModel } = props
-
-  const user = authState.get('user')
+  const { fetchAdminAvatars, adminAvatarState } = props
+  const dispatch = useDispatch()
+  const authState = useAuthState()
+  const user = authState.user
   const adminAvatars = adminAvatarState.get('avatars').get('avatars')
   const adminAvatarCount = adminAvatarState.get('avatars').get('total')
 
@@ -202,7 +199,7 @@ const Avatars = (props: Props) => {
   // }, [])
 
   useEffect(() => {
-    if (user?.id != null && (adminAvatarState.get('avatars').get('updateNeeded') === true || refetch === true)) {
+    if (user?.id.value != null && (adminAvatarState.get('avatars').get('updateNeeded') === true || refetch === true)) {
       fetchAdminAvatars()
     }
     setRefetch(false)
@@ -221,6 +218,10 @@ const Avatars = (props: Props) => {
       height: window.innerHeight,
       width: window.innerWidth
     })
+  }
+
+  const uploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
+    dispatch(AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar))
   }
 
   return (
@@ -289,7 +290,7 @@ const Avatars = (props: Props) => {
                       {row.key}
                     </TableCell>
                     <TableCell className={styles.tcell} align="right">
-                      {user.userRole === 'admin' && (
+                      {user.userRole.value === 'admin' && (
                         <Checkbox
                           className={styles.checkbox}
                           onChange={(e) => handleCheck(e, row)}

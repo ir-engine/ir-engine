@@ -1,24 +1,18 @@
 import PartyCore from '@xrengine/client-core/src/admin/components/Party'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import React from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
-interface Props {
-  doLoginAuto?: any
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
+interface Props {}
 
 const Party = (props: Props) => {
-  const { doLoginAuto } = props
+  const dispatch = useDispatch()
   React.useEffect(() => {
-    doLoginAuto(false)
+    dispatch(AuthService.doLoginAuto(false))
   }, [])
 
   return <PartyCore />
 }
 
-export default connect(null, mapDispatchToProps)(Party)
+export default Party

@@ -1,13 +1,13 @@
 import React, { Suspense, useEffect } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 const editorProject = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
 const editorProjID = React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))
 const editorCreate = React.lazy(() => import('@xrengine/editor/src/pages/create'))
 const UnauthorisedPage = React.lazy(() => import('@xrengine/client/src/pages/403/403'))
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 
 interface Props {
   authState?: any
@@ -16,21 +16,23 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state)
+    // authState: selectAuthState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 })
 
 const EditorProtectedRoutes = (props: Props) => {
-  const { authState, doLoginAuto } = props
-  const scopes = authState.get('user').scopes || []
+  //const { authState, doLoginAuto } = props
+
+  const dispatch = useDispatch()
+  const scopes = useAuthState().user?.scopes?.value || []
   let isSceneAllowed = false
 
   useEffect(() => {
-    doLoginAuto(false)
+    dispatch(AuthService.doLoginAuto(false))
   }, [])
 
   for (const scope of scopes) {

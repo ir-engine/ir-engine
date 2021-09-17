@@ -3,17 +3,18 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
-
+import { useDispatch } from 'react-redux'
 import styles from './Auth.module.scss'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { resetPassword } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
   completeAction?: any
-  resetPassword: typeof resetPassword
+  resetPassword: any
   token: string
 }
+
 
 export default (props: Props): any => {
   const { resetPassword, token } = props
