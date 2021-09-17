@@ -11,8 +11,9 @@ export type IKRigComponentType = {
   chains?: Record<string, Chain> // IK Chains
   points?: Record<string, PointData> // Individual IK points (hands, head, feet)
 
-  sourcePose?: ReturnType<typeof IKPoseComponent.get>
+  // sourcePose?: ReturnType<typeof IKPoseComponent.get>
   // sourceRig?: ReturnType<typeof IKRig.get>
 }
 
 export const IKRigComponent = createMappedComponent<IKRigComponentType>('IKRigComponent')
+export const IKRigTargetComponent = createMappedComponent<IKRigComponentType>('IKRigTargetComponent')

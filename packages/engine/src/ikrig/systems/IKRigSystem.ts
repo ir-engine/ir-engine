@@ -1,6 +1,5 @@
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKRigComponent } from '../components/IKRigComponent'
-import { Not } from 'bitecs'
+import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
 // import DebugComponent from '../classes/Debug'
 import { IKPoseComponent } from '../components/IKPoseComponent'
 import {
@@ -49,8 +48,7 @@ import { System } from '../../ecs/classes/System'
 // }
 
 export const IKRigSystem = async (world: World): Promise<System> => {
-  const targetRigsQuery = defineQuery([IKRigComponent, Not(IKPoseComponent)])
-  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent])
+  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
 
   return () => {
     // d.reset() // For this example, Lets reset visual debug for every compute.
@@ -59,9 +57,7 @@ export const IKRigSystem = async (world: World): Promise<System> => {
     for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)
       const rig = getComponent(entity, IKRigComponent)
-      if (!ikPose.targetRigs) {
-        continue
-      }
+      const targetRig = getComponent(entity, IKRigTargetComponent)
 
       // // COMPUTE
       computeIKPose(rig, ikPose)
@@ -80,10 +76,7 @@ export const IKRigSystem = async (world: World): Promise<System> => {
       // visualizeLookTwist(rig, rig.points.head, pose.head);
 
       // APPLY
-      for (const targetEntity of targetRigsQuery()) {
-        const targetRig = getComponent(targetEntity, IKRigComponent)
-        applyIKPoseToIKRig(targetRig, ikPose)
-      }
+      applyIKPoseToIKRig(targetRig, ikPose)
     }
   }
 }

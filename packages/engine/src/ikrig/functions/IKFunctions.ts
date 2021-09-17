@@ -55,19 +55,18 @@ export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRigCom
   //-----------------------------------------
   // Auto Setup the Points and Chains based on
   // Known Skeleton Structures.
-  // TODO:Fix
 
-  addPoint(entity, 'hip', 'Hips')
-  addPoint(entity, 'head', 'Head')
-  addPoint(entity, 'neck', 'Neck')
-  addPoint(entity, 'chest', 'Spine2')
-  addPoint(entity, 'foot_l', 'LeftFoot')
-  addPoint(entity, 'foot_r', 'RightFoot')
-  addChain(entity, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
-  addChain(entity, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
-  addChain(entity, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
-  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
-  addChain(entity, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
+  addPoint(rig, 'hip', 'Hips')
+  addPoint(rig, 'head', 'Head')
+  addPoint(rig, 'neck', 'Neck')
+  addPoint(rig, 'chest', 'Spine2')
+  addPoint(rig, 'foot_l', 'LeftFoot')
+  addPoint(rig, 'foot_r', 'RightFoot')
+  addChain(rig, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
+  addChain(rig, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
+  addChain(rig, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
+  addChain(rig, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
+  addChain(rig, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
 
   rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
   rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
@@ -88,20 +87,20 @@ export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRigCompo
   // Known Skeleton Structures.
   // TODO:Fix
 
-  addPoint(entity, 'hip', 'hip')
-  addPoint(entity, 'head', 'face_joint')
-  addPoint(entity, 'foot_l', 'LeftFoot')
-  addPoint(entity, 'foot_r', 'RightFoot')
+  addPoint(rig, 'hip', 'hip')
+  addPoint(rig, 'head', 'face_joint')
+  addPoint(rig, 'foot_l', 'LeftFoot')
+  addPoint(rig, 'foot_r', 'RightFoot')
 
-  addPoint(entity, 'wing_l', 'left_wing')
-  addPoint(entity, 'wing_r', 'right_wing')
+  addPoint(rig, 'wing_l', 'left_wing')
+  addPoint(rig, 'wing_r', 'right_wing')
 
   // addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', 'three_bone') //"z",
   // addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', 'three_bone') // "z",
-  addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', solveThreeBone) //"z",
-  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', solveThreeBone) // "z",
-  addChain(entity, 'spine', ['Spine', 'Spine1'])
-  addChain(entity, 'tail', ['tail_1', 'tail_2', 'tail_3', 'tail_4', 'tail_5', 'tail_6', 'tail_7'])
+  addChain(rig, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', solveThreeBone) //"z",
+  addChain(rig, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', solveThreeBone) // "z",
+  addChain(rig, 'spine', ['Spine', 'Spine1'])
+  addChain(rig, 'tail', ['tail_1', 'tail_2', 'tail_3', 'tail_4', 'tail_5', 'tail_6', 'tail_7'])
   // TODO: create set_leg_lmt and apply?
   // set_leg_lmt(entity, null, -0.1 )
 

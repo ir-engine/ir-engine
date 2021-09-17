@@ -29,19 +29,23 @@ import {
   Group,
   SkeletonHelper,
   SkinnedMesh,
+  Skeleton,
   Vector2,
   Vector3,
-  WebGLRenderer
+  WebGLRenderer,
+  Bone
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import Debug from '../../components/Debug'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { initRig } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
+import { addRig, addTargetRig } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
 import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { bonesData, bonesData2 } from '../../../../engine/src/avatar/DefaultSkeletonBones'
+import { SkeletonUtils } from '../../../../engine/src/avatar/SkeletonUtils'
 
 const AnimationSystem = async (world: World): Promise<System> => {
   const animationQuery = defineQuery([AnimationComponent])
@@ -194,7 +198,16 @@ const Page = () => {
       customModelEntityRef.current = null
     }
 
-    loadAndSetupModel(objectURL, sourceEntityRef.current, new Vector3(0, 0, 0), new Quaternion(), new Vector3(1, 1, 1))
+    const sourceSkeleton = getComponent(sourceEntityRef.current, IKObj).ref
+
+    loadAndSetupModel(
+      objectURL,
+      SkeletonUtils.clone(sourceSkeleton),
+      sourceEntityRef.current,
+      new Vector3(0, 0, 0),
+      new Quaternion(),
+      new Vector3(1, 1, 1)
+    )
       .then(({ entity, skeletonHelper }) => {
         const rig = getComponent(entity, IKRigComponent)
         rig.name = 'custom'
@@ -283,7 +296,7 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
   13 - 'walk_left'
   14 - 'walk_right'
    */
-  const ANIM_FILE = 'ikrig/anim/Walking.glb'
+  // const ANIM_FILE = 'ikrig/anim/Walking.glb'
   /*
   0 - 'clapping'
   1 - 'cry'
@@ -307,7 +320,7 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
   19 - 'walk_right'
   20 - 'wave'
    */
-  // const ANIM_FILE = '/models/avatars/Animations.glb'
+  const ANIM_FILE = '/models/avatars/Animations.glb'
   const RIG_FILE = 'ikrig/anim/Walking.glb'
   const MODEL_A_FILE = 'ikrig/models/vegeta.gltf'
   const MODEL_B_FILE = 'ikrig/anim/Walking.glb'
@@ -322,13 +335,33 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
   console.log('Animations model is', animModel)
   console.log('Animations:')
   animModel.animations.forEach((a, i) => console.log(i, a.name))
+  const hipsBone = animModel.scene.getObjectByName('Hips')
+  const bones = []
+  const mapBoneToIndex = new Map<any, number>()
+  hipsBone.traverse((child) => {
+    mapBoneToIndex.set(child, bones.length)
+    bones.push({
+      name: child.name,
+      parentIndex: null,
+      position: child.position.toArray(),
+      quaternion: child.quaternion.toArray(),
+      scale: child.scale.toArray()
+    })
+  })
+  hipsBone.traverse((child) => {
+    if (!mapBoneToIndex.has(child.parent)) {
+      return
+    }
+    const index = mapBoneToIndex.get(child)
+    const parentIndex = mapBoneToIndex.get(child.parent)
+    bones[index].parentIndex = parentIndex
+  })
+  console.log('AM BONES', bones)
 
   let rigModel = await LoadGLTF(RIG_FILE)
   // Set up skinned meshes
   let skinnedMeshes = []
   rigModel.scene.position.set(0, 0, -1)
-  Engine.scene.add(rigModel.scene)
-  Engine.scene.add(new SkeletonHelper(rigModel.scene))
   rigModel.scene.traverse((node) => {
     if (node.children)
       node.children.forEach((n) => {
@@ -339,20 +372,73 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
   let skinnedMesh: SkinnedMesh = skinnedMeshes.sort((a, b) => {
     return a.skeleton.bones.length - b.skeleton.bones.length
   })[0]
+
   console.log('skinnedMesh', skinnedMesh)
-  // if (!skinnedMesh) {
+  // if (true || !skinnedMesh) {
+  //   console.log('create new mesh')
   //   // try to create skinnedmesh with skeleton from what we have
   //   const hipsBone = rigModel.scene.getObjectByName('Hips')
+  //   skinnedMesh.removeFromParent()
+  //
   //   console.log('hipBone', hipsBone)
   //   const bones = []
-  //   hipsBone.traverse((b) => (b.type === 'Bone' ? bones.push(b) : null))
-  //   console.log('bones', bones)
+  //   const remove = []
+  //   hipsBone.traverse((b) => {
+  //     if (b.type === 'Bone') {
+  //       bones.push(b)
+  //     } else {
+  //       let bone = new Bone()
+  //       bone.position.copy(b.position)
+  //       bone.quaternion.copy(b.quaternion)
+  //       bone.scale.copy(b.scale)
+  //       b.parent.add(bone)
+  //
+  //       bones.push(bone)
+  //       remove.push(b)
+  //     }
+  //   })
+  //   remove.forEach((b) => b.parent.remove(b))
+  //   remove.length = 0
+  //
   //   skinnedMesh = new SkinnedMesh()
   //   // model.scene.add(skinnedMesh)
   //   hipsBone.parent.add(skinnedMesh)
   //   const skeleton = new Skeleton(bones)
   //   skinnedMesh.bind(skeleton)
   // }
+
+  {
+    // create xrengine type of skeleton to use with xrengine animations
+    const hipsBone = rigModel.scene.getObjectByName('Hips')
+    hipsBone.removeFromParent()
+    skinnedMesh.removeFromParent()
+    const bones = []
+    bonesData2.forEach((data) => {
+      const bone = new Bone()
+      bone.name = data.name
+      bone.position.fromArray(data.position)
+      bone.quaternion.fromArray(data.quaternion)
+      bone.scale.fromArray(data.scale)
+      bones.push(bone)
+    })
+
+    bonesData2.forEach((data, index) => {
+      if (data.parentIndex !== null) {
+        bones[data.parentIndex].add(bones[index])
+      }
+    })
+
+    const group = new Group()
+    skinnedMesh = new SkinnedMesh()
+    const skeleton = new Skeleton(bones)
+    skinnedMesh.bind(skeleton)
+    group.add(skinnedMesh)
+    group.add(bones[0]) // we assume that root bone is the first one
+    rigModel.scene.add(group)
+  }
+
+  Engine.scene.add(rigModel.scene)
+  Engine.scene.add(new SkeletonHelper(rigModel.scene))
 
   // Set up entity
   const sourceEntity = createEntity()
@@ -361,26 +447,9 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
     animations: animModel.animations,
     animationSpeed: 1
   })
-  addComponent(sourceEntity, IKObj, { ref: skinnedMesh })
+
+  const rig = addRig(sourceEntity, skinnedMesh.parent, null, false, ArmatureType.MIXAMO)
   addComponent(sourceEntity, IKPoseComponent, defaultIKPoseComponentValues())
-  addComponent(sourceEntity, IKRigComponent, {
-    tpose: null,
-    pose: null,
-    chains: null,
-    points: null,
-    sourcePose: null
-    // sourceRig: null
-  })
-
-  const rig = getComponent(sourceEntity, IKRigComponent) as IKRigComponentType
-  const sourcePose = getComponent(sourceEntity, IKPoseComponent)
-
-  // TODO check types!
-  // @ts-ignore
-  // rig.sourceRig = skinnedMesh
-  rig.sourcePose = sourcePose
-
-  initRig(sourceEntity, null, false, ArmatureType.MIXAMO)
 
   console.log('source rig', rig)
 
@@ -388,56 +457,69 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
   let loadModels = []
 
   // LOAD MESH A
-  // loadModels.push(
-  //   loadAndSetupModel(
-  //     MODEL_A_FILE,
-  //     sourceEntity,
-  //     new Vector3(1, 0, -2),
-  //     new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(-1, 0, 1).normalize()),
-  //     new Vector3(0.5, 0.5, 0.5)
-  //   ).then(({ entity }) => {
-  //     const rig = getComponent(entity, IKRig)
-  //     rig.name = 'rigA-Vegeta'
-  //     rig.tpose.apply()
-  //
-  //     console.log('target rig', rig.name, rig)
-  //
-  //     targetEntities.push(entity)
-  //   })
-  // )
-  // loadModels.push(
-  //   loadAndSetupModel(
-  //     MODEL_B_FILE,
-  //     sourceEntity,
-  //     new Vector3(-1, 0, -2),
-  //     new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(1, 0, 1).normalize()),
-  //     new Vector3(2, 2, 2)
-  //   ).then(({ entity }) => {
-  //     const rig = getComponent(entity, IKRig)
-  //     rig.name = 'rigB'
-  //     rig.tpose.apply()
-  //
-  //     console.log('target rig', rig.name, rig)
-  //
-  //     targetEntities.push(entity)
-  //   })
-  // )
-  // loadModels.push(
-  //   loadAndSetupModel(
-  //     MODEL_C_FILE,
-  //     sourceEntity,
-  //     new Vector3(-2, 0, -2),
-  //     new Quaternion(),
-  //     new Vector3(1, 1, 1),
-  //     ArmatureType.TREX
-  //   ).then(({ entity }) => {
-  //     const rig = getComponent(entity, IKRig)
-  //     rig.name = 'rigTRex'
-  //     rig.tpose.apply()
-  //
-  //     targetEntities.push(entity)
-  //   })
-  // )
+  loadModels.push(
+    loadAndSetupModel(
+      MODEL_A_FILE,
+      skinnedMesh.parent,
+      sourceEntity,
+      new Vector3(1, 0, -2),
+      new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(-1, 0, 1).normalize()),
+      new Vector3(0.5, 0.5, 0.5)
+    ).then(({ entity }) => {
+      const rig = getComponent(entity, IKRigComponent)
+      rig.name = 'rigA-Vegeta'
+      rig.tpose.apply()
+
+      console.log('target rig', rig.name, rig)
+
+      const ac = addComponent(entity, AnimationComponent, {
+        mixer: new AnimationMixer(rig.pose.skeleton.bones[0].parent),
+        animations: animModel.animations,
+        animationSpeed: 1
+      })
+      // const ac = getComponent(entity, AnimationComponent)
+      const clipAction = ac.mixer.clipAction(ac.animations[17])
+      clipAction.setEffectiveTimeScale(1).play()
+      clipAction.play()
+
+      targetEntities.push(entity)
+    })
+  )
+  loadModels.push(
+    loadAndSetupModel(
+      MODEL_B_FILE,
+      skinnedMesh.parent,
+      sourceEntity,
+      new Vector3(-1, 0, -2),
+      new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), new Vector3(1, 0, 1).normalize()),
+      new Vector3(1, 1.2, 1)
+    ).then(({ entity }) => {
+      const rig = getComponent(entity, IKRigComponent)
+      rig.name = 'rigB'
+      rig.tpose.apply()
+
+      console.log('target rig', rig.name, rig)
+
+      targetEntities.push(entity)
+    })
+  )
+  loadModels.push(
+    loadAndSetupModel(
+      MODEL_C_FILE,
+      skinnedMesh.parent,
+      sourceEntity,
+      new Vector3(-2, 0, -2),
+      new Quaternion(),
+      new Vector3(1, 1, 1),
+      ArmatureType.TREX
+    ).then(({ entity }) => {
+      const rig = getComponent(entity, IKRigComponent)
+      rig.name = 'rigTRex'
+      rig.tpose.apply()
+
+      targetEntities.push(entity)
+    })
+  )
 
   await Promise.all(loadModels)
 
@@ -448,6 +530,7 @@ async function initExample(): Promise<{ sourceEntity: Entity; targetEntities: En
 
 async function loadAndSetupModel(
   filename,
+  baseSourceMesh,
   sourceEntity,
   position,
   quaternion,
@@ -475,35 +558,38 @@ async function loadAndSetupModel(
 
   // Create entity
   let targetEntity = createEntity()
-  addComponent(targetEntity, IKObj, { ref: targetSkinnedMesh })
-  addComponent(targetEntity, IKRigComponent, {
-    tpose: new Pose(targetEntity, true), // If Passing a TPose, it must have its world space computed.
-    pose: new Pose(targetEntity, false),
-    chains: null,
-    points: null,
-    sourcePose: getComponent(sourceEntity, IKPoseComponent)
-    // sourceRig: null
-  })
+  // addComponent(targetEntity, IKObj, { ref: targetSkinnedMesh })
+  // addComponent(targetEntity, IKRigComponent, {
+  //   tpose: new Pose(targetSkinnedMesh, true), // If Passing a TPose, it must have its world space computed.
+  //   pose: new Pose(targetSkinnedMesh, false),
+  //   chains: null,
+  //   points: null,
+  //   sourcePose: getComponent(sourceEntity, IKPoseComponent)
+  //   // sourceRig: null
+  // })
+  //
+  // const targetRig = getComponent(targetEntity, IKRigComponent)
+  //
+  // // Set the skinned mesh reference
+  // const targetObj = getComponent(targetEntity, IKObj)
+  //
+  // const rootQuaternion = new Quaternion()
+  // const rootPosition = new Vector3()
+  // const rootScale = new Vector3()
+  //
+  // targetObj.ref.parent.getWorldQuaternion(rootQuaternion)
+  // targetObj.ref.parent.getWorldPosition(rootPosition)
+  // targetObj.ref.parent.getWorldScale(rootScale)
+  //
+  // targetRig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
+  // targetRig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
+  // console.log('---setOffset', rootQuaternion, rootPosition, rootScale)
 
-  const targetRig = getComponent(targetEntity, IKRigComponent)
+  //setupIKRig(targetEntity, targetRig)
+  const targetRig = addTargetRig(targetEntity, targetSkinnedMesh.parent, null, false, armatureType)
 
   // Set the skinned mesh reference
   const targetObj = getComponent(targetEntity, IKObj)
-
-  const rootQuaternion = new Quaternion()
-  const rootPosition = new Vector3()
-  const rootScale = new Vector3()
-
-  targetObj.ref.parent.getWorldQuaternion(rootQuaternion)
-  targetObj.ref.parent.getWorldPosition(rootPosition)
-  targetObj.ref.parent.getWorldScale(rootScale)
-
-  targetRig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
-  targetRig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
-  console.log('---setOffset', rootQuaternion, rootPosition, rootScale)
-
-  //setupIKRig(targetEntity, targetRig)
-  initRig(targetEntity, null, false, armatureType)
 
   for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
     const bone = targetObj.ref.skeleton.bones[index]
@@ -530,6 +616,12 @@ async function loadAndSetupModel(
   targetModel.scene.quaternion.copy(quaternion)
   targetModel.scene.scale.copy(scale)
   Engine.scene.add(targetModel.scene)
+
+  {
+    // animated rig
+    const rig = addRig(targetEntity, SkeletonUtils.clone(baseSourceMesh), null, false, ArmatureType.MIXAMO)
+    addComponent(targetEntity, IKPoseComponent, defaultIKPoseComponentValues())
+  }
 
   return { entity: targetEntity, skeletonHelper: helper }
 }
