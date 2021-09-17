@@ -35,6 +35,9 @@ interface Props {
   createFeed?: typeof createFeed
   authState?: any
   creatorState?: any
+  addFilesView?: any
+  setAddFilesView?: any
+  setFilesTarget?: any
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -46,15 +49,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
+const AppHeader = ({ title, authState, creatorState, addFilesView, setAddFilesView, setFilesTarget }: Props) => {
   const { t } = useTranslation()
   const classes = useStyles()
-  const [preview, setPreview] = useState(null)
-  const [video, setVideo] = useState(null)
-  const [titleFile, setTitleFile] = useState('')
   const [userRole, setUserRole] = useState('')
-  const [open, setOpen] = useState(false)
-  const [descrText, setDescrText] = useState('')
 
   useEffect(() => {
     if (authState.get('user')) {
@@ -63,30 +61,8 @@ const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
   }, [authState])
 
   const handlePickFiles = async (file) => {
-    setPreview(file.target.files[0])
-    setVideo(file.target.files[0])
-    setTitleFile(file.target.files[0].name)
-    setOpen(true)
-  }
-
-  const handleDescrTextChange = (event: any): void => setDescrText(event.target.value)
-
-  const handleCloseDescr = () => {
-    setOpen(false)
-  }
-
-  const handleAddPost = () => {
-    const newPost = {
-      title: titleFile,
-      description: descrText,
-      preview,
-      video
-    } as any
-
-    createFeed(newPost)
-    setPreview(null)
-    setDescrText('')
-    setTitleFile('')
+    setFilesTarget(file.target.files)
+    setAddFilesView(true)
   }
 
   return (
@@ -108,38 +84,12 @@ const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
             <br />
           </Grid>
           <Grid container justifyContent="center">
-            <Button variant="contained" onClick={handleAddPost}>
-              Add Files
-            </Button>
+            <Button variant="contained">Add Files</Button>
           </Grid>
         </label>
       ) : (
         ''
       )}
-      <div>
-        <Dialog open={open} onClose={handleCloseDescr} aria-labelledby="form-dialog-title">
-          <DialogContent>
-            <DialogContentText>Description</DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Add description"
-              fullWidth
-              value={descrText}
-              onChange={handleDescrTextChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDescr} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleCloseDescr} color="primary">
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
     </nav>
   )
 }

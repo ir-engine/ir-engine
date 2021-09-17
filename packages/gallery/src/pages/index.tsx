@@ -10,6 +10,7 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 import { createCreator } from '../reducers/creator/service'
 // @ts-ignore
 import styles from './index.module.scss'
+import AddFilesForm from '../components/AddFilesForm'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -24,6 +25,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const Home = ({ createCreator, doLoginAuto, authState, creatorsState }) => {
+  const [addFilesView, setAddFilesView] = useState(false)
+  const [filesTarget, setFilesTarget] = useState([])
+
   useEffect(() => {
     if (authState) {
       const user = authState.get('user')
@@ -38,13 +42,15 @@ const Home = ({ createCreator, doLoginAuto, authState, creatorsState }) => {
     doLoginAuto(true)
   }, [])
 
-  const [view, setView] = useState('featured')
   const currentCreator = creatorsState.get('currentCreator')
 
   return (
     <div className={styles.viewport}>
-      <AppHeader title={'CREATOR'} />
-      {currentCreator ? <FeedMenu view={view} setView={setView} /> : ''}
+      {!addFilesView && (
+        <AppHeader title={'CREATOR'} setAddFilesView={setAddFilesView} setFilesTarget={setFilesTarget} />
+      )}
+      {currentCreator && !addFilesView && <FeedMenu />}
+      {addFilesView && <AddFilesForm filesTarget={filesTarget} setAddFilesView={setAddFilesView} />}
     </div>
   )
 }
