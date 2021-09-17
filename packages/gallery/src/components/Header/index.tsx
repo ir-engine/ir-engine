@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const AppHeader = ({ title, authState, creatorState, addFilesView, setAddFilesView, setFilesTarget }: Props) => {
+const AppHeader = ({ title, creatorState, addFilesView, setAddFilesView, setFilesTarget }: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const classes = useStyles()
