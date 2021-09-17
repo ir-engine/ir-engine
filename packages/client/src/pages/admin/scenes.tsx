@@ -3,7 +3,6 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 
-
 interface Props {}
 
 function scenes(props: Props) {

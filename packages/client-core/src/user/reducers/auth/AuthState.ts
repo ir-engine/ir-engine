@@ -42,7 +42,7 @@ export const authReceptor = (action: AuthActionType): void => {
       case 'REGISTER_USER_BY_EMAIL_ERROR':
         return state
       case 'LOGOUT_USER':
-        return s.merge({ isLoggedIn: false, user: undefined, authUser: undefined })
+        return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
       case 'DID_VERIFY_EMAIL':
         return s.identityProvider.merge({ isVerified: action.result })
 
@@ -86,7 +86,7 @@ export const authReceptor = (action: AuthActionType): void => {
           r[(resource as any).staticResourceType] = resource
           avatarData[(resource as any).name] = r
         }
-        
+
         return s.merge({ avatarList: Object.keys(avatarData).map((key) => avatarData[key]) })
       }
     }

@@ -1,4 +1,4 @@
-import { Value } from './../../../../engine/src/networking/types/SnapshotDataTypes';
+import { Value } from './../../../../engine/src/networking/types/SnapshotDataTypes'
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
@@ -6,7 +6,7 @@ import { Dispatch } from 'redux'
 import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState' 
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import {
   fetchingFeeds,
   feedsRetrieved,
