@@ -42,13 +42,14 @@ export class Feed extends Service {
     //All Feeds as Admin
     if (action === 'admin') {
       const dataQuery = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
-      sr2.url as previewUrl, sr1.url as videoUrl, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fb.id) as bookmarks 
+      sr2.url as previewUrl, sr1.url as videoUrl, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, COUNT(fb.id) as bookmarks 
         FROM \`feed\` as feed
         JOIN \`creator\` as creator ON creator.id=feed.creatorId
         JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
         JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
         LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
         LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
+        LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
         LEFT JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
         WHERE 1
         GROUP BY feed.id
@@ -95,9 +96,11 @@ export class Feed extends Service {
     //Featured menu item for Guest
     //Featured menu item
     if (action === 'featuredGuest' || action === 'featured') {
-      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title
+      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title, COUNT(DISTINCT ff.id) as fires, COUNT(DISTINCT fl.id) as likes
         FROM \`feed\` as feed
         LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
+        LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
+        LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId`
 
       const where = ` WHERE 1 `
@@ -215,10 +218,11 @@ export class Feed extends Service {
     //don't needed anymore, remove this after change TheFeed by filling it on Admin Panel
     if (action === 'theFeedGuest') {
       const select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
-      sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `
+      sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl `
       const from = ` FROM \`feed\` as feed`
       const join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                    LEFT JOIN \`feed_likes\` as ff ON fl.feedId=feed.id 
                     JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                     JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
                     LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
@@ -247,6 +251,8 @@ export class Feed extends Service {
           description: feed.description,
           fires: feed.fires,
           isFired: false,
+          likes: feed.likes,
+          isLiked: false,
           isBookmarked: false,
           id: feed.id,
           videoUrl: feed.videoUrl,
@@ -269,12 +275,13 @@ export class Feed extends Service {
 
     // TheFeed menu item - just for followed creatos!!!!!
     let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
-    sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl, fc.id as follow_id, fc.creatorId as fc_creatorId, 
+    sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, fc.id as follow_id, fc.creatorId as fc_creatorId, 
     fc.followerId as fc_follower_id  `
     const from = ` FROM \`feed\` as feed`
     let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                   LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId 
                   LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                  LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id 
                   JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                   JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
                   LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
@@ -285,8 +292,9 @@ export class Feed extends Service {
     LIMIT :skip, :limit `
 
     if (creatorId) {
-      select += ` , isf.id as fired, isb.id as bookmarked `
+      select += ` , isf.id as fired, isl.id as liked, isb.id as bookmarked `
       join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
+                LEFT JOIN \`feed_likes\` as isl ON isl.feedId=feed.id  AND isl.creatorId=:creatorId
                 LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`
       queryParamsReplacements.creatorId = creatorId
     }
@@ -310,6 +318,8 @@ export class Feed extends Service {
         description: feed.description,
         fires: feed.fires,
         isFired: feed.fired ? true : false,
+        likes: feed.likes,
+        isLiked: feed.liked ? true : false,
         isBookmarked: feed.bookmarked ? true : false,
         id: feed.id,
         videoUrl: feed.videoUrl,
@@ -340,10 +350,11 @@ export class Feed extends Service {
    */
   async get(id: Id, params?: Params): Promise<any> {
     let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar, 
-      creator.verified as creatorVerified, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `
+      creator.verified as creatorVerified, COUNT(ff.id) as fires,  COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl `
     const from = ` FROM \`feed\` as feed`
     let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                    LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id 
                     JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                     JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
                     LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
@@ -360,8 +371,9 @@ export class Feed extends Service {
     )
 
     if (creatorId) {
-      select += ` , isf.id as fired, isb.id as bookmarked `
+      select += ` , isf.id as fired, isl.id as liked, isb.id as bookmarked `
       join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
+                LEFT JOIN \`feed_likes\` as isl ON isl.feedId=feed.id  AND isl.creatorId=:creatorId
                   LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`
       queryParamsReplacements.creatorId = creatorId
     }
@@ -384,6 +396,8 @@ export class Feed extends Service {
       description: feed.description,
       fires: feed.fires,
       isFired: feed.fired ? true : false,
+      likes: feed.likes,
+      isLiked: feed.liked ? true : false,
       isBookmarked: feed.bookmarked ? true : false,
       id: feed.id,
       videoUrl: feed.videoUrl,
