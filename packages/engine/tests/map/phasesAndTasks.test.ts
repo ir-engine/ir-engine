@@ -4,6 +4,7 @@ import AsyncPhase from '../../src/map/classes/AsyncPhase'
 import startAvailableTasks from '../../src/map/functions/startAvailableTasks'
 import AsyncTask from '../../src/map/classes/AsyncTask'
 import MapCache from '../../src/map/classes/MapCache'
+import ArrayKeyedMap from '../../src/map/classes/ArrayKeyedMap'
 
 const spyMethods = ['exec', 'start', 'createTask', 'getTasks', 'getTaskKeys']
 function spyClass(klass: any) {
@@ -65,6 +66,7 @@ class BoilWaterTask extends AsyncTask<string> {
 @spyClass
 class BoilWaterPhase extends AsyncPhase<BoilWaterTask, number[], string> {
   cache = new MapCache<number[], string>(5);
+  taskMap = new ArrayKeyedMap<number[], BoilWaterTask>()
 
   getTaskKeys() {
     return [
@@ -94,6 +96,7 @@ class OrderTakoutTask extends AsyncTask<string> {
 class OrderTakeoutPhase extends AsyncPhase<OrderTakoutTask, any[], string> {
   cache = new MapCache<any[], string>(5)
   fineEstablishments = [['pizza hut'], ['taco bell']];
+  taskMap = new ArrayKeyedMap<string[], OrderTakoutTask>()
 
   getTaskKeys() {
     return this.fineEstablishments
