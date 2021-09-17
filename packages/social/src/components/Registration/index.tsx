@@ -164,7 +164,8 @@ const Registration = (props: Props): any => {
     <div className={styles.menuPanel}>
       <section className={styles.profilePanel}>
         <div className={styles.logo}>
-          <img src="/assets/splash/ARC_Splash.png" alt="logo" crossOrigin="anonymous" className="logo" />
+          <span>Log in to</span>
+          <img src="/assets/LogoColored.png" alt="logo" crossOrigin="anonymous" className="logo" />
         </div>
         {emailPhoneForm && (
           <div className={styles.emailPhoneSection}>
@@ -175,6 +176,28 @@ const Registration = (props: Props): any => {
               {t('user:usermenu.registration.connect')}
             </Typography>
             <form onSubmit={handleSubmit}>
+              <TextField
+                margin="none"
+                size="small"
+                label={t('user:usermenu.profile.lbl-username')}
+                variant="outlined"
+                value={username || ''}
+                onChange={handleUsernameChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateUserName(e)
+                }}
+                className={styles.usernameInput}
+                error={errorUsername}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
+                        <Check className={styles.primaryForeground} />
+                      </a>
+                    </InputAdornment>
+                  )
+                }}
+              />
               <TextField
                 className={styles.emailField}
                 size="small"
