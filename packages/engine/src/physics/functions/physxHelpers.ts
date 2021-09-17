@@ -19,3 +19,16 @@ export const getFromPhysXHeap = (heap, address, count) => {
   }
   return result
 }
+
+export const vectorToArray = (vector: PhysX.VectorBase<any>) => {
+  // return Array(vector.size()).map((_, i) => {
+  //   return vector.get(i)
+  // })
+
+  const arr = []
+  for (let i = 0; i < vector.size(); i++) {
+    arr.push(vector.get(i))
+  }
+
+  return arr
+}

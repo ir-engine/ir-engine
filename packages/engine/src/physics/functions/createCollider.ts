@@ -12,6 +12,7 @@ import { CollisionComponent } from '../components/CollisionComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getTransform } from './parseModelColliders'
 import { getGeometryType } from '../classes/Physics'
+import { vectorToArray } from './physxHelpers'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -93,7 +94,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   if (typeof shapeOptions.collisionMask === 'undefined' && typeof (shapeOptions as any).collisionmask !== 'undefined')
     shapeOptions.collisionMask = (shapeOptions as any).collisionmask
 
-  let geometry: PhysX.PxGeometry
+  let geometry
   switch (shapeOptions.type) {
     case 'box':
       geometry = new PhysX.PxBoxGeometry(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
@@ -131,10 +132,20 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
       break
     case 'convex':
       geometry = world.physics.createConvexMesh(scale, shapeOptions.vertices)
+      // shapeOptions.vertices = (geometry as PhysX.PxConvexMeshGeometry).getConvexMesh().getVertices()
+      // shapeOptions.indices = (geometry as PhysX.PxConvexMeshGeometry).getConvexMesh().getIndexBuffer()
       break
 
     case 'trimesh':
       geometry = world.physics.createTrimesh(scale, shapeOptions.vertices, shapeOptions.indices)
+
+      const triangleMesh = (geometry as PhysX.PxTriangleMeshGeometry).getTriangleMesh()
+      const verts = vectorToArray(triangleMesh.getVertices())
+      const tris = vectorToArray(triangleMesh.getTriangles())
+      console.log(shapeOptions.vertices, shapeOptions.indices)
+      console.log(verts, tris)
+      shapeOptions.vertices = verts
+      shapeOptions.indices = tris
       break
 
     default:

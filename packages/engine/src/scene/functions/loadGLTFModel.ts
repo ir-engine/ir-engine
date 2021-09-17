@@ -172,7 +172,6 @@ export const parseGLTFModel = (
   }
 
   if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
-    applyTransformToMesh(entity, scene)
     scene.traverse((child) => {
       child.updateMatrixWorld(true)
       child.matrixAutoUpdate = false
@@ -197,6 +196,7 @@ export const loadGLTFModel = (
           entity
         },
         (res) => {
+          console.log(res.scene)
           parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
           sceneLoader._onModelLoaded()
           resolve()

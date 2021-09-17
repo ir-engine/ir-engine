@@ -416,22 +416,18 @@ declare namespace PhysX {
     z: number
   }
 
-  class PxVec3Vector {
-    get(index: number): PxVec3
-    push_back(value: PxVec3): void
+  class VectorBase<T> {
+    get(index: number): T
+    push_back(value: T): void
     resize(index: number): void
-    set(index: number, value: PxVec3): void // need to double check the ordering here
+    set(index: number, value: T): void // need to double check the ordering here
     size(): number
   }
 
+  class PxVec3Vector extends VectorBase<PxVec3> {}
+
   type PxReal = number
-  class PxRealVector {
-    get(index: number): PxReal
-    push_back(value: PxReal): void
-    resize(index: number): void
-    set(index: number, value: PxReal): void // need to double check the ordering here
-    size(): number
-  }
+  class PxRealVector extends VectorBase<PxReal> {}
 
   class PxLocationHit {
     position: PxVec3
@@ -505,8 +501,8 @@ declare namespace PhysX {
 
   class PxTriangleMesh {
     constructor(x: number, y: number, z: number)
-    getVertices(): PxVec3[]
-    getIndexBuffer(): number[]
+    getVertices(): PxRealVector
+    getTriangles(): PxRealVector
   }
 
   class PxMeshGeometryFlags {

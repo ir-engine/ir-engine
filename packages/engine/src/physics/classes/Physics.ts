@@ -269,7 +269,7 @@ export class Physics {
     const indicesPtr = putIntoPhysXHeap(PhysX.HEAPF32, indices)
     const trimesh = this.cooking.createTriMesh(
       verticesPtr,
-      vertices.length / 3,
+      vertices.length,
       indicesPtr,
       indices.length / 3,
       false,
@@ -294,7 +294,7 @@ export class Physics {
   createConvexMesh(scale: Vector3, vertices: ArrayLike<number>): PhysX.PxConvexMeshGeometry {
     const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
 
-    const convexMesh = this.cooking.createConvexMesh(verticesPtr, vertices.length / 3, this.physics)
+    const convexMesh = this.cooking.createConvexMesh(verticesPtr, vertices.length, this.physics)
 
     const meshScale = new PhysX.PxMeshScale(scale, new Quaternion())
     const geometry = new PhysX.PxConvexMeshGeometry(convexMesh, meshScale, new PhysX.PxConvexMeshGeometryFlags(0))
