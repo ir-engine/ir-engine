@@ -22,7 +22,6 @@ import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'
 
-const store = Store.store
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
     return async (dispatch: Dispatch): Promise<any> => {
@@ -883,6 +882,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
 
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('user').on('patched', async (params) => {
+    const store = Store.store
     const selfUser = accessAuthState().user
     const user = resolveUser(params.userRelationship)
 
@@ -925,6 +925,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     }
   })
   client.service('location-ban').on('created', async (params) => {
+    const store = Store.store
     const state = store.getState() as any
     const selfUser = accessAuthState().user
     const party = state.get('party')
