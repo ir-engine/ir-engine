@@ -11,6 +11,7 @@ import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -91,6 +92,14 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
             }
           }
         }
+      })
+
+      // Generate BVH
+      object3DComponent.value.traverse((obj: Mesh) => {
+        if (!obj.isMesh) {
+          return
+        }
+        generateMeshBVH(obj)
       })
     }
 
