@@ -17,7 +17,7 @@ import {
   updateChatTarget,
   updateMessageScrollInit
 } from '@xrengine/client-core/src/social/reducers/chat/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
@@ -29,7 +29,6 @@ import styles from './Bottom.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     chatState: selectChatState(state)
   }
 }
@@ -45,7 +44,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 interface Props {
-  authState?: any
   bottomDrawerOpen: boolean
   setBottomDrawerOpen: any
   setLeftDrawerOpen: any
@@ -61,7 +59,6 @@ interface Props {
 
 const BottomDrawer = (props: Props): any => {
   const {
-    authState,
     chatState,
     getChannels,
     getChannelMessages,
@@ -77,7 +74,7 @@ const BottomDrawer = (props: Props): any => {
 
   const messageRef = React.useRef()
   const messageEl = messageRef.current
-  const user = authState.get('user') as User
+  const user = useAuthState().user
   const channelState = chatState.get('channels')
   const channels = channelState.get('channels')
   const targetObject = chatState.get('targetObject')
@@ -165,9 +162,9 @@ const BottomDrawer = (props: Props): any => {
     const channelType = channel.channelType
     const target =
       channelType === 'user'
-        ? channel.user1?.id === user.id
+        ? channel.user1?.id === user.id.value
           ? channel.user2
-          : channel.user2?.id === user.id
+          : channel.user2?.id === user.id.value
           ? channel.user1
           : {}
         : channelType === 'group'
@@ -217,7 +214,7 @@ const BottomDrawer = (props: Props): any => {
 
   const generateMessageSecondary = (message: Message): string => {
     const date = moment(message.createdAt).format('MMM D YYYY, h:mm a')
-    if (message.senderId !== user.id) {
+    if (message.senderId !== user.id.value) {
       return `${message?.sender?.name ? message.sender.name : 'A former user'} on ${date}`
     } else {
       return date
@@ -263,7 +260,7 @@ const BottomDrawer = (props: Props): any => {
 
   const toggleMessageCrudSelect = (e: any, message: Message) => {
     e.preventDefault()
-    if (message.senderId === user.id) {
+    if (message.senderId === user.id.value) {
       if (messageCrudSelected === message.id && messageUpdatePending !== message.id) {
         setMessageCrudSelected('')
       } else {
@@ -304,16 +301,16 @@ const BottomDrawer = (props: Props): any => {
                       {channel.channelType === 'user' && (
                         <ListItemAvatar>
                           <Avatar
-                            src={channel.userId1 === user.id ? channel.user2.avatarUrl : channel.user1.avatarUrl}
+                            src={channel.userId1 === user.id.value ? channel.user2.avatarUrl : channel.user1.avatarUrl}
                           />
                         </ListItemAvatar>
                       )}
                       <ListItemText
                         primary={
                           channel.channelType === 'user'
-                            ? channel.user1?.id === user.id
+                            ? channel.user1?.id === user.id.value
                               ? channel.user2.name
-                              : channel.user2?.id === user.id
+                              : channel.user2?.id === user.id.value
                               ? channel.user1.name
                               : ''
                             : channel.channelType === 'group'
@@ -344,8 +341,8 @@ const BottomDrawer = (props: Props): any => {
                       <ListItem
                         className={classNames({
                           [styles.message]: true,
-                          [styles.self]: message.senderId === user.id,
-                          [styles.other]: message.senderId !== user.id
+                          [styles.self]: message.senderId === user.id.value,
+                          [styles.other]: message.senderId !== user.id.value
                         })}
                         key={message.id}
                         onMouseEnter={(e) => toggleMessageCrudSelect(e, message)}
@@ -353,7 +350,7 @@ const BottomDrawer = (props: Props): any => {
                         onTouchEnd={(e) => toggleMessageCrudSelect(e, message)}
                       >
                         <div>
-                          {message.senderId !== user.id && (
+                          {message.senderId !== user.id.value && (
                             <ListItemAvatar>
                               <Avatar src={message.sender?.avatarUrl} />
                             </ListItemAvatar>
@@ -361,7 +358,7 @@ const BottomDrawer = (props: Props): any => {
                           {messageUpdatePending !== message.id && (
                             <ListItemText primary={message.text} secondary={generateMessageSecondary(message)} />
                           )}
-                          {message.senderId === user.id && messageUpdatePending !== message.id && (
+                          {message.senderId === user.id.value && messageUpdatePending !== message.id && (
                             <div>
                               {messageDeletePending !== message.id && messageCrudSelected === message.id && (
                                 <div className={styles['crud-controls']}>

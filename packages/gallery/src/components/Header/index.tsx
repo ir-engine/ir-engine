@@ -3,7 +3,6 @@ import styles from './Header.module.scss'
 
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { useTranslation } from 'react-i18next'
 import {
   Button,
@@ -13,16 +12,15 @@ import {
   DialogContentText,
   Grid,
   makeStyles,
-  TextField,
-  Typography
+  TextField
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
 import { createFeed } from '../../reducers/post/service'
 import { selectCreatorsState } from '../../reducers/creator/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState' 
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     creatorsState: selectCreatorsState(state)
   }
 }
@@ -33,7 +31,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   title?: string
   createFeed?: typeof createFeed
-  authState?: any
   creatorState?: any
 }
 
@@ -46,8 +43,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
-  const { t } = useTranslation()
+const AppHeader = ({ title, createFeed, creatorState }: Props) => {
+  const { t } = useTranslation() 
+  const authState = useAuthState()
+
   const classes = useStyles()
   const [preview, setPreview] = useState(null)
   const [video, setVideo] = useState(null)
@@ -57,8 +56,8 @@ const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
   const [descrText, setDescrText] = useState('')
 
   useEffect(() => {
-    if (authState.get('user')) {
-      setUserRole(authState.get('user').userRole)
+    if (authState.user) {
+      setUserRole(authState.user?.userRole?.value)
     }
   }, [authState])
 

@@ -32,7 +32,7 @@ import SettingsSystemDaydreamIcon from '@material-ui/icons/SettingsSystemDaydrea
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
-import { selectAuthState } from '../../reducers/auth/selector'
+import { useAuthState } from '../../reducers/auth/AuthState'
 interface Props {
   authState?: any
   location: any
@@ -40,14 +40,14 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state)
+    //authState: selectAuthState(state)
   }
 }
 
 const SideMenuItem = (props: Props) => {
-  const { authState, location } = props
+  const { location } = props
   const { pathname } = location
-  const scopes = authState?.get('user').scopes || []
+  const scopes = useAuthState().user?.scopes?.value || []
 
   let allowedRoutes = {
     location: false,

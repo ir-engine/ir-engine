@@ -17,7 +17,7 @@ import {
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import Store from '../../../store'
 import { User } from '@xrengine/common/src/interfaces/User'
-
+import { accessAuthState } from '../../../user/reducers/auth/AuthState'
 const store = Store.store
 
 const emailRegex =
@@ -188,8 +188,8 @@ export function updateInviteTarget(targetObjectType?: string, targetObjectId?: s
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('invite').on('created', (params) => {
     const invite = params.invite
-    const selfUser = (store.getState() as any).get('auth').get('user') as User
-    if (invite.userId === selfUser.id) {
+    const selfUser = accessAuthState().user
+    if (invite.userId === selfUser.id.value) {
       store.dispatch(createdSentInvite())
     } else {
       store.dispatch(createdReceivedInvite())
@@ -198,8 +198,8 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('invite').on('removed', (params) => {
     const invite = params.invite
-    const selfUser = (store.getState() as any).get('auth').get('user') as User
-    if (invite.userId === selfUser.id) {
+    const selfUser = accessAuthState().user
+    if (invite.userId === selfUser.id.value) {
       store.dispatch(removedSentInvite())
     } else {
       store.dispatch(removedReceivedInvite())

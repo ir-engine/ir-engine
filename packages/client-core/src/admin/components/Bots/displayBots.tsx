@@ -19,7 +19,7 @@ import { fetchBotAsAdmin } from '../../reducers/admin/bots/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAdminBotsState } from '../../reducers/admin/bots/selector'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import Button from '@material-ui/core/Button'
 import { createBotCammand, removeBots, removeBotsCommand } from '../../reducers/admin/bots/service'
 import MuiAlert from '@material-ui/lab/Alert'
@@ -29,7 +29,6 @@ import UpdateBot from './updateBot'
 interface Props {
   fetchBotAsAdmin?: any
   botsAdminState?: any
-  authState?: any
   createBotCammand?: any
   removeBots?: any
   removeBotsCommand?: any
@@ -37,8 +36,7 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    botsAdminState: selectAdminBotsState(state),
-    authState: selectAuthState(state)
+    botsAdminState: selectAdminBotsState(state)
   }
 }
 
@@ -54,7 +52,7 @@ const Alert = (props) => {
 }
 
 const DisplayBots = (props: Props) => {
-  const { fetchBotAsAdmin, botsAdminState, authState, createBotCammand, removeBots, removeBotsCommand } = props
+  const { fetchBotAsAdmin, botsAdminState, createBotCammand, removeBots, removeBotsCommand } = props
   const classes = useStyles()
   const [expanded, setExpanded] = React.useState<string | false>('panel0')
   const [name, setName] = React.useState('')
@@ -68,10 +66,10 @@ const DisplayBots = (props: Props) => {
   }
 
   const botAdmin = botsAdminState.get('bots')
-  const user = authState.get('user')
+  const user = useAuthState().user
   const botAdminData = botAdmin.get('bots')
   React.useEffect(() => {
-    if (user.id && botAdmin.get('updateNeeded')) {
+    if (user.id.value && botAdmin.get('updateNeeded')) {
       fetchBotAsAdmin()
     }
   }, [botAdmin, user])

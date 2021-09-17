@@ -6,78 +6,32 @@ import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
 
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { connect,useDispatch } from 'react-redux'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from './AdminLogin.module.scss'
 import { useTranslation } from 'react-i18next'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import {
-  addConnectionByEmail,
-  addConnectionBySms,
-  loginUserByOAuth,
-  loginUserByXRWallet,
-  logoutUser,
-  removeUser,
-  updateUserAvatarId,
-  updateUsername,
-  updateUserSettings
-} from '@xrengine/client-core/src/user/reducers/auth/service'
-import { getAvatarURLFromNetwork, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 
 interface Props {
   changeActiveMenu?: any
-  setProfileMenuOpen?: any
-  authState?: any
-  updateUsername?: any
-  updateUserAvatarId?: any
-  updateUserSettings?: any
-  loginUserByOAuth?: any
-  loginUserByXRWallet?: any
-  addConnectionBySms?: any
-  addConnectionByEmail?: any
-  logoutUser?: any
-  removeUser?: any
+  setProfileMenuOpen?: any 
   hideLogin?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUsername: bindActionCreators(updateUsername, dispatch),
-  updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
-  updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
-  loginUserByXRWallet: bindActionCreators(loginUserByXRWallet, dispatch),
-  addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
-  logoutUser: bindActionCreators(logoutUser, dispatch),
-  removeUser: bindActionCreators(removeUser, dispatch)
-})
-
+ 
 const AdminLogin = (props: Props): any => {
-  const {
-    authState,
-    updateUsername,
-    addConnectionByEmail,
-    addConnectionBySms,
-    loginUserByOAuth,
-    loginUserByXRWallet,
-    logoutUser,
+  const { 
     changeActiveMenu,
     setProfileMenuOpen,
     hideLogin
   } = props
   const { t } = useTranslation()
+  const dispatch = useDispatch()
 
-  const selfUser = authState.get('user') || {}
+  const selfUser = useAuthState().user
 
-  const [username, setUsername] = useState(selfUser?.name)
+  const [username, setUsername] = useState(selfUser?.name.value)
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
@@ -102,8 +56,8 @@ const AdminLogin = (props: Props): any => {
   }, []) // Only run once
 
   useEffect(() => {
-    selfUser && setUsername(selfUser.name)
-  }, [selfUser.name])
+    selfUser && setUsername(selfUser.name.value)
+  }, [selfUser.name.value])
 
   const updateUserName = (e) => {
     e.preventDefault()
@@ -118,8 +72,8 @@ const AdminLogin = (props: Props): any => {
   const handleUpdateUsername = () => {
     const name = username.trim()
     if (!name) return
-    if (selfUser.name.trim() !== name) {
-      updateUsername(selfUser.id, name)
+    if (selfUser.value.name.trim() !== name) {
+     dispatch(AuthService.updateUsername(selfUser.id.value, name))
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -140,8 +94,8 @@ const AdminLogin = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') addConnectionByEmail(emailPhone, selfUser?.id)
-    else if (type === 'sms') addConnectionBySms(emailPhone, selfUser?.id)
+    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value))
+    else if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value))
 
     return
   }
@@ -149,7 +103,7 @@ const AdminLogin = (props: Props): any => {
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
-    await logoutUser()
+    await dispatch(AuthService.logoutUser())
     // window.location.reload()
   }
 
@@ -184,26 +138,26 @@ const AdminLogin = (props: Props): any => {
               />
             </span>
             <h2>
-              {selfUser?.userRole === 'admin'
+              {selfUser?.userRole?.value === 'admin'
                 ? t('user:usermenu.profile.youAreAn')
                 : t('user:usermenu.profile.youAreA')}{' '}
               <span>{selfUser?.userRole}</span>.
             </h2>
             <h4>
-              {(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && (
+              {(selfUser?.userRole?.value === 'user' || selfUser?.userRole?.value === 'admin') && (
                 <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>
               )}
             </h4>
-            {selfUser?.inviteCode != null && (
+            {selfUser?.inviteCode?.value != null && (
               <h2>
-                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode}
+                {t('user:usermenu.profile.inviteCode')}: {selfUser?.inviteCode?.value}
               </h2>
             )}
           </div>
         </section>
         {!hideLogin && (
           <>
-            {selfUser?.userRole === 'guest' && (
+            {selfUser?.userRole?.value === 'guest' && (
               <section className={styles.emailPhoneSection}>
                 <Typography variant="h1" className={styles.panelHeader}>
                   {t('user:usermenu.profile.connectPhone')}
@@ -239,4 +193,4 @@ const AdminLogin = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminLogin)
+export default (AdminLogin)

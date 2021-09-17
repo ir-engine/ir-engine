@@ -1,10 +1,10 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Switch, Redirect } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import PrivateRoute from './Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { bindActionCreators, Dispatch } from 'redux'
 
 const analytic = React.lazy(() => import('../pages/admin/index'))
@@ -23,26 +23,21 @@ const botSetting = React.lazy(() => import('../pages/admin/bot'))
 // const creator = React.lazy(() => import('../pages/admin/social/creator'))
 const setting = React.lazy(() => import('../pages/admin/Setting'))
 
-interface Props {
-  authState?: any
-  doLoginAuto?: any
-}
+interface Props {}
 
 const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 })
 
 const ProtectedRoutes = (props: Props) => {
-  const { authState, doLoginAuto } = props
-  const admin = authState.get('user')
+  const admin = useAuthState().user
+  const dispatch = useDispatch()
   if (admin?.userRole) {
-    if (admin?.userRole !== 'admin') {
+    if (admin?.userRole.value !== 'admin') {
       return <Redirect to="/login" />
     }
   }
@@ -59,10 +54,10 @@ const ProtectedRoutes = (props: Props) => {
     invite: false,
     globalAvatars: false
   }
-  const scopes = admin.scopes || []
+  const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    doLoginAuto(false)
+    dispatch(AuthService.doLoginAuto(false))
   }, [])
 
   scopes.forEach((scope) => {
