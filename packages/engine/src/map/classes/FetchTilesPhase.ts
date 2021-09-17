@@ -9,14 +9,19 @@ import { TILE_ZOOM } from '../constants'
 import ArrayKeyedMap from './ArrayKeyedMap'
 
 export default class FetchTilesPhase extends AsyncPhase<FetchTileTask, TileKey, VectorTile> {
-  isAsyncPhase = true
-  taskMap = new ArrayKeyedMap<TileKey, FetchTileTask>()
+  taskMap: ArrayKeyedMap<TileKey, FetchTileTask>
   center: LongLat
   minimumSceneRadius: number
   cache: TileCache<VectorTile>
 
-  constructor(tileCache: TileCache<VectorTile>, center: LongLat, minimumSceneRadius: number) {
+  constructor(
+    taskMap: ArrayKeyedMap<TileKey, FetchTileTask>,
+    tileCache: TileCache<VectorTile>,
+    center: LongLat,
+    minimumSceneRadius: number
+  ) {
     super()
+    this.taskMap = taskMap
     this.cache = tileCache
     this.center = center
     this.minimumSceneRadius = minimumSceneRadius

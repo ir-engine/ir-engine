@@ -12,10 +12,10 @@ export default abstract class CachingPhase<
 > implements IPhase<TaskType>
 {
   isCachingPhase = true
+  abstract taskMap: ArrayKeyedMap<TaskKey, TaskType>
   abstract getTaskKeys(): Iterable<TaskKey>
   abstract createTask(...args: TaskKey): TaskType
   abstract cache: MapCache<TaskKey, TaskResult>
-  taskMap = new ArrayKeyedMap<TaskKey, TaskType>();
   *getTasks(): Iterable<TaskType> {
     const createTaskUsingCache = createUsingCache(this.createTask)
     for (const createArgs of this.getTaskKeys()) {

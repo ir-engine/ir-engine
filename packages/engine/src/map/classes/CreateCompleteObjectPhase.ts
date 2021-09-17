@@ -6,12 +6,14 @@ import FeatureCache from './FeatureCache'
 import { Vector3 } from 'three'
 import CachingPhase from './CachingPhase'
 import { vector3ToArray2 } from '../util'
+import ArrayKeyedMap from './ArrayKeyedMap'
 
 export default class CreateCompleteObjectPhase extends CachingPhase<
   CreateCompleteObjectTask,
   FeatureKey,
   MapDerivedFeatureComplete
 > {
+  taskMap: ArrayKeyedMap<FeatureKey, CreateCompleteObjectTask>
   featureCache: FeatureCache<Feature>
   geometryCache: FeatureCache<MapDerivedFeatureGeometry>
   cache: FeatureCache<MapDerivedFeatureComplete>
@@ -19,6 +21,7 @@ export default class CreateCompleteObjectPhase extends CachingPhase<
   minimumSceneRadius: number
 
   constructor(
+    taskMap: ArrayKeyedMap<FeatureKey, CreateCompleteObjectTask>,
     featureCache: FeatureCache<Feature>,
     geometryCache: FeatureCache<MapDerivedFeatureGeometry>,
     completeObjectsCache: FeatureCache<MapDerivedFeatureComplete>,
@@ -26,6 +29,7 @@ export default class CreateCompleteObjectPhase extends CachingPhase<
     minimumSceneRadius: number
   ) {
     super()
+    this.taskMap = taskMap
     this.featureCache = featureCache
     this.geometryCache = geometryCache
     this.cache = completeObjectsCache
