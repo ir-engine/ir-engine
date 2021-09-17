@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createCreator: bindActionCreators(createCreator, dispatch)
 })
 
-const Home = ({ createCreator, authState, creatorsState }) => {
+const Home = ({ createCreator, creatorsState }) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
   const [addFilesView, setAddFilesView] = useState(false)
