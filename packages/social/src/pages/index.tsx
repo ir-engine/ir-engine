@@ -7,7 +7,7 @@ import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
 
-// import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories'; 
+// import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
 
 import { User } from '@xrengine/common/src/interfaces/User'
 
@@ -24,9 +24,9 @@ import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_nati
 import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux' 
+import { bindActionCreators, Dispatch } from 'redux'
 // @ts-ignore
-import styles from './index.module.scss'  
+import styles from './index.module.scss'
 import Splash from '@xrengine/social/src/components/Splash'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
@@ -55,7 +55,7 @@ const Home = ({
   getWebXrNative
 }) => {
   const dispatch = useDispatch()
-  
+
   /*hided for now*/
 
   useEffect(() => {
@@ -71,7 +71,7 @@ const Home = ({
     dispatch(AuthService.doLoginAuto(true))
     getWebXrNative()
   }, [])
- 
+
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
   const [splashTimeout, setSplashTimeout] = useState(true)

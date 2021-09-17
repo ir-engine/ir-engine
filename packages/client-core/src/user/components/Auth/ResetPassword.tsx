@@ -15,7 +15,6 @@ interface Props {
   token: string
 }
 
-
 export default (props: Props): any => {
   const { resetPassword, token } = props
   const initialState = { password: '' }

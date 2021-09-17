@@ -2,7 +2,7 @@ import { useLocation, withRouter } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
 import { AuthService } from '../../reducers/auth/AuthService'
 import Container from '@material-ui/core/Container'
-import { useAuthState } from '../../reducers/auth/AuthState' 
+import { useAuthState } from '../../reducers/auth/AuthState'
 import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 

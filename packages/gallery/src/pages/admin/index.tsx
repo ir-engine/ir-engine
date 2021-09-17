@@ -7,7 +7,7 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 import { selectInstanceConnectionState } from '@xrengine/client/src/reducers/instanceConnection/selector'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import React, { useEffect, useState } from 'react'
-import { connect,useDispatch } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
 import AdminLogin from '../../components/AdminLogin'
@@ -21,7 +21,7 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    instanceConnectionState: selectInstanceConnectionState(state),
+    instanceConnectionState: selectInstanceConnectionState(state)
     //authState: selectAuthState(state)
   }
 }
@@ -31,12 +31,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const AdminPage = (props: Props) => {
-  
-  const {  } = props
-  
+  const {} = props
+
   const authState = useAuthState()
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   const { t } = useTranslation()
   const [userRole, setUserRole] = useState('')

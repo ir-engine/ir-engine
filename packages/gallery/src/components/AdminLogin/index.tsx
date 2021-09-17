@@ -6,7 +6,7 @@ import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
 
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useState } from 'react'
-import { connect,useDispatch } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from './AdminLogin.module.scss'
@@ -16,16 +16,12 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 
 interface Props {
   changeActiveMenu?: any
-  setProfileMenuOpen?: any 
+  setProfileMenuOpen?: any
   hideLogin?: any
 }
- 
+
 const AdminLogin = (props: Props): any => {
-  const { 
-    changeActiveMenu,
-    setProfileMenuOpen,
-    hideLogin
-  } = props
+  const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
   const dispatch = useDispatch()
 
@@ -73,7 +69,7 @@ const AdminLogin = (props: Props): any => {
     const name = username.trim()
     if (!name) return
     if (selfUser.value.name.trim() !== name) {
-     dispatch(AuthService.updateUsername(selfUser.id.value, name))
+      dispatch(AuthService.updateUsername(selfUser.id.value, name))
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -193,4 +189,4 @@ const AdminLogin = (props: Props): any => {
   )
 }
 
-export default (AdminLogin)
+export default AdminLogin

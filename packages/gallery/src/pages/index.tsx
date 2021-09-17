@@ -25,16 +25,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const Home = ({ createCreator, creatorsState }) => {
-
   const dispatch = useDispatch()
   const auth = useAuthState()
 
   useEffect(() => {
-      const user = auth.user
-      const userId = user ? user.id.value : null
-      if (userId) {
-        createCreator()
-      }
+    const user = auth.user
+    const userId = user ? user.id.value : null
+    if (userId) {
+      createCreator()
+    }
   }, [auth])
 
   useEffect(() => {

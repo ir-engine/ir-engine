@@ -17,7 +17,7 @@ import {
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
 import { createFeed } from '../../reducers/post/service'
 import { selectCreatorsState } from '../../reducers/creator/selector'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState' 
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const AppHeader = ({ title, createFeed, creatorState }: Props) => {
-  const { t } = useTranslation() 
+  const { t } = useTranslation()
   const authState = useAuthState()
 
   const classes = useStyles()
