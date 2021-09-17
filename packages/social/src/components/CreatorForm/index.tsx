@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom'
 
 import { CardMedia, Typography, Button } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
-import MySnackbar from '../MySnackbar'
+import { useSnackbar, SnackbarOrigin } from 'notistack'
 
 import styles from './CreatorForm.module.scss'
 import AccountCircle from '@material-ui/icons/AccountCircle'
@@ -51,33 +51,24 @@ const CreatorForm = ({ creatorData, creatorsState, updateCreator, updateCreatorF
     creatorData ? creatorData : creatorsState && creatorsState.get('currentCreator')
   )
 
-  const [openSnackbar, setOpenSnackbar] = useState({
-    open: false,
-    type: ''
-  })
-  const handleOpenSnackbar = (type: string) => {
-    setOpenSnackbar({
-      open: true,
-      type
-    })
-  }
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar({
-      open: false,
-      type: ''
-    })
-  }
-  const showSnackbar = (str: string) => {
-    if (str === 'succes') {
-      handleOpenSnackbar(str)
-    } else if (str === 'reject') {
-      handleOpenSnackbar(str)
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  const callBacksFromUpdateUsername = (str: string) => {
+    const anchorOrigin: SnackbarOrigin = { horizontal: 'center', vertical: 'top' }
+    switch (str) {
+      case 'succes': {
+        enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
+        break
+      }
+      case 'reject': {
+        enqueueSnackbar('This name is already taken', { variant: 'error', anchorOrigin })
+        break
+      }
     }
   }
 
   const handleUpdateUser = (e: any) => {
     e.preventDefault()
-    updateCreator(creator, showSnackbar)
+    updateCreator(creator, callBacksFromUpdateUsername)
   }
   const handlePickAvatar = async (file) => setCreator({ ...creator, newAvatar: file.target.files[0] })
   const { t } = useTranslation()
@@ -227,7 +218,6 @@ const CreatorForm = ({ creatorData, creatorsState, updateCreator, updateCreatorF
           </section>
         </form>
       </section>
-      <MySnackbar openSnackbar={openSnackbar} handleCloseSnackbar={handleCloseSnackbar} />
     </>
   )
 }

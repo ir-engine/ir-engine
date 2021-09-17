@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
+import { SnackbarProvider } from 'notistack'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
@@ -125,35 +126,41 @@ const Home = ({
       </div>
     )
   }
-  if (auth.get('user').userRole !== 'user') {
-    return <Registration />
-  }
+  // if (auth.get('user').userRole !== 'user') {
+  //   return <Registration />
+  // }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
   return (
-    <div className={platformClass + ' ' + hideContentOnRecord}>
-      {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
-      <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-        <AppHeader />
-        {/* <Stories stories={stories} /> */}
-        <FeedMenu view={view} setView={setView} />
-        <AppFooter setView={setView} />
-        {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
-        <ArMediaPopup />
-        <WebXRStart
-          feedHintsOnborded={feedHintsOnborded}
-          webxrRecorderActivity={webxrRecorderActivity}
-          setContentHidden={changeWebXrNative}
-          setFeedHintsOnborded={setFeedHintsOnborded}
-        />
-        <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedFormPopup setView={setView} />
-        <SharedFormPopup setView={setView} />
-      </div>
-    </div>
+    <SnackbarProvider maxSnack={3}>
+      {auth.get('user').userRole !== 'user' ? (
+        <Registration />
+      ) : (
+        <div className={platformClass + ' ' + hideContentOnRecord}>
+          {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
+          <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
+            <AppHeader />
+            {/* <Stories stories={stories} /> */}
+            <FeedMenu view={view} setView={setView} />
+            <AppFooter setView={setView} />
+            {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
+            <ArMediaPopup />
+            <WebXRStart
+              feedHintsOnborded={feedHintsOnborded}
+              webxrRecorderActivity={webxrRecorderActivity}
+              setContentHidden={changeWebXrNative}
+              setFeedHintsOnborded={setFeedHintsOnborded}
+            />
+            <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+            <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+            <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+            <FeedFormPopup setView={setView} />
+            <SharedFormPopup setView={setView} />
+          </div>
+        </div>
+      )}
+    </SnackbarProvider>
   )
 }
 

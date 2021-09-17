@@ -15,7 +15,6 @@ import {
   updateUsername,
   updateUserSettings
 } from '../../../../client-core/src/user/reducers/auth/service'
-import MySnackbar from '../MySnackbar'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { updateCreator } from '../../reducers/creator/service'
 import React, { useEffect, useState } from 'react'
@@ -31,6 +30,7 @@ import * as polyfill from 'credential-handler-polyfill'
 import styles from './Registration.module.scss'
 import { useTranslation } from 'react-i18next'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import { useSnackbar, SnackbarOrigin } from 'notistack'
 
 interface Props {
   changeActiveMenu?: any
@@ -127,33 +127,23 @@ const Registration = (props: Props): any => {
       username: e.target.value
     })
   }
-
-  const [openSnackbar, setOpenSnackbar] = useState({
-    open: false,
-    type: ''
-  })
-  const handleOpenSnackbar = (type: string) => {
-    setOpenSnackbar({
-      open: true,
-      type
-    })
-  }
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar({
-      open: false,
-      type: ''
-    })
-  }
-  const showSnackbar = (str: string) => {
-    if (str === 'succes') {
-      handleOpenSnackbar(str)
-    } else if (str === 'reject') {
-      handleOpenSnackbar(str)
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  const callBacksFromUpdateUsername = (str: string) => {
+    const anchorOrigin: SnackbarOrigin = { horizontal: 'right', vertical: 'top' }
+    switch (str) {
+      case 'succes': {
+        enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
+        break
+      }
+      case 'reject': {
+        enqueueSnackbar('This name is already taken', { variant: 'error', anchorOrigin })
+        break
+      }
     }
   }
 
   const handleUpdateUsername = () => {
-    updateCreator(creator, showSnackbar)
+    updateCreator(creator, callBacksFromUpdateUsername)
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
 
@@ -324,7 +314,6 @@ const Registration = (props: Props): any => {
           </section>
         )}
       </section>
-      <MySnackbar openSnackbar={openSnackbar} handleCloseSnackbar={handleCloseSnackbar} />
     </div>
   )
 }
