@@ -121,7 +121,7 @@ export const createAvatar = (
     hits: [],
     origin: new Vector3(0, avatarHalfHeight, 0),
     direction: new Vector3(0, -1, 0),
-    maxDistance: avatarHalfHeight,
+    maxDistance: avatarHalfHeight + 0.05,
     flags
   })
 
