@@ -10,6 +10,10 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
     this.maxSize = maxSize
   }
 
+  updateLastUsedTime(key: Key, value?: Value) {
+    this.set(key, value || this.map.get(key))
+  }
+
   set(key: Key, value: Value) {
     // Update cache, ensuring time-last-used order
     this.map.delete(key)
@@ -21,12 +25,15 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
     this.map.set(key, value)
   }
 
-  updateLastUsedTime(key: Key) {
-    this.set(key, this.map.get(key))
+  get(key: Key) {
+    const value = this.map.get(key)
+    if (value) {
+      this.updateLastUsedTime(key, value)
+    }
+    return value
   }
 
-  get(key: Key) {
-    this.updateLastUsedTime(key)
+  getWithoutEffectingLastUsedTime(key: Key) {
     return this.map.get(key)
   }
 
