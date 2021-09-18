@@ -12,3 +12,24 @@ export function waitS(seconds: number): void {
 export function isNumber(value: string | number): boolean {
   return value != null && value !== '' && !isNaN(Number(value.toString()))
 }
+
+export function combine(first, second, third) {
+  const res = []
+
+  for (let i = 0; i < first.length; i++) res.push(first[i])
+  for (let i = 0; i < second.length; i++) res.push(second[i])
+  for (let i = 0; i < third.length; i++) res.push(third[i])
+
+  return res
+}
+export function combineArrays(arrays: [[]]) {
+  const res = []
+
+  for (let i = 0; i < arrays.length; i++) {
+    for (let j = 0; j < arrays[i].length; j++) {
+      res.push(arrays[i][j])
+    }
+  }
+
+  return res
+}
