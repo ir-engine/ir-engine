@@ -16,6 +16,7 @@ import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { decodeVector3, decodeQuaternion } from '@xrengine/common/src/utils/decode'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
@@ -100,7 +101,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
             //get the angular velocity and apply if it has the appropriate component
 
             const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
-            // networkObjectOwnerComponent && console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
+            // console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
             if (networkObjectOwnerComponent && networkObjectOwnerComponent.networkId === incomingNetworkId) {
               const transform = getComponent(networkObject.entity, TransformComponent)
               if (transform) {
@@ -109,13 +110,6 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               }
               const collider = getComponent(networkObject.entity, ColliderComponent)
               if (collider) {
-                collider.body.setGlobalPose(
-                  {
-                    translation: { x: pose.position[0], y: pose.position[1], z: pose.position[2] },
-                    rotation: { x: pose.rotation[0], y: pose.rotation[1], z: pose.rotation[2], w: pose.rotation[3] }
-                  },
-                  true
-                )
                 const pos = decodeVector3(pose.position)
                 const rot = decodeQuaternion(pose.rotation)
                 collider.body.setGlobalPose(

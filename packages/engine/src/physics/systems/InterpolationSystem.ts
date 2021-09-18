@@ -159,16 +159,13 @@ export default async function InterpolationSystem(world: World): Promise<System>
 
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      if (isDynamicBody(collider.body)) {
-        teleportRigidbody(
-          collider.body,
-          new Vector3(snapshot.x, snapshot.y, snapshot.z),
-          new Quaternion(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
-        )
-      } else {
-        transform.position.set(snapshot.x, snapshot.y, snapshot.z)
-        transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
-      }
+      teleportRigidbody(
+        collider.body,
+        new Vector3(snapshot.x, snapshot.y, snapshot.z),
+        new Quaternion(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
+      )
+      transform.position.set(snapshot.x, snapshot.y, snapshot.z)
+      transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
     }
 
     for (const entity of transformUpdateFromServerQuery()) {
