@@ -36,10 +36,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
   const dispatch = useDispatch()
-  if (admin?.userRole) {
-    if (admin?.userRole.value !== 'admin') {
-      return <Redirect to="/login" />
-    }
+  if (admin?.id?.value?.length > 0 && admin?.userRole?.value !== 'admin') {
+    return <Redirect to="/login" />
   }
 
   let allowedRoutes = {
