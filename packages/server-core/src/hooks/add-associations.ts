@@ -25,7 +25,6 @@ export default (options = {}): any => {
           return newModel
         })
       )
-
       sequelize.raw = false
       context.params.sequelize = sequelize
       return context

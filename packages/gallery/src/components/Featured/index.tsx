@@ -6,7 +6,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
 
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { selectFeedsState } from '../../reducers/post/selector'
 import { getFeeds, removeFeed } from '../../reducers/post/service'
@@ -16,8 +16,8 @@ import { useHistory } from 'react-router'
 const mapStateToProps = (state: any): any => {
   return {
     feedsState: selectFeedsState(state),
-    creatorState: selectCreatorsState(state),
-    authState: selectAuthState(state)
+    creatorState: selectCreatorsState(state)
+    //authState: selectAuthState(state)
   }
 }
 
@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 interface Props {
   feedsState?: any
-  authState?: any
+  //authState?: any
   getFeeds?: any
   type?: string
   creatorId?: string
@@ -35,7 +35,7 @@ interface Props {
   removeFeed?: any
 }
 
-const Featured = ({ feedsState, getFeeds, type, creatorId, authState, removeFeed }: Props) => {
+const Featured = ({ feedsState, getFeeds, type, creatorId, removeFeed }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
   const history = useHistory()
@@ -44,7 +44,7 @@ const Featured = ({ feedsState, getFeeds, type, creatorId, authState, removeFeed
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
-      const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest'
+      const userIdentityType = useAuthState().authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
   }, [type, creatorId, feedsState.get('feedsFetching')])

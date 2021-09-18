@@ -51,6 +51,23 @@ cli.main(async () => {
             }
         });
 
+        const Scope = sequelizeClient.define('scope', {
+            id: {
+                type: Sequelize.DataTypes.UUID,
+                defaultValue: Sequelize.DataTypes.UUIDV1,
+                allowNull: false,
+                primaryKey: true
+            },
+            userId: {
+                type: Sequelize.DataTypes.STRING,
+                allowNull: true
+            },
+            type: {
+                type: Sequelize.DataTypes.STRING,
+                allowNull: false
+            }
+        })
+
         const userMatch = await User.findOne({
             where: {
                 id: options.id
@@ -60,6 +77,7 @@ cli.main(async () => {
         if (userMatch != null) {
             userMatch.userRole = 'admin';
             await userMatch.save();
+            await Scope.create({ userId: options.id, type: 'user:read'})
         }
 
         cli.ok(`User with id ${options.id} made an admin` );

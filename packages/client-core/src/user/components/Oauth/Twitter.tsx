@@ -1,27 +1,15 @@
 import { useLocation, withRouter } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
-import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import Container from '@material-ui/core/Container'
-import { selectAuthState } from '../../reducers/auth/selector'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useAuthState } from '../../reducers/auth/AuthState'
+import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    auth: selectAuthState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
-  refreshConnections: bindActionCreators(refreshConnections, dispatch)
-})
-
 const TwitterCallbackComponent = (props): any => {
-  const { auth, loginUserByJwt, refreshConnections } = props
+  const { loginUserByJwt, refreshConnections } = props
   const { t } = useTranslation()
-
+  const dispatch = useDispatch()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)
   const search = new URLSearchParams(useLocation().search)
@@ -35,12 +23,12 @@ const TwitterCallbackComponent = (props): any => {
 
     if (!error) {
       if (type === 'connection') {
-        const user = auth.get('user')
-        refreshConnections(user.id)
+        const user = useAuthState().user
+        dispatch(AuthService.refreshConnections(user.id.value))
       } else {
         let redirectSuccess = `${path}`
         if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`
-        loginUserByJwt(token, redirectSuccess || '/', '/')
+        dispatch(AuthService.loginUserByJwt(token, redirectSuccess || '/', '/'))
       }
     }
 
@@ -58,4 +46,4 @@ const TwitterCallbackComponent = (props): any => {
   )
 }
 
-export const TwitterCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(TwitterCallbackComponent)) as any
+export const TwitterCallback = withRouter(TwitterCallbackComponent) as any

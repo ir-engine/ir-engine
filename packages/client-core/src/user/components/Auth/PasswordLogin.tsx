@@ -8,26 +8,21 @@ import Grid from '@material-ui/core/Grid'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAuthState } from '../../reducers/auth/selector'
+import { useAuthState } from '../../reducers/auth/AuthState'
 import { showDialog, closeDialog } from '../../../common/reducers/dialog/service'
 import SignUp from './Register'
 import ForgotPassword from './ForgotPassword'
 import styles from './Auth.module.scss'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { loginUserByPassword, addConnectionByPassword } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    auth: selectAuthState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
-  addConnectionByPassword: bindActionCreators(addConnectionByPassword, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch),
   closeDialog: bindActionCreators(closeDialog, dispatch)
 })
@@ -35,18 +30,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const initialState = { email: '', password: '' }
 
 interface Props {
-  auth?: any
   isAddConnection?: boolean
-  addConnectionByPassword?: typeof addConnectionByPassword
-  loginUserByPassword?: typeof loginUserByPassword
   closeDialog?: typeof closeDialog
   showDialog?: typeof showDialog
 }
 
 export const PasswordLogin = (props: Props): any => {
-  const { auth, isAddConnection, addConnectionByPassword, loginUserByPassword, closeDialog, showDialog } = props
+  const { isAddConnection, closeDialog, showDialog } = props
+  const auth = useAuthState()
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()
+  const dispatch = useDispatch()
 
   const handleInput = (e: any): void => setState({ ...state, [e.target.name]: e.target.value })
 
@@ -54,22 +48,26 @@ export const PasswordLogin = (props: Props): any => {
     e.preventDefault()
 
     if (isAddConnection) {
-      const user = auth.get('user') as User
-      const userId = user ? user.id : ''
+      const user = auth.user
+      const userId = user ? user.id.value : ''
 
-      addConnectionByPassword(
-        {
-          email: state.email,
-          password: state.password
-        },
-        userId
+      dispatch(
+        AuthService.addConnectionByPassword(
+          {
+            email: state.email,
+            password: state.password
+          },
+          userId
+        )
       )
       closeDialog()
     } else {
-      loginUserByPassword({
-        email: state.email,
-        password: state.password
-      })
+      dispatch(
+        AuthService.loginUserByPassword({
+          email: state.email,
+          password: state.password
+        })
+      )
     }
   }
 

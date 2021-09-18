@@ -9,7 +9,6 @@ import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
 import styles from './ContentPack.module.scss'
 import { downloadContentPack } from '../../reducers/contentPack/service'
 
@@ -22,8 +21,7 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
-    authState: selectAuthState(state)
+    appState: selectAppState(state)
   }
 }
 

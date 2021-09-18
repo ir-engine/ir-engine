@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { patchGroupByAdmin } from '../../reducers/admin/group/service'
 import { useGroupStyles, useGroupStyle } from './styles'
 
@@ -22,7 +22,6 @@ interface Props {
   adminScopeState?: any
   getScopeTypeService?: any
   patchGroup?: any
-  authState?: any
   closeViewModal?: any
 }
 
@@ -33,7 +32,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     adminScopeState: selectScopeState(state)
   }
 }
@@ -42,8 +40,8 @@ const EditGroup = (props: Props) => {
   const classes = useGroupStyles()
   const classx = useGroupStyle()
 
-  const { groupAdmin, closeEditModal, closeViewModal, patchGroup, authState, adminScopeState } = props
-  const user = authState.get('user')
+  const { groupAdmin, closeEditModal, closeViewModal, patchGroup, adminScopeState } = props
+  const user = useAuthState().user
   const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
   const [state, setState] = React.useState({
@@ -58,7 +56,7 @@ const EditGroup = (props: Props) => {
   })
 
   React.useEffect(() => {
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
+    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
       getScopeTypeService()
     }
   }, [adminScopeState, user])
