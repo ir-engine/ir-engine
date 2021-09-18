@@ -45,7 +45,7 @@ export interface WorldStateInterface {
   pose: {
     networkId: number
     position: number[]
-    rotation: Pose
+    rotation: number[]
     linearVelocity: number[]
     angularVelocity: number[]
   }[]
@@ -53,11 +53,11 @@ export interface WorldStateInterface {
   ikPose: {
     networkId: number
     headPosePosition: number[]
-    headPoseRotation: Pose
+    headPoseRotation: number[]
     leftPosePosition: number[]
-    leftPoseRotation: Pose
+    leftPoseRotation: number[]
     rightPosePosition: number[]
-    rightPoseRotation: Pose
+    rightPoseRotation: number[]
   }[]
 }
 
