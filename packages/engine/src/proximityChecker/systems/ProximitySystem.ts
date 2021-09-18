@@ -1,13 +1,13 @@
 import { defineQuery, defineSystem } from 'bitecs'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ProximityComponent } from '../components/ProximityComponent'
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
 import { getUserId } from '../../networking/utils/getUser'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { ProximityComponent } from '../components/ProximityComponent '
 
 const maxDistance: number = 10
 const intimateDistance: number = 5

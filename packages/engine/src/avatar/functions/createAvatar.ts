@@ -22,10 +22,10 @@ import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent'
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
+import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent '
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
