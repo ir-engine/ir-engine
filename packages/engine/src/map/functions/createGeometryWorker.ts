@@ -74,7 +74,7 @@ function buildGeometry(
   feature: Feature,
   center: LongLat,
   style: IStyles
-): { geometry: BufferGeometry; centerPoint: LongLat } | null {
+): { geometry: BufferGeometry; centerPoint: LongLat; boundingCircleRadius: number } | null {
   const shape = new Shape()
 
   const { geometry } =
@@ -102,7 +102,8 @@ function buildGeometry(
 
   const centerPointLongLat = turf.center(turf.points(coords)).geometry.coordinates
   const centerPoint = toMetersFromCenter(centerPointLongLat, center)
-  const boundingCircleRadius = computeBoundingCircleRadius(feature)
+  const centerPointFlippedY = [centerPoint[0], -centerPoint[1]]
+  const boundingCircleRadius = computeBoundingCircleRadius(feature) * METERS_PER_LONGLAT
 
   var point = transformFeaturePoint(coords[0], centerPoint, center)
   shape.moveTo(point[0], point[1])
@@ -165,7 +166,7 @@ function buildGeometry(
     colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
   }
 
-  return { geometry: threejsGeometry, centerPoint, boundingCircleRadius }
+  return { geometry: threejsGeometry, centerPoint: centerPointFlippedY, boundingCircleRadius }
 }
 
 export function createTaskHandler() {
@@ -178,8 +179,8 @@ export function createTaskHandler() {
 
   Object.assign(this, { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, ExtrudeGeometry })
 
-  return function handleBuildGeometryTask(feature: Feature, llCenter: LongLat, style: IStyles) {
-    const { geometry, centerPoint } = buildGeometry(feature, llCenter, style)
+  return function handleBuildGeometryTask(feature: Feature, center: LongLat, style: IStyles) {
+    const { geometry, centerPoint, boundingCircleRadius } = buildGeometry(feature, center, style)
 
     const bufferGeometry = new BufferGeometry().copy(geometry)
 
@@ -197,7 +198,7 @@ export function createTaskHandler() {
     }
 
     this.postResult(
-      { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, centerPoint },
+      { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, centerPoint, boundingCircleRadius },
       arrayBuffers
     )
   }
