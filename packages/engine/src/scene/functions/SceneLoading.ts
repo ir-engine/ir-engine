@@ -1,14 +1,17 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
+import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
-import { createCollider } from '../../physics/functions/createCollider'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -122,12 +125,12 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
+    const world = useWorld()
     switch (name) {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
         const { meta_data } = component.data
 
-        const world = Engine.defaultWorld
         world.sceneMetadata = meta_data
         console.log('scene_metadata|' + meta_data)
         //}
@@ -272,25 +275,30 @@ export class WorldScene {
         break
 
       case 'collider': {
-        // TODO
+        const object3d = getComponent(entity, Object3DComponent)
+        if (object3d) {
+          const shapes = getAllShapesFromObject3D(entity, object3d.value as any, component.data)
+          const body = createBody(entity, component.data, shapes)
+          addComponent(entity, ColliderComponent, { body })
+          addComponent(entity, CollisionComponent, { collisions: [] })
+        }
         break
       }
 
       case 'box-collider': {
         const boxColliderProps: BoxColliderProps = component.data
         const transform = getComponent(entity, TransformComponent)
-        createCollider(
-          entity,
-          {
-            userData: {
-              type: 'box',
-              ...boxColliderProps
-            }
-          },
-          transform.position,
-          transform.rotation,
-          transform.scale // convert from half extents to full extents
+
+        const shape = world.physics.createShape(
+          new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
+          undefined,
+          boxColliderProps as any
         )
+
+        const body = createBody(entity, { bodyType: 0 }, [shape])
+        addComponent(entity, ColliderComponent, { body })
+        addComponent(entity, CollisionComponent, { collisions: [] })
+
         if (
           boxColliderProps.removeMesh === 'true' ||
           (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)

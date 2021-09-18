@@ -1,8 +1,15 @@
-import { RaycastQuery } from '../../physics/physx'
+import { Vector3 } from '@etherealjs/core'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 
 export type RaycastComponentType = {
-  raycastQuery: RaycastQuery
+  filterData: PhysX.PxQueryFilterData
+  type: SceneQueryType
+  hits: RaycastHit[]
+  origin: Vector3
+  direction: Vector3
+  maxDistance: number
+  flags: number
 }
 
 export const RaycastComponent = createMappedComponent<RaycastComponentType>('RaycastComponent')

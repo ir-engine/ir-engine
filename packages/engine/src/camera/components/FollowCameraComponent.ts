@@ -1,5 +1,4 @@
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { RaycastQuery } from '../../physics/physx'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../types/CameraMode'
 import { Raycaster } from 'three'

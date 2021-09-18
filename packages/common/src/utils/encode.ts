@@ -1,5 +1,4 @@
-import { Vector3 } from 'three'
-import { Quaternion } from 'yuka'
+import { Vector3, Quaternion } from 'three'
 import { encodeFloat } from './bitConverter'
 import { combine } from './miscUtils'
 

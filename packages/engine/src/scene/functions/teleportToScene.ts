@@ -13,14 +13,13 @@ import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
-import { PhysXInstance } from '../../physics/physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { World } from '../../ecs/classes/World'
 import { processLocationChange } from '../../ecs/functions/EngineFunctions'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
@@ -33,7 +32,7 @@ export const teleportToScene = async (
   switchCameraMode(Network.instance.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  PhysXInstance.instance.removeController(
+  useWorld().physics.removeController(
     getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
   )
   removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)

@@ -6,11 +6,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import {
-  applyTransformToMesh,
-  applyTransformToMeshWorld,
-  createCollidersFromModel
-} from '../../physics/functions/parseModelColliders'
+import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
@@ -40,7 +36,7 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
     delete mesh.userData.name
 
     // apply root mesh's world transform to this mesh locally
-    applyTransformToMeshWorld(entity, mesh)
+    // applyTransformToMeshWorld(entity, mesh)
     addComponent(e, TransformComponent, {
       position: mesh.getWorldPosition(new Vector3()),
       rotation: mesh.getWorldQuaternion(new Quaternion()),
@@ -100,8 +96,13 @@ export const parseGLTFModel = (
 
   addComponent(entity, Object3DComponent, { value: scene })
 
-  // legacy physics loader
-  createCollidersFromModel(entity, scene)
+  const transform = getComponent(entity, TransformComponent)
+  if (transform) {
+    scene.position.copy(transform.position)
+    scene.quaternion.copy(transform.rotation)
+    scene.scale.copy(transform.scale)
+    scene.updateMatrixWorld()
+  }
 
   // DIRTY HACK TO LOAD NAVMESH
   if (component.data.src.match(/navmesh/)) {
@@ -171,7 +172,6 @@ export const parseGLTFModel = (
   }
 
   if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
-    applyTransformToMesh(entity, scene)
     scene.traverse((child) => {
       child.updateMatrixWorld(true)
       child.matrixAutoUpdate = false

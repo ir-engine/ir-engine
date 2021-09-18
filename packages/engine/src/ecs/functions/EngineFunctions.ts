@@ -1,7 +1,6 @@
 /** Functions to provide engine level functionalities. */
 import * as bitecs from 'bitecs'
 import { Color } from 'three'
-import { PhysXInstance } from '../../physics/physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
@@ -15,6 +14,8 @@ import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { hasComponent, MappedComponent, removeAllComponents } from './ComponentFunctions'
 import { InjectionPoint, SystemInitializeType } from './SystemFunctions'
+import { Physics } from '../../physics/classes/Physics'
+import { useWorld } from './SystemHooks'
 import { removeEntity, createEntity } from './EntityFunctions'
 import { ActionType } from '../../networking/interfaces/NetworkTransport'
 
@@ -83,11 +84,13 @@ export async function reset(): Promise<void> {
 }
 
 export const processLocationChange = async (): Promise<void> => {
+  const world = useWorld()
+
   const entitiesToRemove = []
   const removedEntities = []
   const sceneObjectsToRemove = []
 
-  Engine.defaultWorld.entities.forEach((entity) => {
+  world.entities.forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)
@@ -95,7 +98,7 @@ export const processLocationChange = async (): Promise<void> => {
     }
   })
 
-  Engine.defaultWorld.execute(1 / 60)
+  world.execute(1 / 60)
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -115,16 +118,9 @@ export const processLocationChange = async (): Promise<void> => {
 
   isClient && EngineRenderer.instance.resetPostProcessing()
 
-  Engine.defaultWorld.execute(1 / 60)
+  world.execute(1 / 60)
 
-  await resetPhysics()
-}
-
-export const resetPhysics = async (): Promise<void> => {
-  Engine.physxWorker.terminate()
-  Engine.workers.splice(Engine.workers.indexOf(Engine.physxWorker), 1)
-  PhysXInstance.instance.dispose()
-  PhysXInstance.instance = new PhysXInstance()
+  world.physics.dispose()
 }
 
 type SystemGroupInterface = (() => void)[]
@@ -135,6 +131,7 @@ export function createWorld() {
   const worldShape = {
     sceneMetadata: undefined as string | undefined,
     worldMetadata: {} as { [key: string]: string },
+    physics: new Physics(),
 
     delta: -1,
     elapsedTime: -1,

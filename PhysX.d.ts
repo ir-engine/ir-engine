@@ -2,7 +2,6 @@ declare module '*.wasm' {
   const value: any
   export = value
 }
-
 declare namespace PhysX {
   class PxQueryFlag {
     static eSTATIC: { value: number }
@@ -80,6 +79,20 @@ declare namespace PhysX {
     eDISABLE_GRAVITY = 1 << 1,
     eSEND_SLEEP_NOTIFIES = 1 << 2,
     eDISABLE_SIMULATION = 1 << 3
+  }
+
+  class PxMeshGeometryFlag {
+    static eDOUBLE_SIDED: { value: number }
+  }
+
+  class PxGeometryType {
+    static eSPHERE: { value: number }
+    static ePLANE: { value: number }
+    static eCAPSULE: { value: number }
+    static eBOX: { value: number }
+    static eCONVEXMESH: { value: number }
+    static eTRIANGLEMESH: { value: number }
+    static eHEIGHTFIELD: { value: number }
   }
 
   class PxShapeFlags {
@@ -193,6 +206,21 @@ declare namespace PhysX {
     simulationCallback: PxSimulationEventCallback
   ): PxSceneDesc
   function getDefaultCCTQueryFilter(): PxQueryFilterCallback
+
+  // TODO - figure out these typings properly
+  class PxTransformLike {
+    translation: {
+      x: number
+      y: number
+      z: number
+    }
+    rotation: {
+      x: number
+      y: number
+      z: number
+      w: number
+    }
+  }
   class PxTransform {
     constructor(p: number[], q: number[])
     constructor()
@@ -223,27 +251,58 @@ declare namespace PhysX {
     $$: ClassHandle
   }
 
+  class PxGeometryHelper {
+    getType(): PxGeometryType
+  }
+
   class PxGeometry {
     getType(): number
+    isValid(): boolean
   }
   class PxBoxGeometry extends PxGeometry {
     constructor(x: number, y: number, z: number)
+    readonly halfExtents: PxVec3
+    setHalfExtents(halfExtents: PxVec3): void
   }
   class PxSphereGeometry extends PxGeometry {
-    constructor(r: number)
+    constructor(radius: number)
+    setRadius(radius: number): void
+    readonly radius: number
   }
   class PxCapsuleGeometry extends PxGeometry {
-    constructor(r: number, h: number)
+    constructor(radius: number, halfHeight: number)
+    setRadius(radius: number): void
+    setHalfHeight(halfHeight: number): void
+    readonly radius: number
+    readonly halfHeight: number
   }
   class PxPlaneGeometry extends PxGeometry {
     constructor()
   }
   class PxTriangleMeshGeometry extends PxGeometry {
-    constructor(a: any, b: any, c: any)
+    constructor(mesh: PxTriangleMesh, meshScale: PxMeshScale, flags: PxMeshGeometryFlags)
+    getTriangleMesh(): PxTriangleMesh
+    setScale(scale: PxMeshScale): void
+    getScale(): PxMeshScale
+    getMeshFlags(): PxMeshGeometryFlags
+  }
+
+  class PxConvexMesh {
+    constructor()
+    getVertices(): PxRealVector
+    getIndexBuffer(): PxRealVector
   }
 
   class PxConvexMeshGeometry extends PxGeometry {
-    constructor(a: any, b: any, c: any)
+    constructor(mesh: PxConvexMesh, meshScale: PxMeshScale, flags: PxConvexMeshGeometryFlags)
+    getConvexMesh(): PxConvexMesh
+    setScale(scale: PxMeshScale): void
+    getScale(): PxMeshScale
+    getMeshFlags(): PxConvexMeshGeometryFlags
+  }
+
+  class PxHeightFieldGeometry extends PxGeometry {
+    constructor(heightfield: PxHeightField, flags: PxMeshGeometryFlags, a: number, b: number, c: number)
   }
 
   class PxMaterial extends Base {
@@ -270,16 +329,20 @@ declare namespace PhysX {
     setFlag(flag: PxShapeFlag, value: boolean): void
     getFlags(): PxShapeFlags
     release(): void
-    setLocalPose(transform: PxTransform): void
+    setLocalPose(transform: PxTransformLike): void
     getLocalPose(): PxTransform
-    // setGeometry(geometry: PxGeometry): void; // TO DO
-    // getBoxGeometry(geometry: PxGeometry): void; // TO DO
-    // getSphereGeometry(geometry: PxGeometry): void; // TO DO
-    // getPlaneGeometry(geometry: PxGeometry): void; // TO DO
+    getGeometry(): PxGeometryHelper
+    setGeometry(geometry: PxGeometry): void
+    getBoxGeometry(geom: PxBoxGeometry): boolean
+    getSphereGeometry(geom: PxSphereGeometry): boolean
+    getCapsuleGeometry(geom: PxCapsuleGeometry): boolean
+    getConvexMeshGeometry(geom: PxConvexMeshGeometry): boolean
+    getTriangleMeshGeometry(geom: PxTriangleMeshGeometry): boolean
+    getHeightFieldGeometry(geom: PxHeightFieldGeometry): boolean
     setRestOffset(restOffset: number): void
-    // setMaterials(materials: PxMaterial[]): void; // TO DO
-    getMaterials(): PxMaterial[] | PxMaterial // TO DO
-    // getWorldBounds(actor: PxActor, inflation: number): PxBounds3; // TO DO
+    // setMaterials(materials: PxMaterial[]): void;
+    getMaterials(): PxMaterial[] | PxMaterial
+    // getWorldBounds(actor: PxActor, inflation: number): PxBounds3;
   }
 
   class PxActor extends Base {
@@ -292,7 +355,7 @@ declare namespace PhysX {
     detachShape(shape: PxShape, wakeOnLostTouch?: boolean | true): void
     getShapes(): PxShape[] | PxShape
     getGlobalPose(): PxTransform
-    setGlobalPose(transform: PxTransform, autoAwake: boolean): void
+    setGlobalPose(transform: PxTransformLike, autoAwake: boolean): void
     setLinearVelocity(value: PxVec3, autoAwake: boolean): void
     getLinearVelocity(): PxVec3
     setAngularVelocity(value: PxVec3, autoAwake: boolean): void
@@ -306,7 +369,7 @@ declare namespace PhysX {
     getLinearDamping(): number
     setMass(value: number): void
     getMass(): number
-    setCMassLocalPose(value: PxTransform): void
+    setCMassLocalPose(value: PxTransformLike): void
     clearForce(): void
     clearTorque(): void
     addForce(force: PxVec3): void
@@ -341,7 +404,7 @@ declare namespace PhysX {
     getWakeCounter(): void
     setSleepThreshold(threshold: number): void
     getSleepThreshold(): number
-    setKinematicTarget(transform: PxTransform): void
+    setKinematicTarget(transform: PxTransformLike): void
     setRigidDynamicLockFlag(flags: PxRigidDynamicLockFlag, value: boolean): void
     setRigidDynamicLockFlags(flags: PxRigidDynamicLockFlags): void
     getRigidDynamicLockFlags(flags: PxRigidDynamicLockFlag): void
@@ -353,22 +416,18 @@ declare namespace PhysX {
     z: number
   }
 
-  class PxVec3Vector {
-    get(index: number): PxVec3
-    push_back(value: PxVec3): void
+  class VectorBase<T> {
+    get(index: number): T
+    push_back(value: T): void
     resize(index: number): void
-    set(index: number, value: PxVec3): void // need to double check the ordering here
+    set(index: number, value: T): void // need to double check the ordering here
     size(): number
   }
 
+  class PxVec3Vector extends VectorBase<PxVec3> {}
+
   type PxReal = number
-  class PxRealVector {
-    get(index: number): PxReal
-    push_back(value: PxReal): void
-    resize(index: number): void
-    set(index: number, value: PxReal): void // need to double check the ordering here
-    size(): number
-  }
+  class PxRealVector extends VectorBase<PxReal> {}
 
   class PxLocationHit {
     position: PxVec3
@@ -408,7 +467,7 @@ declare namespace PhysX {
       origin: PxVec3,
       unitDir: PxVec3,
       maxDistance: PxReal,
-      flags: number,
+      outputFlags: number,
       hit: PxRaycastHit,
       filterData: PxQueryFilterData
     ): boolean
@@ -422,7 +481,13 @@ declare namespace PhysX {
     // raycastMultiple(origin: PxVec3, unitDir: PxVec3, maxDistance: PxReal, flags: number, hits: PxRaycastHit[], hbsize: number, filterData: PxQueryFilterData): boolean;
     setBounceThresholdVelocity(threshold: number): void
     getBounceThresholdVelocity(): number
-    sweep(geometry: PxGeometry, pose: PxTransform, unitDir: PxVec3, maxDistance: PxReal, hit: PxRaycastBuffer): boolean
+    sweep(
+      geometry: PxGeometry,
+      pose: PxTransformLike,
+      unitDir: PxVec3,
+      maxDistance: PxReal,
+      hit: PxRaycastBuffer
+    ): boolean
   }
 
   class PxCookingParams {
@@ -436,6 +501,8 @@ declare namespace PhysX {
 
   class PxTriangleMesh {
     constructor(x: number, y: number, z: number)
+    getVertices(): PxRealVector
+    getTriangles(): PxRealVector
   }
 
   class PxMeshGeometryFlags {
@@ -450,21 +517,21 @@ declare namespace PhysX {
       indexCount: number,
       isU16: boolean,
       physics: PxPhysics
-    ): void
+    ): PxTriangleMesh
     // todo: createConvexMeshFromVectors();
-    createConvexMesh(verticesPtr: number, vertCount: number, physics: PxPhysics): void
+    createConvexMesh(verticesPtr: number, vertCount: number, physics: PxPhysics): PxConvexMesh
   }
 
   class PxPhysics {
     createSceneDesc(): PxSceneDesc
     createScene(a: PxSceneDesc): PxScene
-    createRigidDynamic(a: PxTransform | any): PxRigidDynamic
-    createRigidStatic(a: PxTransform | any): PxRigidStatic
-    createMaterial(staticFriction: number, dynamicFriction: number, restitution: number): Material
+    createRigidDynamic(a: PxTransformLike): PxRigidDynamic
+    createRigidStatic(a: PxTransformLike): PxRigidStatic
+    createMaterial(staticFriction: number, dynamicFriction: number, restitution: number): PxMaterial
     //shapeFlags = PxShapeFlag:: eVISUALIZATION | PxShapeFlag:: eSCENE_QUERY_SHAPE | PxShapeFlag:: eSIMULATION_SHAPE
     createShape(
       geometry: PxGeometry,
-      material: Material,
+      material: PxMaterial,
       isExclusive?: boolean | false,
       shapeFlags?: number | PxShapeFlags
     ): PxShape
@@ -504,7 +571,7 @@ declare namespace PhysX {
   class PxControllerDesc {
     position: PxVec3
     isValid(): boolean
-    setMaterial(material: Material): void
+    setMaterial(material: PxMaterial): void
     stepOffset: number
     contactOffset: number
     maxJumpHeight: number
@@ -542,6 +609,8 @@ declare namespace PhysX {
 
   class PxQueryFilterData {
     constructor()
+    setWords(word0: number, word1: number)
+    setFlags(flags: number)
   }
 
   class PxQueryFilterCallback {
