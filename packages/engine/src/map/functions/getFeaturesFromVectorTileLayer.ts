@@ -8,9 +8,9 @@ export default function* getFeaturesFromVectorTileLayer(
   y: number,
   zoom: number
 ): Generator<FeatureWithTileIndex> {
-  const layer = tile[layerName]
+  const layer = tile.layers[layerName]
   for (let tileIndex = 0; tileIndex < layer.length; tileIndex++) {
-    const feature = tile.feature(tileIndex).toGeoJSON(x, y, zoom)
+    const feature = layer.feature(tileIndex).toGeoJSON(x, y, zoom)
     feature.properties.tileIndex = `${tileIndex}`
     yield feature as FeatureWithTileIndex
   }
