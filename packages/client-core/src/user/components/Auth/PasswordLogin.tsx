@@ -14,7 +14,7 @@ import { useAuthState } from '../../reducers/auth/AuthState'
 import { showDialog, closeDialog } from '../../../common/reducers/dialog/service'
 import SignUp from './Register'
 import ForgotPassword from './ForgotPassword'
-import styles from './Auth.module.scss' 
+import styles from './Auth.module.scss'
 import { AuthService } from '../../reducers/auth/AuthService'
 import { useTranslation } from 'react-i18next'
 

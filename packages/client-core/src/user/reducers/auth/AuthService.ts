@@ -79,7 +79,7 @@ export const AuthService = {
           }
           const authUser = resolveAuthUser(res)
           dispatch(AuthAction.loginUserSuccess(authUser))
-          AuthService.loadUserData(dispatch, authUser.identityProvider.userId)
+          await AuthService.loadUserData(dispatch, authUser.identityProvider.userId)
         } else {
           console.log('****************')
         }
@@ -94,7 +94,7 @@ export const AuthService = {
     }
   },
   loadUserData: (dispatch: Dispatch, userId: string): any => {
-    client
+    return client
       .service('user')
       .get(userId)
       .then((res: any) => {
@@ -162,8 +162,7 @@ export const AuthService = {
           }
 
           dispatch(AuthAction.loginUserSuccess(authUser))
-          AuthService.loadUserData(dispatch, authUser.identityProvider.userId)
-          window.location.href = '/'
+          AuthService.loadUserData(dispatch, authUser.identityProvider.userId).then(() => (window.location.href = '/'))
         })
         .catch((err: any) => {
           console.log(err)
@@ -230,7 +229,7 @@ export const AuthService = {
         const authUser = resolveAuthUser(res)
 
         dispatch(AuthAction.loginUserSuccess(authUser))
-        AuthService.loadUserData(dispatch, authUser.identityProvider.userId)
+        await AuthService.loadUserData(dispatch, authUser.identityProvider.userId)
         dispatch(AuthAction.actionProcessing(false))
         window.location.href = redirectSuccess
       } catch (err) {
@@ -439,7 +438,7 @@ export const AuthService = {
         })
         .then((res: any) => {
           const identityProvider = res as IdentityProvider
-          AuthService.loadUserData(dispatch, identityProvider.userId)
+          return AuthService.loadUserData(dispatch, identityProvider.userId)
         })
         .catch((err: any) => {
           console.log(err)
@@ -460,7 +459,7 @@ export const AuthService = {
         })
         .then((res: any) => {
           const identityProvider = res as IdentityProvider
-          if (identityProvider.userId != null) AuthService.loadUserData(dispatch, identityProvider.userId)
+          if (identityProvider.userId != null) return AuthService.loadUserData(dispatch, identityProvider.userId)
         })
         .catch((err: any) => {
           console.log(err)
@@ -487,7 +486,7 @@ export const AuthService = {
         })
         .then((res: any) => {
           const identityProvider = res as IdentityProvider
-          if (identityProvider.userId != null) AuthService.loadUserData(dispatch, identityProvider.userId)
+          if (identityProvider.userId != null) return AuthService.loadUserData(dispatch, identityProvider.userId)
         })
         .catch((err: any) => {
           console.log(err)
@@ -509,7 +508,7 @@ export const AuthService = {
         .service('identity-provider')
         .remove(identityProviderId)
         .then(() => {
-          AuthService.loadUserData(dispatch, userId)
+          return AuthService.loadUserData(dispatch, userId)
         })
         .catch((err: any) => {
           console.log(err)

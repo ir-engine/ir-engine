@@ -151,11 +151,10 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     checkForBan()
-
     if (!isUserBanned && !props.locationState.get('fetchingCurrentLocation')) {
       retriveLocationByName(authState, props.locationName, history)
     }
-  }, [authState])
+  }, [authState.isLoggedIn.value, authState.user.id.value])
 
   useEffect(() => {
     const currentLocation = props.locationState.get('currentLocation').get('location')

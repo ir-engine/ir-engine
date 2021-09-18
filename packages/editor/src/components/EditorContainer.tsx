@@ -43,12 +43,10 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { Config } from '@xrengine/common/src/config'
 import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
 import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
 import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 
 const maxUploadSize = 25
 
@@ -440,7 +438,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    globalThis.Editor.initializeFeathersClient(getToken())
     if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
       this.props.fetchAdminLocations()
     }

@@ -7,7 +7,7 @@ import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import ResetPassword from '../Auth/ResetPassword'
-import { VerifyEmail } from '../Auth/VerifyEmail' 
+import { VerifyEmail } from '../Auth/VerifyEmail'
 import { useTranslation } from 'react-i18next'
 import { useAuthState } from '../../reducers/auth/AuthState'
 interface Props {
@@ -40,7 +40,6 @@ const AuthMagicLink = (props: Props): any => {
     }
   }, [])
 
-
   return (
     <Container component="main" maxWidth="md">
       <Box mt={3}>
@@ -57,7 +56,7 @@ const AuthMagicLinkWrapper = (props: any): any => {
   const token = search.get('token') as string
   const type = search.get('type') as string
   const dispatch = useDispatch()
-  
+
   const handleResetPassword = (token: string, password: string): any => {
     dispatch(AuthService.resetPassword(token, password))
   }
