@@ -1,7 +1,8 @@
 import * as authentication from '@feathersjs/authentication'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
-
+import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
+import { disallow, isProvider, iff, discard } from 'feathers-hooks-common'
 const { authenticate } = authentication.hooks
 
 export default {
@@ -31,10 +32,11 @@ export default {
         ]
       })
     ],
-    create: [],
-    update: [],
-    patch: [],
+    create: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
+    patch: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
     remove: [
+      iff(isProvider('external'), verifyScope('location', 'write') as any),
       async (context: HookContext): Promise<HookContext> => {
         const location = await (context.app.service('location') as any).Model.findOne({
           where: {

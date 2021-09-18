@@ -7,6 +7,7 @@ import {
   locationRemoved
 } from './actions'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { dispatchScopeError } from '../../../../common/reducers/error/service'
 import { client } from '../../../../feathers'
 
 export function fetchLocationTypes() {
@@ -41,7 +42,7 @@ export function createLocation(location: any) {
       const result = await client.service('location').create(location)
       dispatch(locationCreated(result))
     } catch (err) {
-      console.error(err.message)
+      console.error(err)
       dispatchAlertError(dispatch, err.message)
     }
   }
@@ -49,18 +50,21 @@ export function createLocation(location: any) {
 
 export function fetchAdminLocations(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const skip = getState().get('adminLocation').get('locations').get('skip')
-    const limit = getState().get('adminLocation').get('locations').get('limit')
-    const locations = await client.service('location').find({
-      query: {
-        $sort: {
-          name: 1
-        },
-        $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-        $limit: limit,
-        adminnedLocations: true
-      }
-    })
-    dispatch(locationsRetrieved(locations))
+    try {
+      const locations = await client.service('location').find({
+        query: {
+          $sort: {
+            name: 1
+          },
+          $skip: getState().get('adminLocation').get('locations').get('skip'),
+          $limit: getState().get('adminLocation').get('locations').get('limit'),
+          adminnedLocations: true
+        }
+      })
+      dispatch(locationsRetrieved(locations))
+    } catch (error) {
+      console.error(error)
+      dispatchScopeError(dispatch, error.message, error.statusCode, 'read')
+    }
   }
 }

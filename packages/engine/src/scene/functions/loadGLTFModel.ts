@@ -4,7 +4,8 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
   applyTransformToMesh,
   applyTransformToMeshWorld,
@@ -25,7 +26,7 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
   const meshesToProcess = []
 
   res.traverse((mesh: Mesh) => {
-    if (typeof mesh.userData['xrengine.entity'] !== 'undefined') {
+    if ('xrengine.entity' in mesh.userData || 'realitypack.entity' in mesh.userData) {
       meshesToProcess.push(mesh)
     }
   })
@@ -33,8 +34,9 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
   for (const mesh of meshesToProcess) {
     const sceneEntityId = MathUtils.generateUUID()
     const e = createEntity()
-    addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] })
+    addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] })
     delete mesh.userData['xrengine.entity']
+    delete mesh.userData['realitypack.entity']
     delete mesh.userData.name
 
     // apply root mesh's world transform to this mesh locally
@@ -48,26 +50,41 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
     addComponent(e, Object3DComponent, { value: mesh })
 
     const components = {}
+    const prefabs = {}
     const data = Object.entries(mesh.userData)
 
-    // find all components
     for (const [key, value] of data) {
       const parts = key.split('.')
-      if (parts[0] === 'xrengine' && parts.length > 2) {
-        if (typeof components[parts[1]] === 'undefined') {
-          components[parts[1]] = {}
+      if (parts.length > 1) {
+        // TODO: deprecate xrengine
+        if (parts[0] === 'realitypack' || parts[0] === 'xrengine') {
+          const componentExists = ComponentMap.has(parts[1])
+          const _toLoad = componentExists ? components : prefabs
+          if (typeof _toLoad[parts[1]] === 'undefined') {
+            _toLoad[parts[1]] = {}
+          }
+          if (parts.length > 2) {
+            _toLoad[parts[1]][parts[2]] = value
+          }
+          delete mesh.userData[key]
         }
-        components[parts[1]][parts[2]] = value
-        delete mesh.userData[key]
       }
     }
     for (const [key, value] of Object.entries(components)) {
-      const component = {
+      const component = ComponentMap.get(key)
+      if (typeof component === 'undefined') {
+        console.warn(`Could not load component '${key}'`)
+      } else {
+        addComponent(e, component, value)
+      }
+    }
+    for (const [key, value] of Object.entries(prefabs)) {
+      const prefab = {
         name: key,
         data: value,
         sceneEntityId
       } as SceneDataComponent
-      loadComponent(e, component)
+      loadComponent(e, prefab)
     }
   }
 }
@@ -118,7 +135,8 @@ export const parseGLTFModel = (
   }
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (scene.animations && hasComponent(entity, Object3DComponent)) {
+  if (scene.animations?.length) {
+    console.log('scene.animations', scene.animations)
     // We only have to update the mixer time for this animations on each frame
     const object3d = getComponent(entity, Object3DComponent)
     const mixer = new AnimationMixer(object3d.value)

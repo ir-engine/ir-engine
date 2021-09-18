@@ -6,6 +6,7 @@ import psList from 'ps-list'
 import { exec } from 'child_process'
 import preloadLocation from './preload-location'
 import { createApp } from './app'
+import { Application } from '@xrengine/server-core/declarations'
 
 /**
  * @param status
@@ -14,7 +15,7 @@ import { createApp } from './app'
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
-export const start = async (): Promise<void> => {
+export const start = async (): Promise<Application> => {
   const app = createApp()
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
@@ -51,9 +52,12 @@ export const start = async (): Promise<void> => {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   }
-  if (useSSL) logger.info('Starting server with HTTPS')
-  else logger.warn("Starting server with NO HTTPS, if you meant to use HTTPS try 'sudo bash generate-certs'")
   const port = config.gameserver.port
+  if (useSSL) console.log('Starting gameserver with HTTPS on', port)
+  else
+    console.log(
+      `Starting gameserver with NO HTTPS on ${port}, if you meant to use HTTPS try 'sudo bash generate-certs'`
+    )
 
   // http redirects for development
   if (useSSL) {
@@ -98,4 +102,6 @@ export const start = async (): Promise<void> => {
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
+
+  return app
 }

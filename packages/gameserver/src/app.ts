@@ -83,7 +83,6 @@ export const createApp = (): Application => {
 
       // Set up Plugins and providers
       app.configure(rest())
-      console.log('gameserver clientHost:', config.gameserver.clientHost)
       app.configure(
         socketio(
           {

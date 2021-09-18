@@ -8,6 +8,7 @@ import { socialMediaSeeds } from './socialmedia/seeder-config'
 import { userSeeds } from './user/seeder-config'
 import { worldSeeds } from './world/seeder-config'
 import { scopeSeeds } from './scope/seeder-config'
+import { serverSeeds } from './setting/seeder-config'
 
 export const seeds: Array<ServicesSeedConfig> = [
   ...entitySeeds,
@@ -19,7 +20,8 @@ export const seeds: Array<ServicesSeedConfig> = [
   ...userSeeds,
   ...worldSeeds,
   ...componentSeeds,
-  ...scopeSeeds
+  ...scopeSeeds,
+  ...serverSeeds
 ]
 
 export default seeds

@@ -1,4 +1,4 @@
-import { createEntity, removeAllEntities, removeEntity } from "../../src/ecs/functions/EntityFunctions";
+import { createEntity, removeAllEntities, removeEntity } from "../../src/ecs/functions/ComponentFunctions";
 import { Engine } from "../../src/ecs/classes/Engine";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 

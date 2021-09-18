@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
@@ -52,7 +52,7 @@ export const Debug = () => {
         </button>
         <div>
           <h1>Engine Entities</h1>
-          <JSONTree data={{ ...World.defaultWorld.entities }} />
+          <JSONTree data={{ ...Engine.defaultWorld.entities }} />
         </div>
       </div>
     )

@@ -6,7 +6,7 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
@@ -16,7 +16,6 @@ import { useInstanceStyle, useInstanceStyles } from './styles'
 import { INSTNCE_PAGE_LIMIT } from '../../reducers/admin/instance/reducers'
 
 interface Props {
-  authState?: any
   fetchAdminState?: any
   fetchAdminInstances?: any
   adminInstanceState?: any
@@ -24,7 +23,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     adminInstanceState: selectAdminInstanceState(state)
   }
 }
@@ -41,14 +39,14 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
  * @author KIMENYI Kevin
  */
 const InstanceTable = (props: Props) => {
-  const { fetchAdminInstances, authState, adminInstanceState } = props
+  const { fetchAdminInstances, adminInstanceState } = props
   const classes = useInstanceStyle()
   const classex = useInstanceStyles()
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(INSTNCE_PAGE_LIMIT)
   const [refetch, setRefetch] = React.useState(false)
 
-  const user = authState.get('user')
+  const user = useAuthState().user
   const adminInstances = adminInstanceState.get('instances')
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -72,7 +70,7 @@ const InstanceTable = (props: Props) => {
   }, [])
 
   React.useEffect(() => {
-    if ((user.id && adminInstances.get('updateNeeded')) || refetch === true) fetchAdminInstances()
+    if ((user.id.value && adminInstances.get('updateNeeded')) || refetch === true) fetchAdminInstances()
     setRefetch(false)
   }, [user, adminInstanceState, refetch])
 

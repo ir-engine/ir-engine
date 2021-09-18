@@ -1,7 +1,7 @@
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type VolumetricVideoComponentType = {
   player: any
 }
 
-export const VolumetricComponent = createMappedComponent<VolumetricVideoComponentType>()
+export const VolumetricComponent = createMappedComponent<VolumetricVideoComponentType>('VolumetricComponent')

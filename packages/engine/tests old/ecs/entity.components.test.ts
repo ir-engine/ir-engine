@@ -1,5 +1,5 @@
-import { addComponent, createEntity, hasComponent, removeComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
-import * as EntityFunctions from "../../src/ecs/functions/EntityFunctions";
+import { addComponent, createEntity, hasComponent, removeComponent, removeEntity } from "../../src/ecs/functions/ComponentFunctions";
+import * as ComponentFunctions from "../../src/ecs/functions/ComponentFunctions";
 import * as ComponentFunctions from "../../src/ecs/functions/ComponentFunctions";
 import { Component } from "../../src/ecs/classes/Component";
 import { SystemStateComponent } from "../../src/ecs/classes/SystemStateComponent";
@@ -118,7 +118,7 @@ describe("remove component", () => {
   })
 
   it("does not delete entity with last SystemStateComponent deleted, if there are other Components left", () => {
-    const removeEntityMock = jest.spyOn(EntityFunctions, 'removeEntity')
+    const removeEntityMock = jest.spyOn(ComponentFunctions, 'removeEntity')
 
     addComponent(entity, TestComponent1)
     addComponent(entity, TestSystemStateComponent1)
@@ -129,7 +129,7 @@ describe("remove component", () => {
   })
 
   it.skip("delete entity with last SystemStateComponent deleted, if there is no other components", () => {
-    const removeEntityMock = jest.spyOn(EntityFunctions, 'removeEntity')
+    const removeEntityMock = jest.spyOn(ComponentFunctions, 'removeEntity')
 
     addComponent(entity, TestSystemStateComponent1)
     addComponent(entity, TestSystemStateComponent2)

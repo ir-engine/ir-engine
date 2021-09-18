@@ -2,7 +2,7 @@ import { Material, SkinnedMesh } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 

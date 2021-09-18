@@ -1,6 +1,5 @@
-import { receiveWorker } from 'three-physx'
+import { receiveWorker } from 'three-physx/dist/three-physx.umd.js'
 import PHYSX from './physx.release.cjs.js'
-
 PHYSX({
   locateFile(path) {
     if(path.endsWith('.wasm')) {

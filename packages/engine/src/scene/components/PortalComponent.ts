@@ -1,5 +1,5 @@
 import { Quaternion, Vector3, Euler, Mesh } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type PortalComponentType = {
   location: string
@@ -12,4 +12,4 @@ export type PortalComponentType = {
   remoteSpawnEuler: Euler
 }
 
-export const PortalComponent = createMappedComponent<PortalComponentType>()
+export const PortalComponent = createMappedComponent<PortalComponentType>('PortalComponent')

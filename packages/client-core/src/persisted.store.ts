@@ -21,6 +21,5 @@ export function getStoredAuthState() {
 }
 
 export function saveAuthState(state: any) {
-  if (state.get('auth').get('isLoggedIn'))
-    localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state.get('auth')))
+  if (state.isLoggedIn) localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state))
 }

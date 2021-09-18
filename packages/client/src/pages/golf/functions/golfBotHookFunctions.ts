@@ -1,13 +1,13 @@
 import { Vector3 } from 'three'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
 import { tweenXRInputSource, updateController, updateHead } from '@xrengine/engine/src/bot/functions/xrBotHookFunctions'
 import { GolfState, getHole, getBall, getClub, getTee } from '../GolfSystem'
 import { getGolfPlayerNumber, isCurrentGolfPlayer } from './golfFunctions'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const GolfBotHookFunctions = {
   [GolfBotHooks.GetBallPosition]: getBallPosition,
@@ -67,19 +67,19 @@ export function getPlayerNumber() {
 }
 
 export function getTeePosition() {
-  const teeEntity = getTee(World.defaultWorld.ecsWorld, GolfState.currentHole.value)
+  const teeEntity = getTee(Engine.defaultWorld, GolfState.currentHole.value)
   const teeTransform = getComponent(teeEntity, TransformComponent)
   return teeTransform.position
 }
 
 export function getHolePosition() {
-  const holeEntity = getHole(World.defaultWorld.ecsWorld, GolfState.currentHole.value)
+  const holeEntity = getHole(Engine.defaultWorld, GolfState.currentHole.value)
   const holeTransform = getComponent(holeEntity, TransformComponent)
   return holeTransform.position
 }
 
 export function getBallPosition() {
-  const ballEntity = getBall(World.defaultWorld.ecsWorld, GolfState.currentPlayer.value)
+  const ballEntity = getBall(Engine.defaultWorld, GolfState.currentPlayer.value)
   const ballTransform = getComponent(ballEntity, TransformComponent)
   return ballTransform.position
 }

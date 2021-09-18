@@ -46,10 +46,8 @@ export default defineConfig((command) => {
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
-        // 'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
-        // 'three-physx': 'three-physx/src/index.ts'
       }
     },
     build: {

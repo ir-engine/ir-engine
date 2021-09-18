@@ -1,4 +1,3 @@
-import { FullscreenExit, ZoomOutMap } from '@material-ui/icons'
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
@@ -8,7 +7,7 @@ import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/s
 import { Config } from '@xrengine/common/src/config'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme } from '@xrengine/client-core/src/theme'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
@@ -43,7 +42,6 @@ const initialGroupForm = {
 
 interface Props {
   appState?: any
-  authState?: any
   locationState?: any
   login?: boolean
   pageTitle: string
@@ -54,7 +52,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     locationState: selectLocationState(state),
     onBoardingStep: selectAppOnBoardingStep(state)
   }
@@ -66,9 +63,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const Layout = (props: Props): any => {
   const path = useLocation().pathname
-  const { pageTitle, children, appState, authState, setUserHasInteracted, login, locationState, onBoardingStep } = props
+  const { pageTitle, children, appState, setUserHasInteracted, login, locationState, onBoardingStep } = props
   const userHasInteracted = appState.get('userHasInteracted')
-  const authUser = authState.get('authUser')
+  const authState = useAuthState()
+  const authUser = authState.authUser
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
@@ -81,7 +79,7 @@ const Layout = (props: Props): any => {
   const [groupForm, setGroupForm] = useState(initialGroupForm)
   const [selectedUser, setSelectedUser] = useState(initialSelectedUserState)
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
-  const user = authState.get('user')
+  const user = authState.user
   const handle = useFullScreenHandle()
 
   const initialClickListener = () => {
@@ -166,7 +164,7 @@ const Layout = (props: Props): any => {
               <Alerts />
               {childrenWithProps}
             </Fragment>
-            {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
+            {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && user?.id?.value != null && (
               <Fragment>
                 <LeftDrawer
                   harmony={true}
@@ -190,7 +188,7 @@ const Layout = (props: Props): any => {
                 />
               </Fragment>
             )}
-            {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
+            {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
               <Fragment>
                 <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
               </Fragment>
@@ -202,9 +200,9 @@ const Layout = (props: Props): any => {
             {/*}*/}
             <footer>
               {locationState.get('currentLocation')?.get('location')?.id &&
-                authState.get('authUser') != null &&
-                authState.get('isLoggedIn') === true &&
-                user?.instanceId != null &&
+                authState.authUser != null &&
+                authState.isLoggedIn.value === true &&
+                user?.instanceId.value != null &&
                 !leftDrawerOpen &&
                 !rightDrawerOpen &&
                 !topDrawerOpen &&

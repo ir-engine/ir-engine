@@ -13,7 +13,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectGroupState } from '../../reducers/admin/group/selector'
 import { getGroupService, deleteGroupByAdmin } from '../../reducers/admin/group/service'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { columns, Data } from './Variables'
 import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
@@ -23,12 +23,10 @@ interface Props {
   adminGroupState?: any
   fetchAdminGroup?: any
   deleteGroup?: any
-  authState?: any
 }
 
 const mapStateToProps = (state: any): any => ({
-  adminGroupState: selectGroupState(state),
-  authState: selectAuthState(state)
+  adminGroupState: selectGroupState(state)
 })
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -37,11 +35,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const GroupTable = (props: Props) => {
-  const { adminGroupState, fetchAdminGroup, authState, deleteGroup } = props
+  const { adminGroupState, fetchAdminGroup, deleteGroup } = props
   const classes = useGroupStyles()
   const classx = useGroupStyle()
 
-  const user = authState.get('user')
+  const user = useAuthState().user
   const [viewModel, setViewModel] = React.useState(false)
   const [singleGroup, setSingleGroup] = React.useState('')
   const [page, setPage] = React.useState(0)

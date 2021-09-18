@@ -20,9 +20,10 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
+import { connectToChannelServer, resetChannelServer } from '../../reducers/channelConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { EngineCallbacks } from './'
-import { clientNetworkReceptor } from '@xrengine/engine/src/networking/functions/clientNetworkReceptor'
+import { incomingNetworkReceptor } from '@xrengine/engine/src/networking/functions/incomingNetworkReceptor'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
@@ -32,9 +33,9 @@ const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
-    authState.get('isLoggedIn') === true &&
-    authState.get('user')?.id != null &&
-    authState.get('user')?.id.length > 0
+    authState.isLoggedIn?.value === true &&
+    authState.user?.id?.value != null &&
+    authState.user?.id?.value.length > 0
   ) {
     if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
       getLobby()
@@ -85,11 +86,8 @@ const createOfflineUser = () => {
   // it is needed by ClientAvatarSpawnSystem
   Network.instance.userId = userId
   // Replicate the server behavior
-  clientNetworkReceptor(World.defaultWorld.ecsWorld, NetworkWorldAction.createClient(userId, avatar))
-  clientNetworkReceptor(
-    World.defaultWorld.ecsWorld,
-    NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params)
-  )
+  incomingNetworkReceptor(NetworkWorldAction.createClient(userId, avatar))
+  incomingNetworkReceptor(NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params))
 }
 
 export const initEngine = async (
@@ -98,6 +96,16 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
+  const userLoaded = new Promise<void>((resolve) => {
+    const listener = ({ uniqueId }) => {
+      if (uniqueId === Network.instance.userId) {
+        resolve()
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
+      }
+    }
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
+  })
+
   // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
@@ -132,24 +140,21 @@ export const initEngine = async (
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Store.store.dispatch(setAppLoaded(true))
 
-  // 4. Joing to new world
+  // 4. Join to new world
   if (!isOffline) {
-    await new Promise<void>(async (resolve) => {
-      // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-      let spawnTransform
-      if (newSpawnPos) {
-        spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
-      }
+    // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+    let spawnTransform
+    if (newSpawnPos) {
+      spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
+    }
 
-      const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-        MessageTypes.JoinWorld.toString(),
-        { spawnTransform }
-      )
-      worldState.forEach((action) => {
-        // TODO: send the correct world when we support multiple worlds
-        clientNetworkReceptor(World.defaultWorld.ecsWorld, action)
-      })
-      resolve()
+    const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+      MessageTypes.JoinWorld.toString(),
+      { spawnTransform }
+    )
+    worldState.forEach((action) => {
+      // TODO: send the correct world when we support multiple worlds
+      incomingNetworkReceptor(action)
     })
   }
 
@@ -157,15 +162,7 @@ export const initEngine = async (
     createOfflineUser()
   }
 
-  await new Promise<void>((resolve) => {
-    const listener = ({ uniqueId }) => {
-      if (uniqueId === Network.instance.userId) {
-        resolve()
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-      }
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-  })
+  await userLoaded
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 

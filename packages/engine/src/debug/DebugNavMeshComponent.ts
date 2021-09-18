@@ -1,3 +1,3 @@
-import { createMappedComponent } from '../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../ecs/functions/ComponentFunctions'
 
-export const DebugNavMeshComponent = createMappedComponent<{}>()
+export const DebugNavMeshComponent = createMappedComponent('DebugNavMeshComponent')

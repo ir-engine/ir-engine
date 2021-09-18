@@ -17,7 +17,8 @@ if (globalThis.process?.env.NODE_ENV === 'development') {
 
 if (!kubernetesEnabled) {
   dotenv.config({
-    path: appRootPath.path
+    path: appRootPath.path,
+    silent: true
   })
 }
 
@@ -253,6 +254,14 @@ const redis = {
 }
 
 /**
+ * Scope
+ */
+const scopes = {
+  guest: process.env.DEFAULT_GUEST_SCOPES?.split(',') || [],
+  user: process.env.DEFAULT_USER_SCOPES?.split(',') || []
+}
+
+/**
  * Full config
  */
 const config = {
@@ -267,6 +276,7 @@ const config = {
   gameserver,
   server,
   redis,
+  scopes,
   kubernetes: {
     enabled: kubernetesEnabled,
     serviceHost: process.env.KUBERNETES_SERVICE_HOST,

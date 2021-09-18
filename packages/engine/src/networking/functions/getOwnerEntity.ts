@@ -1,5 +1,5 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'
 import { NetworkObjectOwnerComponent } from '../components/NetworkObjectOwnerComponent'
 

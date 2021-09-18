@@ -23,12 +23,12 @@ if (!isClient) {
 }
 
 const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
-
+// const dracoLoader = new DRACOLoader()
 if (isClient) {
   dracoLoader.setDecoderPath('/loader_decoders/')
 } else {
-  dracoLoader.getDecoderModule = () => {}
-  dracoLoader.preload = () => {}
+  ;(dracoLoader as any).getDecoderModule = () => {}
+  ;(dracoLoader as any).preload = () => {}
 }
 ;(loader as any).setDRACOLoader(dracoLoader)
 

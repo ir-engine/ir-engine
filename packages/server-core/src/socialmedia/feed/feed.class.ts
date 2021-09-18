@@ -95,10 +95,11 @@ export class Feed extends Service {
     //Featured menu item for Guest
     //Featured menu item
     if (action === 'featuredGuest' || action === 'featured') {
-      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title
         FROM \`feed\` as feed
         LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId`
+
       const where = ` WHERE 1 `
       const orderBy = ` ORDER BY feed.featuredByAdmin DESC, feed.createdAt DESC    
         LIMIT :skip, :limit `
@@ -117,7 +118,7 @@ export class Feed extends Service {
     }
 
     if (action === 'creator') {
-      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl
+      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title
         FROM \`feed\` as feed
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
         WHERE feed.creatorId=:creatorId

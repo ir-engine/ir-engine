@@ -1,5 +1,5 @@
 import { Box3 } from 'three'
-import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -10,4 +10,4 @@ export type BoundingBoxComponentType = {
   dynamic: boolean
 }
 
-export const BoundingBoxComponent = createMappedComponent<BoundingBoxComponentType>()
+export const BoundingBoxComponent = createMappedComponent<BoundingBoxComponentType>('BoundingBoxComponent')

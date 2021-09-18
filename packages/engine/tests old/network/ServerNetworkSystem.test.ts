@@ -15,7 +15,7 @@ import {
 } from "../../src/networking/interfaces/WorldState";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
-import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
+import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/ComponentFunctions";
 import { CharacterComponent } from "../../src/avatar/components/CharacterComponent";
 import { ServerNetworkIncomingSystem } from "../../src/networking/systems/ServerNetworkIncomingSystem";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';

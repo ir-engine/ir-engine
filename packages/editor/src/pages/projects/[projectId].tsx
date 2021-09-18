@@ -8,13 +8,14 @@ import React, { lazy, Suspense, useEffect, useState } from 'react'
 // importing component EditorContainer.
 const EditorContainer = lazy(() => import('../../components/EditorContainer'))
 
-import { connect } from 'react-redux'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { bindActionCreators, Dispatch } from 'redux'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+
 /**
  * Declaring Props interface having two props.
  *@authState can be of any type.
@@ -22,8 +23,7 @@ import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/ini
  *
  */
 interface Props {
-  authState?: any
-  doLoginAuto?: typeof doLoginAuto
+  //doLoginAuto?: typeof AuthService.doLoginAuto
 }
 
 /**
@@ -31,16 +31,14 @@ interface Props {
  */
 
 const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
+  return {}
 }
 
 /**
  *Function component providing doAutoLogin on the basis of dispatch.
  */
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch)
 })
 
 /**
@@ -48,12 +46,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
  */
 const Project = (props: Props) => {
   // initialising consts using props interface.
-  const { authState, doLoginAuto } = props
-
+  //const {  doLoginAuto } = props
+  const dispatch = useDispatch()
+  const authState = useAuthState()
   // initialising authUser.
-  const authUser = authState.get('authUser')
+  const authUser = authState.authUser
   // initialising authState.
-  const user = authState.get('user')
+  const user = authState.user
   // initialising hasMounted to false.
   const [hasMounted, setHasMounted] = useState(false)
 
@@ -76,7 +75,7 @@ const Project = (props: Props) => {
 
   // setting doLoginAuto true once DOM get rendered or get updated..
   useEffect(() => {
-    doLoginAuto(true)
+    dispatch(AuthService.doLoginAuto(true))
   }, [])
 
   /**
@@ -85,7 +84,10 @@ const Project = (props: Props) => {
   return (
     hasMounted && (
       <Suspense fallback={React.Fragment}>
-        {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && engineIsInitialized ? (
+        {authUser?.accessToken.value != null &&
+        authUser.accessToken.value.length > 0 &&
+        user?.id.value != null &&
+        engineIsInitialized ? (
           <>
             {/* @ts-ignore */}
             <EditorContainer Engine={Engine} {...props} />

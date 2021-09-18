@@ -68,3 +68,7 @@ export const rotate = (rot: Quaternion, x: number, y: number, z: number) => {
 export const eulerToQuaternion = (x, y, z, order = 'XYZ') => {
   return new Quaternion().setFromEuler(new Euler(x, y, z, order))
 }
+
+export const isZero = (v: Vector3): boolean => {
+  return v.equals(new Vector3())
+}

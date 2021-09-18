@@ -17,7 +17,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
-import { fetchUrl } from '@xrengine/engine/src/scene/functions/fetchUrl'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
 import { EditorContextProvider } from './contexts/EditorContext'
@@ -44,12 +43,10 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { Config } from '@xrengine/common/src/config'
 import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
 import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
 import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 
 const maxUploadSize = 25
 
@@ -273,33 +270,13 @@ export const publishProject = async (project, editor, showDialog, hideDialog?): 
       name: publishParams.name
     }
 
-    const token = getToken()
-
-    const headers = {
-      'content-type': 'application/json',
-      authorization: `Bearer ${token}`
+    try {
+      project = await globalThis.Editor.feathersClient
+        .service(`/publish-project/${project.project_id}`)
+        .create({ scene: sceneParams })
+    } catch (error) {
+      throw new Error(error)
     }
-    const body = JSON.stringify({ scene: sceneParams })
-
-    const resp = await fetchUrl(`${Config.publicRuntimeConfig.apiServer}/publish-project/${project.project_id}`, {
-      method: 'POST',
-      headers,
-      body
-    })
-
-    console.log('Response: ' + Object.values(resp))
-
-    if (signal.aborted) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    if (resp.status !== 200) {
-      throw new Error(i18n.t('editor:errors.sceneCreationFail', { reason: await resp.text() }))
-    }
-
-    project = await resp.json()
 
     showDialog(PublishedSceneDialog, {
       sceneName: sceneParams.name,
@@ -657,10 +634,14 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       project = await getProject(projectId)
-      globalThis.ownedFileIds = JSON.parse(project.ownedFileIds)
+      globalThis.Editor.ownedFileIds = JSON.parse(project.ownedFileIds)
       globalThis.currentProjectID = project.project_id
-      const projectFile = await fetchUrl(project.project_url).then((response) => response.json())
-
+      const projectIndex = project.project_url.split('collection/')[1]
+      const projectFile = await globalThis.Editor.feathersClient.service(`collection`).get(projectIndex, {
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
       await editor.init()
 
       await editor.loadProject(projectFile)
@@ -868,8 +849,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     editor.sceneModified = false
     globalThis.currentProjectID = project.project_id
+
+    const pathParams = this.state.pathParams
+    pathParams.set('projectId', project.project_id)
     this.updateModifiedState(() => {
-      this.setState({ creatingProject: true, project }, () => {
+      this.setState({ creatingProject: true, project, pathParams }, () => {
         this.props.history.replace(`/editor/projects/${project.project_id}`)
         this.setState({ creatingProject: false })
       })

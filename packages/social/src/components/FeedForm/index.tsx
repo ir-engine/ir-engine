@@ -17,13 +17,14 @@ import { Capacitor, Plugins } from '@capacitor/core'
 import { Http, HttpResponse } from '@capacitor-community/http'
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
+// @ts-ignore
 import styles from './FeedForm.module.scss'
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service'
 import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { selectWebXrNativeState } from '../../reducers/webxr_native/selector'
-import { changeWebXrNative } from '../../reducers/webxr_native/service'
-import Preloader from '../Preloader'
+import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
+import { changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import Preloader from '@xrengine/social/src/components/Preloader'
 import { selectFeedsState } from '../../reducers/feed/selector'
 
 const mapStateToProps = (state: any): any => {
@@ -117,6 +118,7 @@ const FeedForm = ({
       updateFeedAsAdmin(feed.id, newFeed)
     } else {
       const feedMediaLinks = await createFeed(newFeed)
+      // @ts-ignore
       // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
     }
 

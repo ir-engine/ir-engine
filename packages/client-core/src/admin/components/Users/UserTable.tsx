@@ -9,7 +9,7 @@ import TableRow from '@material-ui/core/TableRow'
 import { removeUserAdmin, fetchUsersAsAdmin, refetchSingleUserAdmin } from '../../reducers/admin/user/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
 import { USER_PAGE_LIMIT } from '../../reducers/admin/user/reducers'
 import Dialog from '@material-ui/core/Dialog'
@@ -22,7 +22,6 @@ import { userColumns, UserData, UserProps } from './Variables'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state)
   }
 }
@@ -34,7 +33,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const UserTable = (props: UserProps) => {
-  const { removeUserAdmin, refetchSingleUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props
+  const { removeUserAdmin, refetchSingleUserAdmin, fetchUsersAsAdmin, adminUserState } = props
   const classes = useUserStyle()
   const classx = useUserStyles()
   const [page, setPage] = React.useState(0)
@@ -43,7 +42,7 @@ const UserTable = (props: UserProps) => {
   const [userId, setUserId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
   const [userAdmin, setUserAdmin] = React.useState('')
-  const user = authState.get('user')
+  const user = useAuthState().user
   const adminUsers = adminUserState.get('users').get('users')
   const adminUserCount = adminUserState.get('users').get('total')
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -60,7 +59,7 @@ const UserTable = (props: UserProps) => {
     const fetchData = async () => {
       await fetchUsersAsAdmin()
     }
-    if (adminUserState.get('users').get('updateNeeded') === true && user.id) fetchData()
+    if (adminUserState.get('users').get('updateNeeded') === true && user.id.value) fetchData()
   }, [adminUserState, user, fetchUsersAsAdmin])
 
   const openViewModel = (open: boolean, user: any) => (event: React.KeyboardEvent | React.MouseEvent) => {

@@ -11,7 +11,7 @@ import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { selectFeedsState } from '../../reducers/feed/selector'
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service'
@@ -23,7 +23,6 @@ const mapStateToProps = (state: any): any => {
   return {
     feedsState: selectFeedsState(state),
     creatorState: selectCreatorsState(state),
-    authState: selectAuthState(state),
     popupsState: selectPopupsState(state)
   }
 }
@@ -36,7 +35,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 interface Props {
   feedsState?: any
-  authState?: any
   popupsState?: any
   getFeeds?: any
   type?: string
@@ -56,7 +54,6 @@ const Featured = ({
   creatorState,
   setFeedAsFeatured,
   setFeedNotFeatured,
-  authState,
   updateFeedPageState
 }: Props) => {
   const [feedsList, setFeedList] = useState([])
@@ -66,7 +63,7 @@ const Featured = ({
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
-      const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest'
+      const userIdentityType = useAuthState().authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
   }, [type, creatorId, feedsState.get('feedsFeatured')])
