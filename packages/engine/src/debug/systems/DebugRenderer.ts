@@ -174,7 +174,7 @@ export class DebugRenderer {
 
   private _updateController(body: PhysX.PxRigidActor) {
     const shape = (body as any)._shapes[0] as PhysX.PxShape
-    const id = (shape as any)._id
+    const id = shape._id
     let mesh = this._meshes.get(id)
     let needsUpdate = false
     if ((body as any)._debugNeedsUpdate) {
@@ -249,8 +249,8 @@ export class DebugRenderer {
         shape.getCapsuleGeometry(geometry)
         mesh = new Mesh(
           new CapsuleBufferGeometry(
-            clampNonzeroPositive(geometry.radius),
-            clampNonzeroPositive(geometry.radius),
+            clampNonzeroPositive(geometry.radius) * 2,
+            clampNonzeroPositive(geometry.radius) * 2,
             clampNonzeroPositive(geometry.halfHeight) * 2
           ).rotateZ(-halfPI),
           material
@@ -279,9 +279,11 @@ export class DebugRenderer {
       case PhysX.PxGeometryType.eCONVEXMESH.value: {
         const verts = (shape as any)._vertices
         const indices = (shape as any)._indices
+        const scale = (shape as any)._scale
         const bufferGeometry = new BufferGeometry()
         bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
         bufferGeometry.setIndex(indices)
+        bufferGeometry.scale(scale.x, scale.y, scale.z)
         mesh = new Mesh(bufferGeometry, material)
         break
       }
@@ -289,9 +291,11 @@ export class DebugRenderer {
       case PhysX.PxGeometryType.eTRIANGLEMESH.value: {
         const verts = (shape as any)._vertices
         const indices = (shape as any)._indices
+        const scale = (shape as any)._scale
         const bufferGeometry = new BufferGeometry()
         bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
         bufferGeometry.setIndex(indices)
+        bufferGeometry.scale(scale.x, scale.y, scale.z)
         mesh = new Mesh(bufferGeometry, material)
         break
       }

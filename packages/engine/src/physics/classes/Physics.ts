@@ -190,7 +190,7 @@ export class Physics {
 
     for (const shape of shapes as PhysX.PxShape[]) {
       rigidBody.attachShape(shape)
-      this.bodyIDByShapeID.set((shape as any)._id, id)
+      this.bodyIDByShapeID.set(shape._id, id)
     }
 
     this.bodies.set(id, rigidBody)
@@ -248,7 +248,7 @@ export class Physics {
 
     shape.setSimulationFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
     shape.setQueryFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
-    ;(shape as any)._id = id
+    shape._id = id
 
     this.shapeIDByPointer.set(shape.$$.ptr, id)
     this.shapes.set(id, shape)
@@ -282,7 +282,10 @@ export class Physics {
     const geometry = new PhysX.PxTriangleMeshGeometry(
       trimesh,
       meshScale,
-      new PhysX.PxMeshGeometryFlags(PhysX.PxMeshGeometryFlag.eDOUBLE_SIDED.value)
+      new PhysX.PxMeshGeometryFlags(
+        0
+        // PhysX.PxMeshGeometryFlag.eDOUBLE_SIDED.value
+      )
     )
 
     PhysX._free(verticesPtr)

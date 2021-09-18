@@ -42,6 +42,7 @@ export type ShapeOptions = {
   collisionMask?: number | string
   contactOffset?: number | string
   restOffset?: number | string
+  scale?: Vector3 // internal, whatever
 }
 
 export const getCollisionLayer = (options: ShapeOptions) => {
@@ -83,7 +84,6 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
 
     // clone the geometry and apply the scale, as a PhysX body or mesh shape cannot be scaled generically
     const geometry = mergeBufferGeometries([mesh.geometry])
-    geometry.scale(scale.x, scale.y, scale.z)
     shapeOptions.vertices = Array.from(geometry.attributes.position.array)
     shapeOptions.indices = Array.from(geometry.index.array)
   }
@@ -129,23 +129,22 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
       //   // Engine.scene.add(debugMesh)
       // }
       // yes, don't break here - use convex for cylinder
-      break
+      return
     case 'convex':
       geometry = world.physics.createConvexMesh(scale, shapeOptions.vertices)
-      // shapeOptions.vertices = (geometry as PhysX.PxConvexMeshGeometry).getConvexMesh().getVertices()
-      // shapeOptions.indices = (geometry as PhysX.PxConvexMeshGeometry).getConvexMesh().getIndexBuffer()
+      const convexMesh = (geometry as PhysX.PxConvexMeshGeometry).getConvexMesh()
+      shapeOptions.vertices = vectorToArray(convexMesh.getVertices())
+      shapeOptions.indices = vectorToArray(convexMesh.getIndexBuffer())
+      shapeOptions.scale = scale
       break
 
     case 'trimesh':
+      console.log(scale)
       geometry = world.physics.createTrimesh(scale, shapeOptions.vertices, shapeOptions.indices)
-
       const triangleMesh = (geometry as PhysX.PxTriangleMeshGeometry).getTriangleMesh()
-      const verts = vectorToArray(triangleMesh.getVertices())
-      const tris = vectorToArray(triangleMesh.getTriangles())
-      console.log(shapeOptions.vertices, shapeOptions.indices)
-      console.log(verts, tris)
-      shapeOptions.vertices = verts
-      shapeOptions.indices = tris
+      shapeOptions.vertices = vectorToArray(triangleMesh.getVertices())
+      shapeOptions.indices = vectorToArray(triangleMesh.getTriangles())
+      shapeOptions.scale = scale
       break
 
     default:

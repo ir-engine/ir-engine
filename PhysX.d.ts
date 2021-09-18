@@ -289,8 +289,8 @@ declare namespace PhysX {
 
   class PxConvexMesh {
     constructor()
-    getVertices(): PxVec3[]
-    getIndexBuffer(): number[]
+    getVertices(): PxRealVector
+    getIndexBuffer(): PxRealVector
   }
 
   class PxConvexMeshGeometry extends PxGeometry {
