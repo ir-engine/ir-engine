@@ -13,7 +13,7 @@ import TablePagination from '@material-ui/core/TablePagination'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
@@ -26,7 +26,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  authState?: any
   locationState?: any
   fetchAdminScenes?: any
   fetchLocationTypes?: any
@@ -36,7 +35,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     adminSceneState: selectAdminSceneState(state)
   }
 }
@@ -47,9 +45,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const Scenes = (props: Props) => {
-  const { authState, fetchAdminScenes, adminSceneState } = props
+  const { fetchAdminScenes, adminSceneState } = props
 
-  const user = authState.get('user')
+  const authState = useAuthState()
+  const user = authState.user
   const adminScenes = adminSceneState.get('scenes').get('scenes')
   const adminScenesCount = adminSceneState.get('scenes').get('total')
 
@@ -187,7 +186,7 @@ const Scenes = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id != null && (adminSceneState.get('scenes').get('updateNeeded') === true || refetch === true)) {
+    if (user?.id.value != null && (adminSceneState.get('scenes').get('updateNeeded') === true || refetch === true)) {
       fetchAdminScenes()
     }
     setRefetch(false)
@@ -235,7 +234,7 @@ const Scenes = (props: Props) => {
                       {row.description}
                     </TableCell>
                     <TableCell className={styles.tcell} align="right">
-                      {user.userRole === 'admin' && (
+                      {user.userRole.value === 'admin' && (
                         <Checkbox
                           className={styles.checkbox}
                           onChange={(e) => handleCheck(e, row)}

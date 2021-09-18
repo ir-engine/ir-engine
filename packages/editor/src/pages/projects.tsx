@@ -5,8 +5,8 @@ import { Person } from '@material-ui/icons'
 import LocationAdmin from '@xrengine/client-core/src/admin/components/Location'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { doLoginAuto, logoutUser } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { Button, MediumButton } from '@xrengine/editor/src/components/inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '@xrengine/editor/src/components/layout/ContextMenu'
 import {
@@ -22,7 +22,7 @@ import templates from '@xrengine/editor/src/components/projects/templates'
 import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import {
@@ -50,9 +50,8 @@ const contextMenuId = 'project-menu'
  */
 type Props = {
   history: object
-  authState?: any
-  doLoginAuto?: any
-  logoutUser?: typeof logoutUser
+  //doLoginAuto?: typeof AuthService.doLoginAuto
+  //logoutUser?: typeof AuthService.logoutUser
 }
 
 /**
@@ -61,9 +60,7 @@ type Props = {
  */
 
 const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
+  return {}
 }
 
 /**
@@ -73,8 +70,8 @@ const mapStateToProps = (state: any): any => {
  */
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
-  logoutUser: bindActionCreators(logoutUser, dispatch)
+  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
+  // logoutUser: bindActionCreators(AuthService.logoutUser, dispatch)
 })
 
 /**
@@ -83,8 +80,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
  */
 const ProjectsPage = (props: Props) => {
   // creating types using props.
-  const { authState, doLoginAuto, logoutUser } = props
-
+  //const {  doLoginAuto, logoutUser } = props
+  const dispatch = useDispatch()
   const router = useHistory()
   const classes = useStyles()
 
@@ -94,9 +91,12 @@ const ProjectsPage = (props: Props) => {
   // const isAuthenticated = isAuthenticated() // intialized with value returning from api.isAuthenticated()
   const [error, setError] = useState(null) // constant error initialized with null.
   const [profileMenuOpen, setProfileMenuOpen] = useState(false) // constant profileMenuOpen initialized as false
-  const authUser = authState.get('authUser') // authUser initialized by getting property from authState object.
-  const user = authState.get('user') // user initialized by getting value from authState object.
-  const scopes = user.scopes || []
+
+  const authState = useAuthState()
+  const authUser = authState.authUser // authUser initialized by getting property from authState object.
+  const user = authState.user // user initialized by getting value from authState object.
+
+  const scopes = user?.scopes?.value || []
   let isLocationAllowed = false
   let isEditorAllowed = false
 
@@ -113,9 +113,9 @@ const ProjectsPage = (props: Props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    doLoginAuto(true)
+    dispatch(AuthService.doLoginAuto(true))
     console.warn('PROJECTS PAGE PROPS: ', props)
-    console.log(authState)
+    //console.log(authState)
     // We dont need to load projects if the user isn't logged in
   }, [])
 
@@ -124,7 +124,7 @@ const ProjectsPage = (props: Props) => {
   }
 
   useEffect(() => {
-    if (authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
+    if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
       getProjects()
         .then((projects) => {
           setProjects(
@@ -232,6 +232,7 @@ const ProjectsPage = (props: Props) => {
           </ProjectGridHeaderRow>
         </ProjectGridHeader>
       )}
+
       {authUser && (
         <div className={classes.root}>
           <Tabs
@@ -247,7 +248,7 @@ const ProjectsPage = (props: Props) => {
             {isLocationAllowed && <Tab label={t('editor.projects.locationHeader')} {...tapId(1)} />}
           </Tabs>
           <TabPanel value={value} index={0}>
-            {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
+            {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
               <main>
                 {isEditorAllowed ? (
                   <>
