@@ -1,4 +1,4 @@
-import { Box3, BufferGeometry, BufferAttribute, Vector3 } from 'three'
+import { Box3, BufferAttribute } from 'three'
 import { MeshBVH } from 'three-mesh-bvh'
 import { isClient } from '../functions/isClient'
 import Worker from 'web-worker'
@@ -20,9 +20,8 @@ export class GenerateMeshBVHWorker {
 
   async _serverWorker() {
     const path = await require('path')
-    // TODO: Is there a better way to resolve this path?
-    const workerPath = path.resolve(__dirname, '../../../../client/public/workers/generateBVHAsync.worker.js')
-    this.worker = new Worker(workerPath)
+    const workerPath = path.resolve(__dirname, './generateBVHAsync.worker.js')
+    this.worker = new Worker(workerPath, { type: 'module' })
   }
 
   generate(geometry, options = {}) {
