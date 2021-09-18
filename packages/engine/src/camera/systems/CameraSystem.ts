@@ -184,12 +184,6 @@ export default async function CameraSystem(world: World): Promise<System> {
   const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
   filterData.setFlags(flags)
 
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
-  cameraFollow.raycaster = new Raycaster()
-  cameraFollow.raycaster.layers.set(CameraLayers.Scene) // Ignore avatars
-  ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
-  cameraFollow.raycaster.far = cameraFollow.maxDistance
-
   // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),
@@ -203,6 +197,11 @@ export default async function CameraSystem(world: World): Promise<System> {
     const { delta } = world
 
     for (const entity of followCameraQuery.enter()) {
+      const cameraFollow = getComponent(entity, FollowCameraComponent)
+      cameraFollow.raycaster = new Raycaster()
+      cameraFollow.raycaster.layers.set(CameraLayers.Scene) // Ignore avatars
+      ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
+      cameraFollow.raycaster.far = cameraFollow.maxDistance
       Engine.activeCameraFollowTarget = entity
     }
 
