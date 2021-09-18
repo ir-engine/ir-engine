@@ -25,6 +25,8 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
 
@@ -183,7 +185,9 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    if (isClient && !isBot(window) && message.text.startsWith('/')) return undefined
+                    if (isClient && !isBot(window) && isCommand(message.text)) return undefined
+                    const system = getChatMessageSystem(message.text)
+                    if (system !== 'none') message.text = removeMessageSystem(message.text)
                     return (
                       <ListItem
                         className={classNames({

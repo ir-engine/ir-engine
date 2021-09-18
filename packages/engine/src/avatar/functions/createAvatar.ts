@@ -22,7 +22,7 @@ import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
+import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent'
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
@@ -45,8 +45,13 @@ export const createAvatar = (
   isRemotePlayer = true
 ): void => {
   if (isClient) {
-    if (isBot(window) && !hasComponent(entity, ProximityCheckerComponent))
-      addComponent(entity, ProximityCheckerComponent, {})
+    if (isBot(window) && !hasComponent(entity, ProximityComponent))
+      addComponent(entity, ProximityComponent, {
+        usersInRange: [],
+        usersInIntimateRange: [],
+        usersInHarassmentRange: [],
+        usersLookingTowards: []
+      })
     if (!hasComponent(entity, AfkCheckComponent))
       addComponent(entity, AfkCheckComponent, {
         isAfk: false,
