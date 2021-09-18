@@ -19,6 +19,7 @@ import {
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { BodyType } from '../../physics/types/PhysicsTypes'
@@ -49,7 +50,6 @@ export const DebugRenderer = () => {
   const _sphereGeometry = new SphereBufferGeometry(1)
   const _boxGeometry = new BoxBufferGeometry()
   const _planeGeometry = new PlaneBufferGeometry(10000, 10000, 100, 100)
-  const _lineMaterial = new LineBasicMaterial({ color: 0x0000ff })
   let enabled = false
 
   const setEnabled = (_enabled) => {
@@ -67,26 +67,6 @@ export const DebugRenderer = () => {
       _meshes.clear()
       _raycasts.clear()
       _obstacles.clear()
-    }
-  }
-
-  function _updateRaycast(raycast, id) {
-    let line = _raycasts.get(id)
-    if (!line) {
-      line = new Line(
-        new BufferGeometry().setFromPoints([
-          new Vector3().add(raycast.origin),
-          new Vector3().add(raycast.origin).add(raycast.direction)
-        ]),
-        _lineMaterial
-      )
-      Engine.scene.add(line)
-      _raycasts.set(id, line)
-    } else {
-      line.geometry.setFromPoints([
-        new Vector3().add(raycast.origin),
-        new Vector3().add(raycast.direction).multiplyScalar(raycast.maxDistance).add(raycast.origin)
-      ])
     }
   }
 
@@ -283,9 +263,6 @@ export const DebugRenderer = () => {
         }
       })
     })
-    // world.physics.raycasts.forEach((raycast, id) => {
-    //   _updateRaycast(raycast, id)
-    // })
     world.physics.obstacles.forEach((obstacle, id) => {
       _updateObstacle(obstacle, id)
     })

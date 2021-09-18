@@ -196,7 +196,6 @@ export const loadGLTFModel = (
           entity
         },
         (res) => {
-          console.log(res.scene)
           parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
           sceneLoader._onModelLoaded()
           resolve()

@@ -85,7 +85,8 @@ export const updateClub = (entityClub: Entity): void => {
   if (typeof ownerEntity === 'undefined') return
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
-  if (!golfClubComponent.raycast) return
+
+  const world = useWorld()
 
   const transformClub = getComponent(entityClub, TransformComponent)
   const collider = getComponent(entityClub, ColliderComponent)
@@ -93,21 +94,12 @@ export const updateClub = (entityClub: Entity): void => {
   const handTransform = getHandTransform(ownerEntity)
   const { position, rotation } = handTransform
 
-  if (isEntityLocalClient(ownerEntity)) {
-    collider.body.setGlobalPose(
-      {
-        translation: position,
-        rotation
-      },
-      true
-    )
-  }
-
   transformClub.position.copy(position)
   transformClub.rotation.copy(rotation)
 
   golfClubComponent.raycast.origin.copy(position)
   golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation)
+  world.physics.doRaycast(golfClubComponent.raycast)
 
   const hit = golfClubComponent.raycast.hits[0]
 
@@ -122,6 +114,7 @@ export const updateClub = (entityClub: Entity): void => {
   golfClubComponent.headGroup.getWorldDirection(vector2)
   golfClubComponent.raycast1.origin.copy(position.addScaledVector(vector2, -clubHalfWidth * 2))
   golfClubComponent.raycast1.direction.set(0, 0, -1).applyQuaternion(rotation)
+  world.physics.doRaycast(golfClubComponent.raycast1)
 
   const hit1 = golfClubComponent.raycast1.hits[0]
 
@@ -142,22 +135,26 @@ export const updateClub = (entityClub: Entity): void => {
     }
   }
 
-  // calculate velocity of the head of the golf club
-  // average over multiple frames
-  golfClubComponent.headGroup.getWorldPosition(vector1)
-  vector0.subVectors(vector1, golfClubComponent.lastPositions[0])
-  for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate - 1; i++) {
-    vector0.add(vector1.subVectors(golfClubComponent.lastPositions[i], golfClubComponent.lastPositions[i + 1]))
-  }
-  vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
-
   if (isEntityLocalClient(ownerEntity)) {
+    collider.body.setGlobalPose(
+      {
+        translation: position,
+        rotation
+      },
+      true
+    )
+
+    // calculate velocity of the head of the golf club
+    // average over multiple frames
+    golfClubComponent.headGroup.getWorldPosition(vector1)
+    vector0.subVectors(vector1, golfClubComponent.lastPositions[0])
+    for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate - 1; i++) {
+      vector0.add(vector1.subVectors(golfClubComponent.lastPositions[i], golfClubComponent.lastPositions[i + 1]))
+    }
+    vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
+
     golfClubComponent.velocity.copy(vector0)
-    // console.log(golfClubComponent.velocity.clone().lengthSq())
-    const linearVelocity = collider.body.getLinearVelocity()
-    linearVelocity.x = vector0.x
-    linearVelocity.y = vector0.y
-    linearVelocity.z = vector0.z
+
     // now shift all previous positions down the list
     for (let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
       golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1])
@@ -276,14 +273,14 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
       new PhysX.PxBoxGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength),
       world.physics.physics.createMaterial(0, 0, 0),
       {
-        // isTrigger: true,
+        isTrigger: true,
         collisionLayer: GolfCollisionGroups.Club,
         collisionMask: GolfCollisionGroups.Ball
       }
     )
     const body = world.physics.addBody({
       shapes: [shapeHead],
-      type: BodyType.KINEMATIC,
+      type: BodyType.STATIC,
       transform: {
         translation: transform.position,
         rotation: new Quaternion()

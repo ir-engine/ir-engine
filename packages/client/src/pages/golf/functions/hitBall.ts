@@ -13,6 +13,8 @@ import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/telepo
 
 const vector0 = new Vector3()
 const clubPowerMultiplier = 3
+// force is in kg, we need it in grams, so x1000
+const velocityMultiplier = clubPowerMultiplier * 1000
 const hitAdvanceFactor = 4
 
 export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
@@ -20,10 +22,7 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   const collider = getComponent(entityBall, ColliderComponent)
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  // collider.body.setLinearDamping(0.1)
-  // collider.body.setAngularDamping(0.1)
-  // force is in kg, we need it in grams, so x1000
-  const velocityMultiplier = clubPowerMultiplier * 1000
+
   //golfClubComponent.velocity.set(-0.000016128,0,-0.02352940744240586)
   // TODO: fix this - use normal and velocity magnitude to determine hits
   /*
