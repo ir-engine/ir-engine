@@ -1,8 +1,8 @@
-import ArrayKeyedMap from "../../../src/map/classes/ArrayKeyedMap"
+import MapCache from "../../../src/map/classes/MapCache"
 import fetchUsingCache from "../../../src/map/functions/fetchUsingCache"
 
 test("fetchUsingCache", async () => {
-  const cache = new ArrayKeyedMap<[any, any, any], {r: any, g: any, b: any}>()
+  const cache = new MapCache<[any, any, any], {r: any, g: any, b: any}>(50)
   const fetchColor = (r: any, g: any, b: any) => Promise.resolve({r,g,b})
   const fetchColorUsingCache = fetchUsingCache(fetchColor)
 
@@ -13,4 +13,7 @@ test("fetchUsingCache", async () => {
   expect(r1).toBe(r1a)
   expect(r1).toEqual({r:1,g:2,b:3})
   expect(r2).toEqual({r:2,g:4,b:6})
+
+  expect(cache.get([1, 2, 3])).toEqual({r: 1, g: 2, b: 3})
+  expect(cache.get([2, 4, 6])).toEqual({r: 2, g: 4, b: 6})
 })
