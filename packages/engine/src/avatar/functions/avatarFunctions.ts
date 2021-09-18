@@ -1,4 +1,4 @@
-import { AnimationMixer, Group } from 'three'
+import { AnimationMixer, Object3D } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -9,19 +9,12 @@ import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  Mesh,
-  PlaneGeometry,
-  MeshBasicMaterial,
-  AdditiveBlending,
-  sRGBEncoding,
-  ShaderMaterial,
-  DoubleSide
-} from 'three'
+import { Mesh, PlaneGeometry, MeshBasicMaterial, AdditiveBlending, sRGBEncoding, DoubleSide } from 'three'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { DissolveEffect } from '../DissolveEffect'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
 
 export const setAvatar = (entity, avatarId, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -42,11 +35,18 @@ export const loadAvatar = (entity: Entity) => {
   }
 }
 
+const setAvatarLayer = (obj: Object3D) => {
+  obj.layers.disable(CameraLayers.Scene)
+  obj.layers.enable(CameraLayers.Avatar)
+}
+
 const loadDefaultAvatar = (entity: Entity) => {
   const avatar = getComponent(entity, AvatarComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
   model.traverse((object) => {
+    setAvatarLayer(object)
+
     if (object.isMesh || object.isSkinnedMesh) {
       object.material = object.material.clone()
     }
@@ -84,6 +84,8 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
       let materialList: Array<MaterialMap> = []
 
       model.traverse((object) => {
+        setAvatarLayer(object)
+
         if (typeof object.material !== 'undefined') {
           // object.material = object.material.clone()
           materialList.push({
