@@ -70,5 +70,5 @@ export const eulerToQuaternion = (x, y, z, order = 'XYZ') => {
 }
 
 export const isZero = (v: Vector3): boolean => {
-  return v.equals(new Vector3())
+  return v.x === 0 && v.y === 0 && v.z === 0
 }
