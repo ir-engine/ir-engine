@@ -11,12 +11,14 @@ import { stopAutopilot } from '../../navigation/functions/stopAutopilot'
 import {
   subscribeToChatSystem,
   unsubscribeFromChatSystem,
-  getSubscribedChatSystems
+  getSubscribedChatSystems,
+  removeMessageSystem
 } from '../../networking/utils/chatSystem'
 import { getPlayerEntity, getPlayers } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
+import { isBot } from './isBot'
 import { Engine } from '../../ecs/classes/Engine'
 
 //The values the commands that must have in the start
@@ -225,6 +227,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 
       return true
     }
+    case 'getChatHistory': {
+      if (isServer) return false
+
+      handleGetChatHistoryCommand()
+      
+      return true
+    }
     case 'listAllusers': {
       if (isServer) return false
 
@@ -427,6 +436,37 @@ function handleFollowCommand(param: string, eid: number) {
     createFollowComponent(eid, targetEid)
   }
 }
+
+function handleGetChatHistoryCommand() {
+  const chatState = globalThis.store.getState().get('chat')
+  const channelState = chatState.get('channels')
+  const channels = channelState.get('channels')
+  const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance')
+  if (activeChannelMatch && activeChannelMatch.length > 0) {
+    const activeChannel = activeChannelMatch[1]
+    if (activeChannel === undefined) return
+    const messages = activeChannel.messages
+    if (messages === undefined) return
+
+    for (let i = 0; i < messages.length; i++) {
+      messages[i].text = removeMessageSystem(messages[i].text)
+      if (isBot(window)) {
+        const _userId = messages[i].senderId
+        console.log(_userId)
+        delete messages[i].senderId
+        delete messages[i].sender
+        messages[i].updatedAt = new Date(messages[i].updatedAt).getTime() / 1000
+        messages[i].createdAt = new Date(messages[i].createdAt).getTime() / 1000
+        messages[i].author = ['xr-engine', _userId]
+        //messages[i].createdBy = 'xr-engine'
+      }
+    }
+    console.log('messages|' + JSON.stringify(messages))
+  } else {
+    console.warn("Couldn't get chat state")
+  }
+}
+
 function handleListAllUsersCommand(userId) {
   console.log('listallusers, local id: ' + userId)
   if (userId === undefined) return
