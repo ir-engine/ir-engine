@@ -2,6 +2,7 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RaycastQuery } from '../../physics/physx'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../types/CameraMode'
+import { Raycaster } from 'three'
 
 export type FollowCameraComponentType = {
   /** * **Default** value is ```'thirdPerson'```. */
@@ -24,11 +25,8 @@ export type FollowCameraComponentType = {
   shoulderSide: boolean
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
   locked: boolean
-  /** Camera physics raycast data */
-  raycastQuery: RaycastQuery
-  /** Camera physics raycast has hit */
-  rayHasHit: boolean
-  collisionMask: CollisionGroups
+  /** Camera raycaster */
+  raycaster: Raycaster
 }
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
@@ -42,9 +40,7 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   phi: 0,
   shoulderSide: true,
   locked: true,
-  raycastQuery: null,
-  rayHasHit: false,
-  collisionMask: CollisionGroups.Default
+  raycaster: null
 }
 
 export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>('FollowCameraComponent')

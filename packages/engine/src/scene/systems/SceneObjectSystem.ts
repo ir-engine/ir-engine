@@ -11,6 +11,7 @@ import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -56,6 +57,9 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
         console.warn('[Object3DComponent]: Scene object has been added manually.', object3DComponent.value)
       }
 
+      // Set default layer
+      object3DComponent.value.layers.set(CameraLayers.Scene)
+
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
         const material = obj.material as Material
@@ -88,6 +92,14 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
             }
           }
         }
+      })
+
+      // Generate BVH
+      object3DComponent.value.traverse((obj: Mesh) => {
+        if (!obj.isMesh) {
+          return
+        }
+        generateMeshBVH(obj)
       })
     }
 
