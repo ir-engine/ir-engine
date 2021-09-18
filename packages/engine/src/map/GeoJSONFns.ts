@@ -1,6 +1,7 @@
 import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 import rewind from '@mapbox/geojson-rewind'
-import { bbox } from '@turf/turf'
+// stringified worker code relies on "turf" module being globally available
+import * as turf from '@turf/turf'
 
 export function scalePolygon(coords: Position[], xFactor: number, zFactor: number): Position[] {
   return coords.map(([x, z]) => [x * xFactor, z * zFactor])
@@ -112,7 +113,7 @@ export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: Po
 }
 
 export function computeBoundingCircleRadius(feature: Feature) {
-  const [minX, minY, maxX, maxY] = bbox(feature)
+  const [minX, minY, maxX, maxY] = turf.bbox(feature)
 
   return Math.max(maxX - minX, maxY - minY) / 2
 }
