@@ -36,6 +36,7 @@ import {
   handleWebRtcProduceData,
   handleWebRtcReceiveTrack,
   handleWebRtcRequestCurrentProducers,
+  handleWebRtcRequestNearbyUsers,
   handleWebRtcResumeConsumer,
   handleWebRtcResumeProducer,
   handleWebRtcSendTrack,
@@ -326,6 +327,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
               handleWebRtcPauseProducer(socket, data, callback)
             )
 
+            socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
+              handleWebRtcRequestNearbyUsers(socket, data, callback)
+            )
             socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
               handleWebRtcRequestCurrentProducers(socket, data, callback)
             )

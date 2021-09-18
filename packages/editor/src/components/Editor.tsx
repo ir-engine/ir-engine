@@ -85,12 +85,11 @@ import {
 import { fetchContentType } from '@xrengine/engine/src/scene/functions/fetchContentType'
 import { guessContentType } from '@xrengine/engine/src/scene/functions/guessContentType'
 import AssetManifestSource from './assets/AssetManifestSource'
-import { UploadFileType } from './assets/sources/MyAssetsSource'
 import { loadEnvironmentMap } from './EnvironmentMap'
 import { Application, feathers } from '@feathersjs/feathers'
 import rest from '@feathersjs/rest-client'
 import { Config } from '@xrengine/common/src/config'
-import { getToken } from '@xrengine/engine/src'
+import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 
 const tempMatrix1 = new Matrix4()
 const tempMatrix2 = new Matrix4()
@@ -153,6 +152,8 @@ export class Editor extends EventEmitter {
   Engine: Engine
   animationCallback = null
   feathersClient: Application<any, any>
+  ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
+  currentOwnedFileIds: {}
 
   // initializing component properties with default value.
   constructor(settings = {}, Engine) {
@@ -163,12 +164,12 @@ export class Editor extends EventEmitter {
     this.settings = settings
     this.project = null
     this.helperScene = Engine.scene
-
+    this.ownedFileIds = {}
+    this.currentOwnedFileIds = {}
     this.selected = []
     this.selectedTransformRoots = []
 
     this.history = new History()
-
     this.renderer = null
     this.inputManager = null
     this.editorControls = null
@@ -206,6 +207,7 @@ export class Editor extends EventEmitter {
     this.initializing = false
     this.initialized = false
     this.sceneLoading = false
+    this.initializeFeathersClient(getToken())
   }
 
   /**
@@ -2763,7 +2765,7 @@ export class Editor extends EventEmitter {
       node.href = url
       this.addObject(node, parent, before)
     }
-    globalThis.currentOwnedFileIds[name] = id
+    globalThis.Editor.currentOwnedFileIds[name] = id
     this.emit('FileUploaded')
     return node
   }

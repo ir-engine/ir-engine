@@ -19,7 +19,7 @@ import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import { updateBotAsAdmin } from '../../reducers/admin/bots/service'
 import { Dispatch, bindActionCreators } from 'redux'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
@@ -32,7 +32,6 @@ interface Props {
   adminLocationState?: any
   adminInstanceState?: any
   updateBotAsAdmin?: any
-  authState?: any
   fetchAdminInstances?: any
   fetchAdminLocations?: any
 }
@@ -40,8 +39,7 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     adminLocationState: selectAdminLocationState(state),
-    adminInstanceState: selectAdminInstanceState(state),
-    authState: selectAuthState(state)
+    adminInstanceState: selectAdminInstanceState(state)
   }
 }
 
@@ -63,7 +61,6 @@ const UpdateBot = (props: Props) => {
     adminLocationState,
     adminInstanceState,
     updateBotAsAdmin,
-    authState,
     fetchAdminLocations,
     fetchAdminInstances
   } = props
@@ -87,7 +84,7 @@ const UpdateBot = (props: Props) => {
   const locationData = adminLocation.get('locations')
   const adminInstances = adminInstanceState.get('instances')
   const instanceData = adminInstances.get('instances')
-  const user = authState.get('user')
+  const user = useAuthState().user
 
   React.useEffect(() => {
     if (bot) {
@@ -140,7 +137,7 @@ const UpdateBot = (props: Props) => {
     const data = {
       name: state.name,
       instanceId: state.instance || null,
-      userId: user.id,
+      userId: user.id.value,
       description: state.description,
       locationId: state.location
     }

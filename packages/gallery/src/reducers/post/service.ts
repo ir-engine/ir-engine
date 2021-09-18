@@ -1,3 +1,4 @@
+import { Value } from './../../../../engine/src/networking/types/SnapshotDataTypes'
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
@@ -5,6 +6,7 @@ import { Dispatch } from 'redux'
 import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import {
   fetchingFeeds,
   feedsRetrieved,
@@ -80,8 +82,8 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         })
         dispatch(feedsMyFeaturedRetrieved(feedsResults.data))
       } else if (type && type === 'admin') {
-        const user = getState().get('auth').get('user')
-        if (user.userRole === 'admin') {
+        const user = useAuthState().user
+        if (user?.userRole?.value === 'admin') {
           dispatch(fetchingAdminFeeds())
           const feedsResults = await client.service('feed').find({
             query: {
@@ -126,15 +128,19 @@ export function addViewToFeed(feedId: string) {
   }
 }
 
-export function createFeed({ title, description, preview }: any) {
+export function createFeed({ title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds())
+      const storedVideo = (await upload(video, null)) as any
       const storedPreview = (await upload(preview, null)) as any
-      if (storedPreview) {
-        const feed = await client.service('feed').create({ title, description, previewId: storedPreview.file_id })
+
+      if (storedVideo && storedPreview) {
+        const feed = await client
+          .service('feed')
+          .create({ title, description, videoId: storedVideo.file_id, previewId: storedPreview.file_id })
         dispatch(addFeed(feed))
-        const mediaLinks = { preview: storedPreview.origin }
+        const mediaLinks = { video: storedVideo.origin, preview: storedPreview.origin }
         return mediaLinks
       }
     } catch (err) {
@@ -190,7 +196,7 @@ export function setFeedNotFeatured(feedId: string) {
   }
 }
 
-export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: string) {
+export function removeFeed(feedId: string, previewImageUrl: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const findIdInUrl = (url) => {
@@ -201,7 +207,7 @@ export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: st
       }
 
       await client.service('static-resource').remove(findIdInUrl(previewImageUrl))
-      await client.service('static-resource').remove(findIdInUrl(videoUrl))
+      // await client.service('static-resource').remove(findIdInUrl(videoUrl))
       await client.service('feed').remove(feedId)
       dispatch(deleteFeed(feedId))
     } catch (err) {

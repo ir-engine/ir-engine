@@ -1,5 +1,5 @@
 import { Group, Mesh, Vector3 } from 'three'
-import { RaycastQuery } from 'three-physx'
+import { RaycastQuery } from '@xrengine/engine/src/physics/physx'
 import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 export type GolfClubComponentType = {

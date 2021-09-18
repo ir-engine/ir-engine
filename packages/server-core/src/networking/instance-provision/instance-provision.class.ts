@@ -36,10 +36,10 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * An method which start server for instance
    * @author Vyacheslav Solovjov
    */
-  async getFreeGameserver(): Promise<any> {
+  async getFreeGameserver(isChannelInstance?: boolean): Promise<any> {
     if (!config.kubernetes.enabled) {
       console.log('Local server spinning up new instance')
-      return getLocalServerIp()
+      return getLocalServerIp(isChannelInstance)
     }
     logger.info('Getting free gameserver')
     const serverResult = await (this.app as any).k8AgonesClient.get('gameservers')
@@ -169,7 +169,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             ended: false
           }
         })
-        if (channelInstance == null) return this.getFreeGameserver()
+        if (channelInstance == null) return this.getFreeGameserver(true)
         else {
           const ipAddressSplit = channelInstance.ipAddress.split(':')
           return {

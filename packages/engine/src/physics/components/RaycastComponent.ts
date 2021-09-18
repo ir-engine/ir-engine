@@ -1,4 +1,4 @@
-import { RaycastQuery } from 'three-physx'
+import { RaycastQuery } from '../../physics/physx'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type RaycastComponentType = {
