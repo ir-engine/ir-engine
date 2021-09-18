@@ -53,4 +53,7 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
   values() {
     return this.map.values()
   }
+  entries() {
+    return this.map.entries()
+  }
 }
