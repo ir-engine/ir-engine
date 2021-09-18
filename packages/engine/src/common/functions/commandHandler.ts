@@ -448,19 +448,8 @@ function handleGetChatHistoryCommand() {
     const messages = activeChannel.messages
     if (messages === undefined) return
 
-    for (let i = 0; i < messages.length; i++) {
-      messages[i].text = removeMessageSystem(messages[i].text)
-      if (isBot(window)) {
-        const _userId = messages[i].senderId
-        console.log(_userId)
-        delete messages[i].senderId
-        delete messages[i].sender
-        messages[i].updatedAt = new Date(messages[i].updatedAt).getTime() / 1000
-        messages[i].createdAt = new Date(messages[i].createdAt).getTime() / 1000
-        messages[i].author = ['xr-engine', _userId]
-        //messages[i].createdBy = 'xr-engine'
-      }
-    }
+    for (let i = 0; i < messages.length; i++) messages[i].text = removeMessageSystem(messages[i].text)
+
     console.log('messages|' + JSON.stringify(messages))
   } else {
     console.warn("Couldn't get chat state")
