@@ -26,10 +26,12 @@ import {
 } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import ViewMode from '../ViewMode/ViewMode'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 const mapStateToProps = (state: any): any => {
   return {
     creatorState: selectCreatorsState(state),
+    authState: selectAuthState(state),
     popupsState: selectPopupsState(state)
   }
 }
@@ -47,6 +49,7 @@ interface Props {
   getLoggedCreator?: any
   updateCreatorPageState?: typeof updateCreatorPageState
   updateNewFeedPageState?: typeof updateNewFeedPageState
+  authState?: any
   popupsState?: any
   updateCreatorFormState?: typeof updateCreatorFormState
   updateFeedPageState?: typeof updateFeedPageState
@@ -57,6 +60,7 @@ interface Props {
 const AppFooter = ({
   creatorState,
   getLoggedCreator,
+  authState,
   updateCreatorPageState,
   popupsState,
   updateCreatorFormState,

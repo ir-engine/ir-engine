@@ -18,12 +18,13 @@ import SimpleModal from '../SimpleModal'
 import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service'
 import { selectFeedCommentsState } from '../../reducers/feedComment/selector'
 import PopupLogin from '../PopupLogin/PopupLogin'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
   return {
-    feedCommentsState: selectFeedCommentsState(state)
+    feedCommentsState: selectFeedCommentsState(state),
+    authState: selectAuthState(state)
   }
 }
 
@@ -39,6 +40,7 @@ interface Props {
   comment: CommentInterface
   getCommentFires?: typeof getCommentFires
   feedCommentsState?: any
+  authState?: any
 }
 
 const CommentCard = ({
@@ -46,7 +48,8 @@ const CommentCard = ({
   addFireToFeedComment,
   removeFireToFeedComment,
   getCommentFires,
-  feedCommentsState
+  feedCommentsState,
+  authState
 }: Props) => {
   const { id, creator, fires, text, isFired } = comment
   const [openFiredModal, setOpenFiredModal] = useState(false)
@@ -59,7 +62,7 @@ const CommentCard = ({
     setOpenFiredModal(true)
   }
   const [buttonPopup, setButtonPopup] = useState(false)
-  const checkGuest = useAuthState().authUser?.identityProvider?.type?.value === 'guest' ? true : false
+  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false
   const { t } = useTranslation()
 
   return (

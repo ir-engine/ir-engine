@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { useFeedStyle, useFeedStyles } from './styles'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import Grid from '@material-ui/core/Grid'
 import CardData from './CardData'
 import ViewFeed from './ViewFeed'
@@ -19,6 +19,7 @@ interface Props {
   getAdminFeeds?: typeof getFeeds
   removeFeed?: typeof removeFeed
   feedState?: any
+  authState?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -28,16 +29,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const mapStateToProps = (state: any): any => {
   return {
+    authState: selectAuthState(state),
     feedState: selectFeedsState(state)
   }
 }
 
 const FeedTable = (props: Props) => {
-  const { getAdminFeeds, removeFeed, feedState } = props
+  const { getAdminFeeds, removeFeed, authState, feedState } = props
   const classex = useFeedStyle()
   const classes = useFeedStyles()
 
-  const user = useAuthState().user
+  const user = authState.get('user')
   const feeds = feedState.get('feedsAdmin')
   const adminFeeds = feeds.get('feeds')
 
@@ -47,7 +49,7 @@ const FeedTable = (props: Props) => {
   const [feedId, setFeedId] = React.useState('')
 
   React.useEffect(() => {
-    if (user.id.value && feeds.get('updateNeeded')) {
+    if (user.id && feeds.get('updateNeeded')) {
       getAdminFeeds('admin')
     }
   }, [user, getAdminFeeds, feeds])

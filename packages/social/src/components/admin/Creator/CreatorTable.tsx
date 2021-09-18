@@ -19,11 +19,11 @@ import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
 import { deleteCreator, fetchCreatorAsAdmin } from '../../../reducers/creator/service'
 import { selectCreatorsState } from '../../../reducers/creator/selector'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 interface Props {
   fetchCreatorAsAdmin?: typeof fetchCreatorAsAdmin
-
+  authState?: any
   creatorState?: any
   deleteCreator?: typeof deleteCreator
 }
@@ -35,15 +35,16 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const mapStateToProps = (state: any): any => {
   return {
+    authState: selectAuthState(state),
     creatorState: selectCreatorsState(state)
   }
 }
 
 const CreatorTable = (props: Props) => {
-  const { fetchCreatorAsAdmin, creatorState } = props
+  const { fetchCreatorAsAdmin, authState, creatorState } = props
   const classx = useCreatorStyles()
   const classes = useCreatorStyle()
-  const user = useAuthState().user
+  const user = authState.get('user')
   const creator = creatorState.get('creators')
   const creatorData = creator.get('creators')
   const [singleCreator, setSingleCreator] = React.useState('')
@@ -87,7 +88,7 @@ const CreatorTable = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (user.id.value && creator.get('updateNeeded')) {
+    if (user.id && creator.get('updateNeeded')) {
       fetchCreatorAsAdmin()
     }
   }, [user, creator])
