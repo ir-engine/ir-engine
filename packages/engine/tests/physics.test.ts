@@ -33,7 +33,7 @@ describe('Physics', () => {
     0, 2, 4
   ]
 
-  test.skip('Can load physics convex mesh', async () => {
+  test('Can load physics convex mesh', async () => {
     await initializeEngine(engineTestSetup)
     const world = useWorld()
 
@@ -72,14 +72,14 @@ describe('Physics', () => {
     const newVertices = vectorToArray(trimesh.getVertices())
     const newIndices = vectorToArray(trimesh.getTriangles())
 
-    for (let i = 0; i < indices.length; i += 3) {
-      console.log(
-        'new', newIndices[i], newIndices[i + 1], newIndices[i + 2],
-        '\n',
-        'expected', indices[i], indices[i + 1], indices[i + 2]
-      )
-    }
-    console.log(newIndices, indices)
+    // for (let i = 0; i < indices.length; i += 3) {
+    //   console.log(
+    //     'new', newIndices[i], newIndices[i + 1], newIndices[i + 2],
+    //     '\n',
+    //     'expected', indices[i], indices[i + 1], indices[i + 2]
+    //   )
+    // }
+    // console.log(newIndices, indices)
     expect(newVertices).toEqual(vertices)
     expect(newIndices.length).toEqual(indices.length)
   })
