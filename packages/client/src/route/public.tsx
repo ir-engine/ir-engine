@@ -2,9 +2,13 @@ import React, { Suspense } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import ProtectedRoute from './protected'
+import EditorProtected from './EditorProtected'
 import homePage from '../pages/index'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
+if (typeof globalThis.process === 'undefined') {
+  ;(globalThis as any).process = { env: {} }
+}
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
   static getDerivedStateFromError() {
     return { hasError: true }
@@ -49,7 +53,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
 
           {/* Dev Routes */}
           <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
-          {/* <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} /> */}
+          <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
           <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
           <Route
             path="/examples/navmeshbuilder"
@@ -88,13 +92,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
 
           {/* Editor Routes */}
-          <Route
-            path="/editor/projects/:projectId"
-            component={React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))}
-          />
-          <Route path="/editor/projects" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
-          <Route path="/editor/create" component={React.lazy(() => import('@xrengine/editor/src/pages/create'))} />
-          <Redirect path="/editor" to="/editor/projects" />
+          <Route path="/editor" component={EditorProtected} />
 
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
         </Switch>

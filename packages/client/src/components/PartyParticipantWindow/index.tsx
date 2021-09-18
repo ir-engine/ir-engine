@@ -17,10 +17,9 @@ import {
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
-import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -40,7 +39,6 @@ import {
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
 import { Downgraded } from '@hookstate/core'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 interface ContainerProportions {
   width: number | string
@@ -52,7 +50,6 @@ interface Props {
   containerProportions?: ContainerProportions
   peerId?: string
   appState?: any
-  authState?: any
   locationState?: any
   mediastream?: any
 }
@@ -60,7 +57,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     locationState: selectLocationState(state),
     mediastream: selectMediastreamState(state)
   }
@@ -79,17 +75,16 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false)
   const [audioTrackClones, setAudioTrackClones] = useState([])
   const [videoTrackClones, setVideoTrackClones] = useState([])
-  const [toggle, setToggle] = useState(0)
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, appState, authState, locationState, mediastream } = props
+  const { harmony, peerId, appState, locationState, mediastream } = props
   const userState = useUserState()
-  const videoRef = React.createRef<HTMLVideoElement>()
-  const audioRef = React.createRef<HTMLAudioElement>()
+  const videoRef = React.useRef<HTMLVideoElement>()
+  const audioRef = React.useRef<HTMLAudioElement>()
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
 
   const userHasInteracted = appState.get('userHasInteracted')
-  const selfUser = authState.get('user')
+  const selfUser = useAuthState().user.value
   const currentLocation = locationState.get('currentLocation').get('location')
   const enableGlobalMute =
     currentLocation?.locationSettings?.locationType === 'showroom' &&
@@ -183,11 +178,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [userHasInteracted])
 
   useEffect(() => {
-    if (
-      harmony !== true &&
-      (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) &&
-      audioRef.current != null
-    )
+    if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null)
       audioRef.current.volume = 0
     else if (
       harmony === true
@@ -198,16 +189,24 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [selfUser])
 
   useEffect(() => {
-    const socket =
-      (Network.instance?.transport as any)?.channelType === 'instance'
-        ? (Network.instance?.transport as any)?.instanceSocket
-        : (Network.instance?.transport as any)?.channelSocket
+    const socket = (Network.instance?.transport as any)?.channelSocket
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
     if (typeof socket?.on === 'function')
       socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
     if (typeof socket?.on === 'function')
       socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+
+    return () => {
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+    }
   }, [])
 
   useEffect(() => {
@@ -223,13 +222,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
         setAudioTrackClones(updateAudioTrackClones)
         audioRef.current.srcObject = new MediaStream([newAudioTrack])
+        setAudioProducerPaused(audioStream.paused)
       }
       // TODO: handle 3d audio switch on/off
-      if (
-        harmony !== true &&
-        (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1)
-      )
-        audioRef.current.volume = 0
+      if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled === true) audioRef.current.volume = 0
       if (
         harmony === true
         // selfUser?.user_setting?.spatialAudioEnabled === false ||
@@ -253,11 +249,19 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
-        const newVideoTrack = videoStream.track.clone()
-        const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack)
-        setVideoTrackClones(updateVideoTrackClones)
-        videoRef.current.srcObject = new MediaStream([newVideoTrack])
-        setVideoProducerPaused(false)
+        setVideoProducerPaused(videoStream.paused)
+        const originalTrackEnabledInterval = setInterval(() => {
+          if (videoStream.track.enabled) {
+            clearInterval(originalTrackEnabledInterval)
+
+            if (!videoRef.current?.srcObject?.active || !videoRef.current?.srcObject?.getVideoTracks()[0].enabled) {
+              const newVideoTrack = videoStream.track.clone()
+              videoTrackClones.forEach((track) => track.stop())
+              setVideoTrackClones([newVideoTrack])
+              videoRef.current.srcObject = new MediaStream([newVideoTrack])
+            }
+          }
+        }, 100)
       }
     }
 
@@ -267,24 +271,88 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [videoStream])
 
   useEffect(() => {
-    if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreams.instance?.audioPaused)
-    if (harmony === true && audioStream != null && audioRef.current != null) {
-      const newAudioTrack = audioStream.track.clone()
-      const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
-      setAudioTrackClones(updateAudioTrackClones)
-      audioRef.current.srcObject = new MediaStream([newAudioTrack])
+    if (peerId === 'me_cam' || peerId === 'me_screen') {
+      setAudioStreamPaused(MediaStreams.instance?.audioPaused)
+      if (!MediaStreams.instance.audioPaused && audioStream != null && audioRef.current != null) {
+        const originalTrackEnabledInterval = setInterval(() => {
+          if (audioStream.track.enabled) {
+            clearInterval(originalTrackEnabledInterval)
+
+            if (!audioRef.current?.srcObject?.getAudioTracks()[0].enabled) {
+              const newAudioTrack = audioStream.track.clone()
+              const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
+              setAudioTrackClones(updateAudioTrackClones)
+              audioRef.current.srcObject = new MediaStream([newAudioTrack])
+            }
+          }
+        })
+      }
     }
   }, [MediaStreams.instance?.audioPaused])
 
   useEffect(() => {
-    if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreams.instance?.videoPaused)
-    if (harmony === true && videoStream != null && videoRef.current != null) {
-      const newVideoTrack = videoStream.track.clone()
-      const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack)
-      setVideoTrackClones(updateVideoTrackClones)
-      videoRef.current.srcObject = new MediaStream([newVideoTrack])
+    if (peerId === 'me_cam' || peerId === 'me_screen') {
+      setVideoStreamPaused(MediaStreams.instance?.videoPaused)
+      if (!MediaStreams.instance.videoPaused && videoStream != null && videoRef.current != null) {
+        const originalTrackEnabledInterval = setInterval(() => {
+          if (videoStream.track.enabled) {
+            clearInterval(originalTrackEnabledInterval)
+
+            if (!videoRef.current?.srcObject?.getVideoTracks()[0].enabled) {
+              const newVideoTrack = videoStream.track.clone()
+              videoTrackClones.forEach((track) => track.stop())
+              setVideoTrackClones([newVideoTrack])
+              videoRef.current.srcObject = new MediaStream([newVideoTrack])
+            }
+          }
+        }, 100)
+      }
     }
   }, [MediaStreams.instance?.videoPaused])
+
+  useEffect(() => {
+    if (
+      !(peerId === 'me_cam' || peerId === 'me_screen') &&
+      !videoProducerPaused &&
+      videoStream != null &&
+      videoRef.current != null
+    ) {
+      const originalTrackEnabledInterval = setInterval(() => {
+        if (videoStream.track.enabled) {
+          clearInterval(originalTrackEnabledInterval)
+
+          if (!videoRef.current?.srcObject?.getVideoTracks()[0].enabled) {
+            const newVideoTrack = videoStream.track.clone()
+            videoTrackClones.forEach((track) => track.stop())
+            setVideoTrackClones([newVideoTrack])
+            videoRef.current.srcObject = new MediaStream([newVideoTrack])
+          }
+        }
+      }, 100)
+    }
+  }, [videoProducerPaused])
+
+  useEffect(() => {
+    if (
+      !(peerId === 'me_cam' || peerId === 'me_screen') &&
+      !audioProducerPaused &&
+      audioStream != null &&
+      audioRef.current != null
+    ) {
+      const originalTrackEnabledInterval = setInterval(() => {
+        if (audioStream.track.enabled) {
+          clearInterval(originalTrackEnabledInterval)
+
+          if (!audioRef.current?.srcObject?.getAudioTracks()[0].enabled) {
+            const newAudioTrack = audioStream.track.clone()
+            const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
+            setAudioTrackClones(updateAudioTrackClones)
+            audioRef.current.srcObject = new MediaStream([newAudioTrack])
+          }
+        }
+      })
+    }
+  }, [audioProducerPaused])
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
@@ -444,9 +512,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             {audioStream &&
               audioProducerPaused === false &&
               audioProducerGlobalMute === false &&
-              (harmony === true ||
-                selfUser?.user_setting?.spatialAudioEnabled === false ||
-                selfUser?.user_setting?.spatialAudioEnabled === 0) && (
+              (harmony === true || selfUser?.user_setting?.spatialAudioEnabled === false) && (
                 <div className={styles['audio-slider']}>
                   {volume > 0 && <VolumeDown />}
                   {volume === 0 && <VolumeMute />}

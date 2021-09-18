@@ -286,11 +286,9 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
-  console.log('initializeEngine', initOptions)
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
   Engine.currentWorld = sceneWorld
-  console.log('Created world', sceneWorld)
 
   Engine.initOptions = options
   Engine.offlineMode = typeof options.networking.schema.transport === 'undefined'
@@ -314,26 +312,20 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   // Config Engine based on passed type
   if (options.type === EngineSystemPresets.CLIENT) {
-    console.log('ConfigureClient')
     await configureClient(options)
-    console.log('Client configured')
   } else if (options.type === EngineSystemPresets.EDITOR) {
-    console.log('ConfigureEditor')
     await configureEditor(options)
-    console.log('Editor configured')
   } else if (options.type === EngineSystemPresets.SERVER) {
-    console.log('ConfigureServer')
     await configureServer(options)
-    console.log('Server configured')
   }
+
+  await sceneWorld.physics.createScene()
 
   options.systems?.forEach((init) => {
     injectSystem(sceneWorld, init)
   })
 
-  console.log('sceneWorld initing systems')
   await sceneWorld.initSystems()
-  console.log('all systems inited!')
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
@@ -347,9 +339,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   // Engine type specific post configuration work
   if (options.type === EngineSystemPresets.CLIENT) {
-    console.log('Client waiting for SCENE_LOADED')
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-      console.log('SCENE_LOADED received, starting engineTimer')
       Engine.engineTimer.start()
     })
     const onUserEngage = () => {
@@ -364,20 +354,15 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     })
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
-      console.log('initializeEngine got event CONNECT')
       Network.instance.isInitialized = true
       Network.instance.userId = id
-      console.log('initializeEngine set isInitialized to true and userId to', id)
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
-    console.log('Starting server engine timer')
     Engine.engineTimer.start()
   }
 
-  console.log('Setting isInitialized to true')
   // Mark engine initialized
   Engine.isInitialized = true
-  console.log('dispatching INITIALIZED_ENGINE')
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
 }
 

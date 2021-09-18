@@ -3,7 +3,6 @@ import styles from './Header.module.scss'
 
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { useTranslation } from 'react-i18next'
 import {
   Button,
@@ -13,16 +12,15 @@ import {
   DialogContentText,
   Grid,
   makeStyles,
-  TextField,
-  Typography
+  TextField
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
 import { createFeed } from '../../reducers/post/service'
-import { selectCreatorsState } from '../../../../social/src/reducers/creator/selector'
+import { selectCreatorsState } from '../../reducers/creator/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     creatorsState: selectCreatorsState(state)
   }
 }
@@ -33,7 +31,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   title?: string
   createFeed?: typeof createFeed
-  authState?: any
   creatorState?: any
 }
 
@@ -46,23 +43,27 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
+const AppHeader = ({ title, createFeed, creatorState }: Props) => {
   const { t } = useTranslation()
+  const authState = useAuthState()
+
   const classes = useStyles()
   const [preview, setPreview] = useState(null)
+  const [video, setVideo] = useState(null)
   const [titleFile, setTitleFile] = useState('')
   const [userRole, setUserRole] = useState('')
   const [open, setOpen] = useState(false)
   const [descrText, setDescrText] = useState('')
 
   useEffect(() => {
-    if (authState.get('user')) {
-      setUserRole(authState.get('user').userRole)
+    if (authState.user) {
+      setUserRole(authState.user?.userRole?.value)
     }
   }, [authState])
 
   const handlePickFiles = async (file) => {
     setPreview(file.target.files[0])
+    setVideo(file.target.files[0])
     setTitleFile(file.target.files[0].name)
     setOpen(true)
   }
@@ -77,7 +78,8 @@ const AppHeader = ({ title, createFeed, authState, creatorState }: Props) => {
     const newPost = {
       title: titleFile,
       description: descrText,
-      preview
+      preview,
+      video
     } as any
 
     createFeed(newPost)

@@ -18,6 +18,7 @@ import { Config } from '@xrengine/common/src/config'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 
 const store = Store.store
 
@@ -39,7 +40,7 @@ let socketId: any
 export const getParties = async (): Promise<void> => {
   const parties = await client.service('party').find()
   console.log('PARTIES', parties)
-  const userId = (store.getState() as any).get('auth').get('user').id
+  const userId = useAuthState().user.id.value
   console.log('USERID: ', userId)
   if ((client as any).io && socketId === undefined) {
     ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
@@ -136,14 +137,14 @@ export function transferPartyOwner(partyUserId: string) {
 
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('party-user').on('created', async (params) => {
-    const selfUser = (store.getState() as any).get('auth').get('user')
+    const selfUser = useAuthState().user
     if ((store.getState() as any).get('party').get('party') == null) {
       store.dispatch(createdParty(params))
     }
     store.dispatch(createdPartyUser(params.partyUser))
-    if (params.partyUser.userId === selfUser.id) {
+    if (params.partyUser.userId === selfUser.id.value) {
       const party = await client.service('party').get(params.partyUser.partyId)
-      const dbUser = await client.service('user').get(selfUser.id)
+      const dbUser = await client.service('user').get(selfUser.id.value)
       if (
         party.instanceId != null &&
         party.instanceId !== dbUser.instanceId &&
@@ -161,27 +162,27 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('party-user').on('patched', (params) => {
     const updatedPartyUser = params.partyUser
-    const selfUser = (store.getState() as any).get('auth').get('user')
+    const selfUser = useAuthState().user
     store.dispatch(patchedPartyUser(updatedPartyUser))
     if (
       updatedPartyUser.user.channelInstanceId != null &&
-      updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId
+      updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
       store.dispatch(UserAction.addedChannelLayerUser(updatedPartyUser.user))
-    if (updatedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId)
+    if (updatedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
       store.dispatch(UserAction.removedChannelLayerUser(updatedPartyUser.user))
   })
 
   client.service('party-user').on('removed', (params) => {
     const deletedPartyUser = params.partyUser
-    const selfUser = (store.getState() as any).get('auth').get('user')
+    const selfUser = useAuthState().user
     store.dispatch(removedPartyUser(deletedPartyUser))
     if (
       deletedPartyUser.user.channelInstanceId != null &&
-      deletedPartyUser.user.channelInstanceId === selfUser.channelInstanceId
+      deletedPartyUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
       store.dispatch(UserAction.addedChannelLayerUser(deletedPartyUser.user))
-    if (deletedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId)
+    if (deletedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
       store.dispatch(UserAction.removedChannelLayerUser(deletedPartyUser.user))
     if (params.partyUser.userId === selfUser.id) {
       console.log('Attempting to end video call')

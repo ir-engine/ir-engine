@@ -15,13 +15,14 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { decodeVector3, decodeQuaternion } from '@xrengine/common/src/utils/decode'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
 
   return () => {
     for (const action of Network.instance.incomingActions) {
-      console.log(`\n\nACTION ${action.type}`, action, '\n\n')
       for (const receptor of world.receptors) receptor(action)
     }
 
@@ -48,6 +49,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
       try {
         const newWorldState = WorldStateModel.fromBuffer(buffer)
+        //console.log('new world state: ' + JSON.stringify(newWorldState))
 
         if (isClient) {
           //add velocity to player to check how it works and apply here the read of velocities
@@ -55,17 +57,22 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
           // on client, all incoming object poses handled by Interpolation
           if (newWorldState.pose.length) {
+            let pos
+            let rot
+
             const newServerSnapshot = createSnapshot(
               newWorldState.pose.map((pose) => {
+                pos = decodeVector3(pose.position)
+                rot = decodeQuaternion(pose.rotation)
                 return {
                   networkId: pose.networkId,
-                  x: pose.position[0],
-                  y: pose.position[1],
-                  z: pose.position[2],
-                  qX: pose.rotation[0],
-                  qY: pose.rotation[1],
-                  qZ: pose.rotation[2],
-                  qW: pose.rotation[3]
+                  x: pos.x,
+                  y: pos.y,
+                  z: pos.z,
+                  qX: rot.x,
+                  qY: rot.y,
+                  qZ: rot.z,
+                  qW: rot.w
                 }
               })
             )
@@ -81,31 +88,37 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
             if (hasComponent(networkObject.entity, AvatarComponent)) {
               if (hasComponent(networkObject.entity, AvatarControllerComponent)) continue
               const transformComponent = getComponent(networkObject.entity, TransformComponent)
-              transformComponent.position.fromArray(pose.position)
-              transformComponent.rotation.fromArray(pose.rotation)
+              transformComponent.position.copy(decodeVector3(pose.position))
+              transformComponent.rotation.copy(decodeQuaternion(pose.rotation))
               continue
             }
 
             if (hasComponent(networkObject.entity, VelocityComponent)) {
               const velC = getComponent(networkObj.entity, VelocityComponent)
-              velC.velocity.fromArray(pose.linearVelocity)
+              if (pose.linearVelocity.length === 1) velC.velocity.setScalar(0)
+              else velC.velocity.copy(decodeVector3(pose.linearVelocity))
             }
             //get the angular velocity and apply if it has the appropriate component
 
             const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
-            // networkObjectOwnerComponent && console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
+            // console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
             if (networkObjectOwnerComponent && networkObjectOwnerComponent.networkId === incomingNetworkId) {
               const transform = getComponent(networkObject.entity, TransformComponent)
               if (transform) {
-                transform.position.fromArray(pose.position)
-                transform.rotation.fromArray(pose.rotation)
+                transform.position.copy(decodeVector3(pose.position))
+                transform.rotation.copy(decodeQuaternion(pose.rotation))
               }
               const collider = getComponent(networkObject.entity, ColliderComponent)
               if (collider) {
-                collider.body.updateTransform({
-                  translation: { x: pose.position[0], y: pose.position[1], z: pose.position[2] },
-                  rotation: { x: pose.rotation[0], y: pose.rotation[1], z: pose.rotation[2], w: pose.rotation[3] }
-                })
+                const pos = decodeVector3(pose.position)
+                const rot = decodeQuaternion(pose.rotation)
+                collider.body.setGlobalPose(
+                  {
+                    translation: { x: pos.x, y: pos.y, z: pos.z },
+                    rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w }
+                  },
+                  true
+                )
               }
             }
           }
@@ -118,13 +131,20 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
           if (isEntityLocalClient(entity) || !hasComponent(entity, XRInputSourceComponent)) continue
 
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-          const { headPose, leftPose, rightPose } = ikPose
-          xrInputSourceComponent.head.position.fromArray(headPose)
-          xrInputSourceComponent.head.quaternion.fromArray(headPose, 3)
-          xrInputSourceComponent.controllerLeft.position.fromArray(leftPose)
-          xrInputSourceComponent.controllerLeft.quaternion.fromArray(leftPose, 3)
-          xrInputSourceComponent.controllerRight.position.fromArray(rightPose)
-          xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPose, 3)
+          const {
+            headPosePosition,
+            headPoseRotation,
+            leftPosePosition,
+            leftPoseRotation,
+            rightPosePosition,
+            rightPoseRotation
+          } = ikPose
+          xrInputSourceComponent.head.position.copy(decodeVector3(headPosePosition))
+          xrInputSourceComponent.head.quaternion.copy(decodeQuaternion(headPoseRotation))
+          xrInputSourceComponent.controllerLeft.position.copy(decodeVector3(leftPosePosition))
+          xrInputSourceComponent.controllerLeft.quaternion.copy(decodeQuaternion(leftPoseRotation))
+          xrInputSourceComponent.controllerRight.position.copy(decodeVector3(rightPosePosition))
+          xrInputSourceComponent.controllerRight.quaternion.copy(decodeQuaternion(rightPoseRotation))
         }
       } catch (e) {
         console.log('could not convert world state to a buffer, ' + e + ' ' + e.stack)

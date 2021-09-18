@@ -11,7 +11,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { validateUserForm } from './validation'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
 import { useUserStyles, useUserStyle } from './styles'
@@ -34,7 +34,6 @@ interface Props {
   open: boolean
   handleClose: any
   createUserAction?: any
-  authState?: any
   fetchUserRole?: any
   closeViewModel: any
   adminUserState?: any
@@ -44,7 +43,6 @@ interface Props {
 }
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state),
     adminScopeState: selectScopeState(state)
   }
@@ -62,7 +60,6 @@ const CreateUser = (props: Props) => {
     open,
     handleClose,
     closeViewModel,
-    authState,
     fetchUserRole,
     adminUserState,
     fetchStaticResource,
@@ -90,7 +87,7 @@ const CreateUser = (props: Props) => {
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
 
-  const user = authState.get('user')
+  const user = useAuthState().user
   const userRole = adminUserState.get('userRole')
   const userRoleData = userRole ? userRole.get('userRole') : []
   const staticResource = adminUserState.get('staticResource')
@@ -102,11 +99,11 @@ const CreateUser = (props: Props) => {
       await fetchUserRole()
     }
     const role = userRole ? userRole.get('updateNeeded') : false
-    if (role === true && user.id) fetchData()
-    if (user.id && staticResource.get('updateNeeded')) {
+    if (role === true && user.id.value) fetchData()
+    if (user.id.value && staticResource.get('updateNeeded')) {
       fetchStaticResource()
     }
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
+    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
       getScopeTypeService()
     }
   }, [adminUserState, user])

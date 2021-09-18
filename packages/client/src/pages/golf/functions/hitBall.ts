@@ -4,7 +4,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
-import { VelocityComponent } from '@xrengine/engine/src'
+import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -13,6 +13,8 @@ import { VelocityComponent } from '@xrengine/engine/src'
 
 const vector0 = new Vector3()
 const clubPowerMultiplier = 3
+// force is in kg, we need it in grams, so x1000
+const velocityMultiplier = clubPowerMultiplier * 1000
 const hitAdvanceFactor = 4
 
 export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
@@ -20,10 +22,7 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   const collider = getComponent(entityBall, ColliderComponent)
   const golfBallComponent = getComponent(entityBall, GolfBallComponent)
-  // collider.body.setLinearDamping(0.1)
-  // collider.body.setAngularDamping(0.1)
-  // force is in kg, we need it in grams, so x1000
-  const velocityMultiplier = clubPowerMultiplier * 1000
+
   //golfClubComponent.velocity.set(-0.000016128,0,-0.02352940744240586)
   // TODO: fix this - use normal and velocity magnitude to determine hits
   /*
@@ -47,19 +46,13 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
   }
 
   // block teleport ball if distance to wall less length of what we want to teleport
-  golfBallComponent.wallRaycast.origin.copy(collider.body.transform.translation)
+  golfBallComponent.wallRaycast.origin.copy(collider.body.getGlobalPose().translation as Vector3)
   golfBallComponent.wallRaycast.direction.copy(golfClubComponent.velocity).normalize()
   const hit = golfBallComponent.wallRaycast.hits[0]
 
   if (!hit || hit.distance * hit.distance > vector0.lengthSq()) {
     // teleport ball in front of club a little bit
-    collider.body.updateTransform({
-      translation: {
-        x: collider.body.transform.translation.x + vector0.x,
-        y: collider.body.transform.translation.y + vector0.y,
-        z: collider.body.transform.translation.z + vector0.z
-      }
-    })
+    teleportRigidbody(collider.body, vector0.add(collider.body.getGlobalPose().translation as Vector3))
   }
 
   vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier)
@@ -68,5 +61,5 @@ export const hitBall = (entityClub: Entity, entityBall?: Entity): void => {
     vector0.y = 0
   }
   console.log('HIT FORCE:', vector0)
-  collider.body.addForce(vector0)
+  ;(collider.body as PhysX.PxRigidDynamic).addForce(vector0)
 }

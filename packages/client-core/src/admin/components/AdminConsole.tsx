@@ -13,18 +13,16 @@ import styles from './Admin.module.scss'
 import VideoModal from './VideoModal'
 import { useHistory } from 'react-router-dom'
 import { selectVideoState } from '../../media/components/video/selector'
-import { selectAuthState } from '../../user/reducers/auth/selector'
+import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { fetchAdminVideos } from '../reducers/admin/service'
 
 interface Props {
-  auth: any
   videos: any
   fetchAdminVideos: typeof fetchAdminVideos
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    auth: selectAuthState(state),
     videos: selectVideoState(state)
   }
 }
@@ -34,7 +32,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const AdminConsole = (props: Props): any => {
-  const { fetchAdminVideos, auth, videos } = props
+  const { fetchAdminVideos, videos } = props
+
+  const auth = useAuthState()
+
   const initialState = {
     name: '',
     url: '',
@@ -90,7 +91,7 @@ const AdminConsole = (props: Props): any => {
 
   return (
     <div>
-      {auth.get('user').userRole === 'admin' && (
+      {auth.user.userRole.value === 'admin' && (
         <div className={styles['page-container']}>
           <div className={styles.header}>
             <Button variant="contained" color="primary" onClick={() => goToRoot()}>
