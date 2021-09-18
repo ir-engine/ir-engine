@@ -254,6 +254,8 @@ export const DebugRenderer = () => {
       setEnabled(_enabled)
     }
 
+    if (!enabled) return
+
     world.physics.bodies.forEach((body: PhysX.PxRigidActor) => {
       const pose = body.getGlobalPose()
       pos.set(pose.translation.x, pose.translation.y, pose.translation.z)
