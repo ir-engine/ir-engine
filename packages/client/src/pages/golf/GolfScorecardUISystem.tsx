@@ -64,7 +64,7 @@ const GolfLabelColumn = () => {
         Par
       </div>
       {players.map((p, i) => {
-        console.log('PLAYER ' + p.id.value)
+        // console.log('PLAYER ' + p.id.value)
         const color = GolfColours[i]
         return (
           <div

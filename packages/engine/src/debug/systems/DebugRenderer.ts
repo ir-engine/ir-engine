@@ -1,5 +1,5 @@
+import { defineQuery } from 'bitecs'
 import {
-  Scene,
   Mesh,
   Points,
   SphereBufferGeometry,
@@ -14,12 +14,13 @@ import {
   Line,
   MeshStandardMaterial,
   Material,
-  BufferAttribute,
   Float32BufferAttribute
 } from 'three'
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { BodyType } from '../../physics/types/PhysicsTypes'
 
 const parentMatrix = new Matrix4()
@@ -31,120 +32,56 @@ const scale = new Vector3(1, 1, 1)
 const scale2 = new Vector3(1, 1, 1)
 const halfPI = Math.PI / 2
 
-export class DebugRenderer {
-  private scene: Scene
-  private _meshes: Map<number, any> = new Map<number, any>()
-  private _obstacles: Map<number, any> = new Map<number, any>()
-  private _raycasts: Map<number, any> = new Map<number, any>()
-  private _materials: Material[]
-  private _sphereGeometry: SphereBufferGeometry
-  private _boxGeometry: BoxBufferGeometry
-  private _planeGeometry: PlaneBufferGeometry
-  private _lineMaterial: LineBasicMaterial
+const raycastQuery = defineQuery([RaycastComponent])
 
-  public enabled: boolean
+export const DebugRenderer = () => {
+  const _meshes: Map<number, any> = new Map<number, any>()
+  const _obstacles: Map<number, any> = new Map<number, any>()
+  const _raycasts: Map<number, any> = new Map<number, any>()
+  const _materials: Material[] = [
+    new MeshBasicMaterial({ color: 0xff0000, wireframe: true }),
+    new MeshBasicMaterial({ color: 0x00ff00, wireframe: true }),
+    new MeshBasicMaterial({ color: 0x00aaff, wireframe: true }),
+    new MeshBasicMaterial({ color: 0xffffff, wireframe: true }),
+    new MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.25 }),
+    new MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 })
+  ]
+  const _sphereGeometry = new SphereBufferGeometry(1)
+  const _boxGeometry = new BoxBufferGeometry()
+  const _planeGeometry = new PlaneBufferGeometry(10000, 10000, 100, 100)
+  const _lineMaterial = new LineBasicMaterial({ color: 0x0000ff })
+  let enabled = false
 
-  constructor(scene: Scene) {
-    this.scene = scene
-    this.enabled = false
-
-    this._materials = [
-      new MeshBasicMaterial({ color: 0xff0000, wireframe: true }),
-      new MeshBasicMaterial({ color: 0x00ff00, wireframe: true }),
-      new MeshBasicMaterial({ color: 0x00aaff, wireframe: true }),
-      new MeshBasicMaterial({ color: 0xffffff, wireframe: true }),
-      new MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.25 }),
-      new MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 })
-    ]
-
-    this._lineMaterial = new LineBasicMaterial({ color: 0x0000ff })
-    this._sphereGeometry = new SphereBufferGeometry(1)
-    this._boxGeometry = new BoxBufferGeometry()
-    this._planeGeometry = new PlaneBufferGeometry(10000, 10000, 100, 100)
-  }
-
-  public setEnabled(enabled) {
-    this.enabled = enabled
-    if (!enabled) {
-      this._meshes.forEach((mesh) => {
-        this.scene.remove(mesh)
+  const setEnabled = (_enabled) => {
+    enabled = _enabled
+    if (!_enabled) {
+      _meshes.forEach((mesh) => {
+        Engine.scene.remove(mesh)
       })
-      this._raycasts.forEach((mesh) => {
-        this.scene.remove(mesh)
+      _raycasts.forEach((mesh) => {
+        Engine.scene.remove(mesh)
       })
-      this._obstacles.forEach((mesh) => {
-        this.scene.remove(mesh)
+      _obstacles.forEach((mesh) => {
+        Engine.scene.remove(mesh)
       })
-      this._meshes.clear()
-      this._raycasts.clear()
-      this._obstacles.clear()
+      _meshes.clear()
+      _raycasts.clear()
+      _obstacles.clear()
     }
   }
 
-  public update(world: World) {
-    if (!this.enabled) {
-      return
-    }
-
-    world.physics.bodies.forEach((body: PhysX.PxRigidActor) => {
-      const pose = body.getGlobalPose()
-      pos.set(pose.translation.x, pose.translation.y, pose.translation.z)
-      if (isControllerBody(body)) {
-        const controllerShapeID = (body as any)._shapes[0]._id
-        this._updateController(body as any)
-        this._meshes.get(controllerShapeID).position.copy(pos)
-        return
-      }
-      rot.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w)
-      parentMatrix.compose(pos, rot, scale)
-      ;(body as any)._shapes?.forEach((shape: PhysX.PxShape) => {
-        const localPose = shape.getLocalPose()
-        this._updateMesh(body, (shape as any)._id, shape)
-
-        if (this._meshes.get((shape as any)._id)) {
-          // Copy to meshes
-          pos.set(localPose.translation.x, localPose.translation.y, localPose.translation.z)
-          rot.set(localPose.rotation.x, localPose.rotation.y, localPose.rotation.z, localPose.rotation.w)
-          childMatrix.compose(pos, rot, scale)
-          childMatrix.premultiply(parentMatrix)
-          childMatrix.decompose(pos, rot, scale2)
-          this._meshes.get((shape as any)._id).position.copy(pos)
-          this._meshes.get((shape as any)._id).quaternion.copy(rot)
-        }
-      })
-    })
-    // world.physics.raycasts.forEach((raycast, id) => {
-    //   this._updateRaycast(raycast, id)
-    // })
-    world.physics.obstacles.forEach((obstacle, id) => {
-      this._updateObstacle(obstacle, id)
-    })
-    this._obstacles.forEach((mesh, id) => {
-      if (!world.physics.obstacles.has(id)) {
-        this.scene.remove(mesh)
-        this._meshes.delete(id)
-      }
-    })
-    this._meshes.forEach((mesh, id) => {
-      if (!world.physics.shapes.has(id)) {
-        this.scene.remove(mesh)
-        this._meshes.delete(id)
-      }
-    })
-  }
-
-  private _updateRaycast(raycast, id) {
-    let line = this._raycasts.get(id)
+  function _updateRaycast(raycast, id) {
+    let line = _raycasts.get(id)
     if (!line) {
       line = new Line(
         new BufferGeometry().setFromPoints([
           new Vector3().add(raycast.origin),
           new Vector3().add(raycast.origin).add(raycast.direction)
         ]),
-        this._lineMaterial
+        _lineMaterial
       )
-      this.scene.add(line)
-      this._raycasts.set(id, line)
+      Engine.scene.add(line)
+      _raycasts.set(id, line)
     } else {
       line.geometry.setFromPoints([
         new Vector3().add(raycast.origin),
@@ -153,8 +90,8 @@ export class DebugRenderer {
     }
   }
 
-  private _updateObstacle(obstacle: PhysX.PxObstacle, id) {
-    if (!this._obstacles.get(id)) {
+  function _updateObstacle(obstacle: PhysX.PxObstacle, id) {
+    if (!_obstacles.get(id)) {
       let geom
       if ((obstacle as any)._isCapsule) {
         const radius = (obstacle as PhysX.PxCapsuleObstacle).getRadius()
@@ -164,22 +101,22 @@ export class DebugRenderer {
         const halfExtents = (obstacle as PhysX.PxBoxObstacle).getHalfExtents()
         geom = new BoxBufferGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2)
       }
-      const mesh = new Mesh(geom, this._materials[5])
+      const mesh = new Mesh(geom, _materials[5])
       mesh.position.copy(obstacle.getPosition() as Vector3)
       mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
-      this.scene.add(mesh)
-      this._obstacles.set(id, mesh)
+      Engine.scene.add(mesh)
+      _obstacles.set(id, mesh)
     }
   }
 
-  private _updateController(body: PhysX.PxRigidActor) {
+  function _updateController(body: PhysX.PxRigidActor) {
     const shape = (body as any)._shapes[0] as PhysX.PxShape
     const id = shape._id
-    let mesh = this._meshes.get(id)
+    let mesh = _meshes.get(id)
     let needsUpdate = false
     if ((body as any)._debugNeedsUpdate) {
       if (mesh) {
-        this.scene.remove(mesh)
+        Engine.scene.remove(mesh)
         needsUpdate = true
       }
       delete (body as any)._debugNeedsUpdate
@@ -192,11 +129,11 @@ export class DebugRenderer {
         shape.getCapsuleGeometry(geometry)
         mesh = new Mesh(
           new CapsuleBufferGeometry(
-            clampNonzeroPositive(geometry.radius),
-            clampNonzeroPositive(geometry.radius),
-            clampNonzeroPositive(geometry.halfHeight * 2)
+            clampNonzeroPositive(geometry.radius / 0.8),
+            clampNonzeroPositive(geometry.radius / 0.8),
+            clampNonzeroPositive(geometry.halfHeight / 0.8) * 2
           ),
-          this._materials[BodyType.CONTROLLER]
+          _materials[BodyType.CONTROLLER]
         )
       } else {
         const geometry = new PhysX.PxBoxGeometry(1, 1, 1)
@@ -204,42 +141,42 @@ export class DebugRenderer {
         const { x, y, z } = geometry.halfExtents
         mesh = new Mesh(
           new BoxBufferGeometry(clampNonzeroPositive(x * 2), clampNonzeroPositive(y * 2), clampNonzeroPositive(z * 2)),
-          this._materials[BodyType.CONTROLLER]
+          _materials[BodyType.CONTROLLER]
         )
       }
-      this._meshes.set(id, mesh)
-      this.scene.add(mesh)
+      _meshes.set(id, mesh)
+      Engine.scene.add(mesh)
     }
   }
 
-  private _updateMesh(body: PhysX.PxRigidActor, id: number, shape: PhysX.PxShape) {
-    let mesh = this._meshes.get(id)
+  function _updateMesh(body: PhysX.PxRigidActor, id: number, shape: PhysX.PxShape) {
+    let mesh = _meshes.get(id)
     let needsUpdate = false
     if ((shape as any)._debugNeedsUpdate) {
       if (mesh) {
-        this.scene.remove(mesh)
+        Engine.scene.remove(mesh)
         needsUpdate = true
       }
       delete (shape as any)._debugNeedsUpdate
     }
     if (!mesh || needsUpdate) {
-      mesh = this._createMesh(shape, body)
-      this._meshes.set(id, mesh)
+      mesh = _createMesh(shape, body)
+      _meshes.set(id, mesh)
     }
   }
 
-  private _createMesh(shape: PhysX.PxShape, body: PhysX.PxRigidActor): Mesh | Points {
+  function _createMesh(shape: PhysX.PxShape, body: PhysX.PxRigidActor): Mesh | Points {
     const isTrigger = isTriggerShape(shape)
     const geometryType = getGeometryType(shape)
     let mesh: Mesh
-    const material: Material = this._materials[isTrigger ? 4 : (body as any)._type]
+    const material: Material = _materials[isTrigger ? 4 : (body as any)._type]
 
     switch (geometryType) {
       case PhysX.PxGeometryType.eSPHERE.value: {
         const geometry = new PhysX.PxSphereGeometry(1)
         shape.getSphereGeometry(geometry)
         const radius = clampNonzeroPositive(geometry.radius)
-        mesh = new Mesh(this._sphereGeometry, material)
+        mesh = new Mesh(_sphereGeometry, material)
         mesh.scale.set(radius, radius, radius)
         break
       }
@@ -249,10 +186,10 @@ export class DebugRenderer {
         shape.getCapsuleGeometry(geometry)
         mesh = new Mesh(
           new CapsuleBufferGeometry(
-            clampNonzeroPositive(geometry.radius) * 2,
-            clampNonzeroPositive(geometry.radius) * 2,
+            clampNonzeroPositive(geometry.radius),
+            clampNonzeroPositive(geometry.radius),
             clampNonzeroPositive(geometry.halfHeight) * 2
-          ).rotateZ(-halfPI),
+          ),
           material
         )
         break
@@ -262,13 +199,13 @@ export class DebugRenderer {
         const geometry = new PhysX.PxBoxGeometry(1, 1, 1)
         shape.getBoxGeometry(geometry)
         const { x, y, z } = geometry.halfExtents
-        mesh = new Mesh(this._boxGeometry, material)
+        mesh = new Mesh(_boxGeometry, material)
         mesh.scale.set(clampNonzeroPositive(x), clampNonzeroPositive(y), clampNonzeroPositive(z)).multiplyScalar(2)
         break
       }
 
       case PhysX.PxGeometryType.ePLANE.value: {
-        mesh = new Mesh(this._planeGeometry.clone(), material)
+        mesh = new Mesh(_planeGeometry.clone(), material)
         mesh.quaternion.copy(shape.getLocalPose().rotation as Quaternion)
         // idk
         mesh.geometry.rotateY(-halfPI)
@@ -305,10 +242,63 @@ export class DebugRenderer {
     }
 
     if (mesh && mesh.geometry) {
-      this.scene.add(mesh)
+      Engine.scene.add(mesh)
     }
 
     return mesh
+  }
+
+  return (world: World, _enabled: boolean) => {
+    if (enabled !== _enabled) {
+      enabled = _enabled
+      setEnabled(_enabled)
+    }
+
+    world.physics.bodies.forEach((body: PhysX.PxRigidActor) => {
+      const pose = body.getGlobalPose()
+      pos.set(pose.translation.x, pose.translation.y, pose.translation.z)
+      if (isControllerBody(body)) {
+        const controllerShapeID = (body as any)._shapes[0]._id
+        _updateController(body as any)
+        _meshes.get(controllerShapeID).position.copy(pos)
+        return
+      }
+      rot.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w)
+      parentMatrix.compose(pos, rot, scale)
+      ;(body as any)._shapes?.forEach((shape: PhysX.PxShape) => {
+        const localPose = shape.getLocalPose()
+        _updateMesh(body, (shape as any)._id, shape)
+
+        if (_meshes.get((shape as any)._id)) {
+          // Copy to meshes
+          pos.set(localPose.translation.x, localPose.translation.y, localPose.translation.z)
+          rot.set(localPose.rotation.x, localPose.rotation.y, localPose.rotation.z, localPose.rotation.w)
+          childMatrix.compose(pos, rot, scale)
+          childMatrix.premultiply(parentMatrix)
+          childMatrix.decompose(pos, rot, scale2)
+          _meshes.get((shape as any)._id).position.copy(pos)
+          _meshes.get((shape as any)._id).quaternion.copy(rot)
+        }
+      })
+    })
+    // world.physics.raycasts.forEach((raycast, id) => {
+    //   _updateRaycast(raycast, id)
+    // })
+    world.physics.obstacles.forEach((obstacle, id) => {
+      _updateObstacle(obstacle, id)
+    })
+    _obstacles.forEach((mesh, id) => {
+      if (!world.physics.obstacles.has(id)) {
+        Engine.scene.remove(mesh)
+        _meshes.delete(id)
+      }
+    })
+    _meshes.forEach((mesh, id) => {
+      if (!world.physics.shapes.has(id)) {
+        Engine.scene.remove(mesh)
+        _meshes.delete(id)
+      }
+    })
   }
 }
 

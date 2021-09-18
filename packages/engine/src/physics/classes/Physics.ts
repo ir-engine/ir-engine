@@ -348,7 +348,7 @@ export class Physics {
     controllerDesc.stepOffset = config.stepOffset ?? 0.1
     controllerDesc.maxJumpHeight = config.maxJumpHeight ?? 0.1
     controllerDesc.contactOffset = config.contactOffset ?? 0.01
-    controllerDesc.invisibleWallHeight = config.invisibleWallHeight ?? 0
+    controllerDesc.invisibleWallHeight = config.invisibleWallHeight ?? 0.25
     controllerDesc.slopeLimit = config.slopeLimit ?? Math.cos((45 * Math.PI) / 180)
     controllerDesc.setReportCallback(
       PhysX.PxUserControllerHitReport.implement({

@@ -51,7 +51,7 @@ export class DebugHelpers {
     navpath: new Map()
   }
 
-  static physicsDebugRenderer: DebugRenderer
+  static physicsDebugRenderer: any
 
   static physicsDebugEnabled = false
   static avatarDebugEnabled = false
@@ -82,7 +82,7 @@ export class DebugHelpers {
 }
 
 export default async function DebugHelpersSystem(world: World): Promise<System> {
-  DebugHelpers.physicsDebugRenderer = new DebugRenderer(Engine.scene)
+  DebugHelpers.physicsDebugRenderer = DebugRenderer()
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
@@ -332,6 +332,6 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
 
-    DebugHelpers.physicsDebugRenderer.update(world)
+    DebugHelpers.physicsDebugRenderer(world, DebugHelpers.physicsDebugEnabled)
   }
 }

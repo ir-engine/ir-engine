@@ -129,7 +129,7 @@ export const createAvatar = (
 
   if (isRemotePlayer) {
     const shape = world.physics.createShape(
-      new PhysX.PxCapsuleGeometry(capsuleHeight / 2, avatarRadius),
+      new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
       world.physics.physics.createMaterial(0, 0, 0),
       {
         collisionLayer: CollisionGroups.Avatars,

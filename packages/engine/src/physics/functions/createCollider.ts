@@ -139,7 +139,6 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
       break
 
     case 'trimesh':
-      console.log(scale)
       geometry = world.physics.createTrimesh(scale, shapeOptions.vertices, shapeOptions.indices)
       const triangleMesh = (geometry as PhysX.PxTriangleMeshGeometry).getTriangleMesh()
       shapeOptions.vertices = vectorToArray(triangleMesh.getVertices())

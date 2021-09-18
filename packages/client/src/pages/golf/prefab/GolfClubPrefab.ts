@@ -93,13 +93,15 @@ export const updateClub = (entityClub: Entity): void => {
   const handTransform = getHandTransform(ownerEntity)
   const { position, rotation } = handTransform
 
-  collider.body.setGlobalPose(
-    {
-      translation: position,
-      rotation
-    },
-    true
-  )
+  if (isEntityLocalClient(ownerEntity)) {
+    collider.body.setGlobalPose(
+      {
+        translation: position,
+        rotation
+      },
+      true
+    )
+  }
 
   transformClub.position.copy(position)
   transformClub.rotation.copy(rotation)
@@ -149,37 +151,39 @@ export const updateClub = (entityClub: Entity): void => {
   }
   vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
 
-  golfClubComponent.velocity.copy(vector0)
-  // console.log(golfClubComponent.velocity.clone().lengthSq())
-  const linearVelocity = collider.body.getLinearVelocity()
-  linearVelocity.x = vector0.x
-  linearVelocity.y = vector0.y
-  linearVelocity.z = vector0.z
-  // now shift all previous positions down the list
-  for (let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
-    golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1])
+  if (isEntityLocalClient(ownerEntity)) {
+    golfClubComponent.velocity.copy(vector0)
+    // console.log(golfClubComponent.velocity.clone().lengthSq())
+    const linearVelocity = collider.body.getLinearVelocity()
+    linearVelocity.x = vector0.x
+    linearVelocity.y = vector0.y
+    linearVelocity.z = vector0.z
+    // now shift all previous positions down the list
+    for (let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
+      golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1])
+    }
+    // add latest position to list
+    golfClubComponent.headGroup.getWorldPosition(vector1)
+    golfClubComponent.lastPositions[0].copy(vector1)
+
+    // calculate relative rotation of club head
+    vector0.copy(golfClubComponent.headGroup.position)
+    vector1.copy(golfClubComponent.headGroup.children[0].position)
+    vector1.applyQuaternion(golfClubComponent.headGroup.quaternion)
+    vector0.add(vector1)
+
+    const shape = useWorld().physics.getOriginalShapeObject(collider.body.getShapes())
+
+    shape.setLocalPose({
+      translation: {
+        x: vector0.x,
+        y: vector0.y,
+        z: vector0.z
+      },
+      rotation: golfClubComponent.headGroup.quaternion
+    })
+    ;(shape as any)._debugNeedsUpdate = true
   }
-  // add latest position to list
-  golfClubComponent.headGroup.getWorldPosition(vector1)
-  golfClubComponent.lastPositions[0].copy(vector1)
-
-  // calculate relative rotation of club head
-  vector0.copy(golfClubComponent.headGroup.position)
-  vector1.copy(golfClubComponent.headGroup.children[0].position)
-  vector1.applyQuaternion(golfClubComponent.headGroup.quaternion)
-  vector0.add(vector1)
-
-  const shape = useWorld().physics.getOriginalShapeObject(collider.body.getShapes())
-
-  shape.setLocalPose({
-    translation: {
-      x: vector0.x,
-      y: vector0.y,
-      z: vector0.z
-    },
-    rotation: golfClubComponent.headGroup.quaternion
-  })
-  ;(shape as any)._debugNeedsUpdate = true
 }
 
 /**
@@ -279,7 +283,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
     )
     const body = world.physics.addBody({
       shapes: [shapeHead],
-      type: BodyType.DYNAMIC,
+      type: BodyType.KINEMATIC,
       transform: {
         translation: transform.position,
         rotation: new Quaternion()
