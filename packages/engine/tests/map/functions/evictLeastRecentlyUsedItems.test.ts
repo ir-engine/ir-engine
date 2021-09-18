@@ -1,15 +1,21 @@
-import {  evictLeastRecentlyUsedItems } from '../../../src/map/functions/evictLeastRecentlyUsedItems'
-describe('evictLeastRecentlyUsedItems', () => {
+import evictLeastRecentlyUsedItems from '../../../src/map/functions/evictLeastRecentlyUsedItems'
+
+test('evictLeastRecentlyUsedItems', () => {
   const cache = new Map<number, number>()
+  const keysEvicted = []
+  const keysRemaining = []
   for(let i = 0; i < 3; i++) {
     cache.set(i, i)
   }
-  evictLeastRecentlyUsedItems(cache, 2)
 
-  const keys = []
-  for(const key of cache.keys()) {
-    keys.push(key)
+  for(const key of evictLeastRecentlyUsedItems(cache, 2)) {
+    keysEvicted.push(key)
   }
 
-  expect(keys).toEqual([1, 2])
+  for(const key of cache.keys()) {
+    keysRemaining.push(key)
+  }
+
+  expect(keysEvicted).toEqual([0])
+  expect(keysRemaining).toEqual([1, 2])
 })
