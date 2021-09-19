@@ -6,7 +6,7 @@ import AsyncTask from '../../src/map/classes/AsyncTask'
 import MapCache from '../../src/map/classes/MapCache'
 import ArrayKeyedMap from '../../src/map/classes/ArrayKeyedMap'
 
-const spyMethods = ['exec', 'start', 'createTask', 'getTasks', 'getTaskKeys']
+const spyMethods = ['exec', 'start', 'createTask', 'getTasks', 'getTaskKeys', 'cleanup']
 function spyClass(klass: any) {
   return function newConstructor(...args: any[]) {
     const instance = new klass(...args)
@@ -76,7 +76,8 @@ class BoilWaterPhase extends AsyncPhase<BoilWaterTask, number[], string> {
   }
 
   createTask(potSize: number) {
-    return new BoilWaterTask(potSize)
+    const task = new BoilWaterTask(potSize)
+    return task
   }
 }
 
@@ -175,5 +176,14 @@ describe('startAvailableTasks integration with (Async)Task/Phase', () => {
     startAvailableTasks(phases)
 
     expectAllAsyncTasksToHaveBeenStartedOnce(order)
+  })
+
+  it('gives each phase a chance to do any necessary clean up', () => {
+    const chop = new ChopVeggiePhase()
+    const boil = new BoilWaterPhase()
+    const phases = [boil, chop]
+    startAvailableTasks(phases)
+    expect(chop.cleanup).toHaveBeenCalledTimes(1)
+    expect(boil.cleanup).toHaveBeenCalledTimes(1)
   })
 })
