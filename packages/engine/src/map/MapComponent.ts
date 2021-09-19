@@ -1,10 +1,12 @@
 import { createMappedComponent } from '../ecs/functions/ComponentFunctions'
 import CreateCompleteObjectPhase from './classes/CreateCompleteObjectPhase'
 import CreateGeometryPhase from './classes/CreateGeometryPhase'
+import CreateLabelPhase from './classes/CreateLabelPhase'
 import ExtractTileFeaturesPhase from './classes/ExtractTileFeaturesPhase'
 import FetchTilesPhase from './classes/FetchTilesPhase'
 import { LongLat } from './units'
 
+// TODO use ReturnType<createStore> ?
 export type MapComponentType = {
   /** Geographic point corresponding to the center of the map's scene object's ground plane */
   center: LongLat
@@ -23,6 +25,8 @@ export type MapComponentType = {
   geometryCache: CreateGeometryPhase['cache']
   completeObjectsTasks: CreateCompleteObjectPhase['taskMap']
   completeObjects: CreateCompleteObjectPhase['cache']
+  labelTasks: CreateLabelPhase['taskMap']
+  labelCache: CreateLabelPhase['cache']
   // TODO: remove this args
   args: any
 }

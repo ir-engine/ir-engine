@@ -1,5 +1,5 @@
 import { Feature } from 'geojson'
-import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
+import { BufferGeometry, InstancedBufferGeometry, Mesh, Object3D } from 'three'
 import { LongLat } from './units'
 
 /**
@@ -36,6 +36,11 @@ export interface FeatureWithTileIndex extends Feature {
   }
 }
 
+export interface Text3D extends Object3D {
+  sync(): void
+  update(): void
+}
+
 export interface MapDerivedFeatureGeometry {
   geometry: BufferGeometry | InstancedBufferGeometry
   centerPoint: [number, number]
@@ -46,7 +51,12 @@ export interface MapDerivedFeatureComplete {
   mesh: Mesh
   centerPoint: [number, number]
   boundingCircleRadius: number
-  // TODO add label
+}
+
+export interface MapFeatureLabel {
+  mesh: Text3D
+  centerPoint: [number, number]
+  boundingCircleRadius: number
 }
 
 export type TileKey = [number, number]

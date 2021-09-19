@@ -12,6 +12,9 @@ import { World } from '../ecs/classes/World'
 import startAvailableTasks from './functions/startAvailableTasks'
 import { createProductionPhases } from './functions/createProductionPhases'
 import computeDistanceFromCircle from './functions/computeDistanceFromCircle'
+import MapFeatureLabelComponent from './MapFeatureLabelComponent'
+import { UpdatableComponent } from '../scene/components/UpdatableComponent'
+import { Updatable } from '../scene/interfaces/Updatable'
 
 const $vector3 = new Vector3()
 
@@ -20,7 +23,9 @@ const $previousViewerPosition = new Vector3()
 
 export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
+  const labelsQuery = defineQuery([MapFeatureLabelComponent])
   const viewerQuery = defineQuery([FollowCameraComponent])
+  const updatableQuery = defineQuery([MapFeatureLabelComponent, UpdatableComponent])
   let previousViewerEntity: Entity
 
   return () => {
@@ -48,6 +53,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     if (viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius) {
       mapComponent.center = fromMetersFromCenter(viewerPositionDeltaNormalScale, mapComponent.center)
       const phases = createProductionPhases(
+        world,
         mapComponent.fetchTilesTasks,
         mapComponent.tileCache,
         mapComponent.extractTilesTasks,
@@ -56,6 +62,8 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
         mapComponent.geometryCache,
         mapComponent.completeObjectsTasks,
         mapComponent.completeObjects,
+        mapComponent.labelTasks,
+        mapComponent.labelCache,
         mapComponent.center,
         mapComponent.originalCenter,
         mapComponent.minimumSceneRadius,
@@ -68,11 +76,9 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       $previousViewerPosition.y = 0
     }
 
-    // This could be implemented as yet another phase
+    // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
     const subSceneChildren = []
     for (const object of mapComponent.completeObjects.values()) {
-      const { mesh, centerPoint } = object
-
       // TODO make a helper function for this, same code in CreateCompleteObjectPhase
       // TODO also use a more efficient distance calc
       const distance = computeDistanceFromCircle(
@@ -80,20 +86,46 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
         object.centerPoint,
         object.boundingCircleRadius
       )
-      if (mesh && distance <= mapComponent.minimumSceneRadius) {
-        setPosition(mesh, centerPoint)
-        object.mesh.parent = object3dComponent.value
-        subSceneChildren.push(object.mesh)
+      if (object.mesh && distance <= mapComponent.minimumSceneRadius) {
+        setPosition(object.mesh, object.centerPoint)
+        addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
       } else {
         object.mesh.parent = null
       }
     }
 
+    for (const entity of labelsQuery(world)) {
+      const object = getComponent(entity, MapFeatureLabelComponent, false, world).value
+      const distance = computeDistanceFromCircle(
+        multiplyArray(vector3ToArray2(viewerTransform.position), 1 / mapScale),
+        object.centerPoint,
+        object.boundingCircleRadius
+      )
+      if (object.mesh && distance <= mapComponent.minimumSceneRadius) {
+        setPosition(object.mesh, object.centerPoint)
+        addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+      } else {
+        object.mesh.parent = null
+      }
+    }
+
+    // Update (sub)scene
     object3dComponent.value.children = subSceneChildren
+
+    // TODO Duplicating code from SceneObjectSystem for now since labels can't use Object3DComponent
+    for (const entity of updatableQuery(world)) {
+      const { mesh } = getComponent(entity, MapFeatureLabelComponent).value
+      mesh.update()
+    }
 
     previousViewerEntity = viewerEntity
     return world
   }
+}
+
+function addChildFast(parent: Object3D, child: Object3D, children = parent.children) {
+  child.parent = parent
+  children.push(child)
 }
 
 function setPosition(object3d: Object3D, centerPoint: [number, number]) {
