@@ -178,12 +178,6 @@ export default async function CameraSystem(world: World): Promise<System> {
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
 
-  const filterData = new PhysX.PxQueryFilterData()
-
-  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground, 0)
-  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
-  filterData.setFlags(flags)
-
   // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
   addComponent(cameraEntity, TransformComponent, {
     position: new Vector3(),

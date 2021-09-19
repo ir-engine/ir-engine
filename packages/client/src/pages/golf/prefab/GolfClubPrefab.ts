@@ -103,7 +103,7 @@ export const updateClub = (entityClub: Entity): void => {
 
   const hit = golfClubComponent.raycast.hits[0]
 
-  const headDistance = !hit?.distance ? clubLength : Math.min(hit.distance, clubLength)
+  const headDistance = clubLength //!hit?.distance ? clubLength : Math.min(hit.distance, clubLength)
 
   // update position of club
   golfClubComponent.headGroup.position.setZ(-(headDistance - clubPutterLength * 0.5))
@@ -118,22 +118,22 @@ export const updateClub = (entityClub: Entity): void => {
 
   const hit1 = golfClubComponent.raycast1.hits[0]
 
-  if (hit && hit1) {
-    // Update the head's up direction using ground normal
-    // We can use interpolated normals between two ray hits for more accurate result
-    vector0.set(hit.normal.x, hit.normal.y, hit.normal.z)
+  // if (hit && hit1) {
+  //   // Update the head's up direction using ground normal
+  //   // We can use interpolated normals between two ray hits for more accurate result
+  //   vector0.set(hit.normal.x, hit.normal.y, hit.normal.z)
 
-    // Only apply the rotation on nearly horizontal surfaces
-    if (vector0.dot(vector1.set(0, 1, 0)) >= 0.75) {
-      golfClubComponent.headGroup.up.copy(vector0)
+  //   // Only apply the rotation on nearly horizontal surfaces
+  //   if (vector0.dot(vector1.set(0, 1, 0)) >= 0.75) {
+  //     golfClubComponent.headGroup.up.copy(vector0)
 
-      vector2.set(hit1.position.x - hit.position.x, hit1.position.y - hit.position.y, hit1.position.z - hit.position.z)
+  //     vector2.set(hit1.position.x - hit.position.x, hit1.position.y - hit.position.y, hit1.position.z - hit.position.z)
 
-      golfClubComponent.headGroup.getWorldPosition(vector1)
-      vector1.addScaledVector(vector2, -1)
-      golfClubComponent.headGroup.lookAt(vector1)
-    }
-  }
+  //     golfClubComponent.headGroup.getWorldPosition(vector1)
+  //     vector1.addScaledVector(vector2, -1)
+  //     golfClubComponent.headGroup.lookAt(vector1)
+  //   }
+  // }
 
   if (isEntityLocalClient(ownerEntity)) {
     collider.body.setGlobalPose(
@@ -187,9 +187,9 @@ export const updateClub = (entityClub: Entity): void => {
  * @author Josh Field <github.com/HexaField>
  */
 
-const clubHalfWidth = 0.04
-const clubPutterLength = 0.12
-const clubLength = 1.5
+const clubHalfWidth = 0.03
+const clubPutterLength = 0.1
+const clubLength = 1
 const rayLength = clubLength * 1.1
 
 type GolfClubSpawnParameters = {
@@ -240,7 +240,7 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
   }
 
   const handleObject = new Mesh(
-    new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25),
+    new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.15),
     new MeshStandardMaterial({ color, transparent: true })
   )
 
