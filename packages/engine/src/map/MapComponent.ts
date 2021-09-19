@@ -1,20 +1,30 @@
-import { createMappedComponent } from '../ecs/functions/EntityFunctions'
-import { MapDerivedFeatureComplete } from './types'
+import { createMappedComponent } from '../ecs/functions/ComponentFunctions'
+import CreateCompleteObjectPhase from './classes/CreateCompleteObjectPhase'
+import CreateGeometryPhase from './classes/CreateGeometryPhase'
+import ExtractTileFeaturesPhase from './classes/ExtractTileFeaturesPhase'
+import FetchTilesPhase from './classes/FetchTilesPhase'
 import { LongLat } from './units'
 
 export type MapComponentType = {
   /** Geographic point corresponding to the center of the map's scene object's ground plane */
   center: LongLat
+  originalCenter: LongLat
   /** Trigger a refresh when camera target entity reaches this distance, in meters, from `center`.
    */
-  originalCenter: LongLat
   triggerRefreshRadius: number
   /** Distance from `center` for which to fetch data and build a scene object, in meters
    */
   minimumSceneRadius: number
+  fetchTilesTasks: FetchTilesPhase['taskMap']
+  tileCache: FetchTilesPhase['cache']
+  extractTilesTasks: ExtractTileFeaturesPhase['taskMap']
+  featureCache: ExtractTileFeaturesPhase['cache']
+  geometryTasks: CreateGeometryPhase['taskMap']
+  geometryCache: CreateGeometryPhase['cache']
+  completeObjectsTasks: CreateCompleteObjectPhase['taskMap']
+  completeObjects: CreateCompleteObjectPhase['cache']
   // TODO: remove this args
   args: any
-  completeObjects: Map<string, MapDerivedFeatureComplete>
 }
 
-export const MapComponent = createMappedComponent<MapComponentType>()
+export const MapComponent = createMappedComponent<MapComponentType>('map')
