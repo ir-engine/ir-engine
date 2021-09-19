@@ -91,7 +91,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       let angVel = undefined
       if (hasComponent(entity, VelocityComponent)) {
         const velC = getComponent(entity, VelocityComponent)
-        if (isZero(velC.velocity)) vel = [0]
+        if (isZero(velC.velocity) || velocityIsTheSame(networkObject.networkId, velC.velocity)) vel = [0]
         else vel = encodeVector3(velC.velocity)
       }
 
@@ -122,7 +122,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       let angVel = undefined
       if (hasComponent(Network.instance.localClientEntity, VelocityComponent)) {
         const velC = getComponent(Network.instance.localClientEntity, VelocityComponent)
-        if (isZero(velC.velocity)) vel = [0]
+        if (isZero(velC.velocity) || velocityIsTheSame(Network.instance.localClientEntity, velC.velocity)) vel = [0]
         else vel = encodeVector3(velC.velocity)
       }
 
