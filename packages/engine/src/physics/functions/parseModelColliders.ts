@@ -1,8 +1,7 @@
-import { Vector3, Quaternion, Matrix4, Mesh, Object3D } from 'three'
+import { Vector3, Quaternion, Matrix4, Mesh } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createCollider } from './createCollider'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -90,48 +89,14 @@ export function getTransform(posM, queM, scaM, posE, queE, scaE): [Vector3, Quat
 
 export const makeCollidersInvisible = (asset: any) => {
   const parseColliders = (mesh) => {
-    if (mesh.userData.data === 'physics') {
-      // mesh.visible = false
-      if (mesh.material) {
-        mesh.material.opacity = 0.2
-        mesh.material.transparent = true
-        // mesh.material.wireframe = true
-      }
+    if (mesh.userData.data === 'physics' || mesh.userData.type || mesh.userData['realitypack.collider.type']) {
+      mesh.visible = false
+      // if (mesh.material) {
+      //   mesh.material.opacity = 0.2
+      //   mesh.material.transparent = true
+      //   // mesh.material.wireframe = true
+      // }
     }
   }
   asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders)
-}
-
-const EPSILON = 1e-6
-
-export const createCollidersFromModel = (entity: Entity, asset: any) => {
-  const colliders = []
-  const transform = getComponent(entity, TransformComponent)
-
-  asset.traverse((mesh) => {
-    if (mesh.userData.data === 'physics') {
-      colliders.push(mesh)
-    }
-  })
-
-  // remove physics assets so their models aren't added to the world
-  colliders.forEach((mesh: Object3D) => {
-    mesh.updateMatrixWorld(true)
-
-    if (mesh.scale) {
-      if (mesh.scale.x === 0) mesh.scale.x = EPSILON
-      if (mesh.scale.y === 0) mesh.scale.y = EPSILON
-      if (mesh.scale.z === 0) mesh.scale.z = EPSILON
-    }
-    const [position, quaternion, scale] = getTransform(
-      mesh.getWorldPosition(new Vector3()),
-      mesh.getWorldQuaternion(new Quaternion()),
-      mesh.getWorldScale(new Vector3()),
-      transform.position,
-      transform.rotation,
-      transform.scale
-    )
-    createCollider(entity, mesh, position, quaternion, scale)
-    mesh.removeFromParent()
-  })
 }

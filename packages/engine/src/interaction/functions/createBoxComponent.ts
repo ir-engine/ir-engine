@@ -1,15 +1,14 @@
 import { Box3, Mesh, Vector3 } from 'three'
-import { BodyType } from '../../physics/physx'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { isDynamicBody, isStaticBody } from '../../physics/classes/Physics'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
 export const createBoxComponent = (entity: Entity) => {
-  const dynamic =
-    hasComponent(entity, ColliderComponent) && getComponent(entity, ColliderComponent).body.type !== BodyType.STATIC
+  const dynamic = hasComponent(entity, ColliderComponent) && isDynamicBody(getComponent(entity, ColliderComponent).body)
 
   const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
 

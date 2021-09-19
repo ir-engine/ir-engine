@@ -18,6 +18,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/encode'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 function sendActions() {
   if (!isClient) {

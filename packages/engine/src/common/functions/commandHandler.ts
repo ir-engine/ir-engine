@@ -231,7 +231,7 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       if (isServer) return false
 
       handleGetChatHistoryCommand()
-      
+
       return true
     }
     case 'listAllusers': {

@@ -1,7 +1,3 @@
-export const clone = (obj) => {
-  return JSON.parse(JSON.stringify(obj))
-}
-
 export const putIntoPhysXHeap = (heap, array: ArrayLike<number>) => {
   const ptr = PhysX._malloc(4 * array.length)
   let offset = 0
@@ -22,4 +18,17 @@ export const getFromPhysXHeap = (heap, address, count) => {
     offset += 4
   }
   return result
+}
+
+export const vectorToArray = (vector: PhysX.VectorBase<any>) => {
+  // return Array(vector.size()).map((_, i) => {
+  //   return vector.get(i)
+  // })
+
+  const arr = []
+  for (let i = 0; i < vector.size(); i++) {
+    arr.push(vector.get(i))
+  }
+
+  return arr
 }
