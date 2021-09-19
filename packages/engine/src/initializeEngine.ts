@@ -319,6 +319,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     await configureServer(options)
   }
 
+  await sceneWorld.physics.createScene()
+
   options.systems?.forEach((init) => {
     injectSystem(sceneWorld, init)
   })

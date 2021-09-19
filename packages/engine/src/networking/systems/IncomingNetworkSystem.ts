@@ -16,6 +16,7 @@ import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { decodeVector3, decodeQuaternion } from '@xrengine/common/src/utils/decode'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
@@ -100,7 +101,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
             //get the angular velocity and apply if it has the appropriate component
 
             const networkObjectOwnerComponent = getComponent(networkObject.entity, NetworkObjectOwnerComponent)
-            // networkObjectOwnerComponent && console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
+            // console.log('incoming', getComponent(networkObject.entity, NameComponent).name, pose, networkObjectOwnerComponent?.networkId, incomingNetworkId)
             if (networkObjectOwnerComponent && networkObjectOwnerComponent.networkId === incomingNetworkId) {
               const transform = getComponent(networkObject.entity, TransformComponent)
               if (transform) {
@@ -111,10 +112,13 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               if (collider) {
                 const pos = decodeVector3(pose.position)
                 const rot = decodeQuaternion(pose.rotation)
-                collider.body.updateTransform({
-                  translation: { x: pos.x, y: pos.y, z: pos.z },
-                  rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w }
-                })
+                collider.body.setGlobalPose(
+                  {
+                    translation: { x: pos.x, y: pos.y, z: pos.z },
+                    rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w }
+                  },
+                  true
+                )
               }
             }
           }

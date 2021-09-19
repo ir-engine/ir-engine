@@ -72,7 +72,7 @@
     "@feathersjs/socketio-client": "5.0.0-pre.9",
     "@feathersjs/transport-commons": "5.0.0-pre.9",
     "@xrengine/server-core": "^0.4.6",
-    "aws-sdk": "2.990.0",
+    "aws-sdk": "2.991.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "comlink": "4.3.1",
@@ -132,7 +132,7 @@
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
     "ts-node": "10.2.1",
-    "typedoc": "0.22.3",
+    "typedoc": "0.22.4",
     "typescript": "4.4.3"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"

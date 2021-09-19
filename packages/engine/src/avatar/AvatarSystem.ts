@@ -1,5 +1,4 @@
 import { Group, Quaternion, Vector3 } from 'three'
-import { PhysXInstance } from '../physics/physx'
 import { isClient } from '../common/functions/isClient'
 import {
   addComponent,
@@ -26,6 +25,8 @@ import { dispatchFromServer } from '../networking/functions/dispatch'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { World } from '../ecs/classes/World'
 import { System } from '../ecs/classes/System'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
 import { detectUserInTrigger } from './functions/detectUserInTrigger'
 
 export default async function AvatarSystem(world: World): Promise<System> {
@@ -69,21 +70,16 @@ export default async function AvatarSystem(world: World): Promise<System> {
 
           const colliderComponent = getComponent(entity, ColliderComponent)
           if (colliderComponent) {
-            colliderComponent.body.updateTransform({
-              translation: { x, y, z },
-              rotation: { x: qX, y: qY, z: qZ, w: qW }
-            })
+            teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
             return
           }
 
           const controllerComponent = getComponent(entity, AvatarControllerComponent)
           if (controllerComponent) {
+            const velocity = getComponent(entity, VelocityComponent)
             const avatar = getComponent(entity, AvatarComponent)
-            controllerComponent.controller?.updateTransform({
-              translation: { x, y: y + avatar.avatarHalfHeight, z },
-              rotation: { x: qX, y: qY, z: qZ, w: qW }
-            })
-            controllerComponent.controller.velocity.setScalar(0)
+            controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
+            velocity.velocity.setScalar(0)
           }
         }
         break
@@ -93,14 +89,6 @@ export default async function AvatarSystem(world: World): Promise<System> {
   world.receptors.add(avatarActionReceptor)
 
   return () => {
-    for (const entity of raycastQuery.exit(world)) {
-      const raycast = getComponent(entity, RaycastComponent, true)
-
-      if (raycast?.raycastQuery) {
-        PhysXInstance.instance.removeRaycastQuery(raycast.raycastQuery)
-      }
-    }
-
     for (const entity of xrInputQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
@@ -120,8 +108,8 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const raycastComponent = getComponent(entity, RaycastComponent)
       const transform = getComponent(entity, TransformComponent)
       const avatar = getComponent(entity, AvatarComponent)
-      raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
-      avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
+      raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
+      avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
 
       detectUserInTrigger(entity)
 

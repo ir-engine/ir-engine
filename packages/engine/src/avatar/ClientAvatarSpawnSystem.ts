@@ -24,6 +24,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
 
       const isLocalPlayer = uniqueId === Network.instance.userId
       createAvatar(
+        world,
         entity,
         { position: new Vector3().copy(parameters.position), rotation: new Quaternion().copy(parameters.rotation) },
         !isLocalPlayer
