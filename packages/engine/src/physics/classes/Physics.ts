@@ -47,7 +47,6 @@ export class Physics {
   controllerIDByPointer = new Map<number, number>()
   bodyIDByShapeID = new Map<number, number>()
   controllers = new Map<number, PhysX.PxController>()
-  raycasts = new Map<number, SceneQuery>()
   obstacles = new Map<number, PhysX.PxObstacle>()
 
   dispose() {}
@@ -282,10 +281,7 @@ export class Physics {
     const geometry = new PhysX.PxTriangleMeshGeometry(
       trimesh,
       meshScale,
-      new PhysX.PxMeshGeometryFlags(
-        0
-        // PhysX.PxMeshGeometryFlag.eDOUBLE_SIDED.value
-      )
+      new PhysX.PxMeshGeometryFlags(PhysX.PxMeshGeometryFlag.eDOUBLE_SIDED.value)
     )
 
     PhysX._free(verticesPtr)
