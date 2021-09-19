@@ -43,7 +43,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('KeyK', GolfInput.TELEPORT)
-  inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT)
+  // inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT) // todo: gamepad stuff broken
 
   inputs.schema.behaviorMap.set(
     GolfInput.TELEPORT,
@@ -87,7 +87,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
   )
 
   inputs.schema.inputMap.set('KeyY', GolfInput.TOGGLECLUB)
-  inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
+  // inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
 
   inputs.schema.behaviorMap.set(
     GolfInput.TOGGLECLUB,

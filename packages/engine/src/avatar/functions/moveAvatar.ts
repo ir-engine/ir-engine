@@ -20,7 +20,7 @@ const mat4 = new Matrix4()
 const newVelocity = new Vector3()
 const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
-const forward = new Vector3(0, 0, -1)
+const forward = new Vector3(0, 0, 1)
 const multiplier = 1 / 60
 
 export const moveAvatar = (entity: Entity, deltaTime: number): void => {
@@ -44,13 +44,13 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
   // apply gravity
   velocity.velocity.y -= 0.15 * deltaTime
 
-  quat.copy(Engine.camera.quaternion)
-  Engine.camera.getWorldDirection(vec3)
+  // threejs camera is weird, when in VR we must use the head direction
+  if (hasComponent(entity, XRInputSourceComponent))
+    getComponent(entity, XRInputSourceComponent).head.getWorldDirection(vec3)
+  else Engine.camera.getWorldDirection(vec3)
+
   vec3.setY(0).normalize()
   quat.setFromUnitVectors(forward, vec3)
-
-  // threejs camera is weird, when not in VR we have to invert the direction
-  if (!hasComponent(entity, XRInputSourceComponent)) newVelocity.multiplyScalar(-1)
 
   newVelocity.applyQuaternion(quat)
 
@@ -89,6 +89,7 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
     // }
   }
   const world = useWorld()
+  console.log(`${Math.round(newVelocity.x * 1000)} ${Math.round(newVelocity.z * 1000)} `)
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null)
   const collisionFlags = controller.controller.move(
