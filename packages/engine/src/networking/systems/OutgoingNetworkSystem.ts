@@ -17,6 +17,7 @@ import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/encode'
+import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { NameComponent } from '../../scene/components/NameComponent'
 
 function sendActions() {
@@ -36,6 +37,13 @@ function sendActions() {
     Network.instance.incomingActions = []
     Network.instance.outgoingActions = []
   }
+}
+
+let prevWorldState: WorldStateInterface = {
+  tick: 0,
+  time: 0,
+  pose: [],
+  ikPose: []
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
@@ -83,20 +91,28 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       let angVel = undefined
       if (hasComponent(entity, VelocityComponent)) {
         const velC = getComponent(entity, VelocityComponent)
-        if (isZero(velC.velocity)) vel = [0]
+        if (isZero(velC.velocity) || velocityIsTheSame(networkObject.networkId, velC.velocity)) vel = [0]
         else vel = encodeVector3(velC.velocity)
       }
 
       // const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
       // networkObjectOwnerComponent && console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position)
       // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
-      newWorldState.pose.push({
-        networkId: networkObject.networkId,
-        position: encodeVector3(transformComponent.position),
-        rotation: encodeQuaternion(transformComponent.rotation),
-        linearVelocity: vel !== undefined ? vel : [0],
-        angularVelocity: angVel !== undefined ? angVel : [0]
-      })
+      if (
+        !transformIsTheSame(
+          networkObject.networkId,
+          encodeVector3(transformComponent.position),
+          encodeQuaternion(transformComponent.rotation),
+          vel
+        )
+      )
+        newWorldState.pose.push({
+          networkId: networkObject.networkId,
+          position: encodeVector3(transformComponent.position),
+          rotation: encodeQuaternion(transformComponent.rotation),
+          linearVelocity: vel !== undefined ? vel : [0],
+          angularVelocity: angVel !== undefined ? angVel : [0]
+        })
     }
 
     if (isClient) {
@@ -106,17 +122,25 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       let angVel = undefined
       if (hasComponent(Network.instance.localClientEntity, VelocityComponent)) {
         const velC = getComponent(Network.instance.localClientEntity, VelocityComponent)
-        if (isZero(velC.velocity)) vel = [0]
+        if (isZero(velC.velocity) || velocityIsTheSame(Network.instance.localClientEntity, velC.velocity)) vel = [0]
         else vel = encodeVector3(velC.velocity)
       }
 
-      newWorldState.pose.push({
-        networkId: getLocalNetworkId(),
-        position: encodeVector3(transformComponent.position),
-        rotation: encodeQuaternion(transformComponent.rotation),
-        linearVelocity: vel !== undefined ? vel : [0],
-        angularVelocity: angVel !== undefined ? angVel : [0]
-      })
+      if (
+        !transformIsTheSame(
+          getLocalNetworkId(),
+          encodeVector3(transformComponent.position),
+          encodeQuaternion(transformComponent.rotation),
+          vel
+        )
+      )
+        newWorldState.pose.push({
+          networkId: getLocalNetworkId(),
+          position: encodeVector3(transformComponent.position),
+          rotation: encodeQuaternion(transformComponent.rotation),
+          linearVelocity: vel !== undefined ? vel : [0],
+          angularVelocity: angVel !== undefined ? angVel : [0]
+        })
     }
 
     for (const entity of ikTransformsQuery(world)) {
@@ -124,23 +148,88 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
 
       const xrInputs = getComponent(entity, XRInputSourceComponent)
 
-      newWorldState.ikPose.push({
-        networkId: networkObject.networkId,
-        headPosePosition: encodeVector3(xrInputs.head.position),
-        headPoseRotation: encodeQuaternion(xrInputs.head.quaternion),
-        leftPosePosition: encodeVector3(xrInputs.controllerLeft.position),
-        leftPoseRotation: encodeQuaternion(xrInputs.controllerLeft.quaternion),
-        rightPosePosition: encodeVector3(xrInputs.controllerRight.position),
-        rightPoseRotation: encodeQuaternion(xrInputs.controllerRight.quaternion)
-      })
+      if (
+        !ikPoseIsTheSame(
+          networkObject.networkid,
+          encodeVector3(xrInputs.head.position),
+          encodeQuaternion(xrInputs.head.quaternion),
+          encodeVector3(xrInputs.controllerLeft.position),
+          encodeQuaternion(xrInputs.controllerLeft.quaternion),
+          encodeVector3(xrInputs.controllerRight.position),
+          encodeQuaternion(xrInputs.controllerRight.quaternion)
+        )
+      )
+        newWorldState.ikPose.push({
+          networkId: networkObject.networkId,
+          headPosePosition: encodeVector3(xrInputs.head.position),
+          headPoseRotation: encodeQuaternion(xrInputs.head.quaternion),
+          leftPosePosition: encodeVector3(xrInputs.controllerLeft.position),
+          leftPoseRotation: encodeQuaternion(xrInputs.controllerLeft.quaternion),
+          rightPosePosition: encodeVector3(xrInputs.controllerRight.position),
+          rightPoseRotation: encodeQuaternion(xrInputs.controllerRight.quaternion)
+        })
     }
 
     try {
       const buffer = WorldStateModel.toBuffer(newWorldState)
-      //if (isClient)      console.log(JSON.stringify(newWorldState))
       Network.instance.transport.sendData(buffer)
+      prevWorldState = newWorldState
     } catch (e) {
       console.log('could not convert world state to a buffer, ' + e)
     }
   }
+}
+
+function velocityIsTheSame(netId, vel): boolean {
+  for (let i = 0; i < prevWorldState.pose.length; i++) {
+    if (prevWorldState.pose[i].networkId === netId) {
+      if (arraysAreEqual(prevWorldState.pose[i].angularVelocity, vel)) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+
+  return false
+}
+function transformIsTheSame(netId, pos, rot, vel): boolean {
+  if (vel === undefined) vel = [0]
+  for (let i = 0; i < prevWorldState.pose.length; i++) {
+    if (prevWorldState.pose[i].networkId === netId) {
+      if (
+        arraysAreEqual(prevWorldState.pose[i].position, pos) &&
+        arraysAreEqual(prevWorldState.pose[i].rotation, rot) &&
+        arraysAreEqual(prevWorldState.pose[i].linearVelocity, vel)
+      ) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+
+  return false
+}
+function ikPoseIsTheSame(netId, hp, hr, lp, lr, rp, rr): boolean {
+  for (let i = 0; i < prevWorldState.ikPose.length; i++) {
+    if (prevWorldState.ikPose[i].networkId === netId) {
+      if (
+        (arraysAreEqual(prevWorldState.ikPose[i].headPosePosition),
+        hp &&
+          arraysAreEqual(prevWorldState.ikPose[i].headPoseRotation, hr) &&
+          arraysAreEqual(prevWorldState.ikPose[i].leftPosePosition),
+        lp &&
+          arraysAreEqual(prevWorldState.ikPose[i].leftPoseRotation, lr) &&
+          arraysAreEqual(prevWorldState.ikPose[i].rightPosePosition),
+        rp && arraysAreEqual(prevWorldState.ikPose[i].rightPoseRotation, rr))
+      ) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+
+  return false
 }
