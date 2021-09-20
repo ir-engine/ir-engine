@@ -1,8 +1,8 @@
 import { TaskStatus } from '../classes/AsyncTask'
 import Phase from '../classes/Phase'
 
+// TODO be more lazy?
 export default async function actuateLazy(phases: Phase<any>[]) {
-  const promises = []
   for (const phase of phases) {
     // console.log('starting %s', phase.constructor.name)
     const tasks = phase.getTasks()
@@ -11,7 +11,7 @@ export default async function actuateLazy(phases: Phase<any>[]) {
         if (task.status === TaskStatus.NOT_STARTED) {
           if (phase.isAsyncPhase) {
             // console.log('starting a %s', task.constructor.name)
-            promises.push(task.start())
+            task.start()
           } else {
             // console.log('execing a %s', task.constructor.name)
             task.exec()
@@ -27,5 +27,4 @@ export default async function actuateLazy(phases: Phase<any>[]) {
     }
     phase.cleanup()
   }
-  return await Promise.all(promises)
 }
