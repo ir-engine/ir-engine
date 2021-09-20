@@ -28,8 +28,6 @@ const Home = ({ createCreator, creatorsState }) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
-  console.log(auth)
-
   useEffect(() => {
     const user = auth.user
     const userId = user ? user.id.value : null
