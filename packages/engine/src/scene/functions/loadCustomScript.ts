@@ -1,6 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import fs from 'fs'
 
 /**
  * @author Abhishek Pathak
@@ -17,11 +18,31 @@ export const loadCustomScript = (
 ) => {
   sceneLoader.loaders.push(
     new Promise<void>((resolve, reject) => {
-      const s = document.createElement('script')
-      s.src = component.props.scriptUrl
-      s.onload = resolve as any
-      s.onerror = reject as any
-      document.head.appendChild(s)
+      const url = component.props.scriptUrl
+      let code: string = ''
+      if (typeof window === 'undefined') {
+        require('node-fetch')(url)
+          .then(async (res) => {
+            code = await res.text()
+            console.log(code)
+          })
+          .catch((error) => {
+            console.log('Error loading:' + error)
+            reject()
+          })
+      } else {
+        fetch(url)
+          .then(async (res) => {
+            code = await res.text()
+            console.log(code)
+          })
+          .catch((error) => {
+            console.log('Error loading:' + error)
+            reject()
+          })
+      }
+
+      resolve()
     })
   )
 }
