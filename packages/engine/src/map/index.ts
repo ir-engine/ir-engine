@@ -2,7 +2,6 @@ import { Position, Polygon, MultiPolygon } from 'geojson'
 import { NavMesh } from 'yuka'
 import { MapProps } from './MapProps'
 import { NavMeshBuilder } from './NavMeshBuilder'
-import { TileFeaturesByLayer } from './types'
 import pc from 'polygon-clipping'
 import { computeBoundingBox, scaleAndTranslate } from './GeoJSONFns'
 
@@ -44,22 +43,22 @@ let scaleArg
 //   return { mapMesh: group, buildingMesh, groundMesh, roadsMesh, navMesh, labels }
 // }
 
-const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
-  const builder = new NavMeshBuilder()
-  const gBuildings = tiles
-    .reduce((acc, tiles) => acc.concat(tiles.building), [])
-    .map((feature) => {
-      return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center as any, scale)
-    })
+// const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
+//   const builder = new NavMeshBuilder()
+//   const gBuildings = tiles
+//     .reduce((acc, tiles) => acc.concat(tiles.building), [])
+//     .map((feature) => {
+//       return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center as any, scale)
+//     })
 
-  const gGround = computeBoundingBox(gBuildings)
-  let gBuildingNegativeSpace = [gGround.coordinates]
-  gBuildings.forEach((gPositiveSpace) => {
-    gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
-  })
-  builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
-  return builder.build()
-}
+//   const gGround = computeBoundingBox(gBuildings)
+//   let gBuildingNegativeSpace = [gGround.coordinates]
+//   gBuildings.forEach((gPositiveSpace) => {
+//     gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
+//   })
+//   builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
+//   return builder.build()
+// }
 
 export function getStartCoords(props: MapProps): Promise<Position> {
   if (props.useDeviceGeolocation) {
