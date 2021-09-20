@@ -837,7 +837,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       }
     })
 
-    CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, SceneManager.instance.scene, { properties: { name: result.name } })
+    CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, SceneManager.instance.scene, {
+      properties: { name: result.name }
+    })
     SceneManager.instance.scene.setMetadata({ name: result.name })
 
     const project = await createProject(
@@ -1029,10 +1031,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       const { project } = this.state
       if (project) {
-        const newProject = await saveProject(
-          project.project_id,
-          abortController.signal,
-        )
+        const newProject = await saveProject(project.project_id, abortController.signal)
 
         this.setState({ project: newProject })
         const pathParams = this.state.pathParams
@@ -1097,7 +1096,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   getSceneId() {
     const { project } = this.state as any
     return (
-      (project && project.scene && project.scene.scene_id) || (SceneManager.instance.scene.metadata && SceneManager.instance.scene.metadata.sceneId)
+      (project && project.scene && project.scene.scene_id) ||
+      (SceneManager.instance.scene.metadata && SceneManager.instance.scene.metadata.sceneId)
     )
   }
 
@@ -1194,43 +1194,41 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     return (
       <StyledEditorContainer id="editor-container">
         <SettingsContextProvider value={settingsContext}>
-          {/* <EditorContextProvider value={editor}> */}
-            <DialogContextProvider value={this.dialogContext}>
-              <DndProvider backend={HTML5Backend}>
-                <DragLayer />
-                {toolbarMenu && (
-                  <ToolBar
-                    menu={toolbarMenu}
-                    onPublish={this.onPublishProject}
-                    isPublishedScene={isPublishedScene}
-                    onOpenScene={this.onOpenScene}
-                    queryParams={assigneeScene}
+          <DialogContextProvider value={this.dialogContext}>
+            <DndProvider backend={HTML5Backend}>
+              <DragLayer />
+              {toolbarMenu && (
+                <ToolBar
+                  menu={toolbarMenu}
+                  onPublish={this.onPublishProject}
+                  isPublishedScene={isPublishedScene}
+                  onOpenScene={this.onOpenScene}
+                  queryParams={assigneeScene}
+                />
+              )}
+              <WorkspaceContainer>
+                <ViewportPanelContainer />
+                <DockContainer>
+                  <DockLayout
+                    defaultLayout={defaultLayout}
+                    style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
                   />
+                </DockContainer>
+              </WorkspaceContainer>
+              <Modal
+                ariaHideApp={false}
+                isOpen={!!DialogComponent}
+                onRequestClose={this.hideDialog}
+                shouldCloseOnOverlayClick={false}
+                className="Modal"
+                overlayClassName="Overlay"
+              >
+                {DialogComponent && (
+                  <DialogComponent onConfirm={this.hideDialog} onCancel={this.hideDialog} {...dialogProps} />
                 )}
-                <WorkspaceContainer>
-                  <ViewportPanelContainer />
-                  <DockContainer>
-                    <DockLayout
-                      defaultLayout={defaultLayout}
-                      style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
-                    />
-                  </DockContainer>
-                </WorkspaceContainer>
-                <Modal
-                  ariaHideApp={false}
-                  isOpen={!!DialogComponent}
-                  onRequestClose={this.hideDialog}
-                  shouldCloseOnOverlayClick={false}
-                  className="Modal"
-                  overlayClassName="Overlay"
-                >
-                  {DialogComponent && (
-                    <DialogComponent onConfirm={this.hideDialog} onCancel={this.hideDialog} {...dialogProps} />
-                  )}
-                </Modal>
-              </DndProvider>
-            </DialogContextProvider>
-          {/* </EditorContextProvider> */}
+              </Modal>
+            </DndProvider>
+          </DialogContextProvider>
         </SettingsContextProvider>
       </StyledEditorContainer>
     )

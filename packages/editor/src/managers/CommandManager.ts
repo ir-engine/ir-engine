@@ -1,47 +1,48 @@
-import EventEmitter from "events"
+import EventEmitter from 'events'
 import { fetchContentType } from '@xrengine/engine/src/scene/functions/fetchContentType'
 import { guessContentType } from '@xrengine/engine/src/scene/functions/guessContentType'
-import History from "../classes/History"
-import EditorCommands, { EditorCommandsType } from "../constants/EditorCommands"
-import EditorEvents from "../constants/EditorEvents"
-import AddObjectCommand, { AddObjectCommandParams } from "../commands/AddObjectCommand"
-import AddToSelectionCommand from "../commands/AddToSelectionCommand"
-import Command from "../commands/Command"
-import DuplicateObjectCommand, { DuplicateObjectCommandParams } from "../commands/DuplicateObjectCommand"
-import RemoveFromSelectionCommand from "../commands/RemoveFromSelectionCommand"
-import RemoveObjectsCommand, { RemoveObjectCommandParams } from "../commands/RemoveObjectsCommand"
-import ReparentCommand, { ReparentCommandParams } from "../commands/ReparentCommand"
-import ReplaceSelectionCommand from "../commands/ReplaceSelectionCommand"
-import ToggleSelectionCommand from "../commands/ToggleSelectionCommand"
-import GroupCommand, { GroupCommandParams } from "../commands/GroupCommand"
-import PositionCommand, { PositionCommandParams } from "../commands/PositionCommand"
-import RotationCommand, { RotationCommandParams } from "../commands/RotationCommand"
-import RotateOnAxisCommand, { RotateOnAxisCommandParams } from "../commands/RotateOnAxisCommand"
-import RotateAroundCommand, { RotateAroundCommandParams } from "../commands/RotateAroundCommand"
-import ScaleCommand, { ScaleCommandParams } from "../commands/ScaleCommand"
-import ModifyPropertyCommand, { ModifyPropertyCommandParams } from "../commands/ModifyPropertyCommand"
-import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from "../commands/LoadMaterialSlotMultipleCommand"
-import isInputSelected from "../functions/isInputSelected"
-import ModelNode from "../nodes/ModelNode"
-import VideoNode from "../nodes/VideoNode"
-import ImageNode from "../nodes/ImageNode"
-import VolumetricNode from "../nodes/VolumetricNode"
-import LinkNode from "../nodes/LinkNode"
-import { SceneManager } from "./SceneManager"
-import { ProjectManager } from "./ProjectManager"
+import History from '../classes/History'
+import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import AddObjectCommand, { AddObjectCommandParams } from '../commands/AddObjectCommand'
+import AddToSelectionCommand from '../commands/AddToSelectionCommand'
+import Command from '../commands/Command'
+import DuplicateObjectCommand, { DuplicateObjectCommandParams } from '../commands/DuplicateObjectCommand'
+import RemoveFromSelectionCommand from '../commands/RemoveFromSelectionCommand'
+import RemoveObjectsCommand, { RemoveObjectCommandParams } from '../commands/RemoveObjectsCommand'
+import ReparentCommand, { ReparentCommandParams } from '../commands/ReparentCommand'
+import ReplaceSelectionCommand from '../commands/ReplaceSelectionCommand'
+import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
+import GroupCommand, { GroupCommandParams } from '../commands/GroupCommand'
+import PositionCommand, { PositionCommandParams } from '../commands/PositionCommand'
+import RotationCommand, { RotationCommandParams } from '../commands/RotationCommand'
+import RotateOnAxisCommand, { RotateOnAxisCommandParams } from '../commands/RotateOnAxisCommand'
+import RotateAroundCommand, { RotateAroundCommandParams } from '../commands/RotateAroundCommand'
+import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
+import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
+import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from '../commands/LoadMaterialSlotMultipleCommand'
+import isInputSelected from '../functions/isInputSelected'
+import ModelNode from '../nodes/ModelNode'
+import VideoNode from '../nodes/VideoNode'
+import ImageNode from '../nodes/ImageNode'
+import VolumetricNode from '../nodes/VolumetricNode'
+import LinkNode from '../nodes/LinkNode'
+import { SceneManager } from './SceneManager'
+import { ProjectManager } from './ProjectManager'
 
-export type CommandParamsType = AddObjectCommandParams |
-  RemoveObjectCommandParams |
-  DuplicateObjectCommandParams |
-  ModifyPropertyCommandParams |
-  ReparentCommandParams |
-  GroupCommandParams |
-  PositionCommandParams |
-  RotationCommandParams |
-  ScaleCommandParams |
-  RotateOnAxisCommandParams |
-  RotateAroundCommandParams |
-  LoadMaterialSlotCommandParams
+export type CommandParamsType =
+  | AddObjectCommandParams
+  | RemoveObjectCommandParams
+  | DuplicateObjectCommandParams
+  | ModifyPropertyCommandParams
+  | ReparentCommandParams
+  | GroupCommandParams
+  | PositionCommandParams
+  | RotationCommandParams
+  | ScaleCommandParams
+  | RotateOnAxisCommandParams
+  | RotateAroundCommandParams
+  | LoadMaterialSlotCommandParams
 
 export class CommandManager extends EventEmitter {
   static instance: CommandManager
@@ -118,7 +119,7 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  emitEvent = (event: EditorEvents, ...args: any[] ): void => {
+  emitEvent = (event: EditorEvents, ...args: any[]): void => {
     if (this.sceneLoading) return
 
     this.emit(event.toString(), ...args)
@@ -243,7 +244,9 @@ export class CommandManager extends EventEmitter {
         return
       }
 
-      const nodes = nodeUUIDs.map((uuid) => SceneManager.instance.scene.getObjectByUUID(uuid)).filter((uuid) => uuid !== undefined)
+      const nodes = nodeUUIDs
+        .map((uuid) => SceneManager.instance.scene.getObjectByUUID(uuid))
+        .filter((uuid) => uuid !== undefined)
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)
     } else if ((data = event.clipboardData.getData('text')) !== '') {

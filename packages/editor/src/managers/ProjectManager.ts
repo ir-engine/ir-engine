@@ -5,15 +5,15 @@ import { Config } from '@xrengine/common/src/config'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { MultiError } from '@xrengine/engine/src/scene/functions/errors'
 import { loadEnvironmentMap } from '../components/EnvironmentMap'
-import ErrorIcon from "../classes/ErrorIcon"
-import EditorCommands from "../constants/EditorCommands"
-import EditorEvents from "../constants/EditorEvents"
-import SceneNode from "../nodes/SceneNode"
-import { CacheManager } from "./CacheManager"
-import { CommandManager } from "./CommandManager"
-import { ControlManager } from "./ControlManager"
-import { NodeManager } from "./NodeManager"
-import { SceneManager } from "./SceneManager"
+import ErrorIcon from '../classes/ErrorIcon'
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import SceneNode from '../nodes/SceneNode'
+import { CacheManager } from './CacheManager'
+import { CommandManager } from './CommandManager'
+import { ControlManager } from './ControlManager'
+import { NodeManager } from './NodeManager'
+import { SceneManager } from './SceneManager'
 
 export class ProjectManager {
   static instance: ProjectManager
@@ -45,7 +45,7 @@ export class ProjectManager {
     this.currentOwnedFileIds = {}
   }
 
-   /**
+  /**
    * A Function to Initialize the FeathersClient with the auth token
    * @author Abhishek Pathak
    */
@@ -64,7 +64,7 @@ export class ProjectManager {
    * @author Robert Long
    * @return {Promise}         [void]
    */
-   async init(): Promise<void> {
+  async init(): Promise<void> {
     // check if component is already initialized then return
     if (this.initialized) return
 
@@ -122,8 +122,14 @@ export class ProjectManager {
    * @return {Promise}             [scene to render]
    */
   async loadProject(projectFile) {
-    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), SceneManager.instance.onEmitSceneModified)
-    CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), SceneManager.instance.onEmitSceneModified)
+    CommandManager.instance.removeListener(
+      EditorEvents.OBJECTS_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
+    CommandManager.instance.removeListener(
+      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
 
     CacheManager.clearCaches()
 
@@ -163,8 +169,14 @@ export class ProjectManager {
 
     if (errors.length === 0) CommandManager.instance.emitEvent(EditorEvents.PROJECT_LOADED)
     CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), SceneManager.instance.onEmitSceneModified)
-    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), SceneManager.instance.onEmitSceneModified)
+    CommandManager.instance.addListener(
+      EditorEvents.OBJECTS_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
+    CommandManager.instance.addListener(
+      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
 
     if (errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)

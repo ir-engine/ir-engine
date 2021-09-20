@@ -1,7 +1,7 @@
 import { AssetManifestSource } from '../components/assets/AssetManifestSource'
-import { BaseSource } from "../components/assets/sources"
-import EditorEvents from "../constants/EditorEvents"
-import { CommandManager } from "./CommandManager"
+import { BaseSource } from '../components/assets/sources'
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from './CommandManager'
 import ElementsSource from '../components/assets/sources/ElementsSource'
 import { MyAssetsSource } from '../components/assets/sources/MyAssetsSource'
 
@@ -21,11 +21,11 @@ export class SourceManager {
   }
 
   /**
-  * Function registerSource used to add image, audio, video, asset files to the scene.
-  *
-  * @author Robert Long
-  * @param  {any} source contains source file data
-  */
+   * Function registerSource used to add image, audio, video, asset files to the scene.
+   *
+   * @author Robert Long
+   * @param  {any} source contains source file data
+   */
   registerSource(source: BaseSource) {
     this.sources.push(source)
 
@@ -67,7 +67,6 @@ export class SourceManager {
   setSource(sourceId) {
     CommandManager.instance.emitEvent(EditorEvents.SOURCE_CHANGED, sourceId)
   }
-
 }
 
 export const registerPredefinedSources = () => {

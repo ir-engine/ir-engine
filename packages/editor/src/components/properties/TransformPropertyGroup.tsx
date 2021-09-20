@@ -81,7 +81,10 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
 
   //function to handle changes in scale properties
   onChangeScale = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, { scales: value, overrideScale: true })
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
+      scales: value,
+      overrideScale: true
+    })
   }
 
   //rendering editor view for Transform properties

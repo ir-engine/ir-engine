@@ -7,7 +7,6 @@ import EditorEvents from '../constants/EditorEvents'
 import { NodeManager } from '../managers/NodeManager'
 import { SceneManager } from '../managers/SceneManager'
 
-
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */
   deselectObject?: boolean
@@ -60,7 +59,7 @@ export default class RemoveObjectsCommand extends Command {
     const removeObjectsRoots = []
     CommandManager.instance.getRootObjects(this.affectedObjects, removeObjectsRoots)
 
-    for(let i = 0; i < removeObjectsRoots.length; i++) {
+    for (let i = 0; i < removeObjectsRoots.length; i++) {
       const object = removeObjectsRoots[i]
 
       if (object.parent === null) return null // avoid deleting the camera or scene
@@ -77,7 +76,9 @@ export default class RemoveObjectsCommand extends Command {
       object.parent.remove(object)
 
       if (this.deselectObject) {
-        CommandManager.instance.executeCommand(EditorCommands.REMOVE_FROM_SELECTION, object, { shouldEmitEvent: this.shouldEmitEvent })
+        CommandManager.instance.executeCommand(EditorCommands.REMOVE_FROM_SELECTION, object, {
+          shouldEmitEvent: this.shouldEmitEvent
+        })
       }
     }
 
@@ -85,7 +86,12 @@ export default class RemoveObjectsCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.affectedObjects, { parents: this.oldParents, befores: this.oldBefores, isObjectSelected: this.isSelected, useUniqueName: false })
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.affectedObjects, {
+      parents: this.oldParents,
+      befores: this.oldBefores,
+      isObjectSelected: this.isSelected,
+      useUniqueName: false
+    })
 
     NodeManager.instance.fill(this.oldNodes)
 

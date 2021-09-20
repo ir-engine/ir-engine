@@ -1,4 +1,4 @@
-import { ProjectManager } from "../managers/ProjectManager"
+import { ProjectManager } from '../managers/ProjectManager'
 
 /**
  * deleteProjectAsset used to delete asset for specific project.
@@ -11,7 +11,10 @@ import { ProjectManager } from "../managers/ProjectManager"
  */
 export const deleteProjectAsset = async (projectId, assetId): Promise<any> => {
   try {
-    const response = await (ProjectManager.instance.feathersClient.service('project') as any).remove({ projectId, assetId })
+    const response = await (ProjectManager.instance.feathersClient.service('project') as any).remove({
+      projectId,
+      assetId
+    })
     console.log('Response: ' + Object.values(response))
   } catch (error) {
     console.log("Can't Delete Project Asset" + error)

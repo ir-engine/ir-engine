@@ -103,7 +103,7 @@ export default class ModifyPropertyCommand extends Command {
     const props = propertyName.split('.')
     let result = object
 
-    for(let i = 0; i < props.length - 1; i++) {
+    for (let i = 0; i < props.length - 1; i++) {
       result = result[props[i]]
     }
 

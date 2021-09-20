@@ -110,47 +110,38 @@ export class TriggerVolumeNodeEditor extends Component<TriggerVolumeNodeEditorPr
 
   //function to handle the changes in target
   onChangeTarget = (target) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(
-      EditorCommands.MODIFY_PROPERTY,
-      {
-        properties: {
-          target,
-          enterComponent: null,
-          enterProperty: null,
-          enterValue: null,
-          leaveComponent: null,
-          leaveProperty: null,
-          leaveValue: null
-        }
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+      properties: {
+        target,
+        enterComponent: null,
+        enterProperty: null,
+        enterValue: null,
+        leaveComponent: null,
+        leaveProperty: null,
+        leaveValue: null
       }
-    )
+    })
   }
 
   // function to handle changes in enterComponent
   onChangeEnterComponent = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(
-      EditorCommands.MODIFY_PROPERTY,
-      {
-        properties: {
-          enterComponent: value,
-          enterProperty: null,
-          enterValue: null
-        }
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+      properties: {
+        enterComponent: value,
+        enterProperty: null,
+        enterValue: null
       }
-    )
+    })
   }
 
   // function to handle changes in enter property
   onChangeEnterProperty = (value, option) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(
-      EditorCommands.MODIFY_PROPERTY,
-      {
-        properties: {
-          enterProperty: value,
-          enterValue: option.default !== undefined ? option.default : null
-        }
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+      properties: {
+        enterProperty: value,
+        enterValue: option.default !== undefined ? option.default : null
       }
-    )
+    })
   }
 
   //function to handle the changes in enterValue property
@@ -160,29 +151,23 @@ export class TriggerVolumeNodeEditor extends Component<TriggerVolumeNodeEditorPr
 
   // function to handle the changes leaveComponent
   onChangeLeaveComponent = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(
-      EditorCommands.MODIFY_PROPERTY,
-      {
-        properties: {
-          leaveComponent: value,
-          leaveProperty: null,
-          leaveValue: null
-        }
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+      properties: {
+        leaveComponent: value,
+        leaveProperty: null,
+        leaveValue: null
       }
-    )
+    })
   }
 
   // function to handle the changes in leave property
   onChangeLeaveProperty = (value, option) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(
-      EditorCommands.MODIFY_PROPERTY,
-      {
-        properties: {
-          leaveProperty: value,
-          leaveValue: option.default !== undefined ? option.default : null
-        }
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+      properties: {
+        leaveProperty: value,
+        leaveValue: option.default !== undefined ? option.default : null
       }
-    )
+    })
   }
 
   // function to handle the changes in leaveValue

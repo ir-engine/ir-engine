@@ -51,18 +51,21 @@ export default class AddObjectCommand extends Command {
   }
 
   undo(): void {
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, { deselectObject: false })
+    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, {
+      deselectObject: false
+    })
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
   }
 
   toString(): string {
-    return `AddObjectCommand id: ${this.id} object: ${serializeObject3D(this.affectedObjects)} parent: ${serializeObject3D(
-      this.parents
-    )} before: ${serializeObject3D(this.befores)}`
+    return `AddObjectCommand id: ${this.id} object: ${serializeObject3D(
+      this.affectedObjects
+    )} parent: ${serializeObject3D(this.parents)} before: ${serializeObject3D(this.befores)}`
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected)
+      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
   }
 
   emitAfterExecuteEvent() {
@@ -117,7 +120,9 @@ export default class AddObjectCommand extends Command {
     }
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects, { shouldEmitEvent: false })
+      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects, {
+        shouldEmitEvent: false
+      })
     }
   }
 }

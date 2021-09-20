@@ -65,7 +65,6 @@ const bakeResolutionTypes = [
 export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => {
   const onChangeProperty = (value, option: string) => {
     CommandManager.instance.setPropertyOnSelection(`cubemapBakeSettings.${option}`, value)
-
   }
 
   const getPropertyValue = (option: string) => {

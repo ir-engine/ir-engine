@@ -72,8 +72,9 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       this.cubemapBakeSettings.resolution
     )
     const result = cubemapCapturer.update(this.position)
-    const imageData = (await convertCubemapToEquiImageData(SceneManager.instance.renderer.renderer, result, 512, 512, false))
-      .imageData
+    const imageData = (
+      await convertCubemapToEquiImageData(SceneManager.instance.renderer.renderer, result, 512, 512, false)
+    ).imageData
     // downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
     this.injectShader()

@@ -7,7 +7,6 @@ import EditorEvents from '../../../constants/EditorEvents'
 import { SceneManager } from '../../../managers/SceneManager'
 import { CommandManager } from '../../../managers/CommandManager'
 
-
 const GridTool = () => {
   const [temp, setTemp] = useState(0)
 

@@ -198,43 +198,37 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
   }, [])
 
   // creating callback function used if object get placed on viewport
-  const placeObject = useCallback(
-    (_, trigger) => {
-      const item = trigger.item
+  const placeObject = useCallback((_, trigger) => {
+    const item = trigger.item
 
-      const node = new item.nodeClass()
+    const node = new item.nodeClass()
 
-      if (item.initialProps) {
-        Object.assign(node, item.initialProps)
-      }
+    if (item.initialProps) {
+      Object.assign(node, item.initialProps)
+    }
 
-      SceneManager.instance.getSpawnPosition(node.position)
+    SceneManager.instance.getSpawnPosition(node.position)
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
 
-      if (item.projectId && globalThis.currentProjectID !== item.projectId) {
-        ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
-      }
-    },
-    []
-  )
+    if (item.projectId && globalThis.currentProjectID !== item.projectId) {
+      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
+    }
+  }, [])
   //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
-  const placeObjectAtOrigin = useCallback(
-    (_, trigger) => {
-      const item = trigger.item
+  const placeObjectAtOrigin = useCallback((_, trigger) => {
+    const item = trigger.item
 
-      const node = new item.nodeClass()
+    const node = new item.nodeClass()
 
-      if (item.initialProps) {
-        Object.assign(node, item.initialProps)
-      }
+    if (item.initialProps) {
+      Object.assign(node, item.initialProps)
+    }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-      if (item.projectId && globalThis.currentProjectID !== item.projectId)
-        ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
-    },
-    []
-  )
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+    if (item.projectId && globalThis.currentProjectID !== item.projectId)
+      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
+  }, [])
 
   const copyURL = useCallback((_, trigger) => {
     // if (navigator.clipboard) {

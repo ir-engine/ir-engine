@@ -226,7 +226,6 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
  * @constructor
  */
 function ViewportToolbar({ onToggleStats, showStats }) {
-
   const renderer = SceneManager.instance.renderer
   const [renderMode, setRenderMode] = useState(renderer && renderer.renderMode)
 
@@ -240,8 +239,7 @@ function ViewportToolbar({ onToggleStats, showStats }) {
   useEffect(() => {
     const setRM = () => setRenderMode(SceneManager.instance.renderer.renderMode)
     CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), setRM),
-
-    () => CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), setRM)
+      () => CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), setRM)
   }, [])
 
   const onChangeRenderMode = useCallback(
@@ -487,7 +485,8 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
       return <StyledToolbar />
     }
 
-    const { transformMode, transformSpace, transformPivot, snapMode, translationSnap, rotationSnap } = ControlManager.instance.editorControls
+    const { transformMode, transformSpace, transformPivot, snapMode, translationSnap, rotationSnap } =
+      ControlManager.instance.editorControls
 
     const queryParams = (this.props as any).queryParams
 

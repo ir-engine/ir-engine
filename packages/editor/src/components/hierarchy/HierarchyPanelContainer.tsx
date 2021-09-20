@@ -439,7 +439,11 @@ function TreeNode({
     type: ItemTypes.Node,
     item() {
       const multiple = CommandManager.instance.selected.length > 1
-      return { type: ItemTypes.Node, multiple, value: multiple ? CommandManager.instance.selected : CommandManager.instance.selected[0] }
+      return {
+        type: ItemTypes.Node,
+        multiple,
+        value: multiple ? CommandManager.instance.selected : CommandManager.instance.selected[0]
+      }
     },
     canDrag() {
       return !CommandManager.instance.selected.some((selectedObj) => !selectedObj.parent)
@@ -478,7 +482,10 @@ function TreeNode({
       if (addAssetOnDrop(item, object.parent, object)) {
         return
       } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object.parent, befores: object })
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+          parents: object.parent,
+          befores: object
+        })
       }
     },
     canDrop(item, monitor) {
@@ -540,7 +547,10 @@ function TreeNode({
       if (addAssetOnDrop(item, object.parent, next)) {
         return
       } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object.parent, befores: next })
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+          parents: object.parent,
+          befores: next
+        })
       }
     },
 
@@ -738,7 +748,9 @@ function* treeWalker(collapsedNodes) {
       object,
       iconComponent,
       selected: CommandManager.instance.selected.indexOf(object) !== -1,
-      active: CommandManager.instance.selected.length > 0 && object === CommandManager.instance.selected[CommandManager.instance.selected.length - 1],
+      active:
+        CommandManager.instance.selected.length > 0 &&
+        object === CommandManager.instance.selected[CommandManager.instance.selected.length - 1],
       childIndex,
       lastChild
     }
@@ -899,18 +911,15 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onMouseDown = useCallback(
-    (e, node) => {
-      if (e.detail === 1) {
-        if (e.shiftKey) {
-          CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
-        } else if (!node.selected) {
-          CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
-        }
+  const onMouseDown = useCallback((e, node) => {
+    if (e.detail === 1) {
+      if (e.shiftKey) {
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
+      } else if (!node.selected) {
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
       }
-    },
-    []
-  )
+    }
+  }, [])
 
   /**
    * onClick callback function for handling onClick event on hierarchy penal item.
@@ -918,14 +927,11 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onClick = useCallback(
-    (e, node) => {
-      if (e.detail === 2) {
-        ControlManager.instance.editorControls.focus([node.object])
-      }
-    },
-    []
-  )
+  const onClick = useCallback((e, node) => {
+    if (e.detail === 2) {
+      ControlManager.instance.editorControls.focus([node.object])
+    }
+  }, [])
 
   /**
    * onToggle function used to handle toggle on hierarchy penal item.
@@ -1035,13 +1041,10 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onDeleteNode = useCallback(
-    (e, node) => {
-      let objs = node.selected ? CommandManager.instance.selected : node.object
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs)
-    },
-    []
-  )
+  const onDeleteNode = useCallback((e, node) => {
+    let objs = node.selected ? CommandManager.instance.selected : node.object
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs)
+  }, [])
 
   /**
    * onDuplicateNode callback function to handle Duplication of node.
@@ -1049,13 +1052,10 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onDuplicateNode = useCallback(
-    (e, node) => {
-      let objs = node.selected ? CommandManager.instance.selected : node.object
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, objs)
-    },
-    []
-  )
+  const onDuplicateNode = useCallback((e, node) => {
+    let objs = node.selected ? CommandManager.instance.selected : node.object
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, objs)
+  }, [])
 
   /**
    * onGroupNodes callback function used to handle grouping of nodes.
@@ -1063,13 +1063,10 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onGroupNodes = useCallback(
-    (e, node) => {
-      const objs = node.selected ? CommandManager.instance.selected : node.object
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.GROUP, objs)
-    },
-    []
-  )
+  const onGroupNodes = useCallback((e, node) => {
+    const objs = node.selected ? CommandManager.instance.selected : node.object
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.GROUP, objs)
+  }, [])
 
   /**
    * onRenameNode callback function to handle rename node.
@@ -1103,15 +1100,12 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onRenameSubmit = useCallback(
-    (node, name) => {
-      if (name !== null) {
-        CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, node.object, { properties: { name } })
-      }
-      setRenamingNode(null)
-    },
-    []
-  )
+  const onRenameSubmit = useCallback((node, name) => {
+    if (name !== null) {
+      CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, node.object, { properties: { name } })
+    }
+    setRenamingNode(null)
+  }, [])
 
   /**
    * initializing treeContainerDropTarget.
@@ -1144,7 +1138,9 @@ export default function HierarchyPanel() {
         return
       }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: SceneManager.instance.scene })
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+        parents: SceneManager.instance.scene
+      })
     },
     canDrop(item, monitor) {
       if (!monitor.isOver({ shallow: true })) {

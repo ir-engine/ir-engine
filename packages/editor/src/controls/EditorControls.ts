@@ -398,7 +398,11 @@ export default class EditorControls extends EventEmitter {
             this.translationVector.z + diffZ
           )
         }
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: this.translationVector, space: this.transformSpace, addToPosition: true })
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, {
+          positions: this.translationVector,
+          space: this.transformSpace,
+          addToPosition: true
+        })
 
         if (grabStart && this.transformMode === TransformMode.Grab) {
           this.grabHistoryCheckpoint = CommandManager.instance.selected ? CommandManager.instance.selected[0].id : 0
@@ -424,7 +428,11 @@ export default class EditorControls extends EventEmitter {
         }
         const relativeRotationAngle = rotationAngle - this.prevRotationAngle
         this.prevRotationAngle = rotationAngle
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, { pivot: this.transformGizmo.position, axis: this.planeNormal, angle: relativeRotationAngle })
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+          pivot: this.transformGizmo.position,
+          axis: this.planeNormal,
+          angle: relativeRotationAngle
+        })
         const selectedAxisInfo = (this.transformGizmo as any).selectedAxis.axisInfo
         if (selectStart) {
           selectedAxisInfo.startMarker.visible = true
@@ -493,7 +501,10 @@ export default class EditorControls extends EventEmitter {
         this.scaleVector.copy(this.curScale).divide(this.prevScale)
         this.prevScale.copy(this.curScale)
 
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, { scales: this.scaleVector, space: this.transformSpace })
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
+          scales: this.scaleVector,
+          space: this.transformSpace
+        })
       }
     }
     if (selectEnd) {
@@ -507,7 +518,9 @@ export default class EditorControls extends EventEmitter {
         }
         if (this.transformMode === TransformMode.Placement) {
           if (shift || input.get(Fly.boost) || this.multiplePlacement) {
-            CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS, { isObjectSelected: false })
+            CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS, {
+              isObjectSelected: false
+            })
           } else {
             this.setTransformMode(this.transformModeOnCancel)
           }
@@ -532,9 +545,17 @@ export default class EditorControls extends EventEmitter {
     }
     this.transformPropertyChanged = false
     if (input.get(EditorInputs.rotateLeft)) {
-      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, { pivot: this.transformGizmo.position, axis: new Vector3(0, 1, 0), angle: this.rotationSnap * _Math.DEG2RAD })
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+        pivot: this.transformGizmo.position,
+        axis: new Vector3(0, 1, 0),
+        angle: this.rotationSnap * _Math.DEG2RAD
+      })
     } else if (input.get(EditorInputs.rotateRight)) {
-      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, { pivot: this.transformGizmo.position, axis: new Vector3(0, 1, 0), angle: -this.rotationSnap * _Math.DEG2RAD })
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+        pivot: this.transformGizmo.position,
+        axis: new Vector3(0, 1, 0),
+        angle: -this.rotationSnap * _Math.DEG2RAD
+      })
     } else if (input.get(EditorInputs.grab)) {
       if (this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
         this.cancel()

@@ -1,4 +1,4 @@
-import { ProjectManager } from "../managers/ProjectManager"
+import { ProjectManager } from '../managers/ProjectManager'
 
 /**
  * getUrlFromId is used to get url of the static resource from its ID

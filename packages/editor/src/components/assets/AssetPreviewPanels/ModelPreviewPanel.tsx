@@ -81,7 +81,10 @@ export const ModelPreviewPanel = (props) => {
     renderScene()
     return () => {
       if (ControlManager.instance.editorControls) {
-        ControlManager.instance.editorControls.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+        ControlManager.instance.editorControls.removeListener(
+          EditorEvents.FLY_MODE_CHANGED.toString(),
+          onFlyModeChanged
+        )
       }
       if (SceneManager.instance.renderer) {
         SceneManager.instance.renderer.dispose()

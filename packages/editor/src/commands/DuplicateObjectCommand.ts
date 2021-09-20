@@ -39,22 +39,39 @@ export default class DuplicateObjectCommand extends Command {
 
   execute(isRedoCommand?: boolean) {
     if (isRedoCommand) {
-      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, { parents: this.parent, befores: this.before, shouldEmitEvent: false, isObjectSelected: false })
+      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
+        parents: this.parent,
+        befores: this.before,
+        shouldEmitEvent: false,
+        isObjectSelected: false
+      })
     } else {
       const validNodes = this.affectedObjects.filter((object) => object.constructor.canAddNode())
       const roots = getDetachedObjectsRoots(validNodes)
       this.duplicatedObjects = roots.map((object) => object.clone())
 
       if (this.parent) {
-        CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, { parents: this.parent, befores: this.before, shouldEmitEvent: false, isObjectSelected: false })
+        CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
+          parents: this.parent,
+          befores: this.before,
+          shouldEmitEvent: false,
+          isObjectSelected: false
+        })
       } else {
         for (let i = 0; i < roots.length; i++) {
-          CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, [this.duplicatedObjects[i]], { parents: roots[i].parent, shouldEmitEvent: false, isObjectSelected: false })
+          CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, [this.duplicatedObjects[i]], {
+            parents: roots[i].parent,
+            shouldEmitEvent: false,
+            isObjectSelected: false
+          })
         }
       }
 
       if (this.isSelected) {
-        CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.duplicatedObjects, { shouldEmitEvent: false, shouldGizmoUpdate: false })
+        CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.duplicatedObjects, {
+          shouldEmitEvent: false,
+          shouldGizmoUpdate: false
+        })
       }
 
       CommandManager.instance.updateTransformRoots()
@@ -64,7 +81,9 @@ export default class DuplicateObjectCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.duplicatedObjects, { deselectObject: false })
+    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.duplicatedObjects, {
+      deselectObject: false
+    })
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
   }
 

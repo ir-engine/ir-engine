@@ -82,7 +82,10 @@ export default class ReparentCommand extends Command {
     this.reparent(this.affectedObjects, this.newParents, this.newBefores)
 
     if (this.newPositions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, { positions: this.newPositions, space: TransformSpace.Local })
+      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
+        positions: this.newPositions,
+        space: TransformSpace.Local
+      })
     }
 
     this.emitAfterExecuteEvent()
@@ -96,10 +99,16 @@ export default class ReparentCommand extends Command {
     this.isSelected = true
 
     if (this.newPositions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, { positions: this.oldPositions, space: TransformSpace.Local, shouldEmitEvent: false })
+      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
+        positions: this.oldPositions,
+        space: TransformSpace.Local,
+        shouldEmitEvent: false
+      })
     }
 
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, { shouldGizmoUpdate: false })
+    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, {
+      shouldGizmoUpdate: false
+    })
     CommandManager.instance.updateTransformRoots()
     this.emitAfterExecuteEvent()
   }
@@ -111,7 +120,8 @@ export default class ReparentCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected)
+      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
   }
 
   emitAfterExecuteEvent() {
@@ -171,7 +181,10 @@ export default class ReparentCommand extends Command {
     }
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, objects, { shouldEmitEvent: false, shouldGizmoUpdate: false })
+      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, objects, {
+        shouldEmitEvent: false,
+        shouldGizmoUpdate: false
+      })
     }
 
     CommandManager.instance.updateTransformRoots()

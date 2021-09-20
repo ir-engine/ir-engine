@@ -57,7 +57,11 @@ export default class RotateOnAxisCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.ROTATION, this.affectedObjects, { rotations: this.oldRotations, space: TransformSpace.Local, shouldEmitEvent: false })
+    CommandManager.instance.executeCommand(EditorCommands.ROTATION, this.affectedObjects, {
+      rotations: this.oldRotations,
+      space: TransformSpace.Local,
+      shouldEmitEvent: false
+    })
     this.emitAfterExecuteEvent()
   }
 

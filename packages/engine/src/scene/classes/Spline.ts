@@ -30,7 +30,6 @@ export default class Spline extends Object3D {
       this._splinePointsLength = loadedSplinePositions.length
     }
 
-
     for (let i = 0; i < this._splinePointsLength; i++) {
       this.addSplineObject(this._positions[i])
     }

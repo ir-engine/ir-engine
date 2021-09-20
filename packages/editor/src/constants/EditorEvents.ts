@@ -26,7 +26,7 @@ enum EditorEvents {
   FILE_UPLOADED,
   RESULTS_CHANGED,
 
-  ERROR,
+  ERROR
 }
 
 export default EditorEvents

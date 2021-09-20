@@ -42,7 +42,7 @@ export default class ScaleCommand extends Command {
       params.scales = [params.scales]
     }
 
-    this.scales = params.scales.map(s => s.clone())
+    this.scales = params.scales.map((s) => s.clone())
     this.oldScales = objects.map((o) => o.scale.clone())
   }
 
@@ -57,7 +57,7 @@ export default class ScaleCommand extends Command {
 
   update(command) {
     if (this.overrideScale) {
-      this.scales = command.scales.map(s => s.clone())
+      this.scales = command.scales.map((s) => s.clone())
     } else {
       this.scales.forEach((s: Vector3, index: number) => s.multiply(command.scales[index]))
     }

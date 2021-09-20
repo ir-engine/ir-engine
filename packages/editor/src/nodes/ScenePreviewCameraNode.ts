@@ -17,11 +17,13 @@ export default class ScenePreviewCameraNode extends EditorNodeMixin(PerspectiveC
     this.helper = cameraHelper
   }
   setFromViewport() {
-    const matrix = new Matrix4().copy(this.parent.matrixWorld).invert().multiply(SceneManager.instance.camera.matrixWorld)
+    const matrix = new Matrix4()
+      .copy(this.parent.matrixWorld)
+      .invert()
+      .multiply(SceneManager.instance.camera.matrixWorld)
     matrix.decompose(this.position, this.rotation, this.scale)
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
     CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-
   }
   onSelect() {
     SceneManager.instance.scene.add(this.helper)

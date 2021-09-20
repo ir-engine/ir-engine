@@ -88,7 +88,9 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   //function to handle change in property src
   onChangeSrc = (src, initialProps) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, { properties: { ...initialProps, src } })
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+      properties: { ...initialProps, src }
+    })
   }
 
   // TODO

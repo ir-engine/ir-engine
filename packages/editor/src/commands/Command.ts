@@ -44,7 +44,9 @@ export default class Command {
   execute(isRedoCommand?: boolean): void {}
 
   /** Checks whether the command should update its state or not */
-  shouldUpdate(newCommand: Command): boolean { return false }
+  shouldUpdate(newCommand: Command): boolean {
+    return false
+  }
 
   /** Updates the commnad state */
   update(command: Command): void {}

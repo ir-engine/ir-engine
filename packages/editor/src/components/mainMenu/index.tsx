@@ -69,7 +69,6 @@ class MainMenu extends React.Component<MainMenuProp, MainMenuState> {
     }
   }
 
-
   render() {
     return (
       <>

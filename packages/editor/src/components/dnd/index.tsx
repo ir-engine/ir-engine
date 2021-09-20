@@ -18,7 +18,10 @@ export function addAssetOnDrop(item, parent?, before?) {
     if (initialProps) {
       Object.assign(node, initialProps)
     }
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+      parents: parent,
+      befores: before
+    })
     return true
   }
   return false

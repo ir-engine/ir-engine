@@ -130,9 +130,9 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       case SkyTypeEnum.equirectangular:
         new TextureLoader().load(this.equirectangularPath, (texture) => {
           texture.encoding = sRGBEncoding
-          SceneManager.instance.scene.background = new PMREMGenerator(SceneManager.instance.renderer.renderer).fromEquirectangular(
-            texture
-          ).texture
+          SceneManager.instance.scene.background = new PMREMGenerator(
+            SceneManager.instance.renderer.renderer
+          ).fromEquirectangular(texture).texture
         })
         break
       default:

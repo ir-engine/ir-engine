@@ -1,11 +1,11 @@
-import EditorCommands from "../constants/EditorCommands"
-import EditorEvents from "../constants/EditorEvents"
-import EditorControls from "../controls/EditorControls"
-import FlyControls from "../controls/FlyControls"
-import InputManager from "../controls/InputManager"
-import PlayModeControls from "../controls/PlayModeControls"
-import { CommandManager } from "./CommandManager"
-import { SceneManager } from "./SceneManager"
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import EditorControls from '../controls/EditorControls'
+import FlyControls from '../controls/FlyControls'
+import InputManager from '../controls/InputManager'
+import PlayModeControls from '../controls/PlayModeControls'
+import { CommandManager } from './CommandManager'
+import { SceneManager } from './SceneManager'
 
 export class ControlManager {
   static instance: ControlManager
@@ -70,5 +70,4 @@ export class ControlManager {
     })
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
-
 }

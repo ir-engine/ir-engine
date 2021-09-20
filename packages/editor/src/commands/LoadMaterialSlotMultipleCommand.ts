@@ -4,7 +4,7 @@ import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 
 export interface LoadMaterialSlotCommandParams extends CommandParams {
-  subPieceId?: any,
+  subPieceId?: any
   materialSlotId?: any
   materialId?: any
 }
@@ -24,7 +24,9 @@ export default class LoadMaterialSlotCommand extends Command {
     this.subPieceId = params.subPieceId
     this.materialSlotId = params.materialSlotId
     this.materialId = params.materialId
-    this.prevMaterialIds = objects.map((object) => object.getMaterialIdForMaterialSlot(params.subPieceId, params.materialSlotId))
+    this.prevMaterialIds = objects.map((object) =>
+      object.getMaterialIdForMaterialSlot(params.subPieceId, params.materialSlotId)
+    )
   }
 
   execute() {
@@ -54,7 +56,7 @@ export default class LoadMaterialSlotCommand extends Command {
   }
 
   loadMaterial(objects: any[], subPieceId: any, materialSlotId: any, materialId: any): void {
-    for(let i = 0; i < objects.length; i++) {
+    for (let i = 0; i < objects.length; i++) {
       const object = objects[i]
 
       object.loadMaterialSlot(subPieceId, materialSlotId, materialId).catch(console.error)

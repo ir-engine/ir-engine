@@ -103,9 +103,7 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
 export const ContextMenu = ({ children, ...rest }: React.PropsWithChildren<ContextMenuProps>) => {
   return (
     <>
-      <ReactContextMenu {...rest}>
-        {children}
-      </ReactContextMenu>
+      <ReactContextMenu {...rest}>{children}</ReactContextMenu>
       <ContextMenuStyles />
     </>
   )

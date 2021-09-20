@@ -41,7 +41,10 @@ export function ViewportPanelContainer() {
   const onEditorInitialized = useCallback(() => {
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
     ControlManager.instance.editorControls.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
+    ControlManager.instance.editorControls.addListener(
+      EditorEvents.TRANSFROM_MODE_CHANGED.toString(),
+      onTransformModeChanged
+    )
   }, [])
 
   useEffect(() => {
@@ -52,8 +55,14 @@ export function ViewportPanelContainer() {
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
 
       if (ControlManager.instance.editorControls) {
-        ControlManager.instance.editorControls.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-        ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
+        ControlManager.instance.editorControls.removeListener(
+          EditorEvents.FLY_MODE_CHANGED.toString(),
+          onFlyModeChanged
+        )
+        ControlManager.instance.editorControls.removeListener(
+          EditorEvents.TRANSFROM_MODE_CHANGED.toString(),
+          onTransformModeChanged
+        )
       }
 
       if (SceneManager.instance.renderer) {
@@ -84,18 +93,15 @@ export function ViewportPanelContainer() {
     })
   })
 
-  const onAfterUploadAssets = useCallback(
-    (assets) => {
-      Promise.all(
-        assets.map(({ url, name, id }) => {
-          CommandManager.instance.addMedia({ url, name, id })
-        })
-      ).catch((err) => {
-        CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
+  const onAfterUploadAssets = useCallback((assets) => {
+    Promise.all(
+      assets.map(({ url, name, id }) => {
+        CommandManager.instance.addMedia({ url, name, id })
       })
-    },
-    []
-  )
+    ).catch((err) => {
+      CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
+    })
+  }, [])
 
   let controlsText
 
@@ -139,7 +145,7 @@ export function ViewportPanelContainer() {
     <div
       className={styles.viewportContainer}
       style={{
-        borderColor: isOver ? canDrop ? editorTheme.blue : editorTheme.red : 'transparent'
+        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent'
       }}
       ref={dropRef}
     >

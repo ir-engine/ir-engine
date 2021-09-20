@@ -1,9 +1,9 @@
 import i18n from 'i18next'
-import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding, Clock } from "three"
-import EditorInfiniteGridHelper from "../classes/EditorInfiniteGridHelper"
-import SceneNode from "../nodes/SceneNode"
-import Renderer from "../renderer/Renderer"
-import ThumbnailRenderer from "../renderer/ThumbnailRenderer"
+import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding, Clock } from 'three'
+import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
+import SceneNode from '../nodes/SceneNode'
+import Renderer from '../renderer/Renderer'
+import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
 import { generateImageFileThumbnail, generateVideoFileThumbnail } from '../functions/thumbnails'
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import EditorEvents from '../constants/EditorEvents'
@@ -83,7 +83,7 @@ export class SceneManager {
    * @author Robert Long
    * @param  {any} canvas [ contains canvas data ]
    */
-   initializeRenderer(canvas: HTMLCanvasElement): void {
+  initializeRenderer(canvas: HTMLCanvasElement): void {
     try {
       this.renderer = new Renderer(canvas)
       this.thumbnailRenderer = new ThumbnailRenderer()
@@ -115,7 +115,7 @@ export class SceneManager {
    * @param  {any}  height
    * @return {Promise}        [generated thumbnail data as blob]
    */
-   async generateFileThumbnail(file, width?: number, height?: number): Promise<any> {
+  async generateFileThumbnail(file, width?: number, height?: number): Promise<any> {
     const url = URL.createObjectURL(file)
 
     let blob
@@ -144,7 +144,7 @@ export class SceneManager {
    *
    * @author Robert Long
    */
-   onResize = () => {
+  onResize = () => {
     ControlManager.instance.inputManager.onResize()
     SceneManager.instance.renderer.onResize()
     CommandManager.instance.emit('resize')
@@ -157,7 +157,7 @@ export class SceneManager {
    * @param target
    * @return {any}        [Spwan position]
    */
-   getSpawnPosition(target) {
+  getSpawnPosition(target) {
     return this.getScreenSpaceSpawnPosition(this.centerScreenSpace, target)
   }
 
@@ -171,10 +171,13 @@ export class SceneManager {
   reparentToSceneAtCursorPosition(objects, mousePos) {
     const newPosition = new Vector3()
     this.getCursorSpawnPosition(mousePos, newPosition)
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, objects, { parents: this.scene, positions: newPosition })
+    CommandManager.instance.executeCommand(EditorCommands.REPARENT, objects, {
+      parents: this.scene,
+      positions: newPosition
+    })
   }
 
-    /**
+  /**
    * Function provides the cursor spawn position.
    *
    * @author Robert Long
@@ -182,7 +185,7 @@ export class SceneManager {
    * @param target
    * @returns
    */
-    getCursorSpawnPosition(mousePos, target) {
+  getCursorSpawnPosition(mousePos, target) {
     const rect = this.renderer.canvas.getBoundingClientRect()
     const position = new Vector2()
     position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
@@ -227,11 +230,10 @@ export class SceneManager {
    * @param  {Object}  [options={}]
    * @return {Promise}              [scene data as object]
    */
-   async exportScene(options = {}) {
+  async exportScene(options = {}) {
     const { combineMeshes, removeUnusedObjects } = Object.assign({}, SceneManager.DefaultExportOptions, options)
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
-
 
     const scene = SceneManager.instance.scene
 
@@ -317,7 +319,7 @@ export class SceneManager {
    *
    * @author Robert Long
    */
-   update = () => {
+  update = () => {
     if (!this.disableUpdate) {
       const delta = this.clock.getDelta()
       const time = this.clock.getElapsedTime()
@@ -348,5 +350,4 @@ export class SceneManager {
 
     this.rafId = requestAnimationFrame(this.update)
   }
-
 }

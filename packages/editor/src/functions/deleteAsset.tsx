@@ -1,4 +1,4 @@
-import { ProjectManager } from "../managers/ProjectManager"
+import { ProjectManager } from '../managers/ProjectManager'
 
 /**
  * deleteAsset used to delete existing asset using assetId.
@@ -16,7 +16,9 @@ export const deleteAsset = async (assetId, projectid?, fileidentifier?): Promise
 
   if (fileidentifier) headers['fileidentifier'] = fileidentifier
   try {
-    const response = await ProjectManager.instance.feathersClient.service('static-resource').remove(assetId, { headers })
+    const response = await ProjectManager.instance.feathersClient
+      .service('static-resource')
+      .remove(assetId, { headers })
     console.log('Response: ' + Object.values(response))
   } catch (error) {
     console.log("Can't Delete Asset" + error)

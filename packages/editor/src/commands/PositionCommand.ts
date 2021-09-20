@@ -27,7 +27,7 @@ export default class PositionCommand extends Command {
     super(objects, params)
 
     if (!Array.isArray(objects)) objects = [objects]
-    if ((!Array.isArray(params.positions))) params.positions = [params.positions]
+    if (!Array.isArray(params.positions)) params.positions = [params.positions]
 
     this.affectedObjects = objects
     this.positions = params.positions
@@ -58,9 +58,9 @@ export default class PositionCommand extends Command {
   }
 
   toString() {
-    return `SetPositionCommand id: ${this.id} object: ${serializeObject3D(this.affectedObjects)} position: ${serializeVector3(
-      this.positions
-    )} space: ${this.space}`
+    return `SetPositionCommand id: ${this.id} object: ${serializeObject3D(
+      this.affectedObjects
+    )} position: ${serializeVector3(this.positions)} space: ${this.space}`
   }
 
   emitAfterExecuteEvent() {

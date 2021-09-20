@@ -1,5 +1,5 @@
-import GLTFCache from "../caches/GLTFCache"
-import TextureCache from "../caches/TextureCache"
+import GLTFCache from '../caches/GLTFCache'
+import TextureCache from '../caches/TextureCache'
 
 export class CacheManager {
   static textureCache: TextureCache
@@ -11,10 +11,10 @@ export class CacheManager {
   }
 
   /**
-  * Function clearCaches used to clear cashe.
-  *
-  * @author Robert Long
-  */
+   * Function clearCaches used to clear cashe.
+   *
+   * @author Robert Long
+   */
   static clearCaches() {
     this.textureCache.disposeAndClear()
     this.gltfCache.disposeAndClear()

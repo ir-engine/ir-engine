@@ -31,7 +31,7 @@ export default class RotationCommand extends Command {
     }
 
     this.affectedObjects = objects.slice(0)
-    this.rotations = params.rotations.map(r => r.clone())
+    this.rotations = params.rotations.map((r) => r.clone())
     this.space = params.space ?? TransformSpace.Local
     this.oldRotations = objects.map((o) => o.rotation.clone())
   }

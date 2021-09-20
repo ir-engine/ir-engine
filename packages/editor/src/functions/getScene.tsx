@@ -1,4 +1,4 @@
-import { ProjectManager } from "../managers/ProjectManager"
+import { ProjectManager } from '../managers/ProjectManager'
 
 /**
  * getScene used to Calling api to get scene data using id.

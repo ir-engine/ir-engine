@@ -22,7 +22,7 @@ export default function makeUniqueName(scene, object) {
 
     const parts = child.name.split(nameWithoutIndex)
 
-    if (parts[0]) return      // if child's name starts with given object's name then first part will be empty string ('')
+    if (parts[0]) return // if child's name starts with given object's name then first part will be empty string ('')
 
     // Second part of the name will be empty string ('') for first child which name does not have '1' suffix
     const num = parts[1] ? parseInt(parts[1]) : 1
@@ -32,5 +32,5 @@ export default function makeUniqueName(scene, object) {
     }
   })
 
-  object.name = nameWithoutIndex + (counter > 0 ? (' ' + (counter + 1)) : '')
+  object.name = nameWithoutIndex + (counter > 0 ? ' ' + (counter + 1) : '')
 }

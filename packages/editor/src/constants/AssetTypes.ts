@@ -1,4 +1,4 @@
-import { NativeTypes } from "react-dnd-html5-backend"
+import { NativeTypes } from 'react-dnd-html5-backend'
 
 /**
  * ItemTypes object containing types of items used.
@@ -31,7 +31,6 @@ export const AssetTypes = [
   ItemTypes.Volumetric,
   ItemTypes.Element
 ]
-
 
 /**
  * isAsset function to check item exists in array types or not.
