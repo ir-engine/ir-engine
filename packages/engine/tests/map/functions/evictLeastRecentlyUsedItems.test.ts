@@ -8,7 +8,7 @@ test('evictLeastRecentlyUsedItems', () => {
     cache.set(i, i)
   }
 
-  for(const key of evictLeastRecentlyUsedItems(cache, 2)) {
+  for(const [key] of evictLeastRecentlyUsedItems(cache, 2)) {
     keysEvicted.push(key)
   }
 
