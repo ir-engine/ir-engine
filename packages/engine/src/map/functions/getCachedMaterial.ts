@@ -1,17 +1,17 @@
 import { MeshLambertMaterial, MeshLambertMaterialParameters } from 'three'
 
 // TODO make this a parameter
-const cacheByParams = new Map<MeshLambertMaterialParameters, MeshLambertMaterial>()
+const cache = new Map<string, MeshLambertMaterial>()
 
-// TODO re-implement using createUsingGetSet because this actually creates a new material every time it's called because params is an object
+// TODO re-implement using createUsingGetSet
+// TODO generalize this so it'll work even if params contain Textures
 export default function getCachedMaterial(Material: any, params: MeshLambertMaterialParameters): MeshLambertMaterial {
-  let material: any
+  const key = JSON.stringify(params)
+  let material = cache.get(key)
 
-  if (!cacheByParams.get(params)) {
+  if (!material) {
     material = new Material(params)
-    cacheByParams.set(params, material)
-  } else {
-    material = cacheByParams.get(params)
+    cache.set(key, material)
   }
 
   return material
