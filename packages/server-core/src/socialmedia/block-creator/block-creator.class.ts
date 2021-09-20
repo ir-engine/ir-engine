@@ -39,7 +39,6 @@ export class BlockCreator extends Service {
       limit,
       creatorId
     } as any
-    console.log('Block.action', action, creatorId)
 
     if (action === 'blocked') {
       const dataQuery = `SELECT creator.*, sr.url as avatar
@@ -50,15 +49,11 @@ export class BlockCreator extends Service {
       ORDER BY bc.createdAt DESC    
       LIMIT :skip, :limit`
 
-      console.log(dataQuery)
-
       const list = await this.app.get('sequelizeClient').query(dataQuery, {
         type: QueryTypes.SELECT,
         raw: true,
         replacements: { ...queryParamsReplacements }
       })
-
-      console.log('List', list)
 
       return {
         data: list,
@@ -78,23 +73,22 @@ export class BlockCreator extends Service {
     const newRecord = await blockCreator.create({ creatorId: creatorId, blockedId: data.creatorId })
     return newRecord
   }
-  async remove(blokedCreatorId: string, params?: Params): Promise<any> {
+  async remove(data: any, params?: Params): Promise<any> {
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
     )
-    const dataQuery = `DELETE FROM  \`block_creator\` WHERE creatorId=:creatorId AND blockedId=:blockedCreatorId`
+
+    const dataQuery = `DELETE FROM block_creator WHERE creatorId = '${creatorId}' AND blockedId = '${data.blokedCreatorId}'`
     await this.app.get('sequelizeClient').query(dataQuery, {
       type: QueryTypes.DELETE,
       raw: true,
       replacements: {
         creatorId,
-        blokedCreatorId
+        blokedCreatorId: data.blokedCreatorId
       }
     })
-    return {
-      blokedCreatorId,
-      creatorId
-    }
+
+    return creatorId
   }
 }

@@ -5,13 +5,13 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
-import Typography from '@material-ui/core/Typography'
-import CardHeader from '@material-ui/core/CardHeader'
+import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
-import Avatar from '@material-ui/core/Avatar'
+import DeleteIcon from '@material-ui/icons/Delete'
 
 import { updateCreatorPageState } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { unBlockCreator } from '../../reducers/creator/service'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -20,7 +20,8 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch)
+  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
+  unBlockCreator: bindActionCreators(unBlockCreator, dispatch)
 })
 
 interface Props {
@@ -28,7 +29,11 @@ interface Props {
   popupsState?: any
   updateCreatorPageState?: typeof updateCreatorPageState
 }
-const CreatorAsTitle = ({ creator, updateCreatorPageState, popupsState }: Props) => {
+const CreatorAsTitle = ({ creator, updateCreatorPageState, unBlockCreator, popupsState }: any) => {
+  const removeBlockedUser = (blokedCreatorId) => {
+    unBlockCreator(blokedCreatorId)
+  }
+
   return creator ? (
     <CardHeader
       avatar={
@@ -49,12 +54,23 @@ const CreatorAsTitle = ({ creator, updateCreatorPageState, popupsState }: Props)
         />
       }
       title={
-        <Typography variant="h6">
-          {creator.username}
-          {creator.verified === true && (
-            <VerifiedUserIcon htmlColor="#007AFF" style={{ fontSize: '13px', margin: '0 0 0 5px' }} />
-          )}
-        </Typography>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <Typography variant="h6">
+            {creator.username}
+            {creator.verified === true && (
+              <VerifiedUserIcon htmlColor="#007AFF" style={{ fontSize: '13px', margin: '0 0 0 5px' }} />
+            )}
+          </Typography>
+          <IconButton aria-label="delete" color="primary" onClick={() => removeBlockedUser(creator.id)}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
       }
     />
   ) : (
