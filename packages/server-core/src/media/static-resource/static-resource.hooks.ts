@@ -1,11 +1,10 @@
 import { HookContext } from '@feathersjs/feathers'
 import { hooks } from '@feathersjs/authentication'
 import dauria from 'dauria'
-import removeOwnedFile from '@xrengine/server-core/src/hooks/remove-owned-file'
-import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
-import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
-import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import removeOwnedFile from '../../hooks/remove-owned-file'
+import replaceThumbnailLink from '../../hooks/replace-thumbnail-link'
+import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
+import collectAnalytics from '../../hooks/collect-analytics'
 
 const { authenticate } = hooks
 

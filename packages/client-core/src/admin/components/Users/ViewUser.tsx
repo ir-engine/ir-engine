@@ -32,7 +32,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AuthService } from '../../../user/reducers/auth/AuthService'
 
 interface Props {
   openView: boolean

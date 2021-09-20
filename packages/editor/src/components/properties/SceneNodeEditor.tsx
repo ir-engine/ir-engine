@@ -27,8 +27,8 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import useSetPropertySelected from './useSetPropertySelected'
 import ImageInput from '../inputs/ImageInput'
-import serializeColor from '@xrengine/editor/src/functions/serializeColor'
-import SceneNode from '@xrengine/editor/src/nodes/SceneNode'
+import serializeColor from '../../functions/serializeColor'
+import SceneNode from '../../nodes/SceneNode'
 import Vector3Input from '../inputs/Vector3Input'
 
 /**

@@ -3,3 +3,4 @@ ios/
 www/
 android/
 *.ts.bak
+/src/index.ts

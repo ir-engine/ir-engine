@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
-import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
-import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
-import ImageInput from '@xrengine/editor/src/components/inputs/ImageInput'
-import Vector3Input from '@xrengine/editor/src/components/inputs/Vector3Input'
-import Vector2Input from '@xrengine/editor/src/components/inputs/Vector2Input'
+import NodeEditor from '../../components/properties/NodeEditor'
+import InputGroup from '../../components/inputs/InputGroup'
+import ImageInput from '../../components/inputs/ImageInput'
+import Vector3Input from '../../components/inputs/Vector3Input'
+import Vector2Input from '../../components/inputs/Vector2Input'
 import { Cloud } from '@styled-icons/fa-solid/Cloud'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
-import ColorInput from '@xrengine/editor/src/components/inputs/ColorInput'
+import ColorInput from '../../components/inputs/ColorInput'
 
 //declaring properties for CloudsNodeEditor
 type CloudsNodeEditorProps = {

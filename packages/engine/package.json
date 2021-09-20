@@ -11,6 +11,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "exports": {
+    "./src/": "./lib/engine.es.js"
+  },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "license": "MIT",
@@ -24,7 +27,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "vite",
-    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production vite build --config vite.build.js",
+    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production node build.js",
     "test": "jest",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",

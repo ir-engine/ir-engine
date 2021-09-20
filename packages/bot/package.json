@@ -11,6 +11,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "exports": {
+    "./src/": "./lib/"
+  },
   "npmClient": "npm",
   "jest": "ts-jest",
   "main": "src/bot.ts",

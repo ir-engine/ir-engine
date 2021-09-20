@@ -1,5 +1,5 @@
 import { Cube } from '@styled-icons/fa-solid/Cube'
-import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
+import ModelNode from '../../nodes/ModelNode'
 import i18n from 'i18next'
 import React, { Component, Fragment } from 'react'
 import { withTranslation } from 'react-i18next'

@@ -35,6 +35,8 @@
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx"
-, "../social/src/components/admin/ADMIN_FETCH_AR_MEDIA.ts"  ]
+    "./**/*.tsx",
+    "../../PhysX.d.ts",
+    "../../PhysXDebug.d.ts"
+  ]
 }

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { SimulatorBase } from './SimulatorBase'
-import { SimulationFrame } from '../classes/SimulationFrame'
+import { SimulationFrame } from './SimulationFrame'
 
 function spring(source: number, dest: number, velocity: number, mass: number, damping: number): SimulationFrame {
   let acceleration = dest - source

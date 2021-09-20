@@ -6,12 +6,12 @@ esbuild.build({
     bundle: true,
     outfile: 'lib/index.js',
     plugins: [sassPlugin()],
-    platform: "browser",
+    platform: "node",
     define: {
         ["process.env.NODE_ENV"]: "'production'",
         ["process.env.BUILD_MODE"]: true
     },
-    external: ['fs', 'path', '@xrengine/common', '@xrengine/engine'],
+    external: ['fs', 'path', '@xrengine/common', '@xrengine/engine', 'pg-hstore'],
     minify: true,
     sourcemap: true
 }).catch((e) => console.error(e.message))

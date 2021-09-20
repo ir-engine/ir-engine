@@ -1,5 +1,5 @@
 import * as authentication from '@feathersjs/authentication'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import addAssociations from '../../hooks/add-associations'
 
 const { authenticate } = authentication.hooks
 

@@ -1,10 +1,10 @@
 import Fuse from 'fuse.js'
 import { BaseSource, SearchResult } from './sources'
 import { ItemTypes } from '../dnd'
-import ImageNode from '@xrengine/editor/src/nodes/ImageNode'
-import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
-import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
-import VolumetricNode from '@xrengine/editor/src/nodes/VolumetricNode'
+import ImageNode from '../../nodes/ImageNode'
+import VideoNode from '../../nodes/VideoNode'
+import ModelNode from '../../nodes/ModelNode'
+import VolumetricNode from '../../nodes/VolumetricNode'
 function hasTags(result, tags) {
   for (const { value } of tags) {
     if (result.tags.indexOf(value) === -1) {

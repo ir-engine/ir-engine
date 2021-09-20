@@ -110,3 +110,4 @@ dist/
 .history/
 
 index.ts.bak
+/src/index.ts

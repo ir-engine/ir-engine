@@ -9,7 +9,7 @@ import Vector3Input from '../inputs/Vector3Input'
 import SelectInput from '../inputs/SelectInput'
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { SprayCan } from '@styled-icons/fa-solid/SprayCan'
-import { camelPad } from '@xrengine/editor/src/functions/utils'
+import { camelPad } from '../../functions/utils'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 

@@ -6,12 +6,13 @@ esbuild.build({
     bundle: true,
     outfile: 'lib/index.js',
     plugins: [sassPlugin()],
-    platform: "browser",
+    platform: "neutral",
+    format: "iife",
     define: {
         ["process.env.NODE_ENV"]: "'production'",
         ["process.env.BUILD_MODE"]: true
     },
-    external: ['fs', 'path', '@xrengine/common', '@xrengine/engine'],
+    external: ['fs', 'path', '@xrengine/common'],
     minify: true,
     sourcemap: true
 }).catch((e) => console.error(e.message))

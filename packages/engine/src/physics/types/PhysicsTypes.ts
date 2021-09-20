@@ -22,13 +22,13 @@ export interface QuatFragment {
   w?: number
 }
 
-export interface Vec3 {
+interface Vec3 {
   x: number
   y: number
   z: number
 }
 
-export interface Quat {
+interface Quat {
   x: number
   y: number
   z: number
@@ -51,7 +51,7 @@ export interface ShapeOptions {
   collisionMask?: number
 }
 
-export interface BodyConfig {
+export interface BodyOptions {
   type?: BodyType
   mass?: number
   useCCD?: boolean
@@ -61,7 +61,7 @@ export interface BodyConfig {
   angularVelocity?: Vec3
 }
 
-export interface RigidBody extends BodyConfig {
+export interface RigidBody extends BodyOptions {
   transform: PhysX.PxTransformLike
   shapes: PhysX.PxShape[]
   userData?: any

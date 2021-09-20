@@ -1,4 +1,4 @@
-import * as notifications from '@xrengine/server-core/src/hooks/notifications'
+import * as notifications from '../../hooks/notifications'
 
 export default {
   before: {

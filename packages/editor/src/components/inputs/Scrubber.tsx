@@ -1,6 +1,6 @@
 import React, { Component, createRef, ReactNode } from 'react'
 import Portal from '../layout/Portal'
-import { getStepSize, toPrecision } from '@xrengine/editor/src/functions/utils'
+import { getStepSize, toPrecision } from '../../functions/utils'
 import styled from 'styled-components'
 import { ArrowsAltH } from '@styled-icons/fa-solid/ArrowsAltH'
 import Overlay from '../layout/Overlay'

@@ -27,6 +27,10 @@
   targetExts: [
     'ts',
     'tsx',
+    'js',
+    'jsx'
+    'js',
+    'jsx'
   ],
   useSemicolon: false,
   useTimestamp: false,

@@ -10,7 +10,7 @@ import ActivityGraph from './ActivityGraph'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/selector'
+import { selectAnalyticsState } from '../../reducers/admin/analytics/selector'
 import {
   fetchActiveParties,
   fetchActiveLocations,

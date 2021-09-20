@@ -1,7 +1,7 @@
 import { BaseSource } from './sources'
 import { ItemTypes } from '../dnd'
 import VideoSourcePanel from './VideoSourcePanel'
-import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
+import VideoNode from '../../nodes/VideoNode'
 import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'
 
 /**

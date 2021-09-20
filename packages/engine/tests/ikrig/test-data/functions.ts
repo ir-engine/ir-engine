@@ -1,12 +1,12 @@
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Entity } from '../../../src/ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import {
   defaultIKPoseComponentValues,
   IKPoseComponent,
   IKPoseComponentType
-} from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
-import { IKRigComponent } from '@xrengine/engine/src/ikrig/components/IKRigComponent'
-import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
+} from '../../../src/ikrig/components/IKPoseComponent'
+import { IKRigComponent } from '../../../src/ikrig/components/IKRigComponent'
+import { IKObj } from '../../../src/ikrig/components/IKObj'
 import { bones } from './pose1/ikrig.pose.bones'
 import { bones as tbones } from './ikrig.tpose.bones'
 import { rigData as rig2Data } from './rig2.data'
@@ -19,7 +19,7 @@ import {
 import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
 import { addChain, addPoint } from '../../../src/ikrig/functions/RigFunctions'
-import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
+import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '../../../src/ikrig/constants/Vector3Constants'
 import { setupMixamoIKRig } from '../../../src/ikrig/functions/IKFunctions'
 // import * as rawRig from './IKRig.run-1.json'
 

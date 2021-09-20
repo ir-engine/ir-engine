@@ -25,11 +25,11 @@ const yVec = new Vector3(0, 1, 0)
 const zVec = new Vector3(0, 0, 1)
 const halfPI = Math.PI / 2
 
-export type BodyOptions = {
+export type BodyConfig = {
   bodyType?: BodyType
 }
 
-export type ShapeOptions = {
+export type ShapeConfig = {
   type: ColliderTypes
   bodyType?: BodyType
   isTrigger?: boolean
@@ -45,7 +45,7 @@ export type ShapeOptions = {
   scale?: Vector3 // internal, whatever
 }
 
-export const getCollisionLayer = (options: ShapeOptions) => {
+export const getCollisionLayer = (options: ShapeConfig) => {
   if (options.type === 'ground') {
     return CollisionGroups.Ground
   }
@@ -55,7 +55,7 @@ export const getCollisionLayer = (options: ShapeOptions) => {
   return Number(options.collisionLayer)
 }
 
-export const getCollisionMask = (options: ShapeOptions) => {
+export const getCollisionMask = (options: ShapeConfig) => {
   switch (options.collisionMask) {
     case undefined:
     case -1:
@@ -70,7 +70,7 @@ export const getCollisionMask = (options: ShapeOptions) => {
   }
 }
 
-export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptions): PhysX.PxShape => {
+export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeConfig): PhysX.PxShape => {
   // type is required
   if (!shapeOptions.type) return
 
@@ -199,7 +199,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   return shape
 }
 
-export const createBody = (entity: Entity, bodyOptions: BodyOptions, shapes: PhysX.PxShape[] = []) => {
+export const createBody = (entity: Entity, bodyOptions: BodyConfig, shapes: PhysX.PxShape[] = []) => {
   const { position, rotation } = getComponent(entity, TransformComponent)
   return useWorld().physics.addBody({
     shapes,
@@ -242,9 +242,9 @@ export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
 }
 
 const EPSILON = 1e-6
-export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: BodyOptions | ShapeOptions) => {
+export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: BodyConfig | ShapeConfig) => {
   const shapes = []
-  shapes.push(createShape(entity, asset as any, data as ShapeOptions))
+  shapes.push(createShape(entity, asset as any, data as ShapeConfig))
 
   const shapeObjs = []
   asset.traverse((mesh: Mesh) => {
