@@ -12,7 +12,9 @@
     "access": "public"
   },
   "exports": {
-    "./src/": "./lib/"
+    "./src/*": "./lib/*.js",
+    "./src/**/": "./lib/**/index.js",
+    "./src/**/*": "./lib/**/*.js"
   },
   "main": "lib/client-core.umd.js",
   "module": "lib/client-core.es.js",
@@ -21,7 +23,7 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production node build.js",
+    "build-publish": "rimraf lib && cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=production node build.js",
     "test": "jest",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
@@ -133,6 +135,7 @@
     "rollup-plugin-sass": "1.2.8",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
+    "tiny-glob": "0.2.9",
     "typescript": "4.4.3"
   },
   "license": "MIT",
