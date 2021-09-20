@@ -153,7 +153,6 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    console.debug(message.senderId, user.id)
                     if (message.senderId === user.id) {
                       return (
                         <ListItem
@@ -181,7 +180,6 @@ const InstanceChat = (props: Props): any => {
                           disableGutters={true}
                           key={message.id}
                         >
-                          {console.debug('Hello')}
                           <div className={styles['message-other']}>
                             {getAvatar(message)}
                             <ListItemText

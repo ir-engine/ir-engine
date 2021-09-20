@@ -7,7 +7,7 @@ import { CommandManager } from '../managers/CommandManager'
 import { Matrix4, Vector3 } from 'three'
 
 export interface ScaleCommandParams extends CommandParams {
-  scales?: Vector3[]
+  scales?: Vector3 | Vector3[]
 
   space?: TransformSpace
 
@@ -31,7 +31,7 @@ export default class ScaleCommand extends Command {
     }
 
     this.affectedObjects = objects.slice(0)
-    this.space = params.space
+    this.space = params.space ?? TransformSpace.Local
     this.overrideScale = params.overrideScale
 
     if (!params.scales) {
@@ -51,8 +51,8 @@ export default class ScaleCommand extends Command {
     this.emitAfterExecuteEvent()
   }
 
-  shouldUpdate(newCommand) {
-    return this.space === newCommand.space && arrayShallowEqual(this.affectedObjects, newCommand.objects)
+  shouldUpdate(newCommand: ScaleCommand) {
+    return this.space === newCommand.space && arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
   }
 
   update(command) {
@@ -63,10 +63,11 @@ export default class ScaleCommand extends Command {
     }
 
     this.updateScale(this.affectedObjects, command.scales, this.space, this.overrideScale)
+    this.emitAfterExecuteEvent()
   }
 
   undo() {
-    this.updateScale(this.affectedObjects, this.oldScales, TransformSpace.Local, this.overrideScale)
+    this.updateScale(this.affectedObjects, this.oldScales, TransformSpace.Local, true)
     this.emitAfterExecuteEvent()
   }
 

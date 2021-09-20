@@ -21,6 +21,10 @@ export default class RemoveFromSelectionCommand extends Command {
 
     this.removeFromSelection()
 
+    if (this.shouldGizmoUpdate) {
+      CommandManager.instance.updateTransformRoots()
+    }
+
     this.emitAfterExecuteEvent()
   }
 

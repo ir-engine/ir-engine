@@ -478,7 +478,7 @@ function TreeNode({
       if (addAssetOnDrop(item, object.parent, object)) {
         return
       } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parent: object.parent, before: object })
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object.parent, befores: object })
       }
     },
     canDrop(item, monitor) {
@@ -540,7 +540,7 @@ function TreeNode({
       if (addAssetOnDrop(item, object.parent, next)) {
         return
       } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parent: object.parent, before: next })
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object.parent, befores: next })
       }
     },
 
@@ -600,7 +600,7 @@ function TreeNode({
       if (addAssetOnDrop(item, object)) {
         return
       } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parent: object })
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object })
       }
     },
     canDrop(item, monitor) {
@@ -723,7 +723,7 @@ function* treeWalker(collapsedNodes) {
   while (stack.length !== 0) {
     const { depth, object, childIndex, lastChild } = stack.pop()
 
-    const NodeEditor = NodeManager.instance.getNodeEditor(object) || DefaultNodeEditor
+    const NodeEditor = NodeManager.instance.getEditorFromNode(object) || DefaultNodeEditor
     const iconComponent = NodeEditor.WrappedComponent
       ? NodeEditor.WrappedComponent.iconComponent
       : NodeEditor.iconComponent
@@ -1144,7 +1144,7 @@ export default function HierarchyPanel() {
         return
       }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parent: SceneManager.instance.scene })
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: SceneManager.instance.scene })
     },
     canDrop(item, monitor) {
       if (!monitor.isOver({ shallow: true })) {

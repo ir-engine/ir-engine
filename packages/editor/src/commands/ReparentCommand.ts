@@ -39,8 +39,8 @@ export default class ReparentCommand extends Command {
 
     this.affectedObjects = []
     this.undoObjects = []
-    this.newParents = params.parents
-    this.newBefores = params.befores
+    this.newParents = Array.isArray(params.parents) ? params.parents : [params.parents]
+    this.newBefores = Array.isArray(params.befores) ? params.befores : [params.befores]
     this.newPositions = params.positions
     this.oldParents = []
     this.oldBefores = []
@@ -76,13 +76,13 @@ export default class ReparentCommand extends Command {
     })
   }
 
-  execute(undo?: boolean) {
+  execute() {
     this.emitBeforeExecuteEvent()
 
     this.reparent(this.affectedObjects, this.newParents, this.newBefores)
 
     if (this.newPositions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, { position: this.newPositions, space: TransformSpace.Local })
+      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, { positions: this.newPositions, space: TransformSpace.Local })
     }
 
     this.emitAfterExecuteEvent()
@@ -96,12 +96,12 @@ export default class ReparentCommand extends Command {
     this.isSelected = true
 
     if (this.newPositions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, { position: this.oldPositions, space: TransformSpace.Local, shouldEmitEvent: false })
+      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, { positions: this.oldPositions, space: TransformSpace.Local, shouldEmitEvent: false })
     }
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, { shouldGizmoUpdate: false })
     CommandManager.instance.updateTransformRoots()
-    CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+    this.emitAfterExecuteEvent()
   }
 
   toString() {

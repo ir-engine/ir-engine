@@ -76,7 +76,7 @@ export class AssetManifestSource extends BaseSource {
       // get proxied asset url using manifestUrl
       const assetUrl = new URL(asset.url, this.manifestUrl).href
       const nodeClass = assetTypeToNodeClass[asset.type]
-      const nodeEditor = NodeManager.instance.getNodeEditor(nodeClass)
+      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
       //creationg array assets by pushing assets one by one
       this.assets.push({
         id: asset.id,

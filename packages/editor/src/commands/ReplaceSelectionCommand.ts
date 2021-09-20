@@ -1,6 +1,5 @@
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 
@@ -18,13 +17,35 @@ export default class ReplaceSelectionCommand extends Command {
 
   execute() {
     this.emitBeforeExecuteEvent()
+    this.replaceSelection(this.affectedObjects)
+    this.emitAfterExecuteEvent()
+  }
 
+  undo() {
+    this.emitBeforeExecuteEvent()
+    this.replaceSelection(this.oldSelection)
+    this.emitAfterExecuteEvent()
+  }
+
+  toString() {
+    return `SelectMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(this.affectedObjects)}`
+  }
+
+  emitAfterExecuteEvent() {
+    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+  }
+
+  emitBeforeExecuteEvent() {
+    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+  }
+
+  replaceSelection(objects?: any[]): void {
     // Check whether selection is changed or not
-    if (this.affectedObjects.length === CommandManager.instance.selected.length) {
+    if (objects.length === CommandManager.instance.selected.length) {
       let isSame = true
 
-      for (let i = 0; i < this.affectedObjects.length; i++) {
-        if (!CommandManager.instance.selected.includes(this.affectedObjects[i])) {
+      for (let i = 0; i < objects.length; i++) {
+        if (!CommandManager.instance.selected.includes(objects[i])) {
           isSame = false
           break
         }
@@ -39,7 +60,7 @@ export default class ReplaceSelectionCommand extends Command {
     for (let i = 0; i < prevSelected.length; i++) {
       const object = CommandManager.instance.selected[i]
 
-      if (object.isNode && this.affectedObjects.indexOf(object) > -1) {
+      if (object.isNode && !objects.includes(object)) {
         object.onDeselect()
       }
     }
@@ -47,32 +68,18 @@ export default class ReplaceSelectionCommand extends Command {
     CommandManager.instance.selected = []
 
     // Replace selection with new objects and fire select event
-    for (let i = 0; i < this.affectedObjects.length; i++) {
-      const object = this.affectedObjects[i]
+    for (let i = 0; i < objects.length; i++) {
+      const object = objects[i]
 
       CommandManager.instance.selected.push(object)
 
-      if (object.isNode && prevSelected.indexOf(object) === -1) {
+      if (object.isNode && !prevSelected.includes(object)) {
         object.onSelect()
       }
     }
 
-    this.emitAfterExecuteEvent()
-  }
-
-  undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
-  }
-
-  toString() {
-    return `SelectMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(this.affectedObjects)}`
-  }
-
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-  }
-
-  emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldGizmoUpdate) {
+      CommandManager.instance.updateTransformRoots()
+    }
   }
 }

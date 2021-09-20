@@ -7,7 +7,6 @@ export interface CommandParams {
   shouldEmitEvent?: boolean
   shouldGizmoUpdate?: boolean
   isObjectSelected?: boolean
-  useUniqueName?: boolean
 }
 
 export default class Command {
@@ -29,9 +28,6 @@ export default class Command {
   /** Whether the object is selected or not */
   isSelected?: boolean
 
-  /** Whether to use unique name or not */
-  useUniqueName?: boolean
-
   /** State before this command executed. Useful while undo */
   prevState: any
 
@@ -41,7 +37,6 @@ export default class Command {
   constructor(objects?: any, params?: CommandParams) {
     this.shouldEmitEvent = params.shouldEmitEvent ?? true
     this.shouldGizmoUpdate = params.shouldGizmoUpdate ?? true
-    this.useUniqueName = params.useUniqueName ?? true
     this.isSelected = params.isObjectSelected ?? true
   }
 

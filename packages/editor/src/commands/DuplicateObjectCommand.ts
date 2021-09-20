@@ -1,17 +1,16 @@
-import Command from './Command'
+import Command, { CommandParams } from './Command'
 import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import getDetachedObjectsRoots from '../functions/getDetachedObjectsRoots'
-import { CommandParams } from '..'
 import EditorEvents from '../constants/EditorEvents'
 
 export interface DuplicateObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
-  parent?: any
+  parents?: any
 
   /** Child object before which all objects will be added */
-  before?: any
+  befores?: any
 }
 
 export default class DuplicateObjectCommand extends Command {
@@ -31,8 +30,8 @@ export default class DuplicateObjectCommand extends Command {
     }
 
     this.affectedObjects = objects.slice(0)
-    this.parent = params.parent
-    this.before = params.before
+    this.parent = params.parents
+    this.before = params.befores
     this.selectObjects = params.isObjectSelected
     this.oldSelection = CommandManager.instance.selected.slice(0)
     this.duplicatedObjects = []
@@ -40,17 +39,17 @@ export default class DuplicateObjectCommand extends Command {
 
   execute(isRedoCommand?: boolean) {
     if (isRedoCommand) {
-      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, { parent: this.parent, before: this.before, shouldEmitEvent: false, isObjectSelected: false })
+      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, { parents: this.parent, befores: this.before, shouldEmitEvent: false, isObjectSelected: false })
     } else {
       const validNodes = this.affectedObjects.filter((object) => object.constructor.canAddNode())
       const roots = getDetachedObjectsRoots(validNodes)
       this.duplicatedObjects = roots.map((object) => object.clone())
 
-      if (parent) {
-        CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, { parent: this.parent, before: this.before, shouldEmitEvent: false, isObjectSelected: false })
+      if (this.parent) {
+        CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, { parents: this.parent, befores: this.before, shouldEmitEvent: false, isObjectSelected: false })
       } else {
         for (let i = 0; i < roots.length; i++) {
-          CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, [this.duplicatedObjects[i]], { parent: roots[i].parent, shouldEmitEvent: false, isObjectSelected: false })
+          CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, [this.duplicatedObjects[i]], { parents: roots[i].parent, shouldEmitEvent: false, isObjectSelected: false })
         }
       }
 
@@ -60,6 +59,8 @@ export default class DuplicateObjectCommand extends Command {
 
       CommandManager.instance.updateTransformRoots()
     }
+
+    this.emitAfterExecuteEvent()
   }
 
   undo() {

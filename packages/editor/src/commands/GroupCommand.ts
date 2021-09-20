@@ -72,9 +72,9 @@ export default class GroupCommand extends Command {
     this.emitBeforeExecuteEvent()
 
     const groupNode = new GroupNode(this)
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, groupNode, { parent: this.groupParent, before: this.groupBefore, shouldEmitEvent: false, isObjectSelected: false })
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, groupNode, { parents: this.groupParent, befores: this.groupBefore, shouldEmitEvent: false, isObjectSelected: false })
 
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, { parents: groupNode, shouldEmitEvent: false, isSelected: false })
+    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, { parents: groupNode, shouldEmitEvent: false, isObjectSelected: false })
 
     if (this.isSelected) {
       CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, groupNode, { shouldEmitEvent: false, shouldGizmoUpdate: false })
@@ -86,11 +86,11 @@ export default class GroupCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.undoObjects, { parents: this.oldParents, befores: this.oldBefores, shouldEmitEvent: false, isSelected: false })
+    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.undoObjects, { parents: this.oldParents, befores: this.oldBefores, shouldEmitEvent: false, isObjectSelected: false })
     CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.groupNode, { deselectObject: false, shouldEmitEvent: false })
     CommandManager.instance.updateTransformRoots()
-    CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, { shouldGizmoUpdate: false })
+    this.emitAfterExecuteEvent()
   }
 
   toString() {

@@ -406,21 +406,19 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
 
   componentWillUnmount() {
     CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
-    if (ControlManager.instance.editorControls) {
-      ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), this.onForceUpdate)
-      ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), this.onForceUpdate)
-      ControlManager.instance.editorControls.removeListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), this.onForceUpdate)
-      ControlManager.instance.editorControls.removeListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), this.onForceUpdate)
-      CommandManager.instance.removeListener(EditorEvents.PLAY_MODE_CHANGED.toString(), this.onForceUpdate)
-      CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
-    }
+    CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.removeListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.removeListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.removeListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.removeListener(EditorEvents.PLAY_MODE_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
   }
 
   onEditorInitialized = () => {
-    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), this.onForceUpdate)
-    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), this.onForceUpdate)
-    ControlManager.instance.editorControls.addListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), this.onForceUpdate)
-    ControlManager.instance.editorControls.addListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.addListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.addListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), this.onForceUpdate)
+    CommandManager.instance.addListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), this.onForceUpdate)
     this.setState({ editorInitialized: true })
   }
 
@@ -442,6 +440,10 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
 
   onToggleTransformSpace = () => {
     ControlManager.instance.editorControls.toggleTransformSpace()
+  }
+
+  onChangeTransformSpace = (value) => {
+    ControlManager.instance.editorControls.setTransformSpace(value)
   }
 
   onChangeTransformPivot = (transformPivot) => {
@@ -524,7 +526,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
             </InfoTooltip>
             <SelectInput
               styles={selectInputStyles}
-              onChange={(this as any).onChangeTransformSpace}
+              onChange={this.onChangeTransformSpace}
               options={transformSpaceOptions}
               value={transformSpace}
             />

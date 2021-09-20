@@ -43,11 +43,11 @@ export default class RotateOnAxisCommand extends Command {
     this.emitAfterExecuteEvent()
   }
 
-  shouldUpdate(newCommand) {
+  shouldUpdate(newCommand: RotateOnAxisCommand) {
     return (
       this.space === newCommand.space &&
       this.axis.equals(newCommand.axis) &&
-      arrayShallowEqual(this.affectedObjects, newCommand.objects)
+      arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
     )
   }
 
@@ -57,7 +57,7 @@ export default class RotateOnAxisCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.ROTATION, this.affectedObjects, { rotation: this.oldRotations, space: TransformSpace.Local, shouldEmitEvent: false })
+    CommandManager.instance.executeCommand(EditorCommands.ROTATION, this.affectedObjects, { rotations: this.oldRotations, space: TransformSpace.Local, shouldEmitEvent: false })
     this.emitAfterExecuteEvent()
   }
 

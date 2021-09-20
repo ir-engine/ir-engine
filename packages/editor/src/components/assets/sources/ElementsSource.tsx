@@ -5,6 +5,7 @@ import MediaSourcePanel from '../MediaSourcePanel'
 import i18n from 'i18next'
 import EditorEvents from '../../../constants/EditorEvents'
 import { NodeManager } from '../../../managers/NodeManager'
+import { CommandManager } from '../../../managers/CommandManager'
 
 /**
  * ElementsSource component used to provide a container for EditorNodes.
@@ -31,12 +32,12 @@ export class ElementsSource extends BaseSource {
 
   //function to emit if there is any change in settings.
   onSettingsChanged = () => {
-    this.emit('resultsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.RESULTS_CHANGED)
   }
 
   //function to emit if there is any change in sceneGraph
   onSceneGraphChanged = () => {
-    this.emit('resultsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.RESULTS_CHANGED)
   }
 
   // function to hanlde the search and to call API if there is any change in search input.
@@ -48,7 +49,7 @@ export class ElementsSource extends BaseSource {
       if (nodeType.hideInElementsPanel) {
         return acc
       }
-      const nodeEditor = NodeManager.instance.getNodeEditor(nodeType)
+      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
       acc.push({
         id: nodeType.nodeName,
         iconComponent: nodeEditor.WrappedComponent

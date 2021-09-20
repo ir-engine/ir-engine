@@ -1,6 +1,6 @@
 import i18n from 'i18next'
-import { getAccountId } from './getAccountId'
-import { getToken } from './getToken'
+import { getAccountId } from '@xrengine/engine/src/scene/functions/getAccountId'
+import { ProjectManager } from '../managers/ProjectManager'
 
 /**
  * searchMedia function to search media on the basis of provided params.
@@ -42,7 +42,7 @@ export const searchMedia = async (source, params, cursor, signal): Promise<any> 
     paramsOption.query['cursor'] = cursor
   }
 
-  const service = globalThis.Editor.feathersClient.service('media-search')
+  const service = ProjectManager.instance.feathersClient.service('media-search') as any
   const json = await service.find(paramsOption, {
     headers: {
       'content-type': 'application/json'

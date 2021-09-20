@@ -71,13 +71,12 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
 
   //function to handle the position properties
   onChangePosition = (value) => {
-    this.translation.subVectors(value, (this.props.node as any).position)
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TRANSLATE, { translation: this.translation })
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
   }
 
   //function to handle changes rotation properties
   onChangeRotation = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotation: value })
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
   }
 
   //function to handle changes in scale properties

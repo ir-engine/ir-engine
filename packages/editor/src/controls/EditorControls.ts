@@ -153,7 +153,7 @@ export default class EditorControls extends EventEmitter {
     this.placementObjects = []
     this.snapMode = SnapMode.Grid
     this.translationSnap = 0.5
-    this.rotationSnap = 90
+    this.rotationSnap = 10
     this.scaleSnap = 0.1
     SceneManager.instance.grid.setSize(this.translationSnap)
     this.selectionBoundingBox = new Box3()
@@ -233,7 +233,7 @@ export default class EditorControls extends EventEmitter {
         this.camera.position,
         this.vector.set(0, 0, -this.distance).applyMatrix3(this.normalMatrix.getNormalMatrix(this.camera.matrix))
       )
-      this.emit('flyModeChanged')
+      CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
       if (performance.now() - this.flyStartTime < this.flyModeSensitivity * 1000) {
         this.cancel()
       }
@@ -247,7 +247,7 @@ export default class EditorControls extends EventEmitter {
       this.flyControls.lookSensitivity = this.lookSensitivity
       this.flyControls.moveSpeed = this.moveSpeed
       this.flyControls.boostSpeed = this.boostSpeed
-      this.emit('flyModeChanged')
+      CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
     }
     const shift = input.get(EditorInputs.shift)
     const selected = CommandManager.instance.selected
@@ -391,13 +391,14 @@ export default class EditorControls extends EventEmitter {
           const diffX = transformPosition.x - prevX
           const diffY = transformPosition.y - prevY
           const diffZ = transformPosition.z - prevZ
+
           this.translationVector.set(
             this.translationVector.x + diffX,
             this.translationVector.y + diffY,
             this.translationVector.z + diffZ
           )
         }
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TRANSLATE, { translation: this.translationVector, space: this.transformSpace })
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: this.translationVector, space: this.transformSpace, addToPosition: true })
 
         if (grabStart && this.transformMode === TransformMode.Grab) {
           this.grabHistoryCheckpoint = CommandManager.instance.selected ? CommandManager.instance.selected[0].id : 0
@@ -721,12 +722,12 @@ export default class EditorControls extends EventEmitter {
     this.grabHistoryCheckpoint = null
     this.transformMode = mode
     this.transformModeChanged = true
-    this.emit('transformModeChanged', mode)
+    CommandManager.instance.emitEvent(EditorEvents.TRANSFROM_MODE_CHANGED, mode)
   }
   setTransformSpace(transformSpace) {
     this.transformSpace = transformSpace
     this.transformSpaceChanged = true
-    this.emit('transformSpaceChanged')
+    CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_SPACE_CHANGED)
   }
   toggleTransformSpace() {
     this.setTransformSpace(
@@ -736,7 +737,7 @@ export default class EditorControls extends EventEmitter {
   setTransformPivot(pivot) {
     this.transformPivot = pivot
     this.transformPivotChanged = true
-    this.emit('transformPivotChanged')
+    CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_PIVOT_CHANGED)
   }
   transformPivotModes = [TransformPivot.Selection, TransformPivot.Center, TransformPivot.Bottom]
   changeTransformPivot() {
@@ -746,7 +747,7 @@ export default class EditorControls extends EventEmitter {
   }
   setSnapMode(snapMode) {
     this.snapMode = snapMode
-    this.emit('snapSettingsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   toggleSnapMode() {
     this.setSnapMode(this.snapMode === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled)
@@ -757,15 +758,15 @@ export default class EditorControls extends EventEmitter {
   setTranslationSnap(value) {
     this.translationSnap = value
     SceneManager.instance.grid.setSize(value)
-    this.emit('snapSettingsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   setScaleSnap(value) {
     this.scaleSnap = value
-    this.emit('snapSettingsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   setRotationSnap(value) {
     this.rotationSnap = value
-    this.emit('snapSettingsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   cancel() {
     if (this.transformMode === TransformMode.Grab) {

@@ -16,7 +16,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '../functions/projectFunctions'
-import { getScene } from '@xrengine/engine/src/scene/functions/getScene'
+import { getScene } from '../functions/getScene'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
 import { defaultSettings, SettingsContextProvider } from './contexts/SettingsContext'
@@ -417,8 +417,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     ProjectManager.buildProjectManager(settings)
     CommandManager.buildCommandManager()
-    ControlManager.buildControlManager()
     SceneManager.buildSceneManager()
+    ControlManager.buildControlManager()
     NodeManager.buildNodeManager(SceneManager.instance.scene)
     SourceManager.buildSourceManager()
     CacheManager.init()

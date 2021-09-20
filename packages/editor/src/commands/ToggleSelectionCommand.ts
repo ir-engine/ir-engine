@@ -37,6 +37,10 @@ export default class ToggleSelectionCommand extends Command {
       }
     }
 
+    if (this.shouldGizmoUpdate) {
+      CommandManager.instance.updateTransformRoots()
+    }
+
     this.emitAfterExecuteEvent()
   }
 

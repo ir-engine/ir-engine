@@ -3,14 +3,16 @@ import ImageNode from '../../../nodes/ImageNode'
 import ModelNode from '../../../nodes/ModelNode'
 import VideoNode from '../../../nodes/VideoNode'
 import i18n from 'i18next'
-import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'
-import { deleteAsset } from '@xrengine/engine/src/scene/functions/deleteAsset'
+import { deleteAsset } from '../../../functions/deleteAsset'
 import { uploadAssets } from '@xrengine/engine/src/scene/functions/upload'
+import { searchMedia } from '../../../functions/searchMedia'
 import { ItemTypes } from '../../../constants/AssetTypes'
 import { AcceptsAllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import UploadSourcePanel from '../UploadSourcePanel'
 import { BaseSource } from './index'
 import { SceneManager } from '../../../managers/SceneManager'
+import { CommandManager } from '../../../managers/CommandManager'
+import EditorEvents from '../../../constants/EditorEvents'
 
 /**
  * @author Abhishek Pathak
@@ -65,12 +67,12 @@ export class MyAssetsSource extends BaseSource {
   }
   async upload(files, onProgress, abortSignal) {
     const assets = await uploadAssets(SceneManager.instance, files, onProgress, abortSignal)
-    this.emit('resultsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.RESULTS_CHANGED)
     return assets
   }
   async delete(item) {
     await deleteAsset(item.id)
-    this.emit('resultsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.RESULTS_CHANGED)
   }
 
   async search(params, cursor, abortSignal) {

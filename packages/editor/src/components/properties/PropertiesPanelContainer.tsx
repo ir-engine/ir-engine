@@ -174,14 +174,14 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
       content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
     } else {
       const activeNode = selected[selected.length - 1]
-      const NodeEditor = NodeManager.instance.getNodeEditor(activeNode) || DefaultNodeEditor
+      const NodeEditor = NodeManager.instance.getEditorFromNode(activeNode) || DefaultNodeEditor
 
       const multiEdit = selected.length > 1
 
       let showNodeEditor = true
 
       for (let i = 0; i < selected.length - 1; i++) {
-        if (NodeManager.instance.getNodeEditor(selected[i]) !== NodeEditor) {
+        if (NodeManager.instance.getEditorFromNode(selected[i]) !== NodeEditor) {
           showNodeEditor = false
           break
         }

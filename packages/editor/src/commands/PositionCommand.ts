@@ -7,53 +7,59 @@ import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 
 export interface PositionCommandParams extends CommandParams {
-  position?: any
+  positions?: Vector3 | Vector3[]
 
-  space?: any
+  space?: TransformSpace
+
+  addToPosition?: boolean
 }
 
 export default class PositionCommand extends Command {
-  position: any
+  positions: Vector3[]
 
-  space: any
+  addToPosition?: boolean
+
+  space: TransformSpace
 
   oldPositions: any
 
   constructor(objects?: any | any[], params?: PositionCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
+    if (!Array.isArray(objects)) objects = [objects]
+    if ((!Array.isArray(params.positions))) params.positions = [params.positions]
 
     this.affectedObjects = objects
-    this.position = params.position.clone()
-    this.space = params.space
+    this.positions = params.positions
+    this.space = params.space ?? TransformSpace.Local
+    this.addToPosition = params.addToPosition
     this.oldPositions = objects.map((o) => o.position.clone())
   }
 
   execute() {
-    this.updatePosition(this.affectedObjects, this.position, this.space)
+    this.updatePosition(this.affectedObjects, this.positions, this.space)
 
     this.emitAfterExecuteEvent()
   }
 
-  shouldUpdate(newCommand): boolean {
-    return this.space === newCommand.space && arrayShallowEqual(this.affectedObjects, newCommand.objects)
+  shouldUpdate(newCommand: PositionCommand): boolean {
+    return this.space === newCommand.space && arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
   }
 
-  update(command) {
-    this.position = command.position.clone()
-    this.updatePosition(this.affectedObjects, command.position, this.space)
+  update(command: PositionCommand) {
+    this.positions = command.positions
+    this.updatePosition(this.affectedObjects, command.positions, this.space)
+    this.emitAfterExecuteEvent()
   }
 
   undo() {
-    this.updatePosition(this.affectedObjects, this.oldPositions, TransformSpace.Local)
+    this.updatePosition(this.affectedObjects, this.oldPositions, TransformSpace.Local, true)
+    this.emitAfterExecuteEvent()
   }
 
   toString() {
     return `SetPositionCommand id: ${this.id} object: ${serializeObject3D(this.affectedObjects)} position: ${serializeVector3(
-      this.position
+      this.positions
     )} space: ${this.space}`
   }
 
@@ -63,7 +69,7 @@ export default class PositionCommand extends Command {
     }
   }
 
-  updatePosition(objects: any[], position: any, space: any): void {
+  updatePosition(objects: any[], positions: Vector3[], space: TransformSpace, isUndo?: boolean): void {
     const tempMatrix = new Matrix4()
     const tempVector = new Vector3()
 
@@ -81,15 +87,18 @@ export default class PositionCommand extends Command {
 
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i]
-
-      const pos = Array.isArray(position) ? position[i] : position
+      const pos = positions[i] ?? positions[0]
 
       if (space === TransformSpace.Local) {
-        object.position.copy(pos)
+        if (this.addToPosition && !isUndo) object.position.add(pos)
+        else object.position.copy(pos)
       } else {
         object.updateMatrixWorld() // Update parent world matrices
 
-        tempMatrix.copy(pos)
+        if (this.addToPosition && !isUndo) {
+          tempVector.setFromMatrixPosition(object.matrixWorld)
+          tempVector.add(pos)
+        }
 
         let _spaceMatrix = space === TransformSpace.World ? object.parent.matrixWorld : spaceMatrix
 

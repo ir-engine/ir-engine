@@ -29,6 +29,10 @@ export default class AddToSelectionCommand extends Command {
       CommandManager.instance.selected.push(object)
     }
 
+    if (this.shouldGizmoUpdate) {
+      CommandManager.instance.updateTransformRoots()
+    }
+
     this.emitAfterExecuteEvent()
   }
 

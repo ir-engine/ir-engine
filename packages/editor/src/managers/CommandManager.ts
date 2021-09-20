@@ -4,24 +4,23 @@ import { guessContentType } from '@xrengine/engine/src/scene/functions/guessCont
 import History from "../classes/History"
 import EditorCommands, { EditorCommandsType } from "../constants/EditorCommands"
 import EditorEvents from "../constants/EditorEvents"
-import AddObjectCommand from "../commands/AddObjectCommand"
+import AddObjectCommand, { AddObjectCommandParams } from "../commands/AddObjectCommand"
 import AddToSelectionCommand from "../commands/AddToSelectionCommand"
 import Command from "../commands/Command"
-import DuplicateObjectCommand from "../commands/DuplicateObjectCommand"
+import DuplicateObjectCommand, { DuplicateObjectCommandParams } from "../commands/DuplicateObjectCommand"
 import RemoveFromSelectionCommand from "../commands/RemoveFromSelectionCommand"
-import RemoveObjectsCommand from "../commands/RemoveObjectsCommand"
-import ReparentCommand from "../commands/ReparentCommand"
+import RemoveObjectsCommand, { RemoveObjectCommandParams } from "../commands/RemoveObjectsCommand"
+import ReparentCommand, { ReparentCommandParams } from "../commands/ReparentCommand"
 import ReplaceSelectionCommand from "../commands/ReplaceSelectionCommand"
 import ToggleSelectionCommand from "../commands/ToggleSelectionCommand"
-import GroupCommand from "../commands/GroupCommand"
-import PositionCommand from "../commands/PositionCommand"
-import TranslateCommand from "../commands/TranslateCommand"
-import RotationCommand from "../commands/RotationCommand"
-import RotateOnAxisCommand from "../commands/RotateOnAxisCommand"
-import RotateAroundCommand from "../commands/RotateAroundCommand"
-import ScaleCommand from "../commands/ScaleCommand"
-import ModifyPropertyCommand from "../commands/ModifyPropertyCommand"
-import LoadMaterialSlotCommand from "../commands/LoadMaterialSlotMultipleCommand"
+import GroupCommand, { GroupCommandParams } from "../commands/GroupCommand"
+import PositionCommand, { PositionCommandParams } from "../commands/PositionCommand"
+import RotationCommand, { RotationCommandParams } from "../commands/RotationCommand"
+import RotateOnAxisCommand, { RotateOnAxisCommandParams } from "../commands/RotateOnAxisCommand"
+import RotateAroundCommand, { RotateAroundCommandParams } from "../commands/RotateAroundCommand"
+import ScaleCommand, { ScaleCommandParams } from "../commands/ScaleCommand"
+import ModifyPropertyCommand, { ModifyPropertyCommandParams } from "../commands/ModifyPropertyCommand"
+import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from "../commands/LoadMaterialSlotMultipleCommand"
 import isInputSelected from "../functions/isInputSelected"
 import ModelNode from "../nodes/ModelNode"
 import VideoNode from "../nodes/VideoNode"
@@ -30,6 +29,19 @@ import VolumetricNode from "../nodes/VolumetricNode"
 import LinkNode from "../nodes/LinkNode"
 import { SceneManager } from "./SceneManager"
 import { ProjectManager } from "./ProjectManager"
+
+export type CommandParamsType = AddObjectCommandParams |
+  RemoveObjectCommandParams |
+  DuplicateObjectCommandParams |
+  ModifyPropertyCommandParams |
+  ReparentCommandParams |
+  GroupCommandParams |
+  PositionCommandParams |
+  RotationCommandParams |
+  ScaleCommandParams |
+  RotateOnAxisCommandParams |
+  RotateAroundCommandParams |
+  LoadMaterialSlotCommandParams
 
 export class CommandManager extends EventEmitter {
   static instance: CommandManager
@@ -63,7 +75,6 @@ export class CommandManager extends EventEmitter {
       [EditorCommands.REPARENT]: ReparentCommand,
       [EditorCommands.GROUP]: GroupCommand,
       [EditorCommands.POSITION]: PositionCommand,
-      [EditorCommands.TRANSLATE]: TranslateCommand,
       [EditorCommands.ROTATION]: RotationCommand,
       [EditorCommands.ROTATE_ON_AXIS]: RotateOnAxisCommand,
       [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
@@ -78,27 +89,23 @@ export class CommandManager extends EventEmitter {
     this.sceneLoading = false
   }
 
-  executeCommand = (command: EditorCommandsType, affectedObject?: any, params?: any) => {
+  executeCommand = (command: EditorCommandsType, affectedObject?: any, params?: CommandParamsType) => {
     if (!params) params = {}
-
-    params.type = command
 
     new this.commands[command](affectedObject, params).execute()
   }
 
-  executeCommandWithHistory = (command: EditorCommandsType, affectedObject?: any, params?: any) => {
+  executeCommandWithHistory = (command: EditorCommandsType, affectedObject?: any, params?: CommandParamsType) => {
     if (!params) params = {}
-
-    params.type = command
 
     this.history.execute(new this.commands[command](affectedObject, params))
   }
 
-  executeCommandOnSelection = (command: EditorCommandsType, params?: any) => {
+  executeCommandOnSelection = (command: EditorCommandsType, params?: CommandParamsType) => {
     new this.commands[command](this.selected, params).execute()
   }
 
-  executeCommandWithHistoryOnSelection = (command: EditorCommandsType, params?: any) => {
+  executeCommandWithHistoryOnSelection = (command: EditorCommandsType, params?: CommandParamsType) => {
     this.history.execute(new this.commands[command](this.selected, params))
   }
 
@@ -284,10 +291,10 @@ export class CommandManager extends EventEmitter {
     }
 
     SceneManager.instance.getSpawnPosition(node.position)
-    this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parent, before })
+    this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
 
     ProjectManager.instance.currentOwnedFileIds[name] = id
-    this.emit('FileUploaded')
+    CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node
   }
 }

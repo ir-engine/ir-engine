@@ -96,17 +96,27 @@ export class NodeManager {
   }
 
   /**
-   * Function getNodeEditor used to get properties of currently selected node.
+   * Function getEditorFromNode used to get properties of currently provided node.
    *
    * @author Robert Long
    * @param  {any} node contains properties of node
    */
-  getNodeEditor(node) {
+  getEditorFromNode(node) {
     return this.nodeEditors.get(node.constructor)
   }
 
+  /**
+   * Function getEditorFromClass used to get properties of currently provided node class.
+   *
+   * @author Robert Long
+   * @param  {any} nodeClass contains properties of node
+   */
+   getEditorFromClass(nodeClass) {
+    return this.nodeEditors.get(nodeClass)
+  }
+
   getCopy(): any[] {
-    return this.nodes.splice(0)
+    return this.nodes.slice(0)
   }
 
   add(node: any): void {

@@ -11,18 +11,24 @@ import { SceneManager } from '../managers/SceneManager'
 
 export interface AddObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
-  parent?: any
+  parents?: any
 
   /** Child object before which all objects will be added */
-  before?: any
+  befores?: any
+
+  /** Whether to use unique name or not */
+  useUniqueName?: boolean
 }
 
 export default class AddObjectCommand extends Command {
   /** Parent object which will hold objects being added by this command */
-  parent: any
+  parents: any
 
   /** Child object before which all objects will be added */
-  before: any
+  befores: any
+
+  /** Whether to use unique name or not */
+  useUniqueName?: boolean
 
   duplicateObjects?: any[]
 
@@ -30,28 +36,29 @@ export default class AddObjectCommand extends Command {
     super(objects, params)
 
     this.affectedObjects = Array.isArray(objects) ? objects : [objects]
-    this.parent = params.parent
-    this.before = params.before
+    this.parents = Array.isArray(params.parents) ? params.parents : [params.parents]
+    this.befores = Array.isArray(params.befores) ? params.befores : [params.befores]
+    this.useUniqueName = params.useUniqueName ?? true
     this.oldSelection = CommandManager.instance.selected.slice(0)
   }
 
   execute(): void {
     this.emitBeforeExecuteEvent()
 
-    this.addObject()
+    this.addObject(this.affectedObjects, this.parents, this.befores)
 
     this.emitAfterExecuteEvent()
   }
 
   undo(): void {
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, { deselectObject: false})
+    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, { deselectObject: false })
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
   }
 
   toString(): string {
     return `AddObjectCommand id: ${this.id} object: ${serializeObject3D(this.affectedObjects)} parent: ${serializeObject3D(
-      this.parent
-    )} before: ${serializeObject3D(this.before)}`
+      this.parents
+    )} before: ${serializeObject3D(this.befores)}`
   }
 
   emitBeforeExecuteEvent() {
@@ -68,25 +75,28 @@ export default class AddObjectCommand extends Command {
     }
   }
 
-  addObject(): void {
-    const rootObjects = getDetachedObjectsRoots(this.affectedObjects)
+  addObject(objects: any[], parents: any[], befores: any[]): void {
+    const rootObjects = getDetachedObjectsRoots(objects)
 
     for (let i = 0; i < rootObjects.length; i++) {
       const object = rootObjects[i]
       object.saveParent = true
 
-      if (this.parent) {
-        if (this.before) {
-          const index = this.parent.children.indexOf(this.before)
+      const parent = parents ? parents[i] ?? parents[0] : undefined
+      const before = befores ? befores[i] ?? befores[0] : undefined
+
+      if (parent) {
+        if (before) {
+          const index = parent.children.indexOf(before)
 
           if (index === -1) {
             throw new Error(i18n.t('editor:errors.addObject'))
           }
 
-          this.parent.children.splice(index, 0, object)
-          object.parent = this.parent
+          parent.children.splice(index, 0, object)
+          object.parent = parent
         } else {
-          this.parent.add(object)
+          parent.add(object)
         }
       } else if (object !== SceneManager.instance.scene) {
         SceneManager.instance.scene.add(object)

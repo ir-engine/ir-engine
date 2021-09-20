@@ -1,9 +1,8 @@
 import i18n from 'i18next'
-import Command from './Command'
+import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
-import { CommandParams } from '..'
 import EditorEvents from '../constants/EditorEvents'
 import { NodeManager } from '../managers/NodeManager'
 import { SceneManager } from '../managers/SceneManager'
@@ -86,7 +85,7 @@ export default class RemoveObjectsCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.affectedObjects, { parent: this.oldParents, before: this.oldBefores, isObjectSelected: this.isSelected })
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.affectedObjects, { parents: this.oldParents, befores: this.oldBefores, isObjectSelected: this.isSelected, useUniqueName: false })
 
     NodeManager.instance.fill(this.oldNodes)
 

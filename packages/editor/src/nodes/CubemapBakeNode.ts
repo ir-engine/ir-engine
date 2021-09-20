@@ -22,7 +22,7 @@ import { envmapPhysicalParsReplace, worldposReplace } from '@xrengine/engine/src
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData, uploadCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import SkyboxNode from './SkyboxNode'
-import { deleteAsset } from '@xrengine/engine/src/scene/functions/deleteAsset'
+import { deleteAsset } from '../functions/deleteAsset'
 import { SceneManager } from '../managers/SceneManager'
 import { ProjectManager } from '../managers/ProjectManager'
 

@@ -21,9 +21,8 @@ export enum TransformCommands {
   POSITION = 11,
   ROTATION = 12,
   SCALE = 13,
-  TRANSLATE = 14,
-  ROTATE_ON_AXIS = 15,
-  ROTATE_AROUND = 16
+  ROTATE_ON_AXIS = 14,
+  ROTATE_AROUND = 15
 }
 
 export enum MiscCommands {

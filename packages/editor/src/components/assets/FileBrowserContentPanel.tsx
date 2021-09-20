@@ -8,7 +8,7 @@ import AssetGrid from './AssetGrid'
 import SelectInput from '../inputs/SelectInput'
 import InputGroup from '../inputs/InputGroup'
 import { UploadFileType } from './sources/MyAssetsSource'
-import { getUrlFromId } from '@xrengine/engine/src/scene/functions/getUrlFromId'
+import { getUrlFromId } from '../../functions/getUrlFromId'
 import { getContentType } from '@xrengine/engine/src/scene/functions/getContentType'
 import { NodeManager } from '../../managers/NodeManager'
 import EditorEvents from '../../constants/EditorEvents'
@@ -104,7 +104,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         if (!url) continue
         const contentType = await getContentType(new URL(url))
         const nodeClass = UploadFileType[contentType]
-        const nodeEditor = NodeManager.instance.getNodeEditor(nodeClass)
+        const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
         const returningObject = {
           description: url,
           fileId: fileId,
