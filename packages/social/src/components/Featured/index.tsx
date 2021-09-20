@@ -58,12 +58,13 @@ const Featured = ({
 }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
+  const auth = useAuthState()
 
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
-      const userIdentityType = useAuthState().authUser?.identityProvider?.type?.value ?? 'guest'
+      const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
   }, [type, creatorId])
