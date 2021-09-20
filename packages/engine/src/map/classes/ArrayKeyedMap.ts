@@ -29,6 +29,7 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
 
   delete(key: KeySource) {
     const stringKey = this.getKey(key)
+    this.keySources.delete(stringKey)
     return this.map.delete(stringKey)
   }
 
