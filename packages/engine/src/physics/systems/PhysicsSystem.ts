@@ -8,10 +8,8 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { BodyType, PhysXInstance } from '../../physics/physx'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Network } from '../../networking/classes/Network'
-import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetworkObjectComponent'
@@ -20,7 +18,6 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { dispatchFromServer } from '../../networking/functions/dispatch'
 import {
@@ -30,10 +27,11 @@ import {
 } from '../../networking/interfaces/NetworkWorldActions'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
-import { createPhysXWorker } from '../functions/createPhysXWorker'
 import { System } from '../../ecs/classes/System'
-import { Not } from 'bitecs'
 import { World } from '../../ecs/classes/World'
+import { isDynamicBody, isKinematicBody, isStaticBody } from '../classes/Physics'
+import { teleportRigidbody } from '../functions/teleportRigidbody'
+import { CollisionComponent } from '../components/CollisionComponent'
 
 function avatarActionReceptor(action: NetworkWorldActionType) {
   switch (action.type) {
@@ -48,33 +46,21 @@ function avatarActionReceptor(action: NetworkWorldActionType) {
 
         const colliderComponent = getComponent(entity, ColliderComponent)
         if (colliderComponent) {
-          colliderComponent.body.updateTransform({
-            translation: { x, y, z },
-            rotation: { x: qX, y: qY, z: qZ, w: qW }
-          })
+          teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
           return
         }
 
         const controllerComponent = getComponent(entity, AvatarControllerComponent)
         if (controllerComponent) {
           const avatar = getComponent(entity, AvatarComponent)
-          controllerComponent.controller?.updateTransform({
-            translation: { x, y: y + avatar.avatarHalfHeight, z },
-            rotation: { x: qX, y: qY, z: qZ, w: qW }
-          })
-          controllerComponent.controller.velocity.setScalar(0)
+          controllerComponent.controller.setPosition(new Vector3(x, y + avatar.avatarHalfHeight, z))
+          const velocity = getComponent(entity, VelocityComponent)
+          velocity.velocity.setScalar(0)
         }
       }
       break
   }
 }
-
-const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
-const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
-const raycastQuery = defineQuery([RaycastComponent])
-const networkObjectQuery = defineQuery([NetworkObjectComponent])
-const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObjectOwnerComponent, ColliderComponent])
-
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
@@ -84,7 +70,13 @@ export default async function PhysicsSystem(
   world: World,
   attributes: { simulationEnabled?: boolean }
 ): Promise<System> {
-  let simulationEnabled = false
+  const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
+  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const raycastQuery = defineQuery([RaycastComponent])
+  const collisionComponent = defineQuery([CollisionComponent])
+  const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObjectOwnerComponent, ColliderComponent])
+
+  let simulationEnabled = true
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
     if (typeof ev.physics !== 'undefined') {
@@ -92,11 +84,7 @@ export default async function PhysicsSystem(
     }
   })
 
-  simulationEnabled = attributes.simulationEnabled ?? true
-
   world.receptors.add(avatarActionReceptor)
-
-  await createPhysXWorker()
 
   return () => {
     for (const entity of spawnRigidbodyQuery.enter()) {
@@ -120,15 +108,12 @@ export default async function PhysicsSystem(
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent?.body) {
-        PhysXInstance.instance.removeBody(colliderComponent.body)
+        world.physics.removeBody(colliderComponent.body)
       }
     }
 
-    for (const entity of raycastQuery.exit()) {
-      const raycastComponent = getComponent(entity, RaycastComponent, true)
-      if (raycastComponent) {
-        PhysXInstance.instance.removeRaycastQuery(raycastComponent.raycastQuery)
-      }
+    for (const entity of raycastQuery()) {
+      world.physics.doRaycast(getComponent(entity, RaycastComponent))
     }
 
     for (const entity of colliderQuery()) {
@@ -139,25 +124,35 @@ export default async function PhysicsSystem(
       if ((!isClient && hasComponent(entity, NetworkObjectOwnerComponent)) || hasComponent(entity, AvatarComponent))
         continue
 
-      if (collider.body.type === BodyType.KINEMATIC || collider.body.type === BodyType.STATIC) {
-        velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
-        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
-      } else if (collider.body.type === BodyType.DYNAMIC) {
-        const { linearVelocity } = collider.body.transform
-        velocity.velocity.copy(linearVelocity)
+      if (isStaticBody(collider.body)) {
+        const body = collider.body as PhysX.PxRigidDynamic
+        const currentPose = body.getGlobalPose()
 
-        transform.position.set(
-          collider.body.transform.translation.x,
-          collider.body.transform.translation.y,
-          collider.body.transform.translation.z
-        )
+        velocity.velocity.subVectors(currentPose.translation as Vector3, transform.position)
 
-        transform.rotation.set(
-          collider.body.transform.rotation.x,
-          collider.body.transform.rotation.y,
-          collider.body.transform.rotation.z,
-          collider.body.transform.rotation.w
-        )
+        currentPose.translation.x = transform.position.x
+        currentPose.translation.y = transform.position.y
+        currentPose.translation.z = transform.position.z
+        currentPose.rotation.x = transform.rotation.x
+        currentPose.rotation.y = transform.rotation.y
+        currentPose.rotation.z = transform.rotation.z
+        currentPose.rotation.w = transform.rotation.w
+
+        if (isKinematicBody(collider.body)) {
+          body.setKinematicTarget(currentPose)
+        }
+        body.setGlobalPose(currentPose, true)
+      } else if (isDynamicBody(collider.body)) {
+        const body = collider.body as PhysX.PxRigidDynamic
+
+        const linearVelocity = body.getLinearVelocity()
+        velocity.velocity.copy(linearVelocity as Vector3)
+
+        const currentPose = body.getGlobalPose()
+
+        transform.position.copy(currentPose.translation as Vector3)
+
+        transform.rotation.copy(currentPose.rotation as Quaternion)
       }
     }
 
@@ -165,10 +160,56 @@ export default async function PhysicsSystem(
       const collider = getComponent(entity, ColliderComponent)
       if (!isClient) {
         const transform = getComponent(entity, TransformComponent)
-        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
+        const body = collider.body as PhysX.PxRigidDynamic
+        teleportRigidbody(body, transform.position, transform.rotation)
       }
     }
 
-    if (simulationEnabled) PhysXInstance.instance?.update()
+    // clear collision components
+    for (const entity of collisionComponent()) {
+      getComponent(entity, CollisionComponent).collisions = []
+    }
+
+    // populate collision components with events over last simulation
+    for (const collisionEvent of world.physics.collisionEventQueue) {
+      if (collisionEvent.controllerID) {
+        const controller = world.physics.controllers.get(collisionEvent.controllerID)
+        const entity = (controller as any).userData
+        getComponent(entity, CollisionComponent).collisions.push(collisionEvent)
+      }
+      if (collisionEvent.shapeA) {
+        const bodyAID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeA as any)._id)
+        const bodyA = world.physics.bodies.get(bodyAID)
+        const bodyBID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeB as any)._id)
+        const bodyB = world.physics.bodies.get(bodyBID)
+        const entityA = (bodyA as any).userData.entity
+        const entityB = (bodyA as any).userData.entity
+        getComponent(entityA, CollisionComponent).collisions.push({
+          type: collisionEvent.type,
+          bodySelf: bodyA,
+          bodyOther: bodyB,
+          shapeSelf: collisionEvent.shapeA,
+          shapeOther: collisionEvent.shapeB,
+          contacts: collisionEvent.contacts
+        })
+        getComponent(entityB, CollisionComponent).collisions.push({
+          type: collisionEvent.type,
+          bodySelf: bodyB,
+          bodyOther: bodyA,
+          shapeSelf: collisionEvent.shapeB,
+          shapeOther: collisionEvent.shapeA,
+          contacts: collisionEvent.contacts
+        })
+      }
+    }
+
+    // clear collision queue
+    world.physics.collisionEventQueue = []
+
+    // step physics world
+    for (let i = 0; i < world.physics.substeps; i++) {
+      world.physics.scene.simulate(world.physics.stepTime / (1000 * world.physics.substeps), true)
+      world.physics.scene.fetchResults(true)
+    }
   }
 }

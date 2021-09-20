@@ -9,7 +9,7 @@ import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/s
 import { Config } from '@xrengine/common/src/config'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
@@ -47,7 +47,6 @@ const initialGroupForm = {
 
 interface Props {
   appState?: any
-  authState?: any
   locationState?: any
   login?: boolean
   pageTitle: string
@@ -61,7 +60,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     locationState: selectLocationState(state),
     onBoardingStep: selectAppOnBoardingStep(state)
   }
@@ -73,9 +71,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const Layout = (props: Props): any => {
   const path = useLocation().pathname
-  const { pageTitle, children, appState, authState, setUserHasInteracted, login, locationState, onBoardingStep } = props
+  const { pageTitle, children, appState, setUserHasInteracted, login, locationState, onBoardingStep } = props
   const userHasInteracted = appState.get('userHasInteracted')
-  const authUser = authState.get('authUser')
+  const authUser = useAuthState().authUser
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
@@ -89,7 +87,7 @@ const Layout = (props: Props): any => {
   const [groupForm, setGroupForm] = useState(initialGroupForm)
   const [selectedUser, setSelectedUser] = useState(initialSelectedUserState)
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
-  const user = authState.get('user')
+  const user = useAuthState().user
   const handle = useFullScreenHandle()
 
   const initialClickListener = () => {
@@ -187,7 +185,7 @@ const Layout = (props: Props): any => {
                 <>
                   {expanded ? (
                     <section className={styles.locationUserMenu}>
-                      {authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me />}
+                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
                       <PartyVideoWindows />
                     </section>
                   ) : null}
@@ -234,42 +232,48 @@ const Layout = (props: Props): any => {
               <Alerts />
               {childrenWithProps}
             </Fragment>
-            {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
-              <Fragment>
-                <LeftDrawer
-                  harmony={true}
-                  detailsType={detailsType}
-                  setDetailsType={setDetailsType}
-                  groupFormOpen={groupFormOpen}
-                  setGroupFormOpen={setGroupFormOpen}
-                  groupFormMode={groupFormMode}
-                  setGroupFormMode={setGroupFormMode}
-                  groupForm={groupForm}
-                  setGroupForm={setGroupForm}
-                  selectedUser={selectedUser}
-                  setSelectedUser={setSelectedUser}
-                  selectedGroup={selectedGroup}
-                  setSelectedGroup={setSelectedGroup}
-                  openBottomDrawer={bottomDrawerOpen}
-                  leftDrawerOpen={leftDrawerOpen}
-                  setLeftDrawerOpen={setLeftDrawerOpen}
-                  setRightDrawerOpen={setRightDrawerOpen}
-                  setBottomDrawerOpen={setBottomDrawerOpen}
-                />
-              </Fragment>
-            )}
-            {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && (
-              <Fragment>
-                <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-              </Fragment>
-            )}
+            {authUser?.accessToken?.value != null &&
+              authUser.accessToken.value.length > 0 &&
+              user?.id?.value != null &&
+              user.id.value.length > 0 && (
+                <Fragment>
+                  <LeftDrawer
+                    harmony={true}
+                    detailsType={detailsType}
+                    setDetailsType={setDetailsType}
+                    groupFormOpen={groupFormOpen}
+                    setGroupFormOpen={setGroupFormOpen}
+                    groupFormMode={groupFormMode}
+                    setGroupFormMode={setGroupFormMode}
+                    groupForm={groupForm}
+                    setGroupForm={setGroupForm}
+                    selectedUser={selectedUser}
+                    setSelectedUser={setSelectedUser}
+                    selectedGroup={selectedGroup}
+                    setSelectedGroup={setSelectedGroup}
+                    openBottomDrawer={bottomDrawerOpen}
+                    leftDrawerOpen={leftDrawerOpen}
+                    setLeftDrawerOpen={setLeftDrawerOpen}
+                    setRightDrawerOpen={setRightDrawerOpen}
+                    setBottomDrawerOpen={setBottomDrawerOpen}
+                  />
+                </Fragment>
+              )}
+            {authUser?.accessToken?.value != null &&
+              authUser.accessToken.value.length > 0 &&
+              user?.id?.value != null &&
+              user.id.value.length > 0 && (
+                <Fragment>
+                  <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+                </Fragment>
+              )}
             {/*{authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&*/}
             {/*  <Fragment>*/}
             {/*    <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} />*/}
             {/*  </Fragment>*/}
             {/*}*/}
             <footer>
-              {user?.userRole !== 'guest' && harmonyOpen === false && (
+              {user?.userRole.value !== 'guest' && harmonyOpen === false && (
                 <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
                   <Forum />
                 </div>

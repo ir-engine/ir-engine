@@ -90,6 +90,7 @@ import { Application, feathers } from '@feathersjs/feathers'
 import rest from '@feathersjs/rest-client'
 import { Config } from '@xrengine/common/src/config'
 import CustomScriptNode from '../nodes/CustomScriptNode'
+import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 
 const tempMatrix1 = new Matrix4()
 const tempMatrix2 = new Matrix4()
@@ -207,6 +208,7 @@ export class Editor extends EventEmitter {
     this.initializing = false
     this.initialized = false
     this.sceneLoading = false
+    this.initializeFeathersClient(getToken())
   }
 
   /**

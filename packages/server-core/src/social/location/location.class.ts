@@ -119,7 +119,6 @@ export class Location extends Service {
    * @author Vyacheslav Solovjov
    */
   async find(params: Params): Promise<any> {
-    // eslint-disable-next-line prefer-const
     let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query
 
     if ($skip == null) $skip = 0
@@ -201,7 +200,6 @@ export class Location extends Service {
           ]
         }
       }
-
       const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
@@ -240,7 +238,6 @@ export class Location extends Service {
       if (locationData.isLobby) await this.makeLobby(params, t)
 
       const location = await this.Model.create(locationData, { transaction: t })
-
       await (this.app.service('location-settings') as any).Model.create(
         {
           videoEnabled: !!location_setting.videoEnabled,

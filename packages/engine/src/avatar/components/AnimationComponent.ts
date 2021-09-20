@@ -8,7 +8,7 @@ type AnimationComponentType = {
 }
 
 const AnimationSchema = {
-  animationSpeed: Types.ui16
+  animationSpeed: Types.f32
 }
 
 export const AnimationComponent = createMappedComponent<AnimationComponentType, typeof AnimationSchema>(

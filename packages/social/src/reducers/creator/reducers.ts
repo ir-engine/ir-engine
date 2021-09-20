@@ -22,6 +22,7 @@ import {
   CREATORS_FETCH,
   CURRENT_CREATOR_FETCH,
   SET_CREATOR_AS_BLOCKED,
+  SET_CREATOR_AS_UN_BLOCKED,
   CREATOR_BLOCKED_RETRIEVED
 } from '../actions'
 
@@ -41,10 +42,12 @@ export const initialCreatorState = {
   }
 }
 
-const immutableState = Immutable.fromJS(initialCreatorState)
+const immutableState = Immutable.fromJS(initialCreatorState) as any
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
   switch (action.type) {
+    // case TEST:
+    //   Object.entries(action.payload).map()
     case CURRENT_CREATOR_FETCH:
       return state.set('fetchingCurrentCreator', true)
     case CURRENT_CREATOR_RETRIEVED:
@@ -83,7 +86,22 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
       return state.set('creator', { ...state.get('creator'), followed: false })
 
     case SET_CREATOR_AS_BLOCKED:
-      return state.set('creator', { ...state.get('creator'), blocked: true })
+      const newCreators = [...state.get('creators')]
+      const idBlockedCreator = newCreators.findIndex(
+        (item) => item.id === (action as { type: string; creatorId: string }).creatorId
+      )
+      newCreators.splice(idBlockedCreator, 1)
+      return state.set('creator', { ...state.get('creator'), blocked: true }).set('creators', newCreators)
+
+    case SET_CREATOR_AS_UN_BLOCKED:
+      // вместо этого сделать запрос
+      const blocked = state.get('blocked')
+      const unBlockedCreatorId = blocked.findIndex(
+        (blockedCreator) =>
+          blockedCreator.userId === (action as { type: string; blokedCreatorId: string }).blokedCreatorId
+      )
+      blocked.splice(unBlockedCreatorId, 1)
+      return state.set('blocked', blocked)
 
     case CREATOR_BLOCKED_RETRIEVED:
       return state.set('blocked', (action as CreatorsRetrievedAction).creators)
@@ -93,8 +111,10 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
 
     case CREATOR_FOLLOWING_RETRIEVED:
       return state.set('following', (action as CreatorsRetrievedAction).creators)
+
+    default:
+      return state
   }
-  return state
 }
 
 export default creatorReducer

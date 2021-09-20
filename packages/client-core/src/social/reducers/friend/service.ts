@@ -4,9 +4,9 @@ import { loadedFriends, createdFriend, patchedFriend, removedFriend, fetchingFri
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import Store from '../../../store'
 import { User } from '@xrengine/common/src/interfaces/User'
-
 import { Config } from '@xrengine/common/src/config'
 import { UserAction } from '../../../user/store/UserAction'
+import { accessAuthState } from '../../../user/reducers/auth/AuthState'
 
 const store = Store.store
 
@@ -126,30 +126,30 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('user-relationship').on('patched', (params) => {
     const patchedUserRelationship = params.userRelationship
-    const selfUser = (store.getState() as any).get('auth').get('user') as User
+    const selfUser = accessAuthState().user
     if (patchedUserRelationship.userRelationshipType === 'friend') {
-      store.dispatch(patchedFriend(patchedUserRelationship, selfUser))
+      store.dispatch(patchedFriend(patchedUserRelationship, selfUser.value))
       if (
         patchedUserRelationship.user.channelInstanceId != null &&
-        patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId
+        patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
       )
         store.dispatch(UserAction.addedChannelLayerUser(patchedUserRelationship.user))
-      if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId)
+      if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
         store.dispatch(UserAction.removedChannelLayerUser(patchedUserRelationship.user))
     }
   })
 
   client.service('user-relationship').on('removed', (params) => {
     const deletedUserRelationship = params.userRelationship
-    const selfUser = (store.getState() as any).get('auth').get('user') as User
+    const selfUser = accessAuthState().user
     if (deletedUserRelationship.userRelationshipType === 'friend') {
-      store.dispatch(removedFriend(deletedUserRelationship, selfUser))
+      store.dispatch(removedFriend(deletedUserRelationship, selfUser.value))
       if (
         deletedUserRelationship.user.channelInstanceId != null &&
-        deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId
+        deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
       )
         store.dispatch(UserAction.addedChannelLayerUser(deletedUserRelationship.user))
-      if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId)
+      if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
         store.dispatch(UserAction.removedChannelLayerUser(deletedUserRelationship.user))
     }
   })

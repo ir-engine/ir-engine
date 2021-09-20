@@ -3,6 +3,7 @@ import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+import addScopeToUser from '../../hooks/add-scope-to-user'
 
 const { authenticate } = authentication.hooks
 
@@ -90,32 +91,7 @@ export default {
           }
         ]
       }),
-      async (context: HookContext): Promise<HookContext> => {
-        const foundItem = await (context.app.service('scope') as any).Model.findAll({
-          where: {
-            userId: context.arguments[0]
-          }
-        })
-        if (!foundItem.length) {
-          context.arguments[1]?.scopeType?.forEach(async (el) => {
-            await context.app.service('scope').create({
-              type: el.type,
-              userId: context.arguments[0]
-            })
-          })
-        } else {
-          foundItem.forEach(async (scp) => {
-            await context.app.service('scope').remove(scp.dataValues.id)
-          })
-          context.arguments[1]?.scopeType?.forEach(async (el) => {
-            await context.app.service('scope').create({
-              type: el.type,
-              userId: context.arguments[0]
-            })
-          })
-        }
-        return context
-      }
+      addScopeToUser()
     ],
     remove: []
   },
@@ -194,12 +170,14 @@ export default {
           await context.app.service('user-settings').create({
             userId: context.result.id
           })
+
           context.arguments[0]?.scopeType?.forEach((el) => {
             context.app.service('scope').create({
               type: el.type,
               userId: context.result.id
             })
           })
+
           const app = context.app
           let result = context.result
           if (Array.isArray(result)) result = result[0]

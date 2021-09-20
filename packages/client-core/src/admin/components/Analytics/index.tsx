@@ -9,7 +9,7 @@ import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { selectAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/selector'
 import {
   fetchActiveParties,
@@ -26,7 +26,6 @@ interface Props {
   adminGroupState?: any
   fetchAdminGroup?: any
   analyticsState?: any
-  authState?: any
   fetchActiveParties?: any
   fetchActiveLocations?: any
   fetchActiveScenes?: any
@@ -38,7 +37,6 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => ({
-  authState: selectAuthState(state),
   analyticsState: selectAnalyticsState(state)
 })
 
@@ -88,8 +86,7 @@ const Analytics = (props: Props) => {
     fetchChannelUsers,
     fetchInstanceUsers,
     fetchDailyUsers,
-    fetchDailyNewUsers,
-    authState
+    fetchDailyNewUsers
   } = props
   const [refetch, setRefetch] = useState(false)
   const [graphSelector, setGraphSelector] = useState('activity')
@@ -169,9 +166,10 @@ const Analytics = (props: Props) => {
     setRefetch(false)
   }, [refetch])
 
+  const authState = useAuthState()
+
   useEffect(() => {
-    console.log('authState changed', authState.get('isLoggedIn'))
-    if (authState.get('isLoggedIn')) setRefetch(true)
+    if (authState.isLoggedIn.value) setRefetch(true)
   }, [authState])
 
   useEffect(() => {
