@@ -213,12 +213,12 @@ function ikPoseIsTheSame(netId, hp, hr, lp, lr, rp, rr): boolean {
   for (let i = 0; i < prevWorldState.ikPose.length; i++) {
     if (prevWorldState.ikPose[i].networkId === netId) {
       if (
-        (arraysAreEqual(prevWorldState.ikPose[i].headPosePosition, hp)&&
-          arraysAreEqual(prevWorldState.ikPose[i].headPoseRotation, hr) &&
-          arraysAreEqual(prevWorldState.ikPose[i].leftPosePosition, lp) &&
-          arraysAreEqual(prevWorldState.ikPose[i].leftPoseRotation, lr) &&
-          arraysAreEqual(prevWorldState.ikPose[i].rightPosePosition, rp) &&
-          arraysAreEqual(prevWorldState.ikPose[i].rightPoseRotation, rr))
+        arraysAreEqual(prevWorldState.ikPose[i].headPosePosition, hp) &&
+        arraysAreEqual(prevWorldState.ikPose[i].headPoseRotation, hr) &&
+        arraysAreEqual(prevWorldState.ikPose[i].leftPosePosition, lp) &&
+        arraysAreEqual(prevWorldState.ikPose[i].leftPoseRotation, lr) &&
+        arraysAreEqual(prevWorldState.ikPose[i].rightPosePosition, rp) &&
+        arraysAreEqual(prevWorldState.ikPose[i].rightPoseRotation, rr)
       ) {
         return true
       } else {
