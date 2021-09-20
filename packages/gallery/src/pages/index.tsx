@@ -28,13 +28,15 @@ const Home = ({ createCreator, creatorsState }) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
+  console.log(auth)
+
   useEffect(() => {
     const user = auth.user
     const userId = user ? user.id.value : null
     if (userId) {
       createCreator()
     }
-  }, [auth])
+  }, [auth.isLoggedIn.value, auth.user.id.value])
 
   useEffect(() => {
     dispatch(AuthService.doLoginAuto(true))

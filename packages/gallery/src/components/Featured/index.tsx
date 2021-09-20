@@ -39,13 +39,16 @@ const Featured = ({ feedsState, getFeeds, type, creatorId, removeFeed }: Props) 
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
   const history = useHistory()
+  const auth = useAuthState()
 
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
-      const userIdentityType = useAuthState().authUser?.identityProvider?.type?.value ?? 'guest'
+      console.log(auth)
+      const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
+      console.log('asdas')
     }
   }, [type, creatorId, feedsState.get('feedsFetching')])
 
