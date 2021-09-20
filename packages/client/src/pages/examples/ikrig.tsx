@@ -44,7 +44,7 @@ import { addRig, addTargetRig } from '@xrengine/engine/src/ikrig/functions/RigFu
 import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { bonesAllison, bonesData, bonesData2 } from '../../../../engine/src/avatar/DefaultSkeletonBones'
+import { bonesData, bonesData2 } from '../../../../engine/src/avatar/DefaultSkeletonBones'
 import { SkeletonUtils } from '../../../../engine/src/avatar/SkeletonUtils'
 
 const AnimationSystem = async (world: World): Promise<System> => {
@@ -606,28 +606,6 @@ async function loadAndSetupModel(
   })[0]
 
   console.log('targetSkinnedMesh', targetSkinnedMesh)
-  if (bonesAllison.length === targetSkinnedMesh.skeleton.bones.length) {
-    console.log('----------check targetSkinnedMesh bones')
-    bonesAllison.forEach((boneData, index) => {
-      const p = new Vector3(...boneData.position)
-      const r = new Quaternion(...boneData.quaternion)
-      const s = new Vector3(...boneData.scale)
-      const tbone = targetSkinnedMesh.skeleton.bones[index]
-      console.log('    ', boneData.name, p.equals(tbone.position), r.equals(tbone.quaternion), s.equals(tbone.scale))
-    })
-    console.log('---------')
-    console.log('bones snapshot:')
-    const snap = targetSkinnedMesh.skeleton.bones.map((b) => {
-      return {
-        name: b.name,
-        parentIndex: b.parent.type === 'Bone' ? targetSkinnedMesh.skeleton.bones.indexOf(b.parent) : null,
-        position: b.position.toArray(),
-        quaternion: b.quaternion.toArray(),
-        scale: b.scale.toArray()
-      }
-    })
-    console.log(snap)
-  }
 
   // Create entity
   let targetEntity = createEntity()
