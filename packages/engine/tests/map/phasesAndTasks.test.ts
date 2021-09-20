@@ -1,7 +1,7 @@
 import Task from '../../src/map/classes/Task'
 import Phase from '../../src/map/classes/Phase'
 import AsyncPhase from '../../src/map/classes/AsyncPhase'
-import startAvailableTasks from '../../src/map/functions/startAvailableTasks'
+import actuateLazy from '../../src/map/functions/actuateLazy'
 import AsyncTask from '../../src/map/classes/AsyncTask'
 import MapCache from '../../src/map/classes/MapCache'
 import ArrayKeyedMap from '../../src/map/classes/ArrayKeyedMap'
@@ -130,7 +130,7 @@ function expectAllAsyncTasksToHaveBeenStartedOnce<TaskType extends AsyncTask<any
   expect(taskCount).toBeGreaterThan(0)
 }
 
-describe('startAvailableTasks integration with (Async)Task/Phase', () => {
+describe('actuateLazy() integration with (Async)Task/Phase', () => {
 
   beforeEach(() => jest.clearAllMocks())
 
@@ -138,7 +138,7 @@ describe('startAvailableTasks integration with (Async)Task/Phase', () => {
     const chop = new ChopVeggiePhase()
     const saute = new SauteVeggiesPhase()
     const phases = [chop, saute]
-    startAvailableTasks(phases)
+    actuateLazy(phases)
     expectAllTasksToHaveBeenExecuted(chop)
     expectAllTasksToHaveBeenExecuted(saute)
   })
@@ -147,7 +147,7 @@ describe('startAvailableTasks integration with (Async)Task/Phase', () => {
     const boil = new BoilWaterPhase()
     const order = new OrderTakeoutPhase()
     const phases = [boil, order]
-    startAvailableTasks(phases)
+    actuateLazy(phases)
     expectAllAsyncTasksToHaveBeenStartedOnce(boil)
     expectAllAsyncTasksToHaveBeenStartedOnce(order)
   })
@@ -155,12 +155,12 @@ describe('startAvailableTasks integration with (Async)Task/Phase', () => {
   it('executes all tasks that have been added since last call', () => {
     const chop = new ChopVeggiePhase()
     const phases = [chop]
-    startAvailableTasks(phases)
+    actuateLazy(phases)
 
     expectAllTasksToHaveBeenExecuted(chop)
 
     chop.tasks.push(new ChopVeggieTask())
-    startAvailableTasks(phases)
+    actuateLazy(phases)
 
     expectAllTasksToHaveBeenExecuted(chop)
   })
@@ -168,12 +168,12 @@ describe('startAvailableTasks integration with (Async)Task/Phase', () => {
   it('starts only all async tasks that have been added since last call', () => {
     const order = new OrderTakeoutPhase()
     const phases = [order]
-    startAvailableTasks(phases)
+    actuateLazy(phases)
 
     expectAllAsyncTasksToHaveBeenStartedOnce(order)
 
     phases[0].fineEstablishments.push(['kfc'], ['chuck e cheese'])
-    startAvailableTasks(phases)
+    actuateLazy(phases)
 
     expectAllAsyncTasksToHaveBeenStartedOnce(order)
   })
@@ -182,7 +182,7 @@ describe('startAvailableTasks integration with (Async)Task/Phase', () => {
     const chop = new ChopVeggiePhase()
     const boil = new BoilWaterPhase()
     const phases = [boil, chop]
-    startAvailableTasks(phases)
+    actuateLazy(phases)
     expect(chop.cleanup).toHaveBeenCalledTimes(1)
     expect(boil.cleanup).toHaveBeenCalledTimes(1)
   })

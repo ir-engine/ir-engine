@@ -9,12 +9,12 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { World } from '../ecs/classes/World'
-import startAvailableTasks from './functions/startAvailableTasks'
 import { createProductionPhases } from './functions/createProductionPhases'
 import computeDistanceFromCircle from './functions/computeDistanceFromCircle'
 import MapFeatureLabelComponent from './MapFeatureLabelComponent'
 import { UpdatableComponent } from '../scene/components/UpdatableComponent'
 import { Updatable } from '../scene/interfaces/Updatable'
+import actuateLazy from './functions/actuateLazy'
 
 const $vector3 = new Vector3()
 
@@ -70,7 +70,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
         viewerTransform.position,
         mapScale
       )
-      startAvailableTasks(phases)
+      actuateLazy(phases)
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0

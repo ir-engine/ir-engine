@@ -7,7 +7,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { MapComponent } from '../../map/MapComponent'
 import { Group, Vector3 } from 'three'
 import { createProductionPhases } from '../../map/functions/createProductionPhases'
-import execTasksCompletely from '../../map/functions/execTasksCompletely'
+import actuateEager from '../../map/functions/actuateEager'
 import createStore from '../../map/functions/createStore'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 
@@ -48,5 +48,5 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     new Vector3(0, 0, 0),
     1
   )
-  await execTasksCompletely(phases)
+  await actuateEager(phases)
 }

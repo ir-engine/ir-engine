@@ -11,13 +11,13 @@ import { createWorld } from '../../src/ecs/functions/EngineFunctions'
 import { System } from 'bitecs'
 import createSUT from '../../src/map/MapUpdateSystem'
 import createStore from '../../src/map/functions/createStore'
-import startAvailableTasks from '../../src/map/functions/startAvailableTasks'
 import { createProductionPhases } from '../../src/map/functions/createProductionPhases'
 import createFeatureLabel from '../../src/map/functions/createFeatureLabel'
 import MapFeatureLabelComponent from '../../src/map/MapFeatureLabelComponent'
 import { lineString } from '@turf/helpers'
+import actuateLazy from '../../src/map/functions/actuateLazy'
 
-jest.mock('../../src/map/functions/startAvailableTasks')
+jest.mock('../../src/map/functions/actuateLazy')
 jest.mock('../../src/map/functions/createProductionPhases')
 jest.mock('../../src/map/functions/createFeatureLabel', () => {
   const { Object3D } = jest.requireActual('three')
@@ -86,7 +86,7 @@ describe('MapUpdateSystem', () => {
     viewerTransform.position.set((triggerRefreshRadius / 2) * mapScale, 0, 0)
     execute(world)
 
-    expect(startAvailableTasks).not.toHaveBeenCalled()
+    expect(actuateLazy).not.toHaveBeenCalled()
   })
 
   it('start a new production run when player crosses the boundary', async () => {
@@ -97,19 +97,19 @@ describe('MapUpdateSystem', () => {
     execute(world)
 
     expect(createProductionPhases).toHaveBeenCalledTimes(1)
-    expect(startAvailableTasks).toHaveBeenCalledTimes(1)
+    expect(actuateLazy).toHaveBeenCalledTimes(1)
 
     viewerTransform.position.set(triggerRefreshRadius * 1.5 * mapScale, 0, 0)
     execute(world)
 
     expect(createProductionPhases).toHaveBeenCalledTimes(1)
-    expect(startAvailableTasks).toHaveBeenCalledTimes(1)
+    expect(actuateLazy).toHaveBeenCalledTimes(1)
 
     viewerTransform.position.set(triggerRefreshRadius * 2 * mapScale, 0, 0)
     execute(world)
 
     expect(createProductionPhases).toHaveBeenCalledTimes(2)
-    expect(startAvailableTasks).toHaveBeenCalledTimes(2)
+    expect(actuateLazy).toHaveBeenCalledTimes(2)
   })
 
   it('adds and positions labels in the scene (if close enough)', () => {
@@ -120,7 +120,7 @@ describe('MapUpdateSystem', () => {
       [4, 2]
     ])
     feature.properties.name = "don't panic"
-    const label = createFeatureLabel(feature)
+    const label = createFeatureLabel(feature, [0, 0])
     const labelEntity = createEntity(world)
     addComponent(labelEntity, MapFeatureLabelComponent, { value: label }, world)
 
