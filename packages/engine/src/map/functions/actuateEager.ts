@@ -1,4 +1,4 @@
-import { TaskStatus } from '../classes/AsyncTask'
+import { TaskStatus } from '../classes/Task'
 import Phase from '../classes/Phase'
 
 export default async function actuateEager(phases: Phase<any>[]): Promise<any[]> {

@@ -1,4 +1,4 @@
-import { TaskStatus } from '../classes/AsyncTask'
+import { TaskStatus } from '../classes/Task'
 import Phase from '../classes/Phase'
 
 // TODO be more lazy?
