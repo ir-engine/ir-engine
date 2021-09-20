@@ -9,7 +9,7 @@ export default class CreateCompleteObjectTask extends Task<MapDerivedFeatureComp
   featureCache: FeatureCache<Feature>
   geometryCache: FeatureCache<MapDerivedFeatureGeometry>
   completeObjectsCache: FeatureCache<MapDerivedFeatureComplete>
-  layerName: string
+  layerName: ILayerName
   x: number
   y: number
   tileIndex: string
@@ -17,7 +17,7 @@ export default class CreateCompleteObjectTask extends Task<MapDerivedFeatureComp
     featureCache: FeatureCache<Feature>,
     geometryCache: FeatureCache<MapDerivedFeatureGeometry>,
     completeObjectsCache: FeatureCache<MapDerivedFeatureComplete>,
-    layerName: string,
+    layerName: ILayerName,
     x: number,
     y: number,
     tileIndex: string
@@ -37,7 +37,7 @@ export default class CreateCompleteObjectTask extends Task<MapDerivedFeatureComp
 
     const feature = this.featureCache.get(key)
     const geometry = this.geometryCache.get(key)
-    return createCompleteObject(layerName as ILayerName, geometry, feature)
+    return createCompleteObject(layerName, geometry, feature)
   })
 
   exec() {
