@@ -104,7 +104,7 @@ export default function createTaskWorker<TaskId, TaskArgs extends any[], TaskRes
   if (isClient) {
     const getTaskContext = (id: TaskId) => ({
       postResult(result: TaskResult, transfer?: Transferable[]) {
-        postMessage({ id, result }, transfer)
+        ;(postMessage as DedicatedWorkerGlobalScope['postMessage'])({ id, result }, transfer)
       }
     })
 
