@@ -119,6 +119,16 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
       ;(this.el as any).play()
     }
   }
+  onUserEnter(): void {
+    ;(this.el as any).play()
+  }
+  onUserStays(): void {
+    ;(this.el as any).play()
+  }
+  onUserExit(): void {
+    ;(this.el as any).stop()
+    ;(this.el as any).currentTime = 0
+  }
   onPause(): void {
     ;(this.el as any).pause()
     ;(this.el as any).currentTime = 0
