@@ -45,10 +45,8 @@ const Featured = ({ feedsState, getFeeds, type, creatorId, removeFeed }: Props) 
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
-      console.log(auth)
       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
-      console.log('asdas')
     }
   }, [type, creatorId, feedsState.get('feedsFetching')])
 
