@@ -1,7 +1,20 @@
-import { AnimationMixer, Object3D, Bone, Group, Skeleton, SkeletonHelper, SkinnedMesh } from 'three'
+import {
+  AdditiveBlending,
+  AnimationMixer,
+  Bone,
+  DoubleSide,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  PlaneGeometry,
+  Skeleton,
+  SkinnedMesh,
+  sRGBEncoding
+} from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -9,18 +22,16 @@ import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { Mesh, PlaneGeometry, MeshBasicMaterial, AdditiveBlending, sRGBEncoding, DoubleSide } from 'three'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { DissolveEffect } from '../DissolveEffect'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { bonesData2 } from '../DefaultSkeletonBones'
-import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
 import { IKObj } from '../../ikrig/components/IKObj'
 import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
+import { ArmatureType } from '../../ikrig/enums/ArmatureType'
 
 export const setAvatar = (entity, avatarId, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -84,17 +95,6 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         }
       })
 
-      // animation will be applied to this skeleton instead of avatar
-      const sourceSkeletonRoot = SkeletonUtils.clone(getDefaultSkeleton().parent)
-      const sourceSkinnedMesh = sourceSkeletonRoot.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-      {
-        // setup ikrig ==========================================
-        // TODO: find the way to get Armature Type
-        // TODO: find the way to separate them, we will have two rigs on same entity
-        addComponent(entity, IKObj, { ref: sourceSkinnedMesh })
-        addRig(entity, sourceSkeletonRoot)
-      }
-
       animationComponent.mixer.stopAllAction()
       avatar.modelContainer.children.forEach((child) => child.removeFromParent())
 
@@ -113,40 +113,28 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         }
       })
 
-      animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
       model.children.forEach((child) => avatar.modelContainer.add(child))
+
+      // TODO: find skinned mesh in avatar.modelContainer
+      const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+      const rootBone = avatarSkinnedMesh.skeleton.bones.find((b) => b.parent.type !== 'Bone')
+      addComponent(entity, IKObj, { ref: avatarSkinnedMesh })
+      // TODO: add way to handle armature type
+      const armatureType = avatarURL.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
+      addTargetRig(entity, rootBone.parent, null, false, armatureType)
+      addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
+
+      // animation will be applied to this skeleton instead of avatar
+      const sourceSkeletonRoot = SkeletonUtils.clone(getDefaultSkeleton().parent)
+      addRig(entity, sourceSkeletonRoot)
+      animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
 
       if (avatarAnimationComponent.currentState) {
         AnimationRenderer.mountCurrentState(entity)
       }
 
-      // TODO: find skinned mesh in avatar.modelContainer
-      const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-      console.log('avatarSkinnedMesh', avatarSkinnedMesh)
-      addComponent(entity, IKObj, { ref: avatarSkinnedMesh })
-      const rig = addTargetRig(entity, avatar.modelContainer)
-      console.log('avatar rig', rig)
-      const ikpose = addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
-      console.log('avatar ikpose', ikpose)
-      console.log('ac', animationComponent)
-
-      const sh0 = new SkeletonHelper(avatar.modelContainer)
-      Engine.scene.add(sh0)
-
-      //avatar.modelContainer.add(sourceSkeletonRoot)
-      const sh = new SkeletonHelper(sourceSkeletonRoot)
-      Engine.scene.add(sh)
-      Engine.scene.add(sourceSkeletonRoot)
-
       // advance animation for a frame to eliminate potential t-pose
       animationComponent.mixer.update(1 / 60)
-
-      console.log(
-        'entity has all 3',
-        hasComponent(entity, IKRigComponent),
-        hasComponent(entity, IKRigTargetComponent),
-        hasComponent(entity, IKPoseComponent)
-      )
 
       loadGrowingEffectObject(entity, materialList)
     }

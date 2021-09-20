@@ -44,7 +44,7 @@ import { addRig, addTargetRig } from '@xrengine/engine/src/ikrig/functions/RigFu
 import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { bonesData, bonesData2 } from '../../../../engine/src/avatar/DefaultSkeletonBones'
+import { bonesAllison, bonesData, bonesData2 } from '../../../../engine/src/avatar/DefaultSkeletonBones'
 import { SkeletonUtils } from '../../../../engine/src/avatar/SkeletonUtils'
 
 const AnimationSystem = async (world: World): Promise<System> => {
@@ -226,7 +226,7 @@ const Page = () => {
         result.group,
         sourceEntityRef.current,
         new Vector3(0, 0, 0),
-        new Quaternion(),
+        new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI),
         new Vector3(1, 1, 1)
       )
         .then(({ entity, skeletonHelper }) => {
@@ -606,6 +606,28 @@ async function loadAndSetupModel(
   })[0]
 
   console.log('targetSkinnedMesh', targetSkinnedMesh)
+  if (bonesAllison.length === targetSkinnedMesh.skeleton.bones.length) {
+    console.log('----------check targetSkinnedMesh bones')
+    bonesAllison.forEach((boneData, index) => {
+      const p = new Vector3(...boneData.position)
+      const r = new Quaternion(...boneData.quaternion)
+      const s = new Vector3(...boneData.scale)
+      const tbone = targetSkinnedMesh.skeleton.bones[index]
+      console.log('    ', boneData.name, p.equals(tbone.position), r.equals(tbone.quaternion), s.equals(tbone.scale))
+    })
+    console.log('---------')
+    console.log('bones snapshot:')
+    const snap = targetSkinnedMesh.skeleton.bones.map((b) => {
+      return {
+        name: b.name,
+        parentIndex: b.parent.type === 'Bone' ? targetSkinnedMesh.skeleton.bones.indexOf(b.parent) : null,
+        position: b.position.toArray(),
+        quaternion: b.quaternion.toArray(),
+        scale: b.scale.toArray()
+      }
+    })
+    console.log(snap)
+  }
 
   // Create entity
   let targetEntity = createEntity()
@@ -626,7 +648,19 @@ async function loadAndSetupModel(
   //
 
   //setupIKRig(targetEntity, targetRig)
-  const targetRig = addTargetRig(targetEntity, targetSkinnedMesh.parent, null, false, armatureType)
+  // TODO: we need to pass nearest common parent of bones and skinned mesh to addRig function
+  const rootBone = targetSkinnedMesh.skeleton.bones.find((b) => b.parent.type !== 'Bone')
+
+  const model = new Group()
+  model.add(rootBone.parent)
+  // const model = targetRig.pose.bones[0].bone.parent
+
+  model.position.copy(position)
+  model.quaternion.copy(quaternion)
+  model.scale.copy(scale)
+  Engine.scene.add(model)
+
+  const targetRig = addTargetRig(targetEntity, rootBone.parent, null, false, armatureType)
 
   // Set the skinned mesh reference
   const targetObj = getComponent(targetEntity, IKObj)
@@ -651,11 +685,6 @@ async function loadAndSetupModel(
   // targetRig.tpose.align_foot('LeftFoot')
   // targetRig.tpose.align_foot('RightFoot')
   //targetRig.tpose.build()
-
-  targetModel.scene.position.copy(position)
-  targetModel.scene.quaternion.copy(quaternion)
-  targetModel.scene.scale.copy(scale)
-  Engine.scene.add(targetModel.scene)
 
   {
     // animated rig

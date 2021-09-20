@@ -460,11 +460,6 @@ export function applyIKPoseToIKRig(targetRig: IKRigComponentType, ikPose: IKPose
  * @param targetRig
  */
 function applyPoseToRig(targetRig: IKRigComponentType) {
-  // TODO: this is just a test, remove it!
-  const siblingSkinnedMeshes = targetRig.pose.bones[0].bone.parent.children.filter(
-    (child) => child.type === 'SkinnedMesh'
-  ) as SkinnedMesh[]
-
   for (let i = 0; i < targetRig.pose.bones.length; i++) {
     const poseBone = targetRig.pose.bones[i]
     const armatureBone = poseBone.bone
@@ -472,20 +467,8 @@ function applyPoseToRig(targetRig: IKRigComponentType) {
     armatureBone.position.copy(poseBone.local.position)
     armatureBone.quaternion.copy(poseBone.local.quaternion)
     armatureBone.scale.copy(poseBone.local.scale)
-    siblingSkinnedMeshes.forEach((mesh) => {
-      const siblingBone = mesh.skeleton?.bones[i]
-      if (!siblingBone || siblingBone === armatureBone || siblingBone.name !== armatureBone.name) {
-        return
-      }
-      siblingBone.position.copy(poseBone.local.position)
-      siblingBone.quaternion.copy(poseBone.local.quaternion)
-      siblingBone.scale.copy(poseBone.local.scale)
-    })
   }
   targetRig.pose.skeleton.update()
-  siblingSkinnedMeshes.forEach((mesh) => {
-    mesh.skeleton?.update()
-  })
 }
 
 export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IKRigComponentType) {
@@ -500,7 +483,7 @@ export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IK
   // Take note that vegeta and roborex's Hips are completely different but by using that inverse
   // direction trick, we are easily able to apply the same movement to both.
 
-  const parentRotation = rig.pose.getParentRotation(boneInfo.index)
+  const parentRotation = rig.tpose.getParentRotation(boneInfo.index)
 
   const q = new Quaternion()
     .setFromUnitVectors(FORWARD, ikPose.hip.dir) // Create Swing Rotation

@@ -50,24 +50,6 @@ function _addRig(
     points: null // will be populated later in setup rig
   })
 
-  //-----------------------------------------
-  // Apply Node's Starting Transform as an offset for poses.
-  // This is only important when computing World Space Transforms when
-  // dealing with specific skeletons, like Mixamo stuff.
-  // Need to do this to render things correctly
-  let objRoot = getComponent(entity, IKObj).ref // Obj is a ThreeJS Component
-  console.log('_addRig', objRoot, rootObject)
-
-  const rootQuaternion = new Quaternion()
-  const rootPosition = new Vector3()
-  const rootScale = new Vector3()
-  rootObject.getWorldQuaternion(rootQuaternion)
-  rootObject.getWorldPosition(rootPosition)
-  rootObject.getWorldScale(rootScale)
-
-  rig.pose.setOffset(rootQuaternion, rootPosition, rootScale)
-  rig.tpose.setOffset(rootQuaternion, rootPosition, rootScale)
-
   //
   // //-----------------------------------------
   // // Apply Node's Starting Transform as an offset for poses.

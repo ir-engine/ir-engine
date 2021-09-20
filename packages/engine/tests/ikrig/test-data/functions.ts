@@ -5,7 +5,6 @@ import {
   IKPoseComponent,
   IKPoseComponentType
 } from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
-import { IKRigComponent } from '@xrengine/engine/src/ikrig/components/IKRigComponent'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
 import { bones } from './pose1/ikrig.pose.bones'
 import { bones as tbones } from './ikrig.tpose.bones'
@@ -18,10 +17,7 @@ import {
 } from './ikrig.tests.types'
 import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
-import { addChain, addPoint, addRig, addTargetRig } from '../../../src/ikrig/functions/RigFunctions'
-import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
-import { setupMixamoIKRig } from '../../../src/ikrig/functions/IKFunctions'
-// import * as rawRig from './IKRig.run-1.json'
+import { addRig, addTargetRig } from '../../../src/ikrig/functions/RigFunctions'
 
 export const sourceMeshTransform = {
   position: new Vector3(100, 100, 100),
@@ -33,6 +29,11 @@ export const targetMeshTransform = {
   quaternion: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 1, 1).normalize()),
   scale: new Vector3(0.5, 0.5, 0.5)
 }
+// export const targetMeshTransform = {
+//   position: new Vector3(0, 0, 0),
+//   quaternion: new Quaternion(),
+//   scale: new Vector3(1, 1, 1)
+// }
 
 export function setupTestSourceEntity(sourceEntity: Entity): void {
   const bonesStates = adoptBones(bones)
