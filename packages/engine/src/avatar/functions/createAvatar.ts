@@ -138,7 +138,7 @@ export const createAvatar = (
       world.physics.physics.createMaterial(0, 0, 0),
       {
         collisionLayer: CollisionGroups.Avatars,
-        collisionMask: DefaultCollisionMask
+        collisionMask: CollisionGroups.Default | CollisionGroups.Ground
       }
     )
     const body = world.physics.addBody({
@@ -203,7 +203,12 @@ export const createAvatarController = (entity: Entity) => {
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   addComponent(entity, AvatarControllerComponent, {
     controller,
-    filterData: new PhysX.PxFilterData(CollisionGroups.Avatars, DefaultCollisionMask | CollisionGroups.Trigger, 0, 0),
+    filterData: new PhysX.PxFilterData(
+      CollisionGroups.Avatars,
+      CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
+      0,
+      0
+    ),
     collisions: [false, false, false],
     movementEnabled: true,
     isJumping: false,
