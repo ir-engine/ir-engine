@@ -21,8 +21,7 @@ export default abstract class CachingPhase<
   *getTasks(): Iterable<TaskType> {
     const createTaskUsingCache = createUsingCache(this.createTask.bind(this))
     for (const taskArgs of this.getTaskKeys()) {
-      const task = createTaskUsingCache(this.taskMap, taskArgs)
-      yield task
+      yield createTaskUsingCache(this.taskMap, taskArgs) as TaskType
     }
   }
   cleanup() {
