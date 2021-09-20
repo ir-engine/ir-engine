@@ -1,4 +1,5 @@
 import { Feature } from 'geojson'
+import { MAX_CACHED_FEATURES } from '../functions/createStore'
 import { FeatureKey, ILayerName, MapDerivedFeatureGeometry } from '../types'
 import { LongLat } from '../units'
 import ArrayKeyedMap from './ArrayKeyedMap'
@@ -33,7 +34,7 @@ export default class CreateGeometryPhase extends AsyncPhase<CreateGeometryTask, 
       if (feature.geometry.type !== 'Point') {
         yield key
         // TODO why does this for loop not end on its own??
-        if (count > 2000) break
+        if (count > MAX_CACHED_FEATURES) break
         count++
       }
     }
