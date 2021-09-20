@@ -9,8 +9,10 @@ onmessage = function ({ data }) {
 
   try {
     const geometry = new THREE.BufferGeometry()
-    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3, false))
-    geometry.setIndex(new THREE.BufferAttribute(index, 1, false))
+    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3))
+    if (index) {
+      geometry.setIndex(new THREE.BufferAttribute(index, 1))
+    }
     options.lazyGeneration = false
     const bvh = new MeshBVHLib.MeshBVH(geometry, options)
     const serialized = MeshBVHLib.MeshBVH.serialize(bvh, { copyIndexBuffer: false })
