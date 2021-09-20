@@ -5,14 +5,15 @@ import { createCollider } from '../../physics/functions/createCollider'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { addObject3DComponent } from './addObject3DComponent'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { NavMeshBuilder } from '../../map/NavMeshBuilder'
-import { computeBoundingBox, scaleAndTranslate } from '../../map/GeoJSONFns'
-import { Polygon, MultiPolygon, Position } from 'geojson'
-import { NavMesh } from 'yuka'
-import pc from 'polygon-clipping'
-import { METERS_PER_LONGLAT } from '../../map/units'
-import { TileFeaturesByLayer } from '../../map/types'
+
+// import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+// import { NavMeshBuilder } from '../../map/NavMeshBuilder'
+// import { computeBoundingBox, scaleAndTranslate } from '../../map/GeoJSONFns'
+// import { Polygon, MultiPolygon, Position } from 'geojson'
+// import { NavMesh } from 'yuka'
+// import pc from 'polygon-clipping'
+// import { METERS_PER_LONGLAT } from '../../map/units'
+// import { TileFeaturesByLayer } from '../../map/types'
 
 type GroundProps = {
   color: string
@@ -57,19 +58,19 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   return mesh
 }
 
-const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
-  const builder = new NavMeshBuilder()
-  const gBuildings = tiles
-    .reduce((acc, tiles) => acc.concat(tiles.building), [])
-    .map((feature) => {
-      return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
-    })
+// const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
+//   const builder = new NavMeshBuilder()
+//   const gBuildings = tiles
+//     .reduce((acc, tiles) => acc.concat(tiles.building), [])
+//     .map((feature) => {
+//       return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
+//     })
 
-  const gGround = computeBoundingBox(gBuildings)
-  let gBuildingNegativeSpace = [gGround.coordinates]
-  gBuildings.forEach((gPositiveSpace) => {
-    gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
-  })
-  builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
-  return builder.build()
-}
+//   const gGround = computeBoundingBox(gBuildings)
+//   let gBuildingNegativeSpace = [gGround.coordinates]
+//   gBuildings.forEach((gPositiveSpace) => {
+//     gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
+//   })
+//   builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
+//   return builder.build()
+// }
