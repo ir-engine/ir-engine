@@ -19,7 +19,7 @@ import CreateCompleteObjectTask from '../../map/classes/CreateCompleteObjectTask
 import { Entity } from '../../ecs/classes/Entity'
 import CreateLabelTask from '../classes/CreateLabelTask'
 
-const MAX_CACHED_FEATURES = 1024 * 4
+export const MAX_CACHED_FEATURES = 1024 * 4
 
 export default function createStore(
   center: LongLat,
