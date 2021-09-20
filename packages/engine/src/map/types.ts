@@ -36,9 +36,10 @@ export interface FeatureWithTileIndex extends Feature {
   }
 }
 
-export interface Text3D extends Object3D {
+export interface Text3D extends Mesh {
   sync(): void
   update(): void
+  dispose(): void
 }
 
 export interface MapDerivedFeatureGeometry {
