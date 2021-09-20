@@ -1,3 +1,4 @@
+import { Value } from './../../../../engine/src/networking/types/SnapshotDataTypes'
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
@@ -5,6 +6,7 @@ import { Dispatch } from 'redux'
 import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import {
   fetchingFeeds,
   feedsRetrieved,
@@ -80,8 +82,8 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         })
         dispatch(feedsMyFeaturedRetrieved(feedsResults.data))
       } else if (type && type === 'admin') {
-        const user = getState().get('auth').get('user')
-        if (user.userRole === 'admin') {
+        const user = useAuthState().user
+        if (user?.userRole?.value === 'admin') {
           dispatch(fetchingAdminFeeds())
           const feedsResults = await client.service('feed').find({
             query: {

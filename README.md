@@ -142,6 +142,7 @@ The default username is 'server', the default password is 'password', the defaul
    In /packages/server, run ```npm run dev``` which will launch the api server, game server and file server.
    If you are not using gameservers, you can instead run ```npm run dev-api-server``` in the api server.
    In the final tab, go to /packages/client and run ```npm run dev```.
+   If you are on windows you need to use ```npm run dev-windows``` instead of ```npm run dev```.
    
 #### 9. In a browser, navigate to https://127.0.0.1:3000/location/test
    The database seeding process creates a test empty location called 'test'.

@@ -2,6 +2,7 @@ import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunction
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { accessAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { client } from '@xrengine/client-core/src/feathers'
@@ -22,7 +23,7 @@ const store = Store.store
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(channelServerProvisioning())
-    const token = getState().get('auth').get('authUser').accessToken
+    const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
       const instance = await client.service('instance').find({
         query: {
@@ -54,9 +55,15 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(channelServerConnecting())
-      const authState = getState().get('auth')
-      const user = authState.get('user')
-      const token = authState.get('authUser').accessToken
+      const authState = accessAuthState()
+      const user = authState.user.value
+      const token = authState.authUser.accessToken.value
+      const chatState = getState().get('chat')
+      const channelState = chatState.get('channels')
+      const channels = channelState.get('channels')
+      const channelEntries = [...channels.entries()]
+      const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
+
       const channelConnectionState = getState().get('channelConnection')
       const instance = channelConnectionState.get('instance')
       const locationId = channelConnectionState.get('locationId')
@@ -80,7 +87,7 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
           user: user,
           sceneId: sceneId,
           startVideo: videoActive,
-          channelType: 'channel',
+          channelType: instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel',
           channelId: channelId,
           videoEnabled:
             currentLocation?.locationSettings?.videoEnabled === true ||
@@ -92,12 +99,13 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
         })
       } catch (error) {
         console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
+        console.log(error)
       }
 
       ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
       EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
-      MediaStreams.instance.channelType = 'channel'
+      MediaStreams.instance.channelType = instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel'
       MediaStreams.instance.channelId = channelId
       dispatch(channelServerConnected())
     } catch (err) {

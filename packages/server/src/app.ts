@@ -80,7 +80,6 @@ if (config.server.enabled) {
 
     // Set up Plugins and providers
     app.configure(rest())
-    console.log('server clientHost:', config.server.clientHost)
     app.configure(
       socketio(
         {

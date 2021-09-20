@@ -52,9 +52,12 @@ export const start = async (): Promise<Application> => {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   }
-  if (useSSL) logger.info('Starting server with HTTPS')
-  else logger.warn("Starting server with NO HTTPS, if you meant to use HTTPS try 'sudo bash generate-certs'")
   const port = config.gameserver.port
+  if (useSSL) console.log('Starting gameserver with HTTPS on', port)
+  else
+    console.log(
+      `Starting gameserver with NO HTTPS on ${port}, if you meant to use HTTPS try 'sudo bash generate-certs'`
+    )
 
   // http redirects for development
   if (useSSL) {

@@ -1,9 +1,11 @@
 import getScene from '@xrengine/server-core/src/hooks/get-scene'
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
-    all: [],
+    all: [collectAnalytics()],
     find: [],
     get: [],
     create: [],

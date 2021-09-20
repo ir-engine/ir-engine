@@ -4,8 +4,8 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowComponent } from '../component/FollowComponent'
 import { goTo } from '../../common/functions/commandHandler'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/classes/System'
 
 const distanceToPlayer: number = 1
 const step: number = 10

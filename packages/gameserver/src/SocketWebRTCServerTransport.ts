@@ -36,6 +36,7 @@ import {
   handleWebRtcProduceData,
   handleWebRtcReceiveTrack,
   handleWebRtcRequestCurrentProducers,
+  handleWebRtcRequestNearbyUsers,
   handleWebRtcResumeConsumer,
   handleWebRtcResumeProducer,
   handleWebRtcSendTrack,
@@ -186,7 +187,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     if (this.socketIO != null)
       (this.socketIO as any).of('/').on('connect', (socket: Socket) => {
-        console.log('Got client connect')
         let listenersSetUp = false
         // Authorize user and make sure everything is valid before allowing them to join the world
         socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
@@ -327,6 +327,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
               handleWebRtcPauseProducer(socket, data, callback)
             )
 
+            socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
+              handleWebRtcRequestNearbyUsers(socket, data, callback)
+            )
             socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
               handleWebRtcRequestCurrentProducers(socket, data, callback)
             )

@@ -216,6 +216,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
       await this.props.uploadAvatarModel(
         this.state.selectedFile,
         new File([blob], thumbnailName),
+
         this.state.avatarName,
         this.props.isPublicAvatar
       )
