@@ -241,6 +241,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
 
       return true
     }
+    case 'getLocalUserId': {
+      if (isServer || !isBot(window)) return false
+
+      handleGetLocalUserIdCommand(userId)
+
+      return true
+    }
     default: {
       console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
       if (!isServer) return true
@@ -464,6 +471,11 @@ function handleListAllUsersCommand(userId) {
   if (players === undefined) return
 
   console.log('players|' + players)
+}
+function handleGetLocalUserIdCommand(userId) {
+  if (userId === undefined || userId === '') return
+
+  console.log('localId|' + userId)
 }
 
 function runAnimation(eid: any, emote: string, emoteParams: any) {
