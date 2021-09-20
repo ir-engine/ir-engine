@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { string, float32, Schema, uint32, uint8, uint64 } from '../../assets/superbuffer'
+import { string, float32, Schema, uint32, uint8, uint64, int8 } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
 import { setVelocityScaleAt } from '../../particles/classes/ParticleMesh'
 import { PostProcessingSchema } from '../../renderer/interfaces/PostProcessingSchema'
@@ -20,9 +20,12 @@ const poseSchema = new Schema({
 
 const ikPoseSchema = new Schema({
   networkId: uint32,
-  headPose: [float32],
-  leftPose: [float32],
-  rightPose: [float32]
+  headPosePosition: [float32],
+  headPoseRotation: [float32],
+  leftPosePosition: [float32],
+  leftPoseRotation: [float32],
+  rightPosePosition: [float32],
+  rightPoseRotation: [float32]
 })
 
 const networkSchema = new Schema({
@@ -49,9 +52,12 @@ export interface WorldStateInterface {
   /** transform of ik avatars. */
   ikPose: {
     networkId: number
-    headPose: Pose
-    leftPose: Pose
-    rightPose: Pose
+    headPosePosition: number[]
+    headPoseRotation: number[]
+    leftPosePosition: number[]
+    leftPoseRotation: number[]
+    rightPosePosition: number[]
+    rightPoseRotation: number[]
   }[]
 }
 

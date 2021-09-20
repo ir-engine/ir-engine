@@ -476,10 +476,14 @@ export default async function GolfSystem(world: World) {
           if (velMag < 0.001) {
             setBallState(activeBallEntity, BALL_STATES.STOPPED)
             setTimeout(() => {
-              const outOfBounds = !golfBallComponent.groundRaycast.hits.length
-              const activeHoleEntity = getHole(world, GolfState.currentHole.value)
               const position = getComponent(activeBallEntity, TransformComponent)?.position
               if (!position) return
+
+              golfBallComponent.groundRaycast.origin.copy(position)
+              world.physics.doRaycast(golfBallComponent.groundRaycast)
+              const outOfBounds = !golfBallComponent.groundRaycast.hits.length
+
+              const activeHoleEntity = getHole(world, GolfState.currentHole.value)
               const { collisionEvent } = getCollisions(activeBallEntity, GolfHoleComponent)
               const dist = position.distanceToSquared(getComponent(activeHoleEntity, TransformComponent).position)
               // ball-hole collision not being detected, not sure why, use dist for now

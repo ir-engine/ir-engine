@@ -40,7 +40,6 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { Config } from '@xrengine/common/src/config'
 import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
 import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
 import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
@@ -427,6 +426,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     registerPredefinedSources()
 
     ProjectManager.instance.init()
+    ProjectManager.instance.initializeFeathersClient(getToken())
+
     CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
 
     this.state = {
@@ -450,7 +451,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    ProjectManager.instance.initializeFeathersClient(getToken())
     if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
       this.props.fetchAdminLocations()
     }

@@ -17,10 +17,9 @@ import {
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
-import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -51,7 +50,6 @@ interface Props {
   containerProportions?: ContainerProportions
   peerId?: string
   appState?: any
-  authState?: any
   locationState?: any
   mediastream?: any
 }
@@ -59,7 +57,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     locationState: selectLocationState(state),
     mediastream: selectMediastreamState(state)
   }
@@ -79,7 +76,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [audioTrackClones, setAudioTrackClones] = useState([])
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, appState, authState, locationState, mediastream } = props
+  const { harmony, peerId, appState, locationState, mediastream } = props
   const userState = useUserState()
   const videoRef = React.useRef<HTMLVideoElement>()
   const audioRef = React.useRef<HTMLAudioElement>()
@@ -87,7 +84,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const audioStreamRef = useRef(audioStream)
 
   const userHasInteracted = appState.get('userHasInteracted')
-  const selfUser = authState.get('user')
+  const selfUser = useAuthState().user.value
   const currentLocation = locationState.get('currentLocation').get('location')
   const enableGlobalMute =
     currentLocation?.locationSettings?.locationType === 'showroom' &&
@@ -181,11 +178,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [userHasInteracted])
 
   useEffect(() => {
-    if (
-      harmony !== true &&
-      (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) &&
-      audioRef.current != null
-    )
+    if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null)
       audioRef.current.volume = 0
     else if (
       harmony === true
@@ -232,11 +225,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         setAudioProducerPaused(audioStream.paused)
       }
       // TODO: handle 3d audio switch on/off
-      if (
-        harmony !== true &&
-        (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1)
-      )
-        audioRef.current.volume = 0
+      if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled === true) audioRef.current.volume = 0
       if (
         harmony === true
         // selfUser?.user_setting?.spatialAudioEnabled === false ||
@@ -523,9 +512,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             {audioStream &&
               audioProducerPaused === false &&
               audioProducerGlobalMute === false &&
-              (harmony === true ||
-                selfUser?.user_setting?.spatialAudioEnabled === false ||
-                selfUser?.user_setting?.spatialAudioEnabled === 0) && (
+              (harmony === true || selfUser?.user_setting?.spatialAudioEnabled === false) && (
                 <div className={styles['audio-slider']}>
                   {volume > 0 && <VolumeDown />}
                   {volume === 0 && <VolumeMute />}

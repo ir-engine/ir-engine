@@ -1,7 +1,8 @@
 import * as authentication from '@feathersjs/authentication'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
-
+import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
+import { disallow, isProvider, iff, discard } from 'feathers-hooks-common'
 const { authenticate } = authentication.hooks
 
 export default {
@@ -17,22 +18,7 @@ export default {
             model: 'location-settings'
           }
         ]
-      }),
-      async (context: HookContext) => {
-        const userId = context.params['identity-provider']?.userId
-        const scope = await context.app.service('scope').Model.findOne({
-          where: {
-            userId
-          },
-          raw: true,
-          nest: true
-        })
-        // if(scope){
-        //   throw new Error("scope is not defined")
-        // }
-        console.log(scope)
-        return context
-      }
+      })
     ],
     get: [
       addAssociations({
@@ -46,10 +32,11 @@ export default {
         ]
       })
     ],
-    create: [],
-    update: [],
-    patch: [],
+    create: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
+    patch: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
     remove: [
+      iff(isProvider('external'), verifyScope('location', 'write') as any),
       async (context: HookContext): Promise<HookContext> => {
         const location = await (context.app.service('location') as any).Model.findOne({
           where: {

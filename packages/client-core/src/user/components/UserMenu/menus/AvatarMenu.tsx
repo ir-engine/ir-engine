@@ -38,6 +38,7 @@ const AvatarMenu = (props: any): any => {
 
   useEffect(() => {
     if (page * imgPerPage >= props.avatarList.length) {
+      if (page === 0) return
       setPage(page - 1)
     }
   }, [props.avatarList])
@@ -96,6 +97,7 @@ const AvatarMenu = (props: any): any => {
     const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length)
     for (let i = startIndex; i < endIndex; i++) {
       const characterAvatar = props.avatarList[i]
+
       avatarList.push(
         <Card
           key={characterAvatar.avatar.id}

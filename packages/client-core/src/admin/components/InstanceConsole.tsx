@@ -23,7 +23,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
 import { selectAppState } from '../../common/reducers/app/selector'
-import { selectAuthState } from '../../user/reducers/auth/selector'
+import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
 import { selectAdminInstanceState } from '../reducers/admin/instance/selector'
 import { fetchAdminInstances, removeInstance } from '../reducers/admin/instance/service'
@@ -35,7 +35,6 @@ if (!global.setImmediate) {
 
 interface Props {
   adminInstanceState?: any
-  authState?: any
   locationState?: any
   fetchAdminInstances?: any
   removeInstance?: any
@@ -44,7 +43,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
     adminInstanceState: selectAdminInstanceState(state)
   }
 }
@@ -78,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function InstanceConsole(props: Props) {
   const classes = useStyles()
-  const { adminInstanceState, authState, fetchAdminInstances, removeInstance } = props
+  const { adminInstanceState, fetchAdminInstances, removeInstance } = props
   const initialInstance = {
     id: '',
     ipAddress: '',
@@ -86,7 +84,7 @@ function InstanceConsole(props: Props) {
     locationId: ''
   }
 
-  const user = authState.get('user')
+  const user = useAuthState().user
   const [selectedInstance, setSelectedInstance] = useState(initialInstance)
   const [instanceCreateOpen, setInstanceCreateOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
@@ -233,11 +231,14 @@ function InstanceConsole(props: Props) {
   }
 
   useEffect(() => {
-    if (user?.id != null && (adminInstanceState.get('instances').get('updateNeeded') === true || refetch === true)) {
+    if (
+      user?.id.value != null &&
+      (adminInstanceState.get('instances').get('updateNeeded') === true || refetch === true)
+    ) {
       fetchAdminInstances()
     }
     setRefetch(false)
-  }, [authState, adminInstanceState, refetch])
+  }, [useAuthState(), adminInstanceState, refetch])
 
   const handleClickOpen = (instance: any) => {
     setInstanceId(instance)

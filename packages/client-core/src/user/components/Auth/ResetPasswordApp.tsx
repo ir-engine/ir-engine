@@ -3,22 +3,23 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { resetPassword } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import styles from './Auth.module.scss'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { useTranslation } from 'react-i18next'
+import { useDispatch } from 'react-redux'
 
 interface Props {
-  resetPassword: typeof resetPassword
   token: string
   completeAction: () => void
 }
 
 export const ResetPassword = (props: Props): any => {
-  const { resetPassword, token, completeAction } = props
+  const { token, completeAction } = props
+  const dispatch = useDispatch()
   const initialState = { password: '', isSubmitted: false }
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()
@@ -29,7 +30,7 @@ export const ResetPassword = (props: Props): any => {
   }
   const handleReset = (e: any): void => {
     e.preventDefault()
-    resetPassword(token, state.password)
+    dispatch(AuthService.resetPassword(token, state.password))
     setState({ ...state, isSubmitted: true })
   }
 
