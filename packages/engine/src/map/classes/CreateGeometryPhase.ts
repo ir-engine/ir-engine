@@ -26,8 +26,17 @@ export default class CreateGeometryPhase extends AsyncPhase<CreateGeometryTask, 
     this.center = center
   }
 
-  getTaskKeys() {
-    return this.featureCache.keys()
+  *getTaskKeys() {
+    let count = 0
+    for (const key of this.featureCache.keys()) {
+      const feature = this.featureCache.get(key)
+      if (feature.geometry.type !== 'Point') {
+        yield key
+        // TODO why does this for loop not end on its own??
+        if (count > 2000) break
+        count++
+      }
+    }
   }
 
   createTask(layerName: ILayerName, x: number, y: number, tileIndex: string) {
