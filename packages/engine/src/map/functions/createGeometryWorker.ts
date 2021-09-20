@@ -100,6 +100,8 @@ function buildGeometry(
     // TODO handle feature.geometry.type === 'GeometryCollection'?
   }
 
+  // TODO(perf): finding the center and bounding circle radius depend on calculating the bounding box,
+  // so calculate bouding box once
   const centerPointLongLat = turf.center(turf.points(coords)).geometry.coordinates
   const centerPoint = toMetersFromCenter(centerPointLongLat, center)
   const centerPointFlippedY = [centerPoint[0], -centerPoint[1]]
@@ -201,6 +203,9 @@ export function createTaskHandler() {
       { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, centerPoint, boundingCircleRadius },
       arrayBuffers
     )
+
+    geometry.dispose()
+    bufferGeometry.dispose()
   }
 }
 

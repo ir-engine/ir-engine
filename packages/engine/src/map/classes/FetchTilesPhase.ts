@@ -27,11 +27,13 @@ export default class FetchTilesPhase extends AsyncPhase<FetchTileTask, TileKey, 
     this.minimumSceneRadius = minimumSceneRadius
   }
 
-  *getTaskKeys() {
+  getTaskKeys() {
     return createSurroundingTileIterator(this.center, this.minimumSceneRadius, TILE_ZOOM)
   }
 
   createTask(x: number, y: number) {
     return new FetchTileTask(this.cache, x, y)
   }
+
+  cleanupCacheItem() {}
 }

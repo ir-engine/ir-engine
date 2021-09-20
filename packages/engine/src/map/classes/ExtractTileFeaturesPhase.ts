@@ -36,4 +36,6 @@ export default class ExtractTileFeaturesPhase extends CachingPhase<ExtractTileFe
   cleanup() {
     this.cache.evictLeastRecentlyUsedItems()
   }
+
+  cleanupCacheItem() {}
 }

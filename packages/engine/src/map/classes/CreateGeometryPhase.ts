@@ -33,4 +33,8 @@ export default class CreateGeometryPhase extends AsyncPhase<CreateGeometryTask, 
   createTask(layerName: ILayerName, x: number, y: number, tileIndex: string) {
     return new CreateGeometryTask(this.featureCache, this.cache, layerName, x, y, tileIndex, this.center)
   }
+
+  cleanupCacheItem(value: MapDerivedFeatureGeometry) {
+    value.geometry.dispose()
+  }
 }

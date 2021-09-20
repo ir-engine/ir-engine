@@ -6,6 +6,7 @@ export interface IPhase<TaskType> {
 
 export default abstract class Phase<TaskType> implements IPhase<TaskType> {
   isCachingPhase = false
+  isAsyncPhase = false
   abstract getTasks(): Iterable<TaskType>
   abstract cleanup(): void
 }

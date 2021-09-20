@@ -1,5 +1,5 @@
 import { Feature } from 'geojson'
-import { FeatureKey, ILayerName } from '../types'
+import { FeatureKey, ILayerName, MapFeatureLabel } from '../types'
 import FeatureCache from './FeatureCache'
 import CachingPhase from './CachingPhase'
 import ArrayKeyedMap from './ArrayKeyedMap'
@@ -7,6 +7,8 @@ import CreateLabelTask from './CreateLabelTask'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { LongLat } from '../units'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import MapFeatureLabelComponent from '../MapFeatureLabelComponent'
 
 const ALLOWED_GEOMETRIES: Feature['geometry']['type'][] = ['LineString']
 
@@ -57,5 +59,10 @@ export default class CreateLabelPhase extends CachingPhase<CreateLabelTask, Feat
       tileIndex,
       this.originalCenter
     )
+  }
+
+  cleanupCacheItem(entity: Entity) {
+    const label = getComponent(entity, MapFeatureLabelComponent, false, this.world).value
+    label.mesh.dispose()
   }
 }

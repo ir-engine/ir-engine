@@ -5,4 +5,6 @@ export default abstract class AsyncPhase<
   TaskType extends AsyncTask<TaskResult>,
   TaskKey extends any[],
   TaskResult
-> extends CachingPhase<TaskType, TaskKey, TaskResult> {}
+> extends CachingPhase<TaskType, TaskKey, TaskResult> {
+  isAsyncPhase = true
+}
