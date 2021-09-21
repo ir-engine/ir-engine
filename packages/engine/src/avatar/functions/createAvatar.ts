@@ -29,6 +29,7 @@ import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent '
+import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -158,6 +159,10 @@ export const createAvatar = (
     })
     addComponent(entity, ColliderComponent, { body })
   } else {
+    addComponent(entity, SpawnPoseComponent, {
+      position: new Vector3().copy(spawnTransform.position),
+      rotation: new Quaternion().copy(spawnTransform.rotation)
+    })
     createAvatarController(entity)
   }
 }

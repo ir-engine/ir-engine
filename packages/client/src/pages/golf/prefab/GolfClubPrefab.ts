@@ -171,15 +171,27 @@ export const updateClub = (entityClub: Entity): void => {
 
     const shape = useWorld().physics.getOriginalShapeObject(collider.body.getShapes())
 
+    // get club velocity in local space
+    golfClubComponent.headGroup.getWorldPosition(vector1)
+    golfClubComponent.headGroup.worldToLocal(vector1.add(golfClubComponent.velocity))
+
+    const length = vector1.x * 2
+    const newBoxGeometry = new PhysX.PxBoxGeometry(
+      Math.abs(length) + clubHalfWidth * 0.5,
+      clubHalfWidth * 0.5,
+      clubPutterLength
+    )
+    shape.setGeometry(newBoxGeometry)
     shape.setLocalPose({
       translation: {
-        x: vector0.x,
+        x: vector0.x - length,
         y: vector0.y,
         z: vector0.z
       },
       rotation: golfClubComponent.headGroup.quaternion
     })
-    ;(shape as any)._debugNeedsUpdate = true
+
+    shape._debugNeedsUpdate = true
   }
 }
 
@@ -189,7 +201,7 @@ export const updateClub = (entityClub: Entity): void => {
 
 const clubHalfWidth = 0.03
 const clubPutterLength = 0.1
-const clubLength = 1
+const clubLength = 1.05
 const rayLength = clubLength * 1.1
 
 type GolfClubSpawnParameters = {

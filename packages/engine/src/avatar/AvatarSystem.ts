@@ -21,7 +21,7 @@ import {
   NetworkWorldActionType
 } from '../networking/interfaces/NetworkWorldActions'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
-import { dispatchFromServer } from '../networking/functions/dispatch'
+import { dispatchFromClient, dispatchFromServer } from '../networking/functions/dispatch'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { World } from '../ecs/classes/World'
 import { System } from '../ecs/classes/System'
@@ -112,25 +112,6 @@ export default async function AvatarSystem(world: World): Promise<System> {
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
 
       detectUserInTrigger(entity)
-
-      // TODO: implement scene lower bounds parameter
-      if (!isClient && transform.position.y < -10) {
-        const { position, rotation } = SpawnPoints.instance.getRandomSpawnPoint()
-
-        const networkObject = getComponent(entity, NetworkObjectComponent)
-        dispatchFromServer(
-          NetworkWorldAction.teleportObject(networkObject.networkId, [
-            position.x,
-            position.y,
-            position.z,
-            rotation.x,
-            rotation.y,
-            rotation.z,
-            rotation.w
-          ])
-        )
-        continue
-      }
     }
   }
 }

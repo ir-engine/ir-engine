@@ -150,8 +150,21 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
           dispatchFromClient(GolfAction.playerStroke(uniqueId))
         }
       )
+
+      const teleportplayerOut = 141
+      inputs.schema.inputMap.set('KeyO', teleportplayerOut)
+      inputs.schema.behaviorMap.set(
+        teleportplayerOut,
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
+          if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+          const controller = getComponent(entity, AvatarControllerComponent)
+          const pos = new Vector3(0, -5, 0)
+          controller.controller.setPosition(pos)
+        }
+      )
+
       let xrSetup = false
-      const setupBotKey = 141
+      const setupBotKey = 142
       inputs.schema.inputMap.set('Semicolon', setupBotKey)
       inputs.schema.behaviorMap.set(setupBotKey, () => {
         if (xrSetup) return
@@ -160,7 +173,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
       })
     }
 
-    const swingClubKey = 142
+    const swingClubKey = 143
     inputs.schema.inputMap.set('KeyL', swingClubKey)
     inputs.schema.behaviorMap.set(
       swingClubKey,
@@ -176,7 +189,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
     )
   }
 
-  const showScorecardKey = 143
+  const showScorecardKey = 144
   inputs.schema.inputMap.set('KeyI', showScorecardKey)
   inputs.schema.inputMap.set(GamepadButtons.B, showScorecardKey)
   inputs.schema.behaviorMap.set(

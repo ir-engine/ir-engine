@@ -242,8 +242,8 @@ export class Physics {
     let collisionLayer = options.collisionLayer ?? defaultMask
     let collisionMask = options.collisionMask ?? defaultMask
 
-    ;(shape as any)._collisionLayer = collisionLayer
-    ;(shape as any)._collisionMask = collisionMask
+    shape._collisionLayer = collisionLayer
+    shape._collisionMask = collisionMask
 
     shape.setSimulationFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
     shape.setQueryFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
@@ -259,7 +259,7 @@ export class Physics {
       shape.setRestOffset(options.restOffset)
     }
 
-    ;(shape as any)._debugNeedsUpdate = true
+    shape._debugNeedsUpdate = true
     return shape
   }
 
@@ -304,7 +304,7 @@ export class Physics {
   }
 
   removeBody(body) {
-    const id = (body as any)._id
+    const id = body._id
     const shapes = body.getShapes()
     const shapesArray = ((shapes as PhysX.PxShape[]).length ? shapes : [shapes]) as PhysX.PxShape[]
     shapesArray.forEach((shape) => {
@@ -542,17 +542,17 @@ export const getGeometryType = (shape: PhysX.PxShape) => {
 }
 
 export const isKinematicBody = (body: PhysX.PxRigidActor) => {
-  return (body as any)._type === BodyType.KINEMATIC
+  return body._type === BodyType.KINEMATIC
 }
 
 export const isControllerBody = (body: PhysX.PxRigidActor) => {
-  return (body as any)._type === BodyType.CONTROLLER
+  return body._type === BodyType.CONTROLLER
 }
 
 export const isDynamicBody = (body: PhysX.PxRigidActor) => {
-  return (body as any)._type === BodyType.DYNAMIC
+  return body._type === BodyType.DYNAMIC
 }
 
 export const isStaticBody = (body: PhysX.PxRigidActor) => {
-  return (body as any)._type === BodyType.STATIC
+  return body._type === BodyType.STATIC
 }
