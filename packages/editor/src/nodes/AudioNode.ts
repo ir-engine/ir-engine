@@ -3,6 +3,10 @@ import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry } from 'three'
 import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 import EditorNodeMixin from './EditorNodeMixin'
+import { CommandManager } from '../managers/CommandManager'
+import EditorEvents from '../constants/EditorEvents'
+import { SceneManager } from '../managers/SceneManager'
+import { ControlManager } from '../managers/ControlManager'
 
 let audioHelperTexture = null
 
@@ -12,8 +16,8 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   static async load() {
     audioHelperTexture = await loadTexture('/editor/audio-icon.png')
   }
-  static async deserialize(editor, json, loadAsync, onError) {
-    const node = (await super.deserialize(editor, json)) as AudioNode
+  static async deserialize(json, loadAsync, onError) {
+    const node = (await super.deserialize(json)) as AudioNode
     const props = json.components.find((c) => c.name === 'audio')
     loadAsync(
       (async () => {
@@ -41,8 +45,8 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   volume: number = 0.5
   controls: boolean = true
   helper: Mesh
-  constructor(editor) {
-    super(editor, editor.audioListener)
+  constructor() {
+    super(SceneManager.instance.audioListener)
     const geometry = new PlaneBufferGeometry()
     const material = new MeshBasicMaterial()
     material.map = audioHelperTexture
@@ -66,13 +70,13 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     this._canonicalUrl = src || ''
     this.helper.visible = false
     this.hideErrorIcon()
-    if (this.editor.playing) {
+    if (ControlManager.instance.isInPlayMode) {
       ;(this.el as any).pause()
     }
     try {
       const { url, contentType } = await resolveMedia(src)
       await super.load(url, contentType)
-      if (this.editor.playing && this.autoPlay) {
+      if (ControlManager.instance.isInPlayMode && this.autoPlay) {
         ;(this.el as any).play()
       }
       this.helper.visible = true
@@ -80,8 +84,9 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       this.showErrorIcon()
       console.log(`Error loading audio ${this._canonicalUrl}`)
     }
-    this.editor.emit('objectsChanged', [this])
-    this.editor.emit('selectionChanged')
+    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
+    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+
     // this.hideLoadingCube();
     return this
   }
@@ -95,7 +100,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     ;(this.el as any).currentTime = 0
   }
   clone(recursive) {
-    return new (this as any).constructor(this.editor, this.audioListener).copy(this, recursive)
+    return new (this as any).constructor(this.audioListener).copy(this, recursive)
   }
   copy(source, recursive = true) {
     if (recursive) {

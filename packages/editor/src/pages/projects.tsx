@@ -5,10 +5,10 @@ import { Person } from '@material-ui/icons'
 import LocationAdmin from '@xrengine/client-core/src/admin/components/Location'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import { Button, MediumButton } from '../components/inputs/Button'
+import { connectMenu, ContextMenu, MenuItem } from '../components/layout/ContextMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { Button, MediumButton } from '@xrengine/editor/src/components/inputs/Button'
-import { connectMenu, ContextMenu, MenuItem } from '@xrengine/editor/src/components/layout/ContextMenu'
 import {
   ErrorMessage,
   ProjectGrid,
@@ -16,10 +16,10 @@ import {
   ProjectGridContent,
   ProjectGridHeader,
   ProjectGridHeaderRow
-} from '@xrengine/editor/src/components/projects/ProjectGrid'
+} from '../components/projects/ProjectGrid'
+import templates from '../components/projects/templates'
+import { deleteProject, getProjects } from '../functions/projectFunctions'
 import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
-import templates from '@xrengine/editor/src/components/projects/templates'
-import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { connect, useDispatch } from 'react-redux'

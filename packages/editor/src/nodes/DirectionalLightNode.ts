@@ -5,8 +5,8 @@ import { CameraHelper } from 'three'
 export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirectionalLight) {
   static legacyComponentName = 'directional-light'
   static nodeName = 'Directional Light'
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { color, intensity, castShadow, shadowMapResolution, shadowBias, shadowRadius, cameraFar, showCameraHelper } =
       json.components.find((c) => c.name === 'directional-light').props
     node.color.set(color)
@@ -21,8 +21,8 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     }
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.helper = new EditorDirectionalLightHelper(this)
     this.helper.visible = false
     this.add(this.helper)

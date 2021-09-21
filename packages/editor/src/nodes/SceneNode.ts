@@ -26,6 +26,8 @@ import getNodeWithUUID from '../functions/getNodeWithUUID'
 import serializeColor from '../functions/serializeColor'
 import sortEntities from '../functions/sortEntities'
 import { isStatic, setStaticMode, StaticModes } from '../functions/StaticMode'
+import { NodeManager } from '../managers/NodeManager'
+import { SceneManager } from '../managers/SceneManager'
 import CubemapBakeNode from './CubemapBakeNode'
 import EditorNodeMixin, { SerializedNode } from './EditorNodeMixin'
 import GroupNode from './GroupNode'
@@ -36,7 +38,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   static canAddNode() {
     return false
   }
-  static async loadProject(editor, json) {
+  static async loadProject(json) {
     const { root, metadata, entities } = json
     let scene = null
     const dependencies = []
@@ -51,7 +53,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     for (const entityId of sortedEntities) {
       const entity = entities[entityId]
       let EntityNodeConstructor
-      for (const NodeConstructor of editor.nodeTypes) {
+      for (const NodeConstructor of NodeManager.instance.nodeTypes) {
         if (NodeConstructor.shouldDeserialize(entity)) {
           EntityNodeConstructor = NodeConstructor
           break
@@ -61,7 +63,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         console.warn(`No node constructor found for entity "${entity.name}"`)
       } else {
         try {
-          const node = await EntityNodeConstructor.deserialize(editor, entity, loadAsync, onError)
+          const node = await EntityNodeConstructor.deserialize(entity, loadAsync, onError)
           node.uuid = entityId
           if (entity.parent) {
             const parent = getNodeWithUUID(scene, entity.parent)
@@ -75,8 +77,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
           } else if (entityId === root) {
             scene = node
             scene.metadata = metadata
-            // Needed so that editor.scene is set correctly when used in nodes deserialize methods.
-            editor.scene = scene
+            // Needed so that scene is set correctly when used in nodes deserialize methods.
+            SceneManager.instance.scene = scene
           } else {
             throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
           }
@@ -93,8 +95,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   static shouldDeserialize(entityJson) {
     return entityJson.parent === undefined
   }
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     if (json.components) {
       const mtdata = json.components.find((c) => c.name == 'mtdata')
       if (mtdata) {
@@ -156,7 +158,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   url = null
-  metadata = {}
+  metadata = {} as any
 
   meta_data = ''
   _fogType = FogType.Disabled
@@ -198,8 +200,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   environmentNode: CubemapBakeNode = null
   //#endregion
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     setStaticMode(this, StaticModes.Static)
   }
 
@@ -244,7 +246,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   async setUpEnvironmentMapTexture() {
-    const pmremGenerator = new PMREMGenerator(this.editor.renderer.renderer)
+    const pmremGenerator = new PMREMGenerator(SceneManager.instance.renderer.renderer)
     switch (this.envMapTextureType) {
       case EnvMapTextureType.Equirectangular:
         try {
@@ -337,7 +339,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       data[i + 1] = Math.floor(col.g * 255)
       data[i + 2] = Math.floor(col.b * 255)
     }
-    const pmren = new PMREMGenerator(this.editor.renderer.renderer)
+    const pmren = new PMREMGenerator(SceneManager.instance.renderer.renderer)
     const texture = new DataTexture(data, resolution, resolution, RGBFormat)
     texture.encoding = sRGBEncoding
     this.environment = pmren.fromEquirectangular(texture).texture

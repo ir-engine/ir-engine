@@ -1,4 +1,5 @@
 import PostProcessing from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { SceneManager } from '../managers/SceneManager'
 import EditorNodeMixin from './EditorNodeMixin'
 
 /**
@@ -12,18 +13,18 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
   static haveStaticTags = false
   static postProcessingCallback: (node, isRemoved?) => void
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.postProcessingOptions = PostProcessing.defaultOptions
     PostProcessingNode.postProcessingCallback(this)
   }
 
-  static canAddNode(editor) {
-    return editor.scene.findNodeByType(PostProcessingNode) === null
+  static canAddNode() {
+    return SceneManager.instance.scene.findNodeByType(PostProcessingNode) === null
   }
 
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const postProcessing = json.components.find((c) => c.name === 'postprocessing')
     const { options } = postProcessing.props
     node.postProcessingOptions = options ?? PostProcessing.defaultOptions

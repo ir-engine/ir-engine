@@ -3,8 +3,8 @@ import EditorNodeMixin from './EditorNodeMixin'
 export default class SystemNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'system'
   static nodeName = 'System'
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { name } = json.components.find((c) => c.name === 'system').props
     node.name = name
     return node

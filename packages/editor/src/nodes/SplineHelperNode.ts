@@ -10,8 +10,8 @@ export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
   helper = null
   splineObject = null
 
-  // static async deserialize(editor, json) {
-  //   const node = await super.deserialize(editor, json);
+  // static async deserialize(json) {
+  //   const node = await super.deserialize(json);
   //   const {
   //     color,
   //     intensity,
@@ -32,8 +32,8 @@ export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
   //   }
   //   return node;
   // }
-  constructor(editor, spline) {
-    super(editor)
+  constructor(spline) {
+    super()
 
     this.splineObject = spline
     this.helper = new SplineHelper()

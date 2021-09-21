@@ -4,7 +4,6 @@ import { Cubes } from '@styled-icons/fa-solid/Cubes'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 type GroupNodeEditorProps = {
-  editor?: object
   node?: object
   t: Function
 }

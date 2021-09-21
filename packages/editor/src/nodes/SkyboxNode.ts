@@ -1,6 +1,7 @@
 import { Sky } from '@xrengine/engine/src/scene/classes/Sky'
 import { SceneBackgroundProps, SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
 import { Color, CubeTextureLoader, Mesh, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
+import { SceneManager } from '../managers/SceneManager'
 import EditorNodeMixin from './EditorNodeMixin'
 
 export default class SkyboxNode extends EditorNodeMixin(Sky) {
@@ -14,12 +15,12 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   cubemapPath = '/cubemap/'
   backgroundColor = '#000000'
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
   }
 
-  static canAddNode(editor) {
-    return editor.scene.findNodeByType(SkyboxNode) === null
+  static canAddNode() {
+    return SceneManager.instance.scene.findNodeByType(SkyboxNode) === null
   }
 
   async serialize(projectID) {
@@ -42,8 +43,8 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     return await super.serialize(projectID, { skybox })
   }
 
-  static async deserialize(editor, json) {
-    const node = (await super.deserialize(editor, json)) as SkyboxNode
+  static async deserialize(json) {
+    const node = (await super.deserialize(json)) as SkyboxNode
     const skybox = json.components.find((c) => c.name === 'skybox')
     const prop = skybox.props as SceneBackgroundProps
     if (prop.skyboxProps) {
@@ -70,7 +71,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   onRemove() {
-    this.editor.scene.background = new Color('black')
+    SceneManager.instance.scene.background = new Color('black')
   }
 
   prepareForExport() {
@@ -95,12 +96,12 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   setUpBackground(type: SkyTypeEnum) {
-    if (this.editor.scene.background?.dispose) this.editor.scene.background.dispose()
+    if (SceneManager.instance.scene.background?.dispose) SceneManager.instance.scene.background.dispose()
     ;(this.sky as Mesh).visible = false
 
     switch (type) {
       case SkyTypeEnum.color:
-        this.editor.scene.background = new Color(this.backgroundColor)
+        SceneManager.instance.scene.background = new Color(this.backgroundColor)
         break
 
       case SkyTypeEnum.cubemap:
@@ -110,12 +111,12 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         const posx = 'posx.jpg'
         const posy = 'posy.jpg'
         const posz = 'posz.jpg'
-        const renderer = this.editor.renderer.renderer
+        const renderer = SceneManager.instance.renderer.renderer
         new CubeTextureLoader().setPath(this.cubemapPath).load(
           [posx, negx, posy, negy, posz, negz],
           (texture) => {
             texture.encoding = sRGBEncoding
-            this.editor.scene.background = texture
+            SceneManager.instance.scene.background = texture
           },
           (res) => {
             console.log(res)
@@ -129,15 +130,15 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       case SkyTypeEnum.equirectangular:
         new TextureLoader().load(this.equirectangularPath, (texture) => {
           texture.encoding = sRGBEncoding
-          this.editor.scene.background = new PMREMGenerator(this.editor.renderer.renderer).fromEquirectangular(
-            texture
-          ).texture
+          SceneManager.instance.scene.background = new PMREMGenerator(
+            SceneManager.instance.renderer.renderer
+          ).fromEquirectangular(texture).texture
         })
         break
       default:
         ;(this.sky as Mesh).visible = true
-        this.editor.scene.background = this.generateSkybox(this.editor.renderer.renderer)
-        console.log('setUpBackground', this.editor.scene.background)
+        SceneManager.instance.scene.background = this.generateSkybox(SceneManager.instance.renderer.renderer)
+        console.log('setUpBackground', SceneManager.instance.scene.background)
         break
     }
   }

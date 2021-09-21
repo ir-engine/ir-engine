@@ -17,13 +17,13 @@ import { useTranslation } from 'react-i18next'
  * @constructor
  */
 export function VolumetricNodeEditor(props) {
-  const { editor, node } = props
+  const { node } = props
   const { t } = useTranslation()
 
   VolumetricNodeEditor.description = t('editor:properties.volumetric.description')
 
   //function to handle the change in src property
-  const onChangeSrc = useSetPropertySelected(editor, 'src')
+  const onChangeSrc = useSetPropertySelected('src')
 
   //returning editor view
   return (

@@ -6,6 +6,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { SquareFull } from '@styled-icons/fa-solid/SquareFull'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * Declaring GroundPlaneNodeEditor properties.
@@ -15,7 +16,6 @@ import { withTranslation } from 'react-i18next'
  */
 
 type GroundPlaneNodeEditorProps = {
-  editor?: object
   node?: any
   t: Function
 }
@@ -35,17 +35,17 @@ export class GroundPlaneNodeEditor extends Component<GroundPlaneNodeEditorProps,
 
   //function handles the changes in color property
   onChangeColor = (color) => {
-    ;(this.props.editor as any).setPropertySelected('color', color)
+    CommandManager.instance.setPropertyOnSelection('color', color)
   }
 
   //function handles the changes for receiveShadow property
   onChangeReceiveShadow = (receiveShadow) => {
-    ;(this.props.editor as any).setPropertySelected('receiveShadow', receiveShadow)
+    CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
   }
 
   // function handles the changes in walkable property
   onChangeWalkable = (walkable) => {
-    ;(this.props.editor as any).setPropertySelected('walkable', walkable)
+    CommandManager.instance.setPropertyOnSelection('walkable', walkable)
   }
 
   //rendering GroundPlaneNode node customization view

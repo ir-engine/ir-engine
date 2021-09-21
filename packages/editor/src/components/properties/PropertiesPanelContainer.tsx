@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { withEditor } from '../contexts/EditorContext'
 import DefaultNodeEditor from './DefaultNodeEditor'
 import styled from 'styled-components'
 import TransformPropertyGroup from './TransformPropertyGroup'
@@ -7,6 +6,9 @@ import NameInputGroup from './NameInputGroup'
 import InputGroup from '../inputs/InputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { withTranslation } from 'react-i18next'
+import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import { NodeManager } from '../../managers/NodeManager'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -112,32 +114,30 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
     super(props)
 
     this.state = {
-      selected: props.editor.selected
+      selected: CommandManager.instance.selected
     }
   }
 
   // adding listeners when component get mounted
   componentDidMount() {
-    const editor = (this.props as any).editor
-    editor.addListener('selectionChanged', this.onSelectionChanged)
-    editor.addListener('objectsChanged', this.onObjectsChanged)
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
   // removing listeners when components get unmounted
   componentWillUnmount() {
-    const editor = (this.props as any).editor
-    editor.removeListener('selectionChanged', this.onSelectionChanged)
-    editor.removeListener('objectsChanged', this.onObjectsChanged)
+    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
   // updating state when selection of element get changed
   onSelectionChanged = () => {
-    this.setState({ selected: (this.props as any).editor.selected })
+    this.setState({ selected: CommandManager.instance.selected })
   }
 
   //function to handle the changes object properties
   onObjectsChanged = (objects, property) => {
-    const selected = (this.props as any).editor.selected
+    const selected = CommandManager.instance.selected
 
     if (property === 'position' || property === 'rotation' || property === 'scale' || property === 'matrix') {
       return
@@ -145,7 +145,7 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
 
     for (let i = 0; i < objects.length; i++) {
       if (selected.indexOf(objects[i]) !== -1) {
-        this.setState({ selected: (this.props as any).editor.selected })
+        this.setState({ selected: CommandManager.instance.selected })
         return
       }
     }
@@ -153,21 +153,20 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
 
   // function to handle the changes property visible
   onChangeVisible = (value) => {
-    ;((this.props as any).editor as any).setPropertySelected('visible', value)
+    CommandManager.instance.setPropertyOnSelection('visible', value)
   }
 
   onChangeBakeStatic = (value) => {
-    ;((this.props as any).editor as any).setPropertySelected('includeInCubemapBake', value)
+    CommandManager.instance.setPropertyOnSelection('includeInCubemapBake', value)
   }
 
   onChangePersist = (value) => {
-    ;((this.props as any).editor as any).setPropertySelected('persist', value)
+    CommandManager.instance.setPropertyOnSelection('persist', value)
   }
 
   //rendering editor views for customization of element properties
   render() {
-    const editor = (this.props as any).editor
-    const selected = (this.state as any).selected
+    const selected = CommandManager.instance.selected
 
     let content
 
@@ -175,14 +174,14 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
       content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
     } else {
       const activeNode = selected[selected.length - 1]
-      const NodeEditor = editor.getNodeEditor(activeNode) || DefaultNodeEditor
+      const NodeEditor = NodeManager.instance.getEditorFromNode(activeNode) || DefaultNodeEditor
 
       const multiEdit = selected.length > 1
 
       let showNodeEditor = true
 
       for (let i = 0; i < selected.length - 1; i++) {
-        if (editor.getNodeEditor(selected[i]) !== NodeEditor) {
+        if (NodeManager.instance.getEditorFromNode(selected[i]) !== NodeEditor) {
           showNodeEditor = false
           break
         }
@@ -191,7 +190,7 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
       let nodeEditor
 
       if (showNodeEditor) {
-        nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} editor={editor} />
+        nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} />
       } else {
         nodeEditor = (
           <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
@@ -205,7 +204,7 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
         <StyledNodeEditor>
           <PropertiesHeader>
             <NameInputGroupContainer>
-              <NameInputGroup node={activeNode} editor={editor} />
+              <NameInputGroup node={activeNode} />
               {activeNode.nodeName !== 'Scene' && (
                 <>
                   <VisibleInputGroup name="Visible" label={this.props.t('editor:properties.lbl-visible')}>
@@ -222,7 +221,7 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
             <PersistInputGroup name="Persist" label={this.props.t('editor:properties.lbl-persist')}>
               <BooleanInput value={activeNode.persist} onChange={this.onChangePersist} />
             </PersistInputGroup>
-            {!disableTransform && <TransformPropertyGroup node={activeNode} editor={editor} />}
+            {!disableTransform && <TransformPropertyGroup node={activeNode} />}
           </PropertiesHeader>
           {nodeEditor}
         </StyledNodeEditor>
@@ -233,4 +232,4 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
   }
 }
 
-export default withTranslation()(withEditor(PropertiesPanelContainer))
+export default withTranslation()(PropertiesPanelContainer)

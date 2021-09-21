@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import Dialog from './Dialog'
-import { bytesToSize } from '@xrengine/editor/src/functions/utils'
+import { bytesToSize } from '../../functions/utils'
 import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
 
