@@ -14,11 +14,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "exports": {
-    "./src/*": "./lib/*.js",
-    "./src/**/": "./lib/**/index.js",
-    "./src/**/*": "./lib/**/*.js"
-  },
   "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {

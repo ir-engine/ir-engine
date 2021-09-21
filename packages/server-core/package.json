@@ -34,11 +34,6 @@
   "engines": {
     "node": ">= 16.3.0"
   },
-  "exports": {
-    "./src/*": "./lib/*.js",
-    "./src/**/": "./lib/**/index.js",
-    "./src/**/*": "./lib/**/*.js"
-  },
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",

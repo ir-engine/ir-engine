@@ -1,4 +1,4 @@
-import ScenesConsole from '@xrengine/client-core/src/admin/components/Scenes'
+import ScenesConsole from '@xrengine/client-core/src/admin/components/Scenes/index'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'

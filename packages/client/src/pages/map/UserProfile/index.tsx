@@ -15,7 +15,7 @@ import { getAvatarURLFromNetwork, Views } from '@xrengine/client-core/src/user/c
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SearchIcon } from '../icons/Search'
 import { Close } from '../icons/Close'
-import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage'
+import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage/index'
 // import MapView from '../MapLocationSelection'
 
 interface Props {

@@ -11,11 +11,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "exports": {
-    "./src/*": "./lib/*.js",
-    "./src/**/": "./lib/**/index.js",
-    "./src/**/*": "./lib/**/*.js"
-  },
   "main": "lib/client-core.umd.js",
   "module": "lib/client-core.es.js",
   "types": "lib/index.d.ts",

@@ -1,4 +1,4 @@
-import SettingConsole from '@xrengine/client-core/src/admin/components/Setting'
+import SettingConsole from '@xrengine/client-core/src/admin/components/Setting/index'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'

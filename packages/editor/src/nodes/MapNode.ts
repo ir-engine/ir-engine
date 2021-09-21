@@ -11,7 +11,7 @@ import {
 import { fetchVectorTiles, fetchRasterTiles } from '@xrengine/engine/src/map/MapBoxClient'
 import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
-import { getStartCoords } from '@xrengine/engine/src/map'
+import { getStartCoords } from '@xrengine/engine/src/map/index'
 import { MapProps } from '@xrengine/engine/src/map/MapProps'
 import { GeoLabelNode } from '@xrengine/engine/src/map/GeoLabelNode'
 

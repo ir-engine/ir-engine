@@ -4,7 +4,7 @@ import CardContent from '@material-ui/core/CardContent'
 import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@material-ui/icons'
 import styles from '../MapUserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
-import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage'
+import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage/index'
 import { Views } from '../util'
 
 const AvatarMenu = (props: any): any => {

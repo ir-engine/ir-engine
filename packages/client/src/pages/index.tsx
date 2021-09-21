@@ -1,7 +1,7 @@
 import url from 'url'
 import { Helmet } from 'react-helmet'
 import React, { useEffect } from 'react'
-import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
+import ContactForm from '@xrengine/client-core/src/common/components/ContactForm/index'
 import { useHistory, Redirect } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
 import { useTranslation, Trans } from 'react-i18next'

@@ -3,6 +3,9 @@ const sassPlugin = require('esbuild-plugin-sass');
 const glob = require("tiny-glob");
 
 Promise.all([
+  glob("./src/**/*.css"),
+  glob("./src/**/*.scss"),
+  glob("./src/**/*.json"),
   glob("./src/**/*.js"),
   glob("./src/**/*.jsx"),
   glob("./src/**/*.ts"),

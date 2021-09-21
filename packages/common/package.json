@@ -7,12 +7,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "exports": {
-    "./src/scenes-templates": "./lib/scenes-templates/index.js",
-    "./src/*": "./lib/*.js",
-    "./src/**/": "./lib/**/index.js",
-    "./src/**/*": "./lib/**/*.js"
-  },
   "description": "Shared types for other XREngine packages",
   "scripts": {
     "check-errors": "tsc --noemit",

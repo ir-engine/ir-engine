@@ -50,7 +50,7 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
 
 const goHome = () => (window.location.href = window.location.origin)
 
-const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
+const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad/index'))
 
 const canvasStyle = {
   zIndex: 0,

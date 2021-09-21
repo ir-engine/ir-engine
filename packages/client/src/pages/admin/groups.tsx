@@ -1,4 +1,4 @@
-import GroupsConsole from '@xrengine/client-core/src/admin/components/Group'
+import GroupsConsole from '@xrengine/client-core/src/admin/components/Group/index'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
