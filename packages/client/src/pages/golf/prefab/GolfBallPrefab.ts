@@ -383,7 +383,7 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
   const body = world.physics.addBody({
     shapes: [shape],
     // make static on server and remote player's balls so we can still detect collision with hole
-    type: isMyBall ? BodyType.DYNAMIC : BodyType.STATIC,
+    type: BodyType.DYNAMIC,
     transform: {
       translation: transform.position,
       rotation: new Quaternion()
