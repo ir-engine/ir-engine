@@ -19,8 +19,6 @@ export type IKPoseComponentType = {
   axis?: Axis // Axis of rotation toward the end position
   length?: number
 
-  targetRigs?: ReturnType<typeof IKRigComponent.get>[]
-
   spineParentQuaternion?: Quaternion
   spineParentPosition?: Vector3
   spineParentScale?: Vector3
@@ -54,8 +52,6 @@ export const defaultIKPoseComponentValues = function (): IKPoseComponentType {
     endPosition: new Vector3(), // Target position for chain to reach (end effector)
     axis: new Axis(), // Axis of rotation toward the end position
     length: 0,
-
-    targetRigs: [],
 
     spineParentQuaternion: new Quaternion(),
     spineParentPosition: new Vector3(),
