@@ -41,9 +41,7 @@ export class GenerateMeshBVHWorker {
         if (error) {
           reject(new Error(error))
         } else {
-          // we need to replace the arrays because they're neutered entirely by the
-          // webworker transfer.
-          geometry.setAttribute('position', new BufferAttribute(position, 3))
+          // MeshBVH uses generated index instead of default geometry index
           geometry.setIndex(new BufferAttribute(serialized.index, 1))
 
           const bvh = MeshBVH.deserialize(serialized, geometry, false)
@@ -71,12 +69,12 @@ export class GenerateMeshBVHWorker {
         )
       }
 
-      const index = geometry.index ? geometry.index.array : null
-      const position = geometry.attributes.position.array
+      const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
+      const position = Float32Array.from(geometry.attributes.position.array)
 
-      const transferrables = [position]
+      const transferrables = [position as ArrayLike<number>]
       if (index) {
-        transferrables.push(index)
+        transferrables.push(index as ArrayLike<number>)
       }
 
       worker.postMessage(
@@ -85,7 +83,7 @@ export class GenerateMeshBVHWorker {
           position,
           options
         },
-        transferrables.map((arr: Float32Array) => arr.buffer)
+        transferrables.map((arr: any) => arr.buffer)
       )
     })
   }

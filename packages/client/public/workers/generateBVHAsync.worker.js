@@ -19,10 +19,9 @@ onmessage = function ({ data }) {
     postMessage(
       {
         error: null,
-        serialized,
-        position
+        serialized
       },
-      [serialized.index.buffer, position.buffer]
+      [serialized.index.buffer]
     )
   } catch (error) {
     postMessage({
