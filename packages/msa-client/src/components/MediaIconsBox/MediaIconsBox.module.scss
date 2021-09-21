@@ -1,0 +1,51 @@
+.drawerBox{
+    display: flex;
+    position: fixed;
+    top: 5px;
+    z-index: 10;
+    width: 100%;
+    justify-content: center;
+
+    .iconContainer{
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 50%;
+        margin: 5px;
+        height: 50px;
+        width: 50px;
+        cursor: pointer;
+        position: relative;
+        border: none;
+        color: white;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &::before {
+            content: " ";
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            display: block;
+            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+            background: #5f5ff1;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            border-radius: 50%;
+            transform: scale(0);
+        }
+
+        &:hover::before { transform: scale(1); }
+        &.on svg { color: rgba(122, 255, 100, 1) }
+        > svg { height: 50%; width: 50%; }
+    }
+    @media (max-width: 450px) {
+        justify-content: flex-middle;
+        .iconContainer {
+            width: 40px;
+            height: 40px;
+            &:before { width: 40px; height: 40px; }
+        }
+    }
+}
