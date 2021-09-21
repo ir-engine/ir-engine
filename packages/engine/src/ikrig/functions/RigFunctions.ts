@@ -1,6 +1,6 @@
 import { Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Chain } from '../components/Chain'
+import { Chain } from '../classes/Chain'
 import { IKObj } from '../components/IKObj'
 import { IKRigComponent, IKRigTargetComponent, IKRigComponentType } from '../components/IKRigComponent'
 import { ArmatureType } from '../enums/ArmatureType'

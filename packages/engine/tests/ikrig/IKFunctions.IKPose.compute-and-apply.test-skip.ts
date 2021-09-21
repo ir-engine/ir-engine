@@ -8,6 +8,7 @@ import {
   applyIKPoseToIKRig,
   applyLimb,
   applyLookTwist,
+  applyPoseToRig,
   applySpine,
   computeHip,
   computeIKPose,
@@ -583,19 +584,22 @@ describe('Check Apply', () => {
     }
   }
   test.each(['foot_l', 'foot_r', 'head'])('apply look/twist %s', (boneName) => {
+    // --- check that IKPose is correct
+    {
+      expectedIKPose = adoptIKPose(ikposeData)
+      const expected: IKPoseLookTwist = expectedIKPose[boneName]
+      const computed: IKPoseLookTwist = ikPose[boneName]
+      expect(computed.lookDirection).toBeCloseToVector(expected.lookDirection, 4)
+      expect(computed.twistDirection).toBeCloseToVector(expected.twistDirection, 4)
+    }
+
     const targetAnimBonesStates = adoptBones(poseBonesWithAppliedHipLegsSpine)
     applyTestPoseState(targetRig.pose, targetAnimBonesStates)
 
-    // const { rootQuaternion, childRotation, rotation0, rotation1, rotationFinal } = applyLookTwist(
     applyLookTwist(ikPose, targetRig, boneName, FORWARD, UP)
-    applyIKPoseToIKRig(targetRig, ikPose)
 
-    // const expLTV = expLTVars[boneName]
-    // expect(rootQuaternion).toBeCloseToQuaternion(expLTV.rootQuaternion)
-    // expect(childRotation).toBeCloseToQuaternion(expLTV.childRotation)
-    // expect(rotation0).toBeCloseToQuaternion(expLTV.rotation0)
-    // expect(rotation1).toBeCloseToQuaternion(expLTV.rotation1)
-    // expect(rotationFinal).toBeCloseToQuaternion(expLTV.rotationFinal)
+    // --- apply pose to skeleton bones
+    applyPoseToRig(targetRig)
 
     const applied = targetRig.pose.bones[targetRig.points[boneName].index]
     const expected = expectedState[targetRig.points[boneName].index]

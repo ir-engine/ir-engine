@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import Pose from '../classes/Pose'
-import { Chain } from './Chain'
+import { Chain } from '../classes/Chain'
 import { IKPoseComponent } from './IKPoseComponent'
 
 export type PointData = { index: number }

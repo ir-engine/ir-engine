@@ -12,7 +12,7 @@ import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '../../ikrig/constants/Vect
 import { addChain, addPoint } from './RigFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
-import { Chain } from '../components/Chain'
+import { Chain } from '../classes/Chain'
 import { solveLimb, solveThreeBone } from './IKSolvers'
 // import { debug } from '../classes/Debug'
 
@@ -76,9 +76,6 @@ export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRigCom
   rig.chains.leg_r.setOffsets(DOWN, FORWARD, rig.tpose)
   rig.chains.arm_r.setOffsets(RIGHT, BACK, rig.tpose)
   rig.chains.arm_l.setOffsets(LEFT, BACK, rig.tpose)
-
-  // TODO: remove it when fixed
-  rig.points.head.index = rig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
 }
 
 export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRigComponent.get>) {
@@ -98,8 +95,6 @@ export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRigCompo
   addPoint(rig, 'wing_l', 'left_wing')
   addPoint(rig, 'wing_r', 'right_wing')
 
-  // addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', 'three_bone') //"z",
-  // addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', 'three_bone') // "z",
   addChain(rig, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', solveThreeBone) //"z",
   addChain(rig, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', solveThreeBone) // "z",
   addChain(rig, 'spine', ['Spine', 'Spine1'])
@@ -459,7 +454,7 @@ export function applyIKPoseToIKRig(targetRig: IKRigComponentType, ikPose: IKPose
  * update skeleton bones by pose bones states
  * @param targetRig
  */
-function applyPoseToRig(targetRig: IKRigComponentType) {
+export function applyPoseToRig(targetRig: IKRigComponentType) {
   for (let i = 0; i < targetRig.pose.bones.length; i++) {
     const poseBone = targetRig.pose.bones[i]
     const armatureBone = poseBone.bone
@@ -752,6 +747,7 @@ export function applyLookTwist(
   return {
     rootQuaternion,
     childRotation,
+    rotation0X,
     rotation0,
     rotation1,
     rotationFinal,

@@ -651,11 +651,6 @@ async function loadAndSetupModel(
   const helper = new SkeletonHelper(targetRig.pose.bones[0].bone)
   Engine.scene.add(helper)
 
-  if (armatureType === ArmatureType.MIXAMO) {
-    // TODO: remove it when fixed
-    targetRig.points.head.index = targetRig.points.neck.index // Lil hack cause Head Isn't Skinned Well.
-  }
-
   // targetRig.tpose.align_leg(['LeftUpLeg', 'LeftLeg'])
   // targetRig.tpose.align_leg(['RightUpLeg', 'RightLeg'])
   // targetRig.tpose.align_arm_left(['LeftArm', 'LeftForeArm'])
