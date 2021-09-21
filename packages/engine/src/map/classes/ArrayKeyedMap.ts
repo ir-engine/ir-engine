@@ -1,9 +1,21 @@
 import { IArrayKeyedMap } from '../types'
 
+interface Options<Value> {
+  defaultValue?: Value
+}
+
 export default class ArrayKeyedMap<KeySource extends any[], Value> implements IArrayKeyedMap<KeySource, Value> {
   /** ordered by time last used, ascending */
   map = new Map<string, Value>()
   keySources = new Map<string, KeySource>()
+  defaultValue: Value
+
+  constructor(iterable: Iterable<[KeySource, Value]> = [], options: Options<Value> = {}) {
+    for (const [key, value] of iterable) {
+      this.set(key, value)
+    }
+    this.defaultValue = options.defaultValue
+  }
 
   getKey(source: KeySource) {
     const key = source.join(',')
@@ -24,7 +36,12 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
 
   get(key: KeySource) {
     const stringKey = this.getKey(key)
-    return this.map.get(stringKey)
+    const value = this.map.get(stringKey)
+    if (typeof value === 'undefined') {
+      return this.defaultValue
+    } else {
+      return value
+    }
   }
 
   delete(key: KeySource) {

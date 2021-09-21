@@ -1,30 +1,32 @@
-import { TaskStatus } from '../classes/Task'
-import Phase from '../classes/Phase'
+import { TaskStatus } from '../types'
+import { ICachingPhase, IPhase, ISyncPhase } from '../types'
+import { Store } from './createStore'
 
 // TODO be more lazy?
-export default async function actuateLazy(phases: Phase<any>[]) {
+export default function actuateLazy(store: Store, phases: readonly IPhase<any, any>[]) {
   for (const phase of phases) {
     // console.log('starting %s', phase.constructor.name)
-    const tasks = phase.getTasks()
+    const keys = phase.getTaskKeys(store)
     if (phase.isCachingPhase || phase.isAsyncPhase) {
-      for (const task of tasks) {
-        if (task.status === TaskStatus.NOT_STARTED) {
+      for (const key of keys) {
+        if (phase.getTaskStatus(store, key) === TaskStatus.NOT_STARTED) {
           if (phase.isAsyncPhase) {
             // console.log('starting a %s', task.constructor.name)
-            task.start()
+            // TODO need to be able to cancel tasks that are no longer needed
+            phase.startTask(store, key)
           } else {
             // console.log('execing a %s', task.constructor.name)
-            task.exec()
+            ;(phase as ICachingPhase<any, any>).execTask(store, key)
           }
-          task.status = TaskStatus.STARTED
+          ;(phase as ICachingPhase<any, any>).setTaskStatus(store, key, TaskStatus.STARTED)
         }
       }
     } else {
-      for (const task of tasks) {
+      for (const key of keys) {
         // console.log('execing a %s', task.constructor.name)
-        task.exec()
+        ;(phase as ISyncPhase<any, any>).execTask(store, key)
       }
     }
-    phase.cleanup()
+    phase.cleanup(store)
   }
 }

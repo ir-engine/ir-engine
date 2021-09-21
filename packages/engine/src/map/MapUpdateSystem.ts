@@ -9,12 +9,9 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { World } from '../ecs/classes/World'
-import { createProductionPhases } from './functions/createProductionPhases'
 import computeDistanceFromCircle from './functions/computeDistanceFromCircle'
-import MapFeatureLabelComponent from './MapFeatureLabelComponent'
-import { UpdatableComponent } from '../scene/components/UpdatableComponent'
-import { Updatable } from '../scene/interfaces/Updatable'
 import actuateLazy from './functions/actuateLazy'
+import getPhases from './functions/getPhases'
 
 const $vector3 = new Vector3()
 
@@ -23,9 +20,7 @@ const $previousViewerPosition = new Vector3()
 
 export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
-  const labelsQuery = defineQuery([MapFeatureLabelComponent])
   const viewerQuery = defineQuery([FollowCameraComponent])
-  const updatableQuery = defineQuery([MapFeatureLabelComponent, UpdatableComponent])
   let previousViewerEntity: Entity
 
   return () => {
@@ -39,6 +34,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
     const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
+    const viewerPosition = vector3ToArray2(viewerTransform.position)
 
     // Initialize on first pass or whenever the viewer changes
     if (viewerEntity !== previousViewerEntity) {
@@ -46,31 +42,15 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     }
 
     // Find how far the viewer has travelled since last update, in real-world scale (scale=1)
+    // TODO only compare x, z components of positions
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition).divideScalar(mapScale)
     const viewerPositionDeltaNormalScale = vector3ToArray2($vector3)
     const viewerDistanceFromCenter = Math.hypot(...viewerPositionDeltaNormalScale)
 
     if (viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius) {
       mapComponent.center = fromMetersFromCenter(viewerPositionDeltaNormalScale, mapComponent.center)
-      const phases = createProductionPhases(
-        world,
-        mapComponent.fetchTilesTasks,
-        mapComponent.tileCache,
-        mapComponent.extractTilesTasks,
-        mapComponent.featureCache,
-        mapComponent.geometryTasks,
-        mapComponent.geometryCache,
-        mapComponent.completeObjectsTasks,
-        mapComponent.completeObjects,
-        mapComponent.labelTasks,
-        mapComponent.labelCache,
-        mapComponent.center,
-        mapComponent.originalCenter,
-        mapComponent.minimumSceneRadius,
-        viewerTransform.position,
-        mapScale
-      )
-      actuateLazy(phases)
+      mapComponent.viewerPosition = viewerPosition
+      actuateLazy(mapComponent, getPhases())
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0
@@ -82,7 +62,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       // TODO make a helper function for this, same code in CreateCompleteObjectPhase
       // TODO also use a more efficient distance calc
       const distance = computeDistanceFromCircle(
-        multiplyArray(vector3ToArray2(viewerTransform.position), 1 / mapScale),
+        multiplyArray(viewerPosition, 1 / mapScale),
         object.centerPoint,
         object.boundingCircleRadius
       )
@@ -94,29 +74,23 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       }
     }
 
-    for (const entity of labelsQuery(world)) {
-      const object = getComponent(entity, MapFeatureLabelComponent, false, world).value
+    for (const label of mapComponent.labelCache.values()) {
       const distance = computeDistanceFromCircle(
-        multiplyArray(vector3ToArray2(viewerTransform.position), 1 / mapScale),
-        object.centerPoint,
-        object.boundingCircleRadius
+        multiplyArray(viewerPosition, 1 / mapScale),
+        label.centerPoint,
+        label.boundingCircleRadius
       )
-      if (object.mesh && distance <= mapComponent.minimumSceneRadius) {
-        setPosition(object.mesh, object.centerPoint)
-        addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+      if (label.mesh && distance <= mapComponent.minimumSceneRadius) {
+        setPosition(label.mesh, label.centerPoint)
+        addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
+        label.mesh.update()
       } else {
-        object.mesh.parent = null
+        label.mesh.parent = null
       }
     }
 
     // Update (sub)scene
     object3dComponent.value.children = subSceneChildren
-
-    // TODO Duplicating code from SceneObjectSystem for now since labels can't use Object3DComponent
-    for (const entity of updatableQuery(world)) {
-      const { mesh } = getComponent(entity, MapFeatureLabelComponent).value
-      mesh.update()
-    }
 
     previousViewerEntity = viewerEntity
     return world

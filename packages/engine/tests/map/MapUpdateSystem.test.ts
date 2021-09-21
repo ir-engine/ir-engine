@@ -11,18 +11,19 @@ import { createWorld } from '../../src/ecs/functions/EngineFunctions'
 import { System } from 'bitecs'
 import createSUT from '../../src/map/MapUpdateSystem'
 import createStore from '../../src/map/functions/createStore'
-import { createProductionPhases } from '../../src/map/functions/createProductionPhases'
+import getPhases from '../../src/map/functions/getPhases'
 import createFeatureLabel from '../../src/map/functions/createFeatureLabel'
-import MapFeatureLabelComponent from '../../src/map/MapFeatureLabelComponent'
 import { lineString } from '@turf/helpers'
 import actuateLazy from '../../src/map/functions/actuateLazy'
 
 jest.mock('../../src/map/functions/actuateLazy')
-jest.mock('../../src/map/functions/createProductionPhases')
+jest.mock('../../src/map/functions/getPhases')
 jest.mock('../../src/map/functions/createFeatureLabel', () => {
   const { Object3D } = jest.requireActual('three')
+  const mesh = new Object3D()
+  mesh.update = jest.fn()
   return () => ({
-    mesh: new Object3D(),
+    mesh,
     centerPoint: [12, 13],
     boundingCircleRadius: 2
   })
@@ -46,7 +47,7 @@ describe('MapUpdateSystem', () => {
     viewerEntity = createEntity(world)
     mapEntity = createEntity(world)
     execute = await createSUT(world)
-    store = createStore(mapCenter, mapArgs, triggerRefreshRadius, minimumSceneRadius)
+    store = createStore(mapCenter, [0, 0], triggerRefreshRadius, minimumSceneRadius, mapScale, mapArgs)
     subScene = new Object3D()
 
     addComponent(
@@ -96,19 +97,19 @@ describe('MapUpdateSystem', () => {
     viewerTransform.position.set(triggerRefreshRadius * mapScale, 0, 0)
     execute(world)
 
-    expect(createProductionPhases).toHaveBeenCalledTimes(1)
+    expect(getPhases).toHaveBeenCalledTimes(1)
     expect(actuateLazy).toHaveBeenCalledTimes(1)
 
     viewerTransform.position.set(triggerRefreshRadius * 1.5 * mapScale, 0, 0)
     execute(world)
 
-    expect(createProductionPhases).toHaveBeenCalledTimes(1)
+    expect(getPhases).toHaveBeenCalledTimes(1)
     expect(actuateLazy).toHaveBeenCalledTimes(1)
 
     viewerTransform.position.set(triggerRefreshRadius * 2 * mapScale, 0, 0)
     execute(world)
 
-    expect(createProductionPhases).toHaveBeenCalledTimes(2)
+    expect(getPhases).toHaveBeenCalledTimes(2)
     expect(actuateLazy).toHaveBeenCalledTimes(2)
   })
 
@@ -121,15 +122,14 @@ describe('MapUpdateSystem', () => {
     ])
     feature.properties.name = "don't panic"
     const label = createFeatureLabel(feature, [0, 0])
-    const labelEntity = createEntity(world)
-    addComponent(labelEntity, MapFeatureLabelComponent, { value: label }, world)
 
-    store.labelCache.set(['road', 0, 0, '0'], labelEntity)
+    store.labelCache.set(['road', 0, 0, '0'], label)
 
     execute(world)
 
     expect(subScene.children.includes(label.mesh)).toBe(true)
     expect(label.mesh.parent).toBe(subScene)
     expect(label.mesh.position.toArray()).toEqual([label.centerPoint[0], 0, label.centerPoint[1]])
+    expect(label.mesh.update).toHaveBeenCalledTimes(1)
   })
 })

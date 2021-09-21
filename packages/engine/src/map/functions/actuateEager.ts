@@ -1,33 +1,39 @@
-import { TaskStatus } from '../classes/Task'
-import Phase from '../classes/Phase'
+import { TaskStatus } from '../types'
+import { ICachingPhase, IPhase, ISyncPhase } from '../types'
+import { Store } from './createStore'
 
-export default async function actuateEager(phases: Phase<any>[]): Promise<any[]> {
+export default async function actuateEager(store: Store, phases: readonly IPhase<any, any>[]) {
   const results = []
+  let result: any
   for (const phase of phases) {
     // console.log('starting %s', phase.constructor.name)
-    const promises = []
-    const tasks = phase.getTasks()
+    const keys = phase.getTaskKeys(store)
     if (phase.isCachingPhase || phase.isAsyncPhase) {
-      for (const task of tasks) {
-        if (task.status === TaskStatus.NOT_STARTED) {
+      const promises = []
+      let promise: Promise<any>
+      for (const key of keys) {
+        if (phase.getTaskStatus(store, key) === TaskStatus.NOT_STARTED) {
           if (phase.isAsyncPhase) {
             // console.log('starting a %s', task.constructor.name)
-            promises.push(task.start())
+            promise = phase.startTask(store, key)
+            promises.push(promise)
           } else {
             // console.log('execing a %s', task.constructor.name)
-            results.push(task.exec())
+            result = (phase as ICachingPhase<any, any>).execTask(store, key)
+            results.push(result)
           }
-          task.status = TaskStatus.STARTED
+          ;(phase as ICachingPhase<any, any>).setTaskStatus(store, key, TaskStatus.STARTED)
         }
       }
-      results.concat(await Promise.all(promises))
+      results.push(...(await Promise.all(promises)))
     } else {
-      for (const task of tasks) {
+      for (const key of keys) {
         // console.log('execing a %s', task.constructor.name)
-        results.push(task.exec())
+        result = (phase as ISyncPhase<any, any>).execTask(store, key)
+        results.push(result)
       }
     }
-    phase.cleanup()
+    phase.cleanup(store)
   }
   return results
 }

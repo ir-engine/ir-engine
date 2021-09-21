@@ -1,6 +1,6 @@
 import { Feature } from 'geojson'
-import { BufferGeometry, InstancedBufferGeometry, Mesh, Object3D } from 'three'
-import { LongLat } from './units'
+import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
+import { Store } from './functions/createStore'
 
 /**
  * @fileoverview a place for all types that are shared by multiple modules but not conceptually owned by any
@@ -72,3 +72,42 @@ export interface IArrayKeyedMap<Key extends any[], Value> {
 
   keys(): Iterable<Key>
 }
+
+export enum TaskStatus {
+  NOT_STARTED = 0,
+  STARTED = 1
+}
+
+export interface ISyncPhase<TaskKey, TaskResult> {
+  name: string
+  isCachingPhase: false
+  isAsyncPhase: false
+  getTaskKeys(store: Store): Iterable<TaskKey>
+  execTask(store: Store, key: TaskKey): TaskResult
+  cleanup(store: Store): void
+}
+export interface ICachingPhase<TaskKey, TaskResult> {
+  name: string
+  isCachingPhase: true
+  isAsyncPhase: false
+  getTaskStatus(store: Store, key: TaskKey): TaskStatus
+  setTaskStatus(store: Store, key: TaskKey, status: TaskStatus): void
+  getTaskKeys(store: Store): Iterable<TaskKey>
+  execTask(store: Store, key: TaskKey): TaskResult
+  cleanup(store: Store): void
+}
+export interface IAsyncPhase<TaskKey, TaskResult> {
+  name: string
+  isCachingPhase: true
+  isAsyncPhase: true
+  getTaskStatus(store: Store, key: TaskKey): TaskStatus
+  setTaskStatus(store: Store, key: TaskKey, status: TaskStatus): void
+  getTaskKeys(store: Store): Iterable<TaskKey>
+  startTask(store: Store, key: TaskKey): Promise<TaskResult>
+  cleanup(store: Store): void
+}
+
+export type IPhase<TaskKey, TaskResult> =
+  | ISyncPhase<TaskKey, TaskResult>
+  | ICachingPhase<TaskKey, TaskResult>
+  | IAsyncPhase<TaskKey, TaskResult>
