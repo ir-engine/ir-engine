@@ -6,12 +6,13 @@ import { useTranslation } from 'react-i18next'
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
 
-const FeedMenu = ({ view, setView }) => {
+const FeedMenu = () => {
   const containerRef = useRef<HTMLInputElement>()
   const featuredRef = useRef<HTMLInputElement>()
   const creatorsRef = useRef<HTMLInputElement>()
   const { t } = useTranslation()
   const [type, setType] = useState('featured')
+  const [view, setView] = useState('')
 
   const padding = 40
   const handleMenuClick = (view) => {
