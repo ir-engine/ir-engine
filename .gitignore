@@ -153,3 +153,8 @@ packages/server/upload/
 certs/
 *.blend1
 *.ts.bak
+
+#project specific ignores
+packages/social
+packages/gallery
+packages/client
