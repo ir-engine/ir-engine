@@ -32,6 +32,7 @@ export default defineConfig((command) => {
   const env = loadEnv('', process.cwd() + '../../');
   const runtime = replaceEnvs(config.get('publicRuntimeConfig'), env);
 
+  
   process.env = {
     ...process.env,
     ...env,
@@ -39,9 +40,18 @@ export default defineConfig((command) => {
   };
 
   const returned = {
-    plugins: [],
+    plugins: [svgr(), react({ injectReact: true })],
     server: {
       host: true,
+      fs: {
+        // Allow serving files from one level up to the project root
+        allow: [".."],
+      },
+    },
+    define: {
+      "process.env": {
+        SPORT: "basketball",
+      },
     },
     resolve: {
       alias: {
