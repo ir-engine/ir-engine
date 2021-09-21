@@ -33,7 +33,19 @@ For on OSX / Linux / WSL2 for Windows:
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
-## Easy Setup
+## Easy Setup For MSA Client ( In case you want to run the msa marketplace or related dependencies )
+
+```
+cd path/to/xrengine
+npm install
+npm msadev
+```
+This will automatically setup (if necessary) and run redis/mariadb docker containers, and XRengine client/server/game-server instances. That's it!
+
+Note : If you are having issues during installation or when you run msadev kindly try to delete modules, clean cache and then retry with yarn for installing modules as it fixes the issues ( remember to have the latest node 16+ on your system )
+
+
+## Easy Setup For XREngine
 
 ```
 cd path/to/xrengine
@@ -41,6 +53,7 @@ npm install
 npm run dev
 ```
 This will automatically setup (if necessary) and run redis/mariadb docker containers, and XRengine client/server/game-server instances. That's it!
+
 
 ## Advanced Setup
 
