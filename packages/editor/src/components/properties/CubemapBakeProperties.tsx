@@ -10,10 +10,10 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import { BakePropertyTypes } from './CubemapBakeNodeEditor'
+import { CommandManager } from '../../managers/CommandManager'
 
 type CubemapBakePropertyEditorProps = {
   element?: any
-  editor?: any
   node?: any
 }
 
@@ -64,7 +64,7 @@ const bakeResolutionTypes = [
 
 export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => {
   const onChangeProperty = (value, option: string) => {
-    ;(props.editor as any).setObjectProperty(`cubemapBakeSettings.${option}`, value)
+    CommandManager.instance.setPropertyOnSelection(`cubemapBakeSettings.${option}`, value)
   }
 
   const getPropertyValue = (option: string) => {

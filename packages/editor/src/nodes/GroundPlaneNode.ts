@@ -1,14 +1,15 @@
 import { Mesh, CircleBufferGeometry, MeshBasicMaterial, Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import GroundPlane from '@xrengine/engine/src/scene/classes/GroundPlane'
+import { SceneManager } from '../managers/SceneManager'
 export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
   static legacyComponentName = 'ground-plane'
   static nodeName = 'Ground Plane'
-  static canAddNode(editor) {
-    return editor.scene.findNodeByType(GroundPlaneNode) === null
+  static canAddNode() {
+    return SceneManager.instance.scene.findNodeByType(GroundPlaneNode) === null
   }
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { color } = json.components.find((c) => c.name === 'ground-plane').props
     node.color.set(color)
     const shadowComponent = json.components.find((c) => c.name === 'shadow')
@@ -18,8 +19,8 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
     node.walkable = !!json.components.find((c) => c.name === 'walkable')
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.walkable = true
     this.walkableMesh = new Mesh(new CircleBufferGeometry(1, 32), new MeshBasicMaterial())
     this.walkableMesh.name = 'WalkableMesh'

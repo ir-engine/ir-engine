@@ -6,8 +6,11 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { GolfAvatarComponent } from '../components/GolfAvatarComponent'
+import { Quaternion, Vector3 } from 'three'
+import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 
 const avatarScale = 1.3
+const rotateHalfY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 export const setupPlayerAvatar = async (entityPlayer: Entity) => {
   const avatarComponent = getComponent(entityPlayer, AvatarComponent)
@@ -38,7 +41,6 @@ export const setupPlayerAvatar = async (entityPlayer: Entity) => {
 
 export const setupPlayerAvatarVR = async (entityPlayer: Entity) => {
   const golfAvatarComponent = getComponent(entityPlayer, GolfAvatarComponent)
-  console.log(golfAvatarComponent)
   ;[
     golfAvatarComponent.headModel,
     golfAvatarComponent.leftHandModel,
@@ -51,8 +53,16 @@ export const setupPlayerAvatarVR = async (entityPlayer: Entity) => {
   golfAvatarComponent.headModel.position.set(0, 0, 0)
   golfAvatarComponent.leftHandModel.position.set(0, 0, 0)
   golfAvatarComponent.rightHandModel.position.set(0, 0, 0)
-  golfAvatarComponent.torsoModel.position.set(0, 0, 0)
+  golfAvatarComponent.torsoModel.position.set(0, -0.3, 0)
+  golfAvatarComponent.leftHandModel.scale.setZ(-1)
+  golfAvatarComponent.rightHandModel.scale.setZ(-1)
 
+  golfAvatarComponent.headModel.applyQuaternion(rotateHalfY)
+
+  if (!isEntityLocalClient(entityPlayer)) {
+    xrInputSourceComponent.head.add(golfAvatarComponent.headModel)
+    golfAvatarComponent.headModel.add(golfAvatarComponent.torsoModel)
+  }
   xrInputSourceComponent.controllerLeft.add(golfAvatarComponent.leftHandModel)
   xrInputSourceComponent.controllerRight.add(golfAvatarComponent.rightHandModel)
 }
@@ -72,6 +82,8 @@ export const setupPlayerAvatarNotInVR = (entityPlayer: Entity) => {
   golfAvatarComponent.leftHandModel.position.set(0.35, 1, 0)
   golfAvatarComponent.rightHandModel.position.set(-0.35, 1, 0)
   golfAvatarComponent.torsoModel.position.set(0, 1.25, 0)
+  golfAvatarComponent.leftHandModel.scale.setZ(1)
+  golfAvatarComponent.rightHandModel.scale.setZ(1)
 
   const { value } = getComponent(entityPlayer, Object3DComponent)
 

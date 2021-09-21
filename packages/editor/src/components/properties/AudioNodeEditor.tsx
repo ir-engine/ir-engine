@@ -16,12 +16,12 @@ import { useTranslation } from 'react-i18next'
  * @constructor
  */
 export function AudioNodeEditor(props) {
-  const { editor, node } = props
+  const { node } = props
   const { t } = useTranslation()
 
   AudioNodeEditor.description = t('editor:properties.audio.description')
 
-  const onChangeSrc = useSetPropertySelected(editor, 'src')
+  const onChangeSrc = useSetPropertySelected('src')
   //returning view to customize properties
   return (
     <NodeEditor description={AudioNodeEditor.description} {...props}>

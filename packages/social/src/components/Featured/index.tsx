@@ -58,23 +58,17 @@ const Featured = ({
 }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
+  const auth = useAuthState()
 
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
-      const userIdentityType = useAuthState().authUser?.identityProvider?.type?.value ?? 'guest'
+      const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
-  }, [type, creatorId, feedsState.get('feedsFeatured')])
-
-  useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.get('feedsFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]
-  )
+  }, [type, creatorId])
+  // }, [type, creatorId, feedsState.get('feedsFeatured')])
 
   useEffect(
     () =>
@@ -82,6 +76,14 @@ const Featured = ({
       feedsState.get('feedsFeaturedFetching') === false &&
       setFeedList(feedsState.get('feedsFeatured')),
     [feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]
+  )
+
+  useEffect(
+    () =>
+      (type === 'featured' || !type) &&
+      feedsState.get('feedsFetching') === false &&
+      setFeedList(feedsState.get('feedsFeatured')),
+    [feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]
   )
 
   useEffect(

@@ -7,13 +7,13 @@ import InputGroup from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * [propTypes Defining properties for CameraProperties component]
  * @type {Object}
  */
 type CameraPropertiesNodeEditorPropTypes = {
-  editor?: any
   node?: any
   t?: any
 }
@@ -91,12 +91,12 @@ const projectionTypeSelect = [
  */
 
 export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorPropTypes) {
-  const { node, editor, t } = props
+  const { node, t } = props
   const [cameraMode, setCameraMode] = useState(node.cameraMode) as any
 
   // function to handle changes in payloadName property
   const onChangePayload = (propName, prop) => {
-    editor.setPropertySelected(propName, prop)
+    CommandManager.instance.setPropertyOnSelection(propName, prop)
   }
 
   return (

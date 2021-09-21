@@ -1,6 +1,10 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import Volumetric from '@xrengine/engine/src/scene/classes/Volumetric'
 import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+import { SceneManager } from '../managers/SceneManager'
+import { ControlManager } from '../managers/ControlManager'
 
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'
@@ -9,8 +13,8 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   //   src: new URL(editorLandingVolumetric, location as any).href
   // };
   static initialElementProps = {}
-  static async deserialize(editor, json, loadAsync) {
-    const node = (await super.deserialize(editor, json)) as any
+  static async deserialize(json, loadAsync) {
+    const node = (await super.deserialize(json)) as any
     const {
       src,
       controls,
@@ -53,7 +57,6 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   controls: boolean
   issues: any[]
   _mesh: any
-  editor: any
   el: any
   onResize: any
   audioListener: any
@@ -68,8 +71,8 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   coneOuterGain: any
   projection: any
   uuid: any
-  constructor(editor) {
-    super(editor, editor.audioListener)
+  constructor() {
+    super(SceneManager.instance.audioListener)
     this._canonicalUrl = ''
     this._autoPlay = true
     this.volume = 0.5
@@ -96,7 +99,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     this.issues = []
     this._mesh.visible = false
     this.hideErrorIcon()
-    if (this.editor.playing) {
+    if (ControlManager.instance.isInPlayMode) {
       ;(this.el as any).pause()
     }
     try {
@@ -109,8 +112,9 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
       console.error(videoError)
       this.issues.push({ severity: 'error', message: 'Error loading volumetric.' })
     }
-    this.editor.emit('objectsChanged', [this])
-    this.editor.emit('selectionChanged')
+    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
+    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+
     // this.hideLoadingCube();
     return this
   }
@@ -127,7 +131,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     this.onResize()
   }
   clone(recursive): VolumetricNode {
-    return new (this as any).constructor(this.editor, this.audioListener).copy(this, recursive)
+    return new (this as any).constructor(this.audioListener).copy(this, recursive)
   }
   copy(source, recursive = true): any {
     super.copy(source, recursive)

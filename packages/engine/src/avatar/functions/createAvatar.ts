@@ -21,7 +21,6 @@ import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { ProximityCheckerComponent } from '../../proximityChecker/components/ProximityCheckerComponent'
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
@@ -29,6 +28,8 @@ import { World } from '../../ecs/classes/World'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent '
+import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -49,8 +50,13 @@ export const createAvatar = (
   isRemotePlayer = true
 ): void => {
   if (isClient) {
-    if (isBot(window) && !hasComponent(entity, ProximityCheckerComponent))
-      addComponent(entity, ProximityCheckerComponent, {})
+    if (isBot(window) && !hasComponent(entity, ProximityComponent))
+      addComponent(entity, ProximityComponent, {
+        usersInRange: [],
+        usersInIntimateRange: [],
+        usersInHarassmentRange: [],
+        usersLookingTowards: []
+      })
     if (!hasComponent(entity, AfkCheckComponent))
       addComponent(entity, AfkCheckComponent, {
         isAfk: false,
@@ -133,7 +139,7 @@ export const createAvatar = (
       world.physics.physics.createMaterial(0, 0, 0),
       {
         collisionLayer: CollisionGroups.Avatars,
-        collisionMask: DefaultCollisionMask
+        collisionMask: CollisionGroups.Default | CollisionGroups.Ground
       }
     )
     const body = world.physics.addBody({
@@ -153,6 +159,10 @@ export const createAvatar = (
     })
     addComponent(entity, ColliderComponent, { body })
   } else {
+    addComponent(entity, SpawnPoseComponent, {
+      position: new Vector3().copy(spawnTransform.position),
+      rotation: new Quaternion().copy(spawnTransform.rotation)
+    })
     createAvatarController(entity)
   }
 }
@@ -198,7 +208,12 @@ export const createAvatarController = (entity: Entity) => {
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   addComponent(entity, AvatarControllerComponent, {
     controller,
-    filterData: new PhysX.PxFilterData(CollisionGroups.Avatars, DefaultCollisionMask | CollisionGroups.Trigger, 0, 0),
+    filterData: new PhysX.PxFilterData(
+      CollisionGroups.Avatars,
+      CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
+      0,
+      0
+    ),
     collisions: [false, false, false],
     movementEnabled: true,
     isJumping: false,

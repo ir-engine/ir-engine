@@ -215,7 +215,7 @@ export default (app: Application): void => {
                 {
                   targetObjectId: (app as any).instance.id,
                   targetObjectType: 'instance',
-                  text: `${user.name} joined the layer`,
+                  text: `[jl_system]${user.name} joined the layer`,
                   isNotification: true
                 },
                 {
@@ -296,6 +296,20 @@ export default (app: Application): void => {
           if (identityProvider != null && identityProvider.id != null) {
             const userId = identityProvider.userId
             const user = await app.service('user').get(userId)
+            if ((app as any).isChannelInstance !== true)
+              await app.service('message').create(
+                {
+                  targetObjectId: (app as any).instance.id,
+                  targetObjectType: 'instance',
+                  text: `[jl_system]${user.name} left the layer`,
+                  isNotification: true
+                },
+                {
+                  'identity-provider': {
+                    userId: userId
+                  }
+                }
+              )
             const instanceId = !config.kubernetes.enabled ? (connection as any).instanceId : (app as any).instance?.id
             let instance
             try {

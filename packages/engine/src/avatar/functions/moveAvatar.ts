@@ -89,7 +89,6 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
     // }
   }
   const world = useWorld()
-  console.log(`${Math.round(newVelocity.x * 1000)} ${Math.round(newVelocity.z * 1000)} `)
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null)
   const collisionFlags = controller.controller.move(

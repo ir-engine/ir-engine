@@ -200,6 +200,7 @@ export default async function CameraSystem(world: World): Promise<System> {
     }
 
     for (const entity of followCameraQuery.exit()) {
+      setAvatarOpacity(entity, 1)
       Engine.activeCameraFollowTarget = null
     }
 

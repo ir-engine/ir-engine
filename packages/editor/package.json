@@ -23,7 +23,7 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "@types/react": "17.0.21",
+    "@types/react": "17.0.22",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -31,7 +31,7 @@
     "react": "^17.0.0"
   },
   "dependencies": {
-    "@feathersjs/client": "5.0.0-pre.9",
+    "@feathersjs/client": "5.0.0-pre.10",
     "@google/model-viewer": "1.8.0",
     "@hookstate/core": "3.0.11",
     "@material-ui/core": "4.12.3",
@@ -49,8 +49,8 @@
     "@types/react-redux": "7.1.18",
     "@types/react-router-dom": "5.1.9",
     "@types/styled-components": "5.1.14",
-    "@typescript-eslint/eslint-plugin": "4.31.1",
-    "@typescript-eslint/parser": "4.31.1",
+    "@typescript-eslint/eslint-plugin": "4.31.2",
+    "@typescript-eslint/parser": "4.31.2",
     "@xrengine/client-core": "^0.4.6",
     "@xrengine/common": "^0.4.6",
     "@xrengine/engine": "^0.4.6",
@@ -62,13 +62,13 @@
     "credential-handler-polyfill": "2.2.1",
     "cross-env": "7.0.3",
     "device-detector-js": "2.2.10",
-    "dompurify": "2.3.2",
+    "dompurify": "2.3.3",
     "emailjs-com": "3.2.0",
     "esbuild-plugin-sass": "0.6.0",
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "fuse.js": "6.4.6",
-    "i18next": "20.6.1",
+    "i18next": "21.0.0",
     "immutable": "4.0.0-rc.15",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
@@ -116,7 +116,7 @@
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
     "@types/node": "14.17.17",
-    "@types/react": "17.0.21",
+    "@types/react": "17.0.22",
     "@types/react-dom": "17.0.9",
     "@types/three": "0.131.1",
     "create-ts-index": "1.13.6",

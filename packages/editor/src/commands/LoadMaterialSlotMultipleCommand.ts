@@ -1,32 +1,69 @@
-import Command from './Command'
+import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
-export default class LoadMaterialSlotMultipleCommand extends Command {
-  objects: any
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+
+export interface LoadMaterialSlotCommandParams extends CommandParams {
+  subPieceId?: any
+  materialSlotId?: any
+  materialId?: any
+}
+
+export default class LoadMaterialSlotCommand extends Command {
   subPieceId: any
+
   materialSlotId: any
+
   materialId: any
-  prevMaterialIds: any
-  constructor(editor, objects, subPieceId, materialSlotId, materialId) {
-    super(editor)
-    this.objects = objects.slice(0)
-    this.subPieceId = subPieceId
-    this.materialSlotId = materialSlotId
-    this.materialId = materialId
-    this.prevMaterialIds = objects.map((object) => object.getMaterialIdForMaterialSlot(subPieceId, materialSlotId))
+
+  prevMaterialIds: any[]
+
+  constructor(objects?: any | any[], params?: LoadMaterialSlotCommandParams) {
+    super(objects, params)
+    this.affectedObjects = objects.slice(0)
+    this.subPieceId = params.subPieceId
+    this.materialSlotId = params.materialSlotId
+    this.materialId = params.materialId
+    this.prevMaterialIds = objects.map((object) =>
+      object.getMaterialIdForMaterialSlot(params.subPieceId, params.materialSlotId)
+    )
   }
+
   execute() {
-    this.editor.loadMaterialSlotMultiple(this.objects, this.subPieceId, this.materialSlotId, this.materialId, false)
+    this.loadMaterial(this.affectedObjects, this.subPieceId, this.materialSlotId, this.materialId)
+
+    this.emitAfterExecuteEvent()
   }
+
   undo() {
-    for (let i = 0; i < this.objects.length; i++) {
-      const object = this.objects[i]
-      this.editor.loadMaterialSlot(object, this.subPieceId, this.materialSlotId, this.prevMaterialIds[i], false, false)
+    for (let i = 0; i < this.affectedObjects.length; i++) {
+      this.loadMaterial(this.affectedObjects[i], this.subPieceId, this.materialSlotId, this.prevMaterialIds[i])
     }
-    this.editor.emit('objectsChanged', this.objects, 'materialSlot')
+
+    this.emitAfterExecuteEvent()
   }
+
   toString() {
     return `LoadMaterialSlotMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(
-      this.objects
+      this.affectedObjects
     )} subPieceId: ${this.subPieceId} materialSlotId: ${this.materialSlotId} materialId: ${this.materialId}`
+  }
+
+  emitAfterExecuteEvent() {
+    if (this.shouldEmitEvent) {
+      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, 'materialSlot')
+    }
+  }
+
+  loadMaterial(objects: any[], subPieceId: any, materialSlotId: any, materialId: any): void {
+    for (let i = 0; i < objects.length; i++) {
+      const object = objects[i]
+
+      object.loadMaterialSlot(subPieceId, materialSlotId, materialId).catch(console.error)
+
+      if (object.onChange) {
+        object.onChange('materialSlot')
+      }
+    }
   }
 }

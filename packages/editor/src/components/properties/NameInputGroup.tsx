@@ -3,6 +3,7 @@ import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import styled from 'styled-components'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * Creating styled component using InputGroup component.
@@ -18,7 +19,6 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 `
 
 type Types = {
-  editor: any
   node: any
   t: Function
 }
@@ -66,7 +66,7 @@ export class NameInputGroup extends Component<Types> {
       ((this.props as any).node as any).name !== (this.state as any).name &&
       (this.props as any).node === (this.state as any).focusedNode
     ) {
-      ;((this.props as any).editor as any).setPropertySelected('name', (this.state as any).name)
+      CommandManager.instance.setPropertyOnSelection('name', (this.state as any).name)
     }
 
     this.setState({ focusedNode: null })
@@ -76,7 +76,7 @@ export class NameInputGroup extends Component<Types> {
   onKeyUpName = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      ;((this.props as any).editor as any).setPropertySelected('name', (this.state as any).name)
+      CommandManager.instance.setPropertyOnSelection('name', (this.state as any).name)
     }
   }
 

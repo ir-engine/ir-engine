@@ -90,16 +90,16 @@ export const DebugRenderer = () => {
   }
 
   function _updateController(body: PhysX.PxRigidActor) {
-    const shape = (body as any)._shapes[0] as PhysX.PxShape
+    const shape = body._shapes[0] as PhysX.PxShape
     const id = shape._id
     let mesh = _meshes.get(id)
     let needsUpdate = false
-    if ((body as any)._debugNeedsUpdate) {
+    if (body._debugNeedsUpdate) {
       if (mesh) {
         Engine.scene.remove(mesh)
         needsUpdate = true
       }
-      delete (body as any)._debugNeedsUpdate
+      delete body._debugNeedsUpdate
     }
 
     if (!mesh || needsUpdate) {
@@ -132,12 +132,12 @@ export const DebugRenderer = () => {
   function _updateMesh(body: PhysX.PxRigidActor, id: number, shape: PhysX.PxShape) {
     let mesh = _meshes.get(id)
     let needsUpdate = false
-    if ((shape as any)._debugNeedsUpdate) {
+    if (shape._debugNeedsUpdate) {
       if (mesh) {
         Engine.scene.remove(mesh)
         needsUpdate = true
       }
-      delete (shape as any)._debugNeedsUpdate
+      delete shape._debugNeedsUpdate
     }
     if (!mesh || needsUpdate) {
       mesh = _createMesh(shape, body)
@@ -149,7 +149,7 @@ export const DebugRenderer = () => {
     const isTrigger = isTriggerShape(shape)
     const geometryType = getGeometryType(shape)
     let mesh: Mesh
-    const material: Material = _materials[isTrigger ? 4 : (body as any)._type]
+    const material: Material = _materials[isTrigger ? 4 : body._type]
 
     switch (geometryType) {
       case PhysX.PxGeometryType.eSPHERE.value: {
@@ -194,9 +194,9 @@ export const DebugRenderer = () => {
       }
 
       case PhysX.PxGeometryType.eCONVEXMESH.value: {
-        const verts = (shape as any)._vertices
-        const indices = (shape as any)._indices
-        const scale = (shape as any)._scale
+        const verts = shape._vertices
+        const indices = shape._indices
+        const scale = shape._scale
         const bufferGeometry = new BufferGeometry()
         bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
         bufferGeometry.setIndex(indices)
@@ -206,9 +206,9 @@ export const DebugRenderer = () => {
       }
 
       case PhysX.PxGeometryType.eTRIANGLEMESH.value: {
-        const verts = (shape as any)._vertices
-        const indices = (shape as any)._indices
-        const scale = (shape as any)._scale
+        const verts = shape._vertices
+        const indices = shape._indices
+        const scale = shape._scale
         const bufferGeometry = new BufferGeometry()
         bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
         bufferGeometry.setIndex(indices)
@@ -240,26 +240,26 @@ export const DebugRenderer = () => {
       const pose = body.getGlobalPose()
       pos.set(pose.translation.x, pose.translation.y, pose.translation.z)
       if (isControllerBody(body)) {
-        const controllerShapeID = (body as any)._shapes[0]._id
-        _updateController(body as any)
+        const controllerShapeID = body._shapes[0]._id
+        _updateController(body)
         _meshes.get(controllerShapeID).position.copy(pos)
         return
       }
       rot.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w)
       parentMatrix.compose(pos, rot, scale)
-      ;(body as any)._shapes?.forEach((shape: PhysX.PxShape) => {
+      body._shapes?.forEach((shape: PhysX.PxShape) => {
         const localPose = shape.getLocalPose()
-        _updateMesh(body, (shape as any)._id, shape)
+        _updateMesh(body, shape._id, shape)
 
-        if (_meshes.get((shape as any)._id)) {
+        if (_meshes.get(shape._id)) {
           // Copy to meshes
           pos.set(localPose.translation.x, localPose.translation.y, localPose.translation.z)
           rot.set(localPose.rotation.x, localPose.rotation.y, localPose.rotation.z, localPose.rotation.w)
           childMatrix.compose(pos, rot, scale)
           childMatrix.premultiply(parentMatrix)
           childMatrix.decompose(pos, rot, scale2)
-          _meshes.get((shape as any)._id).position.copy(pos)
-          _meshes.get((shape as any)._id).quaternion.copy(rot)
+          _meshes.get(shape._id).position.copy(pos)
+          _meshes.get(shape._id).quaternion.copy(rot)
         }
       })
     })
