@@ -1,4 +1,4 @@
-import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
+// import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { Config } from '@xrengine/common/src/config'
 import { restoreState } from '@xrengine/client-core/src/persisted.store'
 import { configureStore } from '@xrengine/client-core/src/store'
@@ -25,9 +25,9 @@ const App = (): any => {
 
     dispatch(restoreState())
 
-    initGA()
+    // initGA()
 
-    logPageView()
+    // logPageView()
   }, [])
 
   useEffect(initApp, [])

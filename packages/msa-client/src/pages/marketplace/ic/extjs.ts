@@ -1,19 +1,19 @@
 /* global BigInt */
 import { Actor, HttpAgent } from "@dfinity/agent";  
 import { Principal } from "@dfinity/principal";  
-import { LEDGER_CANISTER_ID, GOVERNANCE_CANISTER_ID, NNS_CANISTER_ID, CYCLES_MINTING_CANISTER_ID, getCyclesTopupSubAccount, rosettaApi, principalToAccountIdentifier, toHexString, from32bits, to32bits, isHex, getSubAccountArray, fromHexString, validatePrincipal   } from "./utils.js";
+import { LEDGER_CANISTER_ID, GOVERNANCE_CANISTER_ID, NNS_CANISTER_ID, CYCLES_MINTING_CANISTER_ID, getCyclesTopupSubAccount, rosettaApi, principalToAccountIdentifier, toHexString, from32bits, to32bits, isHex, getSubAccountArray, fromHexString, validatePrincipal   } from "./utils";
 
-import ledgerIDL from './candid/ledger.did.js';
-import governanceIDL from './candid/governance.did.js';
-import nnsIDL from './candid/nns.did.js';
-import hzldIDL from './candid/hzld.did.js'; //hardcode to hzld...
-import extIDL from './candid/ext.did.js';
-import advancedIDL from './candid/advanced.did.js';
-import wrapperIDL from './candid/wrapper.did.js';
-import icpunksIDL from './candid/icpunks.did.js';
-import logIDL from './candid/log.did.js';
-import icdripIDL from './candid/icdrip.did.js';
-//import cronicsIDL from './candid/cronics.did.js';
+import ledgerIDL from './candid/ledger.did';
+import governanceIDL from './candid/governance.did';
+import nnsIDL from './candid/nns.did';
+import hzldIDL from './candid/hzld.did'; //hardcode to hzld...
+import extIDL from './candid/ext.did';
+import advancedIDL from './candid/advanced.did';
+import wrapperIDL from './candid/wrapper.did';
+import icpunksIDL from './candid/icpunks.did';
+import logIDL from './candid/log.did';
+import icdripIDL from './candid/icdrip.did';
+//import cronicsIDL from './candid/cronics.did';
 
 const constructUser = (u) => {
   if (isHex(u) && u.length === 64) {

@@ -18,7 +18,7 @@ import {
 } from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import MyControls from './MyControls.js';
+import MyControls from './MyControls';
 
 // @TODO: These default values should be imported from somewhere common place
 const DEFAULT_CAMERA_POSITION = [0, 1.6, 0];

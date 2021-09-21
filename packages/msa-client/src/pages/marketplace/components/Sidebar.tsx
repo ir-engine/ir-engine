@@ -19,7 +19,7 @@ import Typography from '@material-ui/core/Typography';
 import CachedIcon from '@material-ui/icons/Cached';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import React from 'react';
-import extjs from '../ic/extjs.js';
+import extjs from '../ic/extjs';
 import { clipboardCopy } from '../utils';
 import Blockie from './Blockie';
 import SnackbarButton from './SnackbarButton';

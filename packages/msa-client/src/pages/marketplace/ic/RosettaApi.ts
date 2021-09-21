@@ -5,7 +5,7 @@
  */
 
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
+import BigNumber from 'bignumber';
 import jsonBigint from 'json-bigint';
 
 // Set useNativeBigInt to true and use BigInt once BigInt is widely supported.

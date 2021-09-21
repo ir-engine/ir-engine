@@ -7,8 +7,8 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
 import Pagination from '@material-ui/lab/Pagination';
-import extjs from '../ic/extjs.js';
-import getNri from '../ic/nftv.js';
+import extjs from '../ic/extjs';
+import getNri from '../ic/nftv';
 import { useTheme } from '@material-ui/core/styles';
 import Listing from './Listing';
 import Sold from './Sold';
@@ -154,7 +154,7 @@ export default function Listings(props) {
   };
 
   
-  const refresh = async (s, c) => {
+  const refresh = async (s, c?) => {
     s = s ?? showing;
     c = c ?? collection;
     if (s === "all") {      

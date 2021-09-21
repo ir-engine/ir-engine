@@ -1,6 +1,6 @@
 /* global BigInt */
 import React from 'react';
-import extjs from '../ic/extjs.js';
+import extjs from '../ic/extjs';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Listings from '../components/Listings';
 import Wallet from '../components/Wallet';
