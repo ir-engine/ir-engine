@@ -1,5 +1,5 @@
 {
-  "name": "@xrengine/client",
+  "name": "msa-client",
   "version": "0.4.6",
   "private": true,
   "repository": {

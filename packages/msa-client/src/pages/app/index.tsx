@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
-import World, { EngineCallbacks } from '../../components/World'
-import { useTranslation } from 'react-i18next'
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import MediaIconsBox from '../../components/MediaIconsBox'
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import React, { useState } from 'react'
+import World, { EngineCallbacks } from '../../components/World/index'
+import { useTranslation } from 'react-i18next'
+import InstanceChat from '../../components/InstanceChat'
 import Layout from '../../components/Layout/Layout'
+import MediaIconsBox from '../../components/MediaIconsBox'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 
 const LocationPage = (props) => {
@@ -15,23 +18,18 @@ const LocationPage = (props) => {
     setLoadingItemCount(loadingItemCount || 0)
   }
 
-  const engineCallbacks: EngineCallbacks = {
-    onSceneLoadProgress,
-    onSceneLoaded: () => setLoadingItemCount(0),
-    onSuccess: () => {}
-  }
-
   const engineInitializeOptions: InitializeOptions = {
     systems: [
-      {
-        injectionPoint: 'FIXED',
-        system: import('./GolfSystem')
-      },
-      {
-        injectionPoint: 'PRE_RENDER',
-        system: import('./GolfXRUISystem')
-      }
+      // {
+      //   injectionPoint: 'FIXED',
+      //   system: import('@xrengine/client-core/src/systems/AvatarUISystem')
+      // }
     ]
+  }
+
+  const engineCallbacks: EngineCallbacks = {
+    onSceneLoadProgress,
+    onSceneLoaded: () => setLoadingItemCount(0)
   }
 
   return (
@@ -43,9 +41,14 @@ const LocationPage = (props) => {
         history={props.history}
         engineCallbacks={engineCallbacks}
         engineInitializeOptions={engineInitializeOptions}
+        showTouchpad
       >
-        <UserMenu />
+        <InteractableModal />
+        {/* <RecordingApp /> */}
         <MediaIconsBox />
+        <UserMenu />
+        <EmoteMenu />
+        <InstanceChat />
       </World>
     </Layout>
   )

@@ -20,10 +20,10 @@ const LocationPage = (props) => {
 
   const engineInitializeOptions: InitializeOptions = {
     systems: [
-      {
-        injectionPoint: 'FIXED',
-        system: import('@xrengine/client-core/src/systems/AvatarUISystem')
-      }
+      // {
+      //   injectionPoint: 'FIXED',
+      //   system: import('@xrengine/client-core/src/systems/AvatarUISystem')
+      // }
     ]
   }
 
