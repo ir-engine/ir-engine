@@ -1,28 +1,3 @@
-
-![xrengine](https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png)
-
-## [Join our Discord](https://discord.gg/Tb4MT4TTjH)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH) - ![Sponsorhip](https://opencollective.com/xrengine/tiers/badge.svg)
-
-### **Build Status  :  Beta -** ![branch-build](https://github.com/xrfoundation/xrengine/actions/workflows/branch-build.yml/badge.svg)  **- Release -** ![prod-deploy](https://github.com/xrfoundation/xrengine/actions/workflows/.github/workflows/prod-deploy.yml/badge.svg)
-### Releases : ![release-packages](https://github.com/xrfoundation/xrengine/actions/workflows/.github/workflows/release-packages.yml/badge.svg) ![publish-container](https://github.com/xrfoundation/xrengine/actions/workflows/publish-gh-container.yml/badge.svg) ![publish-npm-packages](https://github.com/xrfoundation/xrengine/actions/workflows/publish-npm-packages.yml/badge.svg) ![documentation](https://github.com/xrfoundation/xrengine/actions/workflows/documentation.yml/badge.svg)
-
-## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
-
-## Popular features
-- Player rigs to support 2D, 3D and XR interaction
-- High-performance ECS engine
-- Fully networked player controller, physics, vehicles and particles
-- Fully data-oriented design
-- Chat, groups, parties and friends
-- Voice and video over WebRTC
-- Instant login with phone number or email
-- OAuth login with Facebook, Google, Steam and Github
-- User management, avatars and inventory
-- Authorative realtime gameserver
-- Websockets and WebRTC data transport
-- Built end-to-end in Typescript
-- Free, open source, MIT-licensed
-
 # Getting Started
 
 Getting up and running requires only a few steps. 
@@ -44,8 +19,9 @@ This will automatically setup (if necessary) and run redis/mariadb docker contai
 
 Note : If you are having issues during installation or when you run msadev kindly try to delete modules, clean cache and then retry with yarn for installing modules as it fixes the issues ( remember to have the latest node 16+ on your system )
 
+## [Link to XREngine Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
 
-## Easy Setup For XREngine
+## Easy Setup For vanilla XREngine
 
 ```
 cd path/to/xrengine
