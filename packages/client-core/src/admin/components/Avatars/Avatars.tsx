@@ -13,7 +13,6 @@ import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/reducers'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
@@ -37,7 +36,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
     adminAvatarState: selectAdminAvatarState(state)
   }
 }

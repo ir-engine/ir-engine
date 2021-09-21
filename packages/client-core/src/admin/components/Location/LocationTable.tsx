@@ -9,7 +9,6 @@ import TableRow from '@material-ui/core/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
@@ -35,7 +34,6 @@ import FormDialog from '../UI/SubmitDialog'
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),

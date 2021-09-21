@@ -1,4 +1,3 @@
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
@@ -17,7 +16,7 @@ import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src
 import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
 import { UserAction } from '../../store/UserAction'
-import { AuthAction, AuthActionType, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
+import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'

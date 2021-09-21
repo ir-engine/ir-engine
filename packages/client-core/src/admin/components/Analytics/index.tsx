@@ -170,7 +170,7 @@ const Analytics = (props: Props) => {
 
   useEffect(() => {
     if (authState.isLoggedIn.value) setRefetch(true)
-  }, [authState])
+  }, [authState.isLoggedIn.value])
 
   useEffect(() => {
     fetchTick()
