@@ -1,1 +1,0 @@
-copyfiles email-templates/**/* ../lib

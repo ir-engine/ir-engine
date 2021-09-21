@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background-color: rgb(6, 78, 59);
+  }
+}
+
+@layer components {
+  .wall-container {
+    @apply w-full px-10 lg:px-0 lg:max-w-2xl lg:mx-auto;
+  }
+}

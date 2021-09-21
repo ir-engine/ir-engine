@@ -130,7 +130,19 @@
     "uuid": "8.3.2",
     "vite": "2.5.10",
     "web-vitals": "^1.0.1",
-    "webxr-native": "0.3.0"
+    "@dfinity/identity": "^0.10.0",
+    "@tailwindcss/forms": "^0.2.1",
+    "@types/node": "^16.7.2",
+    "@types/react-dom": "^17.0.9",
+    "@ukstv/jazzicon-react": "^1.0.0",
+    "@web3-react/core": "latest",
+    "@web3-react/injected-connector": "latest",
+    "date-fns": "^2.23.0",
+    "ethers": "^5.1.4",
+    "linkify-react": "^3.0.0-beta.3",
+    "react-bottom-scroll-listener": "^5.0.0",
+    "react-hot-toast": "^2.0.0",
+    "recoil": "^0.4.1"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",

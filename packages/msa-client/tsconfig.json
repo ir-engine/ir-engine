@@ -33,8 +33,6 @@
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx",
-    "../../PhysX.d.ts",
-    "../../PhysXDebug.d.ts"
+    "./**/*.tsx"
   ]
 }

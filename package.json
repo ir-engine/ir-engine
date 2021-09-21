@@ -40,7 +40,7 @@
   "scripts": {
     "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "npm run dev",
-    "msadev": "npm run dev-docker && concurrently \"cd packages/msa-server && npm run dev\" npm:dev-agones  \"cd packages/msa-client && npm run dev\"",
+    "msadev": "npm run dev-docker && concurrently \"cd packages/server && npm run dev\" npm:dev-agones  \"cd packages/msa-client && npm run dev\"",
     "dev": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server npm:dev-client",
     "dev-windows": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-windows npm:dev-client",
     "golf": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-golf npm:dev-client",

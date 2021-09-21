@@ -1,0 +1,19 @@
+[package]
+name = "user_profile"
+version = "0.0.1"
+authors = ["Kristofer Lund <kristofer@fmckl.se>"]
+edition = "2018"
+
+[lib]
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+ic-cdk = "0.2.4"
+ic-cdk-macros = "0.2.4"
+ic-types = "0.1.1"
+lazy_static = "1.4.0"
+serde = "1.0.111"
+hex = "0.4.3"
+libsecp256k1 = "0.6.0"
+easy-hasher = "2.2.1"
