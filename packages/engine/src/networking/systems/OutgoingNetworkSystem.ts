@@ -6,7 +6,6 @@ import { World } from '../../ecs/classes/World'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateInterface, WorldStateModel } from '../schema/networkSchema'
-import { Pose } from '../../transform/TransformInterfaces'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
@@ -18,7 +17,6 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/encode'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
-import { NameComponent } from '../../scene/components/NameComponent'
 
 function sendActions() {
   if (!isClient) {
@@ -215,14 +213,12 @@ function ikPoseIsTheSame(netId, hp, hr, lp, lr, rp, rr): boolean {
   for (let i = 0; i < prevWorldState.ikPose.length; i++) {
     if (prevWorldState.ikPose[i].networkId === netId) {
       if (
-        (arraysAreEqual(prevWorldState.ikPose[i].headPosePosition),
-        hp &&
-          arraysAreEqual(prevWorldState.ikPose[i].headPoseRotation, hr) &&
-          arraysAreEqual(prevWorldState.ikPose[i].leftPosePosition),
-        lp &&
-          arraysAreEqual(prevWorldState.ikPose[i].leftPoseRotation, lr) &&
-          arraysAreEqual(prevWorldState.ikPose[i].rightPosePosition),
-        rp && arraysAreEqual(prevWorldState.ikPose[i].rightPoseRotation, rr))
+        arraysAreEqual(prevWorldState.ikPose[i].headPosePosition, hp) &&
+        arraysAreEqual(prevWorldState.ikPose[i].headPoseRotation, hr) &&
+        arraysAreEqual(prevWorldState.ikPose[i].leftPosePosition, lp) &&
+        arraysAreEqual(prevWorldState.ikPose[i].leftPoseRotation, lr) &&
+        arraysAreEqual(prevWorldState.ikPose[i].rightPosePosition, rp) &&
+        arraysAreEqual(prevWorldState.ikPose[i].rightPoseRotation, rr)
       ) {
         return true
       } else {

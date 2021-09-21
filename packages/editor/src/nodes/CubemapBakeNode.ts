@@ -22,7 +22,9 @@ import { envmapPhysicalParsReplace, worldposReplace } from '@xrengine/engine/src
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData, uploadCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import SkyboxNode from './SkyboxNode'
-import { deleteAsset } from '@xrengine/engine/src/scene/functions/deleteAsset'
+import { deleteAsset } from '../functions/deleteAsset'
+import { SceneManager } from '../managers/SceneManager'
+import { ProjectManager } from '../managers/ProjectManager'
 
 export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'Cubemap Bake'
@@ -34,8 +36,8 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   currentEnvMap: WebGLCubeRenderTarget
   ownedFileIdentifier: string
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.centerBall = new Mesh(new SphereGeometry(0.75))
     this.add(this.centerBall)
     this.cubemapBakeSettings = {
@@ -55,27 +57,28 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
     })
     this.add(this.gizmo)
     this.ownedFileIdentifier = 'envMapOwnedFileId'
-    this.editor.scene.registerEnvironmentMapNode(this)
+    SceneManager.instance.scene.registerEnvironmentMapNode(this)
   }
 
-  static canAddNode(editor) {
-    return editor.scene.findNodeByType(CubemapBakeNode) === null
+  static canAddNode() {
+    return SceneManager.instance.scene.findNodeByType(CubemapBakeNode) === null
   }
 
   async captureCubeMap(): Promise<WebGLCubeRenderTarget> {
-    const sceneToBake = this.getSceneForBaking(this.editor.scene)
+    const sceneToBake = this.getSceneForBaking(SceneManager.instance.scene)
     const cubemapCapturer = new CubemapCapturer(
-      this.editor.renderer.renderer,
+      SceneManager.instance.renderer.renderer,
       sceneToBake,
       this.cubemapBakeSettings.resolution
     )
     const result = cubemapCapturer.update(this.position)
-    const imageData = (await convertCubemapToEquiImageData(this.editor.renderer.renderer, result, 512, 512, false))
-      .imageData
+    const imageData = (
+      await convertCubemapToEquiImageData(SceneManager.instance.renderer.renderer, result, 512, 512, false)
+    ).imageData
     // downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
     this.injectShader()
-    this.editor.scene.setUpEnvironmentMap()
+    SceneManager.instance.scene.setUpEnvironmentMap()
     return result
   }
 
@@ -91,11 +94,11 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       new Quaternion(0),
       this.cubemapBakeSettings.bakeScale
     )
-    //this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
+    //SceneManager.instance.scene.environment=this.visible?this.currentEnvMap?.texture:null;
   }
 
   injectShader() {
-    this.editor.scene.traverse((child) => {
+    SceneManager.instance.scene.traverse((child) => {
       if (child.material) {
         child.material.onBeforeCompile = (shader) => {
           shader.uniforms.cubeMapSize = { value: this.cubemapBakeSettings.bakeScale }
@@ -122,8 +125,8 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
     return await super.serialize(projectID, { cubemapbake: data })
   }
 
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const bakeOptions = json.components.find((c) => c.name === 'cubemapbake')
     const { options } = bakeOptions.props
     if (options) {
@@ -156,7 +159,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
           //disable specular highlights
           ;(child as any).material && ((child as any).material.roughness = 1)
           if ((child as any).isNode) {
-            if (child.constructor === SkyboxNode) sceneToBake.background = this.editor.scene.background
+            if (child.constructor === SkyboxNode) sceneToBake.background = SceneManager.instance.scene.background
           }
         })
         sceneToBake.add(o)
@@ -167,18 +170,18 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
 
   onRemove() {
     this.currentEnvMap?.dispose()
-    this.editor.scene.unregisterEnvironmentMapNode(this)
-    const fileID = globalThis.Editor.ownedFileIds[this.ownedFileIdentifier]
+    SceneManager.instance.scene.unregisterEnvironmentMapNode(this)
+    const fileID = ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
     if (fileID) {
       const id = fileID
       if (id) deleteAsset(id, globalThis.currentProjectID, this.ownedFileIdentifier)
-      delete globalThis.Editor.ownedFileIds[this.ownedFileIdentifier]
+      delete ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
     }
   }
 
   async uploadBakeToServer(projectID: any, rt: WebGLCubeRenderTarget) {
     const value = await uploadCubemap(
-      this.editor.renderer.renderer,
+      SceneManager.instance.renderer.renderer,
       rt,
       this.cubemapBakeSettings.resolution,
       this.ownedFileIdentifier,
@@ -190,10 +193,10 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       file_id: fileId,
       meta: { access_token: fileToken }
     } = value
-    globalThis.Editor.ownedFileIds[this.ownedFileIdentifier] = fileId
+    ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier] = fileId
   }
 
   setEnvMap() {
-    this.editor.scene.environment = this.currentEnvMap.texture
+    SceneManager.instance.scene.environment = this.currentEnvMap.texture
   }
 }

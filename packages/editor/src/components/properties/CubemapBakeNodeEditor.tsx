@@ -71,7 +71,6 @@ const DefaultCubemapBakeSettings = [
 ]
 
 export type CubemapBakeNodeEditorProps = {
-  editor?: object
   node?: object
 }
 

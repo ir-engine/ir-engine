@@ -8,10 +8,10 @@ import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for OceanNodeEditor
 type OceanNodeEditorProps = {
-  editor: any
   node: any
   t: Function
 }
@@ -38,7 +38,7 @@ export class OceanNodeEditor extends Component<OceanNodeEditorProps> {
 
   onChangeProperty = (name) => {
     return (value) => {
-      this.props.editor.setPropertySelected(name, value)
+      CommandManager.instance.setPropertyOnSelection(name, value)
     }
   }
 

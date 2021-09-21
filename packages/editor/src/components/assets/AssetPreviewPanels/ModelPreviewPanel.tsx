@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
-import Editor from '../../Editor'
 import styled from 'styled-components'
+import { SceneManager } from '../../../managers/SceneManager'
+import { ControlManager } from '../../../managers/ControlManager'
+import EditorEvents from '../../../constants/EditorEvents'
+import { ProjectManager } from '../../../managers/ProjectManager'
 
 /**
  * @author Abhishek Pathak
@@ -25,11 +28,11 @@ const ModelPreview = (styled as any).canvas`
 
 export const ModelPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
-  const assestPanelRef = React.createRef()
+  const assestPanelRef = React.createRef<HTMLCanvasElement>()
 
   const scene = new Scene()
   const camera = new PerspectiveCamera(75)
-  const editor = new Editor(null, { camera, scene })
+  // const editor = new Editor(null, { camera, scene })
 
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
 
@@ -64,26 +67,29 @@ export const ModelPreviewPanel = (props) => {
   }
 
   const onFlyModeChanged = useCallback(() => {
-    setFlyModeEnabled(editor.flyControls.enabled)
-  }, [editor, setFlyModeEnabled])
+    setFlyModeEnabled(ControlManager.instance.flyControls.enabled)
+  }, [setFlyModeEnabled])
 
   const onEditorInitialized = useCallback(() => {
-    editor.editorControls.addListener('flyModeChanged', onFlyModeChanged)
-  }, [editor, onFlyModeChanged])
+    ControlManager.instance.editorControls.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+  }, [onFlyModeChanged])
 
   useEffect(() => {
-    editor.addListener('initialized', onEditorInitialized)
-    editor.init()
-    editor.initializeRenderer(assestPanelRef.current)
+    // editor.addListener(EditorEvents.INITIALIZED.toString(), onEditorInitialized)
+    ProjectManager.instance.init()
+    SceneManager.instance.initializeRenderer(assestPanelRef.current)
     renderScene()
     return () => {
-      if (editor.editorControls) {
-        editor.editorControls.removeListener('flyModeChanged', onFlyModeChanged)
+      if (ControlManager.instance.editorControls) {
+        ControlManager.instance.editorControls.removeListener(
+          EditorEvents.FLY_MODE_CHANGED.toString(),
+          onFlyModeChanged
+        )
       }
-      if (editor.renderer) {
-        editor.renderer.dispose()
+      if (SceneManager.instance.renderer) {
+        SceneManager.instance.renderer.dispose()
       }
-      editor.dispose()
+      ProjectManager.instance.dispose()
     }
   }, [])
 

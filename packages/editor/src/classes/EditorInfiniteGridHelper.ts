@@ -1,5 +1,7 @@
 import { Mesh, Color, PlaneBufferGeometry, ShaderMaterial, DoubleSide, Plane, Vector3 } from 'three'
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
+import { CommandManager } from '../managers/CommandManager'
+import EditorEvents from '../constants/EditorEvents'
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
@@ -50,6 +52,9 @@ void main() {
   if ( gl_FragColor.a <= 0.0 ) discard;
 }
 `
+
+const GRID_INCREAMENT = 1.5
+
 export default class EditorInfiniteGridHelper extends Mesh {
   plane: Plane
   intersectionPointWorld: Vector3
@@ -111,5 +116,23 @@ export default class EditorInfiniteGridHelper extends Mesh {
     if (distance < raycaster.near || distance > raycaster.far) return null
     this.intersection.distance = distance
     intersects.push(this.intersection)
+  }
+
+  incrementGridHeight() {
+    this.setGridHeight(this.position.y + GRID_INCREAMENT)
+  }
+
+  decrementGridHeight() {
+    this.setGridHeight(this.position.y - GRID_INCREAMENT)
+  }
+
+  setGridHeight(value) {
+    this.position.y = value
+    CommandManager.instance.emitEvent(EditorEvents.GRID_HEIGHT_CHANGED, value)
+  }
+
+  toggleGridVisible() {
+    this.visible = !this.visible
+    CommandManager.instance.emitEvent(EditorEvents.GRID_VISIBILITY_CHANGED, this.visible)
   }
 }
