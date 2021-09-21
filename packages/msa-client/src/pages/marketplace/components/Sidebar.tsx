@@ -1,29 +1,28 @@
-import React from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import Chip from '@material-ui/core/Chip';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
+import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Avatar from '@material-ui/core/Avatar';
-import Chip from '@material-ui/core/Chip';
-import Button from '@material-ui/core/Button';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import CachedIcon from '@material-ui/icons/Cached';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import SnackbarButton from '../components/SnackbarButton';
-import Blockie from '../components/Blockie';
+import React from 'react';
 import extjs from '../ic/extjs.js';
 import { clipboardCopy } from '../utils';
+import Blockie from './Blockie';
+import SnackbarButton from './SnackbarButton';
 function useInterval(callback, delay) {
   const savedCallback = React.useRef();
 
@@ -35,7 +34,7 @@ function useInterval(callback, delay) {
   // Set up the interval.
   React.useEffect(() => {
     function tick() {
-      savedCallback.current();
+      (savedCallback as any).current();
     }
     if (delay !== null) {
       let id = setInterval(tick, delay);
@@ -88,29 +87,29 @@ export default function Sidebar(props) {
   const refresh = async () => {
     if (props.account){
       var b = await api.token().getBalance(props.account.address);
-      setBalance(b);
+      setBalance(b as any);
       var collection, mcs = [];
       for(var i = 0; i < props.collections.length; i++) {
         collection = props.collections[i];
         try{
           var tokens = await api.token(collection.canister).getTokens(props.account.address);
           if (collection.canister === "bxdf4-baaaa-aaaah-qaruq-cai") {
-            tokens = tokens.map(a => {a.wrapped = true; return a});
-            tokens = tokens.concat(await api.token("qcg3w-tyaaa-aaaah-qakea-cai").getTokens(props.account.address, props.identity.getPrincipal().toText()));
+            tokens = (tokens as any).map(a => {a.wrapped = true; return a});
+            tokens = (tokens as any).concat(await api.token("qcg3w-tyaaa-aaaah-qakea-cai").getTokens(props.account.address, props.identity.getPrincipal().toText()));
           } else 
           if (collection.canister === "3db6u-aiaaa-aaaah-qbjbq-cai") {
-            tokens = tokens.map(a => {a.wrapped = true; return a});
-            tokens = tokens.concat(await api.token("d3ttm-qaaaa-aaaai-qam4a-cai").getTokens(props.account.address, props.identity.getPrincipal().toText()));
+            tokens = (tokens as any).map(a => {a.wrapped = true; return a});
+            tokens = (tokens as any).concat(await api.token("d3ttm-qaaaa-aaaai-qam4a-cai").getTokens(props.account.address, props.identity.getPrincipal().toText()));
           };
         } catch(e) {continue};
-        if (tokens.length) {
+        if ((tokens as any).length) {
           mcs.push({
             ...collection,
-            count : tokens.length
+            count : (tokens as any).length
           });
         }
       };
-      setMyCollections(mcs);
+      setMyCollections(mcs as any);
     }
   };
   useInterval(refresh, 30 *1000);
@@ -241,11 +240,11 @@ export default function Sidebar(props) {
           <ListItem>Loading collections...</ListItem>
         :
           <>
-          {myCollections.length === 0 ?
+          {(myCollections as any).length === 0 ?
             <ListItem>No collections owned</ListItem>
           :
             <>
-              {myCollections.map(collection => {
+              {(myCollections as any).map((collection: any) => {
                 return (<ListItem key={collection.canister + "-" + collection.count} selected={props.view === collection.canister} button onClick={() => props.setView(collection)}>
                   <ListItemAvatar>
                     <Avatar>

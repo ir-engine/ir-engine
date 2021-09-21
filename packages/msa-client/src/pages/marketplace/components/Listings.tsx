@@ -26,7 +26,7 @@ function useInterval(callback, delay) {
   // Set up the interval.
   React.useEffect(() => {
     function tick() {
-      savedCallback.current();
+      (savedCallback.current as any)();
     }
     if (delay !== null) {
       let id = setInterval(tick, delay);

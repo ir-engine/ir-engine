@@ -20,6 +20,7 @@ function stringToBytes ( str ) {
   return re;
 }
 export class Secp256k1PublicKey {
+    rawKey: any;
     constructor(key) {
         this.rawKey = key;
     }
@@ -39,6 +40,8 @@ export class Secp256k1PublicKey {
     }
 }
 export class Secp256k1KeyIdentity extends SignIdentity {
+    _privateKey: any;
+    _publicKey: Secp256k1PublicKey;
     constructor(publicKey, _privateKey) {
         super();
         this._privateKey = _privateKey;

@@ -43,7 +43,7 @@ const decodeTokenId = (tid) => {
   } else {
     return {
       index : from32bits(p.splice(-4)), 
-      canister : Principal.fromUint8Array(p).toText(),
+      canister : Principal.fromUint8Array(p as any).toText(),
       token : tid
     };
   }
@@ -89,7 +89,7 @@ class ExtConnection {
   };
   _identity = false;//new AnonymousIdentity();
   _host = false;
-  _agent = false;
+  _agent: any = false;
   _canisters = {};
   
   constructor(host, identity) {
@@ -113,7 +113,7 @@ class ExtConnection {
     this._makeAgent();
     return this;
   }
-  canister(cid, idl) {
+  canister(cid, idl?) {
     if (!idl){
       if (this._mapIdls.hasOwnProperty(cid)) {
         idl = this._mapIdls[cid];
@@ -128,11 +128,11 @@ class ExtConnection {
       }
     }
     if (!this._canisters.hasOwnProperty(cid)){
-      this._canisters[cid] = Actor.createActor(idl, {agent : this._agent, canisterId : cid});        
+      this._canisters[cid] = Actor.createActor(idl, {agent : this._agent as any, canisterId : cid});        
     }
     return this._canisters[cid];
   }
-  token(tid, idl) {
+  token(tid?, idl?) {
     if (!tid) tid = LEDGER_CANISTER_ID;//defaults to ledger
     var tokenObj = decodeTokenId(tid);
     if (!idl) {
@@ -158,7 +158,7 @@ class ExtConnection {
           }
         });
       },
-      getTokens : (aid, principal) => {
+      getTokens : (aid, principal?) => {
         return new Promise((resolve, reject) => {
           switch(tokenObj.canister) {
             case "qcg3w-tyaaa-aaaah-qakea-cai":
@@ -261,7 +261,7 @@ class ExtConnection {
           }).catch(reject);    
         });
       },
-      getBalance : (address, princpal) => {
+      getBalance : (address, princpal?) => {
         return new Promise((resolve, reject) => {
           var args;
           switch(tokenObj.canister) {
@@ -476,7 +476,7 @@ class ExtConnection {
 };
 
 const extjs = {
-  connect : (host, identity) => new ExtConnection(host ?? "https://boundary.ic0.app/", identity),
+  connect : (host, identity?) => new ExtConnection(host ?? "https://boundary.ic0.app/", identity ?? null),
   decodeTokenId : decodeTokenId,
   encodeTokenId : tokenIdentifier,
   toAddress : principalToAccountIdentifier,
