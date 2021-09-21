@@ -6,6 +6,9 @@ import Vector3Input from '../inputs/Vector3Input'
 import EulerInput from '../inputs/EulerInput'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
+import EditorCommands from '../../constants/EditorCommands'
+import EditorEvents from '../../constants/EditorEvents'
 
 /**
  * TransformPropertyGroupProps declaring properties for TransformPropertyGroup.
@@ -14,7 +17,6 @@ import { withTranslation } from 'react-i18next'
  * @type {Object}
  */
 type TransformPropertyGroupProps = {
-  editor?: object
   node?: object
   t: Function
 }
@@ -34,7 +36,7 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
 
   //adding listener when component get mounted
   componentDidMount() {
-    ;(this.props.editor as any).addListener('objectsChanged', this.onObjectsChanged)
+    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
   //updating changes in properties
@@ -44,7 +46,7 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
 
   //removing listener when component get unmount
   componentWillUnmount() {
-    ;(this.props.editor as any).removeListener('objectsChanged', this.onObjectsChanged)
+    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
   //setting translation
@@ -69,18 +71,20 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
 
   //function to handle the position properties
   onChangePosition = (value) => {
-    this.translation.subVectors(value, (this.props.node as any).position)
-    ;(this.props.editor as any).translateSelected(this.translation)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
   }
 
   //function to handle changes rotation properties
   onChangeRotation = (value) => {
-    ;(this.props.editor as any).setRotationSelected(value)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
   }
 
   //function to handle changes in scale properties
   onChangeScale = (value) => {
-    ;(this.props.editor as any).setScaleSelected(value)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
+      scales: value,
+      overrideScale: true
+    })
   }
 
   //rendering editor view for Transform properties

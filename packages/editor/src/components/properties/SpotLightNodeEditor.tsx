@@ -9,6 +9,7 @@ import LightShadowProperties from './LightShadowProperties'
 import { Bullseye } from '@styled-icons/fa-solid/Bullseye'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 const radToDeg = _Math.radToDeg
 
 /**
@@ -18,7 +19,6 @@ const radToDeg = _Math.radToDeg
  * @type {Object}
  */
 type SpotLightNodeEditorProps = {
-  editor?: object
   node?: object
   multiEdit?: boolean
   t: Function
@@ -39,33 +39,33 @@ export class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}>
 
   //function to handle the changes in color property
   onChangeColor = (color) => {
-    ;(this.props as any).editor.setPropertySelected('color', color)
+    CommandManager.instance.setPropertyOnSelection('color', color)
   }
 
   //function to handle the changes in intensity property
   onChangeIntensity = (intensity) => {
-    ;(this.props as any).editor.setPropertySelected('intensity', intensity)
+    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
   }
 
   //function to handle the changes innerConeAngle property
   onChangeInnerConeAngle = (innerConeAngle) => {
-    ;(this.props as any).editor.setPropertySelected('innerConeAngle', innerConeAngle)
+    CommandManager.instance.setPropertyOnSelection('innerConeAngle', innerConeAngle)
   }
 
   //function to handle the changes in outerConeAngle property
   onChangeOuterConeAngle = (outerConeAngle) => {
-    ;(this.props as any).editor.setPropertySelected('outerConeAngle', outerConeAngle)
+    CommandManager.instance.setPropertyOnSelection('outerConeAngle', outerConeAngle)
   }
 
   //function to handle the changes in ranges property
   onChangeRange = (range) => {
-    ;(this.props as any).editor.setPropertySelected('range', range)
+    CommandManager.instance.setPropertyOnSelection('range', range)
   }
 
   //rendering editor view
   render() {
     SpotLightNodeEditor.description = this.props.t('editor:properties.spotLight.description')
-    const { node, editor } = this.props as any
+    const { node } = this.props as any
     return (
       <NodeEditor {...this.props} description={SpotLightNodeEditor.description}>
         <InputGroup name="Color" label={this.props.t('editor:properties.spotLight.lbl-color')}>
@@ -117,7 +117,7 @@ export class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}>
           onChange={this.onChangeRange}
           unit="m"
         />
-        <LightShadowProperties node={node} editor={editor} />
+        <LightShadowProperties node={node} />
       </NodeEditor>
     )
   }

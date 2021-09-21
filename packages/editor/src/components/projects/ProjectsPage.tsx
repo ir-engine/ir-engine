@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
 import styled from 'styled-components'
-import { deleteProject, getProjects } from '@xrengine/engine/src/scene/functions/projectFunctions'
+import { deleteProject, getProjects } from '../../functions/projectFunctions'
 import { Button, MediumButton } from '../inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '../layout/ContextMenu'
 

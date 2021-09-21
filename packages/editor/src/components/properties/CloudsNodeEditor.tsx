@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
-import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
-import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
-import ImageInput from '@xrengine/editor/src/components/inputs/ImageInput'
-import Vector3Input from '@xrengine/editor/src/components/inputs/Vector3Input'
-import Vector2Input from '@xrengine/editor/src/components/inputs/Vector2Input'
+import NodeEditor from '../properties/NodeEditor'
+import InputGroup from '../inputs/InputGroup'
+import ImageInput from '../inputs/ImageInput'
+import Vector3Input from '../inputs/Vector3Input'
+import Vector2Input from '../inputs/Vector2Input'
 import { Cloud } from '@styled-icons/fa-solid/Cloud'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
-import ColorInput from '@xrengine/editor/src/components/inputs/ColorInput'
+import ColorInput from '../inputs/ColorInput'
+import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for CloudsNodeEditor
 type CloudsNodeEditorProps = {
-  editor: any
   node: any
   t: Function
 }
@@ -38,7 +38,7 @@ export class CloudsNodeEditor extends Component<CloudsNodeEditorProps> {
 
   onChangeProperty = (name: string) => {
     return (value) => {
-      this.props.editor.setPropertySelected(name, value)
+      CommandManager.instance.setPropertyOnSelection(name, value)
     }
   }
 

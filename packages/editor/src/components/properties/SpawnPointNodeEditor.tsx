@@ -11,7 +11,6 @@ import { withTranslation } from 'react-i18next'
  * @type {Object}
  */
 type SpawnPointNodeEditorProps = {
-  editor?: object
   node?: object
   t: Function
 }

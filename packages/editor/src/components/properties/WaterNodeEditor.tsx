@@ -1,12 +1,12 @@
 import { Water } from '@styled-icons/fa-solid/Water'
-import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
+import NodeEditor from './NodeEditor'
 import i18n from 'i18next'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for WaterNodeEditor
 type WaterNodeEditorProps = {
-  editor: any
   node: any
   t: Function
 }
@@ -33,7 +33,7 @@ export class WaterNodeEditor extends Component<WaterNodeEditorProps> {
 
   onChangeProperty = (name: string) => {
     return (value) => {
-      this.props.editor.setPropertySelected(name, value)
+      CommandManager.instance.setPropertyOnSelection(name, value)
     }
   }
 

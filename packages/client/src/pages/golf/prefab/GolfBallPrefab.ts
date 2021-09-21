@@ -132,6 +132,8 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
       },
       true
     )
+    collider.body.setLinearVelocity({ x: 0, y: 0, z: 0 }, true)
+    collider.body.setAngularVelocity({ x: 0, y: 0, z: 0 }, true)
   } else {
     const transform = getComponent(entityBall, TransformComponent)
     transform.position.fromArray(position)

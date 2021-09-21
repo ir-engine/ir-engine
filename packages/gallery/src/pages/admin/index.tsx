@@ -52,26 +52,11 @@ const AdminPage = (props: Props) => {
 
   return (
     <>
-      {userRole != 'guest' ? (
-        <div>
-          <Dashboard>
-            <div />
-          </Dashboard>
-        </div>
-      ) : (
-        <EmptyLayout pageTitle={t('login.pageTitle')}>
-          <style>
-            {' '}
-            {`
-                 [class*=menuPanel] {
-                     top: 75px;
-                     bottom: initial;
-                 }
-             `}
-          </style>
-          <AdminLogin />
-        </EmptyLayout>
-      )}
+      <div>
+        <Dashboard>
+          <div />
+        </Dashboard>
+      </div>
     </>
   )
 }

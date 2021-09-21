@@ -9,9 +9,10 @@ import Vector3Input from '../inputs/Vector3Input'
 import SelectInput from '../inputs/SelectInput'
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { SprayCan } from '@styled-icons/fa-solid/SprayCan'
-import { camelPad } from '@xrengine/editor/src/functions/utils'
+import { camelPad } from '../../functions/utils'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 //creating object containing Curve options for SelectInput
 const CurveOptions = Object.keys(EasingFunctions).map((name) => ({
@@ -21,7 +22,6 @@ const CurveOptions = Object.keys(EasingFunctions).map((name) => ({
 
 //declaring properties for ParticleEmitterNodeEditor
 type ParticleEmitterNodeEditorProps = {
-  editor: any
   node: any
   t: Function
 }
@@ -46,115 +46,115 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
 
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   updateParticles() {
-    for (const node of this.props.editor.selected) {
+    for (const node of CommandManager.instance.selected) {
       node.updateParticles()
     }
   }
 
   //function to handle the changes on colorCurve property
   onChangeColorCurve = (colorCurve) => {
-    this.props.editor.setPropertySelected('colorCurve', colorCurve)
+    CommandManager.instance.setPropertyOnSelection('colorCurve', colorCurve)
   }
 
   //function used to handle the changes velocityCurve property
   onChangeVelocityCurve = (velocityCurve) => {
-    this.props.editor.setPropertySelected('velocityCurve', velocityCurve)
+    CommandManager.instance.setPropertyOnSelection('velocityCurve', velocityCurve)
   }
 
   //function used to handle the changes in startColor property
   onChangeStartColor = (startColor) => {
-    this.props.editor.setPropertySelected('startColor', startColor)
+    CommandManager.instance.setPropertyOnSelection('startColor', startColor)
     this.updateParticles()
   }
 
   //function used to handle the chnages in middleColor property
   onChangeMiddleColor = (middleColor) => {
-    this.props.editor.setPropertySelected('middleColor', middleColor)
+    CommandManager.instance.setPropertyOnSelection('middleColor', middleColor)
   }
 
   //function used to handle the changes in endColor property
   onChangeEndColor = (endColor) => {
-    this.props.editor.setPropertySelected('endColor', endColor)
+    CommandManager.instance.setPropertyOnSelection('endColor', endColor)
   }
 
   //function used to handle the changes in startOpacity
   onChangeStartOpacity = (startOpacity) => {
-    this.props.editor.setPropertySelected('startOpacity', startOpacity)
+    CommandManager.instance.setPropertyOnSelection('startOpacity', startOpacity)
   }
 
   //function used to handle the change in middleOpacity
   onChangeMiddleOpacity = (middleOpacity) => {
-    this.props.editor.setPropertySelected('middleOpacity', middleOpacity)
+    CommandManager.instance.setPropertyOnSelection('middleOpacity', middleOpacity)
   }
 
   //function used to  handle the changes in endOpacity
   onChangeEndOpacity = (endOpacity) => {
-    this.props.editor.setPropertySelected('endOpacity', endOpacity)
+    CommandManager.instance.setPropertyOnSelection('endOpacity', endOpacity)
   }
 
   //function to handle the change in src property
   onChangeSrc = (src) => {
-    this.props.editor.setPropertySelected('src', src)
+    CommandManager.instance.setPropertyOnSelection('src', src)
   }
 
   //function used to handle the changes in sizeCurve
   onChangeSizeCurve = (sizeCurve) => {
-    this.props.editor.setPropertySelected('sizeCurve', sizeCurve)
+    CommandManager.instance.setPropertyOnSelection('sizeCurve', sizeCurve)
   }
 
   //function used to handle changes in startSize property
   onChangeStartSize = (startSize) => {
-    this.props.editor.setPropertySelected('startSize', startSize)
+    CommandManager.instance.setPropertyOnSelection('startSize', startSize)
     this.updateParticles()
   }
 
   //function used to handle the changes in endSize property
   onChangeEndSize = (endSize) => {
-    this.props.editor.setPropertySelected('endSize', endSize)
+    CommandManager.instance.setPropertyOnSelection('endSize', endSize)
   }
 
   //function used to handle the changes in sizeRandomness
   onChangeSizeRandomness = (sizeRandomness) => {
-    this.props.editor.setPropertySelected('sizeRandomness', sizeRandomness)
+    CommandManager.instance.setPropertyOnSelection('sizeRandomness', sizeRandomness)
     this.updateParticles()
   }
 
   //function used to handle the changes in startVelocity
   onChangeStartVelocity = (startVelocity) => {
-    this.props.editor.setPropertySelected('startVelocity', startVelocity)
+    CommandManager.instance.setPropertyOnSelection('startVelocity', startVelocity)
   }
 
   //function used to handle the changes in endVelocity
   onChangeEndVelocity = (endVelocity) => {
-    this.props.editor.setPropertySelected('endVelocity', endVelocity)
+    CommandManager.instance.setPropertyOnSelection('endVelocity', endVelocity)
   }
 
   //function used to handle the changes in angularVelocity
   onChangeAngularVelocity = (angularVelocity) => {
-    this.props.editor.setPropertySelected('angularVelocity', angularVelocity)
+    CommandManager.instance.setPropertyOnSelection('angularVelocity', angularVelocity)
   }
 
   // function used to handle the changes in particleCount
   onChangeParticleCount = (particleCount) => {
-    this.props.editor.setPropertySelected('particleCount', particleCount)
+    CommandManager.instance.setPropertyOnSelection('particleCount', particleCount)
     this.updateParticles()
   }
 
   // function used to handle the changes in lifetime property
   onChangeLifetime = (lifetime) => {
-    this.props.editor.setPropertySelected('lifetime', lifetime)
+    CommandManager.instance.setPropertyOnSelection('lifetime', lifetime)
     this.updateParticles()
   }
 
   //function to handle the changes in ageRandomness property
   onChangeAgeRandomness = (ageRandomness) => {
-    this.props.editor.setPropertySelected('ageRandomness', ageRandomness)
+    CommandManager.instance.setPropertyOnSelection('ageRandomness', ageRandomness)
     this.updateParticles()
   }
 
   //function to handle the changes on lifetimeRandomness property
   onChangeLifetimeRandomness = (lifetimeRandomness) => {
-    this.props.editor.setPropertySelected('lifetimeRandomness', lifetimeRandomness)
+    CommandManager.instance.setPropertyOnSelection('lifetimeRandomness', lifetimeRandomness)
     this.updateParticles()
   }
 

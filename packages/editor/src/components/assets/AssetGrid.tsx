@@ -1,19 +1,22 @@
-import React, { useCallback, useRef, useEffect, useContext, memo } from 'react'
+import React, { useCallback, useRef, useEffect, memo } from 'react'
 import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroller'
 import styled from 'styled-components'
 import { VerticalScrollContainer } from '../layout/Flex'
 import { MediaGrid, ImageMediaGridItem, VideoMediaGridItem, IconMediaGridItem } from '../layout/MediaGrid'
-import { unique } from '@xrengine/editor/src/functions/utils'
+import { unique } from '../../functions/utils'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import AssetTooltip from './AssetTooltip'
-import { EditorContext } from '../contexts/EditorContext'
-import { ItemTypes } from '../dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
 import AudioPreview from './AudioPreview'
 import Tooltip, { TooltipContainer } from '../layout/Tooltip'
 import { useTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
+import EditorCommands from '../../constants/EditorCommands'
+import { SceneManager } from '../../managers/SceneManager'
+import { ProjectManager } from '../../managers/ProjectManager'
 
 /**
  * AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object.
@@ -186,7 +189,6 @@ const MemoAssetGridItem = memo(AssetGridItem)
  * @constructor
  */
 export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {
-  const editor = useContext(EditorContext)
   const uniqueId = useRef(`AssetGrid${lastId}`)
   const { t } = useTranslation()
 
@@ -196,42 +198,37 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
   }, [])
 
   // creating callback function used if object get placed on viewport
-  const placeObject = useCallback(
-    (_, trigger) => {
-      const item = trigger.item
+  const placeObject = useCallback((_, trigger) => {
+    const item = trigger.item
 
-      const node = new item.nodeClass(editor)
+    const node = new item.nodeClass()
 
-      if (item.initialProps) {
-        Object.assign(node, item.initialProps)
-      }
+    if (item.initialProps) {
+      Object.assign(node, item.initialProps)
+    }
 
-      editor.getSpawnPosition(node.position)
+    SceneManager.instance.getSpawnPosition(node.position)
 
-      editor.addObject(node)
-      if (item.projectId && globalThis.currentProjectID !== item.projectId) {
-        globalThis.Editor.currentOwnedFileIds[item.label] = item.fileId
-      }
-    },
-    [editor]
-  )
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+
+    if (item.projectId && globalThis.currentProjectID !== item.projectId) {
+      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
+    }
+  }, [])
   //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
-  const placeObjectAtOrigin = useCallback(
-    (_, trigger) => {
-      const item = trigger.item
+  const placeObjectAtOrigin = useCallback((_, trigger) => {
+    const item = trigger.item
 
-      const node = new item.nodeClass(editor)
+    const node = new item.nodeClass()
 
-      if (item.initialProps) {
-        Object.assign(node, item.initialProps)
-      }
+    if (item.initialProps) {
+      Object.assign(node, item.initialProps)
+    }
 
-      editor.addObject(node)
-      if (item.projectId && globalThis.currentProjectID !== item.projectId)
-        globalThis.Editor.currentOwnedFileIds[item.label] = item.fileId
-    },
-    [editor]
-  )
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+    if (item.projectId && globalThis.currentProjectID !== item.projectId)
+      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
+  }, [])
 
   const copyURL = useCallback((_, trigger) => {
     // if (navigator.clipboard) {
