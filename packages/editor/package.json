@@ -33,7 +33,7 @@
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.10",
     "@google/model-viewer": "1.8.0",
-    "@hookstate/core": "3.0.11",
+    "@hookstate/core": "3.0.12",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",
@@ -68,7 +68,7 @@
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "fuse.js": "6.4.6",
-    "i18next": "21.0.0",
+    "i18next": "21.0.1",
     "immutable": "4.0.0-rc.15",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
