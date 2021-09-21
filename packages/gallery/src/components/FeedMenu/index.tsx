@@ -34,7 +34,7 @@ const FeedMenu = () => {
       content = <Featured />
       break
     default:
-      content = <Featured type="creator" />
+      content = <Featured type="myFeatured" />
       break
   }
   const classes = {
