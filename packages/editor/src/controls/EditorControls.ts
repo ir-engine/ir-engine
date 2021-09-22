@@ -21,9 +21,13 @@ import {
   Vector2,
   Vector3
 } from 'three'
+import { CommandManager } from '../managers/CommandManager'
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
 import { TransformSpace } from '../constants/TransformSpace'
 import getIntersectingNode from '../functions/getIntersectingNode'
 import { EditorInputs, EditorMapping, Fly } from './input-mappings'
+import { SceneManager } from '../managers/SceneManager'
 
 export const SnapMode = {
   Disabled: 'Disabled',
@@ -35,7 +39,6 @@ function sortDistance(a, b) {
 }
 export default class EditorControls extends EventEmitter {
   camera: PerspectiveCamera
-  editor: any
   inputManager: any
   flyControls: any
   enabled: boolean
@@ -68,7 +71,7 @@ export default class EditorControls extends EventEmitter {
   transformMode: string
   multiplePlacement: boolean
   transformModeOnCancel: string
-  transformSpace: string
+  transformSpace: TransformSpace
   transformPivot: string
   transformAxis: any
   grabHistoryCheckpoint: any
@@ -106,10 +109,9 @@ export default class EditorControls extends EventEmitter {
   transformSpaceChanged: boolean
   flyStartTime: number
   flyModeSensitivity: number
-  constructor(camera, editor, inputManager, flyControls) {
+  constructor(camera, inputManager, flyControls) {
     super()
     this.camera = camera
-    this.editor = editor
     this.inputManager = inputManager
     this.flyControls = flyControls
     this.enabled = false
@@ -132,7 +134,7 @@ export default class EditorControls extends EventEmitter {
     this.maxFocusDistance = 1000
     this.raycaster = new Raycaster()
     this.raycasterResults = []
-    this.scene = editor.scene
+    this.scene = SceneManager.instance.scene
     this.box = new Box3()
     this.sphere = new Sphere()
     this.centerViewportPosition = new Vector2()
@@ -140,7 +142,7 @@ export default class EditorControls extends EventEmitter {
     this.raycastIgnoreLayers.set(1)
     this.renderableLayers = new Layers()
     this.transformGizmo = new TransformGizmo()
-    this.editor.helperScene.add(this.transformGizmo)
+    SceneManager.instance.helperScene.add(this.transformGizmo)
     this.transformMode = TransformMode.Translate
     this.multiplePlacement = false
     this.transformModeOnCancel = TransformMode.Translate
@@ -151,9 +153,9 @@ export default class EditorControls extends EventEmitter {
     this.placementObjects = []
     this.snapMode = SnapMode.Grid
     this.translationSnap = 0.5
-    this.rotationSnap = 90
+    this.rotationSnap = 10
     this.scaleSnap = 0.1
-    this.editor.grid.setSize(this.translationSnap)
+    SceneManager.instance.grid.setSize(this.translationSnap)
     this.selectionBoundingBox = new Box3()
     this.selectStartPosition = new Vector2()
     this.selectEndPosition = new Vector2()
@@ -183,9 +185,9 @@ export default class EditorControls extends EventEmitter {
     this.transformSpaceChanged = true
     this.flyStartTime = 0
     this.flyModeSensitivity = 0.25
-    this.editor.addListener('beforeSelectionChanged', this.onBeforeSelectionChanged)
-    this.editor.addListener('selectionChanged', this.onSelectionChanged)
-    this.editor.addListener('objectsChanged', this.onObjectsChanged)
+    CommandManager.instance.addListener(EditorEvents.BEFORE_SELECTION_CHANGED.toString(), this.onBeforeSelectionChanged)
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
   onSceneSet = (scene) => {
     this.scene = scene
@@ -194,10 +196,10 @@ export default class EditorControls extends EventEmitter {
     if (this.transformMode === TransformMode.Grab) {
       const checkpoint = this.grabHistoryCheckpoint
       this.setTransformMode(this.transformModeOnCancel)
-      this.editor.revert(checkpoint)
+      CommandManager.instance.revert(checkpoint)
     } else if (this.transformMode === TransformMode.Placement) {
       this.setTransformMode(this.transformModeOnCancel)
-      this.editor.removeSelectedObjects()
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
     }
   }
   onSelectionChanged = () => {
@@ -231,7 +233,7 @@ export default class EditorControls extends EventEmitter {
         this.camera.position,
         this.vector.set(0, 0, -this.distance).applyMatrix3(this.normalMatrix.getNormalMatrix(this.camera.matrix))
       )
-      this.emit('flyModeChanged')
+      CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
       if (performance.now() - this.flyStartTime < this.flyModeSensitivity * 1000) {
         this.cancel()
       }
@@ -245,11 +247,11 @@ export default class EditorControls extends EventEmitter {
       this.flyControls.lookSensitivity = this.lookSensitivity
       this.flyControls.moveSpeed = this.moveSpeed
       this.flyControls.boostSpeed = this.boostSpeed
-      this.emit('flyModeChanged')
+      CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
     }
     const shift = input.get(EditorInputs.shift)
-    const selected = this.editor.selected
-    const selectedTransformRoots = this.editor.selectedTransformRoots
+    const selected = CommandManager.instance.selected
+    const selectedTransformRoots = CommandManager.instance.selectedTransformRoots
     const modifier = input.get(EditorInputs.modifier)
     let grabStart = false
     if (this.transformModeChanged) {
@@ -389,15 +391,21 @@ export default class EditorControls extends EventEmitter {
           const diffX = transformPosition.x - prevX
           const diffY = transformPosition.y - prevY
           const diffZ = transformPosition.z - prevZ
+
           this.translationVector.set(
             this.translationVector.x + diffX,
             this.translationVector.y + diffY,
             this.translationVector.z + diffZ
           )
         }
-        const cmd = this.editor.translateSelected(this.translationVector, this.transformSpace)
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, {
+          positions: this.translationVector,
+          space: this.transformSpace,
+          addToPosition: true
+        })
+
         if (grabStart && this.transformMode === TransformMode.Grab) {
-          this.grabHistoryCheckpoint = cmd.id
+          this.grabHistoryCheckpoint = CommandManager.instance.selected ? CommandManager.instance.selected[0].id : 0
         }
       } else if (this.transformMode === TransformMode.Rotate) {
         if (selectStart) {
@@ -420,7 +428,11 @@ export default class EditorControls extends EventEmitter {
         }
         const relativeRotationAngle = rotationAngle - this.prevRotationAngle
         this.prevRotationAngle = rotationAngle
-        this.editor.rotateAroundSelected(this.transformGizmo.position, this.planeNormal, relativeRotationAngle)
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+          pivot: this.transformGizmo.position,
+          axis: this.planeNormal,
+          angle: relativeRotationAngle
+        })
         const selectedAxisInfo = (this.transformGizmo as any).selectedAxis.axisInfo
         if (selectStart) {
           selectedAxisInfo.startMarker.visible = true
@@ -488,7 +500,11 @@ export default class EditorControls extends EventEmitter {
         )
         this.scaleVector.copy(this.curScale).divide(this.prevScale)
         this.prevScale.copy(this.curScale)
-        this.editor.scaleSelected(this.scaleVector, this.transformSpace)
+
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
+          scales: this.scaleVector,
+          space: this.transformSpace
+        })
       }
     }
     if (selectEnd) {
@@ -502,7 +518,9 @@ export default class EditorControls extends EventEmitter {
         }
         if (this.transformMode === TransformMode.Placement) {
           if (shift || input.get(Fly.boost) || this.multiplePlacement) {
-            this.editor.duplicateSelected(undefined, undefined, true, true, false)
+            CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS, {
+              isObjectSelected: false
+            })
           } else {
             this.setTransformMode(this.transformModeOnCancel)
           }
@@ -513,12 +531,12 @@ export default class EditorControls extends EventEmitter {
           const result = this.raycastNode(selectEndPosition)
           if (result) {
             if (shift) {
-              this.editor.toggleSelection(result.node)
+              CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, result.node)
             } else {
-              this.editor.setSelection([result.node])
+              CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, result.node)
             }
           } else if (!shift) {
-            this.editor.deselectAll()
+            CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
           }
         }
         this.transformGizmo.deselectAxis()
@@ -527,28 +545,28 @@ export default class EditorControls extends EventEmitter {
     }
     this.transformPropertyChanged = false
     if (input.get(EditorInputs.rotateLeft)) {
-      this.editor.rotateAroundSelected(
-        this.transformGizmo.position,
-        new Vector3(0, 1, 0),
-        this.rotationSnap * _Math.DEG2RAD
-      )
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+        pivot: this.transformGizmo.position,
+        axis: new Vector3(0, 1, 0),
+        angle: this.rotationSnap * _Math.DEG2RAD
+      })
     } else if (input.get(EditorInputs.rotateRight)) {
-      this.editor.rotateAroundSelected(
-        this.transformGizmo.position,
-        new Vector3(0, 1, 0),
-        -this.rotationSnap * _Math.DEG2RAD
-      )
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+        pivot: this.transformGizmo.position,
+        axis: new Vector3(0, 1, 0),
+        angle: -this.rotationSnap * _Math.DEG2RAD
+      })
     } else if (input.get(EditorInputs.grab)) {
       if (this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
         this.cancel()
       }
-      if (this.editor.selected.length > 0) {
+      if (CommandManager.instance.selected.length > 0) {
         this.setTransformMode(TransformMode.Grab)
       }
     } else if (input.get(EditorInputs.cancel)) {
       this.cancel()
     } else if (input.get(EditorInputs.focusSelection)) {
-      this.focus(this.editor.selected)
+      this.focus(CommandManager.instance.selected)
     } else if (input.get(EditorInputs.setTranslateMode)) {
       this.setTransformMode(TransformMode.Translate)
     } else if (input.get(EditorInputs.setRotateMode)) {
@@ -562,22 +580,22 @@ export default class EditorControls extends EventEmitter {
     } else if (input.get(EditorInputs.toggleTransformSpace)) {
       this.toggleTransformSpace()
     } else if (input.get(EditorInputs.incrementGridHeight)) {
-      this.editor.incrementGridHeight()
+      SceneManager.instance.grid.incrementGridHeight()
     } else if (input.get(EditorInputs.decrementGridHeight)) {
-      this.editor.decrementGridHeight()
+      SceneManager.instance.grid.decrementGridHeight()
     } else if (input.get(EditorInputs.undo)) {
-      this.editor.undo()
+      CommandManager.instance.undo()
     } else if (input.get(EditorInputs.redo)) {
-      this.editor.redo()
+      CommandManager.instance.redo()
     } else if (input.get(EditorInputs.duplicateSelected)) {
-      this.editor.duplicateSelected()
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS)
     } else if (input.get(EditorInputs.groupSelected)) {
-      this.editor.groupSelected()
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.GROUP)
     } else if (input.get(EditorInputs.deleteSelected)) {
-      this.editor.removeSelectedObjects()
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
     } else if (input.get(EditorInputs.saveProject)) {
       // TODO: Move save to Project class
-      this.editor.emit('saveProject')
+      CommandManager.instance.emitEvent(EditorEvents.SAVE_PROJECT)
     }
     if (flying) {
       this.updateTransformGizmoScale()
@@ -672,8 +690,8 @@ export default class EditorControls extends EventEmitter {
     if (
       (excludeObjects && excludeObjects.indexOf(object) !== -1) ||
       (excludeLayers && excludeLayers.test(object.layers)) ||
-      (this.editor.renderer.renderer.batchManager &&
-        this.editor.renderer.renderer.batchManager.batches.indexOf(object) !== -1) ||
+      (SceneManager.instance.renderer.renderer.batchManager &&
+        SceneManager.instance.renderer.renderer.batchManager.batches.indexOf(object) !== -1) ||
       !object.visible
     ) {
       return
@@ -687,8 +705,8 @@ export default class EditorControls extends EventEmitter {
   getRaycastPosition(coords, target, modifier) {
     this.raycaster.setFromCamera(coords, this.camera)
     this.raycasterResults.length = 0
-    this._raycastRecursive(this.scene, this.editor.selectedTransformRoots, this.raycastIgnoreLayers)
-    this._raycastRecursive(this.editor.grid)
+    this._raycastRecursive(this.scene, CommandManager.instance.selectedTransformRoots, this.raycastIgnoreLayers)
+    this._raycastRecursive(SceneManager.instance.grid)
     this.raycasterResults.sort(sortDistance)
     const result = this.raycasterResults[0]
     if (result && result.distance < 100) {
@@ -708,7 +726,7 @@ export default class EditorControls extends EventEmitter {
   setTransformMode(mode, multiplePlacement?) {
     if (
       (mode === TransformMode.Placement || mode === TransformMode.Grab) &&
-      this.editor.selected.some((node) => node.disableTransform) // TODO: this doesn't prevent nesting and then grabbing
+      CommandManager.instance.selected.some((node) => node.disableTransform) // TODO: this doesn't prevent nesting and then grabbing
     ) {
       // Dont allow grabbing / placing objects with transform disabled.
       return
@@ -717,7 +735,7 @@ export default class EditorControls extends EventEmitter {
       this.transformModeOnCancel = mode
     }
     if (mode === TransformMode.Placement) {
-      this.placementObjects = this.editor.selected.slice(0)
+      this.placementObjects = CommandManager.instance.selected.slice(0)
     } else {
       this.placementObjects = []
     }
@@ -725,12 +743,12 @@ export default class EditorControls extends EventEmitter {
     this.grabHistoryCheckpoint = null
     this.transformMode = mode
     this.transformModeChanged = true
-    this.emit('transformModeChanged', mode)
+    CommandManager.instance.emitEvent(EditorEvents.TRANSFROM_MODE_CHANGED, mode)
   }
   setTransformSpace(transformSpace) {
     this.transformSpace = transformSpace
     this.transformSpaceChanged = true
-    this.emit('transformSpaceChanged')
+    CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_SPACE_CHANGED)
   }
   toggleTransformSpace() {
     this.setTransformSpace(
@@ -740,7 +758,7 @@ export default class EditorControls extends EventEmitter {
   setTransformPivot(pivot) {
     this.transformPivot = pivot
     this.transformPivotChanged = true
-    this.emit('transformPivotChanged')
+    CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_PIVOT_CHANGED)
   }
   transformPivotModes = [TransformPivot.Selection, TransformPivot.Center, TransformPivot.Bottom]
   changeTransformPivot() {
@@ -750,7 +768,7 @@ export default class EditorControls extends EventEmitter {
   }
   setSnapMode(snapMode) {
     this.snapMode = snapMode
-    this.emit('snapSettingsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   toggleSnapMode() {
     this.setSnapMode(this.snapMode === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled)
@@ -760,26 +778,26 @@ export default class EditorControls extends EventEmitter {
   }
   setTranslationSnap(value) {
     this.translationSnap = value
-    this.editor.grid.setSize(value)
-    this.emit('snapSettingsChanged')
+    SceneManager.instance.grid.setSize(value)
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   setScaleSnap(value) {
     this.scaleSnap = value
-    this.emit('snapSettingsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   setRotationSnap(value) {
     this.rotationSnap = value
-    this.emit('snapSettingsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
   }
   cancel() {
     if (this.transformMode === TransformMode.Grab) {
       const checkpoint = this.grabHistoryCheckpoint
       this.setTransformMode(this.transformModeOnCancel)
-      this.editor.revert(checkpoint)
+      CommandManager.instance.revert(checkpoint)
     } else if (this.transformMode === TransformMode.Placement) {
       this.setTransformMode(this.transformModeOnCancel)
-      this.editor.removeSelectedObjects()
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
     }
-    this.editor.deselectAll()
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
   }
 }

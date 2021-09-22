@@ -4,7 +4,6 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-// import { selectAuthState } from '../../../user/reducers/auth/selector';
 // import { selectFeedsState } from '../../reducers/feed/selector';
 // import { getFeeds } from '../../reducers/feed/service';
 import { getTheFeedsNew } from '@xrengine/social/src/reducers/thefeeds/service'

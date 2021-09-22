@@ -1,6 +1,6 @@
 import { Group, Mesh, Vector3 } from 'three'
-import { RaycastQuery } from '@xrengine/engine/src/physics/physx'
 import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { RaycastComponentType } from '@xrengine/engine/src/physics/components/RaycastComponent'
 
 export type GolfClubComponentType = {
   canDoChipShots: boolean
@@ -8,8 +8,8 @@ export type GolfClubComponentType = {
   handleObject: Mesh
   headGroup: Group
   meshGroup: Group
-  raycast: RaycastQuery
-  raycast1: RaycastQuery
+  raycast: RaycastComponentType
+  raycast1: RaycastComponentType
   canHitBall: boolean
   hasHitBall: boolean
   velocityPositionsToCalculate: number

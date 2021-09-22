@@ -42,7 +42,7 @@ export class Creator extends Service {
         const select = `SELECT creator.*, sr.url as avatar `
         const from = ` FROM \`creator\` as creator`
         const join = ` JOIN \`user\` as user ON user.id=creator.userId
-                    LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId`
+                     LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId`
         const where = ` WHERE creator.userId=:userId`
 
         queryParamsReplacements.userId = loggedInUser.userId
@@ -59,18 +59,19 @@ export class Creator extends Service {
       }
     }
 
-    //creators list
-    const dataQuery = `SELECT creator.*, sr.url as avatar 
-    FROM \`creator\` as creator
-    LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
-    WHERE 1 
-    ORDER BY createdAt DESC    
-    LIMIT :skip, :limit `
+    const creatorId = await getCreatorByUserId(
+      extractLoggedInUserFromParams(params)?.userId,
+      this.app.get('sequelizeClient')
+    )
+    const dataQuery = `SELECT * FROM creator
+       WHERE id NOT IN (select blockedId from block_creator where 
+         creatorId = '${creatorId}')
+         AND id NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')`
 
     const creators = await this.app.get('sequelizeClient').query(dataQuery, {
       type: QueryTypes.SELECT,
       raw: true,
-      replacements: queryParamsReplacements
+      replacements: { ...queryParamsReplacements }
     })
     return creators
   }
@@ -91,7 +92,7 @@ export class Creator extends Service {
 
     let select = `SELECT creator.* , sr.url as avatar `
     let from = ` FROM \`creator\` as creator 
-      LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId `
+       LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId `
     const where = ` WHERE creator.id=:id`
 
     const queryParamsReplacements = { id } as any
@@ -114,9 +115,9 @@ export class Creator extends Service {
   async create(data: any, params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const creatorQuery = `SELECT creator.*, sr.url as avatar 
-          FROM \`creator\` as creator
-          LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
-          WHERE creator.userId=:userId`
+           FROM \`creator\` as creator
+           LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
+           WHERE creator.userId=:userId`
     let [creator] = await this.app.get('sequelizeClient').query(creatorQuery, {
       type: QueryTypes.SELECT,
       raw: true,

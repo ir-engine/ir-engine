@@ -3,13 +3,17 @@ import Video from '@xrengine/engine/src/scene/classes/Video'
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+import { SceneManager } from '../managers/SceneManager'
+import { ControlManager } from '../managers/ControlManager'
 
 export default class VideoNode extends EditorNodeMixin(Video) {
   static legacyComponentName = 'video'
   static nodeName = 'Video'
   static initialElementProps = {}
-  static async deserialize(editor, json) {
-    const node = (await super.deserialize(editor, json)) as VideoNode
+  static async deserialize(json) {
+    const node = (await super.deserialize(json)) as VideoNode
     const video = json.components.find((c) => c.name === 'video')
     if (video) {
       const { props } = video
@@ -41,14 +45,14 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   interactable = false
   isLivestream = false
   synchronize = 0
-  constructor(editor) {
-    super(editor, editor.audioListener)
+  constructor() {
+    super(SceneManager.instance.audioListener)
     this.src = 'hello'
   }
   async load(onError?) {
     this.issues = []
     this.hideErrorIcon()
-    if (this.editor.playing) {
+    if (ControlManager.instance.isInPlayMode) {
       ;(this.el as any).pause()
     }
     // if (!this.src || this.src === '') {
@@ -66,7 +70,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       } else if ((this.el as any).duration) {
         ;(this.el as any).currentTime = 1
       }
-      if (this.editor.playing && this.autoPlay) {
+      if (ControlManager.instance.isInPlayMode && this.autoPlay) {
         ;(this.el as any).play()
       }
       ;(this.el as any).play()
@@ -82,8 +86,9 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       // console.error(videoError);
       // this.issues.push({ severity: "error", message: "Error loading video." });
     }
-    this.editor.emit('objectsChanged', [this])
-    this.editor.emit('selectionChanged')
+    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
+    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+
     // this.hideLoadingCube();
     return this
   }
@@ -100,7 +105,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     ;(this.el as any).currentTime = 0
   }
   clone(recursive): VideoNode {
-    return new (this as any).constructor(this.editor, this.audioListener).copy(this, recursive)
+    return new (this as any).constructor(this.audioListener).copy(this, recursive)
   }
   copy(source, recursive = true): any {
     super.copy(source, recursive)

@@ -5,10 +5,10 @@ interface ServerAddress {
   port: string
 }
 
-export default async (): Promise<ServerAddress> => {
+export default async (isChannelInstance?: boolean): Promise<ServerAddress> => {
   const ip = await internalIp.v4()
   return {
     ipAddress: ip,
-    port: '3031'
+    port: isChannelInstance ? '3032' : '3031'
   }
 }

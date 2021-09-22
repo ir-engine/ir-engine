@@ -1,14 +1,15 @@
 import { AmbientLight } from 'three'
+import { SceneManager } from '../managers/SceneManager'
 import EditorNodeMixin from './EditorNodeMixin'
 export default class AmbientLightNode extends EditorNodeMixin(AmbientLight) {
   static legacyComponentName = 'ambient-light'
   static nodeName = 'Ambient Light'
   static disableTransform = true
-  static canAddNode(editor) {
-    return editor.scene.findNodeByType(AmbientLightNode) === null
+  static canAddNode() {
+    return SceneManager.instance.scene.findNodeByType(AmbientLightNode) === null
   }
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { color, intensity } = json.components.find((c) => c.name === 'ambient-light').props
     node.color.set(color)
     node.intensity = intensity

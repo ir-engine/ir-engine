@@ -73,7 +73,7 @@ export default async function ServerAvatarSpawnSystem(world: World): Promise<Sys
 
     for (const entity of spawnPlayerQuery.enter(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-      createAvatar(entity, parameters)
+      createAvatar(world, entity, parameters)
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_USER_LOADED, networkId, uniqueId })
     }
   }

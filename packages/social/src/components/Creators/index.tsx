@@ -1,10 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
+import { Card, CardContent, CardMedia, Typography, Avatar } from '@material-ui/core'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import PersonPinIcon from '@material-ui/icons/PersonPin'
 import React, { useEffect, useState } from 'react'
@@ -16,7 +13,6 @@ import { getBlockedList, getCreators } from '../../reducers/creator/service'
 import styles from './Creators.module.scss'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { updateCreatorPageState } from '../../reducers/popupsState/service'
-import Avatar from '@material-ui/core/Avatar'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -57,13 +53,6 @@ const Creators = ({ creatorsState, getCreators, popupsState, updateCreatorPageSt
   }, [])
   const blackList = creatorsState?.get('blocked')
   // console.log(Array.from(new Set(blackList?.map((item: any) => item.id))))
-  for (var i = creators?.length - 1; i >= 0; i--) {
-    for (var j = 0; j < blackList?.length; j++) {
-      if (creators[i] && creators[i].id === blackList[j].id) {
-        creators.splice(i, 1)
-      }
-    }
-  }
 
   return (
     <section className={styles.creatorContainer}>

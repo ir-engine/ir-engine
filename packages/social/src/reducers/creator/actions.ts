@@ -13,6 +13,7 @@ import {
   CREATORS_FETCH,
   CURRENT_CREATOR_FETCH,
   SET_CREATOR_AS_BLOCKED,
+  SET_CREATOR_AS_UN_BLOCKED,
   CREATOR_BLOCKED_RETRIEVED
 } from '../actions'
 import { Creator, CreatorShort } from '@xrengine/common/src/interfaces/Creator'
@@ -93,9 +94,17 @@ export function updateCreatorNotFollowed(): FetchingCreatorAction {
   }
 }
 
-export function updateCreatorAsBlocked(): FetchingCreatorAction {
+export function updateCreatorAsBlocked(creatorId): { type: string; creatorId: string } {
   return {
-    type: SET_CREATOR_AS_BLOCKED
+    type: SET_CREATOR_AS_BLOCKED,
+    creatorId
+  }
+}
+
+export function updateCreatorAsUnBlocked(blokedCreatorId): { type: string; blokedCreatorId: string } {
+  return {
+    type: SET_CREATOR_AS_UN_BLOCKED,
+    blokedCreatorId
   }
 }
 

@@ -11,7 +11,6 @@ import {
   Quaternion,
   Vector3
 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from '../../physics/physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
@@ -20,11 +19,14 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { BodyType } from '../../physics/types/PhysicsTypes'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 
 export type PortalProps = {
   locationName: string
@@ -107,36 +109,35 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     // addComponent(entity, Object3DComponent, { value: previewMesh })
   }
 
-  const portalShape: ShapeType = {
-    shape: SHAPES.Box,
-    options: { boxExtents: new Vector3(triggerScale.x, triggerScale.y, triggerScale.z).multiplyScalar(0.5) },
-    transform: {
-      translation: new Vector3(triggerPosition.x, triggerPosition.y, triggerPosition.z),
-      rotation: new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
-    },
-    config: {
-      // isTrigger: true,
+  const world = useWorld()
+
+  const portalShape = world.physics.createShape(
+    new PhysX.PxBoxGeometry(triggerScale.x * 0.5, triggerScale.y * 0.5, triggerScale.z * 0.5),
+    world.physics.createMaterial(),
+    {
+      isTrigger: true,
       collisionLayer: CollisionGroups.Trigger,
       collisionMask: CollisionGroups.Trigger
     }
-  }
-
-  const portalBody = PhysXInstance.instance.addBody(
-    new Body({
-      shapes: [portalShape],
-      type: BodyType.STATIC,
-      transform: {
-        translation: transform.position,
-        rotation: transform.rotation
-      }
-    })
   )
 
-  PhysXInstance.instance.addBody(portalBody)
+  portalShape.setLocalPose({
+    translation: new Vector3(triggerPosition.x, triggerPosition.y, triggerPosition.z),
+    rotation: new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
+  })
 
-  portalBody.userData = { entity }
+  const portalBody = world.physics.addBody({
+    shapes: [portalShape],
+    type: BodyType.STATIC,
+    transform: {
+      translation: transform.position,
+      rotation: transform.rotation
+    },
+    userData: { entity }
+  })
 
   addComponent(entity, ColliderComponent, { body: portalBody })
+  addComponent(entity, CollisionComponent, { collisions: [] })
 
   addComponent(entity, PortalComponent, {
     location: locationName,

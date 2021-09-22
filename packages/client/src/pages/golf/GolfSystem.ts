@@ -56,6 +56,7 @@ import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/X
 import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
 
 export function getHole(world: World, i: number) {
   return world.namedEntities.get(`GolfHole-${i}`)
@@ -323,6 +324,13 @@ function golfReceptor(action: GolfActionType & IncomingActionType) {
           // reset all ball position to the new tee
         }
 
+        if (isClient) {
+          const teeEntity = getTee(world, s.currentHole.value)
+          getComponent(Network.instance.localClientEntity, SpawnPoseComponent).position.copy(
+            getComponent(teeEntity, TransformComponent).position
+          )
+        }
+
         // set current player to the first player
         s.currentPlayer.set(0)
         dispatchFromServer(GolfAction.resetBall(s.players[0].id.value, getTeePosition(world, s.currentHole.value)))
@@ -472,14 +480,17 @@ export default async function GolfSystem(world: World) {
         ballTimer++
         if (ballTimer > 60) {
           const { velocity } = getComponent(activeBallEntity, VelocityComponent)
+          const position = getComponent(activeBallEntity, TransformComponent)?.position
+          if (!position) return
           const velMag = velocity.lengthSq()
-          if (velMag < 0.001) {
+          if (velMag < 0.001 || position.y < -100) {
             setBallState(activeBallEntity, BALL_STATES.STOPPED)
             setTimeout(() => {
+              golfBallComponent.groundRaycast.origin.copy(position)
+              world.physics.doRaycast(golfBallComponent.groundRaycast)
               const outOfBounds = !golfBallComponent.groundRaycast.hits.length
+
               const activeHoleEntity = getHole(world, GolfState.currentHole.value)
-              const position = getComponent(activeBallEntity, TransformComponent)?.position
-              if (!position) return
               const { collisionEvent } = getCollisions(activeBallEntity, GolfHoleComponent)
               const dist = position.distanceToSquared(getComponent(activeHoleEntity, TransformComponent).position)
               // ball-hole collision not being detected, not sure why, use dist for now

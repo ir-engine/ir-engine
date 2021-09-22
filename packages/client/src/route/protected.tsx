@@ -1,9 +1,11 @@
-import React, { Fragment, Suspense } from 'react'
+import React, { Fragment, Suspense, useEffect } from 'react'
 import { Switch, Redirect } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import PrivateRoute from './Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { bindActionCreators, Dispatch } from 'redux'
 
 const analytic = React.lazy(() => import('../pages/admin/index'))
 const avatars = React.lazy(() => import('../pages/admin/avatars'))
@@ -21,25 +23,51 @@ const botSetting = React.lazy(() => import('../pages/admin/bot'))
 // const creator = React.lazy(() => import('../pages/admin/social/creator'))
 const setting = React.lazy(() => import('../pages/admin/Setting'))
 
-interface Props {
-  authState?: any
-}
+interface Props {}
 
 const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
+  return {}
 }
 
-const ProtectedRoutes = (props: Props) => {
-  const { authState } = props
-  const admin = authState.get('user')
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+})
 
-  if (admin?.userRole) {
-    if (admin?.userRole !== 'admin') {
-      return <Redirect to="/login" />
-    }
+const ProtectedRoutes = (props: Props) => {
+  const admin = useAuthState().user
+  const dispatch = useDispatch()
+  if (admin?.id?.value?.length > 0 && admin?.userRole?.value !== 'admin') {
+    return <Redirect to="/login" />
   }
+
+  let allowedRoutes = {
+    location: false,
+    user: false,
+    bot: false,
+    scene: false,
+    party: false,
+    contentPacks: false,
+    groups: false,
+    instance: false,
+    invite: false,
+    globalAvatars: false
+  }
+  const scopes = admin?.scopes?.value || []
+
+  useEffect(() => {
+    dispatch(AuthService.doLoginAuto(false))
+  }, [])
+
+  scopes.forEach((scope) => {
+    if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
+      if (scope.type.split(':')[1] === 'read') {
+        allowedRoutes = {
+          ...allowedRoutes,
+          [scope.type.split(':')[0]]: true
+        }
+      }
+    }
+  })
 
   return (
     <Fragment>
@@ -80,4 +108,4 @@ const ProtectedRoutes = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, null)(ProtectedRoutes)
+export default connect(mapStateToProps, mapDispatchToProps)(ProtectedRoutes)

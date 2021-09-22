@@ -9,10 +9,10 @@ import LightShadowProperties from './LightShadowProperties'
 import { Lightbulb } from '@styled-icons/fa-solid/Lightbulb'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 //Declaring properties for PointLightNodeEditor
 type PointLightNodeEditorProps = {
-  editor?: object
   node?: object
   t: Function
 }
@@ -32,23 +32,23 @@ export class PointLightNodeEditor extends Component<PointLightNodeEditorProps, {
 
   //function to handle changes in color property
   onChangeColor = (color) => {
-    ;(this.props.editor as any).setPropertySelected('color', color)
+    CommandManager.instance.setPropertyOnSelection('color', color)
   }
 
   //function to handle changes in intensity
   onChangeIntensity = (intensity) => {
-    ;(this.props.editor as any).setPropertySelected('intensity', intensity)
+    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
   }
 
   //function to handle changes on range property
   onChangeRange = (range) => {
-    ;(this.props.editor as any).setPropertySelected('range', range)
+    CommandManager.instance.setPropertyOnSelection('range', range)
   }
 
   //rendering editor view
   render() {
     PointLightNodeEditor.description = this.props.t('editor:properties.pointLight.description')
-    const { node, editor } = this.props as any
+    const { node } = this.props as any
     return (
       <NodeEditor {...this.props} description={PointLightNodeEditor.description}>
         <InputGroup name="Color" label={this.props.t('editor:properties.pointLight.lbl-color')}>
@@ -76,7 +76,7 @@ export class PointLightNodeEditor extends Component<PointLightNodeEditorProps, {
           onChange={this.onChangeRange}
           unit="m"
         />
-        <LightShadowProperties node={node} editor={editor} />
+        <LightShadowProperties node={node} />
       </NodeEditor>
     )
   }

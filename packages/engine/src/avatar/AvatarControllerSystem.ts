@@ -1,5 +1,4 @@
 import { Quaternion, Vector3 } from 'three'
-import { ControllerHitEvent, PhysXInstance } from '../physics/physx'
 import { defineQuery, enterQuery, exitQuery } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'
@@ -12,6 +11,11 @@ import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { World } from '../ecs/classes/World'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { SpawnPoints } from './ServerAvatarSpawnSystem'
+import { dispatchFromClient } from '../networking/functions/dispatch'
+import { NetworkWorldAction } from '../networking/interfaces/NetworkWorldActions'
+import { SpawnPoseComponent } from './components/SpawnPoseComponent'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -39,7 +43,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       const controller = getComponent(entity, AvatarControllerComponent, true)
 
       if (controller?.controller) {
-        PhysXInstance.instance.removeController(controller.controller)
+        world.physics.removeController(controller.controller)
       }
 
       const avatar = getComponent(entity, AvatarComponent)
@@ -88,30 +92,33 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
     for (const entity of controllerQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent)
 
-      // iterate on all collisions since the last update
-      controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
-
       const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
+      const pose = controller.controller.getPosition()
 
-      // reset if vals are invalid
-      if (isNaN(controller.controller.transform.translation.x)) {
-        console.warn('WARNING: Avatar physics data reporting NaN', controller.controller.transform.translation)
-        controller.controller.updateTransform({
-          translation: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 }
-        })
-      }
-
-      transform.position.set(
-        controller.controller.transform.translation.x,
-        controller.controller.transform.translation.y - avatar.avatarHalfHeight,
-        controller.controller.transform.translation.z
-      )
+      transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
 
       detectUserInPortal(entity)
 
       moveAvatar(entity, delta)
+
+      // TODO: implement scene lower bounds parameter
+      if (transform.position.y < -10) {
+        const { position, rotation } = getComponent(entity, SpawnPoseComponent)
+        const networkObject = getComponent(entity, NetworkObjectComponent)
+        dispatchFromClient(
+          NetworkWorldAction.teleportObject(networkObject.networkId, [
+            position.x,
+            position.y,
+            position.z,
+            rotation.x,
+            rotation.y,
+            rotation.z,
+            rotation.w
+          ])
+        )
+        continue
+      }
     }
     return world
   }

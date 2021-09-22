@@ -5,7 +5,7 @@ import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/al
 import { client } from '@xrengine/client-core/src/feathers'
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { Dispatch } from 'redux'
+import { Dispatch, bindActionCreators } from 'redux'
 
 import {
   fetchingCreator,
@@ -20,6 +20,7 @@ import {
   fetchingCreators,
   fetchingCurrentCreator,
   updateCreatorAsBlocked,
+  updateCreatorAsUnBlocked,
   creatorBlockedUsers
 } from './actions'
 
@@ -143,7 +144,22 @@ export function blockCreator(creatorId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const follow = await client.service('block-creator').create({ creatorId })
-      follow && dispatch(updateCreatorAsBlocked())
+      follow && dispatch(updateCreatorAsBlocked(creatorId))
+    } catch (err) {
+      console.log(err)
+      dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function unBlockCreator(blokedCreatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const follow = await client.service('block-creator').remove({ blokedCreatorId })
+      if (follow) {
+        bindActionCreators(getBlockedList, dispatch)(follow)
+        bindActionCreators(getCreators, dispatch)()
+      }
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)

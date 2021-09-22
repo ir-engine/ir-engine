@@ -10,7 +10,7 @@ declare global {
 }
 
 expect.extend({
-  toBeCloseToVector(received:Vector3, expected:Vector3, tolerance = 5) {
+  toBeCloseToVector(received: Vector3, expected: Vector3, tolerance = 5) {
     const limit = 0.5 / Math.pow(10, tolerance)
     const diffX = Math.abs(received.x - expected.x)
     const diffY = Math.abs(received.y - expected.y)
@@ -75,7 +75,5 @@ Min diff  ${limit}`,
     }
   }
 })
-
-
 
 export default undefined

@@ -1,25 +1,46 @@
 import React, { useCallback } from 'react'
+import { ControlManager } from '../../managers/ControlManager'
 import AssetGrid from './AssetGrid'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { useAssetSearch } from './useAssetSearch'
+import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import useUpload from './useUpload'
+import EditorCommands from '../../constants/EditorCommands'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
 
 /**
  * MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer.
  *
  * @author Robert Long
- * @param       {object} editor
  * @param       {object} source
  * @constructor
  */
-export function MediaSourcePanel({ editor, source }) {
+export function MediaSourcePanel({ source }) {
   // initializing variables
   const { params, setParams, isLoading, loadMore, hasMore, results } = useAssetSearch(source)
+
+  const spawnGrabbedObject = useCallback((object) => {
+    if (ControlManager.instance.editorControls.transformMode === TransformMode.Placement) {
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
+    }
+
+    if (!object.disableTransform) {
+      SceneManager.instance.getSpawnPosition(object.position)
+    }
+
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, object)
+
+    if (!object.disableTransform) {
+      ControlManager.instance.editorControls.setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode)
+    }
+  }, [])
+
   //callback function to handle select on media source
   const onSelect = useCallback(
     (item) => {
       const { nodeClass, initialProps } = item
-      const node = new nodeClass(editor)
+      const node = new nodeClass()
 
       if (initialProps) {
         Object.assign(node, initialProps)
@@ -28,12 +49,12 @@ export function MediaSourcePanel({ editor, source }) {
       const transformPivot = item.transformPivot || source.transformPivot
 
       if (transformPivot) {
-        editor.editorControls.setTransformPivot(transformPivot)
+        ControlManager.instance.editorControls.setTransformPivot(transformPivot)
       }
 
-      editor.spawnGrabbedObject(node)
+      spawnGrabbedObject(node)
     },
-    [editor, source.transformPivot]
+    [source.transformPivot]
   )
 
   // function to handle the upload

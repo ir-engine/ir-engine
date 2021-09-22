@@ -33,6 +33,8 @@ export function subscribeToChatSystem(userId, system: string) {
         return
       } else if (system === 'all') {
         Network.instance.clients[p].subscribedChatUpdates.push('emotions_system')
+        Network.instance.clients[p].subscribedChatUpdates.push('jl_system')
+        Network.instance.clients[p].subscribedChatUpdates.push('proximity_system')
         //add all chat systems
         return
       }
@@ -74,6 +76,8 @@ export function getSubscribedChatSystems(userId): string[] {
 //gets the chat system from a chat message
 export function getChatMessageSystem(text: string): string {
   if (text.startsWith('[emotions]')) return 'emotions_system'
+  else if (text.startsWith('[jl_system]') || text.includes('joined the layer')) return 'jl_system'
+  else if (text.startsWith('[proximity')) return 'proximity_system'
 
   return 'none'
 }
