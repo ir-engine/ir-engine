@@ -1,7 +1,8 @@
 import { Feature, LineString } from 'geojson'
-import { FeatureKey, Store, TaskStatus } from '../types'
+import { FeatureKey, TaskStatus } from '../types'
 import createUsingCache from '../functions/createUsingCache'
 import createFeatureLabel from '../functions/createFeatureLabel'
+import { Store } from '../functions/createStore'
 
 const ALLOWED_GEOMETRIES: Feature['geometry']['type'][] = ['LineString']
 
@@ -12,7 +13,6 @@ export const isCachingPhase = true
 export function* getTaskKeys(store: Store) {
   for (const key of store.completeObjects.keys()) {
     const feature = store.featureCache.get(key)
-    // TODO also check distance
     if (key[0] === 'road' && ALLOWED_GEOMETRIES.includes(feature.geometry.type) && feature.properties.name) {
       yield key
     }
