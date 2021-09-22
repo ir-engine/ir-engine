@@ -1,26 +1,68 @@
+
+
 .feedMenuContainer{
     width: 100vw;
     padding: 13px 0px;
     box-sizing: border-box;
-    height: 66px;
+    // height: 66px; 
+    display:flex;
+    justify-content: space-between;
 
-    .switcher{
-        background-color: #EEEEEF;
+    .leftSwitcher{
+        background-color: #FFF;
         padding: 5px 3px;
         display: flex;
         margin: 10px 20px;
-        border-radius: 15px;
-        width: 20%;
-        .switchButton{
+        // border-radius: 15px;
+        // width: 20%;
+        height:66px;
+        width:291px;
+        border-radius: 40px;
+        border: 1px solid #E4E4E4;
+        .leftSwitchButton{
             margin: 0;
-            color: #000000;
+            color: #C4C4C4;
             padding: 7pt;
             font-size: 17pt;
             text-transform: capitalize;
-            width: 50%;
-            border-radius: 15px;
+            // width: 50%;
+            // border-radius: 15px;
+            border-radius: 40px;
+            height: 54px;
+            width: 180px;
+            
             &.active{
-                background-color: #FFF;
+                background-color: #E4E4E4;
+            }
+        }
+    }
+
+
+    .rightSwitcher{
+        background-color: #FFF;
+        padding: 5px 3px;
+        display: flex;
+        margin: 10px 20px;
+        // border-radius: 15px;
+        // width: 20%;
+        height:66px;
+        width:165px;
+        border-radius: 40px;
+        border: 1px solid #E4E4E4;
+        .rightSwitchButton{
+            margin: 0;
+            color: #C4C4C4;
+            padding: 7pt;
+            font-size: 17pt;
+            text-transform: capitalize;
+            // width: 50%;
+            // border-radius: 15px;
+            border-radius: 40px;
+            height: 54px;
+            width: 81px;
+            
+            &.active{
+                background-color: #E4E4E4;
             }
         }
     }
