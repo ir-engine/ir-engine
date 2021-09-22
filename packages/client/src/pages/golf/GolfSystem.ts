@@ -141,7 +141,6 @@ function golfReceptor(action) {
         })
         setBallState(getBall($from), BALL_STATES.MOVING)
         if (world.isHosting) ballTimer = 0
-        return
       })
 
       /**
