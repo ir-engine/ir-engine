@@ -1,7 +1,7 @@
 import { isClient } from '../../common/functions/isClient'
 import { HostUserId, NetworkId, UserId } from '../../networking/classes/Network'
 import { Action } from '../../networking/interfaces/Action'
-import { defineQuery, getComponent, hasComponent, MappedComponent, Query } from '../functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { InjectionPoint, SystemFactoryType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
@@ -10,6 +10,7 @@ import { Engine } from './Engine'
 import * as bitecs from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { Physics } from '../../physics/classes/Physics'
 
 type SystemInstanceType = { execute: System; systemLabel: string }
 
@@ -51,6 +52,7 @@ export class World {
     [InjectionPoint.POST_RENDER]: [] as SystemFactoryType<any>[]
   }
 
+  physics = new Physics()
   entities = [] as Entity[]
   portalEntities = [] as Entity[]
   isInPortal = false

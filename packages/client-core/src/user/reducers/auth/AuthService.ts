@@ -25,6 +25,7 @@ import { hasComponent, addComponent } from '@xrengine/engine/src/ecs/functions/C
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -839,13 +840,9 @@ const loadAvatarForUpdatedUser = async (user) => {
       networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
-      for (let key of Object.keys(Network.instance.networkObjects)) {
-        const obj = Network.instance.networkObjects[key]
-        if (obj?.uniqueId === user.id) {
-          setAvatar(obj.entity, user.avatarId, avatarURL)
-          break
-        }
-      }
+      const world = Engine.defaultWorld
+      const userEntity = world.getUserAvatarEntity(user.id)
+      setAvatar(userEntity, user.avatarId, avatarURL)
     }
     resolve(true)
   })
@@ -872,13 +869,9 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
-    for (let key of Object.keys(Network.instance.networkObjects)) {
-      const obj = Network.instance.networkObjects[key]
-      if (obj?.uniqueId === user.id) {
-        setAvatar(obj.entity, user.avatarId, avatarURL)
-        break
-      }
-    }
+    const world = Engine.defaultWorld
+    const userEntity = world.getUserAvatarEntity(user.id)
+    setAvatar(userEntity, user.avatarId, avatarURL)
     resolve(true)
   })
 }
@@ -912,17 +905,18 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
-      if (typeof Network.instance.localClientEntity !== 'undefined') {
-        if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
-          addComponent(Network.instance.localClientEntity, ProximityComponent, {
+      const world = Engine.defaultWorld
+      if (typeof world.localClientEntity !== 'undefined') {
+        if (!hasComponent(world.localClientEntity, ProximityComponent) && isBot(window)) {
+          addComponent(world.localClientEntity, ProximityComponent, {
             usersInRange: [],
             usersInIntimateRange: [],
             usersInHarassmentRange: [],
             usersLookingTowards: []
           })
         }
-        if (!hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
-          addComponent(Network.instance.localClientEntity, WebCamInputComponent, {
+        if (!hasComponent(world.localClientEntity, WebCamInputComponent)) {
+          addComponent(world.localClientEntity, WebCamInputComponent, {
             emotions: []
           })
         }

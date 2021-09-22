@@ -1,8 +1,11 @@
-import { defineQuery } from 'bitecs'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { hasComponent, getComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  hasComponent,
+  getComponent,
+  addComponent,
+  defineQuery
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { sendChatMessage } from '../../social/reducers/chat/service'
 import { accessAuthState } from '../../user/reducers/auth/AuthState'

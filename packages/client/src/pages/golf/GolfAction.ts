@@ -1,6 +1,5 @@
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { defineActionCreator, matchesUserId } from '@xrengine/engine/src/networking/interfaces/Action'
-import { GolfPrefabTypes } from './GolfGameConstants'
 import matches from 'ts-matches'
 
 export const GolfAction = {
@@ -27,12 +26,12 @@ export const GolfAction = {
 
   spawnBall: defineActionCreator({
     ...NetworkWorldAction.spawnObject.actionShape,
-    prefab: GolfPrefabTypes.Ball
+    prefab: 'puttclub.ball'
   }),
 
   spawnClub: defineActionCreator({
     ...NetworkWorldAction.spawnObject.actionShape,
-    prefab: GolfPrefabTypes.Club
+    prefab: 'puttclub.club'
   }),
 
   playerStroke: defineActionCreator(
