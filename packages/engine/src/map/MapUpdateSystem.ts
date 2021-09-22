@@ -11,7 +11,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { World } from '../ecs/classes/World'
 import actuateLazy from './functions/actuateLazy'
 import getPhases from './functions/getPhases'
-import isIntersectCircleCircle from '../../tests/map/functions/isIntersectCircleCircle'
+import isIntersectCircleCircle from './functions/isIntersectCircleCircle'
 
 const $vector3 = new Vector3()
 
