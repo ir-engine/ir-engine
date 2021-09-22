@@ -29,6 +29,7 @@ import VolumetricNode from '../nodes/VolumetricNode'
 import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
 import { ProjectManager } from './ProjectManager'
+import CustomScriptNode from '../nodes/CustomScriptNode'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -286,6 +287,9 @@ export class CommandManager extends EventEmitter {
     } else if (contentType.startsWith('audio/')) {
       node = new AudioNode()
       await node.load(url)
+    } else if (contentType.startsWith('application/')) {
+      node = new CustomScriptNode()
+      node.scriptUrl = url
     } else if (url.contains('.uvol')) {
       node = new VolumetricNode()
     } else {

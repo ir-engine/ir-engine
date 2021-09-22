@@ -32,17 +32,20 @@ export class CustomScriptNodeEditor extends Component<CustomScriptNodeEditorProp
   static iconComponent = Description
   static description = i18n.t('editor:properties.customscriptnode.description')
 
+  constructor(props) {
+    super(props)
+  }
   onChangeScript = (val) => {
     this.props.editor.setPropertySelected('scriptUrl', val)
   }
 
   render() {
     const node = this.props.node
-    CustomScriptNodeEditor.description = this.props.t('editor:properties.customscriptnode.description')
+    CustomScriptNodeEditor.description = i18n.t('editor:properties.customscriptnode.description')
     return (
       <NodeEditor description={CustomScriptNodeEditor.description} {...this.props}>
         {/**@ts-ignore */}
-        <InputGroup name="Code URL" label={this.props.t('editor:properties.customscriptnode.lbl-scripturl')}>
+        <InputGroup name="Code URL" label={i18n.t('editor:properties.customscriptnode.lbl-scripturl')}>
           {/**@ts-ignore */}
           <StringInput onChange={this.onChangeScript} value={node.scriptUrl} />
         </InputGroup>
