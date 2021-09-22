@@ -14,7 +14,7 @@ import FeatureCache from '../../map/classes/FeatureCache'
 import { Feature } from 'geojson'
 import { TaskStatus } from '../types'
 
-export const MAX_CACHED_FEATURES = 1024 * 4
+export const MAX_CACHED_FEATURES = 1024 * 8
 
 export type Store = ReturnType<typeof createStore>
 
@@ -32,6 +32,7 @@ export default function createStore(
     viewerPosition: viewerPosition,
     triggerRefreshRadius,
     minimumSceneRadius,
+    labelRadius: minimumSceneRadius * 0.5,
     scale,
     fetchTilesTasks: new ArrayKeyedMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
     tileCache: new TileCache<VectorTile>(MAX_CACHED_FEATURES),
