@@ -10,16 +10,12 @@ export const isAsyncPhase = false
 export const isCachingPhase = true
 
 export function* getTaskKeys(store: Store) {
-  let count = 0
-  for (const key of store.featureCache.keys()) {
+  for (const key of store.completeObjects.keys()) {
     const feature = store.featureCache.get(key)
+    // TODO also check distance
     if (key[0] === 'road' && ALLOWED_GEOMETRIES.includes(feature.geometry.type) && feature.properties.name) {
       yield key
     }
-
-    // TODO somehow this generator never seems to finish, who needs more than 1000 labels anyway?
-    if (count > 1000) return
-    count++
   }
 }
 
