@@ -7,6 +7,7 @@ import { NetworkWorldAction } from './NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -32,17 +33,13 @@ export const incomingNetworkReceptor = (action) => {
       delete Network.instance.clients[userId].userId
     })
 
-    .when(NetworkWorldAction.spawnAvatar.matches, (a) => {
-      if (world.getNetworkObject(a.networkId))
-        throw new Error(`Cannot spawn network object with existing network id ${a.networkId}`)
-      const entity = a.userId === Engine.userId ? world.localClientEntity : createEntity()
-      addComponent(entity, NetworkObjectComponent, a)
-    })
-
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
       if (world.getNetworkObject(a.networkId))
         throw new Error(`Cannot spawn network object with existing network id ${a.networkId}`)
-      const entity = createEntity()
+      const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
+      const isOwnedByMe = a.userId === Engine.userId
+      const entity = isSpawningAvatar && isOwnedByMe ? world.localClientEntity : createEntity()
+      if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, a)
     })
 

@@ -38,7 +38,7 @@ export default async function ClientInputSystem(world: World): Promise<System> {
         value.lifecycleState !== LifecycleValue.ENDED
       ) {
         value.lifecycleState =
-          JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
+          JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key)!.value)
             ? LifecycleValue.UNCHANGED
             : LifecycleValue.CHANGED
       }
@@ -50,13 +50,13 @@ export default async function ClientInputSystem(world: World): Promise<System> {
       inputComponent.data.clear()
       Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
         if (inputComponent.schema.inputMap.has(key)) {
-          inputComponent.data.set(inputComponent.schema.inputMap.get(key), JSON.parse(JSON.stringify(value)))
+          inputComponent.data.set(inputComponent.schema.inputMap.get(key)!, JSON.parse(JSON.stringify(value)))
         }
       })
 
       inputComponent.data.forEach((value: InputValue, key: InputAlias) => {
         if (inputComponent.schema.behaviorMap.has(key)) {
-          inputComponent.schema.behaviorMap.get(key)(entity, key, value, delta)
+          inputComponent.schema.behaviorMap.get(key)!(entity, key, value, delta)
         }
       })
     }

@@ -12,8 +12,7 @@ import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
 import { VelocityComponent } from '../components/VelocityComponent'
-import { isDynamicBody } from '../../physics/classes/Physics'
-import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { isEntityLocalClientOwnerOf } from '../../networking/functions/isEntityLocalClientOwnerOf'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
@@ -42,7 +41,7 @@ export default async function InterpolationSystem(world: World): Promise<System>
    */
   const networkObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
-    Not(NetworkObjectOwnerComponent),
+    Not(NetworkObjectOwnedTag),
     InterpolationComponent,
     ColliderComponent,
     NetworkObjectComponent
@@ -62,7 +61,7 @@ export default async function InterpolationSystem(world: World): Promise<System>
    * Server controlled object with interpolation but no collider
    */
   const transformInterpolationQuery = defineQuery([
-    Not(NetworkObjectOwnerComponent),
+    Not(NetworkObjectOwnedTag),
     Not(AvatarComponent),
     Not(ColliderComponent),
     InterpolationComponent,
