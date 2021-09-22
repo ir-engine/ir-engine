@@ -162,6 +162,7 @@ function buildGeometry(
     threejsGeometry.rotateX(-Math.PI / 2)
   }
 
+  // TODO this isn't quite working as intended
   if (style.color && style.color.builtin_function === 'purple_haze') {
     const light = new Color(0xa0c0a0)
     const shadow = new Color(0x303050)
@@ -172,6 +173,7 @@ function buildGeometry(
 }
 
 export function createTaskHandler() {
+  // TODO how to import from resources we control?
   importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
   importScripts('https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js')
 

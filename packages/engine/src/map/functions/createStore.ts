@@ -44,6 +44,10 @@ export default function createStore(
     completeObjects: new FeatureCache<MapDerivedFeatureComplete>(MAX_CACHED_FEATURES),
     labelTasks: new ArrayKeyedMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
     labelCache: new FeatureCache<MapFeatureLabel>(MAX_CACHED_FEATURES),
+    tileMeta: new ArrayKeyedMap<TileKey, { cachedFeatureKeys: Set<FeatureKey> }>([], {
+      defaultValue: { cachedFeatureKeys: new Set() }
+    }),
+    featureMeta: new ArrayKeyedMap<FeatureKey, { tileKey: TileKey }>(),
     // TODO get rid of `args`, flatten in to parent object maybe
     args
   }

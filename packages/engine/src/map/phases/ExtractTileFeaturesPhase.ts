@@ -1,8 +1,10 @@
-import { TaskStatus, TileKey, VectorTile } from '../types'
+import { FeatureKey, TaskStatus, TileKey, VectorTile } from '../types'
 import { SUPPORTED_LAYERS, TILE_ZOOM } from '../constants'
 import zipIndexes from '../zipIndexes'
 import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
 import { Store } from '../functions/createStore'
+import updateKeyVal from '../../common/functions/updateKeyVal'
+import ArrayKeyedMap from '../classes/ArrayKeyedMap'
 
 export const name = 'extract tile features'
 export const isAsyncPhase = false
@@ -31,21 +33,24 @@ export function execTask(store: Store, key: TileKey) {
       for (const [index, feature] of zipIndexes(
         getFeaturesFromVectorTileLayer(layerName, vectorTile, x, y, TILE_ZOOM)
       )) {
-        const featureKey = [layerName, x, y, `${index}`]
+        const featureKey = [layerName, x, y, `${index}`] as FeatureKey
         store.featureCache.set(featureKey, feature)
+        store.featureMeta.set(featureKey, { tileKey: key })
+        store.tileMeta.get(key).cachedFeatureKeys.add(featureKey)
       }
     }
   }
 }
 
 export function cleanup(store: Store) {
-  store.featureCache.evictLeastRecentlyUsedItems()
-  // TODO
-  // for(const [key, value] of store.featureCache.evictLeastRecentlyUsedItems()) {
-  //   const count = store.featureMeta.get(key).perTileCount--
-  //   if(count === 1) {
-  //     const tileKey = store.featureMeta.get(key).tileKey
-  //     store.extractTilesTasks.delete(tileKey)
-  //   }
-  // }
+  for (const [featureKey] of store.featureCache.evictLeastRecentlyUsedItems()) {
+    const { tileKey } = store.featureMeta.get(featureKey)
+    const { cachedFeatureKeys } = store.tileMeta.get(tileKey)
+    cachedFeatureKeys.delete(featureKey)
+    if (cachedFeatureKeys.size === 0) {
+      store.extractTilesTasks.delete(tileKey)
+      store.tileCache.delete(tileKey)
+      store.tileMeta.delete(tileKey)
+    }
+  }
 }
