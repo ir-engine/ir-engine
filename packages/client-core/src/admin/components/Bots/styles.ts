@@ -1,6 +1,6 @@
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 
-export const useStylesForBots = makeStyles((theme: Theme) =>
+const useStylesForBots = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: '100%',
@@ -146,7 +146,7 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
   })
 )
 
-export const useStyle = makeStyles({
+const useStyle = makeStyles({
   autPaper: {
     background: '#43484F'
   },
@@ -161,3 +161,5 @@ export const useStyle = makeStyles({
     color: '#f1f1f1'
   }
 })
+
+export { useStylesForBots, useStyle }

@@ -254,14 +254,14 @@ const CreatorCard = ({
                         onClick={()=>handleUnFollowCreator(creator.id)}>UnFollow</Button>} */}
           {/*hided for now*/}
           {/* {renderSocials()} */}
-          <SimpleModal
-            type={creatorsType}
-            list={creatorState.get('blocked')}
-            open={openFiredModal}
-            onClose={() => setOpenFiredModal(false)}
-          />
         </CardContent>
       </Card>
+      <SimpleModal
+        type={creatorsType}
+        list={creatorState.get('blocked')}
+        open={openFiredModal}
+        onClose={() => setOpenFiredModal(false)}
+      />
     </>
   ) : (
     <></>

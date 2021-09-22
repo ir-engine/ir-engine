@@ -1,7 +1,6 @@
-import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { isDev } from '@xrengine/engine/src/common/functions/isDev'
-import { NumericalType } from '@xrengine/engine/src/common/types/NumericalTypes'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
@@ -10,7 +9,6 @@ import { InputValue } from '@xrengine/engine/src/input/interfaces/InputValue'
 import { InputAlias } from '@xrengine/engine/src/input/types/InputAlias'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { teleportObject } from './teleportObject'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { hideClub } from '../prefab/GolfClubPrefab'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
@@ -18,13 +16,7 @@ import { VelocityComponent } from '@xrengine/engine/src/physics/components/Veloc
 import { getBall, getClub, getHole, GolfState } from '../GolfSystem'
 import { getGolfPlayerNumber, isCurrentGolfPlayer } from '../functions/golfFunctions'
 import { swingClub } from '../functions/golfBotHookFunctions'
-import {
-  overrideXR,
-  simulateXR,
-  startXR,
-  updateHead,
-  xrSupported
-} from '@xrengine/engine/src/bot/functions/xrBotHookFunctions'
+import { simulateXR, updateHead } from '@xrengine/engine/src/bot/functions/xrBotHookFunctions'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
@@ -34,6 +26,7 @@ import { GolfAction } from '../GolfAction'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -50,7 +43,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('KeyK', GolfInput.TELEPORT)
-  inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT)
+  // inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT) // todo: gamepad stuff broken
 
   inputs.schema.behaviorMap.set(
     GolfInput.TELEPORT,
@@ -84,23 +77,17 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
       const controller = getComponent(entity, AvatarControllerComponent)
       const actor = getComponent(entity, AvatarComponent)
 
-      const pos = new Vector3(position.x, position.y, position.z)
-      pos.y += actor.avatarHalfHeight
-      controller.controller.updateTransform({
-        translation: pos
-      })
-      // rotateViewVectorXZ(actor.viewVector, angle)
+      const pos = new Vector3(position.x, position.y + actor.avatarHalfHeight, position.z)
+      controller.controller.setPosition(pos)
 
       const transform = getComponent(entity, TransformComponent)
       const quat = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), angle)
       transform.rotation.copy(quat)
-
-      controller.controller.velocity.setScalar(0)
     }
   )
 
   inputs.schema.inputMap.set('KeyY', GolfInput.TOGGLECLUB)
-  inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
+  // inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
 
   inputs.schema.behaviorMap.set(
     GolfInput.TOGGLECLUB,
@@ -135,7 +122,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
           const ballEntity = getBall(world, playerNumber)
           const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
           position.y += 0.1
-          teleportObject(ballEntity, position)
+          teleportRigidbody(getComponent(ballEntity, ColliderComponent).body, position)
 
           const { uniqueId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
           setBallState(ballEntity, BALL_STATES.MOVING)
@@ -155,24 +142,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
           const collider = getComponent(ballEntity, ColliderComponent)
           const velocity = getComponent(ballEntity, VelocityComponent)
           velocity.velocity.set(0, 0, 0)
-          collider.body.updateTransform({
-            translation: {
-              x: 2,
-              y: 1,
-              z: -4
-            },
-            rotation: {
-              x: 0,
-              y: 0,
-              z: 0,
-              w: 1
-            },
-            linearVelocity: {
-              x: 0,
-              y: 0,
-              z: 0
-            }
-          })
+          teleportRigidbody(collider.body, new Vector3(2, 1, -4))
           collider.body.setLinearVelocity(new Vector3(), true)
 
           const { uniqueId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
@@ -180,8 +150,21 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
           dispatchFromClient(GolfAction.playerStroke(uniqueId))
         }
       )
+
+      const teleportplayerOut = 141
+      inputs.schema.inputMap.set('KeyO', teleportplayerOut)
+      inputs.schema.behaviorMap.set(
+        teleportplayerOut,
+        (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
+          if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+          const controller = getComponent(entity, AvatarControllerComponent)
+          const pos = new Vector3(0, -5, 0)
+          controller.controller.setPosition(pos)
+        }
+      )
+
       let xrSetup = false
-      const setupBotKey = 141
+      const setupBotKey = 142
       inputs.schema.inputMap.set('Semicolon', setupBotKey)
       inputs.schema.behaviorMap.set(setupBotKey, () => {
         if (xrSetup) return
@@ -190,7 +173,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
       })
     }
 
-    const swingClubKey = 142
+    const swingClubKey = 143
     inputs.schema.inputMap.set('KeyL', swingClubKey)
     inputs.schema.behaviorMap.set(
       swingClubKey,
@@ -206,7 +189,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
     )
   }
 
-  const showScorecardKey = 143
+  const showScorecardKey = 144
   inputs.schema.inputMap.set('KeyI', showScorecardKey)
   inputs.schema.inputMap.set(GamepadButtons.B, showScorecardKey)
   inputs.schema.behaviorMap.set(

@@ -15,8 +15,8 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
     src: new URL(defaultParticleUrl, (window as any)?.location).href
   }
 
-  static async deserialize(editor, json, loadAsync?, onError?) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json, loadAsync?, onError?) {
+    const node = await super.deserialize(json)
 
     const {
       src,
@@ -76,8 +76,8 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
     defaultParticleSprite.flipY = false
   }
 
-  constructor(editor) {
-    super(editor, defaultParticleSprite)
+  constructor() {
+    super(defaultParticleSprite)
     this.disableOutline = true
     this._canonicalUrl = ''
     this.helper = new DirectionalPlaneHelper()

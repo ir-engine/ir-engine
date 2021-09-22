@@ -3,6 +3,7 @@ import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderPr
 import i18n from 'i18next'
 import React, { Component } from 'react'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -47,7 +48,6 @@ const SkyOption = [
  * @type {Object}
  */
 type SkyboxNodeEditorProps = {
-  editor?: object
   node?: object
   t: Function
 }
@@ -65,61 +65,61 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
 
   //function to handle changes in turbidity Property
   onChangeTurbidity = (turbidity) => {
-    ;(this.props.editor as any).setPropertySelected('turbidity', turbidity)
+    CommandManager.instance.setPropertyOnSelection('turbidity', turbidity)
   }
 
   //function to handle changes in rayleigh property
   onChangeRayleigh = (rayleigh) => {
-    ;(this.props.editor as any).setPropertySelected('rayleigh', rayleigh)
+    CommandManager.instance.setPropertyOnSelection('rayleigh', rayleigh)
   }
 
   //function to handle the changes in luminance property
   onChangeLuminance = (luminance) => {
-    ;(this.props.editor as any).setPropertySelected('luminance', luminance)
+    CommandManager.instance.setPropertyOnSelection('luminance', luminance)
   }
 
   //function to handle the changes in mieCoefficient property
   onChangeMieCoefficient = (mieCoefficient) => {
-    ;(this.props.editor as any).setPropertySelected('mieCoefficient', mieCoefficient)
+    CommandManager.instance.setPropertyOnSelection('mieCoefficient', mieCoefficient)
   }
 
   //function to handle the changes in mieDirectionalG property
   onChangeMieDirectionalG = (mieDirectionalG) => {
-    ;(this.props.editor as any).setPropertySelected('mieDirectionalG', mieDirectionalG)
+    CommandManager.instance.setPropertyOnSelection('mieDirectionalG', mieDirectionalG)
   }
 
   //function to handle the changes in inclination
   onChangeInclination = (inclination) => {
-    ;(this.props.editor as any).setPropertySelected('inclination', inclination)
+    CommandManager.instance.setPropertyOnSelection('inclination', inclination)
   }
 
   //function to handle changes azimuth
   onChangeAzimuth = (azimuth) => {
-    ;(this.props.editor as any).setPropertySelected('azimuth', azimuth)
+    CommandManager.instance.setPropertyOnSelection('azimuth', azimuth)
   }
 
   //function to handle changes in distance property
   onChangeDistance = (distance) => {
-    ;(this.props.editor as any).setPropertySelected('distance', distance)
+    CommandManager.instance.setPropertyOnSelection('distance', distance)
   }
 
   //function to handle the changes skyType
   onChangeSkyOption = (backgroundType) => {
-    ;(this.props.editor as any).setPropertySelected('backgroundType', backgroundType)
+    CommandManager.instance.setPropertyOnSelection('backgroundType', backgroundType)
   }
 
   //function to handle the changes backgroundPath
   onChangeEquirectangularPathOption = (path) => {
-    ;(this.props.editor as any).setPropertySelected('equirectangularPath', path)
+    CommandManager.instance.setPropertyOnSelection('equirectangularPath', path)
   }
 
   onChangeCubemapPathOption = (path) => {
-    ;(this.props.editor as any).setPropertySelected('cubemapPath', path)
+    CommandManager.instance.setPropertyOnSelection('cubemapPath', path)
   }
 
   //function to handle the changes backgroundPath
   onChangeColorOption = (backgroundColor) => {
-    ;(this.props.editor as any).setPropertySelected('backgroundColor', backgroundColor)
+    CommandManager.instance.setPropertyOnSelection('backgroundColor', backgroundColor)
   }
 
   //creating editor view for skybox setting

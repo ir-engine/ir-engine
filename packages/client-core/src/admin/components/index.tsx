@@ -23,7 +23,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../common/reducers/app/selector'
 import { client } from '../../feathers'
-import { selectAuthState } from '../../user/reducers/auth/selector'
+import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
 import { selectAdminLocationState } from '../reducers/admin/location/selector'
 import { fetchAdminScenes } from '../reducers/admin/scene/service'
@@ -45,7 +45,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  authState?: any
   locationState?: any
   fetchAdminLocations?: any
   fetchAdminScenes?: any
@@ -147,7 +146,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
+
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
@@ -182,7 +181,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const AdminConsole = (props: Props) => {
   const classes = useStyles()
   const {
-    authState,
     fetchAdminLocations,
     fetchAdminScenes,
     fetchLocationTypes,
@@ -196,6 +194,7 @@ const AdminConsole = (props: Props) => {
 
   const router = useHistory()
 
+  const authState = useAuthState()
   const initialLocation = {
     id: null,
     name: '',
@@ -216,7 +215,7 @@ const AdminConsole = (props: Props) => {
     locationId: ''
   }
 
-  const user = authState.get('user')
+  const user = authState.user
   const [locationModalOpen, setLocationModalOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
   const [locationEditing, setLocationEditing] = useState(false)
@@ -424,19 +423,19 @@ const AdminConsole = (props: Props) => {
   }, [adminUsers])
 
   useEffect(() => {
-    if (user?.id != null && adminLocationState.get('locations').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
       fetchAdminLocations()
     }
-    if (user?.id != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
       fetchAdminScenes()
     }
-    if (user?.id != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       fetchLocationTypes()
     }
-    if (user?.id != null && adminUserState.get('users').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminUserState.get('users').get('updateNeeded') === true) {
       fetchUsersAsAdmin()
     }
-    if (user?.id != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
       fetchAdminInstances()
     }
   }, [authState, adminSceneState, adminInstanceState, adminLocationState])
@@ -465,8 +464,10 @@ const AdminConsole = (props: Props) => {
       <Paper className={styles.adminRoot}>
         <Tabs value={selectedTab} onChange={handleTabChange} aria-label="tabs">
           <Tab label={t('admin:components.index.lbl-locations')} value="locations" />
-          {user?.userRole === 'admin' && <Tab label={t('admin:components.index.lbl-users')} value="users" />}
-          {user?.userRole === 'admin' && <Tab label={t('admin:components.index.lbl-instances')} value="instances" />}
+          {user?.userRole.value === 'admin' && <Tab label={t('admin:components.index.lbl-users')} value="users" />}
+          {user?.userRole.value === 'admin' && (
+            <Tab label={t('admin:components.index.lbl-instances')} value="instances" />
+          )}
         </Tabs>
         <TableContainer className={styles.tableContainer}>
           <Table
@@ -584,10 +585,10 @@ const AdminConsole = (props: Props) => {
                         {row.instanceId}
                       </TableCell>
                       <TableCell className={styles.tcell} align="right">
-                        {(row.userRole === 'guest' || (row.userRole === 'admin' && row.id === user.id)) && (
+                        {(row.userRole === 'guest' || (row.userRole === 'admin' && row.id === user.id.value)) && (
                           <div>{row.userRole}</div>
                         )}
-                        {row.userRole !== 'guest' && row.id !== user.id && (
+                        {row.userRole !== 'guest' && row.id !== user.id.value && (
                           <>
                             <p> {row.userRole && row.userRole} </p>
                             <FormControl className={classes.formControl}>

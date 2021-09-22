@@ -16,7 +16,7 @@ import {
   updateChatTarget,
   updateMessageScrollInit
 } from '@xrengine/client-core/src/social/reducers/chat/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
@@ -25,12 +25,13 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     chatState: selectChatState(state),
     instanceConnectionState: selectInstanceConnectionState(state)
   }
@@ -44,7 +45,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 interface Props {
-  authState?: any
   chatState?: any
   instanceConnectionState?: any
   getInstanceChannel?: any
@@ -59,7 +59,6 @@ interface Props {
 
 const InstanceChat = (props: Props): any => {
   const {
-    authState,
     chatState,
     instanceConnectionState,
     getInstanceChannel,
@@ -73,7 +72,7 @@ const InstanceChat = (props: Props): any => {
 
   let activeChannel
   const messageRef = React.useRef<HTMLInputElement>()
-  const user = authState.get('user') as User
+  const user = useAuthState().user.value
   const channelState = chatState.get('channels')
   const channels = channelState.get('channels')
   const [composingMessage, setComposingMessage] = useState('')
@@ -84,10 +83,14 @@ const InstanceChat = (props: Props): any => {
   }
 
   useEffect(() => {
-    if (instanceConnectionState.get('connected') === true && channelState.get('fetchingInstanceChannel') !== true) {
+    if (
+      user?.instanceId != null &&
+      instanceConnectionState.get('connected') === true &&
+      channelState.get('fetchingInstanceChannel') !== true
+    ) {
       getInstanceChannel()
     }
-  }, [instanceConnectionState])
+  }, [user?.instanceId])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -109,7 +112,6 @@ const InstanceChat = (props: Props): any => {
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
   const toggleChatWindow = () => {
-    console.log('click')
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
   }
@@ -183,7 +185,9 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    if (isClient && !isBot(window) && message.text.startsWith('/')) return undefined
+                    if (isClient && !isBot(window) && isCommand(message.text)) return undefined
+                    const system = getChatMessageSystem(message.text)
+                    if (system !== 'none') message.text = removeMessageSystem(message.text)
                     return (
                       <ListItem
                         className={classNames({

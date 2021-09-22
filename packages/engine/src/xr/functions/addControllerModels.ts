@@ -11,15 +11,13 @@ import {
   Vector3
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { getLoader } from '../../assets/functions/LoadGLTF'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const addControllerModels = (entity: Entity) => {
+export const addDefaultControllerModels = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-  // Add our controller models & pointer lines
   ;[xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight].forEach((controller: any) => {
     /*
         controller.addEventListener('select', (ev) => {})
@@ -46,20 +44,19 @@ export const addControllerModels = (entity: Entity) => {
     })
   })
 
-  const { scene: model } = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
-
-  const controller3DModel = model.children[2] as any
+  const controller3DModel = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
+    .scene.children[2]
 
   const controllerMeshRight = controller3DModel.clone()
   const controllerMeshLeft = controller3DModel.clone()
 
   controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1))
 
-  controllerMeshRight.material = new MeshPhongMaterial()
-  controllerMeshLeft.material = new MeshPhongMaterial()
-
   controllerMeshRight.position.z = -0.12
   controllerMeshLeft.position.z = -0.12
+
+  controllerMeshRight.material = new MeshPhongMaterial()
+  controllerMeshLeft.material = new MeshPhongMaterial()
 
   xrInputSourceComponent.controllerGripRight.add(controllerMeshRight)
   xrInputSourceComponent.controllerGripLeft.add(controllerMeshLeft)

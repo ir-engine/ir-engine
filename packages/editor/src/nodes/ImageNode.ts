@@ -2,6 +2,9 @@ import EditorNodeMixin from './EditorNodeMixin'
 import Image, { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+import { CacheManager } from '../managers/CacheManager'
 
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'
@@ -9,8 +12,8 @@ export default class ImageNode extends EditorNodeMixin(Image) {
   static initialElementProps = {
     src: new URL('/editor/dot.png', location as any).href
   }
-  static async deserialize(editor, json, loadAsync, onError) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json, loadAsync, onError) {
+    const node = await super.deserialize(json)
     const { src, projection, controls, alphaMode, alphaCutoff } = json.components.find((c) => c.name === 'image').props
     loadAsync(
       (async () => {
@@ -23,8 +26,8 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     )
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this._canonicalUrl = ''
     this.controls = true
   }
@@ -38,7 +41,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     this.onResize()
   }
   loadTexture(src) {
-    return this.editor.textureCache.get(src)
+    return CacheManager.textureCache.get(src)
   }
   async load(src, onError?) {
     const nextSrc = src || ''
@@ -61,8 +64,9 @@ export default class ImageNode extends EditorNodeMixin(Image) {
       console.error(imageError)
       this.issues.push({ severity: 'error', message: 'Error loading image.' })
     }
-    this.editor.emit('objectsChanged', [this])
-    this.editor.emit('selectionChanged')
+    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
+    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+
     // this.hideLoadingCube();
     return this
   }

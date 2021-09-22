@@ -3,8 +3,8 @@ import Snackbar from '@material-ui/core/Snackbar'
 import { GeneralStateList, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
@@ -26,6 +26,8 @@ import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPl
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
+import { provisionChannelServer } from '../../reducers/channelConnection/service'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -71,33 +73,36 @@ export type EngineCallbacks = {
 interface Props {
   locationName: string
   allowDebug?: boolean
-  authState?: any
   locationState?: any
   partyState?: any
   history?: any
   engineInitializeOptions?: InitializeOptions
   instanceConnectionState?: any
-  doLoginAuto?: typeof doLoginAuto
+  //doLoginAuto?: typeof doLoginAuto
+  provisionChannelServer?: typeof provisionChannelServer
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
   setAppSpecificOnBoardingStep?: typeof setAppSpecificOnBoardingStep
   showTouchpad?: boolean
   engineCallbacks?: EngineCallbacks
   children?: any
+  chatState?: any
 }
 
 const mapStateToProps = (state: any) => {
   return {
     // appState: selectAppState(state),
-    authState: selectAuthState(state),
+
     instanceConnectionState: selectInstanceConnectionState(state), //
     locationState: selectLocationState(state),
-    partyState: selectPartyState(state)
+    partyState: selectPartyState(state),
+    chatState: selectChatState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
   setAppSpecificOnBoardingStep: bindActionCreators(setAppSpecificOnBoardingStep, dispatch)
@@ -109,7 +114,8 @@ export const EnginePage = (props: Props) => {
   const [isInXR, setIsInXR] = useState(false)
   const [isTeleporting, setIsTeleporting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
-  const selfUser = props.authState.get('user')
+  const authState = useAuthState()
+  const selfUser = authState.user
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
   let sceneId = null
@@ -118,9 +124,9 @@ export const EnginePage = (props: Props) => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
-    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(false))
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
@@ -129,7 +135,7 @@ export const EnginePage = (props: Props) => {
     if (!engineInitializeOptions.networking.schema.transport) {
       init(props.locationName)
     } else {
-      props.doLoginAuto(true)
+      dispatch(AuthService.doLoginAuto(true))
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (!ev.instance) return
 
@@ -137,7 +143,7 @@ export const EnginePage = (props: Props) => {
         props.resetInstanceServer()
 
         if (!isUserBanned) {
-          retriveLocationByName(props.authState, props.locationName, history)
+          retriveLocationByName(authState, props.locationName, history)
         }
       })
     }
@@ -145,11 +151,10 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     checkForBan()
-
     if (!isUserBanned && !props.locationState.get('fetchingCurrentLocation')) {
-      retriveLocationByName(props.authState, props.locationName, history)
+      retriveLocationByName(authState, props.locationName, history)
     }
-  }, [props.authState])
+  }, [authState.isLoggedIn.value, authState.user.id.value])
 
   useEffect(() => {
     const currentLocation = props.locationState.get('currentLocation').get('location')
@@ -169,6 +174,7 @@ export const EnginePage = (props: Props) => {
           instanceId = query.instanceId
         }
 
+        if (sceneId === null) sceneId = currentLocation.sceneId
         props.provisionInstanceServer(currentLocation.id, instanceId || undefined, sceneId)
       }
 
@@ -194,6 +200,14 @@ export const EnginePage = (props: Props) => {
       reinit()
     }
   }, [props.instanceConnectionState])
+
+  useEffect(() => {
+    if (props.chatState.get('instanceChannelFetched')) {
+      const channels = props.chatState.get('channels').get('channels')
+      const instanceChannel = [...channels.entries()].find((channel) => channel[1].channelType === 'instance')
+      props.provisionChannelServer(null, instanceChannel[0])
+    }
+  }, [props.chatState.get('instanceChannelFetched')])
 
   useEffect(() => {
     return (): void => {
@@ -226,10 +240,10 @@ export const EnginePage = (props: Props) => {
   // }, [appState])
 
   const checkForBan = (): void => {
-    const selfUser = props.authState.get('user')
+    const selfUser = authState.user
     const currentLocation = props.locationState.get('currentLocation').get('location')
 
-    const isUserBanned = selfUser?.locationBans?.find((ban) => ban.locationId === currentLocation.id) != null
+    const isUserBanned = selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id) != null
     setUserBanned(isUserBanned)
   }
 
@@ -304,7 +318,7 @@ export const EnginePage = (props: Props) => {
       <GameServerWarnings
         isTeleporting={isTeleporting}
         locationName={props.locationName}
-        instanceId={selfUser?.instanceId ?? party?.instanceId}
+        instanceId={selfUser?.instanceId.value ?? party?.instanceId}
       />
     </>
   )

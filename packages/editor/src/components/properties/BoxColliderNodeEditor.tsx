@@ -2,15 +2,13 @@ import React, { Component } from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import BooleanInput from '../inputs/BooleanInput'
-import SelectInput from '../inputs/SelectInput'
 import { HandPaper } from '@styled-icons/fa-solid/HandPaper'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import StringInput from '../inputs/StringInput'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
 
 type BoxColliderNodeEditorProps = {
-  editor?: any
   node?: any
   t: Function
   multiEdit: boolean
@@ -33,7 +31,7 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
 
   componentDidMount() {
     const options = []
-    const sceneNode = (this.props.editor as any).scene
+    const sceneNode = SceneManager.instance.scene
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
@@ -50,16 +48,16 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
 
   // function to handle changes in payloadName property
   onChangeRole = (role) => {
-    ;(this.props.editor as any).setPropertySelected('role', role)
+    CommandManager.instance.setPropertyOnSelection('role', role)
   }
 
   //function to handle the changes in target
   onChangeTarget = (target) => {
-    ;(this.props.editor as any).setPropertySelected('target', target)
+    CommandManager.instance.setPropertyOnSelection('target', target)
   }
   // function to handle the changes on trigger property
   onChangeTrigger = (isTrigger) => {
-    ;(this.props.editor as any).setPropertySelected('isTrigger', isTrigger)
+    CommandManager.instance.setPropertyOnSelection('isTrigger', isTrigger)
   }
 
   //rendering view to cusomize box collider element

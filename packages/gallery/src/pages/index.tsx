@@ -1,41 +1,47 @@
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
+import FeedMenu from '../components/FeedMenu'
+import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+import { createCreator } from '@xrengine/social/src/reducers/creator/service'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import AppHeader from '../components/Header'
-import FeedMenu from '../components/FeedMenu'
-import { selectCreatorsState } from '../reducers/creator/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { createCreator } from '../reducers/creator/service'
+
 // @ts-ignore
 import styles from './index.module.scss'
+import AddFilesForm from '../components/AddFilesForm'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     creatorsState: selectCreatorsState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch)
 })
 
-const Home = ({ createCreator, doLoginAuto, authState, creatorsState }) => {
-  useEffect(() => {
-    if (authState) {
-      const user = authState.get('user')
-      const userId = user ? user.id : null
-      if (userId) {
-        createCreator()
-      }
-    }
-  }, [authState])
+const Home = ({ createCreator, creatorsState }) => {
+  const dispatch = useDispatch()
+  const auth = useAuthState()
+
+  const [addFilesView, setAddFilesView] = useState(false)
+  const [filesTarget, setFilesTarget] = useState([])
 
   useEffect(() => {
-    doLoginAuto(true)
+    const user = auth.user
+    const userId = user ? user.id.value : null
+    if (userId) {
+      createCreator()
+    }
+  }, [auth.isLoggedIn.value, auth.user.id.value])
+
+  useEffect(() => {
+    dispatch(AuthService.doLoginAuto(true))
   }, [])
 
   const [view, setView] = useState('featured')
@@ -43,8 +49,11 @@ const Home = ({ createCreator, doLoginAuto, authState, creatorsState }) => {
 
   return (
     <div className={styles.viewport}>
-      <AppHeader title={'CREATOR'} />
-      {currentCreator ? <FeedMenu view={view} setView={setView} /> : ''}
+      {!addFilesView && (
+        <AppHeader title={'CREATOR'} setAddFilesView={setAddFilesView} setFilesTarget={setFilesTarget} />
+      )}
+      {currentCreator && !addFilesView && <FeedMenu />}
+      {addFilesView && <AddFilesForm filesTarget={filesTarget} setAddFilesView={setAddFilesView} />}
     </div>
   )
 }

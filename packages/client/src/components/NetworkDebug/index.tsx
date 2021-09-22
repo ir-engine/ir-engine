@@ -1,5 +1,4 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { DebugHelpers, DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
@@ -24,14 +23,13 @@ export const NetworkDebug = ({ reinit }) => {
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
+    console.log('setup keypress')
+    window.addEventListener('keypress', (ev) => {
+      if (ev.key === 'p') {
+        togglePhysicsDebug()
+      }
+    })
   }
-  document.addEventListener('keypress', (ev) => {
-    if (ev.key === 'p') {
-      DebugHelpers.toggleDebugPhysics(!physicsDebug)
-      DebugHelpers.toggleDebugAvatar(!physicsDebug)
-      setPhysicsDebug(!physicsDebug)
-    }
-  })
 
   // If pressed key is our target key then set to true
   function downHandler({ keyCode }) {
@@ -56,12 +54,12 @@ export const NetworkDebug = ({ reinit }) => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    DebugHelpers.toggleDebugPhysics(!physicsDebug)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG, enabled: !physicsDebug })
     setPhysicsDebug(!physicsDebug)
   }
 
   const toggleAvatarDebug = () => {
-    DebugHelpers.toggleDebugAvatar(!avatarDebug)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: !avatarDebug })
     setAvatarDebug(!avatarDebug)
   }
 
@@ -72,10 +70,9 @@ export const NetworkDebug = ({ reinit }) => {
     if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function')
       await transport.channelSocket.disconnect()
 
-    DebugHelpers.toggleDebugAvatar(false)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: false })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG, enabled: false })
     setAvatarDebug(false)
-
-    DebugHelpers.toggleDebugPhysics(false)
     setPhysicsDebug(false)
 
     shutdownEngine()

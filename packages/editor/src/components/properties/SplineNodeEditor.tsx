@@ -12,7 +12,6 @@ import { PropertiesPanelButton } from '../inputs/Button'
  * @type {Object}
  */
 type SplineNodeEditorProps = {
-  editor?: object
   node?: object
   t: Function
 }

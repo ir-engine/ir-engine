@@ -1,14 +1,15 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import PhysicalHemisphereLight from '@xrengine/engine/src/scene/classes/PhysicalHemisphereLight'
+import { SceneManager } from '../managers/SceneManager'
 export default class HemisphereLightNode extends EditorNodeMixin(PhysicalHemisphereLight) {
   static legacyComponentName = 'hemisphere-light'
   static disableTransform = true
   static nodeName = 'Hemisphere Light'
-  static canAddNode(editor) {
-    return editor.scene.findNodeByType(HemisphereLightNode) === null
+  static canAddNode() {
+    return SceneManager.instance.scene.findNodeByType(HemisphereLightNode) === null
   }
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { skyColor, groundColor, intensity } = json.components.find((c) => c.name === 'hemisphere-light').props
     node.skyColor.set(skyColor)
     node.groundColor.set(groundColor)

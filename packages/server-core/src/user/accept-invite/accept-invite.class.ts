@@ -249,6 +249,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
               groupId: invite.targetObjectId
             }
           })
+
           if (existingGroupUser.total === 0) {
             paramsCopy.skipAuth = true
             await this.app.service('group-user').create(

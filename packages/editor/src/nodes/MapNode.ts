@@ -4,6 +4,7 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
 import { getStartCoords } from '@xrengine/engine/src/map'
 import { MapProps } from '@xrengine/engine/src/map/MapProps'
+import { SceneManager } from '../managers/SceneManager'
 
 const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 
@@ -15,8 +16,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
   mapLayers: { [name: string]: Object3D | undefined }
 
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const {
       name,
       useTimeOfDay,
@@ -40,14 +41,14 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     node.scale.set(scale.x, scale.y, scale.z)
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
   }
   applyScale(object3d: Object3D) {
     object3d.position.multiplyScalar(this.scale.x)
     object3d.scale.copy(this.scale)
   }
-  async addMap(editor) {
+  async addMap() {
     console.log('creating map')
     const center = await getStartCoords(this.getProps())
     // const vectorTiles = await fetchVectorTiles(center)
@@ -92,7 +93,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     // Object.values(this.mapLayers).forEach((layer) => {
     //   layer?.removeFromParent()
     // })
-    // this.addMap(this.editor)
+    // this.addMap()
   }, 3000)
 
   copy(source: MapNode, recursive = true) {
@@ -114,14 +115,14 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
         this.debounceAndRefreshAllLayers()
       }
     } else {
-      this.addMap(this.editor)
+      this.addMap()
     }
   }
   onUpdate(delta: number, time?: number) {
     void delta
     void time
     this.labels?.forEach((label) => {
-      label.onUpdate(this.editor.camera)
+      label.onUpdate(SceneManager.instance.camera)
     })
   }
   getProps(): MapProps {

@@ -9,8 +9,8 @@ export const detectUserInTrigger = (entity: Entity): void => {
   // if (!raycastComponent?.raycastQuery?.hits[0]?.body?.userData?.entity) return
 
   const raycastComponent = getComponent(entity, RaycastComponent)
-  if (raycastComponent.raycastQuery.hits[0]?.body.userData.entity) {
-    const triggerEntity = raycastComponent.raycastQuery.hits[0]?.body.userData.entity
+  const triggerEntity = raycastComponent.hits[0]?.body?.userData?.entity
+  if (triggerEntity) {
     if (typeof triggerEntity !== 'undefined') {
       let triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
       if (triggerComponent) {
@@ -19,10 +19,7 @@ export const detectUserInTrigger = (entity: Entity): void => {
           console.log('trigger active')
           addComponent(triggerEntity, TriggerDetectedComponent, {})
           const interval = setInterval(() => {
-            if (
-              triggerComponent.active &&
-              raycastComponent.raycastQuery.hits[0]?.body.userData.entity !== triggerEntity
-            ) {
+            if (triggerComponent.active && raycastComponent.hits[0]?.body.userData.entity !== triggerEntity) {
               console.log('removing trigger')
               triggerComponent.active = false
               removeComponent(triggerEntity, TriggerDetectedComponent)

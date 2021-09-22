@@ -62,15 +62,15 @@ export default class OceanNode extends EditorNodeMixin(Ocean) {
     })
   }
 
-  static async deserialize(editor, json, loadAsync?, onError?): Promise<OceanNode> {
-    const node = (await super.deserialize(editor, json)) as OceanNode
+  static async deserialize(json, loadAsync?, onError?): Promise<OceanNode> {
+    const node = (await super.deserialize(json)) as OceanNode
     const props = json.components.find((c) => c.name === 'ocean').props
     Object.assign(node, props)
     return node
   }
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.disableOutline = true
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false

@@ -1,141 +1,16 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import AssetDropZone from '../assets/AssetDropZone'
-import { EditorContext } from '../contexts/EditorContext'
-import { addAssetAtCursorPositionOnDrop, AssetTypes, ItemTypes } from '../dnd'
-import { InfoTooltip } from '../layout/Tooltip'
-
-/**
- * BorderColor used to get border color.
- *
- * @author Robert Long
- * @param  {any} props
- * @param  {any} defaultColor
- * @return {any} color
- */
-function borderColor(props, defaultColor) {
-  if (props.canDrop) {
-    return props.theme.blue
-  } else if (props.error) {
-    return props.theme.error
-  } else {
-    return defaultColor
-  }
-}
-
-/**
- * styled component created using canvas to show the viewport.
- *
- * @author Robert Long
- */
-export const Viewport = (styled as any).canvas`
-  width: 100%;
-  height: 100%;
-  position: relative;
-`
-
-/**
- * ViewportContainer used as wrapper element for Viewport, ControlsText.
- *
- * @author Robert Long
- * @type {[Styled component]}
- */
-export const ViewportContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  position: relative;
-
-  ::after {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    content: "";
-    pointer-events: none;
-    border: 1px solid ${(props) => borderColor(props, 'transparent')};
-  }
-`
-
-/**
- * ControlsText used to show the control keys.
- *
- * @author Robert Long
- * @type {[Styled component]}
- */
-const ControlsText = (styled as any).div`
-  position: absolute;
-  bottom:0px;
-  left: 0;
-  pointer-events: none;
-  color: white;
-  padding: 8px;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-`
-
-/**
- * ViewportToolbarContainer used to show title and options for view port.
- *
- * @author Robert Long
- * @type {[styled component]}
- */
-// const ViewportToolbarContainer = (styled as any).div`
-//   display: flex;
-//   justify-content: flex-end;
-//   flex: 1;
-// `;
-
-/**
- * ToolbarIconContainer provides the styles for icon placed in toolbar.
- *
- * @author Robert Long
- * @param {any} styled
- */
-const ToolbarIconContainer = (styled as any).div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 8px;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: ${(props) => (props.value ? props.theme.blue : 'transparent')};
-  cursor: pointer;
-
-  :hover {
-    background-color: ${(props) => (props.value ? props.theme.blueHover : props.theme.hover)};
-  }
-
-  :active {
-    background-color: ${(props) => (props.value ? props.theme.bluePressed : props.theme.hover2)};
-  }
-`
-
-/**
- * IconToggle used to show stats when we click on it, and shows the tooltip info if we hover over the icon.
- *
- * @author      Robert Long
- * @param       {Icon} icon
- * @param       {any} value
- * @param       {[function]} onClick
- * @param       {any} tooltip
- * @param       {any} rest
- * @constructor
- */
-function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
-  const onToggle = useCallback(() => {
-    onClick(!value)
-  }, [value, onClick])
-
-  return (
-    <InfoTooltip info={tooltip}>
-      <ToolbarIconContainer onClick={onToggle} value={value} {...rest}>
-        <Icon size={14} />
-      </ToolbarIconContainer>
-    </InfoTooltip>
-  )
-}
+import { addAssetAtCursorPositionOnDrop } from '../dnd'
+import * as styles from './Viewport.module.scss'
+import editorTheme from '../theme'
+import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
+import { ControlManager } from '../../managers/ControlManager'
+import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -144,8 +19,7 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const editor = useContext(EditorContext)
-  const canvasRef = React.createRef()
+  const canvasRef = React.createRef<HTMLCanvasElement>()
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -153,40 +27,49 @@ export function ViewportPanelContainer() {
   const { t } = useTranslation()
 
   const onSelectionChanged = useCallback(() => {
-    setObjectSelected(editor.selected.length > 0)
-  }, [editor])
+    setObjectSelected(CommandManager.instance.selected.length > 0)
+  }, [])
 
   const onFlyModeChanged = useCallback(() => {
-    setFlyModeEnabled(editor.flyControls.enabled)
-  }, [editor, setFlyModeEnabled])
+    setFlyModeEnabled(ControlManager.instance.flyControls.enabled)
+  }, [])
 
   const onTransformModeChanged = useCallback((mode) => {
     setTransformMode(mode)
   }, [])
 
   const onEditorInitialized = useCallback(() => {
-    editor.addListener('selectionChanged', onSelectionChanged)
-    editor.editorControls.addListener('flyModeChanged', onFlyModeChanged)
-    editor.editorControls.addListener('transformModeChanged', onTransformModeChanged)
-  }, [editor, onSelectionChanged, onFlyModeChanged, onTransformModeChanged])
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+    ControlManager.instance.editorControls.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+    ControlManager.instance.editorControls.addListener(
+      EditorEvents.TRANSFROM_MODE_CHANGED.toString(),
+      onTransformModeChanged
+    )
+  }, [])
 
-  const initEditor = () => {
-    editor.addListener('initialized', onEditorInitialized)
-    editor.initializeRenderer(canvasRef.current)
+  useEffect(() => {
+    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), onEditorInitialized)
+    SceneManager.instance.initializeRenderer(canvasRef.current)
 
     return () => {
-      editor.removeListener('selectionChanged', onSelectionChanged)
+      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
 
-      if (editor.editorControls) {
-        editor.editorControls.removeListener('flyModeChanged', onFlyModeChanged)
+      if (ControlManager.instance.editorControls) {
+        ControlManager.instance.editorControls.removeListener(
+          EditorEvents.FLY_MODE_CHANGED.toString(),
+          onFlyModeChanged
+        )
+        ControlManager.instance.editorControls.removeListener(
+          EditorEvents.TRANSFROM_MODE_CHANGED.toString(),
+          onTransformModeChanged
+        )
       }
 
-      if (editor.renderer) {
-        editor.renderer.dispose()
+      if (SceneManager.instance.renderer) {
+        SceneManager.instance.renderer.dispose()
       }
     }
-  }
-  useEffect(initEditor, [])
+  }, [])
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Node, ...AssetTypes],
@@ -195,14 +78,14 @@ export function ViewportPanelContainer() {
 
       if (item.type === ItemTypes.Node) {
         if (item.multiple) {
-          editor.reparentToSceneAtCursorPosition(item.value, mousePos)
+          SceneManager.instance.reparentToSceneAtCursorPosition(item.value, mousePos)
         } else {
-          editor.reparentToSceneAtCursorPosition([item.value], mousePos)
+          SceneManager.instance.reparentToSceneAtCursorPosition([item.value], mousePos)
         }
 
         return
       }
-      addAssetAtCursorPositionOnDrop(editor, item, mousePos)
+      addAssetAtCursorPositionOnDrop(item, mousePos)
     },
     collect: (monitor) => ({
       canDrop: monitor.canDrop(),
@@ -210,18 +93,15 @@ export function ViewportPanelContainer() {
     })
   })
 
-  const onAfterUploadAssets = useCallback(
-    (assets) => {
-      Promise.all(
-        assets.map(({ url, name, id }) => {
-          editor.addMedia({ url, name, id })
-        })
-      ).catch((err) => {
-        editor.emit('error', err)
+  const onAfterUploadAssets = useCallback((assets) => {
+    Promise.all(
+      assets.map(({ url, name, id }) => {
+        CommandManager.instance.addMedia({ url, name, id })
       })
-    },
-    [editor]
-  )
+    ).catch((err) => {
+      CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
+    })
+  }, [])
 
   let controlsText
 
@@ -262,11 +142,17 @@ export function ViewportPanelContainer() {
   }
 
   return (
-    <ViewportContainer error={isOver && !canDrop} canDrop={isOver && canDrop} ref={dropRef}>
-      <Viewport ref={canvasRef} tabIndex="-1" />
-      <ControlsText>{controlsText}</ControlsText>
+    <div
+      className={styles.viewportContainer}
+      style={{
+        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent'
+      }}
+      ref={dropRef}
+    >
+      <canvas className={styles.viewportCanvas} ref={canvasRef} tabIndex={-1} id="viewport-canvas" />
+      <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />
-    </ViewportContainer>
+    </div>
   )
 }
 export default ViewportPanelContainer

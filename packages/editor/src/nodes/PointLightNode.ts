@@ -6,8 +6,8 @@ import EditorNodeMixin from './EditorNodeMixin'
 export default class PointLightNode extends EditorNodeMixin(PhysicalPointLight) {
   static legacyComponentName = 'point-light'
   static nodeName = 'Point Light'
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { color, intensity, range, castShadow, shadowMapResolution, shadowBias, shadowRadius } = json.components.find(
       (c) => c.name === 'point-light'
     ).props
@@ -22,8 +22,8 @@ export default class PointLightNode extends EditorNodeMixin(PhysicalPointLight) 
     }
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.helper = new EditorPointLightHelper(this)
     this.helper.visible = false
     this.add(this.helper)

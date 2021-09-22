@@ -31,7 +31,7 @@ export default function EditorNodeMixin(Object3DClass) {
     static initialElementProps = {}
     static hideInElementsPanel = false
     includeInCubemapBake: boolean
-    static canAddNode(_editor) {
+    static canAddNode() {
       return true
     }
     static async load() {
@@ -40,9 +40,9 @@ export default function EditorNodeMixin(Object3DClass) {
     static shouldDeserialize(entityJson) {
       return !!entityJson.components.find((c) => c.name === this.legacyComponentName)
     }
-    static async deserialize(editor, json, loadAsync?, onError?) {
+    static async deserialize(json, loadAsync?, onError?) {
       // Unused params used in derived class methods
-      const node = new this(editor)
+      const node = new this()
       node.name = json.name
       if (json.components) {
         const transformComponent = json.components.find((c) => c.name === 'transform')
@@ -64,9 +64,8 @@ export default function EditorNodeMixin(Object3DClass) {
       }
       return node
     }
-    constructor(editor, ...args) {
+    constructor(...args) {
       super(...args)
-      this.editor = editor
       this.nodeName = (this.constructor as any).nodeName
       this.name = (this.constructor as any).nodeName
       this.isNode = true
@@ -82,7 +81,7 @@ export default function EditorNodeMixin(Object3DClass) {
       this.issues = []
     }
     clone(recursive) {
-      return new (this as any).constructor(this.editor).copy(this, recursive)
+      return new (this as any).constructor().copy(this, recursive)
     }
     copy(source, recursive = true): this {
       if (recursive) {

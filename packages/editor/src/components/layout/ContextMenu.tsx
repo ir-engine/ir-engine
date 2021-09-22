@@ -7,8 +7,9 @@ import {
   MenuItem as _MenuItem,
   showMenu as _showMenu,
   SubMenu as _SubMenu,
-  ContextMenuTrigger as _ContextMenuTrigger
-} from 'react-contextmenu/dist/react-contextmenu'
+  ContextMenuTrigger as _ContextMenuTrigger,
+  ContextMenuProps
+} from 'react-contextmenu'
 import { EditorTheme } from '../theme'
 import { createGlobalStyle } from 'styled-components'
 export const connectMenu = _connectMenu
@@ -99,12 +100,10 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
  * @param {any} rest
  * @returns
  */
-export const ContextMenu: React.FC<{ id: string }> = ({ children, id, ...rest }) => {
+export const ContextMenu = ({ children, ...rest }: React.PropsWithChildren<ContextMenuProps>) => {
   return (
     <>
-      <ReactContextMenu id={id} {...rest}>
-        {children}
-      </ReactContextMenu>
+      <ReactContextMenu {...rest}>{children}</ReactContextMenu>
       <ContextMenuStyles />
     </>
   )

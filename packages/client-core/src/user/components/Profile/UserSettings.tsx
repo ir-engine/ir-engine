@@ -5,40 +5,27 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
 import { Image, Mic, SurroundSound, VolumeUp } from '@material-ui/icons'
-import { selectAuthState } from '../../reducers/auth/selector'
-import { updateUserSettings } from '../../reducers/auth/service'
+import { useAuthState } from '../../reducers/auth/AuthState'
+import { AuthService } from '../../reducers/auth/AuthService'
 // import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
 import React, { ChangeEvent, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
 import styles from './Profile.module.scss'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-interface Props {
-  authState?: any
-  updateUserSettings?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    authState: selectAuthState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUserSettings: bindActionCreators(updateUserSettings, dispatch)
-})
+interface Props {}
 
 const UserSettings = (props: Props): JSX.Element => {
-  const { authState, updateUserSettings } = props
   const { t } = useTranslation()
-  const selfUser = authState.get('user')
+  const dispatch = useDispatch()
+  const selfUser = useAuthState().user
   const [volume, setvolume] = useState<number>(
-    selfUser?.user_setting?.volume != null ? selfUser.user_setting.volume : 30
+    selfUser?.user_setting?.volume.value != null ? selfUser.user_setting.volume.value : 30
   )
   const [audio, setAudio] = useState<number>(
-    selfUser?.user_setting?.microphone != null ? selfUser.user_setting.microphone : 30
+    selfUser?.user_setting?.microphone.value != null ? selfUser.user_setting.microphone.value : 30
   )
   const [radiovalue, setradiovalue] = useState('high')
   const [useSpatialAudio, setUseSpatialAudio] = useState(
@@ -63,9 +50,11 @@ const UserSettings = (props: Props): JSX.Element => {
   // };
   const handleSpatialAudioChange = (event: any, newValue: boolean): void => {
     setUseSpatialAudio(newValue)
-    updateUserSettings(selfUser.user_setting.id, {
-      spatialAudioEnabled: newValue
-    })
+    dispatch(
+      AuthService.updateUserSettings(selfUser.user_setting.id.value, {
+        spatialAudioEnabled: newValue
+      })
+    )
     if (Engine.spatialAudio) {
       // TODO
       // if (newValue === true) PositionalAudioSystem.instance.resume()
@@ -134,4 +123,4 @@ const UserSettings = (props: Props): JSX.Element => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserSettings)
+export default UserSettings
