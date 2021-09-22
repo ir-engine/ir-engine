@@ -34,14 +34,18 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
       return options
     }
   }
+  const world = useWorld()
+
+  console.log('MIGHT DISPATCH ACTION ', actionCb(), Engine.userId, world.hostId)
 
   if (Engine.userId !== userId) return options
 
-  const world = useWorld()
   const action = actionCb()
   action.$to = action.$to ?? 'all'
   action.$tick = action.$tick ?? world.fixedTick + 1
   world.outgoingActions.add(action)
+
+  console.log('DISPATCHED ACTION ', action)
 
   return options
 }

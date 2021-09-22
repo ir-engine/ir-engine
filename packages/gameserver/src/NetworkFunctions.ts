@@ -275,6 +275,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
       }
     : SpawnPoints.instance.getRandomSpawnPoint()
 
+  console.log('DISPATCHING STUFF')
   const world = useWorld()
   dispatchFrom(world.hostId, () =>
     NetworkWorldAction.spawnAvatar({

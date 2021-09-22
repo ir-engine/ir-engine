@@ -109,8 +109,8 @@ export function defineActionCreator<
     return action
   }
 
-  const validActionShape = Object.assign(actionShape, literalValidators, valueMatches) as any // as ResolvedActionShape<Shape>
-  const matchesShape = matches.shape(validActionShape) as Validator<unknown, ResolvedAction>
+  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, valueMatches) as any // as ResolvedActionShape<Shape>
+  const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
 
   actionCreator.actionShape = actionShape as Shape
   actionCreator.type = actionShape.type

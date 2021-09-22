@@ -15,7 +15,7 @@ import { InjectionPoint, injectSystem, registerSystem, registerSystemWithArgs } 
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
-import { Network } from './networking/classes/Network'
+import { Network, UserId } from './networking/classes/Network'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
@@ -351,6 +351,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
+  console.log('POST CONFIG')
   if (options.type === EngineSystemPresets.CLIENT) {
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
       Engine.engineTimer.start()
@@ -371,6 +372,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       Engine.userId = id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
+    Engine.userId = 'server' as UserId
     Engine.engineTimer.start()
   }
 
