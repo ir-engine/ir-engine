@@ -41,16 +41,6 @@ export type ResolvedActionShape<A extends ActionShape<any>> = {
     : never
 }
 
-type x = ResolvedActionShape<{
-  type: 'edoje'
-  sd: Validator<unknown, 23>
-  dlekj: 34
-  bla: {
-    matches: Validator<unknown, number>
-    callback: () => 3
-  }
-}>
-
 type IsNullable<T> = null extends T ? true : undefined extends T ? true : false
 
 type JustOptionalKeys<A extends ActionShape<any>> = {
@@ -93,8 +83,6 @@ type ResolvedActionType<S extends ActionShape<any>, AllowDispatchFromAny extends
     : true extends AllowDispatchFromAny
     ? { __ALLOW_DISPATCH_FROM_ANY: true }
     : {})
-
-// type x = ResolvedActionType<{}, any>
 
 export function defineActionCreator<
   Shape extends ActionShape<Action>,
