@@ -74,6 +74,7 @@ describe('MapUpdateSystem', () => {
       },
       world
     )
+    world.fixedElapsedTime = world.fixedDelta * 20
   })
 
   beforeEach(() => {
@@ -125,7 +126,6 @@ describe('MapUpdateSystem', () => {
 
     store.labelCache.set(['road', 0, 0, '0'], label)
 
-    world.fixedElapsedTime = world.fixedDelta * 20
     execute(world)
 
     expect(subScene.children.includes(label.mesh)).toBe(true)

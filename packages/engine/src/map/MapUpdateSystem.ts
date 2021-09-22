@@ -57,48 +57,47 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       $previousViewerPosition.y = 0
     }
 
-    // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
-    const subSceneChildren = []
-    for (const object of mapComponent.completeObjects.values()) {
-      // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
-      if (
-        object.mesh &&
-        isIntersectCircleCircle(
-          viewerPositionScaled,
-          mapComponent.minimumSceneRadius,
-          object.centerPoint,
-          object.boundingCircleRadius
-        )
-      ) {
-        setPosition(object.mesh, object.centerPoint)
-        addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
-      } else {
-        object.mesh.parent = null
-      }
-    }
-    for (const label of mapComponent.labelCache.values()) {
-      if (
-        label.mesh &&
-        isIntersectCircleCircle(
-          viewerPositionScaled,
-          mapComponent.labelRadius,
-          label.centerPoint,
-          label.boundingCircleRadius
-        )
-      ) {
-        setPosition(label.mesh, label.centerPoint)
-        addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
-        if (Math.round(world.fixedElapsedTime / world.fixedDelta) % 20 === 0) {
-          label.mesh.update()
+    if (Math.round(world.fixedElapsedTime / world.fixedDelta) % 20 === 0) {
+      // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
+      const subSceneChildren = []
+      for (const object of mapComponent.completeObjects.values()) {
+        // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
+        if (
+          object.mesh &&
+          isIntersectCircleCircle(
+            viewerPositionScaled,
+            mapComponent.minimumSceneRadius,
+            object.centerPoint,
+            object.boundingCircleRadius
+          )
+        ) {
+          setPosition(object.mesh, object.centerPoint)
+          addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+        } else {
+          object.mesh.parent = null
         }
-      } else {
-        label.mesh.parent = null
       }
+      for (const label of mapComponent.labelCache.values()) {
+        if (
+          label.mesh &&
+          isIntersectCircleCircle(
+            viewerPositionScaled,
+            mapComponent.labelRadius,
+            label.centerPoint,
+            label.boundingCircleRadius
+          )
+        ) {
+          setPosition(label.mesh, label.centerPoint)
+          addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
+          label.mesh.update()
+        } else {
+          label.mesh.parent = null
+        }
+      }
+
+      // Update (sub)scene
+      object3dComponent.value.children = subSceneChildren
     }
-
-    // Update (sub)scene
-    object3dComponent.value.children = subSceneChildren
-
     previousViewerEntity = viewerEntity
     return world
   }
