@@ -4,6 +4,8 @@ import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { CameraInput } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
 import { Network } from '../../networking/classes/Network'
+import { WebCamInputComponent } from '../components/WebCamInputComponent'
+import { hasComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 const EXPRESSION_THRESHOLD = 0.1
 
 const faceTrackingTimers = []
@@ -85,6 +87,9 @@ export async function faceToInput(detection) {
           targetObjectType: 'instance',
           text: '[emotions]' + prevExp
         })*/
+        if (hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
+          getComponent(Network.instance.localClientEntity, WebCamInputComponent).emotions.push(prevExp)
+        }
         console.log('emotions|' + Network.instance.localClientEntity + '|' + prevExp)
       }
       // If the detected value of the expression is more than 1/3rd-ish of total, record it

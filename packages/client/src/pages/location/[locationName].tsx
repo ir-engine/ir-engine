@@ -23,6 +23,14 @@ const LocationPage = (props) => {
       {
         injectionPoint: 'FIXED',
         system: import('@xrengine/client-core/src/systems/AvatarUISystem')
+      },
+      {
+        injectionPoint: 'FIXED',
+        system: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
+      },
+      {
+        injectionPoint: 'FIXED',
+        system: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
       }
     ]
   }

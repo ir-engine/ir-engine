@@ -22,13 +22,11 @@ import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { isClient } from '../../common/functions/isClient'
-import { isBot } from '../../common/functions/isBot'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 import { World } from '../../ecs/classes/World'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { ProximityComponent } from '../../proximityChecker/components/ProximityComponent '
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 const avatarRadius = 0.25
@@ -50,13 +48,6 @@ export const createAvatar = (
   isRemotePlayer = true
 ): void => {
   if (isClient) {
-    if (isBot(window) && !hasComponent(entity, ProximityComponent))
-      addComponent(entity, ProximityComponent, {
-        usersInRange: [],
-        usersInIntimateRange: [],
-        usersInHarassmentRange: [],
-        usersLookingTowards: []
-      })
     if (!hasComponent(entity, AfkCheckComponent))
       addComponent(entity, AfkCheckComponent, {
         isAfk: false,
