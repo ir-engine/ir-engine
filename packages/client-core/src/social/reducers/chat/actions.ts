@@ -26,6 +26,7 @@ import {
   hasSubscribedToChatSystem,
   removeMessageSystem
 } from '@xrengine/engine/src/networking/utils/chatSystem'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export interface LoadedChannelsAction {
   type: string
