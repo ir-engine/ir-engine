@@ -143,6 +143,7 @@ export class Engine {
 
   static xrFrame: XRFrame
   static spatialAudio = false
+  static xrControllerModel = true
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {

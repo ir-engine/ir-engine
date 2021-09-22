@@ -3,10 +3,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { CameraInput } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
-import { sendChatMessage } from '@xrengine/client-core/src/social/reducers/chat/service'
-import Store from '@xrengine/client-core/src/store'
-import { User } from '@xrengine/common/src/interfaces/User'
-
+import { Network } from '../../networking/classes/Network'
+import { WebCamInputComponent } from '../components/WebCamInputComponent'
+import { hasComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 const EXPRESSION_THRESHOLD = 0.1
 
 const faceTrackingTimers = []
@@ -82,12 +81,16 @@ export async function faceToInput(detection) {
             (detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression])
         )
         prevExp = expression
-        const user = (Store.store.getState() as any).get('auth').get('user') as User
+        /*const user = useAuthState().user
         await sendChatMessage({
-          targetObjectId: user.instanceId,
+          targetObjectId: user.instanceId.value,
           targetObjectType: 'instance',
           text: '[emotions]' + prevExp
-        })
+        })*/
+        if (hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
+          getComponent(Network.instance.localClientEntity, WebCamInputComponent).emotions.push(prevExp)
+        }
+        console.log('emotions|' + Network.instance.localClientEntity + '|' + prevExp)
       }
       // If the detected value of the expression is more than 1/3rd-ish of total, record it
       // This should allow up to 3 expressions but usually 1-2

@@ -158,7 +158,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.Fixed, import('./map/MapUpdateSystem'))
 
   // Navigation
-  registerSystem(SystemUpdateType.Fixed, import('./proximityChecker/systems/ProximitySystem'))
   registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/FollowSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/AfkCheckSystem'))
 
@@ -167,6 +166,8 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.Fixed, import('./avatar/ClientAvatarSpawnSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./avatar/AvatarControllerSystem'))
+  // Avatar IKRig
+  registerSystem(SystemUpdateType.Fixed, import('./ikrig/systems/IKRigSystem'))
 
   // FIXED UPDATE INJECTION POINT
   registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
@@ -318,6 +319,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   } else if (options.type === EngineSystemPresets.SERVER) {
     await configureServer(options)
   }
+
+  await sceneWorld.physics.createScene()
 
   options.systems?.forEach((init) => {
     injectSystem(sceneWorld, init)

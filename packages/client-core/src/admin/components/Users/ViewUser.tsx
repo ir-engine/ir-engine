@@ -16,10 +16,10 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { bindActionCreators, Dispatch } from 'redux'
 import { fetchUserRole } from '../../reducers/admin/user/service'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import InputBase from '@material-ui/core/InputBase'
 import { updateUserRole, patchUser, fetchSingleUserAdmin, fetchStaticResource } from '../../reducers/admin/user/service'
 import { useUserStyles, useUserStyle } from './styles'
@@ -32,12 +32,11 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 
 interface Props {
   openView: boolean
   userAdmin: any
-  authState?: any
   fetchUserRole?: any
   patchUser?: any
   closeViewModel?: any
@@ -47,12 +46,11 @@ interface Props {
   fetchStaticResource?: any
   adminScopeState?: any
   getScopeTypeService?: any
-  doLoginAuto?: any
+  //doLoginAuto?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     adminUserState: selectAdminUserState(state),
     adminScopeState: selectScopeState(state)
   }
@@ -64,8 +62,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUserRole: bindActionCreators(updateUserRole, dispatch),
   fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
   fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch),
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
+  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 })
 
 const Alert = (props) => {
@@ -75,11 +73,12 @@ const Alert = (props) => {
 const ViewUser = (props: Props) => {
   const classx = useUserStyle()
   const classes = useUserStyles()
+  const dispatch = useDispatch()
+
   const {
     openView,
     closeViewModel,
     fetchUserRole,
-    authState,
     userAdmin,
     patchUser,
     updateUserRole,
@@ -87,8 +86,8 @@ const ViewUser = (props: Props) => {
     adminUserState,
     fetchStaticResource,
     adminScopeState,
-    getScopeTypeService,
-    doLoginAuto
+    getScopeTypeService
+    //doLoginAuto
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
@@ -107,7 +106,7 @@ const ViewUser = (props: Props) => {
   })
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
-  const user = authState.get('user')
+  const user = useAuthState().user
   const userRole = adminUserState.get('userRole')
   const userRoleData = userRole ? userRole.get('userRole') : []
   const singleUser = adminUserState.get('singleUser')
@@ -125,18 +124,18 @@ const ViewUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      doLoginAuto(false)
+      dispatch(AuthService.doLoginAuto(false))
       await fetchUserRole()
     }
-    if (adminUserState.get('users').get('updateNeeded') === true && user.id) fetchData()
-    if ((user.id && singleUser.get('updateNeeded') == true) || refetch) {
+    if (adminUserState.get('users').get('updateNeeded') === true && user.id.value) fetchData()
+    if ((user.id.value && singleUser.get('updateNeeded') == true) || refetch) {
       fetchSingleUserAdmin(userAdmin.id)
       setRefetch(false)
     }
-    if (user.id && staticResource.get('updateNeeded')) {
+    if (user.id.value && staticResource.get('updateNeeded')) {
       fetchStaticResource()
     }
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id) {
+    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
       getScopeTypeService()
     }
   }, [adminUserState, user, refetch, singleUser])

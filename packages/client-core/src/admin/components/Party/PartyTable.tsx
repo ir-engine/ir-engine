@@ -9,7 +9,7 @@ import TableRow from '@material-ui/core/TableRow'
 import { fetchAdminParty } from '../../reducers/admin/party/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectAuthState } from '../../../user/reducers/auth/selector'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
 import { selectAdminPartyState } from '../../reducers/admin/party/selector'
@@ -21,7 +21,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     adminPartyState: selectAdminPartyState(state)
   }
 }
@@ -29,12 +28,13 @@ const mapStateToProps = (state: any): any => {
 const PartyTable = (props: PartyPropsTable) => {
   const classes = usePartyStyle()
   const classex = usePartyStyles()
-  const { fetchAdminParty, authState, adminPartyState } = props
+  const { fetchAdminParty, adminPartyState } = props
 
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(PARTY_PAGE_LIMIT)
 
-  const user = authState.get('user')
+  const authState = useAuthState()
+  const user = authState.user
   const adminParty = adminPartyState.get('parties')
   const adminPartyData = adminParty.get('parties').data ? adminParty.get('parties').data : []
   const adminPartyCount = adminParty.get('total')
@@ -46,7 +46,7 @@ const PartyTable = (props: PartyPropsTable) => {
   }
 
   React.useEffect(() => {
-    if (user.id && adminParty.get('updateNeeded') === true) {
+    if (user.id.value && adminParty.get('updateNeeded') === true) {
       fetchAdminParty()
     }
   }, [authState, adminPartyState])

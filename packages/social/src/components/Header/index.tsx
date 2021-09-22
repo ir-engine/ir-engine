@@ -12,12 +12,10 @@ import { selectCreatorsState } from '../../reducers/creator/selector'
 import { getLoggedCreator } from '../../reducers/creator/service'
 import { updateCreatorFormState } from '../../reducers/popupsState/service'
 import { useTranslation } from 'react-i18next'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 const mapStateToProps = (state: any): any => {
   return {
-    creatorState: selectCreatorsState(state),
-    authState: selectAuthState(state)
+    creatorState: selectCreatorsState(state)
   }
 }
 
@@ -29,10 +27,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   creatorState?: any
   getLoggedCreator?: any
-  authState?: any
+  logo?: string
   updateCreatorFormState?: typeof updateCreatorFormState
 }
-const AppHeader = ({ creatorState, getLoggedCreator, authState, updateCreatorFormState }: Props) => {
+const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState }: Props) => {
   const { t } = useTranslation()
   useEffect(() => getLoggedCreator(), [])
   const creator =

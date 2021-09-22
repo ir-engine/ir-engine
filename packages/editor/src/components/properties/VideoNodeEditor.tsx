@@ -28,23 +28,23 @@ const videoProjectionOptions = Object.values(VideoProjection).map((v) => ({ labe
  * @constructor
  */
 export function VideoNodeEditor(props) {
-  const { editor, node } = props
+  const { node } = props
   const { t } = useTranslation()
 
   VideoNodeEditor.description = t('editor:properties.video.description')
   //function to handle changes in src property
-  const onChangeIsLivestream = useSetPropertySelected(editor, 'isLivestream')
+  const onChangeIsLivestream = useSetPropertySelected('isLivestream')
   //function to handle changes in src property
-  const onChangeSrc = useSetPropertySelected(editor, 'src')
+  const onChangeSrc = useSetPropertySelected('src')
 
   //function to handle change in projection property
-  const onChangeProjection = useSetPropertySelected(editor, 'projection')
+  const onChangeProjection = useSetPropertySelected('projection')
 
   //function to handle change in projection property
-  const onChangeInteractable = useSetPropertySelected(editor, 'interactable')
+  const onChangeInteractable = useSetPropertySelected('interactable')
 
   //function to handle change in projection property
-  const onChangeId = useSetPropertySelected(editor, 'elementId')
+  const onChangeId = useSetPropertySelected('elementId')
 
   //editor view for VideoNode
   return (

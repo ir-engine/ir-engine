@@ -6,10 +6,11 @@ import { Config } from '@xrengine/common/src/config'
 import { client } from '../../../feathers'
 import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service'
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 export function createVideo(data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
-    const token = getState().get('auth').get('authUser').accessToken
+    const token = useAuthState().authUser.accessToken.value
     try {
       const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/video`, data, {
         headers: {

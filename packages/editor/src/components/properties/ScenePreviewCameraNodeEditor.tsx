@@ -12,7 +12,6 @@ import { withTranslation } from 'react-i18next'
  * @type {Object}
  */
 type ScenePreviewCameraNodeEditorProps = {
-  editor?: object
   node?: object
   t: Function
 }

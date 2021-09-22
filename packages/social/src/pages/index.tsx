@@ -1,19 +1,15 @@
+// import {Stories} from '@xrengine/social/src/components/Stories';
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
 
 import { User } from '@xrengine/common/src/interfaces/User'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
-import { getWebXrNative, changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
@@ -21,30 +17,30 @@ import CreatorFormPopup from '@xrengine/social/src/components/popups/CreatorForm
 import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
-import Onboard from '@xrengine/social/src/components/OnBoard'
-import FeedOnboarding from '@xrengine/social/src/components/FeedOnboarding'
+import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
+import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+import { createCreator } from '@xrengine/social/src/reducers/creator/service'
+import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
+import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+
+import { connect, useDispatch } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
 // @ts-ignore
 import styles from './index.module.scss'
-import Button from '@material-ui/core/Button'
-
-import image from '/static/images/image.jpg'
-import mockupIPhone from '/static/images/mockupIPhone.jpg'
 import Splash from '@xrengine/social/src/components/Splash'
-import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
-import { WebXRStart } from '../components/popups/WebXR'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 const mapStateToProps = (state: any): any => {
   return {
-    auth: selectAuthState(state),
     creatorsState: selectCreatorsState(state),
     webxrnativeState: selectWebXrNativeState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch),
   getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
   changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
@@ -52,13 +48,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const Home = ({
   createCreator,
-  doLoginAuto,
-  auth,
+  //doLoginAuto,
   creatorsState,
   webxrnativeState,
   changeWebXrNative,
   getWebXrNative
 }) => {
+  const dispatch = useDispatch()
+  const auth = useAuthState()
+
   /*hided for now*/
 
   useEffect(() => {
@@ -68,10 +66,10 @@ const Home = ({
       //   if(userId){}
       createCreator()
     }
-  }, [auth])
+  }, [auth.isLoggedIn.value, auth.user.id.value])
 
   useEffect(() => {
-    doLoginAuto(true)
+    dispatch(AuthService.doLoginAuto(true))
     getWebXrNative()
   }, [])
 

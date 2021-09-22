@@ -27,9 +27,10 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import useSetPropertySelected from './useSetPropertySelected'
 import ImageInput from '../inputs/ImageInput'
-import serializeColor from '@xrengine/editor/src/functions/serializeColor'
-import SceneNode from '@xrengine/editor/src/nodes/SceneNode'
+import serializeColor from '../../functions/serializeColor'
+import SceneNode from '../../nodes/SceneNode'
 import Vector3Input from '../inputs/Vector3Input'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -150,49 +151,49 @@ const ShadowTypeOptions = [
  * @constructor
  */
 export function SceneNodeEditor(props) {
-  const { editor, node } = props
+  const { node } = props
   const { t } = useTranslation()
 
   SceneNodeEditor.description = t('editor:properties.scene.description')
   //creating functions to handle the changes in property of node
-  // const onChangeBackground = useSetPropertySelected(editor, "background");
-  const onChangeMetaData = useSetPropertySelected(editor, 'meta_data')
-  const onChangeFogType = useSetPropertySelected(editor, 'fogType')
-  const onChangeFogColor = useSetPropertySelected(editor, 'fogColor')
-  const onChangeFogNearDistance = useSetPropertySelected(editor, 'fogNearDistance')
-  const onChangeFogFarDistance = useSetPropertySelected(editor, 'fogFarDistance')
-  const onChangeFogDensity = useSetPropertySelected(editor, 'fogDensity')
+  // const onChangeBackground = useSetPropertySelected("background");
+  const onChangeMetaData = useSetPropertySelected('meta_data')
+  const onChangeFogType = useSetPropertySelected('fogType')
+  const onChangeFogColor = useSetPropertySelected('fogColor')
+  const onChangeFogNearDistance = useSetPropertySelected('fogNearDistance')
+  const onChangeFogFarDistance = useSetPropertySelected('fogFarDistance')
+  const onChangeFogDensity = useSetPropertySelected('fogDensity')
 
-  const onChangeEnvmapSourceType = useSetPropertySelected(editor, 'envMapSourceType')
-  const onChangeEnvmapTextureType = useSetPropertySelected(editor, 'envMapTextureType')
+  const onChangeEnvmapSourceType = useSetPropertySelected('envMapSourceType')
+  const onChangeEnvmapTextureType = useSetPropertySelected('envMapTextureType')
   const onChangeEnvmapColorSource = (value) => {
     const colorString = serializeColor(value)
-    ;(props.editor as any).setPropertySelected('envMapSourceColor', colorString)
+    CommandManager.instance.setPropertyOnSelection('envMapSourceColor', colorString)
   }
-  const onChangeEnvmapURLSource = useSetPropertySelected(editor, 'envMapSourceURL')
+  const onChangeEnvmapURLSource = useSetPropertySelected('envMapSourceURL')
 
-  const onChangeUserPositionalAudio = useSetPropertySelected(editor, 'usePositionalAudio')
-  const onChangeMediaVolume = useSetPropertySelected(editor, 'mediaVolume')
-  const onChangeMediaDistanceModel = useSetPropertySelected(editor, 'mediaDistanceModel')
-  const onChangeMediaRolloffFactor = useSetPropertySelected(editor, 'mediaRolloffFactor')
-  const onChangeMediaRefDistance = useSetPropertySelected(editor, 'mediaRefDistance')
-  const onChangeMediaMaxDistance = useSetPropertySelected(editor, 'mediaMaxDistance')
-  const onChangeMediaConeInnerAngle = useSetPropertySelected(editor, 'mediaConeInnerAngle')
-  const onChangeMediaConeOuterAngle = useSetPropertySelected(editor, 'mediaConeOuterAngle')
-  const onChangeMediaConeOuterGain = useSetPropertySelected(editor, 'mediaConeOuterGain')
-  const onChangeAvatarDistanceModel = useSetPropertySelected(editor, 'avatarDistanceModel')
-  const onChangeAvatarRolloffFactor = useSetPropertySelected(editor, 'avatarRolloffFactor')
-  const onChangeAvatarRefDistance = useSetPropertySelected(editor, 'avatarRefDistance')
-  const onChangeAvatarMaxDistance = useSetPropertySelected(editor, 'avatarMaxDistance')
+  const onChangeUserPositionalAudio = useSetPropertySelected('usePositionalAudio')
+  const onChangeMediaVolume = useSetPropertySelected('mediaVolume')
+  const onChangeMediaDistanceModel = useSetPropertySelected('mediaDistanceModel')
+  const onChangeMediaRolloffFactor = useSetPropertySelected('mediaRolloffFactor')
+  const onChangeMediaRefDistance = useSetPropertySelected('mediaRefDistance')
+  const onChangeMediaMaxDistance = useSetPropertySelected('mediaMaxDistance')
+  const onChangeMediaConeInnerAngle = useSetPropertySelected('mediaConeInnerAngle')
+  const onChangeMediaConeOuterAngle = useSetPropertySelected('mediaConeOuterAngle')
+  const onChangeMediaConeOuterGain = useSetPropertySelected('mediaConeOuterGain')
+  const onChangeAvatarDistanceModel = useSetPropertySelected('avatarDistanceModel')
+  const onChangeAvatarRolloffFactor = useSetPropertySelected('avatarRolloffFactor')
+  const onChangeAvatarRefDistance = useSetPropertySelected('avatarRefDistance')
+  const onChangeAvatarMaxDistance = useSetPropertySelected('avatarMaxDistance')
 
-  const onChangeUseSimpleMaterials = useSetPropertySelected(editor, 'simpleMaterials')
-  const onChangeOverrideRendererettings = useSetPropertySelected(editor, 'overrideRendererSettings')
-  const onChangeLODs = useSetPropertySelected(editor, 'LODs')
-  const onChangeUseCSM = useSetPropertySelected(editor, 'csm')
-  const onChangeUseToneMapping = useSetPropertySelected(editor, 'toneMapping')
-  const onChangeUseToneMappingExposure = useSetPropertySelected(editor, 'toneMappingExposure')
-  const onChangeUseShadowMapType = useSetPropertySelected(editor, 'shadowMapType')
-  const envMapIntensityChanged = useSetPropertySelected(editor, 'envMapIntensity')
+  const onChangeUseSimpleMaterials = useSetPropertySelected('simpleMaterials')
+  const onChangeOverrideRendererettings = useSetPropertySelected('overrideRendererSettings')
+  const onChangeLODs = useSetPropertySelected('LODs')
+  const onChangeUseCSM = useSetPropertySelected('csm')
+  const onChangeUseToneMapping = useSetPropertySelected('toneMapping')
+  const onChangeUseToneMappingExposure = useSetPropertySelected('toneMappingExposure')
+  const onChangeUseShadowMapType = useSetPropertySelected('shadowMapType')
+  const envMapIntensityChanged = useSetPropertySelected('envMapIntensity')
 
   // returning editor view for property editor for sceneNode
   return (

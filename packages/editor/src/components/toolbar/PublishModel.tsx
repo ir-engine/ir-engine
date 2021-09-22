@@ -21,7 +21,6 @@ import {
   removeLocation
 } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
@@ -47,7 +46,7 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
-    authState: selectAuthState(state),
+
     adminSceneState: selectAdminSceneState(state),
     adminLocationState: selectAdminLocationState(state)
   }

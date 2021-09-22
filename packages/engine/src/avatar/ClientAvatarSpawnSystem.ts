@@ -5,7 +5,6 @@ import { addComponent, defineQuery, removeComponent } from '../ecs/functions/Com
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { Network } from '../networking/classes/Network'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
-import { CollisionGroups } from '../physics/enums/CollisionGroups'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { SpawnNetworkObjectComponent } from '../scene/components/SpawnNetworkObjectComponent'
@@ -25,6 +24,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
 
       const isLocalPlayer = uniqueId === Network.instance.userId
       createAvatar(
+        world,
         entity,
         { position: new Vector3().copy(parameters.position), rotation: new Quaternion().copy(parameters.rotation) },
         !isLocalPlayer
@@ -47,9 +47,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
           phi: 0,
           shoulderSide: true,
           locked: true,
-          raycastQuery: null,
-          rayHasHit: false,
-          collisionMask: CollisionGroups.Default
+          raycaster: null
         })
         addComponent(entity, PersistTagComponent, {})
 

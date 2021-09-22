@@ -7,6 +7,7 @@ import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
 import { triggerUpdateConsumers } from '../mediastream/service'
+import { accessAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import {
   instanceServerConnected,
   instanceServerConnecting,
@@ -21,7 +22,7 @@ const store = Store.store
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(instanceServerProvisioning())
-    const token = getState().get('auth').get('authUser').accessToken
+    const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
       const instance = await client.service('instance').find({
         query: {
@@ -55,9 +56,10 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(instanceServerConnecting())
-      const authState = getState().get('auth')
-      const user = authState.get('user')
-      const token = authState.get('authUser').accessToken
+
+      const authState = accessAuthState()
+      const user = authState.user
+      const token = authState.authUser.accessToken.value
       const instanceConnectionState = getState().get('instanceConnection')
       const instance = instanceConnectionState.get('instance')
       const locationId = instanceConnectionState.get('locationId')
@@ -81,7 +83,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
           {
             locationId: locationId,
             token: token,
-            user: user,
+            user: user.value,
             sceneId: sceneId,
             startVideo: videoActive,
             channelType: channelType,
@@ -90,7 +92,8 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
               currentLocation?.locationSettings?.videoEnabled === true ||
               !(
                 currentLocation?.locationSettings?.locationType === 'showroom' &&
-                user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) == null
+                user.locationAdmins?.value?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) ==
+                  null
               )
           }
         )

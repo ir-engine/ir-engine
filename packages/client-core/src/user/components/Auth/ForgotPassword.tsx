@@ -3,24 +3,20 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { forgotPassword } from '../../reducers/auth/service'
+import { AuthService } from '../../reducers/auth/AuthService'
 import Grid from '@material-ui/core/Grid'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  forgotPassword: bindActionCreators(forgotPassword, dispatch)
-})
-
 interface Props {
   classes: any
-  forgotPassword: typeof forgotPassword
 }
 
 const ForgotPasswordComponent = (props: Props): any => {
-  const { forgotPassword, classes } = props
+  const { classes } = props
+  const dispatch = useDispatch()
   const [state, setState] = useState({ email: '', isSubmitted: false })
   const { t } = useTranslation()
 
@@ -31,7 +27,7 @@ const ForgotPasswordComponent = (props: Props): any => {
 
   const handleForgot = (e: any): void => {
     e.preventDefault()
-    forgotPassword(state.email)
+    dispatch(AuthService.forgotPassword(state.email))
     setState({ ...state, isSubmitted: true })
   }
 
@@ -85,4 +81,4 @@ const ForgotPasswordComponent = (props: Props): any => {
 
 const ForgotPasswordWrapper = (props: any): any => <ForgotPasswordComponent {...props} />
 
-export default connect(null, mapDispatchToProps)(ForgotPasswordWrapper)
+export default ForgotPasswordWrapper

@@ -1,12 +1,7 @@
-import { Body } from '../../physics/physx'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-/**
- * @author HydraFire <github.com/HydraFire>
- */
-
 export type ColliderComponentType = {
-  body: Body
+  body: PhysX.PxRigidStatic | PhysX.PxRigidDynamic
 }
 
 export const ColliderComponent = createMappedComponent<ColliderComponentType>('ColliderComponent')

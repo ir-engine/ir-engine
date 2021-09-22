@@ -1,5 +1,5 @@
+@use "../theme.scss" as theme;
 
-// used to apply styles on statsContainer
 .statsContainer {
     position: absolute;
     top: 50px;
@@ -17,4 +17,51 @@
     ul {
         margin: 8px 4px;
     }
+}
+
+.toolbarInputGroup {
+    display: flex;
+    align-items: center;
+    border: 1px solid theme.$border;
+    border-radius: 4px;
+    margin: 0 4px;
+}
+
+.toggleButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  background-color: theme.$toolbar;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+
+  &:hover {
+    background-color: theme.$blueHover;
+  }
+
+  &:active {
+    background-color: theme.$blue;
+  }
+}
+
+.toolbarNumericStepperInput {
+  width: 100px;
+
+  input {
+    border-width: 0;
+  }
+
+  button {
+    border-width: 0px 1px 0px 1px;
+
+    &:first-child {
+      border-radius: 0;
+    }
+
+    &:last-child {
+      border-right-width: 0;
+    }
+  }
 }

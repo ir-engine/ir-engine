@@ -1,17 +1,18 @@
-import AudioNode from '@xrengine/editor/src/nodes/AudioNode'
-import ImageNode from '@xrengine/editor/src/nodes/ImageNode'
-import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
-import VideoNode from '@xrengine/editor/src/nodes/VideoNode'
+import AudioNode from '../../../nodes/AudioNode'
+import ImageNode from '../../../nodes/ImageNode'
+import ModelNode from '../../../nodes/ModelNode'
+import VideoNode from '../../../nodes/VideoNode'
 import i18n from 'i18next'
-import { searchMedia } from '@xrengine/engine/src/scene/functions/searchMedia'
-import { deleteAsset } from '@xrengine/engine/src/scene/functions/deleteAsset'
+import { deleteAsset } from '../../../functions/deleteAsset'
 import { uploadAssets } from '@xrengine/engine/src/scene/functions/upload'
-
-import { ItemTypes } from '../../dnd'
-import Editor from '../../Editor'
+import { searchMedia } from '../../../functions/searchMedia'
+import { ItemTypes } from '../../../constants/AssetTypes'
 import { AcceptsAllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import UploadSourcePanel from '../UploadSourcePanel'
 import { BaseSource } from './index'
+import { SceneManager } from '../../../managers/SceneManager'
+import { CommandManager } from '../../../managers/CommandManager'
+import EditorEvents from '../../../constants/EditorEvents'
 
 /**
  * @author Abhishek Pathak
@@ -41,16 +42,14 @@ const assetTypeToItemType = {
 }
 export class MyAssetsSource extends BaseSource {
   component: typeof UploadSourcePanel
-  editor: Editor
   tags: { label: string; value: string }[]
   searchLegalCopy: string
   privacyPolicyUrl: string
   uploadMultiple: boolean
   acceptFileTypes: string
-  constructor(editor) {
+  constructor() {
     super()
     this.component = UploadSourcePanel
-    this.editor = editor
     this.id = 'assets'
     this.name = i18n.t('editor:sources.myAssets.name')
     this.tags = [
@@ -67,13 +66,13 @@ export class MyAssetsSource extends BaseSource {
     this.requiresAuthentication = true
   }
   async upload(files, onProgress, abortSignal) {
-    const assets = await uploadAssets(this.editor, files, onProgress, abortSignal)
-    this.emit('resultsChanged')
+    const assets = await uploadAssets(SceneManager.instance, files, onProgress, abortSignal)
+    CommandManager.instance.emitEvent(EditorEvents.RESULTS_CHANGED)
     return assets
   }
   async delete(item) {
     await deleteAsset(item.id)
-    this.emit('resultsChanged')
+    CommandManager.instance.emitEvent(EditorEvents.RESULTS_CHANGED)
   }
 
   async search(params, cursor, abortSignal) {

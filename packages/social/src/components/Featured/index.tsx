@@ -13,7 +13,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { selectFeedsState } from '../../reducers/feed/selector'
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service'
@@ -25,7 +25,6 @@ const mapStateToProps = (state: any): any => {
   return {
     feedsState: selectFeedsState(state),
     creatorState: selectCreatorsState(state),
-    authState: selectAuthState(state),
     popupsState: selectPopupsState(state)
   }
 }
@@ -38,7 +37,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 interface Props {
   feedsState?: any
-  authState?: any
   popupsState?: any
   getFeeds?: any
   type?: string
@@ -58,30 +56,22 @@ const Featured = ({
   creatorState,
   setFeedAsFeatured,
   setFeedNotFeatured,
-  authState,
   updateFeedPageState
 }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
+  const auth = useAuthState()
 
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
-      const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest'
+      const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
-    // *WARNING*: remove chunk before commit changes to git! (temp fix)
+
   }, [type, creatorId])
   // }, [type, creatorId, feedsState.get('feedsFeatured')])
-
-  useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.get('feedsFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]
-  )
 
   useEffect(
     () =>
@@ -89,6 +79,14 @@ const Featured = ({
       feedsState.get('feedsFeaturedFetching') === false &&
       setFeedList(feedsState.get('feedsFeatured')),
     [feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]
+  )
+
+  useEffect(
+    () =>
+      (type === 'featured' || !type) &&
+      feedsState.get('feedsFetching') === false &&
+      setFeedList(feedsState.get('feedsFeatured')),
+    [feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]
   )
 
   useEffect(
