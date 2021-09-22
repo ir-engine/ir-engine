@@ -2,6 +2,7 @@ import { Map } from '@styled-icons/fa-solid/Map'
 import i18n from 'i18next'
 import React from 'react'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -11,28 +12,28 @@ import NodeEditor from './NodeEditor'
  * @type {[component class]}
  */
 
-export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
+export function MapNodeEditor(props: { node?: any; t: any }) {
   console.log('Props are', props)
-  const { node, editor, t } = props
+  const { node, t } = props
 
   const onChangeStartLatitude = (payload) => {
-    editor.setPropertySelected('startLatitude', payload)
+    CommandManager.instance.setPropertyOnSelection('startLatitude', payload)
   }
 
   const onChangeStartLongitude = (payload) => {
-    editor.setPropertySelected('startLongitude', payload)
+    CommandManager.instance.setPropertyOnSelection('startLongitude', payload)
   }
 
   const onChangeUseGeolocation = (payload) => {
-    editor.setPropertySelected('useDeviceGeolocation', payload)
+    CommandManager.instance.setPropertyOnSelection('useDeviceGeolocation', payload)
   }
 
   const onChangeShowRasterTiles = (payload) => {
-    editor.setPropertySelected('showRasterTiles', payload)
+    CommandManager.instance.setPropertyOnSelection('showRasterTiles', payload)
   }
 
   const onToggleDebug = (payload) => {
-    editor.setPropertySelected('enableDebug', payload)
+    CommandManager.instance.setPropertyOnSelection('enableDebug', payload)
   }
 
   //defining description and shows this description in NodeEditor  with title of elementt,

@@ -1,13 +1,12 @@
-import React, { useContext, useState, useEffect, useCallback, memo, Fragment } from 'react'
+import React, { useState, useEffect, useCallback, memo, Fragment } from 'react'
 import styled from 'styled-components'
 import DefaultNodeEditor from '../properties/DefaultNodeEditor'
 import { ContextMenu, MenuItem, ContextMenuTrigger } from '../layout/ContextMenu'
-import { EditorContext } from '../contexts/EditorContext'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FixedSizeList, areEqual } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { ItemTypes, addAssetOnDrop, isAsset, AssetTypes } from '../dnd'
+import { addAssetOnDrop } from '../dnd'
 import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
 import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
 import useUpload from '../assets/useUpload'
@@ -16,6 +15,13 @@ import NodeIssuesIcon from './NodeIssuesIcon'
 import { useTranslation } from 'react-i18next'
 import { cmdOrCtrlString } from '../../functions/utils'
 import traverseEarlyOut from '../../functions/traverseEarlyOut'
+import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import EditorCommands from '../../constants/EditorCommands'
+import { NodeManager } from '../../managers/NodeManager'
+import { SceneManager } from '../../managers/SceneManager'
+import { ControlManager } from '../../managers/ControlManager'
+import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -327,9 +333,6 @@ function TreeNode({
   //initializing variables using node.
   const { isLeaf, object, depth, selected, active, iconComponent, isCollapsed, childIndex, lastChild } = node
 
-  //initializing editor using EditorContext
-  const editor = useContext(EditorContext)
-
   //callback function to handle click on node of hierarchy panel
   const onClickToggle = useCallback(
     (e) => {
@@ -435,11 +438,15 @@ function TreeNode({
   const [_dragProps, drag, preview] = useDrag({
     type: ItemTypes.Node,
     item() {
-      const multiple = editor.selected.length > 1
-      return { type: ItemTypes.Node, multiple, value: multiple ? editor.selected : editor.selected[0] }
+      const multiple = CommandManager.instance.selected.length > 1
+      return {
+        type: ItemTypes.Node,
+        multiple,
+        value: multiple ? CommandManager.instance.selected : CommandManager.instance.selected[0]
+      }
     },
     canDrag() {
-      return !editor.selected.some((selectedObj) => !selectedObj.parent)
+      return !CommandManager.instance.selected.some((selectedObj) => !selectedObj.parent)
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
@@ -464,7 +471,7 @@ function TreeNode({
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia({ url: asset.url }, object.parent, object)
+              CommandManager.instance.addMedia({ url: asset.url }, object.parent, object)
             }
           }
         })
@@ -472,15 +479,13 @@ function TreeNode({
       }
 
       //check if addAssetOnDrop returns true then return
-      if (addAssetOnDrop(editor, item, object.parent, object)) {
+      if (addAssetOnDrop(item, object.parent, object)) {
         return
       } else {
-        //check if items contain multiple then calling reparentMultiple else  call reparent of editor
-        if (item.multiple) {
-          editor.reparentMultiple(item.value, object.parent, object)
-        } else {
-          editor.reparent(item.value, object.parent, object)
-        }
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+          parents: object.parent,
+          befores: object
+        })
       }
     },
     canDrop(item, monitor) {
@@ -532,21 +537,20 @@ function TreeNode({
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia({ url: asset.url }, object.parent, next)
+              CommandManager.instance.addMedia({ url: asset.url }, object.parent, next)
             }
           }
         })
         return
       }
 
-      if (addAssetOnDrop(editor, item, object.parent, next)) {
+      if (addAssetOnDrop(item, object.parent, next)) {
         return
       } else {
-        if (item.multiple) {
-          editor.reparentMultiple(item.value, object.parent, next)
-        } else {
-          editor.reparent(item.value, object.parent, next)
-        }
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+          parents: object.parent,
+          befores: next
+        })
       }
     },
 
@@ -596,22 +600,17 @@ function TreeNode({
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia({ url: asset.url }, object)
+              CommandManager.instance.addMedia({ url: asset.url }, object)
             }
           }
         })
         return
       }
 
-      if (addAssetOnDrop(editor, item, object)) {
+      if (addAssetOnDrop(item, object)) {
         return
       } else {
-        // check if item contains multiple
-        if (item.multiple) {
-          editor.reparentMultiple(item.value, object)
-        } else {
-          editor.reparent(item.value, object)
-        }
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object })
       }
     },
     canDrop(item, monitor) {
@@ -719,15 +718,14 @@ const MemoTreeNode = memo(TreeNode, areEqual)
  * treeWalker function used to handle tree.
  *
  * @author Robert Long
- * @param  {object}    editor
  * @param  {object}    collapsedNodes
  */
-function* treeWalker(editor, collapsedNodes) {
+function* treeWalker(collapsedNodes) {
   const stack = []
 
   stack.push({
     depth: 0,
-    object: editor.scene,
+    object: SceneManager.instance.scene,
     childIndex: 0,
     lastChild: true
   })
@@ -735,7 +733,7 @@ function* treeWalker(editor, collapsedNodes) {
   while (stack.length !== 0) {
     const { depth, object, childIndex, lastChild } = stack.pop()
 
-    const NodeEditor = editor.getNodeEditor(object) || DefaultNodeEditor
+    const NodeEditor = NodeManager.instance.getEditorFromNode(object) || DefaultNodeEditor
     const iconComponent = NodeEditor.WrappedComponent
       ? NodeEditor.WrappedComponent.iconComponent
       : NodeEditor.iconComponent
@@ -749,8 +747,10 @@ function* treeWalker(editor, collapsedNodes) {
       depth,
       object,
       iconComponent,
-      selected: editor.selected.indexOf(object) !== -1,
-      active: editor.selected.length > 0 && object === editor.selected[editor.selected.length - 1],
+      selected: CommandManager.instance.selected.indexOf(object) !== -1,
+      active:
+        CommandManager.instance.selected.length > 0 &&
+        object === CommandManager.instance.selected[CommandManager.instance.selected.length - 1],
       childIndex,
       lastChild
     }
@@ -779,14 +779,14 @@ function* treeWalker(editor, collapsedNodes) {
  * @constructor
  */
 export default function HierarchyPanel() {
-  const editor = useContext(EditorContext)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState(null)
   const [collapsedNodes, setCollapsedNodes] = useState({})
   const [nodes, setNodes] = useState([])
   const updateNodeHierarchy = useCallback(() => {
-    setNodes(Array.from(treeWalker(editor, collapsedNodes)))
-  }, [editor, collapsedNodes])
+    const nodes = Array.from(treeWalker(collapsedNodes))
+    setNodes(nodes)
+  }, [collapsedNodes])
   const { t } = useTranslation()
 
   /**
@@ -870,13 +870,13 @@ export default function HierarchyPanel() {
    */
   const onCollapseAllNodes = useCallback(() => {
     const newCollapsedNodes = {}
-    editor.scene.traverse((child) => {
+    SceneManager.instance.scene.traverse((child) => {
       if (child.isNode) {
         newCollapsedNodes[child.id] = true
       }
     })
     setCollapsedNodes(newCollapsedNodes)
-  }, [editor, setCollapsedNodes])
+  }, [setCollapsedNodes])
 
   /**
    * onObjectChanged callback function used to handle changes on object.
@@ -894,16 +894,16 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    editor.addListener('sceneGraphChanged', updateNodeHierarchy)
-    editor.addListener('selectionChanged', updateNodeHierarchy)
-    editor.addListener('objectsChanged', onObjectChanged)
+    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
+    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
 
     return () => {
-      editor.removeListener('sceneGraphChanged', updateNodeHierarchy)
-      editor.removeListener('selectionChanged', updateNodeHierarchy)
-      editor.removeListener('objectsChanged', onObjectChanged)
+      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
+      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
+      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
     }
-  }, [editor, updateNodeHierarchy, onObjectChanged])
+  }, [updateNodeHierarchy, onObjectChanged])
 
   /**
    * onMouseDown callback function used to handle mouse down event.
@@ -911,18 +911,15 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onMouseDown = useCallback(
-    (e, node) => {
-      if (e.detail === 1) {
-        if (e.shiftKey) {
-          editor.toggleSelection(node.object)
-        } else if (!node.selected) {
-          editor.setSelection([node.object])
-        }
+  const onMouseDown = useCallback((e, node) => {
+    if (e.detail === 1) {
+      if (e.shiftKey) {
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
+      } else if (!node.selected) {
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
       }
-    },
-    [editor]
-  )
+    }
+  }, [])
 
   /**
    * onClick callback function for handling onClick event on hierarchy penal item.
@@ -930,16 +927,11 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onClick = useCallback(
-    (e, node) => {
-      if (e.detail === 2) {
-        editor.editorControls.focus([node.object])
-      } else if (!e.shiftKey) {
-        editor.setSelection([node.object])
-      }
-    },
-    [editor]
-  )
+  const onClick = useCallback((e, node) => {
+    if (e.detail === 2) {
+      ControlManager.instance.editorControls.focus([node.object])
+    }
+  }, [])
 
   /**
    * onToggle function used to handle toggle on hierarchy penal item.
@@ -979,7 +971,7 @@ export default function HierarchyPanel() {
         // check if nextNode is not Empty
         if (nextNode) {
           if (e.shiftKey) {
-            editor.select(nextNode.object)
+            CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_TO_SELECTION, nextNode.object)
           }
           // initializing nextNodeEl using nextNode element id
           const nextNodeEl = document.getElementById(getNodeElId(nextNode))
@@ -1003,7 +995,7 @@ export default function HierarchyPanel() {
         // if prevNode is not empty
         if (prevNode) {
           if (e.shiftKey) {
-            editor.select(prevNode.object)
+            CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_TO_SELECTION, prevNode.object)
           }
 
           // initializing prevNodeEl using prevNode Id
@@ -1034,13 +1026,13 @@ export default function HierarchyPanel() {
         //check if pressed key equals to enter
       } else if (e.key === 'Enter') {
         if (e.shiftKey) {
-          editor.toggleSelection(node.object)
+          CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
         } else {
-          editor.setSelection([node.object])
+          CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
         }
       }
     },
-    [nodes, editor, expandNode, collapseNode, expandChildren, collapseChildren]
+    [nodes, expandNode, collapseNode, expandChildren, collapseChildren]
   )
 
   /**
@@ -1049,16 +1041,10 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onDeleteNode = useCallback(
-    (e, node) => {
-      if (node.selected) {
-        editor.removeSelectedObjects()
-      } else {
-        editor.removeObject(node.object)
-      }
-    },
-    [editor]
-  )
+  const onDeleteNode = useCallback((e, node) => {
+    let objs = node.selected ? CommandManager.instance.selected : node.object
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs)
+  }, [])
 
   /**
    * onDuplicateNode callback function to handle Duplication of node.
@@ -1066,16 +1052,10 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onDuplicateNode = useCallback(
-    (e, node) => {
-      if (node.selected) {
-        editor.duplicateSelected()
-      } else {
-        editor.duplicate(node.object)
-      }
-    },
-    [editor]
-  )
+  const onDuplicateNode = useCallback((e, node) => {
+    let objs = node.selected ? CommandManager.instance.selected : node.object
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, objs)
+  }, [])
 
   /**
    * onGroupNodes callback function used to handle grouping of nodes.
@@ -1083,16 +1063,10 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onGroupNodes = useCallback(
-    (e, node) => {
-      if (node.selected) {
-        editor.groupSelected()
-      } else {
-        editor.groupMultiple([node.object])
-      }
-    },
-    [editor]
-  )
+  const onGroupNodes = useCallback((e, node) => {
+    const objs = node.selected ? CommandManager.instance.selected : node.object
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.GROUP, objs)
+  }, [])
 
   /**
    * onRenameNode callback function to handle rename node.
@@ -1126,15 +1100,12 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onRenameSubmit = useCallback(
-    (node, name) => {
-      if (name !== null) {
-        editor.setProperty(node.object, 'name', name)
-      }
-      setRenamingNode(null)
-    },
-    [editor]
-  )
+  const onRenameSubmit = useCallback((node, name) => {
+    if (name !== null) {
+      CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, node.object, { properties: { name } })
+    }
+    setRenamingNode(null)
+  }, [])
 
   /**
    * initializing treeContainerDropTarget.
@@ -1156,23 +1127,20 @@ export default function HierarchyPanel() {
         onUpload(item.files).then((assets) => {
           if (assets) {
             for (const asset of assets) {
-              editor.addMedia({ url: asset.url })
+              CommandManager.instance.addMedia({ url: asset.url })
             }
           }
         })
         return
       }
 
-      if (addAssetOnDrop(editor, item)) {
+      if (addAssetOnDrop(item)) {
         return
       }
 
-      // check if item contains multiple
-      if (item.multiple) {
-        editor.reparentMultiple(item.value, editor.scene)
-      } else {
-        editor.reparent(item.value, editor.scene)
-      }
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+        parents: SceneManager.instance.scene
+      })
     },
     canDrop(item, monitor) {
       if (!monitor.isOver({ shallow: true })) {
@@ -1185,8 +1153,8 @@ export default function HierarchyPanel() {
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
         return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, editor.scene))
-          : isAncestor(item.value, editor.scene))
+          ? item.value.some((otherObject) => isAncestor(otherObject, SceneManager.instance.scene))
+          : isAncestor(item.value, SceneManager.instance.scene))
       }
 
       return true
@@ -1201,7 +1169,7 @@ export default function HierarchyPanel() {
   return (
     <Fragment>
       <PanelContainer>
-        {editor.scene && (
+        {SceneManager.instance.scene && (
           <AutoSizer>
             {({ height, width }) => (
               <FixedSizeList

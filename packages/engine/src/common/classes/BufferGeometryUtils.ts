@@ -1,4 +1,3 @@
-/* eslint-disable */
 import {
   BufferAttribute,
   BufferGeometry,
@@ -11,7 +10,7 @@ import {
   Vector3
 } from 'three'
 
-export function computeTangents(geometry) {
+function computeTangents(geometry) {
   geometry.computeTangents()
   console.warn(
     'THREE.BufferGeometryUtils: .computeTangents() has been removed. Use BufferGeometry.computeTangents() instead.'
@@ -23,7 +22,7 @@ export function computeTangents(geometry) {
  * @param  {Boolean} useGroups
  * @return {BufferGeometry}
  */
-export function mergeBufferGeometries(geometries, useGroups?) {
+function mergeBufferGeometries(geometries, useGroups = false) {
   const isIndexed = geometries[0].index !== null
 
   const attributesUsed = new Set(Object.keys(geometries[0].attributes))
@@ -211,7 +210,7 @@ export function mergeBufferGeometries(geometries, useGroups?) {
  * @param {Array<BufferAttribute>} attributes
  * @return {BufferAttribute}
  */
-export function mergeBufferAttributes(attributes) {
+function mergeBufferAttributes(attributes) {
   let TypedArray
   let itemSize
   let normalized
@@ -270,7 +269,7 @@ export function mergeBufferAttributes(attributes) {
  * @param {Array<BufferAttribute>} attributes
  * @return {Array<InterleavedBufferAttribute>}
  */
-export function interleaveAttributes(attributes) {
+function interleaveAttributes(attributes) {
   // Interleaves the provided attributes into an InterleavedBuffer and returns
   // a set of InterleavedBufferAttributes for each attribute
   let TypedArray
@@ -323,7 +322,7 @@ export function interleaveAttributes(attributes) {
  * @param {Array<BufferGeometry>} geometry
  * @return {number}
  */
-export function estimateBytesUsed(geometry) {
+function estimateBytesUsed(geometry) {
   // Return the estimated memory used by this geometry in bytes
   // Calculate using itemSize, count, and BYTES_PER_ELEMENT to account
   // for InterleavedBufferAttributes.
@@ -343,7 +342,7 @@ export function estimateBytesUsed(geometry) {
  * @param {number} tolerance
  * @return {BufferGeometry>}
  */
-export function mergeVertices(geometry, tolerance = 1e-4) {
+function mergeVertices(geometry, tolerance = 1e-4) {
   tolerance = Math.max(tolerance, Number.EPSILON)
 
   // Generate an index buffer if the geometry doesn't have one, or optimize it
@@ -371,7 +370,8 @@ export function mergeVertices(geometry, tolerance = 1e-4) {
 
     const morphAttr = geometry.morphAttributes[name]
     if (morphAttr) {
-      morphAttrsArrays[name] = new Array(morphAttr.length).fill(0).map(() => [])
+      // @ts-ignore
+      morphAttrsArrays[name] = new Array(morphAttr.length).fill().map(() => [])
     }
   }
 
@@ -436,7 +436,7 @@ export function mergeVertices(geometry, tolerance = 1e-4) {
     const buffer = new oldAttribute.array.constructor(attrArrays[name])
     const attribute = new BufferAttribute(buffer, oldAttribute.itemSize, oldAttribute.normalized)
 
-    result.setAttribute(name, attribute as any)
+    result.setAttribute(name, attribute)
 
     // Update the attribute arrays
     if (name in morphAttrsArrays) {
@@ -462,7 +462,7 @@ export function mergeVertices(geometry, tolerance = 1e-4) {
  * @param {number} drawMode
  * @return {BufferGeometry>}
  */
-export function toTrianglesDrawMode(geometry, drawMode) {
+function toTrianglesDrawMode(geometry, drawMode) {
   if (drawMode === TrianglesDrawMode) {
     console.warn('THREE.BufferGeometryUtils.toTrianglesDrawMode(): Geometry already defined as triangles.')
     return geometry
@@ -545,7 +545,7 @@ export function toTrianglesDrawMode(geometry, drawMode) {
  * @param {Mesh | Line | Points} object An instance of Mesh, Line or Points.
  * @return {Object} An Object with original position/normal attributes and morphed ones.
  */
-export function computeMorphedAttributes(object) {
+function computeMorphedAttributes(object) {
   if (object.geometry.isBufferGeometry !== true) {
     console.error('THREE.BufferGeometryUtils: Geometry is not of type BufferGeometry.')
     return null
@@ -587,13 +587,13 @@ export function computeMorphedAttributes(object) {
 
       for (let i = 0, il = morphAttribute.length; i < il; i++) {
         const influence = morphInfluences[i]
-        const morphAttributeLocal = morphAttribute[i]
+        const morph = morphAttribute[i]
 
         if (influence === 0) continue
 
-        _tempA.fromBufferAttribute(morphAttributeLocal, a)
-        _tempB.fromBufferAttribute(morphAttributeLocal, b)
-        _tempC.fromBufferAttribute(morphAttributeLocal, c)
+        _tempA.fromBufferAttribute(morph, a)
+        _tempB.fromBufferAttribute(morph, b)
+        _tempC.fromBufferAttribute(morph, c)
 
         if (morphTargetsRelative) {
           _morphA.addScaledVector(_tempA, influence)
@@ -809,4 +809,15 @@ export function computeMorphedAttributes(object) {
     morphedPositionAttribute: morphedPositionAttribute,
     morphedNormalAttribute: morphedNormalAttribute
   }
+}
+
+export {
+  computeTangents,
+  mergeBufferGeometries,
+  mergeBufferAttributes,
+  interleaveAttributes,
+  estimateBytesUsed,
+  mergeVertices,
+  toTrianglesDrawMode,
+  computeMorphedAttributes
 }

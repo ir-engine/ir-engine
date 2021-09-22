@@ -1,16 +1,16 @@
 import React, { Component } from 'react'
-import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
-import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
-import ImageInput from '@xrengine/editor/src/components/inputs/ImageInput'
-import Vector2Input from '@xrengine/editor/src/components/inputs/Vector2Input'
+import NodeEditor from '../properties/NodeEditor'
+import InputGroup from '../inputs/InputGroup'
+import ImageInput from '../inputs/ImageInput'
+import Vector2Input from '../inputs/Vector2Input'
 import { City } from '@styled-icons/fa-solid/City'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for InteriorNodeEditor
 type InteriorNodeEditorProps = {
-  editor: any
   node: any
   t: Function
 }
@@ -37,7 +37,7 @@ export class InteriorNodeEditor extends Component<InteriorNodeEditorProps> {
 
   onChangeProperty = (name: string) => {
     return (value) => {
-      this.props.editor.setPropertySelected(name, value)
+      CommandManager.instance.setPropertyOnSelection(name, value)
     }
   }
 

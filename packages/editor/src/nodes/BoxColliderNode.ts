@@ -11,8 +11,8 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   static _geometry = new BoxBufferGeometry()
   static _material = new Material()
 
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const boxCollider = json.components.find((c) => c.name === 'box-collider')
 
     if (boxCollider) {
@@ -22,8 +22,8 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     return node
   }
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     const boxMesh = new Mesh(BoxColliderNode._geometry, BoxColliderNode._material)
     boxMesh.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
     const box = new BoxHelper(boxMesh, 0x00ff00)

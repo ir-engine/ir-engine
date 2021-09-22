@@ -3,6 +3,7 @@
  */
 import React from 'react'
 import styles from './SimpleModal.module.scss'
+import { Modal, Card } from '@material-ui/core'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import CreatorAsTitle from '../CreatorAsTitle'
@@ -37,15 +38,44 @@ const SimpleModal = (props: Props): any => {
     }
   }
 
+  // return (
+  //   <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+  //     <DialogTitle className={styles.dialogTitle}>{renderListTitle()}</DialogTitle>
+  //     {list?.length > 0 ? (
+  //       list?.map((creator, creatorIndex) => <CreatorAsTitle creator={creator} key={creatorIndex} />)
+  //     ) : (
+  //       <p>{t('social:simpleModal.emptyList')}</p>
+  //     )}
+  //   </Dialog>
+  // )
+
+  console.log(list)
   return (
-    <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-      <DialogTitle className={styles.dialogTitle}>{renderListTitle()}</DialogTitle>
-      {list?.length > 0 ? (
-        list?.map((creator, creatorIndex) => <CreatorAsTitle creator={creator} key={creatorIndex} />)
-      ) : (
-        <p>{t('social:simpleModal.emptyList')}</p>
-      )}
-    </Dialog>
+    <Modal
+      onClose={handleClose}
+      open={open}
+      // aria-labelledby="simple-dialog-title"
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}
+    >
+      <Card
+        style={{
+          width: 'auto',
+          height: '60%',
+          overflow: 'auto',
+          padding: '1%'
+        }}
+      >
+        {list?.length > 0 ? (
+          list?.map((creator, creatorIndex) => <CreatorAsTitle creator={creator} key={creatorIndex} />)
+        ) : (
+          <p>{t('social:simpleModal.emptyList')}</p>
+        )}
+      </Card>
+    </Modal>
   )
 }
 

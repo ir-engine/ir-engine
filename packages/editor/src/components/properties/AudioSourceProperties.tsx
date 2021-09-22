@@ -21,25 +21,24 @@ import NumericInput from '../inputs/NumericInput'
  *
  * @author Robert Long
  * @param       {any} node
- * @param       {any} editor
  * @param       {any} multiEdit
  * @constructor
  */
 
-export function AudioSourceProperties({ node, editor, multiEdit }) {
-  const onChangeControls = useSetPropertySelected(editor, 'controls')
-  const onChangeAutoPlay = useSetPropertySelected(editor, 'autoPlay')
-  const onChangeSynchronize = useSetPropertySelected(editor, 'synchronize')
-  const onChangeLoop = useSetPropertySelected(editor, 'loop')
-  const onChangeAudioType = useSetPropertySelected(editor, 'audioType')
-  const onChangeVolume = useSetPropertySelected(editor, 'volume')
-  const onChangeDistanceModel = useSetPropertySelected(editor, 'distanceModel')
-  const onChangeRolloffFactor = useSetPropertySelected(editor, 'rolloffFactor')
-  const onChangeRefDistance = useSetPropertySelected(editor, 'refDistance')
-  const onChangeMaxDistance = useSetPropertySelected(editor, 'maxDistance')
-  const onChangeConeInnerAngle = useSetPropertySelected(editor, 'coneInnerAngle')
-  const onChangeConeOuterAngle = useSetPropertySelected(editor, 'coneOuterAngle')
-  const onChangeConeOuterGain = useSetPropertySelected(editor, 'coneOuterGain')
+export function AudioSourceProperties({ node, multiEdit }) {
+  const onChangeControls = useSetPropertySelected('controls')
+  const onChangeAutoPlay = useSetPropertySelected('autoPlay')
+  const onChangeSynchronize = useSetPropertySelected('synchronize')
+  const onChangeLoop = useSetPropertySelected('loop')
+  const onChangeAudioType = useSetPropertySelected('audioType')
+  const onChangeVolume = useSetPropertySelected('volume')
+  const onChangeDistanceModel = useSetPropertySelected('distanceModel')
+  const onChangeRolloffFactor = useSetPropertySelected('rolloffFactor')
+  const onChangeRefDistance = useSetPropertySelected('refDistance')
+  const onChangeMaxDistance = useSetPropertySelected('maxDistance')
+  const onChangeConeInnerAngle = useSetPropertySelected('coneInnerAngle')
+  const onChangeConeOuterAngle = useSetPropertySelected('coneOuterAngle')
+  const onChangeConeOuterGain = useSetPropertySelected('coneOuterGain')
   const { t } = useTranslation()
 
   // TODO: Make node audio settings work with multi-edit

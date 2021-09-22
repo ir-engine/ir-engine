@@ -1,7 +1,6 @@
-import { AmbientLight, PerspectiveCamera, Vector3 } from 'three'
+import { AmbientLight, PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -11,7 +10,6 @@ import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
-import { PhysXInstance } from '../../physics/physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
@@ -28,17 +26,17 @@ export const teleportToScene = async (
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
-  switchCameraMode(useWorld().localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
+  const world = useWorld()
+
+  switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  PhysXInstance.instance.removeController(
-    getComponent(useWorld().localClientEntity, AvatarControllerComponent).controller
-  )
-  removeComponent(useWorld().localClientEntity, AvatarControllerComponent)
-  removeComponent(useWorld().localClientEntity, InteractorComponent)
-  removeComponent(useWorld().localClientEntity, LocalInputTagComponent)
+  world.physics.removeController(getComponent(world.localClientEntity, AvatarControllerComponent).controller)
+  removeComponent(world.localClientEntity, AvatarControllerComponent)
+  removeComponent(world.localClientEntity, InteractorComponent)
+  removeComponent(world.localClientEntity, LocalInputTagComponent)
 
-  const playerObj = getComponent(useWorld().localClientEntity, Object3DComponent)
+  const playerObj = getComponent(world.localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
 
   const hyperspaceEffect = new PortalEffect(texture)
@@ -97,18 +95,18 @@ export const teleportToScene = async (
   await delay(100)
 
   // teleport player to where the portal is
-  const transform = getComponent(useWorld().localClientEntity, TransformComponent)
+  const transform = getComponent(world.localClientEntity, TransformComponent)
   transform.position.set(
     portalComponent.remoteSpawnPosition.x,
     portalComponent.remoteSpawnPosition.y,
     portalComponent.remoteSpawnPosition.z
   )
 
-  // const avatar = getComponent(useWorld().localClientEntity, AvatarComponent)
+  // const avatar = getComponent(world.localClientEntity, AvatarComponent)
   // rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
-  createAvatarController(useWorld().localClientEntity)
-  addComponent(useWorld().localClientEntity, LocalInputTagComponent, {})
+  createAvatarController(world.localClientEntity)
+  addComponent(world.localClientEntity, LocalInputTagComponent, {})
 
   await delay(250)
 

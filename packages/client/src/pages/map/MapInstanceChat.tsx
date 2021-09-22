@@ -12,7 +12,7 @@ import {
   updateChatTarget,
   updateMessageScrollInit
 } from '@xrengine/client-core/src/social/reducers/chat/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
@@ -23,7 +23,6 @@ import styles from './MapInstanceChat.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     chatState: selectChatState(state),
     instanceConnectionState: selectInstanceConnectionState(state)
   }
@@ -37,7 +36,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 interface Props {
-  authState?: any
   chatState?: any
   instanceConnectionState?: any
   getInstanceChannel?: any
@@ -49,7 +47,6 @@ interface Props {
 
 const InstanceChat = (props: Props): any => {
   const {
-    authState,
     chatState,
     instanceConnectionState,
     getInstanceChannel,
@@ -61,7 +58,7 @@ const InstanceChat = (props: Props): any => {
 
   let activeChannel
   const messageRef = React.useRef<HTMLInputElement>()
-  const user = authState.get('user') as User
+  const user = useAuthState().user
   const channelState = chatState.get('channels')
   const channels = channelState.get('channels')
   const [composingMessage, setComposingMessage] = useState('')
@@ -84,7 +81,7 @@ const InstanceChat = (props: Props): any => {
   const packageMessage = (): void => {
     if (composingMessage.length > 0) {
       createMessage({
-        targetObjectId: user.instanceId,
+        targetObjectId: user.instanceId.value,
         targetObjectType: 'instance',
         text: composingMessage
       })
@@ -153,8 +150,7 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    console.debug(message.senderId, user.id)
-                    if (message.senderId === user.id) {
+                    if (message.senderId === user.id.value) {
                       return (
                         <ListItem
                           className={classNames({ [styles.message]: true, [styles.self]: true })}
@@ -181,7 +177,6 @@ const InstanceChat = (props: Props): any => {
                           disableGutters={true}
                           key={message.id}
                         >
-                          {console.debug('Hello')}
                           <div className={styles['message-other']}>
                             {getAvatar(message)}
                             <ListItemText

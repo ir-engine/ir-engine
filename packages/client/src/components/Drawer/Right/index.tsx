@@ -25,7 +25,7 @@ import {
   PhoneIphone,
   SupervisedUserCircle
 } from '@material-ui/icons'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
 import { getFriends } from '@xrengine/client-core/src/social/reducers/friend/service'
 import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
@@ -54,7 +54,6 @@ import styles from './Right.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     friendState: selectFriendState(state),
     inviteState: selectInviteState(state),
     groupState: selectSocialGroupState(state),
@@ -78,7 +77,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 interface Props {
-  authState?: any
   friendState?: any
   inviteState?: any
   retrieveReceivedInvites?: typeof retrieveReceivedInvites
@@ -105,7 +103,6 @@ identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
   const {
-    authState,
     friendState,
     inviteState,
     sendInvite,
@@ -125,7 +122,7 @@ const Invites = (props: Props): any => {
     rightDrawerOpen,
     setRightDrawerOpen
   } = props
-  const user = authState.get('user') as User
+  const user = useAuthState().user
   const friendSubState = friendState.get('friends')
   const friends = friendSubState.get('friends')
   const receivedInviteState = inviteState.get('receivedInvites')
@@ -138,7 +135,7 @@ const Invites = (props: Props): any => {
   const invitableGroups = invitableGroupState.get('groups')
   const party = partyState.get('party')
   const selfPartyUser =
-    party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {}
+    party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id.value) : {}
   const locations = locationState.get('locations').get('locations')
   const [tabIndex, setTabIndex] = useState(0)
   const [inviteTabIndex, setInviteTabIndex] = useState(0)

@@ -3,7 +3,6 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { BodyType } from '../../physics/physx'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -14,6 +13,7 @@ import { World } from '../../ecs/classes/World'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 
 const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
 const equippableQuery = defineQuery([EquipperComponent])
@@ -46,7 +46,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
     for (const entity of equippableQuery.enter()) {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       const collider = getComponent(equippedEntity, ColliderComponent)
-      if (collider) collider.body.type = BodyType.KINEMATIC
+      // if (collider) collider.body.type = BodyType.KINEMATIC
       // send equip to clients
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
@@ -71,11 +71,8 @@ export default async function EquippableSystem(world: World): Promise<System> {
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
       const collider = getComponent(equippedEntity, ColliderComponent)
       if (collider) {
-        collider.body.type = BodyType.DYNAMIC
-        collider.body.updateTransform({
-          translation: equippedTransform.position,
-          rotation: equippedTransform.rotation
-        })
+        // collider.body.type = BodyType.DYNAMIC
+        teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
       }
       // send unequip to clients
       dispatchFrom(world.hostId, () =>

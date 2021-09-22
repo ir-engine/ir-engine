@@ -1,7 +1,7 @@
 import React from 'react'
 import StringInput from './StringInput'
 import { useDrop } from 'react-dnd'
-import { ItemTypes } from '../dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
 import { AudioFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 

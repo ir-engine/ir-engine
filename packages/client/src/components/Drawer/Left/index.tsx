@@ -31,7 +31,7 @@ import {
   removePartyUser,
   transferPartyOwner
 } from '@xrengine/client-core/src/social/reducers/party/service'
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Downgraded } from '@hookstate/core'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
@@ -46,7 +46,6 @@ import styles from './Left.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     chatState: selectChatState(state),
     friendState: selectFriendState(state),
     groupState: selectSocialGroupState(state),
@@ -137,7 +136,6 @@ const initialGroupForm = {
 const LeftDrawer = (props: Props): any => {
   try {
     const {
-      authState,
       friendState,
       locationState,
       getFriends,
@@ -180,7 +178,7 @@ const LeftDrawer = (props: Props): any => {
 
     const dispatch = useDispatch()
     const userState = useUserState()
-    const user = authState.get('user') as User
+    const user = useAuthState().user
     const friendSubState = friendState.get('friends')
     const friends = friendSubState.get('friends')
     const groupSubState = groupState.get('groups')
@@ -197,14 +195,12 @@ const LeftDrawer = (props: Props): any => {
     const [locationBanPending, setLocationBanPending] = useState('')
     const selfGroupUser =
       selectedGroup.id && selectedGroup.id.length > 0
-        ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id)
+        ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id.value)
         : {}
     const partyUsers = party && party.partyUsers ? party.partyUsers : []
     const selfPartyUser =
-      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {}
+      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id.value) : {}
     const currentLocation = locationState.get('currentLocation').get('location')
-    const isLocationAdmin =
-      user.locationAdmins?.find((locationAdmin) => currentLocation.id === locationAdmin.locationId) != null
 
     useEffect(() => {
       if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
@@ -233,9 +229,9 @@ const LeftDrawer = (props: Props): any => {
     }, [partyState])
 
     useEffect(() => {
-      if (user.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+      if (user.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
         dispatch(UserService.getLayerUsers(true))
-      if (user.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+      if (user.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
         dispatch(UserService.getLayerUsers(false))
     }, [user, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
@@ -320,7 +316,7 @@ const LeftDrawer = (props: Props): any => {
       const groupUser = _.find(selectedGroup.groupUsers, (groupUser) => groupUser.id === groupUserId)
       setGroupUserDeletePending('')
       removeGroupUser(groupUserId)
-      if (groupUser.userId === user.id) {
+      if (groupUser.userId === user.id.value) {
         setSelectedGroup(initialGroupForm)
         setDetailsType('')
         setLeftDrawerOpen(false)
@@ -359,7 +355,7 @@ const LeftDrawer = (props: Props): any => {
       const partyUser = _.find(partyUsers, (pUser) => pUser.id === partyUserId)
       setPartyUserDeletePending('')
       removePartyUser(partyUserId)
-      if (partyUser.userId === user.id) setLeftDrawerOpen(false)
+      if (partyUser.userId === user.id.value) setLeftDrawerOpen(false)
     }
 
     const showTransferPartyOwnerConfirm = (e, partyUserId) => {
@@ -690,24 +686,24 @@ const LeftDrawer = (props: Props): any => {
                               <ListItemAvatar>
                                 <Avatar src={partyUser.user.avatarUrl} />
                               </ListItemAvatar>
-                              {user.id === partyUser.userId &&
+                              {user.id.value === partyUser.userId &&
                                 (partyUser.isOwner === true || partyUser.isOwner === 1) && (
                                   <ListItemText primary={partyUser.user.name + ' (you, owner)'} />
                                 )}
-                              {user.id === partyUser.userId &&
+                              {user.id.value === partyUser.userId &&
                                 partyUser.isOwner !== true &&
                                 partyUser.isOwner !== 1 && <ListItemText primary={partyUser.user.name + ' (you)'} />}
-                              {user.id !== partyUser.userId &&
+                              {user.id.value !== partyUser.userId &&
                                 (partyUser.isOwner === true || partyUser.isOwner === 1) && (
                                   <ListItemText primary={partyUser.user.name + ' (owner)'} />
                                 )}
-                              {user.id !== partyUser.userId &&
+                              {user.id.value !== partyUser.userId &&
                                 partyUser.isOwner !== true &&
                                 partyUser.isOwner !== 1 && <ListItemText primary={partyUser.user.name} />}
                               {partyUserDeletePending !== partyUser.id &&
                                 partyTransferOwnerPending !== partyUser.id &&
                                 (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                user.id !== partyUser.userId && (
+                                user.id.value !== partyUser.userId && (
                                   <Button
                                     variant="contained"
                                     className={styles.groupUserMakeOwnerInit}
@@ -738,7 +734,7 @@ const LeftDrawer = (props: Props): any => {
                               {partyTransferOwnerPending !== partyUser.id &&
                                 partyUserDeletePending !== partyUser.id &&
                                 (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                user.id !== partyUser.userId && (
+                                user.id.value !== partyUser.userId && (
                                   <Button
                                     className={styles.groupUserDeleteInit}
                                     onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}
@@ -746,7 +742,7 @@ const LeftDrawer = (props: Props): any => {
                                     <Delete />
                                   </Button>
                                 )}
-                              {partyUserDeletePending !== partyUser.id && user.id === partyUser.userId && (
+                              {partyUserDeletePending !== partyUser.id && user.id.value === partyUser.userId && (
                                 <Button
                                   className={styles.groupUserDeleteInit}
                                   onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}
@@ -756,7 +752,7 @@ const LeftDrawer = (props: Props): any => {
                               )}
                               {partyTransferOwnerPending !== partyUser.id && partyUserDeletePending === partyUser.id && (
                                 <div className={styles.userConfirmButtons}>
-                                  {user.id !== partyUser.userId && (
+                                  {user.id.value !== partyUser.userId && (
                                     <Button
                                       variant="contained"
                                       color="primary"
@@ -765,7 +761,7 @@ const LeftDrawer = (props: Props): any => {
                                       Remove User
                                     </Button>
                                   )}
-                                  {user.id === partyUser.userId && (
+                                  {user.id.value === partyUser.userId && (
                                     <Button
                                       variant="contained"
                                       color="primary"
@@ -921,19 +917,19 @@ const LeftDrawer = (props: Props): any => {
                             <ListItemAvatar>
                               <Avatar src={groupUser.user.avatarUrl} />
                             </ListItemAvatar>
-                            {user.id === groupUser.userId && (
+                            {user.id.value === groupUser.userId && (
                               <ListItemText
                                 className={styles.marginRight5px}
                                 primary={groupUser.user.name + ' (you)'}
                               />
                             )}
-                            {user.id !== groupUser.userId && (
+                            {user.id.value !== groupUser.userId && (
                               <ListItemText className={styles.marginRight5px} primary={groupUser.user.name} />
                             )}
                             {groupUserDeletePending !== groupUser.id &&
                               selfGroupUser != null &&
                               (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
-                              user.id !== groupUser.userId && (
+                              user.id.value !== groupUser.userId && (
                                 <Button
                                   className={styles.groupUserDeleteInit}
                                   onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}
@@ -941,7 +937,7 @@ const LeftDrawer = (props: Props): any => {
                                   <Delete />
                                 </Button>
                               )}
-                            {groupUserDeletePending !== groupUser.id && user.id === groupUser.userId && (
+                            {groupUserDeletePending !== groupUser.id && user.id.value === groupUser.userId && (
                               <Button
                                 className={styles.groupUserDeleteInit}
                                 onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}
@@ -951,7 +947,7 @@ const LeftDrawer = (props: Props): any => {
                             )}
                             {groupUserDeletePending === groupUser.id && (
                               <div className={styles.groupUserDeleteConfirm}>
-                                {user.id !== groupUser.userId && (
+                                {user.id.value !== groupUser.userId && (
                                   <Button
                                     variant="contained"
                                     color="primary"
@@ -960,7 +956,7 @@ const LeftDrawer = (props: Props): any => {
                                     <Delete />
                                   </Button>
                                 )}
-                                {user.id === groupUser.userId && (
+                                {user.id.value === groupUser.userId && (
                                   <Button
                                     variant="contained"
                                     color="primary"

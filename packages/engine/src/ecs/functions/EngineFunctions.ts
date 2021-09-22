@@ -1,6 +1,5 @@
 /** Functions to provide engine level functionalities. */
 import { Color, Object3D } from 'three'
-import { PhysXInstance } from '../../physics/physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
@@ -11,9 +10,10 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
-import { hasComponent, removeAllComponents } from './ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Entity } from '../classes/Entity'
+import { useWorld } from './SystemHooks'
+import { hasComponent, removeAllComponents } from './ComponentFunctions'
+import { removeEntity } from './EntityFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -80,11 +80,12 @@ export async function reset(): Promise<void> {
 }
 
 export const processLocationChange = async (): Promise<void> => {
+  const world = useWorld()
   const entitiesToRemove = [] as Entity[]
   const removedEntities = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]
 
-  Engine.defaultWorld.entities.forEach((entity) => {
+  world.entities.forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)
@@ -113,13 +114,5 @@ export const processLocationChange = async (): Promise<void> => {
   isClient && EngineRenderer.instance.resetPostProcessing()
 
   Engine.defaultWorld.execute(1 / 60, Engine.defaultWorld.elapsedTime + 1 / 60)
-
-  await resetPhysics()
-}
-
-export const resetPhysics = async (): Promise<void> => {
-  Engine.physxWorker.terminate()
-  Engine.workers.splice(Engine.workers.indexOf(Engine.physxWorker), 1)
-  PhysXInstance.instance.dispose()
-  PhysXInstance.instance = new PhysXInstance()
+  world.physics.dispose()
 }

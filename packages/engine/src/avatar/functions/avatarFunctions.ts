@@ -1,7 +1,20 @@
-import { AnimationMixer, Group } from 'three'
+import {
+  AdditiveBlending,
+  AnimationMixer,
+  Bone,
+  DoubleSide,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  PlaneGeometry,
+  Skeleton,
+  SkinnedMesh,
+  sRGBEncoding
+} from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -9,19 +22,16 @@ import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  Mesh,
-  PlaneGeometry,
-  MeshBasicMaterial,
-  AdditiveBlending,
-  sRGBEncoding,
-  ShaderMaterial,
-  DoubleSide
-} from 'three'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { DissolveEffect } from '../DissolveEffect'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { bonesData2 } from '../DefaultSkeletonBones'
+import { IKObj } from '../../ikrig/components/IKObj'
+import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
+import { ArmatureType } from '../../ikrig/enums/ArmatureType'
 
 export const setAvatar = (entity, avatarId, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -42,11 +52,18 @@ export const loadAvatar = (entity: Entity) => {
   }
 }
 
+const setAvatarLayer = (obj: Object3D) => {
+  obj.layers.disable(CameraLayers.Scene)
+  obj.layers.enable(CameraLayers.Avatar)
+}
+
 const loadDefaultAvatar = (entity: Entity) => {
   const avatar = getComponent(entity, AvatarComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
   model.traverse((object) => {
+    setAvatarLayer(object)
+
     if (object.isMesh || object.isSkinnedMesh) {
       object.material = object.material.clone()
     }
@@ -65,6 +82,10 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
       receiveShadow: true
     },
     (gltf: any) => {
+      const avatar = getComponent(entity, AvatarComponent)
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+
       const model = SkeletonUtils.clone(gltf.scene)
 
       model.traverse((o) => {
@@ -74,16 +95,14 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         }
       })
 
-      const avatar = getComponent(entity, AvatarComponent)
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-
       animationComponent.mixer.stopAllAction()
       avatar.modelContainer.children.forEach((child) => child.removeFromParent())
 
       let materialList: Array<MaterialMap> = []
 
       model.traverse((object) => {
+        setAvatarLayer(object)
+
         if (typeof object.material !== 'undefined') {
           // object.material = object.material.clone()
           materialList.push({
@@ -94,8 +113,21 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         }
       })
 
-      animationComponent.mixer = new AnimationMixer(avatar.modelContainer)
       model.children.forEach((child) => avatar.modelContainer.add(child))
+
+      // TODO: find skinned mesh in avatar.modelContainer
+      const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+      const rootBone = avatarSkinnedMesh.skeleton.bones.find((b) => b.parent.type !== 'Bone')
+      addComponent(entity, IKObj, { ref: avatarSkinnedMesh })
+      // TODO: add way to handle armature type
+      const armatureType = avatarURL.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
+      addTargetRig(entity, rootBone.parent, null, false, armatureType)
+      addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
+
+      // animation will be applied to this skeleton instead of avatar
+      const sourceSkeletonRoot = SkeletonUtils.clone(getDefaultSkeleton().parent)
+      addRig(entity, sourceSkeletonRoot)
+      animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
 
       if (avatarAnimationComponent.currentState) {
         AnimationRenderer.mountCurrentState(entity)
@@ -152,4 +184,31 @@ const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<Ma
     opacityMultiplier: 0,
     originMaterials: originalMatList
   })
+}
+
+export function getDefaultSkeleton(): SkinnedMesh {
+  const bones = []
+  bonesData2.forEach((data) => {
+    const bone = new Bone()
+    bone.name = data.name
+    bone.position.fromArray(data.position)
+    bone.quaternion.fromArray(data.quaternion)
+    bone.scale.fromArray(data.scale)
+    bones.push(bone)
+  })
+
+  bonesData2.forEach((data, index) => {
+    if (data.parentIndex !== null) {
+      bones[data.parentIndex].add(bones[index])
+    }
+  })
+
+  const group = new Group()
+  const skinnedMesh = new SkinnedMesh()
+  const skeleton = new Skeleton(bones)
+  skinnedMesh.bind(skeleton)
+  group.add(skinnedMesh)
+  group.add(bones[0]) // we assume that root bone is the first one
+
+  return skinnedMesh
 }

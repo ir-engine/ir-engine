@@ -1,5 +1,5 @@
 import { Config } from '@xrengine/common/src/config'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import { RethrownError } from './errors'
 import i18n from 'i18next'
 import { fetchContentType } from './fetchContentType'
 import { guessContentType } from './guessContentType'

@@ -7,6 +7,11 @@ import { makeCollidersInvisible } from '@xrengine/engine/src/physics/functions/p
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import { CommandManager } from '../managers/CommandManager'
+import EditorEvents from '../constants/EditorEvents'
+import { CacheManager } from '../managers/CacheManager'
+import { SceneManager } from '../managers/SceneManager'
+import { ControlManager } from '../managers/ControlManager'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -18,8 +23,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
   meshColliders = []
 
-  static async deserialize(editor, json, loadAsync, onError) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json, loadAsync, onError) {
+    const node = await super.deserialize(json)
     loadAsync(
       (async () => {
         const { src, envMapOverride, textureOverride } = json.components.find((c) => c.name === 'gltf-model').props
@@ -27,7 +32,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
         if (textureOverride)
-          editor.scene.traverse((obj) => {
+          SceneManager.instance.scene.traverse((obj) => {
             if (obj.uuid === textureOverride) node.textureOverride = obj.uuid
           })
 
@@ -86,9 +91,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   gltfJson = null
   isValidURL = false
   isUpdateDataMatrix = true
+  animations = []
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
   get src(): string {
@@ -104,10 +110,12 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    const loadPromise = this.editor.gltfCache.get(src)
-    const { scene, json } = await loadPromise
+    const loadPromise = CacheManager.gltfCache.get(src)
+    const { scene, json, animations } = await loadPromise
     this.gltfJson = json
     const clonedScene = cloneObject3D(scene)
+    clonedScene.animations = animations
+
     return clonedScene
   }
   // Overrides Model's load method and resolves the src url before loading.
@@ -120,7 +128,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.issues = []
     this.gltfJson = null
     if (this.model) {
-      this.editor.renderer.removeBatchedObject(this.model)
+      SceneManager.instance.renderer.removeBatchedObject(this.model)
       this.remove(this.model)
       this.model = null
     }
@@ -129,7 +137,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.isValidURL = true
       const { url, files } = await resolveMedia(src)
       if (this.model) {
-        this.editor.renderer.removeBatchedObject(this.model)
+        SceneManager.instance.renderer.removeBatchedObject(this.model)
       }
       await super.load(url)
 
@@ -160,7 +168,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       if (this.model) {
         this.model.traverse((object) => {
           if (object.material && object.material.isMeshStandardMaterial) {
-            object.material.envMap = this.editor.scene.environmentMap
+            object.material.envMap = SceneManager.instance.scene.environmentMap
             object.material.needsUpdate = true
           }
         })
@@ -178,19 +186,20 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.isValidURL = false
       //this._canonicalUrl = "";
     }
-    this.editor.emit('objectsChanged', [this])
-    this.editor.emit('selectionChanged')
+    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
+    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+
     // this.hideLoadingCube();
     return this
   }
   onAdd() {
     if (this.model) {
-      this.editor.renderer.addBatchedObject(this.model)
+      SceneManager.instance.renderer.addBatchedObject(this.model)
     }
   }
   onRemove() {
     if (this.model) {
-      this.editor.renderer.removeBatchedObject(this.model)
+      SceneManager.instance.renderer.removeBatchedObject(this.model)
     }
   }
   onPlay() {
@@ -201,7 +210,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   onUpdate(delta: number, time: number) {
     super.onUpdate(delta, time)
-    if (this.editor.playing || this.animationMixer) {
+    if (ControlManager.instance.isInPlayMode || this.animationMixer) {
       this.update(delta)
     }
   }

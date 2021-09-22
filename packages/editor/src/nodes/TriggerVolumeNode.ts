@@ -14,8 +14,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'Trigger Volume'
   static _geometry = new BoxBufferGeometry()
   static _material = new Material()
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const props = json.components.find((c) => c.name === 'trigger-volume').props
     node.target = props.target
     node.enterComponent = props.enterComponent
@@ -24,10 +24,11 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     node.leaveComponent = props.leaveComponent
     node.leaveProperty = props.leaveProperty
     node.leaveValue = props.leaveValue
+    node.showHelper = props.showHelper
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     const boxMesh = new Mesh(TriggerVolumeNode._geometry, TriggerVolumeNode._material)
     const box = new BoxHelper(boxMesh, 0xffff00)
     box.layers.set(1)
@@ -40,6 +41,7 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     this.leaveComponent = null
     this.leaveProperty = null
     this.leaveValue = null
+    this.showHelper = false
   }
   copy(source, recursive = true) {
     if (recursive) {
@@ -59,6 +61,7 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     this.leaveComponent = source.leaveComponent
     this.leaveProperty = source.leaveProperty
     this.leaveValue = source.leaveValue
+    this.showHelper = source.showHelper
     return this
   }
   async serialize(projectID) {
@@ -70,7 +73,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
         enterValue: this.enterValue,
         leaveComponent: this.leaveComponent,
         leaveProperty: this.leaveProperty,
-        leaveValue: this.leaveValue
+        leaveValue: this.leaveValue,
+        showHelper: this.showHelper
       }
     })
   }
@@ -93,7 +97,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
       enterValue: this.enterValue,
       leaveComponent: this.leaveComponent,
       leaveProperty: this.leaveProperty,
-      leaveValue: this.leaveValue
+      leaveValue: this.leaveValue,
+      showHelper: this.showHelper
     })
   }
 }

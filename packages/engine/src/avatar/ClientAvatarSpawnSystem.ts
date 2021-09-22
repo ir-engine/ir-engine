@@ -3,7 +3,6 @@ import { CameraMode } from '../camera/types/CameraMode'
 import { addComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
-import { CollisionGroups } from '../physics/enums/CollisionGroups'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { createAvatar } from './functions/createAvatar'
@@ -36,9 +35,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
           phi: 0,
           shoulderSide: true,
           locked: true,
-          raycastQuery: null!,
-          rayHasHit: false,
-          collisionMask: CollisionGroups.Default
+          raycaster: null!
         })
         addComponent(entity, PersistTagComponent, {})
 

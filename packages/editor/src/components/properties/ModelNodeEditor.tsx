@@ -1,5 +1,5 @@
 import { Cube } from '@styled-icons/fa-solid/Cube'
-import ModelNode from '@xrengine/editor/src/nodes/ModelNode'
+import ModelNode from '../../nodes/ModelNode'
 import i18n from 'i18next'
 import React, { Component, Fragment } from 'react'
 import { withTranslation } from 'react-i18next'
@@ -12,7 +12,9 @@ import NodeEditor from './NodeEditor'
 import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { CommandManager } from '../../managers/CommandManager'
+import EditorCommands from '../../constants/EditorCommands'
+import { SceneManager } from '../../managers/SceneManager'
 
 /**
  * Array containing options for InteractableOption.
@@ -42,7 +44,6 @@ const InteractableOption = [
  * @type {Object}
  */
 type ModelNodeEditorProps = {
-  editor?: any
   node?: object
   multiEdit?: boolean
   t: Function
@@ -70,7 +71,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   componentDidMount() {
     const options = []
-    const sceneNode = (this.props.editor as any).scene
+    const sceneNode = SceneManager.instance.scene
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
@@ -87,105 +88,107 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   //function to handle change in property src
   onChangeSrc = (src, initialProps) => {
-    ;(this.props.editor as any).setPropertiesSelected({ ...initialProps, src })
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+      properties: { ...initialProps, src }
+    })
   }
 
   // TODO
-  //function to handle change in property src
+  // function to handle change in property src
   // onChangeEnvMap = (src, initialProps) => {
-  //   (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
+  //   CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, { properties: { ...initialProps, src } })
   // };
 
   //fucntion to handle changes in activeChipIndex property
   onChangeAnimation = (activeClipIndex) => {
-    ;(this.props.editor as any).setPropertySelected('activeClipIndex', activeClipIndex)
+    CommandManager.instance.setPropertyOnSelection('activeClipIndex', activeClipIndex)
   }
 
   onChangeAnimationSource = (hasAvatarAnimations) => {
-    ;(this.props.editor as any).setPropertySelected('hasAvatarAnimations', hasAvatarAnimations)
+    CommandManager.instance.setPropertyOnSelection('hasAvatarAnimations', hasAvatarAnimations)
     ;(this.props.node as any).reload()
   }
 
   //function to handle change in collidable property
   // not currently in use, used by floor plan
   // onChangeCollidable = collidable => {
-  //   (this.props.editor as any).setPropertySelected("collidable", collidable);
+  //   CommandManager.instance.setPropertyOnSelection("collidable", collidable);
   // };
 
   onChangeTextureOverride = (textureOverride) => {
     console.log(textureOverride)
-    ;(this.props.editor as any).setPropertySelected('textureOverride', textureOverride)
+    CommandManager.instance.setPropertyOnSelection('textureOverride', textureOverride)
   }
 
   // function to handle changes in walkable property
   // not currently in use, used by floor plan
   // onChangeWalkable = walkable => {
-  //   (this.props.editor as any).setPropertySelected("walkable", walkable);
+  //   CommandManager.instance.setPropertyOnSelection("walkable", walkable);
   // };
 
   // function to handle changes in castShadow property
   onChangeCastShadow = (castShadow) => {
-    ;(this.props.editor as any).setPropertySelected('castShadow', castShadow)
+    CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
   }
 
   // function to handle changes in Receive shadow property
   onChangeReceiveShadow = (receiveShadow) => {
-    ;(this.props.editor as any).setPropertySelected('receiveShadow', receiveShadow)
+    CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
   }
 
   // function to handle changes in interactable property
   onChangeInteractable = (interactable) => {
-    ;(this.props.editor as any).setPropertySelected('interactable', interactable)
+    CommandManager.instance.setPropertyOnSelection('interactable', interactable)
   }
 
   // function to handle change in isUpdateDataMatrix property
   onChangeUpdateDataMatrix = (matrixAutoUpdate) => {
-    ;(this.props.editor as any).setPropertySelected('isUpdateDataMatrix', matrixAutoUpdate)
+    CommandManager.instance.setPropertyOnSelection('isUpdateDataMatrix', matrixAutoUpdate)
   }
 
   // function to handle changes in interactionType property
   onChangeInteractionType = (interactionType) => {
-    ;(this.props.editor as any).setPropertySelected('interactionType', interactionType)
+    CommandManager.instance.setPropertyOnSelection('interactionType', interactionType)
   }
 
   // function to handle changes in interactionText property
   onChangeInteractionText = (interactionText) => {
-    ;(this.props.editor as any).setPropertySelected('interactionText', interactionText)
+    CommandManager.instance.setPropertyOnSelection('interactionText', interactionText)
   }
 
   // function to handle changes in interactionText property
   onChangeInteractionDistance = (interactionDistance) => {
-    ;(this.props.editor as any).setPropertySelected('interactionDistance', interactionDistance)
+    CommandManager.instance.setPropertyOnSelection('interactionDistance', interactionDistance)
   }
 
   // function to handle changes in payloadName property
   onChangePayloadName = (payloadName) => {
-    ;(this.props.editor as any).setPropertySelected('payloadName', payloadName)
+    CommandManager.instance.setPropertyOnSelection('payloadName', payloadName)
   }
 
   // function to handle changes in payloadName property
   onChangeRole = (role, selected) => {
-    ;(this.props.editor as any).setPropertySelected('role', selected.label)
+    CommandManager.instance.setPropertyOnSelection('role', selected.label)
   }
 
   //function to handle the changes in target
   onChangeTarget = (target) => {
-    ;(this.props.editor as any).setPropertySelected('target', target)
+    CommandManager.instance.setPropertyOnSelection('target', target)
   }
 
   // function to handle changes in payloadUrl
   onChangePayloadUrl = (payloadUrl) => {
-    ;(this.props.editor as any).setPropertySelected('payloadUrl', payloadUrl)
+    CommandManager.instance.setPropertyOnSelection('payloadUrl', payloadUrl)
   }
 
   // function to handle changes in payloadBuyUrl
   onChangePayloadBuyUrl = (payloadBuyUrl) => {
-    ;(this.props.editor as any).setPropertySelected('payloadBuyUrl', payloadBuyUrl)
+    CommandManager.instance.setPropertyOnSelection('payloadBuyUrl', payloadBuyUrl)
   }
 
   // function to handle changes in payloadLearnMoreUrl
   onChangePayloadLearnMoreUrl = (payloadLearnMoreUrl) => {
-    ;(this.props.editor as any).setPropertySelected('payloadLearnMoreUrl', payloadLearnMoreUrl)
+    CommandManager.instance.setPropertyOnSelection('payloadLearnMoreUrl', payloadLearnMoreUrl)
   }
 
   // function to handle changes in payloadHtmlContent
@@ -193,14 +196,14 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
     if (sanitizedHTML !== payloadHtmlContent)
       console.warn("Code has been sanitized, don't try anything sneaky please...")
-    ;(this.props.editor as any).setPropertySelected('payloadHtmlContent', sanitizedHTML)
+    CommandManager.instance.setPropertyOnSelection('payloadHtmlContent', sanitizedHTML)
   }
 
   // function to handle changes in isAnimationPropertyDisabled
   isAnimationPropertyDisabled() {
-    const { multiEdit, editor, node } = this.props as any
+    const { multiEdit, node } = this.props as any
     if (multiEdit) {
-      return editor.selected.some((selectedNode) => selectedNode.src !== node.src)
+      return CommandManager.instance.selected.some((selectedNode) => selectedNode.src !== node.src)
     }
     return false
   }
@@ -303,7 +306,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
         </InputGroup> */}
         <InputGroup name="Texture Override" label={this.props.t('editor:properties.model.lbl-textureOverride')}>
           <SelectInput
-            options={this.props.editor.scene.children.map((obj: Object3D) => {
+            options={SceneManager.instance.scene.children.map((obj: Object3D) => {
               return {
                 label: obj.name,
                 value: obj.uuid

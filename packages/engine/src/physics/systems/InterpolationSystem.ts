@@ -12,12 +12,13 @@ import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
 import { VelocityComponent } from '../components/VelocityComponent'
-import { BodyType } from '../../physics/physx'
+import { isDynamicBody } from '../../physics/classes/Physics'
 import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { isEntityLocalClientOwnerOf } from '../../networking/functions/isEntityLocalClientOwnerOf'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
+import { teleportRigidbody } from '../functions/teleportRigidbody'
+import { Quaternion, Vector3 } from 'three'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -101,19 +102,11 @@ export default async function InterpolationSystem(world: World): Promise<System>
       const avatar = getComponent(entity, AvatarComponent)
       const collider = getComponent(entity, ColliderComponent)
 
-      collider.body.updateTransform({
-        translation: {
-          x: interpolation.x,
-          y: interpolation.y + avatar.avatarHalfHeight,
-          z: interpolation.z
-        },
-        rotation: {
-          x: interpolation.qX,
-          y: interpolation.qY,
-          z: interpolation.qZ,
-          w: interpolation.qW
-        }
-      })
+      teleportRigidbody(
+        collider.body,
+        new Vector3(interpolation.x, interpolation.y + avatar.avatarHalfHeight, interpolation.z),
+        new Quaternion(interpolation.qX, interpolation.qY, interpolation.qZ, interpolation.qW)
+      )
 
       transform.position.set(interpolation.x, interpolation.y, interpolation.z)
       transform.rotation.set(interpolation.qX, interpolation.qY, interpolation.qZ, interpolation.qW)
@@ -129,19 +122,16 @@ export default async function InterpolationSystem(world: World): Promise<System>
 
       if (interpolationSnapshot == null) continue
 
-      collider.body.updateTransform({
-        translation: {
-          x: interpolationSnapshot.x,
-          y: interpolationSnapshot.y,
-          z: interpolationSnapshot.z
-        },
-        rotation: {
-          x: interpolationSnapshot.qX,
-          y: interpolationSnapshot.qY,
-          z: interpolationSnapshot.qZ,
-          w: interpolationSnapshot.qW
-        }
-      })
+      teleportRigidbody(
+        collider.body,
+        new Vector3(interpolationSnapshot.x, interpolationSnapshot.y, interpolationSnapshot.z),
+        new Quaternion(
+          interpolationSnapshot.qX,
+          interpolationSnapshot.qY,
+          interpolationSnapshot.qZ,
+          interpolationSnapshot.qW
+        )
+      )
     }
 
     for (const entity of transformInterpolationQuery()) {
@@ -169,24 +159,13 @@ export default async function InterpolationSystem(world: World): Promise<System>
 
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      if (collider.body.type === BodyType.DYNAMIC) {
-        collider.body.updateTransform({
-          translation: {
-            x: snapshot.x,
-            y: snapshot.y,
-            z: snapshot.z
-          },
-          rotation: {
-            x: snapshot.qX,
-            y: snapshot.qY,
-            z: snapshot.qZ,
-            w: snapshot.qW
-          }
-        })
-      } else {
-        transform.position.set(snapshot.x, snapshot.y, snapshot.z)
-        transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
-      }
+      teleportRigidbody(
+        collider.body,
+        new Vector3(snapshot.x, snapshot.y, snapshot.z),
+        new Quaternion(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
+      )
+      transform.position.set(snapshot.x, snapshot.y, snapshot.z)
+      transform.rotation.set(snapshot.qX, snapshot.qY, snapshot.qZ, snapshot.qW)
     }
 
     for (const entity of transformUpdateFromServerQuery()) {

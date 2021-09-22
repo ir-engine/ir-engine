@@ -1,5 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
+import { useAuthState } from '../../../../user/reducers/auth/AuthState'
 import { botCreated, fetchedBot, botCammandCreated, botRemoved, botCommandRemoved, botPatched } from './actions'
 
 export const createBotAsAdmin =
@@ -17,10 +18,10 @@ export const fetchBotAsAdmin =
   (incDec?: 'increment' | 'decrement') =>
   async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      const user = getState().get('auth').get('user')
+      const user = useAuthState().user
       const skip = getState().get('adminBots').get('bots').get('skip')
       const limit = getState().get('adminBots').get('bots').get('limit')
-      if (user.userRole === 'admin') {
+      if (user.userRole.value === 'admin') {
         const bots = await client.service('bot').find({
           query: {
             $sort: {
