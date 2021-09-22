@@ -9,9 +9,9 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { World } from '../ecs/classes/World'
-import computeDistanceFromCircle from './functions/computeDistanceFromCircle'
 import actuateLazy from './functions/actuateLazy'
 import getPhases from './functions/getPhases'
+import isIntersectCircleCircle from '../../tests/map/functions/isIntersectCircleCircle'
 
 const $vector3 = new Vector3()
 
@@ -35,6 +35,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
     const viewerPosition = vector3ToArray2(viewerTransform.position)
+    const viewerPositionScaled = multiplyArray(viewerPosition, 1 / mapScale)
 
     // Initialize on first pass or whenever the viewer changes
     if (viewerEntity !== previousViewerEntity) {
@@ -59,30 +60,35 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
     const subSceneChildren = []
     for (const object of mapComponent.completeObjects.values()) {
-      // TODO make a helper function for this, same code in CreateCompleteObjectPhase
-      // TODO also use a more efficient distance calc
-      const distance = computeDistanceFromCircle(
-        multiplyArray(viewerPosition, 1 / mapScale),
-        object.centerPoint,
-        object.boundingCircleRadius
-      )
-      if (object.mesh && distance <= mapComponent.minimumSceneRadius) {
+      // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
+      if (
+        object.mesh &&
+        isIntersectCircleCircle(
+          viewerPositionScaled,
+          mapComponent.minimumSceneRadius,
+          object.centerPoint,
+          object.boundingCircleRadius
+        )
+      ) {
         setPosition(object.mesh, object.centerPoint)
         addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
       } else {
         object.mesh.parent = null
       }
     }
-
     for (const label of mapComponent.labelCache.values()) {
-      const distance = computeDistanceFromCircle(
-        multiplyArray(viewerPosition, 1 / mapScale),
-        label.centerPoint,
-        label.boundingCircleRadius
-      )
-      if (label.mesh && distance <= mapComponent.minimumSceneRadius) {
+      if (
+        label.mesh &&
+        isIntersectCircleCircle(
+          viewerPositionScaled,
+          mapComponent.labelRadius,
+          label.centerPoint,
+          label.boundingCircleRadius
+        )
+      ) {
         setPosition(label.mesh, label.centerPoint)
         addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
+        // TODO don't do this every frame
         label.mesh.update()
       } else {
         label.mesh.parent = null

@@ -24,7 +24,7 @@ jest.mock('../../src/map/functions/createFeatureLabel', () => {
   mesh.update = jest.fn()
   return () => ({
     mesh,
-    centerPoint: [12, 13],
+    centerPoint: [5, 7],
     boundingCircleRadius: 2
   })
 })
