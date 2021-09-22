@@ -23,8 +23,10 @@ export class World {
   private constructor() {
     console.log('CREATING WORLD')
     bitecs.createWorld(this)
-    bitecs.addEntity(this)
+    console.log('World symbols', Object.getOwnPropertySymbols(this))
     Engine.worlds.push(this)
+    this.worldEntity = createEntity(this)
+    this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
     if (!Engine.defaultWorld) Engine.defaultWorld = this
   }
 
@@ -78,12 +80,12 @@ export class World {
   /**
    * The world entity (always exists, and always has eid 0)
    */
-  worldEntity = createEntity(this) as Entity
+  worldEntity: Entity
 
   /**
    * The local client entity
    */
-  localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
+  localClientEntity = undefined! as Entity
 
   /**
    * Systems that run only once every frame.

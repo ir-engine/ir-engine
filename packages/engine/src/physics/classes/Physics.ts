@@ -71,7 +71,7 @@ export class Physics {
     this.foundation = PhysX.PxCreateFoundation(this.physxVersion, this.allocator, this.defaultErrorCallback)
     this.cookingParamas = new PhysX.PxCookingParams(tolerance)
     this.cooking = PhysX.PxCreateCooking(this.physxVersion, this.foundation, this.cookingParamas)
-    this.physics = PhysX.PxCreatePhysics(this.physxVersion, this.foundation, tolerance, false, undefined)
+    this.physics = PhysX.PxCreatePhysics(this.physxVersion, this.foundation, tolerance, false, null!)
 
     const triggerCallback = {
       onContactBegin: (

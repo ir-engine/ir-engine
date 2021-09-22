@@ -6,6 +6,7 @@ import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
+import { Engine } from '../../ecs/classes/Engine'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -29,6 +30,13 @@ export const incomingNetworkReceptor = (action) => {
       for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
       if (!isClient) return // TODO: why?
       delete Network.instance.clients[userId].userId
+    })
+
+    .when(NetworkWorldAction.spawnAvatar.matches, (a) => {
+      if (world.getNetworkObject(a.networkId))
+        throw new Error(`Cannot spawn network object with existing network id ${a.networkId}`)
+      const entity = a.userId === Engine.userId ? world.localClientEntity : createEntity()
+      addComponent(entity, NetworkObjectComponent, a)
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {

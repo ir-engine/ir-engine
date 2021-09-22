@@ -38,8 +38,6 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
           raycaster: null!
         })
         addComponent(entity, PersistTagComponent, {})
-
-        world.localClientEntity = entity
       }
     })
   })
