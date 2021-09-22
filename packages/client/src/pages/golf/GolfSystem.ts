@@ -47,6 +47,7 @@ import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from
 import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import matches from 'ts-matches'
+import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
 
 /**
  *
@@ -267,7 +268,7 @@ function golfReceptor(action) {
 
         if (isClient) {
           const teeEntity = getTee(s.currentHole.value)
-          getComponent(Network.instance.localClientEntity, SpawnPoseComponent).position.copy(
+          getComponent(world.localClientEntity, SpawnPoseComponent).position.copy(
             getComponent(teeEntity, TransformComponent).position
           )
         }
