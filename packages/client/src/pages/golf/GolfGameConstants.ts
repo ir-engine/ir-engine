@@ -8,8 +8,8 @@ export enum GolfCollisionGroups {
 }
 
 export const GolfPrefabTypes = {
-  Ball: 'ball', // TODO: make a prefab register
-  Club: 'club'
+  Ball: 'puttclub.ball', // TODO: make a prefab register
+  Club: 'puttclub.club'
 }
 
 export const GolfColours = [

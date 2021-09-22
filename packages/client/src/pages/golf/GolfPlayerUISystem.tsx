@@ -84,7 +84,7 @@ export const GolfPlayerUISystem = async (world: World) => {
     // Network Player XRUI
     if (isClient) {
       for (const entity of playerQuery.enter()) {
-        if (entity === Network.instance.localClientEntity) continue
+        if (entity === useWorld().localClientEntity) continue
         const playerUI = createNetworkPlayerUI(getGolfPlayerNumber(entity))
         GolfNetworkPlayerUI.set(entity, playerUI)
       }

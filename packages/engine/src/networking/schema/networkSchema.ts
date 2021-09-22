@@ -4,6 +4,7 @@ import { Model } from '../../assets/superbuffer/model'
 import { setVelocityScaleAt } from '../../particles/classes/ParticleMesh'
 import { PostProcessingSchema } from '../../renderer/interfaces/PostProcessingSchema'
 import { Pose } from '../../transform/TransformInterfaces'
+import { NetworkId } from '../classes/Network'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -40,7 +41,7 @@ export interface WorldStateInterface {
   time: number
   /** transform of world. */
   pose: {
-    networkId: number
+    networkId: NetworkId
     position: number[]
     rotation: number[]
     linearVelocity: number[]
@@ -48,7 +49,7 @@ export interface WorldStateInterface {
   }[]
   /** transform of ik avatars. */
   ikPose: {
-    networkId: number
+    networkId: NetworkId
     headPose: Pose
     leftPose: Pose
     rightPose: Pose

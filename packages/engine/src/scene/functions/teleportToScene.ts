@@ -1,13 +1,11 @@
 import { AmbientLight, PerspectiveCamera, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-// import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -17,30 +15,30 @@ import { PhysXInstance } from '../../physics/physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { World } from '../../ecs/classes/World'
 import { processLocationChange } from '../../ecs/functions/EngineFunctions'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
-  Engine.defaultWorld.isInPortal = true
+  Engine.defaultWorld!.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
-  switchCameraMode(Network.instance.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
+  switchCameraMode(useWorld().localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
   PhysXInstance.instance.removeController(
-    getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
+    getComponent(useWorld().localClientEntity, AvatarControllerComponent).controller
   )
-  removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
-  removeComponent(Network.instance.localClientEntity, InteractorComponent)
-  removeComponent(Network.instance.localClientEntity, LocalInputTagComponent)
+  removeComponent(useWorld().localClientEntity, AvatarControllerComponent)
+  removeComponent(useWorld().localClientEntity, InteractorComponent)
+  removeComponent(useWorld().localClientEntity, LocalInputTagComponent)
 
-  const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
+  const playerObj = getComponent(useWorld().localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
 
   const hyperspaceEffect = new PortalEffect(texture)
@@ -99,18 +97,18 @@ export const teleportToScene = async (
   await delay(100)
 
   // teleport player to where the portal is
-  const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
+  const transform = getComponent(useWorld().localClientEntity, TransformComponent)
   transform.position.set(
     portalComponent.remoteSpawnPosition.x,
     portalComponent.remoteSpawnPosition.y,
     portalComponent.remoteSpawnPosition.z
   )
 
-  const avatar = getComponent(Network.instance.localClientEntity, AvatarComponent)
+  // const avatar = getComponent(useWorld().localClientEntity, AvatarComponent)
   // rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
-  createAvatarController(Network.instance.localClientEntity)
-  addComponent(Network.instance.localClientEntity, LocalInputTagComponent, {})
+  createAvatarController(useWorld().localClientEntity)
+  addComponent(useWorld().localClientEntity, LocalInputTagComponent, {})
 
   await delay(250)
 
@@ -132,5 +130,5 @@ export const teleportToScene = async (
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  Engine.defaultWorld.isInPortal = false
+  Engine.defaultWorld!.isInPortal = false
 }

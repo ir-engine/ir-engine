@@ -171,7 +171,7 @@ export function interpolate(
 
   const tmpSnapshot: Snapshot = JSON.parse(JSON.stringify({ ...newer, state: newerState }))
 
-  const localAvatarNetworkId = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)?.networkId
+  const localAvatarNetworkId = getComponent(useWorld().localClientEntity, NetworkObjectComponent)?.networkId
 
   newerState.forEach((e: StateEntity, i: number) => {
     const other: StateEntity | undefined = olderState.find((f: any) => f.networkId === e.networkId)

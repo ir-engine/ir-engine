@@ -235,7 +235,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const runAnimation = (animationName: string, params: WeightsParameterType) => {
-    const entity = Network.instance.localClientEntity
+    const entity = useWorld().localClientEntity
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     if (

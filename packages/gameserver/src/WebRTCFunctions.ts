@@ -68,7 +68,7 @@ export const sendNewProducer =
   (socket: SocketIO.Socket, channelType: string, channelId?: string) =>
   async (producer: Producer): Promise<void> => {
     networkTransport = Network.instance.transport as any
-    const userId = getUserIdFromSocketId(socket.id)
+    const userId = getUserIdFromSocketId(socket.id)!
     const selfClient = Network.instance.clients[userId]
     if (selfClient?.socketId != null) {
       const nearbyUsers = getNearbyUsers(userId)
@@ -107,7 +107,7 @@ export const sendCurrentProducers = async (
   channelId?: string
 ): Promise<void> => {
   networkTransport = Network.instance.transport as any
-  const userId = getUserIdFromSocketId(socket.id)
+  const userId = getUserIdFromSocketId(socket.id)!
   const selfClient = Network.instance.clients[userId]
   if (selfClient?.socketId != null) {
     const nearbyUsers = getNearbyUsers(userId)
@@ -137,10 +137,10 @@ export const sendCurrentProducers = async (
 
 export const handleConsumeDataEvent =
   (socket: SocketIO.Socket) =>
-  async (dataProducer: DataProducer): Promise<boolean> => {
+  async (dataProducer: DataProducer): Promise<any> => {
     networkTransport = Network.instance.transport as any
 
-    const userId = getUserIdFromSocketId(socket.id)
+    const userId = getUserIdFromSocketId(socket.id)!
     logger.info('Data Consumer being created on server by client: ' + userId)
     if (Network.instance.clients[userId] == null) return Promise.resolve(false)
 
@@ -287,14 +287,17 @@ export async function createWebRtcTransport({
   return newTransport
 }
 
-export async function createInternalDataConsumer(dataProducer: DataProducer, userId: string): Promise<DataConsumer> {
+export async function createInternalDataConsumer(
+  dataProducer: DataProducer,
+  userId: string
+): Promise<DataConsumer | null> {
   networkTransport = Network.instance.transport as any
   try {
     const consumer = await networkTransport.outgoingDataTransport.consumeData({
       dataProducerId: dataProducer.id,
       appData: { peerId: userId, transportId: networkTransport.outgoingDataTransport.id },
-      maxPacketLifeTime: dataProducer.sctpStreamParameters.maxPacketLifeTime,
-      maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
+      maxPacketLifeTime: dataProducer.sctpStreamParameters!.maxPacketLifeTime,
+      maxRetransmits: dataProducer.sctpStreamParameters!.maxRetransmits,
       ordered: false
     })
     consumer.on('message', (message) => {
@@ -305,13 +308,13 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
   } catch (err) {
     console.log('Error creating internal data consumer', err)
     console.log('dataProducer that caused error', dataProducer)
-    return null
   }
+  return null
 }
 
 export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
   networkTransport = Network.instance.transport as any
-  const userId = getUserIdFromSocketId(socket.id)
+  const userId = getUserIdFromSocketId(socket.id)!
   const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId })
 
   const existingTransports = Network.instance.transports.filter(
@@ -545,7 +548,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
   networkTransport = Network.instance.transport as any
-  const userId = getUserIdFromSocketId(socket.id)
+  const userId = getUserIdFromSocketId(socket.id)!
   const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data
   const producer = MediaStreams.instance.producers.find(
     (p) =>
@@ -704,7 +707,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
       Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false
       const hostClient = Object.entries(Network.instance.clients).find(([, client]) => {
         return client.media[producer.appData.mediaTag]?.producerId === producerId
-      })
+      })!
       hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
     }
   }
@@ -730,7 +733,7 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
       if (globalMute === true) {
         const hostClient = Object.entries(Network.instance.clients).find(([, client]) => {
           return client.media[producer.appData.mediaTag]?.producerId === producerId
-        })
+        })!
         hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
       }
     }

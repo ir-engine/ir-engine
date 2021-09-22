@@ -1,74 +1,76 @@
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { defineActionCreator, matchesUserId } from '@xrengine/engine/src/networking/interfaces/Action'
+import { GolfPrefabTypes } from './GolfGameConstants'
+import matches from 'ts-matches'
+
 export const GolfAction = {
-  sendState(state: any) {
-    return {
-      type: 'puttclub.GAME_STATE' as const,
-      state
-    }
-  },
+  sendState: defineActionCreator({
+    type: 'puttclub.GAME_STATE',
+    state: matches.any
+  }),
 
-  addHole(number: number, par: number) {
-    return {
-      type: 'puttclub.SET_HOLES' as const
-    }
-  },
+  addHole: defineActionCreator({
+    type: 'puttclub.ADD_HOLE',
+    number: matches.number,
+    par: matches.number
+  }),
 
-  playerJoined(playerId: string) {
-    return {
-      type: 'puttclub.PLAYER_JOINED' as const,
-      playerId
-    }
-  },
+  playerJoined: defineActionCreator({
+    type: 'puttclub.PLAYER_JOINED',
+    userId: matchesUserId
+  }),
 
-  playerReady(playerId: string) {
-    return {
-      type: 'puttclub.PLAYER_READY' as const,
-      playerId
-    }
-  },
+  // playerReady: defineActionCreator({
+  //   type: 'puttclub.PLAYER_READY',
+  //   userId: matchesUserId
+  // }, {allowFromAny: true}),
 
-  playerStroke(playerId: string) {
-    return {
-      type: 'puttclub.PLAYER_STROKE' as const,
-      playerId
-    }
-  },
+  spawnBall: defineActionCreator({
+    ...NetworkWorldAction.spawnObject.actionShape,
+    prefab: GolfPrefabTypes.Ball
+  }),
 
-  ballStopped(playerId: string, position: [number, number, number], inHole: boolean, outOfBounds: boolean) {
-    return {
-      type: 'puttclub.BALL_STOPPED' as const,
-      playerId,
-      position,
-      inHole,
-      outOfBounds
-    }
-  },
+  spawnClub: defineActionCreator({
+    ...NetworkWorldAction.spawnObject.actionShape,
+    prefab: GolfPrefabTypes.Club
+  }),
 
-  nextTurn() {
-    return {
-      type: 'puttclub.NEXT_TURN' as const
-    }
-  },
+  playerStroke: defineActionCreator(
+    {
+      type: 'puttclub.PLAYER_STROKE'
+    },
+    { allowDispatchFromAny: true }
+  ),
 
-  resetBall(playerId: string, position: [number, number, number]) {
-    return {
-      type: 'puttclub.RESET_BALL' as const,
-      playerId,
-      position
-    }
-  },
+  ballStopped: defineActionCreator({
+    type: 'puttclub.BALL_STOPPED',
+    userId: matchesUserId,
+    position: matches.tuple(matches.number, matches.number, matches.number),
+    inHole: matches.boolean,
+    outOfBounds: matches.boolean
+  }),
 
-  nextHole() {
-    return {
-      type: 'puttclub.NEXT_HOLE' as const
-    }
-  },
+  nextTurn: defineActionCreator({
+    type: 'NEXT_TURN',
+    userId: matchesUserId
+  }),
 
-  showScorecard(value: boolean | 'toggle') {
-    return {
-      type: 'puttclub.SHOW_SCORECARD' as const,
-      value
-    }
-  }
+  resetBall: defineActionCreator({
+    type: 'puttclub.RESET_BALL',
+    userId: matchesUserId,
+    position: matches.tuple(matches.number, matches.number, matches.number)
+  }),
+
+  nextHole: defineActionCreator({
+    type: 'puttclub.NEXT_HOLE'
+  }),
+
+  lookAtScorecard: defineActionCreator(
+    {
+      userId: matchesUserId,
+      type: 'puttclub.SHOW_SCORECARD',
+      value: matches.some(matches.boolean, matches.literal('toggle'))
+    },
+    { allowDispatchFromAny: true }
+  )
 }
-
-export type GolfActionType = ReturnType<typeof GolfAction[keyof typeof GolfAction]>

@@ -14,7 +14,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, UserId } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -22,11 +22,10 @@ import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportTo
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { EngineCallbacks } from './'
-import { incomingNetworkReceptor } from '@xrengine/engine/src/networking/functions/incomingNetworkReceptor'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
-import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { Vector3, Quaternion } from 'three'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -69,24 +68,24 @@ export const getSceneData = async (sceneId: string, isOffline: boolean) => {
 }
 
 const createOfflineUser = () => {
-  const avatar = {
+  const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
     avatarId: 0
   } as any
 
-  const userId = 'user'
-  const netId = 0
-  const params = {
+  const userId = 'user' as UserId
+  const parameters = {
     position: new Vector3(0.18393396470500378, 0, 0.2599274866972079),
     rotation: new Quaternion()
   }
 
   // it is needed by ClientAvatarSpawnSystem
-  Network.instance.userId = userId
+  Engine.userId = userId
   // Replicate the server behavior
-  incomingNetworkReceptor(NetworkWorldAction.createClient(userId, avatar))
-  incomingNetworkReceptor(NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params))
+  const world = useWorld()
+  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, avatarDetail }))
+  dispatchFrom(world.hostId, () => NetworkWorldAction.spawnAvatar({ userId, parameters }))
 }
 
 export const initEngine = async (
@@ -95,16 +94,6 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
-  const userLoaded = new Promise<void>((resolve) => {
-    const listener = ({ uniqueId }) => {
-      if (uniqueId === Network.instance.userId) {
-        resolve()
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-      }
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-  })
-
   // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
@@ -147,21 +136,15 @@ export const initEngine = async (
       spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
     }
 
-    const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+    await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
       MessageTypes.JoinWorld.toString(),
       { spawnTransform }
     )
-    worldState.forEach((action) => {
-      // TODO: send the correct world when we support multiple worlds
-      incomingNetworkReceptor(action)
-    })
   }
 
   if (isOffline) {
     createOfflineUser()
   }
-
-  await userLoaded
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
@@ -185,7 +168,7 @@ export const teleportToLocation = async (
   // TODO: this needs to be implemented on the server too
   // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
   //   teleportPlayer(
-  //     Network.instance.localClientEntity,
+  //     useWorld().localClientEntity,
   //     portalComponent.remoteSpawnPosition,
   //     portalComponent.remoteSpawnRotation
   //   )

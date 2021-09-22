@@ -15,6 +15,7 @@ import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
 import { World } from '../classes/World'
+import { UserId } from '../../networking/classes/Network'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -23,8 +24,11 @@ import { World } from '../classes/World'
  * @author Shaw, Josh, Vyacheslav, Gheric and the XREngine Team
  */
 export class Engine {
+  /** The uuid of the logged-in user */
+  public static userId: UserId
+
   public static initOptions: InitializeOptions
-  public static engineTimer: { start: Function; stop: Function; clear: Function } = null
+  public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
   public static xrSupported = false
   public static isBot = false
@@ -45,7 +49,7 @@ export class Engine {
    * @default 60
    */
   public static physicsFrameRate = 60
-  public static physxWorker: Worker = null
+  public static physxWorker: Worker = null!
 
   /**
    * Frame rate for network system.
@@ -64,7 +68,7 @@ export class Engine {
   /**
    * The default world
    */
-  public static defaultWorld: World | null = null
+  public static defaultWorld: World = null!
 
   /**
    * The currently executing world
@@ -80,24 +84,24 @@ export class Engine {
    * Reference to the three.js renderer object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static renderer: WebGLRenderer = null
-  static effectComposer: EffectComposerWithSchema = null
-  static xrRenderer = null
-  static xrSession: XRSession = null
-  static context = null
-  static csm: CSM = null
+  static renderer: WebGLRenderer = null!
+  static effectComposer: EffectComposerWithSchema = null!
+  static xrRenderer = null! as any
+  static xrSession: XRSession = null!
+  static context = null!
+  static csm: CSM = null!
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static scene: Scene = null
+  static scene: Scene = null!
   static sceneLoaded = false
 
   /**
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static camera: PerspectiveCamera | OrthographicCamera = null
+  static camera: PerspectiveCamera | OrthographicCamera = null!
   static activeCameraEntity: Entity
   static activeCameraFollowTarget: Entity
 
@@ -134,7 +138,7 @@ export class Engine {
 
   static publicPath: string
 
-  static workers = []
+  static workers = [] as any[]
   static simpleMaterials = false
 
   static hasEngaged = false

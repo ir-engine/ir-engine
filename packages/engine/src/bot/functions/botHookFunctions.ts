@@ -49,7 +49,7 @@ export function locationLoaded() {
 }
 
 export function getPlayerPosition() {
-  return getComponent(Network.instance.localClientEntity, TransformComponent)?.position
+  return getComponent(useWorld().localClientEntity, TransformComponent)?.position
 }
 
 /**
@@ -57,7 +57,7 @@ export function getPlayerPosition() {
  * @param {number} args.angle in degrees
  */
 export function rotatePlayer({ angle }) {
-  const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
+  const transform = getComponent(useWorld().localClientEntity, TransformComponent)
   transform.rotation.multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(angle)))
 }
 

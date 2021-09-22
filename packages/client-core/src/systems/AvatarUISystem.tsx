@@ -18,7 +18,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
 
   return () => {
     for (const userEntity of userQuery.enter()) {
-      if (userEntity === Network.instance.localClientEntity) continue
+      if (userEntity === useWorld().localClientEntity) continue
       const userId = getComponent(userEntity, NetworkObjectComponent).uniqueId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
@@ -30,7 +30,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
     }
 
     for (const userEntity of userQuery()) {
-      if (userEntity === Network.instance.localClientEntity) continue
+      if (userEntity === useWorld().localClientEntity) continue
       const ui = AvatarUI.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
@@ -42,7 +42,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
     }
 
     for (const userEntity of userQuery.exit()) {
-      if (userEntity === Network.instance.localClientEntity) continue
+      if (userEntity === useWorld().localClientEntity) continue
       removeEntity(AvatarUI.get(userEntity)!.entity)
       AvatarUI.delete(userEntity)
     }

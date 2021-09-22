@@ -9,7 +9,7 @@ import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
-import { createWorld, reset } from './ecs/functions/EngineFunctions'
+import { reset } from './ecs/functions/EngineFunctions'
 import { InjectionPoint, injectSystem, registerSystem, registerSystemWithArgs } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
@@ -17,6 +17,7 @@ import { addClientInputListeners, removeClientInputListeners } from './input/fun
 import { Network } from './networking/classes/Network'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { FontManager } from './xrui/classes/FontManager'
+import { createWorld } from './ecs/classes/World'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -366,7 +367,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
       console.log('initializeEngine got event CONNECT')
       Network.instance.isInitialized = true
-      Network.instance.userId = id
+      Engine.userId = id
       console.log('initializeEngine set isInitialized to true and userId to', id)
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
@@ -387,7 +388,7 @@ export const shutdownEngine = async () => {
   }
 
   Engine.engineTimer?.clear()
-  Engine.engineTimer = null
+  Engine.engineTimer = null!
 
   await reset()
 }

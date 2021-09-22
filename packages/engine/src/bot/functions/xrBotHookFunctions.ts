@@ -120,7 +120,7 @@ export function moveControllerStick(args) {
 
 // is in world space, so subtract player pos from it
 export function getXRInputPosition() {
-  const xrInputs = getComponent(Network.instance.localClientEntity, XRInputSourceComponent)
+  const xrInputs = getComponent(useWorld().localClientEntity, XRInputSourceComponent)
   const hmd = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray())
   const left = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray())
   const right = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray())

@@ -25,7 +25,7 @@ export class AnimationState {
   transitionDuration = 1
 
   /** After finising the animation automatically transition to the given state */
-  autoTransitionTo?: string
+  autoTransitionTo: string // TODO should autoTransitionTo be nullable?
 
   /** Parameters to update the weights of the animation in the state */
   weightParams: WeightsParameterType

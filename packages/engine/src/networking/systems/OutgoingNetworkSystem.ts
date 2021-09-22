@@ -1,7 +1,6 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'
-import { defineQuery } from 'bitecs'
 import { World } from '../../ecs/classes/World'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
@@ -9,31 +8,36 @@ import { WorldStateInterface, WorldStateModel } from '../schema/networkSchema'
 import { Pose } from '../../transform/TransformInterfaces'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
-import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { getLocalNetworkId } from '../functions/getLocalNetworkId'
 import { Engine } from '../../ecs/classes/Engine'
-import { IncomingActionType } from '../interfaces/NetworkTransport'
 import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { isZero } from '@xrengine/common/src/utils/mathUtils'
 
 function sendActions() {
-  if (!isClient) {
-    // On server:
-    // incoming actions (that haven't been removed) are sent to all clients
-    Network.instance.transport.sendActions(Network.instance.incomingActions)
-    // outgoing actions are dispatched back to self as incoming actions (handled in next frame)
-    const serverActions = Network.instance.outgoingActions as IncomingActionType[]
-    for (const a of serverActions) if (!a.$userId) a.$userId = 'server'
-    Network.instance.incomingActions = serverActions
-    Network.instance.outgoingActions = []
-  } else {
-    // On client:
-    // we only send actions to server (server will send back our action if it's allowed)
-    Network.instance.transport?.sendActions(Network.instance.outgoingActions)
-    Network.instance.incomingActions = []
-    Network.instance.outgoingActions = []
+  const incomingActions = Engine.defaultWorld!.incomingActions
+  const outgoingActions = Engine.defaultWorld!.outgoingActions
+
+  // if hosting, forward all non-local incoming actions
+  if (Engine.defaultWorld!.isHosting) {
+    for (const incoming of incomingActions) {
+      if (incoming.$to !== Engine.userId) {
+        outgoingActions.add(incoming)
+      }
+    }
   }
+
+  incomingActions.clear()
+
+  // move local actions directly to incoming queue
+  for (const out of outgoingActions) {
+    if (out.$to !== Engine.userId) {
+      incomingActions.add(out)
+      outgoingActions.delete(out)
+    }
+  }
+
+  Network.instance.transport?.sendActions(outgoingActions)
+  outgoingActions.clear()
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
@@ -43,37 +47,31 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
    * For the server, we want to send all objects
    */
 
-  const networkTransformsQuery = isClient
-    ? defineQuery([NetworkObjectOwnerComponent, NetworkObjectComponent, TransformComponent])
-    : defineQuery([NetworkObjectComponent, TransformComponent])
+  const networkTransformsQuery =
+    // isClient
+    //   ? defineQuery([NetworkObjectOwnerComponent, NetworkObjectComponent, TransformComponent]) :
+    defineQuery([NetworkObjectComponent, TransformComponent])
 
   const ikTransformsQuery = isClient
     ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
     : defineQuery([XRInputSourceComponent])
-
-  const velQuery = isClient
-    ? defineQuery([NetworkObjectOwnerComponent, NetworkObjectComponent, VelocityComponent])
-    : defineQuery([NetworkObjectComponent, VelocityComponent])
 
   // TODO: reduce quaternions over network to three components
 
   return () => {
     if (Engine.offlineMode) {
       sendActions()
-      return world
+      return
     }
 
-    if (
-      isClient &&
-      (!Network.instance.localClientEntity || !hasComponent(Network.instance.localClientEntity, NetworkObjectComponent))
-    ) {
-      return world
+    if (isClient && (!world.localClientEntity || !hasComponent(world.localClientEntity, NetworkObjectComponent))) {
+      return
     }
 
     sendActions()
 
     const newWorldState: WorldStateInterface = {
-      tick: Network.instance.tick,
+      tick: world.fixedTick,
       time: Date.now(),
       pose: [],
       ikPose: []
@@ -83,13 +81,12 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       const transformComponent = getComponent(entity, TransformComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
 
-      let vel = undefined
+      let vel = undefined! as number[]
       let angVel = undefined
       if (hasComponent(entity, VelocityComponent)) {
         const velC = getComponent(entity, VelocityComponent)
         vel = velC.velocity.toArray()
       }
-
       // const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
       // networkObjectOwnerComponent && console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position)
       // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
@@ -103,12 +100,11 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     }
 
     if (isClient) {
-      const transformComponent = getComponent(Network.instance.localClientEntity, TransformComponent)
-
-      let vel = undefined
+      const transformComponent = getComponent(world.localClientEntity, TransformComponent)
+      let vel = undefined! as number[]
       let angVel = undefined
-      if (hasComponent(Network.instance.localClientEntity, VelocityComponent)) {
-        const velC = getComponent(Network.instance.localClientEntity, VelocityComponent)
+      if (hasComponent(world.localClientEntity, VelocityComponent)) {
+        const velC = getComponent(world.localClientEntity, VelocityComponent)
         vel = velC.velocity.toArray()
       }
 

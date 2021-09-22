@@ -13,11 +13,13 @@ import {
   unsubscribeFromChatSystem,
   getSubscribedChatSystems
 } from '../../networking/utils/chatSystem'
-import { getPlayerEntity, getPlayers } from '../../networking/utils/getUser'
+import { getRemoteUsers, getUserEntityByName } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { Network } from '../../networking/classes/Network'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -269,7 +271,7 @@ function handleMetadataCommand(params: any, eid: any) {
 
 function handleGoToCommand(landmark: string, eid: any) {
   const position = getComponent(eid, TransformComponent).position
-  let nearest: Vector3 = undefined
+  let nearest: Vector3 = undefined!
   let distance: number = Number.MAX_SAFE_INTEGER
   let cDistance: number = 0
   let vector: Vector3
@@ -367,7 +369,7 @@ function handleFaceCommand(face: string, eid: any) {
 function handleGetPositionCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid: number = getPlayerEntity(player)
+  const eid = getUserEntityByName(player)
   if (eid === undefined) {
     console.log('undefiend eid')
     return
@@ -385,7 +387,7 @@ function handleGetPositionCommand(player: string) {
 function handleGetRotationCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = getPlayerEntity(player)
+  const eid = getUserEntityByName(player)
   if (eid === undefined) return
 
   const transform = getComponent(eid, TransformComponent)
@@ -397,7 +399,7 @@ function handleGetRotationCommand(player: string) {
 function handleGetScaleCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = getPlayerEntity(player)
+  const eid = getUserEntityByName(player)
   if (eid === undefined) return
 
   const transform = getComponent(eid, TransformComponent)
@@ -409,7 +411,7 @@ function handleGetScaleCommand(player: string) {
 function handleGetTransformCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = getPlayerEntity(player)
+  const eid = getUserEntityByName(player)
   if (eid === undefined) return
 
   const transform = getComponent(eid, TransformComponent)
@@ -421,7 +423,7 @@ function handleFollowCommand(param: string, eid: number) {
   if (param === 'stop') {
     removeFollowComponent(eid)
   } else {
-    const targetEid = getPlayerEntity(param)
+    const targetEid = getUserEntityByName(param)
     console.log('follow target eid: ' + targetEid)
     if (targetEid === undefined || eid === targetEid) return
     createFollowComponent(eid, targetEid)
@@ -431,10 +433,11 @@ function handleListAllUsersCommand(userId) {
   console.log('listallusers, local id: ' + userId)
   if (userId === undefined) return
 
-  const players: string[] = getPlayers(userId, true)
+  const players = getRemoteUsers(userId, true)
   if (players === undefined) return
 
-  console.log('players|' + players)
+  const playerNames = players.map((userId) => Network.instance.clients.get(userId)?.name)
+  console.log('players|' + playerNames)
 }
 
 function runAnimation(eid: any, emote: string, emoteParams: any) {
@@ -469,7 +472,7 @@ function getMetadataPosition(_pos: string): Vector3 {
   return new Vector3(x, y, z)
 }
 
-export function goTo(pos: Vector3, eid: number) {
+export function goTo(pos: Vector3, eid: Entity) {
   //console.log('goto: ' + JSON.stringify(pos))
   let linput = getComponent(eid, LocalInputTagComponent)
   if (linput === undefined) linput = addComponent(eid, LocalInputTagComponent, {})

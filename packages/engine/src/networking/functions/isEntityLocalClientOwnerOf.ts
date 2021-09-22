@@ -4,10 +4,10 @@ import { Network } from '../classes/Network'
 import { NetworkObjectOwnerComponent } from '../components/NetworkObjectOwnerComponent'
 
 export const isEntityLocalClientOwnerOf = (entity: Entity): boolean => {
-  if (typeof Network.instance.localClientEntity !== 'undefined' && hasComponent(entity, NetworkObjectOwnerComponent)) {
+  if (typeof useWorld().localClientEntity !== 'undefined' && hasComponent(entity, NetworkObjectOwnerComponent)) {
     return (
-      Network.instance.networkObjects[getComponent(entity, NetworkObjectOwnerComponent).networkId]?.entity ===
-      Network.instance.localClientEntity
+      Network.instance.objects[getComponent(entity, NetworkObjectOwnerComponent).networkId]?.entity ===
+      useWorld().localClientEntity
     )
   }
 }

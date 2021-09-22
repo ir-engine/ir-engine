@@ -1,22 +1,20 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { Network } from '@xrengine/engine/src/networking//classes/Network'
+import { Network, UserId } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
 import { Quaternion, Vector3 } from 'three'
-import { getNewNetworkId } from '@xrengine/engine/src/networking/functions/getNewNetworkId'
-import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { IncomingActionType } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
-import { dispatchFromServer } from '../../engine/src/networking/functions/dispatch'
-import { NetworkWorldAction, NetworkWorldActionType } from '../../engine/src/networking/interfaces/NetworkWorldActions'
+import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
 import { XRInputSourceComponent } from '../../engine/src/avatar/components/XRInputSourceComponent'
+import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -85,7 +83,7 @@ export async function cleanupOldGameservers(): Promise<void> {
   })
   const gameservers = await (transport.app as any).k8AgonesClient.get('gameservers')
   const gsIds = gameservers.items.map((gs) =>
-    gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)[1] : null
+    gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
   )
 
   await Promise.all(
@@ -122,7 +120,7 @@ export async function cleanupOldGameservers(): Promise<void> {
   return
 }
 
-export function getUserIdFromSocketId(socketId): string | null {
+export function getUserIdFromSocketId(socketId): UserId | null {
   let userId
 
   for (const key in Network.instance.clients)
@@ -136,16 +134,16 @@ export function getUserIdFromSocketId(socketId): string | null {
 }
 
 export async function validateNetworkObjects(): Promise<void> {
-  const transport = Network.instance.transport as any
-  for (const userId in Network.instance.clients) {
-    // Validate that user has phoned home in last 5 seconds
+  const world = Engine.defaultWorld!
+  for (const [userId] of Network.instance.clients) {
+    // Validate that user has phoned home recently
     if (Date.now() - Network.instance.clients[userId].lastSeenTs > 30000) {
       console.log('Removing client ', userId, ' due to inactivity')
       if (!Network.instance.clients[userId]) return console.warn('Client is not in client list')
 
       const disconnectedClient = Object.assign({}, Network.instance.clients[userId])
 
-      dispatchFromServer(NetworkWorldAction.destroyClient(userId))
+      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
 
       console.log('Disconnected Client:', disconnectedClient.userId)
       if (disconnectedClient?.instanceRecvTransport) {
@@ -172,20 +170,10 @@ export async function validateNetworkObjects(): Promise<void> {
       console.log('Removed transports for', userId)
 
       // Find all network objects that the disconnecting client owns and remove them
-      const networkObjectsClientOwns = []
-
-      // Loop through network objects in world
-      // If this client owns the object, add it to our array
-      for (const obj in Network.instance.networkObjects)
-        if (Network.instance.networkObjects[obj].uniqueId === userId)
-          networkObjectsClientOwns.push(Network.instance.networkObjects[obj])
-
-      // Remove all objects for disconnecting user
-      networkObjectsClientOwns.forEach((obj) => {
-        // Get the entity attached to the NetworkObjectComponent and remove it
-        dispatchFromServer(NetworkWorldAction.destroyObject(obj.networkId))
-      })
-
+      for (const eid of world.getOwnedNetworkObjects(userId)) {
+        const { networkId } = getComponent(eid, NetworkObjectComponent)
+        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
+      }
       if (Network.instance.clients[userId]) delete Network.instance.clients[userId]
       console.log('Finished removing inactive client', userId)
     }
@@ -217,7 +205,7 @@ export async function validateNetworkObjects(): Promise<void> {
   })*/
 }
 
-export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
+export async function handleConnectToWorld(socket, data, callback, userId: UserId, user, avatarDetail): Promise<any> {
   const transport = Network.instance.transport as any
   if (!Engine.sceneLoaded && (transport.app as any).isChannelInstance !== true) {
     await new Promise<void>((resolve) => {
@@ -248,7 +236,8 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
       dataProducers: new Map<string, DataProducer>() // Key => label of data channel
     }
 
-  dispatchFromServer(NetworkWorldAction.createClient(userId, avatarDetail))
+  const world = useWorld()
+  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, avatarDetail }))
 
   // Return initial world state to client to set things up
   callback({
@@ -256,7 +245,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
   })
 }
 
-function disconnectClientIfConnected(socket, userId: string): void {
+function disconnectClientIfConnected(socket, userId: UserId): void {
   // If we are already logged in, kick the other socket
   if (Network.instance.clients[userId] !== undefined && Network.instance.clients[userId].socketId !== socket.id) {
     console.log('Client already exists, kicking the old client and disconnecting')
@@ -267,24 +256,15 @@ function disconnectClientIfConnected(socket, userId: string): void {
     Network.instance.clients[userId].socket?.disconnect()
   }
 
-  // console.log(Network.instance.networkObjects);
-  Object.keys(Network.instance.networkObjects).forEach((key: string) => {
-    const networkObject = Network.instance.networkObjects[key]
-    // Validate that the object belongeread to disconnecting user
-    if (networkObject.uniqueId !== userId) return
-
-    // If it does, tell clients to destroy it
-    if (typeof getComponent(networkObject.entity, NetworkObjectComponent).networkId === 'number') {
-      dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
-    } else {
-      logger.error('networkId is invalid')
-      logger.error(networkObject)
-    }
-  })
+  const world = useWorld()
+  for (const eid of world.getOwnedNetworkObjects(userId)) {
+    const { networkId } = getComponent(eid, NetworkObjectComponent)
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
+  }
 }
 
-export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
-  console.info('JoinWorld received', userId, data)
+export async function handleJoinWorld(socket, data, callback, joinedUserId: UserId, user): Promise<any> {
+  console.info('JoinWorld received', joinedUserId, data)
   const transport = Network.instance.transport as any
 
   // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
@@ -295,44 +275,41 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
       }
     : SpawnPoints.instance.getRandomSpawnPoint()
 
-  const worldState: NetworkWorldActionType[] = []
-  // Get all network objects and add to createObjects
-  Object.keys(Network.instance.networkObjects).forEach((networkId) => {
-    worldState.push(
-      NetworkWorldAction.createObject(
-        Number(networkId),
-        Network.instance.networkObjects[networkId].uniqueId,
-        Network.instance.networkObjects[networkId].prefabType,
-        Network.instance.networkObjects[networkId].parameters
-      )
+  const world = useWorld()
+  dispatchFrom(world.hostId, () =>
+    NetworkWorldAction.spawnAvatar({
+      userId: joinedUserId,
+      parameters: { ...spawnPos }
+    })
+  )
+
+  // Get all client info and network objects and dispatch to joined user
+  for (const [userId, client] of Network.instance.clients) {
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.createClient({
+        userId,
+        avatarDetail: client.avatarDetail!
+      })
     )
-    if (hasComponent(Network.instance.networkObjects[networkId].entity, XRInputSourceComponent)) {
-      worldState.push(NetworkWorldAction.enterVR(Number(networkId), true))
+  }
+  for (const eid of world.networkObjectQuery()) {
+    const networkObject = getComponent(eid, NetworkObjectComponent)
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.spawnObject({
+        ...networkObject
+      })
+    ).to(joinedUserId)
+    if (hasComponent(eid, XRInputSourceComponent)) {
+      dispatchFrom(world.hostId, () =>
+        NetworkWorldAction.setXRMode({
+          userId: networkObject.userId,
+          enabled: true
+        })
+      ).to(joinedUserId)
     }
-  })
+  }
 
-  const networkId = getNewNetworkId(userId)
-  dispatchFromServer(NetworkWorldAction.createObject(networkId, userId, PrefabType.Player, spawnPos))
-
-  await new Promise<void>((resolve) => {
-    const listener = ({ uniqueId }) => {
-      if (uniqueId === userId) {
-        resolve()
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-      }
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-  })
-
-  // Get all clients and add to clientsConnected and push to world state frame
-  Object.keys(Network.instance.clients).forEach((userId) => {
-    const client = Network.instance.clients[userId]
-    worldState.push(NetworkWorldAction.createClient(client.userId, client.avatarDetail))
-  })
-
-  // Return initial world state to client to set things up
   callback({
-    worldState,
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
 }
@@ -340,14 +317,15 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 export function handleIncomingActions(socket, message) {
   if (!message) return
 
-  const userIdMap = {} as { [socketId: string]: string }
-  for (const id in Network.instance.clients) userIdMap[Network.instance.clients[id].socketId] = id
+  const userIdMap = {} as { [socketId: string]: UserId }
+  for (const [id, _] of Network.instance.clients) userIdMap[Network.instance.clients[id].socketId] = id
 
-  const actions = /*decode(new Uint8Array(*/ message /*))*/ as IncomingActionType[]
-  for (const a of actions) a.$userId = userIdMap[socket.id]
+  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
+  for (const a of actions) {
+    a.$from = userIdMap[socket.id]
+    Engine.defaultWorld!.incomingActions.add(a)
+  }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
-
-  Network.instance.incomingActions.push(...actions)
 }
 
 export async function handleIncomingMessage(socket, message): Promise<any> {
@@ -355,13 +333,14 @@ export async function handleIncomingMessage(socket, message): Promise<any> {
 }
 
 export async function handleHeartbeat(socket): Promise<any> {
-  const userId = getUserIdFromSocketId(socket.id)
+  const userId = getUserIdFromSocketId(socket.id) as UserId
   // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());
   if (Network.instance.clients[userId] != undefined) Network.instance.clients[userId].lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(socket): Promise<any> {
-  const userId = getUserIdFromSocketId(socket.id)
+  const world = useWorld()
+  const userId = getUserIdFromSocketId(socket.id) as UserId
   const disconnectedClient = Network.instance.clients[userId]
   if (disconnectedClient === undefined)
     return console.warn(
@@ -371,18 +350,7 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    Object.keys(Network.instance.networkObjects).forEach((key: string) => {
-      const networkObject = Network.instance.networkObjects[key]
-      // Validate that the object belonged to disconnecting user
-      if (networkObject.uniqueId !== userId) return
-
-      logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.uniqueId)
-
-      // If it does, tell clients to destroy it
-      dispatchFromServer(NetworkWorldAction.destroyObject(Number(key)))
-    })
-
-    dispatchFromServer(NetworkWorldAction.destroyClient(userId))
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
 
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
@@ -396,7 +364,7 @@ export async function handleDisconnect(socket): Promise<any> {
 }
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
-  const userId = getUserIdFromSocketId(socket.id)
+  const userId = getUserIdFromSocketId(socket.id)!
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)

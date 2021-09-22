@@ -1,11 +1,7 @@
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import {
-  ActionType,
-  IncomingActionType,
-  NetworkTransport
-} from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { Config } from '@xrengine/common/src/config'
@@ -21,6 +17,8 @@ import {
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
+import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 // import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
@@ -59,10 +57,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   channelDataProducer: any
   reconnecting = false
 
-  sendActions(actions: ActionType[]) {
-    if (actions.length === 0) return
+  sendActions(actions: Set<Action>) {
+    if (actions.size === 0) return
     // TODO: should we be checking for existence of `emit` here ??
-    this.instanceSocket.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
+    this.instanceSocket.emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
   }
 
   /**
@@ -187,7 +185,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         return
       }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
-      const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken }
+      const payload = { userId: Engine.userId, accessToken: Network.instance.accessToken }
 
       const { success } = await new Promise<any>((resolve) => {
         const interval = setInterval(async () => {
@@ -236,11 +234,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       socket.on(MessageTypes.ActionData.toString(), (message) => {
         if (!message) return
-        const actions = message as any as IncomingActionType[]
+        const actions = message as any as Required<Action>[]
         // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
-        // for (const a of actions) a.senderID = socket.id
-        // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
-        Network.instance.incomingActions.push(...actions)
+        for (const a of actions) Engine.defaultWorld!.incomingActions.add(a)
       })
 
       // use sendBeacon to tell the server we're disconnecting when

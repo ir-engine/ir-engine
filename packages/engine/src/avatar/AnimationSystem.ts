@@ -7,20 +7,22 @@ import { AnimationRenderer } from './animations/AnimationRenderer'
 import { loadAvatar } from './functions/avatarFunctions'
 import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
-import { NetworkWorldActions, NetworkWorldActionType } from '../networking/interfaces/NetworkWorldActions'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { Network } from '../networking/classes/Network'
 import { AnimationGraph } from './animations/AnimationGraph'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
+import { IncomingAction } from '../networking/interfaces/Action'
+import { Engine } from '../ecs/classes/Engine'
 
-function avatarActionReceptor(action: NetworkWorldActionType) {
+function avatarActionReceptor(action: IncomingAction<typeof NetworkWorldAction>) {
   switch (action.type) {
-    case NetworkWorldActions.ANIMATION_CHANGE: {
-      if (!Network.instance.networkObjects[action.networkId]) {
+    case NetworkWorldAction.ANIMATION_CHANGE: {
+      if (!Network.instance.objects[action.networkId]) {
         return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
       }
-      if (Network.instance.networkObjects[action.networkId].uniqueId === Network.instance.userId) return
-      const entity = Network.instance.networkObjects[action.networkId].entity
+      if (Network.instance.objects[action.networkId].uniqueId === Engine.userId) return
+      const entity = Network.instance.objects[action.networkId].entity
       action.params.forceTransition = true
       AnimationGraph.forceUpdateAnimationState(entity, action.newStateName, action.params)
     }
@@ -31,8 +33,9 @@ const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World): Promise<System> {
-  await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
   world.receptors.add(avatarActionReceptor)
+
+  await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
 
   return () => {
     const { delta } = world

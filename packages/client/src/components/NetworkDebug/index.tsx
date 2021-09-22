@@ -1,5 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { DebugHelpers, DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem'
+import { DebugHelpers } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
@@ -145,10 +145,6 @@ export const NetworkDebug = ({ reinit }) => {
             <div>
               <h1>Network Clients</h1>
               <JSONTree data={{ ...Network.instance.clients }} />
-            </div>
-            <div>
-              <h1>Network Objects</h1>
-              <JSONTree data={{ ...Network.instance.networkObjects }} />
             </div>
             <div>
               <h1>Engine Entities</h1>

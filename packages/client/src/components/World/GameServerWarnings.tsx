@@ -7,6 +7,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { provisionInstanceServer } from '../../reducers/instanceConnection/service'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type GameServerWarningsProps = {
   isTeleporting: boolean
@@ -103,7 +104,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
-        if (!Network.instance.userId) return
+        if (!Engine.userId) return
         if ((Network.instance.transport as SocketWebRTCClientTransport).left || props.isTeleporting) return
 
         setModalValues({

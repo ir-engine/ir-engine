@@ -1,6 +1,9 @@
+import matches from 'ts-matches'
 import { AnimationAction, AnimationActionLoopStyles, AnimationClip, Vector3 } from 'three'
+import { matchesVector3 } from '../../networking/interfaces/Action'
 
 /** State of the avatar animation */
+
 export const AvatarStates = {
   DEFAULT: 'DEFAULT',
   IDLE: 'IDLE',
@@ -11,6 +14,10 @@ export const AvatarStates = {
   EMOTE: 'EMOTE',
   LOOPABLE_EMOTE: 'LOOPABLE_EMOTE'
 }
+
+export const matchesAvatarState = matches.some(
+  ...Object.keys(AvatarStates).map((k: keyof typeof AvatarStates) => matches.literal(k))
+)
 
 export const AvatarAnimations = {
   // Jump and falling
@@ -44,14 +51,15 @@ export const AvatarAnimations = {
   CRY: 'cry'
 }
 
-/** Type of movement of the avatar in any given frame */
-export type MovementType = {
+const matchesMovementType = matches.shape({
   /** Velocity of the avatar */
-  velocity: Vector3
-
+  velocity: matchesVector3,
   /** Distance from the ground of the avatar */
-  distanceFromGround: number
-}
+  distanceFromGround: matches.number
+})
+
+/** Type of movement of the avatar in any given frame */
+export type MovementType = typeof matchesMovementType._TYPE
 
 /** Animation type */
 export enum AnimationType {
@@ -63,9 +71,15 @@ export enum AnimationType {
 }
 
 /** Type of calculate weights method parameters */
+export const matchesWeightsParameters = matches.partial({
+  movement: matchesMovementType,
+  resetAnimation: matches.boolean,
+  forceTransition: matches.boolean
+})
+
 export type WeightsParameterType = {
   /** Movement of the avatar in the frame */
-  movement?: MovementType
+  movement: MovementType
 
   /** Whether reset currrent playing animation. Useful while intra state transition */
   resetAnimation?: boolean

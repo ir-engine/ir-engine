@@ -2,7 +2,6 @@ import {
   Color,
   Group,
   Material,
-  MathUtils,
   Mesh,
   MeshBasicMaterial,
   MeshPhongMaterial,
@@ -25,10 +24,7 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
@@ -37,15 +33,15 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { getGolfPlayerNumber } from '../functions/golfFunctions'
-import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
-import { getTee, GolfState } from '../GolfSystem'
+import { GolfCollisionGroups, GolfColours } from '../GolfGameConstants'
+import { GolfState } from '../GolfSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { OffScreenIndicator } from '@xrengine/engine/src/scene/classes/OffScreenIndicator'
 import { SoundEffect } from '@xrengine/engine/src/audio/components/SoundEffect'
 import { PlaySoundEffect } from '@xrengine/engine/src/audio/components/PlaySoundEffect'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
-import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
+import { GolfAction } from '../GolfAction'
+import { getHolePosition } from '../functions/golfBotHookFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -146,24 +142,21 @@ export const resetBall = (entityBall: Entity, position: number[]) => {
   velocity.velocity.copy(new Vector3())
 }
 
-export const spawnBall = (world: World, entityPlayer: Entity, playerCurrentHole: number): void => {
-  const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
+// export const spawnBall = (entityPlayer: Entity, playerCurrentHole: number): void => {
+//   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
-  const networkId = Network.getNetworkId()
-  const uuid = MathUtils.generateUUID()
+//   const teeEntity = getTee(playerCurrentHole)
+//   const teeTransform = getComponent(teeEntity, TransformComponent)
 
-  const teeEntity = getTee(world, playerCurrentHole)
-  const teeTransform = getComponent(teeEntity, TransformComponent)
+//   const parameters: GolfBallSpawnParameters = {
+//     spawnPosition: new Vector3().copy(teeTransform.position),
+//     ownerNetworkId: playerNetworkObject.networkId,
+//     playerNumber: getGolfPlayerNumber(entityPlayer)
+//   }
 
-  const parameters: GolfBallSpawnParameters = {
-    spawnPosition: new Vector3().copy(teeTransform.position),
-    ownerNetworkId: playerNetworkObject.networkId,
-    playerNumber: getGolfPlayerNumber(entityPlayer)
-  }
-
-  // this spawns the ball on the server
-  dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, GolfPrefabTypes.Ball, parameters))
-}
+//   // this spawns the ball on the server
+//   dispatch(NetworkWorldAction.spawnObject({prefabType: GolfPrefabTypes.Ball}))
+// }
 
 /**
  * @author Mohsen Heydari <github.com/mohsenheydari>
@@ -178,7 +171,7 @@ const updateOSIndicator = (ballGroup: BallGroupType): void => {
   const mesh = ballGroup.userData.offscreenIndicatorMesh
 
   const xr = Engine.renderer.xr
-  const camera = xr.enabled && xr.isPresenting ? xr.getCamera(null) : Engine.camera
+  const camera = xr.enabled && xr.isPresenting ? xr.getCamera(null as any) : Engine.camera
 
   indicator.camera = camera
   indicator.borderScale = 0.9 + 0.1 * Math.abs(Math.sin(Date.now() / 600))
@@ -298,7 +291,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
   ballGroup.userData.meshObject = ballMesh
 
   // Add trail effect
-  const trailHeadGeometry = []
+  const trailHeadGeometry = [] as Array<Vector3>
   trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
   const trailObject = new TrailRenderer(false)
   const trailMaterial = TrailRenderer.createBaseMaterial()
@@ -337,14 +330,18 @@ function assetLoadCallback(group: Group, ballEntity: Entity, ownerPlayerNumber: 
 
 type GolfBallSpawnParameters = {
   spawnPosition: Vector3
-  ownerNetworkId: number
   playerNumber: number
 }
 
-export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, parameters: GolfBallSpawnParameters) => {
-  const { spawnPosition, ownerNetworkId, playerNumber } = parameters
-  console.log('initializeGolfBall', ownerNetworkId, ballEntity, ownerEntity, parameters)
+export const initializeGolfBall = (action: typeof GolfAction.spawnBall.matches._TYPE) => {
+  // const { spawnPosition, playerNumber } = parameters
+  const world = useWorld()
+  const ownerEntity = world.getUserAvatarEntity(action.ownerId)
+  const playerNumber = getGolfPlayerNumber(action.ownerId)
+  const ballEntity = world.getNetworkObject(action.networkId)
+  console.log('initializeGolfBall', JSON.stringify(action))
 
+  const spawnPosition = getHolePosition()
   const transform = addComponent(ballEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
     rotation: new Quaternion(),
@@ -352,7 +349,6 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
   })
   addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
   addComponent(ballEntity, NameComponent, { name: `GolfBall-${playerNumber}` })
-  addComponent(ballEntity, NetworkObjectOwnerComponent, { networkId: ownerNetworkId })
 
   if (isClient) {
     // addComponent(ballEntity, InterpolationComponent, {})
@@ -428,4 +424,6 @@ export const initializeGolfBall = (ballEntity: Entity, ownerEntity: Entity, para
     state: BALL_STATES.INACTIVE,
     number: playerNumber
   })
+
+  return ballEntity
 }

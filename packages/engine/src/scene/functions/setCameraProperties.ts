@@ -52,5 +52,5 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
   cameraFollow.maxPhi = data.maxPhi
   cameraFollow.locked = !data.startInFreeLook
   Engine.camera.updateProjectionMatrix()
-  switchCameraMode(Network.instance.localClientEntity, data, true)
+  switchCameraMode(useWorld().localClientEntity, data, true)
 }

@@ -343,7 +343,7 @@ export class WorldScene {
       case 'cameraproperties':
         if (isClient) {
           EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
-            setCameraProperties(Network.instance.localClientEntity, component.data)
+            setCameraProperties(useWorld().localClientEntity, component.data)
           })
         }
         break

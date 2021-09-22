@@ -1,5 +1,5 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -17,7 +17,6 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { Network } from '../../networking/classes/Network'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
@@ -26,6 +25,9 @@ import { ProximityCheckerComponent } from '../../proximityChecker/components/Pro
 import { isClient } from '../../common/functions/isClient'
 import { isBot } from '../../common/functions/isBot'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { Engine } from '../../ecs/classes/Engine'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -39,11 +41,11 @@ const avatarHalfHeight = avatarHeight / 2
  * @param {networkId} networkId
  * @param isRemotePlayer
  */
-export const createAvatar = (
-  entity: Entity,
-  spawnTransform: { position: Vector3; rotation: Quaternion },
-  isRemotePlayer = true
-): void => {
+export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
+  const world = useWorld()
+  const userId = spawnAction.userId
+  const entity = world.getNetworkObject(spawnAction.networkId)
+
   if (isClient) {
     if (isBot(window) && !hasComponent(entity, ProximityCheckerComponent))
       addComponent(entity, ProximityCheckerComponent, {})
@@ -56,8 +58,8 @@ export const createAvatar = (
       })
   }
   const transform = addComponent(entity, TransformComponent, {
-    position: new Vector3().copy(spawnTransform.position),
-    rotation: new Quaternion().copy(spawnTransform.rotation),
+    position: new Vector3().copy(spawnAction.parameters.position),
+    rotation: new Quaternion().copy(spawnAction.parameters.rotation),
     scale: new Vector3(1, 1, 1)
   })
 
@@ -76,7 +78,7 @@ export const createAvatar = (
   tiltContainer.add(modelContainer)
 
   addComponent(entity, AvatarComponent, {
-    ...(Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.avatarDetail || {
+    ...(Network.instance.clients.get(userId)?.avatarDetail || {
       avatarId: DEFAULT_AVATAR_ID
     }),
     avatarHalfHeight,
@@ -86,14 +88,13 @@ export const createAvatar = (
   })
 
   addComponent(entity, NameComponent, {
-    name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
+    name: userId as string
   })
-  console.log('uniqueID: ' + getComponent(entity, NetworkObjectComponent).uniqueId)
-  console.log('userID: ' + Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId)
+  console.log('userID: ' + userId)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
-    animations: [],
+    animations: [] as AnimationClip[],
     animationSpeed: 1
   })
 
@@ -117,7 +118,7 @@ export const createAvatar = (
   )
   addComponent(entity, RaycastComponent, { raycastQuery })
 
-  if (isRemotePlayer) {
+  if (userId !== Engine.userId) {
     const body = PhysXInstance.instance.addBody(
       new Body({
         shapes: [
@@ -147,6 +148,8 @@ export const createAvatar = (
   } else {
     createAvatarController(entity)
   }
+
+  return entity
 }
 
 export const createAvatarController = (entity: Entity) => {
@@ -188,7 +191,7 @@ export const createAvatarController = (entity: Entity) => {
 
   value.add(frustumCamera)
   addComponent(entity, InteractorComponent, {
-    focusedInteractive: null,
+    focusedInteractive: null!,
     frustumCamera,
     subFocusedArray: []
   })

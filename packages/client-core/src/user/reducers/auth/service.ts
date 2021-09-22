@@ -41,6 +41,7 @@ import {
 } from './actions'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const store = Store.store
 
@@ -880,13 +881,8 @@ const loadAvatarForUpdatedUser = async (user) => {
       networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
-      for (let key of Object.keys(Network.instance.networkObjects)) {
-        const obj = Network.instance.networkObjects[key]
-        if (obj?.uniqueId === user.id) {
-          setAvatar(obj.entity, user.avatarId, avatarURL)
-          break
-        }
-      }
+      const userEntity = Engine.defaultWorld.getUserAvatarEntity(user.id)
+      setAvatar(userEntity, user.avatarId, avatarURL)
     }
     resolve(true)
   })
@@ -913,13 +909,8 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
-    for (let key of Object.keys(Network.instance.networkObjects)) {
-      const obj = Network.instance.networkObjects[key]
-      if (obj?.uniqueId === user.id) {
-        setAvatar(obj.entity, user.avatarId, avatarURL)
-        break
-      }
-    }
+    const userEntity = Engine.defaultWorld.getUserAvatarEntity(user.id)
+    setAvatar(userEntity, user.avatarId, avatarURL)
     resolve(true)
   })
 }

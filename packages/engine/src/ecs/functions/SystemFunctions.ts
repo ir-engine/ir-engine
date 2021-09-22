@@ -17,13 +17,13 @@ export const InjectionPoint = {
   POST_RENDER: 'POST_RENDER' as const
 }
 
-export type SystemInitializeType<A> = {
+export type SystemFactoryType<A> = {
   system: SystemModulePromise<A>
   type?: SystemUpdateType
   args?: A
 }
 
-export interface SystemInjectionType<A> extends SystemInitializeType<A> {
+export interface SystemInjectionType<A> extends SystemFactoryType<A> {
   injectionPoint?: keyof typeof InjectionPoint
 }
 

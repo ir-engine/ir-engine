@@ -1,10 +1,7 @@
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../classes/Network'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const getLocalNetworkId = () => {
-  return (
-    typeof Network.instance.localClientEntity !== 'undefined' &&
-    getComponent(Network.instance.localClientEntity, NetworkObjectComponent).networkId
-  )
+  return getComponent(useWorld().localClientEntity, NetworkObjectComponent).networkId
 }

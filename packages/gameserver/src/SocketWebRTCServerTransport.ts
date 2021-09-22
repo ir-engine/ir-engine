@@ -1,10 +1,6 @@
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { handleNetworkStateUpdate } from '@xrengine/engine/src/networking/functions/updateNetworkState'
-import {
-  NetworkTransport,
-  IncomingActionType,
-  ActionType
-} from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
 import logger from '@xrengine/server-core/src/logger'
@@ -45,6 +41,7 @@ import {
   startWebRTC
 } from './WebRTCFunctions'
 import { encode } from 'msgpackr'
+import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
@@ -69,9 +66,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.app = app
   }
 
-  public sendActions = (actions: ActionType[]): any => {
-    if (actions.length === 0) return
-    if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
+  public sendActions = (actions: Set<Action>): any => {
+    if (actions.size === 0) return
+    // TODO: only send an Action to the users in the action.$to field ?
+    if (this.socketIO != null)
+      this.socketIO.of('/').emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
   }
 
   public sendReliableData = (message: any): any => {
@@ -122,7 +121,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       const name = this.gameServer.objectMeta.name
       ;(this.app as any).gsName = name
 
-      const gsIdentifier = gsNameRegex.exec(name)
+      const gsIdentifier = gsNameRegex.exec(name)!
       stringSubdomainNumber = await getFreeSubdomain(gsIdentifier[1], 0)
       ;(this.app as any).gsSubdomainNumber = stringSubdomainNumber
 
@@ -143,7 +142,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         },
         HostedZoneId: config.aws.route53.hostedZoneId
       }
-      if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params).promise()
+      if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
     }
 
     localConfig.mediasoup.webRtcTransport.listenIps = [
