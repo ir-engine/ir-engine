@@ -13,7 +13,6 @@ import { InterpolationComponent } from '../components/InterpolationComponent'
 import { findInterpolationSnapshot } from '../functions/findInterpolationSnapshot'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { isEntityLocalClientOwnerOf } from '../../networking/functions/isEntityLocalClientOwnerOf'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { teleportRigidbody } from '../functions/teleportRigidbody'
@@ -30,6 +29,7 @@ export default async function InterpolationSystem(world: World): Promise<System>
    */
   const networkClientInterpolationQuery = defineQuery([
     Not(AvatarControllerComponent),
+    Not(NetworkObjectOwnedTag),
     ColliderComponent,
     AvatarComponent,
     InterpolationComponent,
@@ -53,6 +53,7 @@ export default async function InterpolationSystem(world: World): Promise<System>
   const correctionFromServerQuery = defineQuery([
     Not(AvatarComponent),
     Not(InterpolationComponent),
+    Not(NetworkObjectOwnedTag),
     ColliderComponent,
     NetworkObjectComponent
   ])
@@ -76,6 +77,7 @@ export default async function InterpolationSystem(world: World): Promise<System>
     Not(InterpolationComponent),
     Not(AvatarComponent),
     Not(ColliderComponent),
+    Not(NetworkObjectOwnedTag),
     TransformComponent,
     NetworkObjectComponent
   ])
@@ -151,8 +153,6 @@ export default async function InterpolationSystem(world: World): Promise<System>
     }
 
     for (const entity of correctionFromServerQuery()) {
-      if (isEntityLocalClientOwnerOf(entity)) continue
-
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) return
 
@@ -168,9 +168,6 @@ export default async function InterpolationSystem(world: World): Promise<System>
     }
 
     for (const entity of transformUpdateFromServerQuery()) {
-      // we don't want to accept updates from the server if the local client is in control of this entity
-      if (isEntityLocalClientOwnerOf(entity)) continue
-
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) return
       const transform = getComponent(entity, TransformComponent)

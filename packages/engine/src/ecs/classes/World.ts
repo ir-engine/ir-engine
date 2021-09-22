@@ -14,16 +14,10 @@ import { Physics } from '../../physics/classes/Physics'
 
 type SystemInstanceType = { execute: System; systemLabel: string }
 
-const testWorld = bitecs.createWorld(new (class {})())
-bitecs.addEntity(testWorld)
-console.log('ADDED TEST ENTITY')
-
 const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
-    console.log('CREATING WORLD')
     bitecs.createWorld(this)
-    console.log('World symbols', Object.getOwnPropertySymbols(this))
     Engine.worlds.push(this)
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)

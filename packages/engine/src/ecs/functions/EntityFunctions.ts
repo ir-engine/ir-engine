@@ -5,7 +5,6 @@ import { getComponent, hasComponent, removeAllComponents } from './ComponentFunc
 import { useWorld } from './SystemHooks'
 
 export const createEntity = (world = useWorld()): Entity => {
-  console.log('world is ', world)
   const entity = bitECS.addEntity(world) as Entity
   world.entities.push(entity)
   return entity

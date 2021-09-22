@@ -24,19 +24,28 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
   const delayedActions = new Set<Required<Action>>()
 
   return () => {
+    const incomingActions = Engine.defaultWorld!.incomingActions
+
+    if (delayedActions.size || incomingActions.size)
+      console.log(`\n\nDispatching actions for simulation tick: ${world.fixedTick}`)
+
     for (const action of delayedActions) {
-      console.log(`\n\nACTION ${action.type}`, action, '\n\n')
       if (action.$tick <= world.fixedTick) {
+        console.log(`\n\nDELAYED ACTION ${action.type}`, action, '\n\n')
         delayedActions.delete(action)
         for (const receptor of world.receptors) receptor(action)
       }
     }
-    for (const action of Engine.defaultWorld!.incomingActions) {
+    for (const action of incomingActions) {
       if (action.$tick > world.fixedTick) {
         delayedActions.add(action)
         continue
       }
-      console.log(`\n\nACTION ${action.type}`, action, '\n\n')
+      if (action.$tick < world.fixedTick) {
+        console.warn(`\n\nLATE ACTION ${action.type}`, action, '\n\n')
+      } else {
+        console.log(`\n\ACTION ${action.type}`, action, '\n\n')
+      }
       for (const receptor of world.receptors) receptor(action)
     }
 
@@ -48,6 +57,8 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
       const userId = Network.instance.incomingMessageQueueUnreliableIDs.pop() as UserId
 
       const ownerEntity = world.getUserAvatarEntity(userId)
+      if (!ownerEntity) return
+
       const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
 
       if (!isClient && !ownerEntity) return

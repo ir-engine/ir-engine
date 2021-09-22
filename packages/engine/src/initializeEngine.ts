@@ -2,6 +2,7 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
 import { AudioListener } from './audio/StereoAudioListener'
+// @ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
@@ -128,9 +129,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     return
   }
 
-  // Network (Incoming)
-  registerSystem(SystemUpdateType.Free, import('./networking/systems/IncomingNetworkSystem'))
-
   // Input
   registerSystem(SystemUpdateType.Free, import('./input/systems/ClientInputSystem'))
   registerSystem(SystemUpdateType.Free, import('./xr/systems/XRSystem'))
@@ -142,10 +140,18 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     injectionPoint: InjectionPoint.UPDATE
   })
 
-  // Fixed Systems
   registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/FixedPipelineSystem'), {
     updatesPerSecond: 60
   })
+
+  /**
+   *
+   *  Begin FIXED Systems
+   *
+   */
+
+  // Network (Incoming)
+  registerSystem(SystemUpdateType.Fixed, import('./networking/systems/IncomingNetworkSystem'))
 
   // EARLY FIXED UPDATE INJECTION POINT
   registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
@@ -189,6 +195,15 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     injectionPoint: InjectionPoint.FIXED_LATE
   })
 
+  // Network (Outgoing)
+  registerSystem(SystemUpdateType.Fixed, import('./networking/systems/OutgoingNetworkSystem'))
+
+  /**
+   *
+   *  End FIXED Systems
+   *
+   */
+
   // Camera & UI systems
   registerSystem(SystemUpdateType.Free, import('./networking/systems/MediaStreamSystem'))
   registerSystem(SystemUpdateType.Free, import('./xrui/systems/XRUISystem'))
@@ -218,9 +233,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
     injectionPoint: InjectionPoint.POST_RENDER
   })
-
-  // Network (Outgoing)
-  registerSystem(SystemUpdateType.Free, import('./networking/systems/OutgoingNetworkSystem'))
 }
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
@@ -237,8 +249,6 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
-  registerSystem(SystemUpdateType.Free, import('./networking/systems/IncomingNetworkSystem'))
-
   registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/FixedPipelineSystem'), {
     updatesPerSecond: 60
   })
@@ -248,6 +258,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   })
 
   // Network Incoming Systems
+  registerSystem(SystemUpdateType.Fixed, import('./networking/systems/IncomingNetworkSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./networking/systems/MediaStreamSystem'))
 
   registerSystemWithArgs(SystemUpdateType.Fixed, import('./ecs/functions/InjectedPipelineSystem'), {
@@ -275,6 +286,9 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, import('./avatar/ServerAvatarSpawnSystem'))
 
+  // Network Outgoing Systems
+  registerSystem(SystemUpdateType.Fixed, import('./networking/systems/OutgoingNetworkSystem'))
+
   registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
     injectionPoint: InjectionPoint.PRE_RENDER
   })
@@ -282,9 +296,6 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.Free, import('./ecs/functions/InjectedPipelineSystem'), {
     injectionPoint: InjectionPoint.POST_RENDER
   })
-
-  // Network Outgoing Systems
-  registerSystem(SystemUpdateType.Free, import('./networking/systems/OutgoingNetworkSystem'))
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {

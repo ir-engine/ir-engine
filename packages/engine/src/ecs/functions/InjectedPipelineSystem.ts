@@ -12,7 +12,7 @@ export default async function InjectedPipelineSystem(
 ): Promise<System> {
   return () => {
     for (const system of world.injectedSystems[args.injectionPoint]) {
-      system()
+      system.execute()
     }
   }
 }
