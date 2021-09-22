@@ -88,8 +88,9 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       ) {
         setPosition(label.mesh, label.centerPoint)
         addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
-        // TODO don't do this every frame
-        label.mesh.update()
+        if (Math.round(world.fixedElapsedTime / world.fixedDelta) % 20 === 0) {
+          label.mesh.update()
+        }
       } else {
         label.mesh.parent = null
       }
