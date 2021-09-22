@@ -7,7 +7,6 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { WorldStateInterface, WorldStateModel } from '../schema/networkSchema'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
-import { getLocalNetworkId } from '../functions/getLocalNetworkId'
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -72,10 +71,6 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       return
     }
 
-    if (isClient && (!world.localClientEntity || !hasComponent(world.localClientEntity, NetworkObjectComponent))) {
-      return
-    }
-
     sendActions()
 
     const newWorldState: WorldStateInterface = {
@@ -116,7 +111,8 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
         })
     }
 
-    if (isClient) {
+    const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
+    if (isClient && networkComponent) {
       const transformComponent = getComponent(world.localClientEntity, TransformComponent)
       let vel = undefined! as number[]
       let angVel = undefined
@@ -128,14 +124,14 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
 
       if (
         !transformIsTheSame(
-          getLocalNetworkId(),
+          networkComponent.networkId,
           encodeVector3(transformComponent.position),
           encodeQuaternion(transformComponent.rotation),
           vel
         )
       )
         newWorldState.pose.push({
-          networkId: getLocalNetworkId(),
+          networkId: networkComponent.networkId,
           position: encodeVector3(transformComponent.position),
           rotation: encodeQuaternion(transformComponent.rotation),
           linearVelocity: vel !== undefined ? vel : [0],
