@@ -34,7 +34,6 @@ import Splash from '@xrengine/social/src/components/Splash'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
-import Registration from '@xrengine/social/src/components/Registration'
 import { WebXRStart } from '../components/popups/WebXR'
 
 const mapStateToProps = (state: any): any => {
@@ -52,9 +51,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
 })
 
-import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
-import App from './App'
-
 const Home = ({
   createCreator,
   doLoginAuto,
@@ -65,35 +61,6 @@ const Home = ({
   getWebXrNative
 }) => {
   /*hided for now*/
-
-  const authData = getStoredAuthState()
-  const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
-
-  useEffect(() => {
-    if (accessToken) {
-      doLoginAuto()
-      getWebXrNative()
-    }
-  }, [accessToken])
-
-  useEffect(() => {
-    if (auth.toJS()?.authUser?.accessToken) {
-      createCreator()
-    }
-  }, [auth])
-
-  // return (<div>Test</div>)
-
-  // return (
-  //   <SnackbarProvider maxSnack={3}>
-  //     {auth.get('user').id ?
-  //       <div>LogIN!!!</div>
-  //       :
-  //       <Registration />
-  //     }
-  //   </SnackbarProvider>
-  // )
-
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
   const [splashTimeout, setSplashTimeout] = useState(true)
@@ -120,31 +87,50 @@ const Home = ({
   const platformClass = isIOS ? styles.isIos : ''
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
-  // if (!currentCreator || currentCreator === null || (splashTimeout && currentCreator.isBlocked == false)) {
-  //   //add additional duration Splash after initialized user
-  //   const splash = setTimeout(() => {
-  //     setSplashTimeout(false)
-  //     clearTimeout(splash)
-  //   }, 5000)
-  //   return <Splash />
-  // }
+  if (!currentCreator || currentCreator === null || (splashTimeout && currentCreator.isBlocked == false)) {
+    //add additional duration Splash after initialized user
+    const splash = setTimeout(() => {
+      setSplashTimeout(false)
+      clearTimeout(splash)
+    }, 5000)
+    return <Splash />
+  }
 
-  // if (currentCreator.isBlocked == true) {
-  //   return (
-  //     <div>
-  //       <Splash />
-  //       <Blocked />
-  //     </div>
-  //   )
-  // }
-
-  // if (auth.get('user').userRole !== 'user') {
-  //   return <Registration />
-  // }
+  if (currentCreator.isBlocked == true) {
+    return (
+      <div>
+        <Splash />
+        <Blocked />
+      </div>
+    )
+  }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
-  return <SnackbarProvider maxSnack={3}>{!accessToken ? <Registration /> : <App />}</SnackbarProvider>
+  return (
+    <div className={platformClass + ' ' + hideContentOnRecord}>
+      {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
+      <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
+        <AppHeader />
+        {/* <Stories stories={stories} /> */}
+        <FeedMenu view={view} setView={setView} />
+        <AppFooter setView={setView} />
+        {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
+        <ArMediaPopup />
+        <WebXRStart
+          feedHintsOnborded={feedHintsOnborded}
+          webxrRecorderActivity={webxrRecorderActivity}
+          setContentHidden={changeWebXrNative}
+          setFeedHintsOnborded={setFeedHintsOnborded}
+        />
+        <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+        <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+        <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+        <FeedFormPopup setView={setView} />
+        <SharedFormPopup setView={setView} />
+      </div>
+    </div>
+  )
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home)

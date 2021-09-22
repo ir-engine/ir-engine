@@ -24,6 +24,7 @@ import { FacebookIcon } from '../../../../client-core/src/common/components/Icon
 import { GoogleIcon } from '../../../../client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../client-core/src/common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../client-core/src/common/components/Icons/TwitterIcon'
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
@@ -48,6 +49,7 @@ interface Props {
   hideLogin?: any
   creatorsState: any
   updateCreator: any
+  doLoginAuto: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -67,7 +69,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   removeUser: bindActionCreators(removeUser, dispatch),
-  updateCreator: bindActionCreators(updateCreator, dispatch)
+  updateCreator: bindActionCreators(updateCreator, dispatch),
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 })
 
 const Registration = (props: Props): any => {
@@ -81,7 +84,8 @@ const Registration = (props: Props): any => {
     changeActiveMenu,
     setRegistrationOpen,
     creatorsState,
-    updateCreator
+    updateCreator,
+    doLoginAuto
   } = props
   const { t } = useTranslation()
 
@@ -102,7 +106,7 @@ const Registration = (props: Props): any => {
       )}`
 
       await polyfill.loadOnce(mediator)
-      console.log('Ready to work with credentials!')
+      // console.log('Ready to work with credentials!')
     } catch (e) {
       console.error('Error loading polyfill:', e)
     }
@@ -203,7 +207,7 @@ const Registration = (props: Props): any => {
                 size="small"
                 label={t('user:usermenu.profile.lbl-username')}
                 variant="outlined"
-                value={creator.username || ''}
+                value={''}
                 onChange={handleUsernameChange}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') updateUserName(e)
@@ -230,7 +234,14 @@ const Registration = (props: Props): any => {
                 error={error}
                 helperText={error ? t('user:usermenu.registration.ph-phoneEmail') : null}
               />
-              <Button className={styles.logIn} variant="contained" onClick={handleSubmit}>
+              <Button
+                className={styles.logIn}
+                variant="contained"
+                //  onClick={handleSubmit}
+                onClick={() => {
+                  doLoginAuto(true)
+                }}
+              >
                 Log in
               </Button>
             </form>

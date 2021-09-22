@@ -48,6 +48,8 @@ export function doLoginAuto(allowGuest?: boolean, forceClientAuthReset?: boolean
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const authData = getStoredAuthState()
+      console.log('authData')
+      console.log(authData)
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -84,6 +86,7 @@ export function doLoginAuto(allowGuest?: boolean, forceClientAuthReset?: boolean
         }
       }
       if (res) {
+        // Скорее всего здесь создаёться второй creator
         if (res['identity-provider']?.id == null) {
           await dispatch(didLogout())
           await (client as any).authentication.reset()

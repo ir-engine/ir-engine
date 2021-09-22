@@ -69,7 +69,7 @@ const Featured = ({
       const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
-  }, [type, creatorId, feedsState.get('feedsFeatured')])
+  }, [type, creatorId])
 
   useEffect(
     () =>
