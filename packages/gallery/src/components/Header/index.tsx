@@ -14,7 +14,6 @@ import {
   Grid,
   makeStyles,
   TextField,
-  Typography
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
 import { createFeed } from '../../reducers/post/service'
