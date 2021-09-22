@@ -912,21 +912,22 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
-
-      if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
-        addComponent(Network.instance.localClientEntity, ProximityComponent, {
-          usersInRange: [],
-          usersInIntimateRange: [],
-          usersInHarassmentRange: [],
-          usersLookingTowards: []
-        })
+      if (typeof Network.instance.localClientEntity !== 'undefined') {
+        if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
+          addComponent(Network.instance.localClientEntity, ProximityComponent, {
+            usersInRange: [],
+            usersInIntimateRange: [],
+            usersInHarassmentRange: [],
+            usersLookingTowards: []
+          })
+        }
+        if (!hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
+          addComponent(Network.instance.localClientEntity, WebCamInputComponent, {
+            emotions: []
+          })
+        }
+        console.log('added web cam input component to local client')
       }
-      if (!hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
-        addComponent(Network.instance.localClientEntity, WebCamInputComponent, {
-          emotions: []
-        })
-      }
-      console.log('added web cam input component to local client')
     } else {
       if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId.value)
         store.dispatch(UserAction.addedChannelLayerUser(user))
