@@ -6,7 +6,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Vector3 } from 'three'
 import { LongLat, toMetersFromCenter } from '../units'
 
-const DEFAULT_FONT_SIZE = 18
+const MINIMUM_FONT_SIZE = 6
+const MAXIMUM_FONT_SIZE = 10
 const WorldUp = new Vector3(0, 1, 0)
 
 function normalizeAngle(angle: number) {
@@ -17,15 +18,17 @@ function createText(textString: string): Text3D {
   const object3d = new Text()
 
   object3d.text = textString
-  object3d.fontSize = DEFAULT_FONT_SIZE
-  object3d.color = 0x000000
-  object3d.fillOpacity = 0.5
+  object3d.fontSize = MINIMUM_FONT_SIZE
+  object3d.color = 0x080808
   object3d.anchorX = '50%'
   object3d.anchorY = '50%'
-  object3d.opacity = 0.5
+  object3d.strokeColor = 0x707070
+  object3d.strokeWidth = '1%'
+  object3d.sdfGlyphSize = 16
 
-  object3d.scale.set(1, 1, 1)
   object3d.position.y = 0
+
+  object3d.sync()
 
   return object3d
 }
@@ -34,7 +37,8 @@ const $cameraDirection = new Vector3()
 function createUpdateClosure(mesh: Text3D, middleSlice: Position[]) {
   return function updateFeatureLabel() {
     const camera = Engine.camera
-    const [[x1, y1], [x2, y2]] = middleSlice
+    const [[x1, y1]] = middleSlice
+    const [x2, y2] = middleSlice[middleSlice.length - 1]
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
 
@@ -48,15 +52,17 @@ function createUpdateClosure(mesh: Text3D, middleSlice: Position[]) {
     )
     mesh.rotateX(-Math.PI / 2)
 
+    mesh.fontSize = Math.min(Math.max(Engine.camera.position.y / 4, MINIMUM_FONT_SIZE), MAXIMUM_FONT_SIZE)
+
     mesh.sync()
   }
 }
 
 export default function createFeatureLabel(feature: Feature<LineString>, center: LongLat): MapFeatureLabel {
   const featureLen = length(feature)
-  const middleSlice = lineSliceAlong(feature, featureLen * 0.49, featureLen * 0.51).geometry.coordinates
+  const middleSlice = lineSliceAlong(feature, featureLen * 0.48, featureLen * 0.52).geometry.coordinates
 
-  const [[x1, y1]] = middleSlice
+  const [x1, y1] = middleSlice[Math.floor(middleSlice.length / 2)]
 
   const mesh = createText(feature.properties.name)
   const centerPoint = toMetersFromCenter([x1, y1], center)
