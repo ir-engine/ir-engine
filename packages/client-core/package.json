@@ -123,7 +123,7 @@
     "esbuild": "0.13.0",
     "eslint": "7.32.0",
     "rimraf": "3.0.2",
-    "rollup": "2.56.3",
+    "rollup": "2.57.0",
     "rollup-plugin-css-only": "3.1.0",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-node-polyfills": "0.2.1",
