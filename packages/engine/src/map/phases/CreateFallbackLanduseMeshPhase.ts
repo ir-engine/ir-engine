@@ -16,6 +16,7 @@ export function getTaskKeys(store: Store) {
 
 export function execTask(store: Store, key: TileKey) {
   const [x, y] = key
+
   const [tileLeft, tileTop] = toMetersFromCenter(
     [tileXToLong(x, TILE_ZOOM), tileYToLat(y, TILE_ZOOM)],
     store.originalCenter
@@ -24,17 +25,22 @@ export function execTask(store: Store, key: TileKey) {
     [tileXToLong(x + 1, TILE_ZOOM), tileYToLat(y + 1, TILE_ZOOM)],
     store.originalCenter
   )
+
   const tileWidth = tileRight - tileLeft
   const tileHeight = tileBottom - tileTop
+
   const style = getFeatureStyles(DEFAULT_FEATURE_STYLES, 'landuse')
   const color = style?.color?.constant
+
   const material = getCachedMaterial(MeshLambertMaterial, { color, depthTest: false })
+
   const geometry = new PlaneBufferGeometry(tileWidth, tileHeight)
+
   geometry.rotateX(Math.PI / 2)
   const mesh = new Mesh(geometry, material)
   mesh.renderOrder = -MAX_Z_INDEX
   store.completeObjects.set(['landuse_fallback', x, y, '0'], {
-    centerPoint: [tileLeft + tileWidth / 2, tileTop + tileHeight / 2],
+    centerPoint: [tileLeft + tileWidth / 2, -1 * (tileTop + tileHeight / 2)],
     boundingCircleRadius: Math.max(tileWidth, tileHeight),
     mesh
   })
