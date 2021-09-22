@@ -17,10 +17,14 @@ import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src
 import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
 import { UserAction } from '../../store/UserAction'
-import { AuthAction, AuthActionType, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
+import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'
+import { hasComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -908,6 +912,21 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
+
+      if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
+        addComponent(Network.instance.localClientEntity, ProximityComponent, {
+          usersInRange: [],
+          usersInIntimateRange: [],
+          usersInHarassmentRange: [],
+          usersLookingTowards: []
+        })
+      }
+      if (!hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
+        addComponent(Network.instance.localClientEntity, WebCamInputComponent, {
+          emotions: []
+        })
+      }
+      console.log('added web cam input component to local client')
     } else {
       if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId.value)
         store.dispatch(UserAction.addedChannelLayerUser(user))

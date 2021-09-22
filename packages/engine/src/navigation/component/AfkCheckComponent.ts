@@ -8,4 +8,4 @@ export type AfkCheckComponentType = {
   timer: number
 }
 
-export const AfkCheckComponent = createMappedComponent<AfkCheckComponentType>()
+export const AfkCheckComponent = createMappedComponent<AfkCheckComponentType>('AfkCheckComponent')
