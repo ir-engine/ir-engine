@@ -12,15 +12,15 @@ export default class InteriorNode extends EditorNodeMixin(Interior) {
     cubeMap: new URL(defaultTextureUrl, (window as any)?.location).href
   }
 
-  static async deserialize(editor, json, loadAsync?, onError?): Promise<InteriorNode> {
-    const node = (await super.deserialize(editor, json)) as InteriorNode
+  static async deserialize(json, loadAsync?, onError?): Promise<InteriorNode> {
+    const node = (await super.deserialize(json)) as InteriorNode
     const props = json.components.find((c) => c.name === InteriorNode.legacyComponentName).props
     Object.assign(node, props)
     return node
   }
 
-  constructor(editor) {
-    super(editor, null)
+  constructor() {
+    super(null)
     this.disableOutline = true
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false

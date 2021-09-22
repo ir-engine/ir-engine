@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
+import EditorEvents from '../../constants/EditorEvents'
 
 /**
  * useIsMounted function used to check that component get mounted or not.
@@ -169,11 +170,11 @@ export function useAssetSearch(source, initialParams = {}, initialResults = [], 
     }
 
     //adding listener
-    source.addListener('resultsChanged', onResultsChanged)
+    source.addListener(EditorEvents.RESULTS_CHANGED.toString(), onResultsChanged)
 
     //removing listeners
     return () => {
-      source.removeListener('resultsChanged', onResultsChanged)
+      source.removeListener(EditorEvents.RESULTS_CHANGED.toString(), onResultsChanged)
     }
   }, [source, loadAsync, params])
 

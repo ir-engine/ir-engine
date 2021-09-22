@@ -30,6 +30,7 @@ import styles from './index.module.scss'
 import Splash from '@xrengine/social/src/components/Splash'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -48,13 +49,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const Home = ({
   createCreator,
   //doLoginAuto,
-  auth,
   creatorsState,
   webxrnativeState,
   changeWebXrNative,
   getWebXrNative
 }) => {
   const dispatch = useDispatch()
+  const auth = useAuthState()
 
   /*hided for now*/
 
@@ -65,7 +66,7 @@ const Home = ({
       //   if(userId){}
       createCreator()
     }
-  }, [auth])
+  }, [auth.isLoggedIn.value, auth.user.id.value])
 
   useEffect(() => {
     dispatch(AuthService.doLoginAuto(true))

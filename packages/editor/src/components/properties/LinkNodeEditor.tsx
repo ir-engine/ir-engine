@@ -1,15 +1,14 @@
 import { Link } from '@styled-icons/fa-solid/Link'
 import React, { Component } from 'react'
-import Editor from '../Editor'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for LinkNodeEditor
 type LinkNodeEditorProps = {
-  editor?: Editor
   node?: any
   t: Function
 }
@@ -29,7 +28,7 @@ export class LinkNodeEditor extends Component<LinkNodeEditorProps, {}> {
 
   //function to handle change in href property of LinkNode
   onChangeHref = (href) => {
-    this.props.editor.setPropertySelected('href', href)
+    CommandManager.instance.setPropertyOnSelection('href', href)
   }
 
   //rendering view of editor for properties of LinkNode

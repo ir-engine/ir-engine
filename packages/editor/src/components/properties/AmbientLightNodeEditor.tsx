@@ -6,9 +6,9 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Sun } from '@styled-icons/fa-solid/Sun'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 type AmbientLightNodeEditorProps = {
-  editor?: object
   node?: any
   t: Function
 }
@@ -28,11 +28,11 @@ export class AmbientLightNodeEditor extends Component<AmbientLightNodeEditorProp
 
   // used to change the color property of selected scene, when we change color property of ambient light
   onChangeColor = (color) => {
-    ;(this.props.editor as any).setPropertySelected('color', color)
+    CommandManager.instance.setPropertyOnSelection('color', color)
   }
   // used to change the intensity of selected scene
   onChangeIntensity = (intensity) => {
-    ;(this.props.editor as any).setPropertySelected('intensity', intensity)
+    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
   }
 
   /**

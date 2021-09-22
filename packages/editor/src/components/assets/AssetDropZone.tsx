@@ -1,8 +1,7 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { EditorContext } from '../contexts/EditorContext'
 import { useDrop } from 'react-dnd'
-import { ItemTypes } from '../dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from './useUpload'
 import { CloudUploadAlt } from '@styled-icons/fa-solid/CloudUploadAlt'
 import { useTranslation } from 'react-i18next'
@@ -47,7 +46,6 @@ interface AssetDropZoneProp {
  * @constructor
  */
 export function AssetDropZone({ afterUpload, uploadOptions }: AssetDropZoneProp) {
-  const editor = useContext(EditorContext)
   const { t } = useTranslation()
 
   const onUpload = useUpload(uploadOptions)
@@ -57,7 +55,7 @@ export function AssetDropZone({ afterUpload, uploadOptions }: AssetDropZoneProp)
     drop(item: any) {
       onUpload(item.files).then((assets) => {
         if (assets) {
-          //editor.setSource(editor.defaultUploadSource.id);
+          // SourceManager.instance.setSource(SourceManager.instance.defaultUploadSource.id);
 
           if (afterUpload) {
             afterUpload(assets)

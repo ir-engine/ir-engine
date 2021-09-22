@@ -1,9 +1,11 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { FlexColumn, FlexRow } from '../layout/Flex'
-import { EditorContext } from '../contexts/EditorContext'
 import AssetDropZone from './AssetDropZone'
 import styles from './styles.module.scss'
+import EditorEvents from '../../constants/EditorEvents'
+import { SourceManager } from '../../managers/SourceManager'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * AssetsPanelContainer used as container element for asset penal.
@@ -89,28 +91,14 @@ export const AssetPanelContentContainer = (styled as any)(FlexRow)`
 `
 
 /**
- * getSources used to get sources out of editor and filter sources on the basis of requiresAuthentication or isAuthenticated.
- *
- * @author Robert Long
- * @param  {Object} editor
- * @return {any}        [description]
- */
-export function getSources(editor) {
-  return editor.sources
-}
-
-/**
  * AssetsPanel used to render view for AssetsPanel.
  *
  * @author Robert Long
  * @constructor
  */
 export default function AssetsPanel() {
-  //initializing editor with EditorContext
-  const editor = useContext(EditorContext)
-
-  //initializing sources using getSources from editor
-  const [sources, setSources] = useState(getSources(editor))
+  //initializing sources
+  const [sources, setSources] = useState(SourceManager.instance.sources)
 
   //initializing selectedSource as the first element of sources array
   const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[0] : null)
@@ -124,7 +112,7 @@ export default function AssetsPanel() {
 
     //function to handle changes in authentication
     const onAuthChanged = () => {
-      const nextSources = getSources(editor)
+      const nextSources = SourceManager.instance.sources
       setSources(nextSources)
 
       if (nextSources.indexOf(selectedSource) === -1) {
@@ -134,19 +122,18 @@ export default function AssetsPanel() {
 
     // function to handle changes in authentication
     const onSettingsChanged = () => {
-      const nextSources = getSources(editor)
+      const nextSources = SourceManager.instance.sources
       setSources(nextSources)
     }
 
-    //adding listeners to editor component
-    editor.addListener('settingsChanged', onSettingsChanged)
-    editor.addListener('setSource', onSetSource)
+    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), onSettingsChanged)
+    CommandManager.instance.addListener(EditorEvents.SOURCE_CHANGED.toString(), onSetSource)
 
-    //removing listeners from editor component
     return () => {
-      editor.removeListener('setSource', onSetSource)
+      CommandManager.instance.removeListener(EditorEvents.SOURCE_CHANGED.toString(), onSetSource)
+      CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), onSettingsChanged)
     }
-  }, [editor, setSelectedSource, sources, setSources, selectedSource])
+  }, [setSelectedSource, sources, setSources, selectedSource])
 
   //initializing savedSourceState with empty object
   const [savedSourceState, setSavedSourceState] = useState({})
@@ -182,7 +169,6 @@ export default function AssetsPanel() {
           <SourceComponent
             key={selectedSource.id}
             source={selectedSource}
-            editor={editor}
             savedState={savedState}
             setSavedState={setSavedState}
           />

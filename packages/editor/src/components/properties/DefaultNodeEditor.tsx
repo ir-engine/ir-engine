@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import NodeEditor from './NodeEditor'
-import { Circle } from '@styled-icons/fa-solid/Circle'
+
 type DefaultNodeEditorProps = {
-  editor?: object
   node?: object
 }
 

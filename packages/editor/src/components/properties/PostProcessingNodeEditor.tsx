@@ -1,6 +1,7 @@
 import Checkbox from '@material-ui/core/Checkbox'
 import { Rainbow } from '@styled-icons/fa-solid/Rainbow'
-import React, { Component } from 'react'
+import React from 'react'
+import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
 import { PostProcessingProperties } from './PostProcessingProperties'
 
@@ -9,7 +10,6 @@ import { PostProcessingProperties } from './PostProcessingProperties'
  * @type {Object}
  */
 type PostProcessingNodeEditorPropTypes = {
-  editor?: object
   node?: object
 }
 
@@ -307,11 +307,10 @@ const EffectsOptions = {
  */
 export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropTypes) => {
   const onChangeCheckBox = (e, key) =>
-    (props.editor as any).setObjectProperty('postProcessingOptions.' + key + '.isActive', e.target.checked)
+    CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key + '.isActive', e.target.checked)
 
   const onChangeNodeSetting = (key, op) => {
-    const val = props.editor as any
-    ;(props.editor as any).setObjectProperty('postProcessingOptions.' + key, op)
+    CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key, op)
   }
 
   const getPropertyValue = (arr: []) => {

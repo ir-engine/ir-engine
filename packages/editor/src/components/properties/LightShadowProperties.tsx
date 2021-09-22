@@ -5,6 +5,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Vector2 } from 'three'
 import { withTranslation } from 'react-i18next'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  *  Array containing options for shadow resolution
@@ -36,7 +37,6 @@ const ShadowMapResolutionOptions = [
 
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
-  editor?: object
   node?: any
   t?: Function
 }
@@ -51,22 +51,22 @@ type LightShadowPropertiesProps = {
 export class LightShadowProperties extends Component<LightShadowPropertiesProps, {}> {
   // function to handle the change in shadowMapResolution propery
   onChangeShadowMapResolution = (shadowMapResolution) => {
-    ;(this.props.editor as any).setPropertySelected('shadowMapResolution', shadowMapResolution)
+    CommandManager.instance.setPropertyOnSelection('shadowMapResolution', shadowMapResolution)
   }
 
   // function to handle changes in castShadow propery
   onChangeCastShadow = (castShadow) => {
-    ;(this.props.editor as any).setPropertySelected('castShadow', castShadow)
+    CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
   }
 
   // fucntion to handle changes in shadowBias property
   onChangeShadowBias = (shadowBias) => {
-    ;(this.props.editor as any).setPropertySelected('shadowBias', shadowBias)
+    CommandManager.instance.setPropertyOnSelection('shadowBias', shadowBias)
   }
 
   // function to handle changes shadowRadius property
   onChangeShadowRadius = (shadowRadius) => {
-    ;(this.props.editor as any).setPropertySelected('shadowRadius', shadowRadius)
+    CommandManager.instance.setPropertyOnSelection('shadowRadius', shadowRadius)
   }
 
   //rendering editor view for LightShadowProperties

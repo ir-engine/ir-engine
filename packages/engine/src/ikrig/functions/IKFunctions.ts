@@ -1,6 +1,6 @@
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { IKRigComponent, IKRigComponentType, PointData } from '../components/IKRigComponent'
-import { Bone, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import {
   IKPoseComponent,
   IKPoseComponentType,
@@ -12,7 +12,7 @@ import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '../../ikrig/constants/Vect
 import { addChain, addPoint } from './RigFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
-import { Chain } from '../components/Chain'
+import { Chain } from '../classes/Chain'
 import { solveLimb, solveThreeBone } from './IKSolvers'
 // import { debug } from '../classes/Debug'
 
@@ -55,19 +55,18 @@ export function setupMixamoIKRig(entity: Entity, rig: ReturnType<typeof IKRigCom
   //-----------------------------------------
   // Auto Setup the Points and Chains based on
   // Known Skeleton Structures.
-  // TODO:Fix
 
-  addPoint(entity, 'hip', 'Hips')
-  addPoint(entity, 'head', 'Head')
-  addPoint(entity, 'neck', 'Neck')
-  addPoint(entity, 'chest', 'Spine2')
-  addPoint(entity, 'foot_l', 'LeftFoot')
-  addPoint(entity, 'foot_r', 'RightFoot')
-  addChain(entity, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
-  addChain(entity, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
-  addChain(entity, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
-  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
-  addChain(entity, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
+  addPoint(rig, 'hip', 'Hips')
+  addPoint(rig, 'head', 'Head')
+  addPoint(rig, 'neck', 'Neck')
+  addPoint(rig, 'chest', 'Spine2')
+  addPoint(rig, 'foot_l', 'LeftFoot')
+  addPoint(rig, 'foot_r', 'RightFoot')
+  addChain(rig, 'arm_r', ['RightArm', 'RightForeArm'], 'RightHand') //"x",
+  addChain(rig, 'arm_l', ['LeftArm', 'LeftForeArm'], 'LeftHand') //"x",
+  addChain(rig, 'leg_r', ['RightUpLeg', 'RightLeg'], 'RightFoot') //"z",
+  addChain(rig, 'leg_l', ['LeftUpLeg', 'LeftLeg'], 'LeftFoot') //"z",
+  addChain(rig, 'spine', ['Spine', 'Spine1', 'Spine2']) //, "y"
 
   rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones)
   rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones)
@@ -88,20 +87,18 @@ export function setupTRexIKRig(entity: Entity, rig: ReturnType<typeof IKRigCompo
   // Known Skeleton Structures.
   // TODO:Fix
 
-  addPoint(entity, 'hip', 'hip')
-  addPoint(entity, 'head', 'face_joint')
-  addPoint(entity, 'foot_l', 'LeftFoot')
-  addPoint(entity, 'foot_r', 'RightFoot')
+  addPoint(rig, 'hip', 'hip')
+  addPoint(rig, 'head', 'face_joint')
+  addPoint(rig, 'foot_l', 'LeftFoot')
+  addPoint(rig, 'foot_r', 'RightFoot')
 
-  addPoint(entity, 'wing_l', 'left_wing')
-  addPoint(entity, 'wing_r', 'right_wing')
+  addPoint(rig, 'wing_l', 'left_wing')
+  addPoint(rig, 'wing_r', 'right_wing')
 
-  // addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', 'three_bone') //"z",
-  // addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', 'three_bone') // "z",
-  addChain(entity, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', solveThreeBone) //"z",
-  addChain(entity, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', solveThreeBone) // "z",
-  addChain(entity, 'spine', ['Spine', 'Spine1'])
-  addChain(entity, 'tail', ['tail_1', 'tail_2', 'tail_3', 'tail_4', 'tail_5', 'tail_6', 'tail_7'])
+  addChain(rig, 'leg_r', ['RightUpLeg', 'RightKnee', 'RightShin'], 'RightFoot', solveThreeBone) //"z",
+  addChain(rig, 'leg_l', ['LeftUpLeg', 'LeftKnee', 'LeftShin'], 'LeftFoot', solveThreeBone) // "z",
+  addChain(rig, 'spine', ['Spine', 'Spine1'])
+  addChain(rig, 'tail', ['tail_1', 'tail_2', 'tail_3', 'tail_4', 'tail_5', 'tail_6', 'tail_7'])
   // TODO: create set_leg_lmt and apply?
   // set_leg_lmt(entity, null, -0.1 )
 
@@ -457,7 +454,7 @@ export function applyIKPoseToIKRig(targetRig: IKRigComponentType, ikPose: IKPose
  * update skeleton bones by pose bones states
  * @param targetRig
  */
-function applyPoseToRig(targetRig: IKRigComponentType) {
+export function applyPoseToRig(targetRig: IKRigComponentType) {
   for (let i = 0; i < targetRig.pose.bones.length; i++) {
     const poseBone = targetRig.pose.bones[i]
     const armatureBone = poseBone.bone
@@ -481,7 +478,7 @@ export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IK
   // Take note that vegeta and roborex's Hips are completely different but by using that inverse
   // direction trick, we are easily able to apply the same movement to both.
 
-  const parentRotation = rig.pose.getParentRotation(boneInfo.index)
+  const parentRotation = rig.tpose.getParentRotation(boneInfo.index)
 
   const q = new Quaternion()
     .setFromUnitVectors(FORWARD, ikPose.hip.dir) // Create Swing Rotation
@@ -750,6 +747,7 @@ export function applyLookTwist(
   return {
     rootQuaternion,
     childRotation,
+    rotation0X,
     rotation0,
     rotation1,
     rotationFinal,

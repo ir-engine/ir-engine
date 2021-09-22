@@ -14,8 +14,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'Trigger Volume'
   static _geometry = new BoxBufferGeometry()
   static _material = new Material()
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const props = json.components.find((c) => c.name === 'trigger-volume').props
     node.target = props.target
     node.enterComponent = props.enterComponent
@@ -27,8 +27,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     node.showHelper = props.showHelper
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     const boxMesh = new Mesh(TriggerVolumeNode._geometry, TriggerVolumeNode._material)
     const box = new BoxHelper(boxMesh, 0xffff00)
     box.layers.set(1)

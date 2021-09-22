@@ -11,15 +11,15 @@ export default class MetadataNode extends EditorNodeMixin(Object3D) {
     metadataHelperTexture = await loadTexture('/editor/metadata-icon.png')
   }
 
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { _data } = json.components.find((c) => c.name == '_metadata').props
     node._data = _data
     return node
   }
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this._data = ''
     const geometry = new PlaneBufferGeometry()
     const material = new MeshBasicMaterial()

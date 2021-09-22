@@ -3,25 +3,26 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader'
+import { CommandManager } from '../managers/CommandManager'
+import EditorCommands from '../constants/EditorCommands'
 import { getCanvasBlob } from '../functions/thumbnails'
 import PostProcessingNode from '../nodes/PostProcessingNode'
 import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
 import makeRenderer from './makeRenderer'
 import OutlinePass from './OutlinePass'
 import configurePostProcessing from './RendererPostProcessing'
+import { SceneManager } from '../managers/SceneManager'
 /**
  * @author mrdoob / http://mrdoob.com/
  */
 class RenderMode {
   name: string
   renderer: any
-  editor: any
   passes: any[]
   enableShadows: boolean
-  constructor(renderer, editor) {
+  constructor(renderer) {
     this.name = 'Default'
     this.renderer = renderer
-    this.editor = editor
     this.passes = []
     this.enableShadows = false
   }
@@ -38,21 +39,21 @@ class UnlitRenderMode extends RenderMode {
   hiddenLayers: Layers
   disableBatching: boolean
   editorRenderer: any
-  constructor(renderer, editor, editorRenderer) {
-    super(renderer, editor)
+  constructor(renderer, editorRenderer) {
+    super(renderer)
     this.name = 'Unlit'
     this.effectComposer = new EffectComposer(renderer)
-    this.renderPass = new RenderPass(editor.scene, editor.camera)
+    this.renderPass = new RenderPass(SceneManager.instance.scene, SceneManager.instance.camera)
     this.effectComposer.addPass(this.renderPass)
-    this.renderHelpersPass = new RenderPass(editor.helperScene, editor.camera)
+    this.renderHelpersPass = new RenderPass(SceneManager.instance.helperScene, SceneManager.instance.camera)
     this.renderHelpersPass.clear = false
     this.effectComposer.addPass(this.renderHelpersPass)
     const canvasParent = renderer.domElement.parentElement
     this.outlinePass = new OutlinePass(
       new Vector2(canvasParent.offsetWidth, canvasParent.offsetHeight),
-      editor.scene,
-      editor.camera,
-      editor.selectedTransformRoots,
+      SceneManager.instance.scene,
+      SceneManager.instance.camera,
+      CommandManager.instance.selectedTransformRoots,
       editorRenderer
     ) as any
     this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader)
@@ -72,7 +73,7 @@ class UnlitRenderMode extends RenderMode {
   }
   onSceneSet() {
     this.renderer.shadowMap.enabled = this.enableShadows
-    this.editor.scene.traverse((object) => {
+    SceneManager.instance.scene.traverse((object) => {
       if (object.setShadowsEnabled) {
         object.setShadowsEnabled(this.enableShadows)
       }
@@ -94,10 +95,10 @@ class UnlitRenderMode extends RenderMode {
         object.layers.disable(2)
       }
     })
-    this.renderPass.scene = this.editor.scene
-    this.renderPass.camera = this.editor.camera
-    this.outlinePass.renderScene = this.editor.scene
-    this.outlinePass.renderCamera = this.editor.camera
+    this.renderPass.scene = SceneManager.instance.scene
+    this.renderPass.camera = SceneManager.instance.camera
+    this.outlinePass.renderScene = SceneManager.instance.scene
+    this.outlinePass.renderCamera = SceneManager.instance.camera
   }
   onResize() {
     const canvasParent = this.renderer.domElement.parentElement
@@ -108,24 +109,24 @@ class UnlitRenderMode extends RenderMode {
   }
 }
 class LitRenderMode extends UnlitRenderMode {
-  constructor(renderer, editor, editorRenderer) {
-    super(renderer, editor, editorRenderer)
+  constructor(renderer, editorRenderer) {
+    super(renderer, editorRenderer)
     this.name = 'Lit'
     this.enableShadows = false
     this.disableBatching = true
   }
 }
 class ShadowsRenderMode extends UnlitRenderMode {
-  constructor(renderer, editor, editorRenderer) {
-    super(renderer, editor, editorRenderer)
+  constructor(renderer, editorRenderer) {
+    super(renderer, editorRenderer)
     this.name = 'Shadows'
     this.disableBatching = true
     this.enableShadows = true
   }
 }
 class WireframeRenderMode extends UnlitRenderMode {
-  constructor(renderer, editor, editorRenderer) {
-    super(renderer, editor, editorRenderer)
+  constructor(renderer, editorRenderer) {
+    super(renderer, editorRenderer)
     this.name = 'Wireframe'
     this.enableShadows = false
     this.disableBatching = true
@@ -135,8 +136,8 @@ class WireframeRenderMode extends UnlitRenderMode {
   }
 }
 class NormalsRenderMode extends UnlitRenderMode {
-  constructor(renderer, editor, editorRenderer) {
-    super(renderer, editor, editorRenderer)
+  constructor(renderer, editorRenderer) {
+    super(renderer, editorRenderer)
     this.name = 'Normals'
     this.enableShadows = false
     this.disableBatching = true
@@ -144,7 +145,6 @@ class NormalsRenderMode extends UnlitRenderMode {
   }
 }
 export default class Renderer {
-  editor: any
   canvas: any
   renderer: any
   renderMode: LitRenderMode
@@ -157,8 +157,7 @@ export default class Renderer {
   composer: any
   node: any
 
-  constructor(editor, canvas) {
-    this.editor = editor
+  constructor(canvas) {
     this.canvas = canvas
     const renderer = makeRenderer(
       canvas.parentElement.parentElement.offsetWidth,
@@ -170,20 +169,20 @@ export default class Renderer {
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.info.autoReset = false
     this.renderer = renderer
-    this.renderMode = new LitRenderMode(renderer, editor, this)
-    this.shadowsRenderMode = new ShadowsRenderMode(renderer, editor, this)
+    this.renderMode = new LitRenderMode(renderer, this)
+    this.shadowsRenderMode = new ShadowsRenderMode(renderer, this)
     this.renderModes = []
     if (this.renderer.capabilities.isWebGL2) {
-      this.renderModes.push(new UnlitRenderMode(renderer, editor, this))
+      this.renderModes.push(new UnlitRenderMode(renderer, this))
     }
     this.renderModes.push(
       this.renderMode,
       this.shadowsRenderMode,
-      new WireframeRenderMode(renderer, editor, this),
-      new NormalsRenderMode(renderer, editor, this)
+      new WireframeRenderMode(renderer, this),
+      new NormalsRenderMode(renderer, this)
     )
     this.screenshotRenderer = makeRenderer(1920, 1080)
-    const camera = editor.camera
+    const camera = SceneManager.instance.camera
     this.camera = camera
     /** @todo */
     // Cascaded shadow maps
@@ -193,7 +192,7 @@ export default class Renderer {
     //   shadowMapSize: 2048,
     //   maxFar: 100,
     //   camera: camera,
-    //   parent: editor.scene
+    //   parent: SceneManager.instance.scene
     // });
     // csm.fade = true;
     // Engine.csm = csm;
@@ -248,19 +247,19 @@ export default class Renderer {
     const { screenshotRenderer, camera } = this
     const originalRenderer = this.renderer
     this.renderer = screenshotRenderer
-    this.editor.disableUpdate = true
-    let scenePreviewCamera = this.editor.scene.findNodeByType(ScenePreviewCameraNode)
+    SceneManager.instance.disableUpdate = true
+    let scenePreviewCamera = SceneManager.instance.scene.findNodeByType(ScenePreviewCameraNode)
     if (!scenePreviewCamera) {
-      scenePreviewCamera = new ScenePreviewCameraNode(this.editor)
+      scenePreviewCamera = new ScenePreviewCameraNode()
       camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.rotation, scenePreviewCamera.scale)
-      this.editor.addObject(scenePreviewCamera)
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
     }
     const prevAspect = scenePreviewCamera.aspect
     scenePreviewCamera.aspect = width / height
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.disable(1)
     screenshotRenderer.setSize(width, height, true)
-    this.editor.scene.traverse((child) => {
+    SceneManager.instance.scene.traverse((child) => {
       if (child.isNode) {
         child.onRendererChanged()
       }
@@ -268,15 +267,15 @@ export default class Renderer {
     if (this.renderMode !== this.shadowsRenderMode) {
       this.shadowsRenderMode.onSceneSet()
     }
-    screenshotRenderer.render(this.editor.scene, scenePreviewCamera)
+    screenshotRenderer.render(SceneManager.instance.scene, scenePreviewCamera)
     const blob = await getCanvasBlob(screenshotRenderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.enable(1)
-    this.editor.disableUpdate = false
+    SceneManager.instance.disableUpdate = false
     this.renderer = originalRenderer
     this.renderMode.onSceneSet()
-    this.editor.scene.traverse((child) => {
+    SceneManager.instance.scene.traverse((child) => {
       if (child.isNode) {
         child.onRendererChanged()
       }

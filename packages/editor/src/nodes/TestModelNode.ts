@@ -21,12 +21,12 @@ export default class TestModelNode extends EditorNodeMixin(Object3D) {
   cubeCamera: any
   wallMat: any
 
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
     this.loadmodel()
   }
 
-  static canAddNode(editor) {
+  static canAddNode() {
     return false
   }
 

@@ -6,6 +6,7 @@ import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../../common/components/LazyImage'
 import { Views } from '../util'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 
 const AvatarMenu = (props: any): any => {
   const MAX_AVATARS_PER_PAGE = 6
@@ -57,7 +58,7 @@ const AvatarMenu = (props: any): any => {
   const selectAvatar = (avatarResources: any) => {
     const avatar = avatarResources.avatar
     setSelectedAvatarId(avatar.name)
-    if (props.avatarId !== avatar.name) {
+    if (!isBot(window) && props.avatarId !== avatar.name) {
       props.setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url)
     }
   }
@@ -174,7 +175,7 @@ const AvatarMenu = (props: any): any => {
           <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
             <ArrowBack />
           </button>
-          <button type="button" className={styles.iconBlock} onClick={closeMenu}>
+          <button type="button" id="confirm-avatar" className={styles.iconBlock} onClick={closeMenu}>
             <Check />
           </button>
           {props.enableSharing !== false && (

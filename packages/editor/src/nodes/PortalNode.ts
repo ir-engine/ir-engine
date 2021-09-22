@@ -29,8 +29,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   triggerRotation: Euler = new Euler()
   triggerScale: Vector3 = new Vector3(1, 1, 1)
 
-  static async deserialize(editor, json) {
-    const node = (await super.deserialize(editor, json)) as PortalNode
+  static async deserialize(json) {
+    const node = (await super.deserialize(json)) as PortalNode
     const portalComponent = json.components.find((c) => c.name === 'portal')
     if (portalComponent) {
       node.entityId = json.entityId
@@ -78,8 +78,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     }
     return node
   }
-  constructor(editor) {
-    super(editor)
+  constructor() {
+    super()
 
     this.triggerHelper = new Mesh(
       new BoxBufferGeometry(1, 1, 0.2),

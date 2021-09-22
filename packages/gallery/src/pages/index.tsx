@@ -12,6 +12,7 @@ import AppHeader from '../components/Header'
 
 // @ts-ignore
 import styles from './index.module.scss'
+import AddFilesForm from '../components/AddFilesForm'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -28,13 +29,16 @@ const Home = ({ createCreator, creatorsState }) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
+  const [addFilesView, setAddFilesView] = useState(false)
+  const [filesTarget, setFilesTarget] = useState([])
+
   useEffect(() => {
     const user = auth.user
     const userId = user ? user.id.value : null
     if (userId) {
       createCreator()
     }
-  }, [auth])
+  }, [auth.isLoggedIn.value, auth.user.id.value])
 
   useEffect(() => {
     dispatch(AuthService.doLoginAuto(true))
@@ -45,8 +49,11 @@ const Home = ({ createCreator, creatorsState }) => {
 
   return (
     <div className={styles.viewport}>
-      <AppHeader title={'CREATOR'} />
-      {currentCreator ? <FeedMenu view={view} setView={setView} /> : ''}
+      {!addFilesView && (
+        <AppHeader title={'CREATOR'} setAddFilesView={setAddFilesView} setFilesTarget={setFilesTarget} />
+      )}
+      {currentCreator && !addFilesView && <FeedMenu />}
+      {addFilesView && <AddFilesForm filesTarget={filesTarget} setAddFilesView={setAddFilesView} />}
     </div>
   )
 }
