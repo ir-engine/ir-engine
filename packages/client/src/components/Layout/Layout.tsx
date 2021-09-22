@@ -215,6 +215,10 @@ const Layout = (props: Props): any => {
               </>
             )}
 
+            <button type="button" className={styles.respawn} disabled>
+              Respawn
+            </button>
+
             <Harmony
               setHarmonyOpen={setHarmonyOpen}
               setDetailsType={setDetailsType}

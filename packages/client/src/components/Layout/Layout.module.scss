@@ -158,3 +158,23 @@
         border: 2px solid white;
     }
 }
+
+
+.respawn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background: rgba(0,0,0,0.2);
+    width: 80px;
+    height: 40px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    left: 80px;
+    z-index: 20;
+    border: none;
+    padding: 0;
+    &:hover { &::before { transform: scale(1); } }
+    @media (max-width: 450px) { left: 10px; }
+}
