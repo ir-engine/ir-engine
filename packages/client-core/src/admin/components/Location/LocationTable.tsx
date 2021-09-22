@@ -16,7 +16,7 @@ import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
-import { selectScopeErrorState } from '../../../common/reducers/error/selector'
+import { useErrorState } from '../../../common/reducers/error/ErrorState'
 import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
@@ -37,8 +37,7 @@ const mapStateToProps = (state: any): any => {
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
-    adminSceneState: selectAdminSceneState(state),
-    adminScopeErrorState: selectScopeErrorState(state)
+    adminSceneState: selectAdminSceneState(state)
   }
 }
 
@@ -64,7 +63,7 @@ const LocationTable = (props: LocationProps) => {
     adminUserState,
     adminInstanceState,
     adminSceneState,
-    adminScopeErrorState,
+
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)
@@ -76,7 +75,7 @@ const LocationTable = (props: LocationProps) => {
 
   const authState = useAuthState()
   const user = authState.user
-  const adminScopeReadErrMsg = adminScopeErrorState.get('readError').get('scopeErrorMessage')
+  const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocations = adminLocationState.get('locations').get('locations')
   const adminLocationCount = adminLocationState.get('locations').get('total')
   const { t } = useTranslation()
@@ -92,7 +91,11 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value !== null && adminLocationState.get('locations').get('updateNeeded') && !adminScopeReadErrMsg) {
+    if (
+      user?.id?.value !== null &&
+      adminLocationState.get('locations').get('updateNeeded') &&
+      !adminScopeReadErrMsg?.value
+    ) {
       fetchAdminLocations()
     }
     if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {

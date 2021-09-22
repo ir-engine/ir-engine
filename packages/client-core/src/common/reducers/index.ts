@@ -1,11 +1,11 @@
 import alertReducer from './alert/reducers'
 import { AppReducer } from './app/AppState'
-import dialogReducer from './dialog/reducers'
-import scopeErrorReducer from './error/reducer'
+import { DialogReducer } from './dialog/DialogState'
+import { ErrorReducer } from './error/ErrorState'
 
 export default {
   app: AppReducer,
   alert: alertReducer,
-  dialog: dialogReducer,
-  scopeError: scopeErrorReducer
+  dialog: DialogReducer,
+  scopeError: ErrorReducer
 }
