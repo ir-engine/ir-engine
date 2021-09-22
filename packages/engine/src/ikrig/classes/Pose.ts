@@ -69,12 +69,19 @@ class Pose {
     return this
   }
 
-  constructor(entity: Entity, clone: boolean) {
-    this.entity = entity
+  /**
+   *
+   * @param rootObject object containing skinnedMesh and it's bones
+   * @param clone make a cloned version of skeleton
+   */
+  constructor(rootObject: Object3D, clone = false) {
     this.bones = []
-    const armature = getComponent(entity, IKObj).ref
-    const parent: Object3D = clone ? SkeletonUtils.clone(armature.parent) : armature.parent
-    this.skeleton = this.get_skeleton(parent.children) // Recreation of Bone Hierarchy
+    const parent: Object3D = clone ? SkeletonUtils.clone(rootObject) : rootObject
+    this.skeleton = this.get_skeleton(parent) // Recreation of Bone Hierarchy
+
+    if (typeof this.skeleton.bones[0] === 'undefined') {
+      debugger
+    }
 
     // this.bones = this.skeleton.bones
     this.rootOffset = new Object3D() // Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
@@ -147,8 +154,19 @@ class Pose {
     this.skeleton.update()
   }
 
-  get_skeleton(objects: (Object3D | SkinnedMesh)[]): Skeleton {
-    return (objects.find((skin) => skin instanceof SkinnedMesh && skin.skeleton != null) as SkinnedMesh).skeleton
+  get_skeleton(rootObject: Object3D): Skeleton | null {
+    let skeleton: Skeleton = null
+
+    rootObject.traverse((object) => {
+      if (object instanceof SkinnedMesh && object.skeleton != null) {
+        if (skeleton && skeleton.bones.length > object.skeleton.bones.length) {
+          return
+        }
+        skeleton = object.skeleton
+      }
+    })
+
+    return skeleton
   }
 
   setOffset(quaternion: Quaternion, position: Vector3, scale: Vector3) {

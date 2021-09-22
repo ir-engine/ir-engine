@@ -11,6 +11,11 @@ import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { World } from '../ecs/classes/World'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { SpawnPoints } from './ServerAvatarSpawnSystem'
+import { dispatchFromClient } from '../networking/functions/dispatch'
+import { NetworkWorldAction } from '../networking/interfaces/NetworkWorldActions'
+import { SpawnPoseComponent } from './components/SpawnPoseComponent'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -96,6 +101,24 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       detectUserInPortal(entity)
 
       moveAvatar(entity, delta)
+
+      // TODO: implement scene lower bounds parameter
+      if (transform.position.y < -10) {
+        const { position, rotation } = getComponent(entity, SpawnPoseComponent)
+        const networkObject = getComponent(entity, NetworkObjectComponent)
+        dispatchFromClient(
+          NetworkWorldAction.teleportObject(networkObject.networkId, [
+            position.x,
+            position.y,
+            position.z,
+            rotation.x,
+            rotation.y,
+            rotation.z,
+            rotation.w
+          ])
+        )
+        continue
+      }
     }
     return world
   }
