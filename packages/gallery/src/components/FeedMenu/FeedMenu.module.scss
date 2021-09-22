@@ -5,22 +5,37 @@
     height: 66px;
 
     .switcher{
-        background-color: #EEEEEF;
-        padding: 5px 3px;
+        background-color: #FFFFFF;
+        padding: 5px 5px;
         display: flex;
         margin: 10px 20px;
-        border-radius: 15px;
+        border-radius: 35px;
+        border-color: #E4E4E4;
+        border-width: 1px;
+        border-style: solid;
         width: 20%;
         .switchButton{
             margin: 0;
-            color: #000000;
-            padding: 7pt;
+            color: #C4C4C4;
+            //padding: 7pt;
             font-size: 17pt;
             text-transform: capitalize;
             width: 50%;
-            border-radius: 15px;
+            border-radius: 35px;
+            box-shadow: none;
             &.active{
-                background-color: #FFF;
+                background-color: #E4E4E4;
+            }
+        }
+    }
+
+    .viewSwitcher{
+        @extend .switcher;
+        width: fit-content;
+        .viewSwitchButton{
+            @extend .switchButton;
+            &.viewActive{
+                @extend .active;
             }
         }
     }

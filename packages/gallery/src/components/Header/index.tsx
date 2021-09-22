@@ -35,6 +35,7 @@ interface Props {
   addFilesView?: any
   setAddFilesView?: any
   setFilesTarget?: any
+  hideAddButtons?: boolean
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -42,11 +43,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '100px'
   },
   addIcon: {
-    fontSize: '100px'
+    fontSize: '100px',
+    color: '#CFCFCF'
   }
 }))
 
-const AppHeader = ({ title, setAddFilesView, setFilesTarget }: Props) => {
+const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons }: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const classes = useStyles()
@@ -65,7 +67,7 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget }: Props) => {
 
   return (
     <nav className={styles.headerContainer}>
-      {title && <span>{title}</span>}
+      {title && <span className={styles.title}>{title}</span>}
       <input
         // accept="image/*"
         className={styles.input}
@@ -75,16 +77,33 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget }: Props) => {
         type="file"
         onChange={handlePickFiles}
       />
-      {userRole && userRole != 'guest' ? (
-        <label htmlFor="raised-button-file">
-          <Grid container justifyContent="center">
-            <AddCircleOutlinedIcon className={classes.addIcon} />
-            <br />
-          </Grid>
-          <Grid container justifyContent="center">
-            <Button variant="contained">Add Files</Button>
-          </Grid>
-        </label>
+      {!hideAddButtons && userRole && userRole != 'guest' ? (
+        <div
+          style={{ width: 'fit-content', backgroundColor: '#F8F8F8', border: '1px solid #F8F8F8', margin: '0 auto' }}
+        >
+          <label htmlFor="raised-button-file">
+            <Grid container justifyContent="center">
+              <AddCircleOutlinedIcon className={classes.addIcon} />
+              <br />
+            </Grid>
+            <Grid container justifyContent="center">
+              <Button
+                style={{
+                  backgroundColor: '#FFF',
+                  margin: '10px 20px',
+                  border: 'none',
+                  boxShadow: 'none',
+                  color: '#C4C4C4',
+                  fontSize: '15pt',
+                  fontWeight: 500
+                }}
+                variant="contained"
+              >
+                Add Files
+              </Button>
+            </Grid>
+          </label>
+        </div>
       ) : (
         ''
       )}

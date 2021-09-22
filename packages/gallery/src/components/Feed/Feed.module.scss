@@ -1,4 +1,16 @@
 .feedContainer{
+    .card {
+        margin: 50px 40px;
+        padding: 40px;
+        box-shadow: none;
+        background-color: #f8f8f8;
+        border-color: #f8f8f8;
+    }
+    .cartText {
+        color: #515151;
+        font-size: 24pt;
+        line-height: 72.25px;
+    }
     overflow-y: scroll;
     h5{
         padding: 0px 19pt 10pt 19pt;

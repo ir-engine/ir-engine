@@ -5,6 +5,10 @@ import { bindActionCreators, Dispatch } from 'redux'
 
 import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
+import CardContent from '@material-ui/core/CardContent'
+import Grid from '@material-ui/core/Grid'
+import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
+import RemoveCircleOutlinedIcon from '@material-ui/icons/RemoveCircleOutlined'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectCreatorsState } from '../../reducers/creator/selector'
@@ -38,6 +42,20 @@ interface Props {
   removeFeed?: any
   setFeedAsFeatured?: typeof setFeedAsFeatured
   setFeedNotFeatured?: typeof setFeedNotFeatured
+  viewType?: string
+}
+
+const gridValues = {
+  grid: {
+    xs: 12,
+    lg: 6,
+    xl: 4
+  },
+  list: {
+    xs: 12,
+    lg: 12,
+    xl: 12
+  }
 }
 
 const Featured = ({
@@ -47,9 +65,11 @@ const Featured = ({
   creatorId,
   removeFeed,
   setFeedAsFeatured,
-  setFeedNotFeatured
+  setFeedNotFeatured,
+  viewType
 }: Props) => {
   const [feedsList, setFeedList] = useState([])
+  const [removedIds, setRemovedIds] = useState(new Set())
   const { t } = useTranslation()
   const history = useHistory()
   const auth = useAuthState()
@@ -60,6 +80,9 @@ const Featured = ({
     } else {
       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
+    }
+    if (type !== 'myFeatured') {
+      setRemovedIds(new Set())
     }
   }, [type, creatorId, feedsState.get('feedsFetching')])
 
@@ -105,34 +128,50 @@ const Featured = ({
 
   const handleRemoveFromFeatured = (item) => {
     setFeedNotFeatured(item)
+    let ids = new Set([...removedIds, item])
+    setRemovedIds(ids)
   }
-
-  console.log(feedsList)
-
   return (
     <section className={styles.feedContainer}>
-      {feedsList && feedsList.length > 0
-        ? feedsList.map((item, itemIndex) => {
-            return (
-              <Card className={styles.creatorItem} elevation={0} key={itemIndex}>
-                {!type ? (
-                  <Button onClick={() => handleAddToFeatured(item.id)}>ADD</Button>
-                ) : (
-                  <Button onClick={() => handleRemoveFromFeatured(item.id)}>REMOVE</Button>
-                )}
-                <CardMedia
-                  className={styles.previewImage}
-                  image={item.previewUrl}
-                  onClick={() => {
-                    history.push('/post?postId=' + item.id)
-                    // handleRemove(item.id, item.previewUrl)
-                  }}
-                />
-                <span className={styles.descr}>{item.description}</span>
-              </Card>
-            )
-          })
-        : ''}
+      <Grid container spacing={3} style={{ marginTop: 30 }}>
+        {feedsList && feedsList.length > 0
+          ? feedsList.map((item, itemIndex) => {
+              return (
+                <Grid
+                  item
+                  {...gridValues[viewType]}
+                  key={itemIndex}
+                  className={type === 'myFeatured' && removedIds.has(item.id) ? styles.gridItemDelete : styles.gridItem}
+                >
+                  {!type ? (
+                    <AddCircleOutlinedIcon className={styles.addButton} onClick={() => handleAddToFeatured(item.id)} />
+                  ) : (
+                    <RemoveCircleOutlinedIcon
+                      onClick={() => handleRemoveFromFeatured(item.id)}
+                      className={styles.removeButton}
+                    />
+                  )}
+                  <Card className={styles.creatorItem} elevation={0} key={itemIndex}>
+                    <CardMedia
+                      // className={styles.previewImage}
+                      component="img"
+                      // style={{ height: (viewType === 'grid'? '354px' : '100%'), width: "90%" }}
+                      style={{ height: 390, padding: '30px 30px 0' }}
+                      image={item.previewUrl}
+                      onClick={() => {
+                        history.push('/post?postId=' + item.id)
+                        // handleRemove(item.id, item.previewUrl)
+                      }}
+                    />
+                    <CardContent style={{ textAlign: 'center' }}>
+                      <span className={styles.descr}>{item.description}</span>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )
+            })
+          : ''}
+      </Grid>
     </section>
   )
 }
