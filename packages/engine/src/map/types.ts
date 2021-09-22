@@ -26,7 +26,7 @@ export interface RawFeature {
   toGeoJSON(x: number, y: number, zoom: number): Feature
 }
 
-export type ILayerName = keyof VectorTile['layers']
+export type ILayerName = keyof VectorTile['layers'] | 'landuse_fallback'
 
 export interface FeatureWithTileIndex extends Feature {
   properties: {
