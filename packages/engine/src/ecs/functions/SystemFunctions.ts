@@ -19,12 +19,14 @@ export const InjectionPoint = {
 
 export type SystemFactoryType<A> = {
   system: SystemModulePromise<A>
-  type?: SystemUpdateType
+  type: SystemUpdateType
   args?: A
 }
 
-export interface SystemInjectionType<A> extends SystemFactoryType<A> {
-  injectionPoint?: keyof typeof InjectionPoint
+export interface SystemInjectionType<A> {
+  system: SystemModulePromise<A>
+  injectionPoint: keyof typeof InjectionPoint
+  args?: A
 }
 
 export const registerSystem = (type: SystemUpdateType, system: SystemModulePromise<void>) => {
@@ -49,5 +51,5 @@ export const unregisterSystem = <A>(type: SystemUpdateType, system: SystemModule
 }
 
 export const injectSystem = <A>(world: World, init: SystemInjectionType<A>) => {
-  world._injectedPipelines[init.injectionPoint].push({ system: init.system, args: init.args })
+  world._injectedPipelines[init.injectionPoint].push(init)
 }

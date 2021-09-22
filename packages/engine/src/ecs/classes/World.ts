@@ -3,7 +3,7 @@ import { HostUserId, NetworkId, UserId } from '../../networking/classes/Network'
 import { Action } from '../../networking/interfaces/Action'
 import { defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { InjectionPoint, SystemFactoryType } from '../functions/SystemFunctions'
+import { InjectionPoint, SystemFactoryType, SystemInjectionType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
 import { System } from './System'
 import { Engine } from './Engine'
@@ -40,12 +40,12 @@ export class World {
   _fixedPipeline = [] as SystemFactoryType<any>[]
 
   _injectedPipelines = {
-    [InjectionPoint.UPDATE]: [] as SystemFactoryType<any>[],
-    [InjectionPoint.FIXED_EARLY]: [] as SystemFactoryType<any>[],
-    [InjectionPoint.FIXED]: [] as SystemFactoryType<any>[],
-    [InjectionPoint.FIXED_LATE]: [] as SystemFactoryType<any>[],
-    [InjectionPoint.PRE_RENDER]: [] as SystemFactoryType<any>[],
-    [InjectionPoint.POST_RENDER]: [] as SystemFactoryType<any>[]
+    [InjectionPoint.UPDATE]: [] as SystemInjectionType<any>[],
+    [InjectionPoint.FIXED_EARLY]: [] as SystemInjectionType<any>[],
+    [InjectionPoint.FIXED]: [] as SystemInjectionType<any>[],
+    [InjectionPoint.FIXED_LATE]: [] as SystemInjectionType<any>[],
+    [InjectionPoint.PRE_RENDER]: [] as SystemInjectionType<any>[],
+    [InjectionPoint.POST_RENDER]: [] as SystemInjectionType<any>[]
   }
 
   physics = new Physics()
@@ -164,7 +164,7 @@ export class World {
   }
 
   async initSystems() {
-    const loadSystem = (pipelineTypeLabel: string, pipeline: SystemFactoryType<any>[]) => {
+    const loadSystem = (pipelineTypeLabel: string, pipeline: SystemFactoryType<any>[] | SystemInjectionType<any>[]) => {
       return pipeline.map(async (s) => {
         const systemFactory = (await s.system).default
         const execute = await systemFactory(this, s.args)

@@ -11,7 +11,7 @@ import { sendChatMessage } from '../../social/reducers/chat/service'
 import { accessAuthState } from '../../user/reducers/auth/AuthState'
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 
-export default async function ProximitySystem(world: World): Promise<System> {
+export default async function WebCamInputSystem(world: World): Promise<System> {
   const webcamInputQuery = defineQuery([WebCamInputComponent])
 
   return () => {
