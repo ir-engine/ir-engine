@@ -39,7 +39,7 @@
     "@types/puppeteer": "5.4.4",
     "@types/react": "17.0.22",
     "@types/react-dom": "17.0.9",
-    "@types/three": "0.131.1",
+    "@types/three": "0.132.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
