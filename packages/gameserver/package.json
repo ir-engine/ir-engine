@@ -65,7 +65,7 @@
     "@google-cloud/agones-sdk": "1.17.0",
     "@xrengine/engine": "^0.4.6",
     "@xrengine/server-core": "^0.4.6",
-    "aws-sdk": "2.991.0",
+    "aws-sdk": "2.992.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "comlink": "4.3.1",
