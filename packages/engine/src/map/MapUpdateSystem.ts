@@ -2,7 +2,7 @@ import { defineQuery, System } from 'bitecs'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { fromMetersFromCenter } from './units'
-import { multiplyArray, vector3ToArray2 } from './util'
+import { addChildFast, multiplyArray, setPosition, vector3ToArray2 } from './util'
 import { Object3D, Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
@@ -22,6 +22,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
   const viewerQuery = defineQuery([FollowCameraComponent])
   let previousViewerEntity: Entity
+  let shouldSubSceneChildren = true
 
   return () => {
     const viewerEntity = viewerQuery(world)[0]
@@ -55,59 +56,71 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0
+      shouldSubSceneChildren = true
     }
 
-    if (Math.round(world.fixedElapsedTime / world.fixedDelta) % 20 === 0) {
+    if (shouldSubSceneChildren) {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
       const subSceneChildren = []
       for (const object of mapComponent.completeObjects.values()) {
         // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
-        if (
-          object.mesh &&
-          isIntersectCircleCircle(
-            viewerPositionScaled,
-            mapComponent.minimumSceneRadius,
-            object.centerPoint,
-            object.boundingCircleRadius
-          )
-        ) {
-          setPosition(object.mesh, object.centerPoint)
-          addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
-        } else {
-          object.mesh.parent = null
+        if (object.mesh) {
+          if (
+            isIntersectCircleCircle(
+              viewerPositionScaled,
+              mapComponent.minimumSceneRadius,
+              object.centerPoint,
+              object.boundingCircleRadius
+            )
+          ) {
+            setPosition(object.mesh, object.centerPoint)
+            addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+          } else {
+            object.mesh.parent = null
+          }
         }
       }
       for (const label of mapComponent.labelCache.values()) {
-        if (
-          label.mesh &&
-          isIntersectCircleCircle(
-            viewerPositionScaled,
-            mapComponent.labelRadius,
-            label.centerPoint,
-            label.boundingCircleRadius
-          )
-        ) {
-          setPosition(label.mesh, label.centerPoint)
-          addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
-          label.mesh.update()
-        } else {
-          label.mesh.parent = null
+        if (label.mesh) {
+          if (
+            isIntersectCircleCircle(
+              viewerPositionScaled,
+              mapComponent.labelRadius,
+              label.centerPoint,
+              label.boundingCircleRadius
+            )
+          ) {
+            setPosition(label.mesh, label.centerPoint)
+            addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
+          } else {
+            label.mesh.parent = null
+          }
         }
       }
 
       // Update (sub)scene
       object3dComponent.value.children = subSceneChildren
+      shouldSubSceneChildren = false
+    }
+
+    // Update labels
+    if (Math.round(world.fixedElapsedTime / world.fixedDelta) % 20 === 0) {
+      for (const label of mapComponent.labelCache.values()) {
+        if (label.mesh) {
+          if (
+            isIntersectCircleCircle(
+              viewerPositionScaled,
+              mapComponent.labelRadius,
+              label.centerPoint,
+              label.boundingCircleRadius
+            )
+          ) {
+            label.mesh.update()
+          }
+        }
+      }
     }
     previousViewerEntity = viewerEntity
     return world
   }
-}
-
-function addChildFast(parent: Object3D, child: Object3D, children = parent.children) {
-  child.parent = parent
-  children.push(child)
-}
-
-function setPosition(object3d: Object3D, centerPoint: [number, number]) {
-  object3d.position.set(centerPoint[0], 0, centerPoint[1])
 }
