@@ -13,7 +13,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 ```
 cd path/to/xrengine
 npm install
-npm msadev
+npm run msadev
 ```
 This will automatically setup (if necessary) and run redis/mariadb docker containers, and XRengine client/server/game-server instances. That's it!
 
