@@ -193,7 +193,7 @@ export class World {
     for (const s of freeSystems) console.log(s.systemLabel)
     for (const pipeline in this.injectedSystems)
       for (const s of this.injectedSystems[pipeline]) {
-        console.log(s)
+        console.log(s.systemLabel)
       }
     console.log('all systems initialized!')
   }
