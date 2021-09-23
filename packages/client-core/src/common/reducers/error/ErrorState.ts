@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-import { SET_SCOPE_READ_ERROR, SET_SCOPE_WRITE_ERROR } from '../actions'
 import { ErrorActionType } from './ErrorActions'
 
 import { createState, useState, none, Downgraded } from '@hookstate/core'

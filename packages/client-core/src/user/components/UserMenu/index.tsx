@@ -1,7 +1,6 @@
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import LinkIcon from '@material-ui/icons/Link'
 import PersonIcon from '@material-ui/icons/Person'
-import FilterHdrIcon from '@material-ui/icons/FilterHdr'
 import SettingsIcon from '@material-ui/icons/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 // import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";

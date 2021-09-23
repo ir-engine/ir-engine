@@ -7,18 +7,19 @@ addEventListener('message', ({ data }) => {
 
   try {
     const geometry = new THREE.BufferGeometry()
-    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3, false))
-    geometry.setIndex(new THREE.BufferAttribute(index, 1, false))
+    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3))
+    if (index) {
+      geometry.setIndex(new THREE.BufferAttribute(index, 1))
+    }
     options.lazyGeneration = false
     const bvh = new MeshBVH(geometry, options)
     const serialized = MeshBVH.serialize(bvh, { copyIndexBuffer: false })
     postMessage(
       {
         error: null,
-        serialized,
-        position
+        serialized
       },
-      [serialized.index.buffer, position.buffer]
+      [serialized.index.buffer]
     )
   } catch (error) {
     postMessage({

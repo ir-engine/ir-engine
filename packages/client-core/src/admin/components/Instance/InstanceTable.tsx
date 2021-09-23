@@ -85,7 +85,7 @@ const InstanceTable = (props: Props) => {
       id,
       ipAddress,
       currentUsers,
-      locationId: locationId.name || '',
+      locationId: locationId?.name || '',
       channelId,
       action: (
         <>

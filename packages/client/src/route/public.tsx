@@ -88,6 +88,12 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           />
           <Route path="/offline" component={React.lazy(() => import('../pages/offline/[locationName]'))} />
 
+          {/* Starter Template */}
+          <Route
+            path="/starter/:locationName"
+            component={React.lazy(() => import('../pages/starter/[locationName]'))}
+          />
+
           {/* Harmony Routes */}
           <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
 

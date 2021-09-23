@@ -24,7 +24,7 @@
   },
   "resolutions": {
     "socket.io": "4.2.0",
-    "@types/react": "17.0.22",
+    "@types/react": "17.0.24",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -68,7 +68,7 @@
     "immutable": "4.0.0-rc.15",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
-    "mediasoup-client": "3.6.41",
+    "mediasoup-client": "3.6.42",
     "moment": "2.29.1",
     "rc-dock": "3.1.1",
     "rc-slider": "9.7.2",
@@ -99,7 +99,7 @@
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "sass": "1.42.0",
+    "sass": "1.42.1",
     "semantic-ui-react": "2.0.3",
     "shaka-player": "3.2.0",
     "socket.io-client": "4.2.0",
@@ -112,8 +112,8 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
-    "@types/node": "14.17.17",
-    "@types/react": "17.0.22",
+    "@types/node": "14.17.18",
+    "@types/react": "17.0.24",
     "@types/react-dom": "17.0.9",
     "comlink": "4.3.1",
     "config": "3.3.6",

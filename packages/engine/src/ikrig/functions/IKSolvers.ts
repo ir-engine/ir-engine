@@ -1,4 +1,4 @@
-import { Chain } from '../components/Chain'
+import { Chain } from '../classes/Chain'
 import Pose, { PoseBoneTransform } from '../classes/Pose'
 import { Quaternion, Vector3 } from 'three'
 import { Axis } from '../classes/Axis'
