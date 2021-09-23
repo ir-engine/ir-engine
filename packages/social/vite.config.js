@@ -58,7 +58,9 @@ export default defineConfig(() => {
             'process.browser': process.browser,
         },
         build: {
+            target: 'esnext',
             sourcemap: 'inline',
+            minify: 'esbuild',
             outDir:'www',
             assetsDir: 'assets',
             rollupOptions: {
