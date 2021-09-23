@@ -102,25 +102,27 @@ export function defineActionCreator<
   const shapeEntries = Object.entries(actionShape)
 
   // handle callback shape properties
-  const valueEntries = shapeEntries.filter((k, v) => typeof v === 'object' && 'callback' in v) as Array<
+  const initializerEntries = shapeEntries.filter(([k, v]) => typeof v === 'object' && 'callback' in v) as Array<
     [string, MatchesCallback<any>]
   >
-  const valueMatches = Object.fromEntries(valueEntries.map(([k, v]) => [k, v.matches]))
-  const values = Object.fromEntries(valueEntries.map(([k, v]) => [k, v.callback()]) as [string, any])
+  const initializerMatches = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.matches]))
+  const initializerValues = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.callback()]) as [string, any])
 
   // handle literal shape properties
   const literalEntries = shapeEntries.filter(([k, v]) => typeof v !== 'object') as Array<[string, string | number]>
   const literalValidators = Object.fromEntries(literalEntries.map(([k, v]) => [k, matches.literal(v)]))
 
   const actionCreator = (partialAction: PartialAction<Shape>) => {
-    let action = { ...partialAction, ...Object.fromEntries(literalEntries), ...values } as ResolvedAction
+    let action = { ...partialAction, ...Object.fromEntries(literalEntries), ...initializerValues } as ResolvedAction
+    console.log(action, initializerEntries)
     return action
   }
 
-  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, valueMatches) as any // as ResolvedActionShape<Shape>
+  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, initializerMatches) as any // as ResolvedActionShape<Shape>
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
 
   actionCreator.actionShape = actionShape as Shape
+  actionCreator.resolvedActionShape = resolvedActionShape
   actionCreator.type = actionShape.type
   actionCreator.matches = matches.every(matchesShape, matchesActionFromHost)
   actionCreator.matchesFromAny = matchesShape
