@@ -36,8 +36,6 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
   }
   const world = useWorld()
 
-  console.log('MIGHT DISPATCH ACTION ', actionCb(), Engine.userId, world.hostId)
-
   if (Engine.userId !== userId) return options
 
   const action = actionCb()

@@ -19,8 +19,6 @@ function sendActions() {
   const incomingActions = Engine.defaultWorld.incomingActions
   const outgoingActions = Engine.defaultWorld.outgoingActions
 
-  outgoingActions.size && console.log('OUTGOING', outgoingActions)
-
   // if hosting, forward all non-local incoming actions
   if (Engine.defaultWorld.isHosting) {
     for (const incoming of incomingActions) {
