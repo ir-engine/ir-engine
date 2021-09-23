@@ -1,5 +1,4 @@
 import { isClient } from '../../common/functions/isClient'
-import { HostUserId, NetworkId, UserId } from '../../networking/classes/Network'
 import { Action } from '../../networking/interfaces/Action'
 import { defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
@@ -11,6 +10,8 @@ import * as bitecs from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 type SystemInstanceType = { execute: System; systemLabel: string }
 

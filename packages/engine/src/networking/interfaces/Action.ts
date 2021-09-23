@@ -1,7 +1,8 @@
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Vector3, Quaternion } from 'three'
 import matches, { Validator } from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { NetworkId, UserId } from '../classes/Network'
 
 export type Action = {
   type: string
@@ -84,11 +85,18 @@ type ResolvedActionType<S extends ActionShape<any>, AllowDispatchFromAny extends
     ? { __ALLOW_DISPATCH_FROM_ANY: true }
     : {})
 
+/**
+ *
+ * @param actionShape
+ * @param options
+ *
+ * @author Gheric Speiginer <github.com/speigg>
+ */
 export function defineActionCreator<
   Shape extends ActionShape<Action>,
   Extensions,
   AllowDispatchFromAny extends boolean | void = void
->(actionShape: Shape, _opts?: ActionCreatorOptions<Shape, Extensions, AllowDispatchFromAny>) {
+>(actionShape: Shape, options?: ActionCreatorOptions<Shape, Extensions, AllowDispatchFromAny>) {
   type ResolvedAction = ResolvedActionType<ResolvedActionShape<Shape>, AllowDispatchFromAny>
 
   const shapeEntries = Object.entries(actionShape)
@@ -117,7 +125,7 @@ export function defineActionCreator<
   actionCreator.matches = matches.every(matchesShape, matchesActionFromHost)
   actionCreator.matchesFromAny = matchesShape
   actionCreator.matchesFromUser = (userId: UserId) => matches.every(matchesShape, matchesActionFromUser(userId))
-  const matchExtensions = _opts?.extensions?.(matchesShape)
+  const matchExtensions = options?.extensions?.(matchesShape)
   Object.assign(actionCreator, matchExtensions)
 
   type ValidatorKeys = true extends AllowDispatchFromAny ? FromAnyUserValidators : never

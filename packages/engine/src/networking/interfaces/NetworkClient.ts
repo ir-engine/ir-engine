@@ -1,4 +1,5 @@
-import type { NetworkId, UserId } from '../classes/Network'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import type SocketIO from 'socket.io'
 import type { AvatarProps } from './WorldState'
 

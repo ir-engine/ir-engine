@@ -34,6 +34,7 @@ export const incomingNetworkReceptor = (action) => {
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
+      console.log('SPAWNING OBJECT!')
       if (world.getNetworkObject(a.networkId))
         throw new Error(`Cannot spawn network object with existing network id ${a.networkId}`)
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)

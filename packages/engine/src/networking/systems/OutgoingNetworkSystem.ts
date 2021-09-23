@@ -16,11 +16,13 @@ import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
 
 function sendActions() {
-  const incomingActions = Engine.defaultWorld!.incomingActions
-  const outgoingActions = Engine.defaultWorld!.outgoingActions
+  const incomingActions = Engine.defaultWorld.incomingActions
+  const outgoingActions = Engine.defaultWorld.outgoingActions
+
+  outgoingActions.size && console.log('OUTGOING', outgoingActions)
 
   // if hosting, forward all non-local incoming actions
-  if (Engine.defaultWorld!.isHosting) {
+  if (Engine.defaultWorld.isHosting) {
     for (const incoming of incomingActions) {
       if (incoming.$to !== Engine.userId) {
         outgoingActions.add(incoming)
@@ -32,7 +34,8 @@ function sendActions() {
 
   // move local actions directly to incoming queue
   for (const out of outgoingActions) {
-    if (out.$to !== Engine.userId) {
+    out.$from = out.$from ?? Engine.userId
+    if (out.$to === Engine.userId) {
       incomingActions.add(out as Required<Action>)
       outgoingActions.delete(out)
     }
@@ -167,6 +170,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     }
 
     try {
+      // console.log('SENDING WORLD STATE', newWorldState)
       const buffer = WorldStateModel.toBuffer(newWorldState)
       Network.instance.transport.sendData(buffer)
       prevWorldState = newWorldState

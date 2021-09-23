@@ -1,7 +1,8 @@
-import { Network, UserId } from '../classes/Network'
+import { Network } from '../classes/Network'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 export type NearbyUser = { id: string; distance: number }
 

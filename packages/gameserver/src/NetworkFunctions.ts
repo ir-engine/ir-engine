@@ -1,7 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network, UserId } from '@xrengine/engine/src/networking//classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
 import logger from '@xrengine/server-core/src/logger'
@@ -15,6 +15,7 @@ import { XRInputSourceComponent } from '../../engine/src/avatar/components/XRInp
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -291,7 +292,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
         userId,
         avatarDetail: client.avatarDetail!
       })
-    )
+    ).to(joinedUserId)
   }
   for (const eid of world.networkObjectQuery()) {
     const networkObject = getComponent(eid, NetworkObjectComponent)

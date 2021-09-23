@@ -15,10 +15,11 @@ import { InjectionPoint, injectSystem, registerSystem, registerSystemWithArgs } 
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
-import { Network, UserId } from './networking/classes/Network'
+import { Network } from './networking/classes/Network'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -351,7 +352,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
-  console.log('POST CONFIG')
   if (options.type === EngineSystemPresets.CLIENT) {
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
       Engine.engineTimer.start()

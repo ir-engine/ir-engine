@@ -1,6 +1,6 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network, UserId } from '../classes/Network'
+import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/networkSchema'
@@ -17,6 +17,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { decodeVector3, decodeQuaternion } from '@xrengine/common/src/utils/decode'
 import { Action } from '../interfaces/Action'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
@@ -26,8 +27,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
   return () => {
     const incomingActions = Engine.defaultWorld!.incomingActions
 
-    if (delayedActions.size || incomingActions.size)
-      console.log(`\n\nDispatching actions for simulation tick: ${world.fixedTick}`)
+    if (incomingActions.size) console.log(`\n\nDispatching actions for simulation tick: ${world.fixedTick}`)
 
     for (const action of delayedActions) {
       if (action.$tick <= world.fixedTick) {
@@ -56,18 +56,11 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
       const userId = Network.instance.incomingMessageQueueUnreliableIDs.pop() as UserId
 
-      const ownerEntity = world.getUserAvatarEntity(userId)
-      if (!ownerEntity) return
-
-      const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
-
-      if (!isClient && !ownerEntity) return
-
       try {
         const newWorldState = WorldStateModel.fromBuffer(buffer)
-        //console.log('new world state: ' + JSON.stringify(newWorldState))
 
         if (isClient) {
+          world.fixedTick = newWorldState.tick
           //add velocity to player to check how it works and apply here the read of velocities
 
           // on client, all incoming object poses handled by Interpolation
@@ -116,7 +109,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               else velC.velocity.copy(decodeVector3(pose.linearVelocity))
             }
 
-            if (networkComponent.networkId === ownerNetworkId) {
+            if (networkComponent.userId === userId) {
               const transform = getComponent(networkObjectEntity, TransformComponent)
               if (transform) {
                 transform.position.copy(decodeVector3(pose.position))

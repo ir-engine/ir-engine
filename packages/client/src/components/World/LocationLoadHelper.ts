@@ -14,7 +14,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { Network, UserId } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -27,6 +27,7 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 import { Vector3, Quaternion } from 'three'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -95,6 +96,7 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
+  console.log('LOADING SCENE', sceneId)
   // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
@@ -123,6 +125,7 @@ export const initEngine = async (
   // 3. Start scene loading
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
+  console.log('Awaiting scene load')
   await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
 
   getPortalDetails()
@@ -147,6 +150,7 @@ export const initEngine = async (
     createOfflineUser()
   }
 
+  console.log('JOINED WORLD')
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
   if (typeof engineCallbacks?.onJoinedToNewWorld === 'function') {

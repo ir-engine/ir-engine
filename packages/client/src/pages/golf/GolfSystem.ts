@@ -8,7 +8,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GolfAction } from './GolfAction'
-import { Network, UserId } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { createState, Downgraded } from '@hookstate/core'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
@@ -48,6 +47,7 @@ import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/X
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 /**
  *
@@ -56,7 +56,7 @@ export const GolfState = createState({
   holes: [{ par: 3 }, { par: 3 }, { par: 3 }] as Array<{ par: number }>,
   players: [] as Array<{
     userId: UserId
-    scores: Array<number>
+    scores: Array<number | undefined>
     stroke: number
     viewingScorecard: boolean
   }>,

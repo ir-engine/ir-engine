@@ -1,10 +1,6 @@
-import { Vector3 } from 'three'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { string, float32, Schema, uint32, uint8, uint64, int8 } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
-import { setVelocityScaleAt } from '../../particles/classes/ParticleMesh'
-import { PostProcessingSchema } from '../../renderer/interfaces/PostProcessingSchema'
-import { Pose } from '../../transform/TransformInterfaces'
-import { NetworkId } from '../classes/Network'
 
 /**
  * @author HydraFire <github.com/HydraFire>

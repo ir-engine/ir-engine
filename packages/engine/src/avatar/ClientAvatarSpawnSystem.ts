@@ -16,6 +16,7 @@ import matches from 'ts-matches'
 export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
   world.receptors.add((action) => {
     matches(action).when(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
+      console.log('SPAWNING AVATARR!!!!')
       const entity = createAvatar(spawnAction)
 
       addComponent(entity, AudioTagComponent, {})

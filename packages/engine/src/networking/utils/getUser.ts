@@ -1,7 +1,9 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
-import { Network, UserId } from '../classes/Network'
+import { Network } from '../classes/Network'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export function getUserEntityByName(name: string) {
   const client = Array.from(Network.instance.clients.values()).find((c) => {
@@ -31,7 +33,7 @@ export function getRemoteUsers(localUserId, notAfk: boolean): UserId[] {
 }
 
 export function getPlayerName(eid): string {
-  const uid = getUserId(eid)
+  const uid = getComponent(eid, NetworkObjectComponent)?.userId
   if (uid === undefined || uid === '') return ''
 
   for (let p in Network.instance.clients) {

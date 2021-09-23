@@ -15,6 +15,7 @@ import { Network } from '../classes/Network'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 /** Get snapshot factory.
  * @author HydraFire <github.com/HydraFire>
@@ -272,7 +273,7 @@ export function interpolate(
  * @returns Interpolated snapshot.
  */
 let hasLostConnection = true
-export function calculateInterpolation(parameters: string, arrayName = ''): InterpolatedSnapshot {
+export function calculateInterpolation(parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
   const serverTime =
     Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer

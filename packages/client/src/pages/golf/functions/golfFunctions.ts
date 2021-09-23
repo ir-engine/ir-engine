@@ -1,5 +1,5 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { UserId } from '@xrengine/engine/src/networking/classes/Network'
 import { GolfState } from '../GolfSystem'
 
 export const getGolfPlayerNumber = (userId: UserId = GolfState.currentPlayerId.value) => {

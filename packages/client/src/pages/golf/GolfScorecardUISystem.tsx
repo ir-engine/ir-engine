@@ -3,8 +3,6 @@ import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { getHeadTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import React from 'react'
@@ -13,12 +11,13 @@ import { getGolfPlayerNumber } from './functions/golfFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { GolfState } from './GolfSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 export function createScorecardUI() {
   return createXRUI(GolfScorecardView, GolfState)
 }
 
-function getUserById(id: string, userState: ReturnType<typeof useUserState>) {
+function getUserById(id: UserId, userState: ReturnType<typeof useUserState>) {
   return userState.layerUsers.find((user) => user.id.value === id)
 }
 
@@ -78,7 +77,7 @@ const GolfLabelColumn = () => {
               color: color.getStyle()
             }}
           >
-            {getUserById(p.id.value, userState)?.name.value || `Player${i}`}
+            {getUserById(p.userId.value, userState)?.name.value || `Player${i}`}
           </div>
         )
       })}

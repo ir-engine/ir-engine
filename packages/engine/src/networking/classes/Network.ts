@@ -1,14 +1,11 @@
 import { Schema } from '../../assets/superbuffer'
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Snapshot } from '../types/SnapshotDataTypes'
-import { OpaqueType } from '../../common/types/OpaqueType'
 import { NetworkClient } from '../interfaces/NetworkClient'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
-
-export type UserId = OpaqueType<'userId'> & string
-export type HostUserId = UserId & { readonly __host: true }
-export type NetworkId = OpaqueType<'networkId'> & number
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 /** Component Class for Network. */
 export class Network {

@@ -1,5 +1,6 @@
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkId, UserId } from '../classes/Network'
 
 export type NetworkObjectComponentType = {
   /** The user who owns this object. */

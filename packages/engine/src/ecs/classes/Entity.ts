@@ -1,3 +1,3 @@
-import { OpaqueType } from '../../common/types/OpaqueType'
+import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
 
 export type Entity = OpaqueType<'entity'> & number

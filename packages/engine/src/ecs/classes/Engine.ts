@@ -15,7 +15,7 @@ import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
 import { World } from '../classes/World'
-import { UserId } from '../../networking/classes/Network'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
