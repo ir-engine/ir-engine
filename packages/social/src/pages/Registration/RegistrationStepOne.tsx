@@ -22,24 +22,10 @@ import { useTranslation } from 'react-i18next'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
 
-interface Props {
-  changeActiveMenu?: any
-  setRegistrationOpen?: any
-  authState?: any
-  updateUsername?: any
-  updateUserAvatarId?: any
-  updateUserSettings?: any
-  loginUserByOAuth?: any
-  loginUserByXRWallet?: any
-  addConnectionBySms?: any
-  addConnectionByEmail?: any
-  logoutUser?: any
-  removeUser?: any
-  hideLogin?: any
-  creatorsState: any
-  updateCreator: any
-  doLoginAuto: any
-}
+import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
+import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { createCreator } from '@xrengine/social/src/reducers/creator/service'
+import { Link } from 'react-router-dom'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -50,17 +36,14 @@ const mapStateToProps = (state: any): any => {
 const Registration = (props: any): any => {
   const {
     updateUsername,
-    addConnectionByEmail,
-    addConnectionBySms,
     loginUserByOAuth,
     logoutUser,
     changeActiveMenu,
     setRegistrationOpen,
     creatorsState,
-    updateCreator,
-    doLoginAuto,
-    setCrutch
+    doLoginAuto
   } = props
+
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const auth = useAuthState()
@@ -73,6 +56,7 @@ const Registration = (props: any): any => {
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
   const [emailPhoneForm, setEmailPhoneForm] = useState(false)
+
   let type = ''
 
   const loadCredentialHandler = async () => {
@@ -98,14 +82,16 @@ const Registration = (props: any): any => {
 
   const updateUserName = (e) => {
     e.preventDefault()
-    handleUpdateUsername()
-  }
-
-  const handleUsernameChange = (e) => {
-    setCreator({
-      ...creator,
-      username: e.target.value
-    })
+    const creator = creatorsState.get('currentCreator')
+    dispatch(
+      updateCreator(
+        {
+          ...creator,
+          username: e.target.value
+        },
+        callBacksFromUpdateUsername
+      )
+    )
   }
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const callBacksFromUpdateUsername = (str: string) => {
@@ -122,8 +108,26 @@ const Registration = (props: any): any => {
     }
   }
 
+  const [crutch, setCrutch] = useState(false)
+
+  const authData = getStoredAuthState()
+  const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
+
+  useEffect(() => {
+    if (accessToken || crutch) {
+      dispatch(AuthService.doLoginAuto(true))
+      dispatch(getWebXrNative())
+    }
+  }, [accessToken, crutch])
+
+  useEffect(() => {
+    if (auth?.authUser?.accessToken) {
+      dispatch(createCreator())
+    }
+  }, [auth.isLoggedIn.value, auth.user.id.value])
+
   const handleUpdateUsername = () => {
-    updateCreator(creator, callBacksFromUpdateUsername)
+    dispatch(updateCreator(creator, callBacksFromUpdateUsername))
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
 
@@ -143,8 +147,8 @@ const Registration = (props: any): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') addConnectionByEmail(emailPhone, selfUser?.id)
-    else if (type === 'sms') addConnectionBySms(emailPhone, selfUser?.id)
+    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, authData.user.id))
+    if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, authData.user.id))
     return
   }
 
@@ -153,6 +157,7 @@ const Registration = (props: any): any => {
   }
   const handleGoEmailClick = () => {
     setEmailPhoneForm(!emailPhoneForm)
+    setCrutch(true)
   }
 
   const handleLogout = async (e) => {
@@ -169,7 +174,7 @@ const Registration = (props: any): any => {
           <span>Log in to</span>
           <img src="/assets/LogoColored.png" alt="logo" crossOrigin="anonymous" className="logo" />
         </div>
-        {emailPhoneForm && (
+        {emailPhoneForm && creatorsState.get('currentCreator')?.username && (
           <div className={styles.emailPhoneSection}>
             <div className={styles.socialBack} onClick={handleGoEmailClick}>
               <ArrowBackIosIcon />
@@ -178,29 +183,28 @@ const Registration = (props: any): any => {
               {t('user:usermenu.registration.connect')}
             </Typography>
             <form onSubmit={handleSubmit}>
-              {/* <TextField
+              <TextField
                 margin="none"
                 size="small"
                 label={t('user:usermenu.profile.lbl-username')}
                 variant="outlined"
-                value={''}
-                onChange={handleUsernameChange}
-                // onKeyDown={(e) => {
-                //   if (e.key === 'Enter') updateUserName(e)
-                // }}
+                defaultValue={creatorsState.get('currentCreator')?.username}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateUserName(e)
+                }}
                 className={styles.usernameInput}
                 error={errorUsername}
-                // InputProps={{
-                //   endAdornment: (
-                //     <InputAdornment position="end">
-                //       <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
-                //         <Check className={styles.primaryForeground} />
-                //       </a>
-                //     </InputAdornment>
-                //   )
-                // }}
-              /> */}
-              {/* <TextField
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
+                        <Check className={styles.primaryForeground} />
+                      </a>
+                    </InputAdornment>
+                  )
+                }}
+              />
+              <TextField
                 className={styles.emailField}
                 size="small"
                 placeholder={t('user:usermenu.registration.ph-phoneEmail')}
@@ -209,17 +213,15 @@ const Registration = (props: any): any => {
                 onBlur={validate}
                 error={error}
                 helperText={error ? t('user:usermenu.registration.ph-phoneEmail') : null}
-              /> */}
-              <Button
-                className={styles.logIn}
-                variant="contained"
-                //  onClick={handleSubmit}
-                onClick={() => {
-                  setCrutch(true)
-                }}
-              >
+              />
+              <Button className={styles.logIn} variant="contained" onClick={handleSubmit}>
                 Log in
               </Button>
+              <Link to="/">
+                <Button className={styles.logIn} variant="contained">
+                  Continue as guest
+                </Button>
+              </Link>
             </form>
           </div>
         )}

@@ -50,6 +50,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, changeWebXrNative, getWebXrNative }) => {
   const auth = useAuthState()
+  console.log(auth.user.userRole.value)
   /*hided for now*/
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)

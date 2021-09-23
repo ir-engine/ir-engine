@@ -4,7 +4,6 @@ import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { SnackbarProvider } from 'notistack'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
@@ -36,9 +35,9 @@ import Button from '@material-ui/core/Button'
 import Splash from '@xrengine/social/src/components/Splash'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
-import Registration from '@xrengine/social/src/components/Registration'
 // import { WebXRStart } from '../components/popups/WebXR'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { Redirect } from 'react-router-dom'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -73,14 +72,12 @@ const Home = ({
   const authData = getStoredAuthState()
   const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
-  const [crutch, setCrutch] = useState(false)
-
   useEffect(() => {
-    if (accessToken || crutch) {
+    if (accessToken) {
       dispatch(AuthService.doLoginAuto(true))
       getWebXrNative()
     }
-  }, [accessToken, crutch])
+  }, [accessToken])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
@@ -138,9 +135,11 @@ const Home = ({
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
-  return (
-    <SnackbarProvider maxSnack={3}>{!accessToken ? <Registration setCrutch={setCrutch} /> : <App />}</SnackbarProvider>
-  )
+  if (!accessToken) {
+    return <Redirect to="/registration" />
+  }
+
+  return <App />
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home)
