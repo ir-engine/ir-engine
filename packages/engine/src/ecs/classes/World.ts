@@ -168,8 +168,17 @@ export class World {
     const loadSystem = (pipelineTypeLabel: string, pipeline: SystemFactoryType<any>[] | SystemInjectionType<any>[]) => {
       return pipeline.map(async (s) => {
         const systemFactory = (await s.system).default
-        const execute = await systemFactory(this, s.args)
-        return { execute, systemLabel: `${pipelineTypeLabel} ${systemFactory.name}` } as SystemInstanceType
+        const system = await systemFactory(this, s.args)
+        return {
+          execute: () => {
+            try {
+              system()
+            } catch (e) {
+              console.error(e)
+            }
+          },
+          systemLabel: `${pipelineTypeLabel} ${systemFactory.name}`
+        } as SystemInstanceType
       })
     }
 
