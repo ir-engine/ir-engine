@@ -1,5 +1,6 @@
 export const CameraLayers = {
-  Scene: 0,
-  Portal: 1,
-  Avatar: 2
+  None: 0,
+  Avatar: 1,
+  Portal: 2,
+  Scene: 3
 }

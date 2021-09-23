@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import List from '@material-ui/core/List'
+import { useDispatch } from 'react-redux'
 import { Dispatch, bindActionCreators } from 'redux'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
@@ -25,14 +26,13 @@ import { connect } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { createBotAsAdmin } from '../../reducers/admin/bots/service'
+import { BotService } from '../../reducers/admin/bots/BotsService'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { validateForm } from './validation'
 
 interface Props {
   fetchAdminInstances?: any
   adminInstanceState?: any
-  createBotAsAdmin?: any
   adminLocationState?: any
   fetchAdminLocations?: any
 }
@@ -46,7 +46,6 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  createBotAsAdmin: bindActionCreators(createBotAsAdmin, dispatch),
   fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch)
 })
 
@@ -55,7 +54,7 @@ const Alert = (props) => {
 }
 
 const CreateBot = (props: Props) => {
-  const { adminInstanceState, fetchAdminInstances, createBotAsAdmin, fetchAdminLocations, adminLocationState } = props
+  const { adminInstanceState, fetchAdminLocations, adminLocationState } = props
   const [command, setCommand] = React.useState({
     name: '',
     description: ''
@@ -75,6 +74,7 @@ const CreateBot = (props: Props) => {
     instance: '',
     location: ''
   })
+  const dispatch = useDispatch()
   const classes = useStyles()
   const classx = useStyle()
   const authState = useAuthState()
@@ -105,7 +105,7 @@ const CreateBot = (props: Props) => {
   })
 
   React.useEffect(() => {
-    const instanceFilter = data.filter((el) => el.location.id === state.location)
+    const instanceFilter = data.filter((el) => el.location?.id === state.location)
     if (instanceFilter.length > 0) {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
@@ -139,7 +139,7 @@ const CreateBot = (props: Props) => {
 
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      createBotAsAdmin(data)
+      dispatch(BotService.createBotAsAdmin(data))
       setState({ name: '', description: '', instance: '', location: '' })
       setCommandData([])
       setCurrentIntance([])

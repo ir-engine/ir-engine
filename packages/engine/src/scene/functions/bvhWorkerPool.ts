@@ -13,6 +13,7 @@ let bvhWorkers: GenerateMeshBVHWorker[] = []
 let meshQueue: Mesh[] = []
 
 export function generateMeshBVH(mesh) {
+  if (!mesh.isMesh) return
   if (!bvhWorkers.length) {
     for (let i = 0; i < poolSize; i++) {
       bvhWorkers.push(new GenerateMeshBVHWorker())

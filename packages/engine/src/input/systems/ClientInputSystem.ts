@@ -25,23 +25,38 @@ export default async function ClientInputSystem(world: World): Promise<System> {
       // handleGamepads()
     }
 
+    // for continuous input, figure out if the current data and previous data is the same
+    Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
+      if (Engine.prevInputState.has(key)) {
+        if (value.type === InputType.BUTTON) {
+          if (
+            value.lifecycleState === LifecycleValue.STARTED &&
+            Engine.prevInputState.get(key).lifecycleState === LifecycleValue.STARTED
+          ) {
+            value.lifecycleState = LifecycleValue.CONTINUED
+            console.log('started => continued')
+          }
+        } else {
+          if (value.lifecycleState !== LifecycleValue.ENDED) {
+            value.lifecycleState =
+              JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
+                ? LifecycleValue.UNCHANGED
+                : LifecycleValue.CHANGED
+          }
+        }
+
+        if (
+          Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.ENDED &&
+          value.lifecycleState === LifecycleValue.ENDED
+        ) {
+          Engine.inputState.delete(key)
+        }
+      }
+    })
+
     Engine.prevInputState.clear()
     Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
       Engine.prevInputState.set(key, value)
-    })
-
-    // for continuous input, figure out if the current data and previous data is the same
-    Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
-      if (
-        Engine.prevInputState.has(key) &&
-        value.type !== InputType.BUTTON &&
-        value.lifecycleState !== LifecycleValue.ENDED
-      ) {
-        value.lifecycleState =
-          JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key)!.value)
-            ? LifecycleValue.UNCHANGED
-            : LifecycleValue.CHANGED
-      }
     })
 
     // copy client input state to input component
@@ -60,13 +75,5 @@ export default async function ClientInputSystem(world: World): Promise<System> {
         }
       })
     }
-
-    // if button input has ended, remove it
-    Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
-      if (Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.ENDED) {
-        Engine.inputState.delete(key)
-        return
-      }
-    })
   }
 }

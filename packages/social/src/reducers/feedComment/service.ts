@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { feedsRetrieved } from '../feed/actions'
 import {
@@ -21,7 +21,7 @@ export function getFeedComments(feedId: string, limit?: number) {
       dispatch(feedsRetrieved(comments.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -33,7 +33,7 @@ export function addCommentToFeed(feedId: string, text: string) {
       dispatch(addFeedComment(newComment))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -45,7 +45,7 @@ export function addFireToFeedComment(commentId: string) {
       dispatch(addFeedCommentFire(commentId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -57,7 +57,7 @@ export function removeFireToFeedComment(commentId: string) {
       dispatch(removeFeedCommentFire(commentId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -69,7 +69,7 @@ export function getCommentFires(commentId: string, limit?: number) {
       dispatch(commentFires(comments.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

@@ -1,8 +1,4 @@
-import {
-  GeneralStateList,
-  setAppLoaded,
-  setAppOnBoardingStep
-} from '@xrengine/client-core/src/common/reducers/app/actions'
+import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Config } from '@xrengine/common/src/config'
 import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
@@ -123,14 +119,14 @@ export const initEngine = async (
   }
 
   // 3. Start scene loading
-  Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
+  Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
   console.log('Awaiting scene load')
   await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
 
   getPortalDetails()
-  Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-  Store.store.dispatch(setAppLoaded(true))
+  Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+  Store.store.dispatch(AppAction.setAppLoaded(true))
 
   // 4. Join to new world
   if (!isOffline) {
@@ -158,7 +154,7 @@ export const initEngine = async (
   }
 
   // 5. Dispatch success
-  Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
+  Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
 
   if (typeof engineCallbacks?.onSuccess === 'function') {
     engineCallbacks.onSuccess()

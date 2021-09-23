@@ -58,6 +58,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
       try {
         const newWorldState = WorldStateModel.fromBuffer(buffer)
+        //console.log('new world state: ' + JSON.stringify(newWorldState))
 
         if (isClient) {
           world.fixedTick = newWorldState.tick

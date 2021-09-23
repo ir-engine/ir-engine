@@ -6,8 +6,8 @@ import {
   locationPatched,
   locationRemoved
 } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
-import { dispatchScopeError } from '../../../../common/reducers/error/service'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
+import { ErrorAction } from '../../../../common/reducers/error/ErrorActions'
 import { client } from '../../../../feathers'
 
 export function fetchLocationTypes() {
@@ -24,7 +24,7 @@ export function patchLocation(id: string, location: any) {
       dispatch(locationPatched(result))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -43,7 +43,7 @@ export function createLocation(location: any) {
       dispatch(locationCreated(result))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -64,7 +64,7 @@ export function fetchAdminLocations(incDec?: 'increment' | 'decrement') {
       dispatch(locationsRetrieved(locations))
     } catch (error) {
       console.error(error)
-      dispatchScopeError(dispatch, error.message, error.statusCode, 'read')
+      dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
     }
   }
 }
