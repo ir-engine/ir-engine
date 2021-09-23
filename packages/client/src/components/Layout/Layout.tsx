@@ -215,7 +215,7 @@ const Layout = (props: Props): any => {
               </>
             )}
 
-            <button type="button" className={styles.respawn} disabled>
+            <button type="button" className={styles.respawn}>
               Respawn
             </button>
 
