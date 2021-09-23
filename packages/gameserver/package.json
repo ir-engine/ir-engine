@@ -34,6 +34,7 @@
     "check-errors": "tsc --noemit",
     "start": "cross-env NODE_ENV=production ts-node-dev --respawn --transpile-only src/index.ts",
     "golf": "ts-node-dev --respawn --transpile-only src/golf.ts",
+    "starter": "ts-node-dev --respawn --transpile-only src/starter.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "dev-channel": "GAMESERVER_PORT=3032 ts-node-dev --respawn --transpile-only src/index.ts",
     "dev-nossl": "cross-env NOSSL=true ts-node-dev --respawn --transpile-only src/index.ts",
