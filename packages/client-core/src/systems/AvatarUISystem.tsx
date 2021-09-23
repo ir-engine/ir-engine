@@ -7,7 +7,6 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 
@@ -18,8 +17,8 @@ export default async function AvatarUISystem(world: World): Promise<System> {
 
   return () => {
     for (const userEntity of userQuery.enter()) {
-      if (userEntity === useWorld().localClientEntity) continue
-      const userId = getComponent(userEntity, NetworkObjectComponent).uniqueId
+      if (userEntity === world.localClientEntity) continue
+      const userId = getComponent(userEntity, NetworkObjectComponent).userId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
       addComponent(ui.entity, TransformComponent, {
@@ -30,7 +29,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
     }
 
     for (const userEntity of userQuery()) {
-      if (userEntity === useWorld().localClientEntity) continue
+      if (userEntity === world.localClientEntity) continue
       const ui = AvatarUI.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
@@ -42,7 +41,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
     }
 
     for (const userEntity of userQuery.exit()) {
-      if (userEntity === useWorld().localClientEntity) continue
+      if (userEntity === world.localClientEntity) continue
       removeEntity(AvatarUI.get(userEntity)!.entity)
       AvatarUI.delete(userEntity)
     }
