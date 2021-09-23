@@ -8,6 +8,8 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import { GolfAvatarComponent } from '../components/GolfAvatarComponent'
 import { Quaternion, Vector3 } from 'three'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
+import { setAvatarLayer } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { generateMeshBVH } from '@xrengine/engine/src/scene/functions/bvhWorkerPool'
 
 const avatarScale = 1.3
 const rotateHalfY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
@@ -33,6 +35,16 @@ export const setupPlayerAvatar = async (entityPlayer: Entity) => {
 
   const torsoModel = SkeletonUtils.clone(torsoGLTF)
   torsoModel.scale.multiplyScalar(avatarScale)
+
+  headModel.traverse(setAvatarLayer)
+  leftHandModel.traverse(setAvatarLayer)
+  rightHandModel.traverse(setAvatarLayer)
+  torsoModel.traverse(setAvatarLayer)
+
+  headModel.traverse(generateMeshBVH)
+  leftHandModel.traverse(generateMeshBVH)
+  rightHandModel.traverse(generateMeshBVH)
+  torsoModel.traverse(generateMeshBVH)
 
   addComponent(entityPlayer, GolfAvatarComponent, { headModel, leftHandModel, rightHandModel, torsoModel })
 
