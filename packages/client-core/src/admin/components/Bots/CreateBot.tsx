@@ -105,7 +105,7 @@ const CreateBot = (props: Props) => {
   })
 
   React.useEffect(() => {
-    const instanceFilter = data.filter((el) => el.location.id === state.location)
+    const instanceFilter = data.filter((el) => el.location?.id === state.location)
     if (instanceFilter.length > 0) {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
