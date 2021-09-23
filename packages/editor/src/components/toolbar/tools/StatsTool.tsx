@@ -50,15 +50,12 @@ const StatsTool = () => {
     <>
       <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="stats">
         <InfoTooltip info="Toggle Stats">
-          <button
-            onClick={toggleStats}
-            className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}
-          >
+          <button onClick={toggleStats} className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}>
             <ChartArea size={12} />
           </button>
         </InfoTooltip>
       </div>
-      {isVisible &&
+      {isVisible && (
         <div className={styles.statsContainer}>
           <h3>{t('editor:viewport.state.header')}</h3>
           {info && (
@@ -99,7 +96,8 @@ const StatsTool = () => {
               </li>
             </ul>
           )}
-        </div>}
+        </div>
+      )}
     </>
   )
 }

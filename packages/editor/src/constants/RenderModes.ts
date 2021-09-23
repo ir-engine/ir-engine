@@ -6,8 +6,9 @@ export const RenderModes = {
   NORMALS: 'Normals' as const
 }
 
-export type RenderModesType = typeof RenderModes.UNLIT |
-  typeof RenderModes.LIT |
-  typeof RenderModes.SHADOW |
-  typeof RenderModes.WIREFRAME |
-  typeof RenderModes.NORMALS
+export type RenderModesType =
+  | typeof RenderModes.UNLIT
+  | typeof RenderModes.LIT
+  | typeof RenderModes.SHADOW
+  | typeof RenderModes.WIREFRAME
+  | typeof RenderModes.NORMALS

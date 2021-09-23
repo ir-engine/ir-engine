@@ -12,7 +12,7 @@ import { TransformSpace } from '../../../constants/TransformSpace'
  *
  * @author Robert Long
  */
- const transformSpaceOptions = [
+const transformSpaceOptions = [
   { label: 'Selection', value: TransformSpace.LocalSelection },
   { label: 'World', value: TransformSpace.World }
 ]
@@ -44,10 +44,7 @@ const TransformSpaceTool = () => {
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
       <InfoTooltip info="[Z] Toggle Transform Space">
-        <button
-          onClick={onToggleTransformSpace}
-          className={styles.toolButton}
-        >
+        <button onClick={onToggleTransformSpace} className={styles.toolButton}>
           <Globe size={12} />
         </button>
       </InfoTooltip>

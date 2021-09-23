@@ -274,9 +274,11 @@ export default class EditorControls extends EventEmitter {
           if (this.transformPivot === TransformPivot.Center) {
             this.selectionBoundingBox.getCenter(SceneManager.instance.transformGizmo.position)
           } else {
-            SceneManager.instance.transformGizmo.position.x = (this.selectionBoundingBox.max.x + this.selectionBoundingBox.min.x) / 2
+            SceneManager.instance.transformGizmo.position.x =
+              (this.selectionBoundingBox.max.x + this.selectionBoundingBox.min.x) / 2
             SceneManager.instance.transformGizmo.position.y = this.selectionBoundingBox.min.y
-            SceneManager.instance.transformGizmo.position.z = (this.selectionBoundingBox.max.z + this.selectionBoundingBox.min.z) / 2
+            SceneManager.instance.transformGizmo.position.z =
+              (this.selectionBoundingBox.max.z + this.selectionBoundingBox.min.z) / 2
           }
         }
       }
@@ -314,8 +316,14 @@ export default class EditorControls extends EventEmitter {
         this.transformAxis = SceneManager.instance.transformGizmo.selectAxisWithRaycaster(this.raycaster)
         if (this.transformAxis) {
           const axisInfo = (SceneManager.instance.transformGizmo as any).selectedAxis.axisInfo
-          this.planeNormal.copy(axisInfo.planeNormal).applyQuaternion(SceneManager.instance.transformGizmo.quaternion).normalize()
-          this.transformPlane.setFromNormalAndCoplanarPoint(this.planeNormal, SceneManager.instance.transformGizmo.position)
+          this.planeNormal
+            .copy(axisInfo.planeNormal)
+            .applyQuaternion(SceneManager.instance.transformGizmo.quaternion)
+            .normalize()
+          this.transformPlane.setFromNormalAndCoplanarPoint(
+            this.planeNormal,
+            SceneManager.instance.transformGizmo.position
+          )
           this.dragging = true
         } else {
           this.dragging = false
@@ -367,7 +375,9 @@ export default class EditorControls extends EventEmitter {
           const prevX = transformPosition.x
           const prevY = transformPosition.y
           const prevZ = transformPosition.z
-          const transformedConstraint = new Vector3().copy(constraint).applyQuaternion(SceneManager.instance.transformGizmo.quaternion)
+          const transformedConstraint = new Vector3()
+            .copy(constraint)
+            .applyQuaternion(SceneManager.instance.transformGizmo.quaternion)
           transformPosition.set(
             transformedConstraint.x !== 0
               ? Math.round(transformPosition.x / this.translationSnap) * this.translationSnap
@@ -405,7 +415,9 @@ export default class EditorControls extends EventEmitter {
             .sub(SceneManager.instance.transformGizmo.position)
           this.prevRotationAngle = 0
         }
-        this.curRotationDragVector.subVectors(this.planeIntersection, this.dragOffset).sub(SceneManager.instance.transformGizmo.position)
+        this.curRotationDragVector
+          .subVectors(this.planeIntersection, this.dragOffset)
+          .sub(SceneManager.instance.transformGizmo.position)
         this.normalizedInitRotationDragVector.copy(this.initRotationDragVector).normalize()
         this.normalizedCurRotationDragVector.copy(this.curRotationDragVector).normalize()
         let rotationAngle = this.curRotationDragVector.angleTo(this.initRotationDragVector)
@@ -696,7 +708,11 @@ export default class EditorControls extends EventEmitter {
   getRaycastPosition(coords, target, modifier) {
     this.raycaster.setFromCamera(coords, this.camera)
     this.raycasterResults.length = 0
-    this._raycastRecursive(SceneManager.instance.scene, CommandManager.instance.selectedTransformRoots, this.raycastIgnoreLayers)
+    this._raycastRecursive(
+      SceneManager.instance.scene,
+      CommandManager.instance.selectedTransformRoots,
+      this.raycastIgnoreLayers
+    )
     this._raycastRecursive(SceneManager.instance.grid)
     this.raycasterResults.sort(sortDistance)
     const result = this.raycasterResults[0]

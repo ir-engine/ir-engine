@@ -12,12 +12,11 @@ import * as styles from '../styles.module.scss'
  *
  * @author Robert Long
  */
- const transformPivotOptions = [
+const transformPivotOptions = [
   { label: 'Selection', value: TransformPivot.Selection },
   { label: 'Center', value: TransformPivot.Center },
   { label: 'Bottom', value: TransformPivot.Bottom }
 ]
-
 
 const TransformPivotTool = () => {
   const [transformPivot, setTransformPivot] = useState(TransformPivot.Selection)
@@ -46,10 +45,7 @@ const TransformPivotTool = () => {
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
       <InfoTooltip info="[X] Toggle Transform Pivot">
-        <button
-          onClick={onToggleTransformPivot}
-          className={styles.toolButton}
-        >
+        <button onClick={onToggleTransformPivot} className={styles.toolButton}>
           <Bullseye size={12} />
         </button>
       </InfoTooltip>

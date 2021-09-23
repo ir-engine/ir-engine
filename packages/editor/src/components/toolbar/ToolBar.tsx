@@ -33,7 +33,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     super(props)
 
     this.state = {
-      editorInitialized: false,
+      editorInitialized: false
     }
   }
 

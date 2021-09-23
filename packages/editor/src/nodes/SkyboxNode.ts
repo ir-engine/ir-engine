@@ -96,7 +96,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
   setUpBackground(type: SkyTypeEnum) {
     if (SceneManager.instance.scene?.background?.dispose) SceneManager.instance.scene.background.dispose()
-
     ;(this.sky as Mesh).visible = false
 
     switch (type) {

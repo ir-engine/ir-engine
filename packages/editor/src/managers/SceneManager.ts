@@ -75,7 +75,7 @@ export class SceneManager {
     }
 
     // getting scene data
-    const [ scene, error ] = await SceneNode.loadProject(projectFile)
+    const [scene, error] = await SceneNode.loadProject(projectFile)
     if (scene === null) throw new Error('Scene data is null, please create a new scene.')
 
     this.scene = scene

@@ -1084,11 +1084,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const { project } = this.state as any
     return (
       (project && project.scene && project.scene.scene_id) ||
-      (
-        SceneManager.instance.scene &&
+      (SceneManager.instance.scene &&
         SceneManager.instance.scene.metadata &&
-        SceneManager.instance.scene.metadata.sceneId
-      )
+        SceneManager.instance.scene.metadata.sceneId)
     )
   }
 
@@ -1188,11 +1186,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
           <DialogContextProvider value={this.dialogContext}>
             <DndProvider backend={HTML5Backend}>
               <DragLayer />
-              {toolbarMenu && (
-                <ToolBar
-                  menu={toolbarMenu}
-                />
-              )}
+              {toolbarMenu && <ToolBar menu={toolbarMenu} />}
               <WorkspaceContainer>
                 <ViewportPanelContainer />
                 <DockContainer>

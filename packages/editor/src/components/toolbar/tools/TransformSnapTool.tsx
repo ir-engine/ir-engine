@@ -9,9 +9,9 @@ import * as styles from '../styles.module.scss'
 import { SnapMode } from '../../../controls/EditorControls'
 
 /**
-  *
-  * @author Robert Long
-  */
+ *
+ * @author Robert Long
+ */
 const translationSnapOptions = [
   { label: '0.1m', value: 0.1 },
   { label: '0.125m', value: 0.125 },
@@ -23,9 +23,9 @@ const translationSnapOptions = [
 ]
 
 /**
-  *
-  * @author Robert Long
-  */
+ *
+ * @author Robert Long
+ */
 const rotationSnapOptions = [
   { label: '1°', value: 1 },
   { label: '5°', value: 5 },

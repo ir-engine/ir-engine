@@ -33,10 +33,7 @@ const PlayModeTool = () => {
   return (
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
       <InfoTooltip info={isInPlayMode ? 'Stop Previewing Scene' : 'Preview Scene'}>
-        <button
-          onClick={onTogglePlayMode}
-          className={styles.toolButton + ' ' + (isInPlayMode ? styles.selected : '')}
-        >
+        <button onClick={onTogglePlayMode} className={styles.toolButton + ' ' + (isInPlayMode ? styles.selected : '')}>
           {isInPlayMode ? <Pause size={16} /> : <Play size={16} />}
         </button>
       </InfoTooltip>

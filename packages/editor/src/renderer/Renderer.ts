@@ -1,4 +1,12 @@
-import { MeshBasicMaterial, MeshNormalMaterial, NearestFilter, RGBFormat, WebGLInfo, WebGLRenderer, WebGLRenderTarget } from 'three'
+import {
+  MeshBasicMaterial,
+  MeshNormalMaterial,
+  NearestFilter,
+  RGBFormat,
+  WebGLInfo,
+  WebGLRenderer,
+  WebGLRenderTarget
+} from 'three'
 import { CommandManager } from '../managers/CommandManager'
 import EditorCommands from '../constants/EditorCommands'
 import { getCanvasBlob } from '../functions/thumbnails'
@@ -128,8 +136,7 @@ export default class Renderer {
           const eff = new effect(scene, camera, pass)
           passes.push(eff)
           this.outlineEffect = eff
-        }
-        else passes.push(new effect(pass))
+        } else passes.push(new effect(pass))
     })
 
     if (passes.length) {
@@ -143,7 +150,9 @@ export default class Renderer {
     }
   }
 
-  get isShadowMapEnabled () { return this.webglRenderer.shadowMap.enabled }
+  get isShadowMapEnabled() {
+    return this.webglRenderer.shadowMap.enabled
+  }
 
   enableShadows(status: boolean): void {
     this.webglRenderer.shadowMap.enabled = status
@@ -156,7 +165,7 @@ export default class Renderer {
 
   changeRenderMode(mode: RenderModesType) {
     this.renderMode = mode
-    switch(mode) {
+    switch (mode) {
       case RenderModes.UNLIT:
         this.enableShadows(false)
         this.renderPass.overrideMaterial = null
@@ -204,7 +213,11 @@ export default class Renderer {
     let scenePreviewCamera = SceneManager.instance.scene.findNodeByType(ScenePreviewCameraNode)
     if (!scenePreviewCamera) {
       scenePreviewCamera = new ScenePreviewCameraNode()
-      SceneManager.instance.camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.rotation, scenePreviewCamera.scale)
+      SceneManager.instance.camera.matrix.decompose(
+        scenePreviewCamera.position,
+        scenePreviewCamera.rotation,
+        scenePreviewCamera.scale
+      )
       CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
     }
     const prevAspect = scenePreviewCamera.aspect
@@ -224,7 +237,7 @@ export default class Renderer {
 
   filterMeshes(object: any | any[], meshes: any[] = []): any[] {
     if (Array.isArray(object)) {
-      for(let i = 0; i < object.length; i++) {
+      for (let i = 0; i < object.length; i++) {
         this.filterMeshes(object[i], meshes)
       }
 
