@@ -11,12 +11,10 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
   static disableTransform = true
   static ignoreRaycast = true
   static haveStaticTags = false
-  static postProcessingCallback: (node, isRemoved?) => void
 
   constructor() {
     super()
     this.postProcessingOptions = PostProcessing.defaultOptions
-    PostProcessingNode.postProcessingCallback(this)
   }
 
   static canAddNode() {
@@ -31,10 +29,6 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
     return node
   }
 
-  onRendererChanged() {
-    PostProcessingNode.postProcessingCallback(this)
-  }
-
   async serialize(projectID) {
     let data: any = {}
     data = {
@@ -44,11 +38,11 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
   }
 
   onChange() {
-    PostProcessingNode.postProcessingCallback(this)
+    SceneManager.instance.renderer.configureEffectComposer(!this.visible)
   }
 
   onRemove() {
-    PostProcessingNode.postProcessingCallback(this, true)
+    SceneManager.instance.renderer.configureEffectComposer(true)
   }
 
   prepareForExport() {

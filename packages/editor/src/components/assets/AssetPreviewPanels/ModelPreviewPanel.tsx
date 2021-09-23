@@ -6,6 +6,7 @@ import { SceneManager } from '../../../managers/SceneManager'
 import { ControlManager } from '../../../managers/ControlManager'
 import EditorEvents from '../../../constants/EditorEvents'
 import { ProjectManager } from '../../../managers/ProjectManager'
+import { CommandManager } from '../../../managers/CommandManager'
 
 /**
  * @author Abhishek Pathak
@@ -72,10 +73,11 @@ export const ModelPreviewPanel = (props) => {
 
   const onEditorInitialized = useCallback(() => {
     ControlManager.instance.editorControls.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
   }, [onFlyModeChanged])
 
   useEffect(() => {
-    // editor.addListener(EditorEvents.INITIALIZED.toString(), onEditorInitialized)
+    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     ProjectManager.instance.init()
     SceneManager.instance.initializeRenderer(assestPanelRef.current)
     renderScene()

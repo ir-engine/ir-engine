@@ -216,6 +216,7 @@ export const saveProject = async (projectId, signal): Promise<any> => {
     project['scene_id'] = sceneId
   }
 
+  if (!ProjectManager.instance.ownedFileIds) ProjectManager.instance.ownedFileIds = {}
   Object.assign(ProjectManager.instance.ownedFileIds, ProjectManager.instance.currentOwnedFileIds)
   Object.assign(project.ownedFileIds, ProjectManager.instance.ownedFileIds)
   ProjectManager.instance.currentOwnedFileIds = {}
