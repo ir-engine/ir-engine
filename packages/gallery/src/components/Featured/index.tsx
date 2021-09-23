@@ -151,16 +151,17 @@ const Featured = ({
                       className={styles.removeButton}
                     />
                   )}
-                  <Card className={styles.creatorItem} elevation={0} key={itemIndex}>
+                  <Card
+                    className={styles.creatorItem + ' ' + (viewType === 'list' ? styles.list : '')}
+                    elevation={0}
+                    key={itemIndex}
+                  >
                     <CardMedia
-                      // className={styles.previewImage}
                       component="img"
-                      // style={{ height: (viewType === 'grid'? '354px' : '100%'), width: "90%" }}
-                      style={{ height: 390, padding: '30px 30px 0' }}
+                      className={styles.image + ' ' + (viewType === 'list' ? styles.imageList : '')}
                       image={item.previewUrl}
                       onClick={() => {
                         history.push('/post?postId=' + item.id)
-                        // handleRemove(item.id, item.previewUrl)
                       }}
                     />
                     <CardContent style={{ textAlign: 'center' }}>
