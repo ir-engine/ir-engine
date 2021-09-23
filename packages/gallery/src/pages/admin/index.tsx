@@ -44,7 +44,7 @@ const AdminPage = (props: Props) => {
     if (authState.user?.value) {
       setUserRole(authState.user?.userRole?.value)
     }
-  }, [authState])
+  }, [authState.user.value])
 
   useEffect(() => {
     dispatch(AuthService.doLoginAuto(true))

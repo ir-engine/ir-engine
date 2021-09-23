@@ -1,4 +1,3 @@
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'

@@ -1,6 +1,6 @@
 import Badge from '@material-ui/core/Badge'
 import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
-import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -38,9 +38,7 @@ enum ActivePanel {
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    onBoardingStep: selectAppOnBoardingStep(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({

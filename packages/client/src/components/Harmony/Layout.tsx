@@ -1,8 +1,8 @@
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
-import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions'
-import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
+import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
@@ -36,32 +36,26 @@ const initialGroupForm = {
 }
 
 interface Props {
-  appState?: any
   authState?: any
   locationState?: any
   login?: boolean
   pageTitle: string
   children?: any
-  setUserHasInteracted?: any
-  onBoardingStep?: number
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
-    locationState: selectLocationState(state),
-    onBoardingStep: selectAppOnBoardingStep(state)
+    locationState: selectLocationState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  setUserHasInteracted: bindActionCreators(setUserHasInteracted, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Layout = (props: Props): any => {
-  const { pageTitle, children, appState, setUserHasInteracted } = props
+  const { pageTitle, children } = props
+
   const dispatch = useDispatch()
-  const userHasInteracted = appState.get('userHasInteracted')
+  const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
@@ -83,13 +77,13 @@ const Layout = (props: Props): any => {
   })
 
   const initialClickListener = () => {
-    setUserHasInteracted()
+    dispatch(AppAction.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
 
   useEffect(() => {
-    if (userHasInteracted === false) {
+    if (userHasInteracted.value === false) {
       window.addEventListener('click', initialClickListener)
       window.addEventListener('touchend', initialClickListener)
     }

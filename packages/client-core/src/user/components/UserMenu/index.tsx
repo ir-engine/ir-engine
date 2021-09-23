@@ -12,7 +12,6 @@ import React, { useState, useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { alertSuccess } from '../../../common/reducers/alert/service'
-import { selectAppOnBoardingStep } from '../../../common/reducers/app/selector'
 import { useAuthState } from '../../reducers/auth/AuthState'
 import { AuthService } from '../../reducers/auth/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
@@ -36,9 +35,7 @@ type StateType = {
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    onBoardingStep: selectAppOnBoardingStep(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({

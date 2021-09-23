@@ -14,15 +14,14 @@ import {
 import { client } from '../../../../feathers'
 import { loadedUsers } from './actions'
 import { dispatchAlertError } from '../../../../common/reducers/alert/service'
-import { useAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export function fetchUsersAsAdmin(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const user = useAuthState().user
+    const user = getState().get('auth').user
     const skip = getState().get('adminUser').get('users').get('skip')
     const limit = getState().get('adminUser').get('users').get('limit')
     try {
-      if (user.userRole.value === 'admin') {
+      if (user.userRole === 'admin') {
         const users = await client.service('user').find({
           query: {
             $sort: {
