@@ -73,12 +73,14 @@ const Home = ({
   const authData = getStoredAuthState()
   const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
+  const [crutch, setCrutch] = useState(false)
+
   useEffect(() => {
-    if (accessToken) {
+    if (accessToken || crutch) {
       dispatch(AuthService.doLoginAuto(true))
       getWebXrNative()
     }
-  }, [accessToken])
+  }, [accessToken, crutch])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
@@ -136,7 +138,9 @@ const Home = ({
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
-  return <SnackbarProvider maxSnack={3}>{!accessToken ? <Registration /> : <App />}</SnackbarProvider>
+  return (
+    <SnackbarProvider maxSnack={3}>{!accessToken ? <Registration setCrutch={setCrutch} /> : <App />}</SnackbarProvider>
+  )
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home)

@@ -124,11 +124,8 @@ export class Creator extends Service {
       replacements: { userId: loggedInUser.userId }
     })
     const creatorId = creator ? creator.id : null
-    console.log('creator')
-    console.log(creator)
 
     if (!creatorId) {
-      console.log('creatorModel')
       const { creator: creatorModel } = this.app.get('sequelizeClient').models
       data.userId = loggedInUser.userId
       creator = await creatorModel.create(data)

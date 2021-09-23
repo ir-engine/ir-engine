@@ -3,28 +3,17 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { selectAuthState } from '../../../../client-core/src/user/reducers/auth/selector'
-import {
-  addConnectionByEmail,
-  addConnectionBySms,
-  loginUserByOAuth,
-  loginUserByXRWallet,
-  logoutUser,
-  removeUser,
-  updateUserAvatarId,
-  updateUsername,
-  updateUserSettings
-} from '../../../../client-core/src/user/reducers/auth/service'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { updateCreator } from '../../reducers/creator/service'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { FacebookIcon } from '../../../../client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../client-core/src/common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../client-core/src/common/components/Icons/TwitterIcon'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
@@ -54,28 +43,12 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
     creatorsState: selectCreatorsState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUsername: bindActionCreators(updateUsername, dispatch),
-  updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
-  updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
-  loginUserByXRWallet: bindActionCreators(loginUserByXRWallet, dispatch),
-  addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
-  logoutUser: bindActionCreators(logoutUser, dispatch),
-  removeUser: bindActionCreators(removeUser, dispatch),
-  updateCreator: bindActionCreators(updateCreator, dispatch),
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
-
-const Registration = (props: Props): any => {
+const Registration = (props: any): any => {
   const {
-    authState,
     updateUsername,
     addConnectionByEmail,
     addConnectionBySms,
@@ -85,11 +58,14 @@ const Registration = (props: Props): any => {
     setRegistrationOpen,
     creatorsState,
     updateCreator,
-    doLoginAuto
+    doLoginAuto,
+    setCrutch
   } = props
+  const dispatch = useDispatch()
   const { t } = useTranslation()
+  const auth = useAuthState()
 
-  const selfUser = authState.get('user') || {}
+  const selfUser = auth.user
 
   // const [username, setUsername] = useState(selfUser?.name)
   const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator'))
@@ -202,29 +178,29 @@ const Registration = (props: Props): any => {
               {t('user:usermenu.registration.connect')}
             </Typography>
             <form onSubmit={handleSubmit}>
-              <TextField
+              {/* <TextField
                 margin="none"
                 size="small"
                 label={t('user:usermenu.profile.lbl-username')}
                 variant="outlined"
                 value={''}
                 onChange={handleUsernameChange}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') updateUserName(e)
-                }}
+                // onKeyDown={(e) => {
+                //   if (e.key === 'Enter') updateUserName(e)
+                // }}
                 className={styles.usernameInput}
                 error={errorUsername}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
-                        <Check className={styles.primaryForeground} />
-                      </a>
-                    </InputAdornment>
-                  )
-                }}
-              />
-              <TextField
+                // InputProps={{
+                //   endAdornment: (
+                //     <InputAdornment position="end">
+                //       <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
+                //         <Check className={styles.primaryForeground} />
+                //       </a>
+                //     </InputAdornment>
+                //   )
+                // }}
+              /> */}
+              {/* <TextField
                 className={styles.emailField}
                 size="small"
                 placeholder={t('user:usermenu.registration.ph-phoneEmail')}
@@ -233,13 +209,13 @@ const Registration = (props: Props): any => {
                 onBlur={validate}
                 error={error}
                 helperText={error ? t('user:usermenu.registration.ph-phoneEmail') : null}
-              />
+              /> */}
               <Button
                 className={styles.logIn}
                 variant="contained"
                 //  onClick={handleSubmit}
                 onClick={() => {
-                  doLoginAuto(true)
+                  setCrutch(true)
                 }}
               >
                 Log in
@@ -276,6 +252,7 @@ const Registration = (props: Props): any => {
                 </a>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.registration.ph-phoneEmail')}
+                  {/* Login as guest */}
                 </Typography>
               </div>
               <div className={styles.socialWrap} id="facebook" onClick={handleOAuthServiceClick}>
@@ -329,4 +306,4 @@ const Registration = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Registration)
+export default connect(mapStateToProps)(Registration)

@@ -8,11 +8,10 @@ import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
 import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
 
 import { User } from '@xrengine/common/src/interfaces/User'
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { createCreator } from '@xrengine/social/src/reducers/creator/service'
 import { getWebXrNative, changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 
@@ -38,28 +37,19 @@ import { WebXRStart } from '../components/popups/WebXR'
 
 const mapStateToProps = (state: any): any => {
   return {
-    auth: selectAuthState(state),
     creatorsState: selectCreatorsState(state),
     webxrnativeState: selectWebXrNativeState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch),
   getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
   changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
 })
 
-const Home = ({
-  createCreator,
-  doLoginAuto,
-  auth,
-  creatorsState,
-  webxrnativeState,
-  changeWebXrNative,
-  getWebXrNative
-}) => {
+const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, changeWebXrNative, getWebXrNative }) => {
+  const auth = useAuthState()
   /*hided for now*/
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
