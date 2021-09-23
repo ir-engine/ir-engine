@@ -1,31 +1,20 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
 import { useAlertState } from '../reducers/alert/AlertState'
-import { alertCancel } from '../reducers/alert/AlertService'
+import { AlertService } from '../reducers/alert/AlertService'
 import { bindActionCreators, Dispatch } from 'redux'
 import Box from '@material-ui/core/Box'
 import styles from './Common.module.scss'
 
-interface Props {
-  alertCancel: typeof alertCancel
-}
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  alertCancel: bindActionCreators(alertCancel, dispatch)
-})
+interface Props {}
 
 const AlertsComponent = (props: Props): any => {
-  const { alertCancel } = props
-
+  const dispatch = useDispatch()
   const handleClose = (e: any): void => {
     e.preventDefault()
-    alertCancel()
+    dispatch(AlertService.alertCancel())
   }
   const alert = useAlertState()
   const type = alert.type
@@ -78,4 +67,4 @@ const AlertsComponent = (props: Props): any => {
 
 const AlertsWrapper = (props: any): any => <AlertsComponent {...props} />
 
-export const Alerts = connect(mapStateToProps, mapDispatchToProps)(AlertsWrapper)
+export const Alerts = AlertsWrapper

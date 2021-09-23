@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import {
   changeCreatorPage,
   changeCreatorForm,
@@ -19,7 +19,7 @@ export function updateCreatorPageState(state: boolean, id?: string) {
       dispatch(changeCreatorPage(state, id || null))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -30,7 +30,7 @@ export function updateCreatorFormState(state: boolean) {
       dispatch(changeCreatorForm(state))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -41,7 +41,7 @@ export function updateFeedPageState(state: boolean, id?: string) {
       dispatch(changeFeedPage(state, id || null))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -52,7 +52,7 @@ export function updateNewFeedPageState(state: boolean, id?: string, fPath?: stri
       dispatch(changeNewFeedPage(state, id || null, fPath || null, nameId || null))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -63,7 +63,7 @@ export function updateShareFormState(state: boolean, id?: string, imgSrc?: strin
       dispatch(changeShareForm(state, id || null, imgSrc || null))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -74,7 +74,7 @@ export function updateArMediaState(state: boolean) {
       dispatch(changeArMedia(state))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -85,7 +85,7 @@ export function updateWebXRState(state: boolean, itemId: number) {
       dispatch(changeWebXR(state, itemId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

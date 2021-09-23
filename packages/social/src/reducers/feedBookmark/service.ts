@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { addFeedBookmark, removeFeedBookmark } from '../feed/actions'
 
@@ -13,7 +13,7 @@ export function addBookmarkToFeed(feedId: string) {
       dispatch(addFeedBookmark(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -25,7 +25,7 @@ export function removeBookmarkToFeed(feedId: string) {
       dispatch(removeFeedBookmark(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

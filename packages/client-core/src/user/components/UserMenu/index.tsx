@@ -10,7 +10,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import React, { useState, useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { alertSuccess } from '../../../common/reducers/alert/AlertService'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { useAuthState } from '../../reducers/auth/AuthState'
 import { AuthService } from '../../reducers/auth/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
@@ -33,17 +33,8 @@ type StateType = {
   hideLogin: boolean
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  alertSuccess: bindActionCreators(alertSuccess, dispatch)
-  // provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-})
-
 const UserMenu = (props: UserMenuProps): any => {
-  const { alertSuccess, enableSharing, hideLogin } = props
+  const { enableSharing, hideLogin } = props
 
   const dispatch = useDispatch()
 
@@ -155,6 +146,10 @@ const UserMenu = (props: UserMenuProps): any => {
     setActiveLocation({ ...location })
   }
 
+  const alertSuccess = (message) => {
+    dispatch(AlertService.alertSuccess(message))
+  }
+
   const renderMenuPanel = () => {
     if (!currentActiveMenu) return null
 
@@ -254,4 +249,4 @@ const UserMenu = (props: UserMenuProps): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserMenu)
+export default UserMenu

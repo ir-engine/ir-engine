@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { fetchingGroup, setAdminGroup, addAdminGroup, updateGroup, removeGroupAction } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
 
 /**
  *
@@ -24,7 +24,7 @@ export function getGroupService(incDec?: 'increment' | 'decrement') {
       dispatch(setAdminGroup(list))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -36,7 +36,7 @@ export function createGroupByAdmin(groupItem: any) {
       dispatch(addAdminGroup(newGroup))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -48,7 +48,7 @@ export function patchGroupByAdmin(groupId, groupItem) {
       dispatch(updateGroup(group))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -60,7 +60,7 @@ export function deleteGroupByAdmin(groupId) {
       dispatch(removeGroupAction(groupId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

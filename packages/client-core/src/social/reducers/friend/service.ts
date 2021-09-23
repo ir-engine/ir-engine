@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import { loadedFriends, createdFriend, patchedFriend, removedFriend, fetchingFriends } from './actions'
-import { dispatchAlertError } from '../../../common/reducers/alert/AlertService'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import Store from '../../../store'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { Config } from '@xrengine/common/src/config'
@@ -45,7 +45,7 @@ export function getFriends(search: string, skip?: number, limit?: number) {
       dispatch(loadedFriends(friendResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
       dispatch(loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
     }
   }
@@ -73,7 +73,7 @@ function removeFriend(relatedUserId: string) {
       await client.service('user-relationship').remove(relatedUserId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { addAdminScope, fetchingScope, getScopeType, setAdminScope, updateAdminScope, removeScopeItem } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
 
 export function createScope(scopeItem: any) {
   return async (dispatch: Dispatch): Promise<any> => {
@@ -12,7 +12,7 @@ export function createScope(scopeItem: any) {
       dispatch(addAdminScope(newItem))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -32,7 +32,7 @@ export function getScopeService(incDec?: 'increment' | 'decrement') {
       dispatch(setAdminScope(list))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -46,7 +46,7 @@ export function updateScopeService(scopeId, scopeItem) {
       dispatch(updateAdminScope(updatedScope))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -58,7 +58,7 @@ export function removeScope(scopeId: string) {
       dispatch(removeScopeItem(scopeId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -77,7 +77,7 @@ export function getScopeTypeService(incDec?: 'increment' | 'decrement') {
       dispatch(getScopeType(result))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

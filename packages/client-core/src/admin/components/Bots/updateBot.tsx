@@ -17,8 +17,9 @@ import { connect } from 'react-redux'
 import { validateForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { updateBotAsAdmin } from '../../reducers/admin/bots/service'
+import { BotService } from '../../reducers/admin/bots/BotsService'
 import { Dispatch, bindActionCreators } from 'redux'
+import { useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
@@ -31,7 +32,7 @@ interface Props {
   bot: any
   adminLocationState?: any
   adminInstanceState?: any
-  updateBotAsAdmin?: any
+
   fetchAdminInstances?: any
   fetchAdminLocations?: any
 }
@@ -44,7 +45,6 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateBotAsAdmin: bindActionCreators(updateBotAsAdmin, dispatch),
   fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
   fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
 })
@@ -54,16 +54,10 @@ const Alert = (props) => {
 }
 
 const UpdateBot = (props: Props) => {
-  const {
-    open,
-    handleClose,
-    bot,
-    adminLocationState,
-    adminInstanceState,
-    updateBotAsAdmin,
-    fetchAdminLocations,
-    fetchAdminInstances
-  } = props
+  const { open, handleClose, bot, adminLocationState, adminInstanceState, fetchAdminLocations, fetchAdminInstances } =
+    props
+
+  const dispatch = useDispatch()
   const classx = useStyle()
   const classes = useStyles()
   const [state, setState] = React.useState({
@@ -153,7 +147,7 @@ const UpdateBot = (props: Props) => {
     }
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      updateBotAsAdmin(bot.id, data)
+      dispatch(BotService.updateBotAsAdmin(bot.id, data))
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()

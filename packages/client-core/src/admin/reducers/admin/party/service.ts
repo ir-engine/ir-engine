@@ -1,7 +1,7 @@
 import { partyAdminCreated, partyRetrievedAction } from './actions'
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
-import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
 
 export const createAdminParty = (data) => {
   return async (dispatch: Dispatch): Promise<any> => {
@@ -10,7 +10,7 @@ export const createAdminParty = (data) => {
       dispatch(partyAdminCreated(result))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -35,7 +35,7 @@ export const fetchAdminParty = (incDec?: 'increment' | 'decrement') => {
       }
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
