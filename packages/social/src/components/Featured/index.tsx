@@ -69,7 +69,6 @@ const Featured = ({
       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
-
   }, [type, creatorId])
   // }, [type, creatorId, feedsState.get('feedsFeatured')])
 

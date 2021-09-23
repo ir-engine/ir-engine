@@ -96,7 +96,6 @@ export class Feed extends Service {
     //Featured menu item for Guest
     //Featured menu item
     if (action === 'featuredGuest' || action === 'featured') {
-
       const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title, COUNT(DISTINCT ff.id) as fires, COUNT(DISTINCT fl.id) as likes
         FROM \`feed\` as feed
        JOIN static_resource as sr ON sr.id=feed.previewId
