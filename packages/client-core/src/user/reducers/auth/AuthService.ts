@@ -911,7 +911,8 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
-      if (typeof Network.instance.localClientEntity !== 'undefined') {
+
+      if (typeof Network.instance?.localClientEntity !== 'undefined') {
         if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
           addComponent(Network.instance.localClientEntity, ProximityComponent, {
             usersInRange: [],
