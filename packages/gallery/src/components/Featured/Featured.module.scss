@@ -17,6 +17,10 @@
         background-color: #F8F8F8;
         height: 476px;
     }
+
+    .list {
+        height: fit-content;
+    }
     .addButton {
         display: none;
         position: absolute;
@@ -41,9 +45,15 @@
         font-size: 60px;
         z-index: 999999999 !important;
     }
-
-
-
+    .image {
+        height: 390px;
+        padding: '30px 30px 0';
+        width: auto;
+        margin: 0 auto;
+    }
+    .imageList {
+        height: auto;
+    }
     .descr {
         font-size: 32px;
         font-weight: 500;
