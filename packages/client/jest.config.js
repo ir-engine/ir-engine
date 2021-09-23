@@ -16,5 +16,5 @@ module.exports = {
     },
   },
   passWithNoTests: true,
-  testMatch: ['<rootDir>/tests/**/*.test.(t|j)s(x)?']
+  testMatch: ['<rootDir>/tests/**/*.tests.(t|j)s(x)?']
 };
