@@ -107,6 +107,7 @@ export class EmoteState extends AnimationState {
       timeScale: 1,
       loopType: LoopOnce,
       decorateAction: function (action: AnimationAction) {
+        //console.log('TEST: '+ this.loopType+' '+' '+this.loopCount);
         action.reset()
         action.setLoop(this.loopType, this.loopCount)
         action.clampWhenFinished = true
@@ -163,6 +164,17 @@ export class EmoteState extends AnimationState {
       loopType: LoopOnce,
       decorateAction: function (action: AnimationAction) {
         action.reset()
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    },
+    {
+      name: AvatarAnimations.PAUSE,
+      weight: 0,
+      timeScale: 1,
+      loopType: 0,
+      decorateAction: function (action: AnimationAction) {
+        animation.action.reset()
         action.setLoop(this.loopType, this.loopCount)
         action.clampWhenFinished = true
       }

@@ -108,15 +108,15 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           }
         }*/
         {
-          body: <img src="/static/grinning.svg" alt="Dance 4" />,
+          body: <img src="/static/grinning.svg" alt="Laugh" />,
           containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.LAUGH })
           }
         },
         {
           body: <img src="/static/sad.svg" alt="sad" />,
           containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CLAP })
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
           }
         },
         {
@@ -139,9 +139,9 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           }
         },
         {
-          body: <img src="/static/clap1.svg" alt="Dance 2" />,
+          body: <img src="/static/clap1.svg" alt="Clap" />,
           containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.CLAP })
           }
         },
 
@@ -149,6 +149,12 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           body: <img src="/static/victory.svg" alt="Dance 3" />,
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
+          }
+        },
+        {
+          body: <img src="/static/restart.svg" alt="idle" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
           }
         }
       ] as any
@@ -190,6 +196,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   runAnimation = (animationName: string, params: WeightsParameterType) => {
     const entity = Engine.defaultWorld.entities.find((e) => hasComponent(e, LocalInputTagComponent))
 
+    console.log(entity, animationName, params)
     AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
 
     this.closeEmoteMenu()

@@ -160,13 +160,33 @@
 }
 
 
-.respawn{
+.restart{
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
     background: rgba(0,0,0,0.2);
-    width: 80px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    left: 80px;
+    z-index: 20;
+    border: none;
+    padding: 0;
+    border-radius: 50%;
+    
+ 
+    @media (max-width: 450px) { left: 10px; }
+}
+.respawn{
+    display: none;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background: rgba(0,0,0,0.2);
+    width: 100px;
     height: 40px;
     cursor: pointer;
     position: fixed;
@@ -178,7 +198,7 @@
     &::before {
         content: " ";
         position: absolute;
-        width: 80px;
+        width: 100px;
         height: 40px;
         display: block;
         transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);

@@ -23,6 +23,7 @@ import Harmony from '../Harmony'
 import Me from '../Me'
 import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
+import { initEngine, retriveLocationByName, teleportToLocation, createOfflineUser } from './LocationLoadHelper'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -167,6 +168,25 @@ const Layout = (props: Props): any => {
       (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
     )
   }
+
+  // const hoverRestart= (): void => {
+  //   const respawn=document.getElementById('respawn');
+  //   const restart=document.getElementById('restart');
+  //   restart.style.display="none";
+  //   respawn.style.display="flex";
+  // }
+  // const mouseLeave= (): void => {
+  //   const respawn=document.getElementById('respawn');
+  //   const restart=document.getElementById('restart');
+  //   restart.style.display="flex";
+  //   respawn.style.display="none";
+  // }
+  // const custClick= (): void => {
+  //    this.closeEmoteMenu();
+  // }
+
+  //this.closeEmoteMenu()
+
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
@@ -215,9 +235,12 @@ const Layout = (props: Props): any => {
               </>
             )}
 
-            <button type="button" className={styles.respawn}>
-              Respawn
+            {/*<button type="button" className={styles.restart} id="restart" onMouseOver={hoverRestart} disabled>
+              <img src="/static/restart.svg" />
             </button>
+            <button type="button" className={styles.respawn} id="respawn"  onMouseOut={mouseLeave} onClick={() => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE})}>
+              <img src="/static/restart.svg" /> Respawn
+            </button>*/}
 
             <Harmony
               setHarmonyOpen={setHarmonyOpen}
