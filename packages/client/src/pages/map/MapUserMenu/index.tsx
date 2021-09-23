@@ -1,5 +1,5 @@
 import Badge from '@material-ui/core/Badge'
-import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'

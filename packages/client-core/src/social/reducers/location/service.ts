@@ -1,4 +1,4 @@
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../common/reducers/alert/AlertService'
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import {

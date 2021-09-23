@@ -11,7 +11,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import React, { useState, useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { alertSuccess } from '../../../common/reducers/alert/service'
+import { alertSuccess } from '../../../common/reducers/alert/AlertService'
 import { useAuthState } from '../../reducers/auth/AuthState'
 import { AuthService } from '../../reducers/auth/AuthService'
 import AvatarMenu from './menus/AvatarMenu'

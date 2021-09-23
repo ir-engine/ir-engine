@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import { loadedFriends, createdFriend, patchedFriend, removedFriend, fetchingFriends } from './actions'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../common/reducers/alert/AlertService'
 import Store from '../../../store'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { Config } from '@xrengine/common/src/config'

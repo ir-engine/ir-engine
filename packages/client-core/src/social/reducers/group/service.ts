@@ -1,6 +1,6 @@
 import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../common/reducers/alert/AlertService'
 import { client } from '../../../feathers'
 import Store from '../../../store'
 import {

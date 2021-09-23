@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { instancesRetrievedAction, instanceRemoved, instanceRemovedAction } from './actions'
 import { client } from '../../../../feathers'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
 import Store from '../../../../store'
 import { Config } from '@xrengine/common/src/config'
 import { useAuthState } from '../../../../user/reducers/auth/AuthState'

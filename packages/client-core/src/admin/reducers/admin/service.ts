@@ -4,7 +4,7 @@ import { VideoCreationForm, VideoUpdateForm, videoCreated, videoUpdated, videoDe
 import axios from 'axios'
 import { Config } from '@xrengine/common/src/config'
 import { client } from '../../../feathers'
-import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service'
+import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/AlertService'
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 

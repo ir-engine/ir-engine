@@ -7,7 +7,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { showAlert } from '../../../common/reducers/alert/actions'
+import { AlertAction } from '../../../common/reducers/alert/AlertActions'
 import { DialogAction } from '../../../common/reducers/dialog/DialogActions'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
@@ -21,19 +21,10 @@ interface Props {
   auth?: any
   classes?: any
   connectionType?: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
-  showAlert?: typeof showAlert
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  showAlert: bindActionCreators(showAlert, dispatch)
-})
 
 const SingleConnection = (props: Props): any => {
-  const { auth, classes, connectionType, showAlert } = props
+  const { auth, classes, connectionType } = props
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const initialState = {
@@ -58,7 +49,7 @@ const SingleConnection = (props: Props): any => {
     const identityProvider = state.identityProvider
     const authIdentityProvider = props.auth.get('authUser').identityProvider
     if (authIdentityProvider.id === identityProvider.id) {
-      showAlert('error', t('user:profile.connections.ipError'))
+      dispatch(AlertAction.showAlert('error', t('user:profile.connections.ipError')))
       return
     }
 
@@ -163,4 +154,4 @@ const SingleConnection = (props: Props): any => {
 
 const SingleConnectionWrapper = (props: Props): any => <SingleConnection {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(SingleConnectionWrapper)
+export default SingleConnectionWrapper

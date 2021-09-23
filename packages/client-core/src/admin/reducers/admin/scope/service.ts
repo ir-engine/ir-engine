@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { addAdminScope, fetchingScope, getScopeType, setAdminScope, updateAdminScope, removeScopeItem } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
 
 export function createScope(scopeItem: any) {
   return async (dispatch: Dispatch): Promise<any> => {

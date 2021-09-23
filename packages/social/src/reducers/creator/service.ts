@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'

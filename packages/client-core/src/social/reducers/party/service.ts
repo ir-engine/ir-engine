@@ -15,7 +15,7 @@ import {
 } from './actions'
 
 import { Config } from '@xrengine/common/src/config'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../common/reducers/alert/AlertService'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'

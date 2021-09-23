@@ -13,7 +13,7 @@ import {
 } from './actions'
 import { client } from '../../../../feathers'
 import { loadedUsers } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
 import { useAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export function fetchUsersAsAdmin(incDec?: 'increment' | 'decrement') {

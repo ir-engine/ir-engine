@@ -2,7 +2,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { tougleWebXrNative, setWebXrNative } from './actions'
 
 export function getWebXrNative() {

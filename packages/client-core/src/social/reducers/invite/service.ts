@@ -27,7 +27,7 @@ const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 import { Config } from '@xrengine/common/src/config'
-import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
+import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/AlertService'
 
 export function sendInvite(data: any) {
   return async (dispatch: Dispatch, getState: any) => {

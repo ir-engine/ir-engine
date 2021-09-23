@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { fetchingGroup, setAdminGroup, addAdminGroup, updateGroup, removeGroupAction } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
 
 /**
  *

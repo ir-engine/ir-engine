@@ -4,7 +4,7 @@
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { Dispatch } from 'redux'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import {
   fetchingCreator,

@@ -3,7 +3,7 @@
  */
 
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { addTheFeeds, fetchingTheFeeds, thefeedsRetrieved, deleteTheFeeds, updateTheFeedsInList } from './actions'

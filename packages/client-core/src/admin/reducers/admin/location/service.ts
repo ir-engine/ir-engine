@@ -6,7 +6,7 @@ import {
   locationPatched,
   locationRemoved
 } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
 import { ErrorAction } from '../../../../common/reducers/error/ErrorActions'
 import { client } from '../../../../feathers'
 

@@ -1,7 +1,7 @@
 import { partyAdminCreated, partyRetrievedAction } from './actions'
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { dispatchAlertError } from '../../../../common/reducers/alert/AlertService'
 import { useAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export const createAdminParty = (data) => {

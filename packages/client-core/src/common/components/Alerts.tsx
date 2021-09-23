@@ -2,22 +2,18 @@ import React from 'react'
 import { connect } from 'react-redux'
 import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
-import SvgIcon from '@material-ui/core/SvgIcon'
-import { selectAlertState } from '../reducers/alert/selector'
-import { alertCancel } from '../reducers/alert/service'
+import { useAlertState } from '../reducers/alert/AlertState'
+import { alertCancel } from '../reducers/alert/AlertService'
 import { bindActionCreators, Dispatch } from 'redux'
 import Box from '@material-ui/core/Box'
 import styles from './Common.module.scss'
 
 interface Props {
-  alert: any
   alertCancel: typeof alertCancel
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    alert: selectAlertState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -25,25 +21,26 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const AlertsComponent = (props: Props): any => {
-  const { alert, alertCancel } = props
+  const { alertCancel } = props
 
   const handleClose = (e: any): void => {
     e.preventDefault()
     alertCancel()
   }
-  const type = alert.get('type')
-  const message = alert.get('message')
+  const alert = useAlertState()
+  const type = alert.type
+  const message = alert.message
   let svgtypeicon = ''
   let svgtypeclass = ''
   let alertBoxContainerclass = ''
   let alerttitle = ''
 
-  if (type == 'success') {
+  if (type.value == 'success') {
     svgtypeicon = '/Notification_Success.svg'
     svgtypeclass = styles.svgiconsuccess
     alertBoxContainerclass = styles.alertBoxContainersuccess
     alerttitle = 'Event was successful'
-  } else if (type == 'error') {
+  } else if (type.value == 'error') {
     svgtypeicon = '/Notification_Error.svg'
     svgtypeclass = styles.svgiconerror
     alertBoxContainerclass = styles.alertBoxContainererror
@@ -57,20 +54,20 @@ const AlertsComponent = (props: Props): any => {
 
   return (
     <div className={styles.alertContainer}>
-      {type === 'none' || message === '' ? (
+      {type.value === 'none' || message.value === '' ? (
         <Box />
       ) : (
         <Box m={1} className={styles.BoxContainer}>
           <Alert
             className={alertBoxContainerclass}
             variant="filled"
-            severity={alert.get('type')}
+            severity={type.value}
             icon={<img src={svgtypeicon} className={svgtypeclass}></img>}
             onClose={(e) => handleClose(e)}
           >
             <div className={styles.divalertContainer}>
               <AlertTitle className={styles.alerttitle}>{alerttitle}</AlertTitle>
-              {alert.get('message')}
+              {message.value}
             </div>
           </Alert>
         </Box>

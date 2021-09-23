@@ -1,25 +1,25 @@
 import { Dispatch } from 'redux'
-import { showAlert, hideAlert } from './actions'
+import { AlertAction } from './AlertActions'
 import { Config } from '@xrengine/common/src/config'
 
 export function alertSuccess(message: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(showAlert('success', message))
+    dispatch(AlertAction.showAlert('success', message))
   }
 }
 export function alertWarning(message: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(showAlert('warning', message))
+    dispatch(AlertAction.showAlert('warning', message))
   }
 }
 export function alertError(message: string) {
   return (dispatch: Dispatch): any => {
-    dispatch(showAlert('error', message))
+    dispatch(AlertAction.showAlert('error', message))
   }
 }
 export function alertCancel() {
   return (dispatch: Dispatch): any => {
-    dispatch(hideAlert())
+    dispatch(AlertAction.hideAlert())
   }
 }
 
@@ -33,22 +33,22 @@ function clearTimer() {
 
 function restartTimer(dispatch: Dispatch) {
   clearTimer()
-  timerId = setTimeout(() => dispatch(hideAlert()), Config.publicRuntimeConfig?.alert?.timeout || 10000)
+  timerId = setTimeout(() => dispatch(AlertAction.hideAlert()), Config.publicRuntimeConfig?.alert?.timeout || 10000)
 }
 
 export function dispatchAlertSuccess(dispatch: Dispatch, message: string) {
   restartTimer(dispatch)
-  return dispatch(showAlert('success', message))
+  return dispatch(AlertAction.showAlert('success', message))
 }
 export function dispatchAlertWarning(dispatch: Dispatch, message: string) {
   restartTimer(dispatch)
-  return dispatch(showAlert('warning', message))
+  return dispatch(AlertAction.showAlert('warning', message))
 }
 export function dispatchAlertError(dispatch: Dispatch, message: string) {
   restartTimer(dispatch)
-  return dispatch(showAlert('error', message))
+  return dispatch(AlertAction.showAlert('error', message))
 }
 export function dispatchAlertCancel(dispatch: Dispatch) {
   clearTimer()
-  return dispatch(hideAlert())
+  return dispatch(AlertAction.hideAlert())
 }
