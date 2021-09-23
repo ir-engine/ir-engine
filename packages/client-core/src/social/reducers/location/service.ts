@@ -1,4 +1,4 @@
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import {
@@ -22,7 +22,7 @@ export function getLocations(skip?: number, limit?: number) {
       dispatch(socialLocationsRetrieved(locationResults))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -35,7 +35,7 @@ export function getLocation(locationId: string) {
       dispatch(socialLocationRetrieved(location))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -89,7 +89,7 @@ export function banUserFromLocation(userId: string, locationId: string) {
       dispatch(socialLocationBanCreated())
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

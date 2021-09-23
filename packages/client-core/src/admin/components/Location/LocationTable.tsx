@@ -110,7 +110,7 @@ const LocationTable = (props: LocationProps) => {
     if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
       fetchAdminInstances()
     }
-  }, [authState, adminSceneState, adminInstanceState, adminLocationState])
+  }, [authState.user?.id?.value, adminSceneState, adminInstanceState, adminLocationState])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (

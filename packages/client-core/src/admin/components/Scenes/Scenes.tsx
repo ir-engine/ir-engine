@@ -189,7 +189,7 @@ const Scenes = (props: Props) => {
       fetchAdminScenes()
     }
     setRefetch(false)
-  }, [authState, adminSceneState, refetch])
+  }, [authState.user?.id?.value, adminSceneState, refetch])
 
   return (
     <div>

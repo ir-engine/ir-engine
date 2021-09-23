@@ -3,7 +3,7 @@
  */
 
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { addTheFeeds, fetchingTheFeeds, thefeedsRetrieved, deleteTheFeeds, updateTheFeedsInList } from './actions'
@@ -16,7 +16,7 @@ export function getTheFeedsNew() {
       dispatch(thefeedsRetrieved(thefeeds.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -34,7 +34,7 @@ export function createTheFeedsNew(data) {
       dispatch(addTheFeeds(thefeeds))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -51,7 +51,7 @@ export function updateTheFeedsAsAdmin(data: any) {
       dispatch(updateTheFeedsInList(updatedItem))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -63,7 +63,7 @@ export function removeTheFeeds(thefeedsId: string) {
       dispatch(deleteTheFeeds(thefeedsId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

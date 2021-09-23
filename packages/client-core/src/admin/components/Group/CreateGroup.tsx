@@ -9,9 +9,9 @@ import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import { formValid } from './validation'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { createGroupByAdmin } from '../../reducers/admin/group/service'
+import { GroupService } from '../../reducers/admin/group/GroupService'
 import TextField from '@material-ui/core/TextField'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
@@ -21,13 +21,11 @@ interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   adminGroupState?: any
-  createGroupService?: any
   adminScopeState?: any
   getScopeTypeService?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createGroupService: bindActionCreators(createGroupByAdmin, dispatch),
   getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
 })
 
@@ -38,11 +36,12 @@ const mapStateToProps = (state: any): any => {
 }
 
 const CreateGroup = (props: Props) => {
-  const { open, handleClose, createGroupService, getScopeTypeService, adminScopeState } = props
+  const { open, handleClose, getScopeTypeService, adminScopeState } = props
   const classes = useGroupStyles()
   const classx = useGroupStyle()
   const user = useAuthState().user
   const adminScopes = adminScopeState.get('scopeType').get('scopeType')
+  const dispatch = useDispatch()
 
   const [state, setState] = React.useState({
     name: '',
@@ -89,7 +88,7 @@ const CreateGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      createGroupService({ name, description, scopeType })
+      dispatch(GroupService.createGroupByAdmin({ name, description, scopeType }))
       setState({
         ...state,
         name: '',
