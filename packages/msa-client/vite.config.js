@@ -1,5 +1,7 @@
 import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
+import svgr from "vite-plugin-svgr";
+import react from "vite-preset-react";
 import config from "config";
 import inject from '@rollup/plugin-inject'
 
@@ -32,7 +34,7 @@ export default defineConfig((command) => {
   const env = loadEnv('', process.cwd() + '../../');
   const runtime = replaceEnvs(config.get('publicRuntimeConfig'), env);
 
-  
+
   process.env = {
     ...process.env,
     ...env,
@@ -40,7 +42,7 @@ export default defineConfig((command) => {
   };
 
   const returned = {
-    plugins: [svgr(), react({ injectReact: true })],
+    plugins: [svgr()],
     server: {
       host: true,
       fs: {
@@ -89,7 +91,7 @@ export default defineConfig((command) => {
        })
    ]
   }
-  if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') { 
+  if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.define = {
       'process.env': process.env,
       'process.browser': process.browser,
