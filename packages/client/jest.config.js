@@ -16,7 +16,7 @@ module.exports = {
     },
   },
   passWithNoTests: true,
-  testMatch: ['<rootDir>/src/**/*.test.js',
-   '<rootDir>/src/**/*.test.jsx',
+  testMatch: ['<rootDir>/src/**/*.tests.js',
+   '<rootDir>/src/**/*.tests.jsx',
   ]
 };
