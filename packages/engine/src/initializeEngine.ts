@@ -131,8 +131,8 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.Free, import('./networking/systems/IncomingNetworkSystem'))
 
   // Input
-  registerSystem(SystemUpdateType.Free, import('./input/systems/ClientInputSystem'))
   registerSystem(SystemUpdateType.Free, import('./xr/systems/XRSystem'))
+  registerSystem(SystemUpdateType.Free, import('./input/systems/ClientInputSystem'))
   registerSystem(SystemUpdateType.Free, import('./camera/systems/CameraSystem'))
   registerSystem(SystemUpdateType.Free, import('./navigation/systems/AutopilotSystem'))
 
@@ -158,7 +158,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.Fixed, import('./map/MapUpdateSystem'))
 
   // Navigation
-  registerSystem(SystemUpdateType.Fixed, import('./proximityChecker/systems/ProximitySystem'))
   registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/FollowSystem'))
   registerSystem(SystemUpdateType.Fixed, import('./navigation/systems/AfkCheckSystem'))
 

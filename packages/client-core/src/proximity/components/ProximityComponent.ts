@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 export type ProximityComponentType = {
   usersInRange: any[]

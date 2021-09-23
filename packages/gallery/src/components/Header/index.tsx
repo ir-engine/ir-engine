@@ -56,7 +56,7 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget }: Props) => {
     if (authState.user) {
       setUserRole(authState.user?.userRole?.value)
     }
-  }, [authState])
+  }, [authState.user])
 
   const handlePickFiles = async (file) => {
     setFilesTarget(file.target.files)

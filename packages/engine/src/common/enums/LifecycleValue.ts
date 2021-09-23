@@ -1,7 +1,7 @@
-export enum LifecycleValue {
-  STARTED = 0,
-  CONTINUED = 1,
-  ENDED = 2,
-  CHANGED = 3,
-  UNCHANGED = 4
+export const LifecycleValue = {
+  STARTED: 'Started' as const,
+  CONTINUED: 'Continued' as const,
+  ENDED: 'Ended' as const,
+  CHANGED: 'Changed' as const,
+  UNCHANGED: 'Unchanged' as const
 }

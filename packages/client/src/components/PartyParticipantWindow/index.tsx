@@ -14,7 +14,7 @@ import {
   VolumeOff,
   VolumeUp
 } from '@material-ui/icons'
-import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
@@ -49,14 +49,12 @@ interface Props {
   harmony?: boolean
   containerProportions?: ContainerProportions
   peerId?: string
-  appState?: any
   locationState?: any
   mediastream?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
     locationState: selectLocationState(state),
     mediastream: selectMediastreamState(state)
   }
@@ -76,14 +74,14 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [audioTrackClones, setAudioTrackClones] = useState([])
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, appState, locationState, mediastream } = props
+  const { harmony, peerId, locationState, mediastream } = props
   const userState = useUserState()
   const videoRef = React.useRef<HTMLVideoElement>()
   const audioRef = React.useRef<HTMLAudioElement>()
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
 
-  const userHasInteracted = appState.get('userHasInteracted')
+  const userHasInteracted = useAppState().userHasInteracted
   const selfUser = useAuthState().user.value
   const currentLocation = locationState.get('currentLocation').get('location')
   const enableGlobalMute =
@@ -171,11 +169,11 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [consumers])
 
   useEffect(() => {
-    if (userHasInteracted === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
+    if (userHasInteracted.value === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
       videoRef.current?.play()
       audioRef.current?.play()
     }
-  }, [userHasInteracted])
+  }, [userHasInteracted.value])
 
   useEffect(() => {
     if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null)

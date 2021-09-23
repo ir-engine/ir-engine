@@ -1,13 +1,16 @@
-import { defineQuery, defineSystem } from 'bitecs'
-import { Network } from '../../networking/classes/Network'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { defineQuery } from 'bitecs'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
-import { getUserId } from '../../networking/utils/getUser'
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { ProximityComponent } from '../components/ProximityComponent '
+import { getUserId, getPlayerName } from '@xrengine/engine/src/networking/utils/getUser'
+import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { hasComponent, getComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
+import { ProximityComponent } from '../components/ProximityComponent'
+import { sendChatMessage } from '../../social/reducers/chat/service'
+import { accessAuthState } from '../../user/reducers/auth/AuthState'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 const maxDistance: number = 10
 const intimateDistance: number = 5
@@ -36,6 +39,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
         for (const id in Network.instance.networkObjects) {
           const object = Network.instance.networkObjects[id]
           if (!object || object.uniqueId === userId) continue
+          const { name } = getComponent(object.entity, NameComponent)
 
           remoteTransform = getComponent(object.entity, TransformComponent)
           if (remoteTransform === undefined) continue
@@ -49,8 +53,10 @@ export default async function ProximitySystem(world: World): Promise<System> {
                 _usersInHarassmentRange.slice(_usersInHarassmentRange.indexOf(object.entity), 1)
 
               _usersInRange.push(object.entity)
-              if (!usersInRange.includes(object.entity))
-                console.log('proximity|inRange|' + object.entity + '|' + distance)
+              if (!usersInRange.includes(object.entity)) {
+                sendProximityChatMessage(name + ' in range with ' + getPlayerName(eid))
+                console.log('proximity|inRange|' + name + '|' + distance)
+              }
             }
           } else if (distance > 0 && distance <= intimateDistance && distance > harassmentDistance) {
             if (!_usersInIntimateRange.includes(object.entity)) {
@@ -59,8 +65,10 @@ export default async function ProximitySystem(world: World): Promise<System> {
                 _usersInHarassmentRange.splice(_usersInHarassmentRange.indexOf(object.entity), 1)
 
               _usersInIntimateRange.push(object.entity)
-              if (!usersInIntimateRange.includes(object.entity))
-                console.log('proximity|intimate|' + object.entity + '|' + distance)
+              if (!usersInIntimateRange.includes(object.entity)) {
+                sendProximityChatMessage(name + ' in intimage range with ' + getPlayerName(eid))
+                console.log('proximity|intimate|' + name + '|' + distance)
+              }
             }
           } else if (distance > 0 && distance <= harassmentDistance) {
             if (!_usersInHarassmentRange.includes(object.entity)) {
@@ -69,8 +77,10 @@ export default async function ProximitySystem(world: World): Promise<System> {
                 _usersInIntimateRange.slice(_usersInIntimateRange.indexOf(object.entity), 1)
 
               _usersInHarassmentRange.push(object.entity)
-              if (!usersInHarassmentRange.includes(object.entity))
-                console.log('proximity|harassment|' + object.entity + '|' + distance)
+              if (!usersInHarassmentRange.includes(object.entity)) {
+                sendProximityChatMessage(name + ' in harassment range with ' + getPlayerName(eid))
+                console.log('proximity|harassment|' + name + '|' + distance)
+              }
             }
           }
 
@@ -80,29 +90,35 @@ export default async function ProximitySystem(world: World): Promise<System> {
           if (dot >= 0.7) {
             if (!_usersLookingTowards.includes(object.entity)) {
               _usersLookingTowards.push(object.entity)
-              if (!usersLookingTowards.includes(object.entity))
-                console.log('proximity|lookAt|' + object.entity + '|' + dot)
+              if (!usersLookingTowards.includes(object.entity)) {
+                sendProximityChatMessage(name + ' looking at ' + getPlayerName(eid))
+                console.log('proximity|lookAt|' + name + '|' + dot)
+              }
             }
           }
 
           for (let i = 0; i < usersInRange.length; i++) {
             if (!_usersInRange.includes(usersInRange[i]) && !_usersInIntimateRange.includes(usersInRange[i])) {
-              console.log('proximity|inRange|' + object.entity + '|left')
+              sendProximityChatMessage(name + ' not in range with ' + getPlayerName(eid))
+              console.log('proximity|inRange|' + name + '|left')
             }
           }
           for (let i = 0; i < usersInIntimateRange.length; i++) {
             if (!_usersInIntimateRange.includes(usersInIntimateRange[i])) {
-              console.log('proximity|intimate|' + object.entity + '|left')
+              sendProximityChatMessage(name + ' not in intimate range with ' + getPlayerName(eid))
+              console.log('proximity|intimate|' + name + '|left')
             }
           }
           for (let i = 0; i < usersInHarassmentRange.length; i++) {
             if (!_usersInHarassmentRange.includes(usersInHarassmentRange[i])) {
-              console.log('proximity|harassment|' + object.entity + '|left')
+              sendProximityChatMessage(name + ' not in harassment range with ' + getPlayerName(eid))
+              console.log('proximity|harassment|' + name + '|left')
             }
           }
           for (let i = 0; i < usersLookingTowards.length; i++) {
             if (!_usersLookingTowards.includes(usersLookingTowards[i])) {
-              console.log('proximity|lookAt|' + object.entity + '|left')
+              sendProximityChatMessage(name + ' not looking at ' + getPlayerName(eid))
+              console.log('proximity|lookAt|' + name + '|left')
             }
           }
 
@@ -114,4 +130,13 @@ export default async function ProximitySystem(world: World): Promise<System> {
       }
     }
   }
+}
+
+function sendProximityChatMessage(text) {
+  const user = accessAuthState().user.value
+  sendChatMessage({
+    targetObjectId: user.instanceId,
+    targetObjectType: 'instance',
+    text: '[proximity]' + text
+  })
 }

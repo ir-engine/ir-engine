@@ -62,17 +62,17 @@ export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComp
   })
 }
 
-export const enableClub = (entityClub: Entity, enable: boolean): void => {
-  const golfClubComponent = getComponent(entityClub, GolfClubComponent)
-  if (golfClubComponent.canHitBall === enable) return
-  golfClubComponent.canHitBall = enable
-  setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
-}
+// export const enableClub = (entityClub: Entity, enable: boolean): void => {
+//   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
+//   if (golfClubComponent.canHitBall === enable) return
+//   golfClubComponent.canHitBall = enable
+//   setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
+// }
 
-export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): void => {
+export const hideClub = (entityClub: Entity, hide: boolean): void => {
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
-  const maxOpacity = yourTurn ? 1 : golfClubComponent.disabledOpacity
-  setClubOpacity(golfClubComponent, hide ? 0 : maxOpacity)
+  // const maxOpacity = yourTurn ? 1 : golfClubComponent.disabledOpacity
+  setClubOpacity(golfClubComponent, hide ? 0 : 1)
 }
 
 /**
@@ -333,5 +333,5 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
     golfClubComponent.lastPositions[i] = new Vector3()
   }
 
-  enableClub(entityClub, false)
+  // enableClub(entityClub, false)
 }

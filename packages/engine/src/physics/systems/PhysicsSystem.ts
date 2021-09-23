@@ -182,8 +182,9 @@ export default async function PhysicsSystem(
         const bodyA = world.physics.bodies.get(bodyAID)
         const bodyBID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeB as any)._id)
         const bodyB = world.physics.bodies.get(bodyBID)
-        const entityA = (bodyA as any).userData.entity
-        const entityB = (bodyA as any).userData.entity
+        if (!bodyA || !bodyB) continue
+        const entityA = (bodyA as any).userData?.entity
+        const entityB = (bodyA as any).userData?.entity
         getComponent(entityA, CollisionComponent).collisions.push({
           type: collisionEvent.type,
           bodySelf: bodyA,

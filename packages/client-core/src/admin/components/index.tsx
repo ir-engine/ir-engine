@@ -21,7 +21,7 @@ import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../common/reducers/app/selector'
+import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { client } from '../../feathers'
 import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
@@ -145,8 +145,6 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
-
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
