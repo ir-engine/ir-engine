@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { showAlert } from '../../../common/reducers/alert/actions'
-import { showDialog } from '../../../common/reducers/dialog/service'
+import { DialogAction } from '../../../common/reducers/dialog/DialogActions'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
 import { AuthService } from '../../reducers/auth/AuthService'
@@ -21,7 +21,6 @@ interface Props {
   auth?: any
   classes?: any
   connectionType?: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
-  showDialog?: typeof showDialog
   showAlert?: typeof showAlert
 }
 
@@ -30,12 +29,11 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  showDialog: bindActionCreators(showDialog, dispatch),
   showAlert: bindActionCreators(showAlert, dispatch)
 })
 
 const SingleConnection = (props: Props): any => {
-  const { auth, classes, connectionType, showAlert, showDialog } = props
+  const { auth, classes, connectionType, showAlert } = props
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const initialState = {
@@ -77,19 +75,25 @@ const SingleConnection = (props: Props): any => {
         dispatch(AuthService.addConnectionByOauth(connectionType, userId))
         break
       case 'email':
-        showDialog({
-          children: <MagicLinkEmail type="email" isAddConnection={true} />
-        })
+        dispatch(
+          DialogAction.dialogShow({
+            children: <MagicLinkEmail type="email" isAddConnection={true} />
+          })
+        )
         break
       case 'sms':
-        showDialog({
-          children: <MagicLinkEmail type="sms" isAddConnection={true} />
-        })
+        dispatch(
+          DialogAction.dialogShow({
+            children: <MagicLinkEmail type="sms" isAddConnection={true} />
+          })
+        )
         break
       case 'password':
-        showDialog({
-          children: <PasswordLogin isAddConnection={true} />
-        })
+        dispatch(
+          DialogAction.dialogShow({
+            children: <PasswordLogin isAddConnection={true} />
+          })
+        )
         break
       case 'linkedin':
         dispatch(AuthService.addConnectionByOauth(connectionType, userId))

@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
 import styles from './ContentPack.module.scss'
 import { downloadContentPack } from '../../reducers/contentPack/service'
 import { Done } from '@material-ui/icons'
@@ -23,9 +22,7 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({

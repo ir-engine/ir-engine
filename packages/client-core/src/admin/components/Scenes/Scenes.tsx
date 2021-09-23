@@ -12,7 +12,7 @@ import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
+
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchAdminScenes } from '../../reducers/admin/scene/service'
@@ -34,7 +34,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
     adminSceneState: selectAdminSceneState(state)
   }
 }
