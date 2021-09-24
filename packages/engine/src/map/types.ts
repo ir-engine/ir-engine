@@ -1,4 +1,4 @@
-import { Feature } from 'geojson'
+import { Feature, LineString, MultiLineString, MultiPolygon, Polygon } from 'geojson'
 import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
 import { Store } from './functions/createStore'
 
@@ -40,6 +40,14 @@ export interface Text3D extends Mesh {
   sync(): void
   update(): void
   dispose(): void
+}
+
+export type SupportedFeature = Feature<LineString | MultiLineString | Polygon | MultiPolygon>
+
+export interface MapTransformedFeature {
+  feature: SupportedFeature
+  centerPoint: [number, number]
+  boundingCircleRadius: number
 }
 
 export interface MapDerivedFeatureGeometry {
