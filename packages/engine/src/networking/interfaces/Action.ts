@@ -27,7 +27,15 @@ export type ActionOptions = {
 }
 
 type ActionShape<A> = {
-  [key in keyof A]: Validator<unknown, unknown> | string | number | MatchesCallback<unknown>
+  [key in keyof A]: A[key] extends Validator<unknown, unknown>
+    ? A[key]
+    : A[key] extends string
+    ? string
+    : A[key] extends number
+    ? number
+    : A[key] extends MatchesCallback<unknown>
+    ? A[key]
+    : never
 }
 
 type MatchesCallback<A> = { matches: Validator<unknown, A>; callback: () => A }
@@ -93,10 +101,11 @@ type ResolvedActionType<S extends ActionShape<any>, AllowDispatchFromAny extends
  * @author Gheric Speiginer <github.com/speigg>
  */
 export function defineActionCreator<
-  Shape extends ActionShape<Action>,
+  A extends Action,
+  Shape extends ActionShape<A>,
   Extensions,
   AllowDispatchFromAny extends boolean | void = void
->(actionShape: Shape, options?: ActionCreatorOptions<Shape, Extensions, AllowDispatchFromAny>) {
+>(actionShape: ActionShape<A>, options?: ActionCreatorOptions<Shape, Extensions, AllowDispatchFromAny>) {
   type ResolvedAction = ResolvedActionType<ResolvedActionShape<Shape>, AllowDispatchFromAny>
 
   const shapeEntries = Object.entries(actionShape)
@@ -172,3 +181,5 @@ export const matchesActionFromHost = matches.guard((v): v is { $from: UserId } =
 export const matchesWithInitializer = <V extends Validator<unknown, A>, A>(matches: V, callback: () => A) => {
   return { matches, callback }
 }
+
+export { matches }

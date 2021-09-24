@@ -92,9 +92,9 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
         } else if (newWorldState) {
           for (const pose of newWorldState.pose) {
             const networkObjectEntity = world.getNetworkObject(pose.networkId)
-            const networkComponent = getComponent(networkObjectEntity, NetworkObjectComponent)
-
             if (!networkObjectEntity) continue
+
+            const networkComponent = getComponent(networkObjectEntity, NetworkObjectComponent)
 
             if (hasComponent(networkObjectEntity, AvatarComponent)) {
               if (hasComponent(networkObjectEntity, AvatarControllerComponent)) continue
