@@ -168,6 +168,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
 
     socket.on('connect', async () => {
+      console.log(`CONNECT to port ${port}`)
       if (this.reconnecting === true) {
         this.reconnecting = false
         return
@@ -235,6 +236,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       })
 
       socket.on('disconnect', async () => {
+        console.log(`DICONNECT from port ${port}`)
         if ((socket as any).instance === true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
         if ((socket as any).instance !== true)

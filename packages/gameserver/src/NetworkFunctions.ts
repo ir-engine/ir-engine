@@ -237,9 +237,6 @@ export async function handleConnectToWorld(socket, data, callback, userId: UserI
       dataProducers: new Map<string, DataProducer>() // Key => label of data channel
     }
 
-  const world = useWorld()
-  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, avatarDetail }))
-
   // Return initial world state to client to set things up
   callback({
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
