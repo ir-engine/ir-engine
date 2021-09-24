@@ -283,13 +283,12 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
 
   // Get all client info and network objects and dispatch to joined user
   for (const [userId, client] of Network.instance.clients) {
-    if (userId !== joinedUserId)
-      dispatchFrom(world.hostId, () =>
-        NetworkWorldAction.createClient({
-          userId,
-          avatarDetail: client.avatarDetail!
-        })
-      ).to(joinedUserId)
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.createClient({
+        userId,
+        avatarDetail: client.avatarDetail!
+      })
+    ).to(joinedUserId)
   }
   for (const eid of world.networkObjectQuery()) {
     const networkObject = getComponent(eid, NetworkObjectComponent)
