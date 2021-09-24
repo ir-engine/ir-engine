@@ -22,7 +22,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
   const viewerQuery = defineQuery([FollowCameraComponent])
   let previousViewerEntity: Entity
-  let shouldSubSceneChildren = true
+  let shouldUpdateChildren = true
 
   return () => {
     const viewerEntity = viewerQuery(world)[0]
@@ -56,10 +56,10 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0
-      shouldSubSceneChildren = true
+      shouldUpdateChildren = true
     }
 
-    if (shouldSubSceneChildren) {
+    if (shouldUpdateChildren) {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
       const subSceneChildren = []
       for (const object of mapComponent.completeObjects.values()) {
@@ -100,7 +100,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
 
       // Update (sub)scene
       object3dComponent.value.children = subSceneChildren
-      shouldSubSceneChildren = false
+      shouldUpdateChildren = false
     }
 
     // Update labels
