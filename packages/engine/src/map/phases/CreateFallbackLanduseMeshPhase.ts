@@ -1,10 +1,9 @@
-import { TaskStatus, TileKey } from '../types'
+import { TileKey } from '../types'
 import { Store } from '../functions/createStore'
-import { tileXToLong, tileYToLat, toMetersFromCenter } from '../units'
-import { TILE_ZOOM } from '../constants'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from '../styles'
 import getCachedMaterial from '../functions/getCachedMaterial'
 import { Mesh, MeshLambertMaterial, PlaneBufferGeometry } from 'three'
+import computeTileBoundingBox from '../functions/computeTileBoundingBox'
 
 export const name = 'create fallback landuse mesh'
 export const isAsyncPhase = false
@@ -14,17 +13,12 @@ export function getTaskKeys(store: Store) {
   return store.tileCache.keys()
 }
 
+const $tileBBox = Array(4)
+
 export function execTask(store: Store, key: TileKey) {
   const [x, y] = key
 
-  const [tileLeft, tileTop] = toMetersFromCenter(
-    [tileXToLong(x, TILE_ZOOM), tileYToLat(y, TILE_ZOOM)],
-    store.originalCenter
-  )
-  const [tileRight, tileBottom] = toMetersFromCenter(
-    [tileXToLong(x + 1, TILE_ZOOM), tileYToLat(y + 1, TILE_ZOOM)],
-    store.originalCenter
-  )
+  const [tileLeft, tileTop, tileRight, tileBottom] = computeTileBoundingBox(x, y, store.originalCenter, $tileBBox)
 
   const tileWidth = tileRight - tileLeft
   const tileHeight = tileBottom - tileTop
