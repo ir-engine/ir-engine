@@ -11,4 +11,6 @@ export type TargetCameraRotationComponentType = {
   thetaVelocity: { value: number }
 }
 
-export const TargetCameraRotationComponent = createMappedComponent<TargetCameraRotationComponentType>()
+export const TargetCameraRotationComponent = createMappedComponent<TargetCameraRotationComponentType>(
+  'TargetCameraRotationComponent'
+)

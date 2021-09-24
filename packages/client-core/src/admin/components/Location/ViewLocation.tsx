@@ -35,6 +35,7 @@ interface Props {
   adminSceneState?: any
   adminLocationState?: any
   patchLocation?: any
+  authState?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -229,7 +230,7 @@ const ViewLocation = (props: Props) => {
         {editMode ? (
           <Container maxWidth="sm">
             <div className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={classes.mb10}>
+              <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
                 {' '}
                 Update location Information{' '}
               </Typography>
@@ -379,7 +380,7 @@ const ViewLocation = (props: Props) => {
                     </FormControl>
                   </FormGroup>
                 </Grid>
-                <Grid item xs={6} style={{ display: 'flex' }}>
+                <Grid item xs={6}>
                   <div style={{ marginLeft: 'auto' }}>
                     <FormGroup>
                       <FormControl>
@@ -460,7 +461,11 @@ const ViewLocation = (props: Props) => {
                 </Grid>
               </Grid>
             </Paper>
-            <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.spacing}`}>
+            <Typography
+              variant="h4"
+              component="h4"
+              className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont}`}
+            >
               Location Settings{' '}
             </Typography>
             <Grid container spacing={2} className={classes.pdlarge}>

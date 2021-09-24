@@ -154,6 +154,14 @@ export class IdentityProvider extends Service {
     // await this.app.service('user-settings').create({
     //   userId: result.userId
     // });
+    if (config.scopes.guest.length) {
+      config.scopes.guest.forEach(async (el) => {
+        await this.app.service('scope').create({
+          type: el,
+          userId: userId
+        })
+      })
+    }
 
     if (type === 'guest') {
       if (config.scopes.guest.length) {

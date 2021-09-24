@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 
@@ -99,7 +99,7 @@ export function getFeeds(type: string, id?: string, limit?: number) {
       }
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -112,7 +112,7 @@ export function getFeed(feedId: string) {
       dispatch(feedRetrieved(feed))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -124,7 +124,7 @@ export function addViewToFeed(feedId: string) {
       dispatch(addFeedView(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -146,7 +146,7 @@ export function createFeed({ title, description, video, preview }: any) {
       }
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -168,7 +168,7 @@ export function updateFeedAsAdmin(feedId: string, feed: any) {
       dispatch(updateFeedInList(updatedFeed))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -180,7 +180,7 @@ export function setFeedAsFeatured(feedId: string) {
       dispatch(feedAsFeatured(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -192,7 +192,7 @@ export function setFeedNotFeatured(feedId: string) {
       dispatch(feedNotFeatured(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -213,7 +213,7 @@ export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: st
       dispatch(deleteFeed(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -230,7 +230,7 @@ export function setLastFeedVideoUrl(filepath: string) {
       dispatch(lastFeedVideoUrl(filepath))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

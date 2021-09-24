@@ -4,8 +4,8 @@ import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
-import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions'
-import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
+import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { Config } from '@xrengine/common/src/config'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
@@ -14,7 +14,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import LeftDrawer from '../Drawer/Left'
@@ -51,33 +51,26 @@ const initialGroupForm = {
 }
 
 interface Props {
-  appState?: any
   locationState?: any
   login?: boolean
   pageTitle: string
   children?: any
   hideVideo?: boolean
   hideFullscreen?: boolean
-  setUserHasInteracted?: any
-  onBoardingStep?: number
   theme?: any
 }
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
-    locationState: selectLocationState(state),
-    onBoardingStep: selectAppOnBoardingStep(state)
+    locationState: selectLocationState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  setUserHasInteracted: bindActionCreators(setUserHasInteracted, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Layout = (props: Props): any => {
   const path = useLocation().pathname
-  const { pageTitle, children, appState, setUserHasInteracted, login, locationState, onBoardingStep } = props
-  const userHasInteracted = appState.get('userHasInteracted')
+  const { pageTitle, children, login, locationState } = props
+  const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
@@ -94,16 +87,19 @@ const Layout = (props: Props): any => {
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
   const handle = useFullScreenHandle()
-  const instance = new EmoteMenuCore(props)
+
+  const respawn = new EmoteMenuCore(props)
+
+  const dispatch = useDispatch()
 
   const initialClickListener = () => {
-    setUserHasInteracted()
+    dispatch(AppAction.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
 
   useEffect(() => {
-    if (userHasInteracted === false) {
+    if (userHasInteracted.value === false) {
       window.addEventListener('click', initialClickListener)
       window.addEventListener('touchend', initialClickListener)
     }
@@ -175,7 +171,7 @@ const Layout = (props: Props): any => {
   }
 
   const stopAnimation = (): void => {
-    instance.spawnAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
+    respawn.spawnAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
   }
 
   //info about current mode to conditional render menus

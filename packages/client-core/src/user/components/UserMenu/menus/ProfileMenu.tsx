@@ -146,7 +146,12 @@ const ProfileMenu = (props: Props): any => {
           <div className={styles.avatarBlock}>
             <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id?.value)} />
             {changeActiveMenu != null && (
-              <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple>
+              <Button
+                className={styles.avatarBtn}
+                id="select-avatar"
+                onClick={() => changeActiveMenu(Views.Avatar)}
+                disableRipple
+              >
                 <Create />
               </Button>
             )}
@@ -226,7 +231,7 @@ const ProfileMenu = (props: Props): any => {
                 </form>
               </section>
             )}
-            {selfUser?.userRole.value === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && changeActiveMenu != null && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}

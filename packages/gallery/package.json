@@ -20,12 +20,12 @@
   },
   "resolutions": {
     "socket.io": "4.2.0",
-    "@types/react": "17.0.22",
+    "@types/react": "17.0.24",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
-    "react": "^17.0.0",
+    "react": "^17.0.2",
     "socket.io": "4.2.0"
   },
   "dependencies": {
@@ -48,14 +48,15 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-redux": "7.2.5",
+    "react-router-transition": "2.1.0",
     "react-video-recorder": "3.19.1",
     "redux": "4.1.1",
-    "sass": "1.42.0",
+    "sass": "1.42.1",
     "styled-components": "5.3.1"
   },
   "devDependencies": {
-    "@types/node": "14.17.17",
-    "@types/react": "17.0.22",
+    "@types/node": "14.17.18",
+    "@types/react": "17.0.24",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",

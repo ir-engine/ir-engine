@@ -1,13 +1,13 @@
 import adminReducer from '@xrengine/client-core/src/admin/reducers/admin/reducers'
 import adminUserReducer from '@xrengine/client-core/src/admin/reducers/admin/user/reducers'
 import contentPackReducer from '@xrengine/client-core/src/admin/reducers/contentPack/reducers'
-import adminAvatarReducer from '@xrengine/client-core/src/admin/reducers/admin/avatar/reducers'
+import { adminAvatarReducer } from '@xrengine/client-core/src/admin/reducers/admin/avatar/AvatarState'
 import adminInstanceReducer from '@xrengine/client-core/src/admin/reducers/admin/instance/reducers'
 import adminLocationReducer from '@xrengine/client-core/src/admin/reducers/admin/location/reducers'
 import adminPartyReducer from '@xrengine/client-core/src/admin/reducers/admin/party/reducers'
 import adminSceneReducer from '@xrengine/client-core/src/admin/reducers/admin/scene/reducers'
-import adminBotsReducer from '@xrengine/client-core/src/admin/reducers/admin/bots/reducers'
-import groupReducer from '@xrengine/client-core/src/admin/reducers/admin/group/reducers'
+import { adminBotsReducer } from '@xrengine/client-core/src/admin/reducers/admin/bots/BotsState'
+import { adminGroupReducer } from '@xrengine/client-core/src/admin/reducers/admin/group/GroupState'
 import scopeReducer from '@xrengine/client-core/src/admin/reducers/admin/scope/reducers'
 
 /**
@@ -26,6 +26,6 @@ export default {
   adminParty: adminPartyReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,
-  group: groupReducer,
+  group: adminGroupReducer,
   scope: scopeReducer
 }

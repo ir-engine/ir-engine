@@ -3,30 +3,29 @@ import { connect } from 'react-redux'
 import Loader from './Block'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
-import { GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/actions'
-import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
+import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { selectCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/selector'
 interface Props {
   objectsToLoad?: number
-  onBoardingStep?: number
   currentScene?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    onBoardingStep: selectAppOnBoardingStep(state),
     currentScene: selectCurrentScene(state)
   }
 }
 
 const LoadingScreen = (props: Props) => {
-  const { onBoardingStep, objectsToLoad, currentScene } = props
+  const { objectsToLoad, currentScene } = props
+  const onBoardingStep = useAppState().onBoardingStep
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()
 
   useEffect(() => {
-    switch (onBoardingStep) {
+    switch (onBoardingStep.value) {
       case GeneralStateList.START_STATE:
         setLoadingText(t('common:loader.connecting'))
         setShowProgressBar(true)
@@ -44,10 +43,10 @@ const LoadingScreen = (props: Props) => {
         setLoadingText(t('common:loader.loading'))
         break
     }
-  }, [onBoardingStep])
+  }, [onBoardingStep.value])
 
   useEffect(() => {
-    if (onBoardingStep === GeneralStateList.SCENE_LOADING) {
+    if (onBoardingStep.value === GeneralStateList.SCENE_LOADING) {
       setLoadingText(
         t('common:loader.' + (objectsToLoad > 1 ? 'objectRemainingPlural' : 'objectRemaining'), {
           count: objectsToLoad

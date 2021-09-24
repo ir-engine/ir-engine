@@ -64,3 +64,16 @@ export function getPlayers(localUserId, notAfk: boolean): string[] {
 
   return res
 }
+
+export function getPlayerName(eid): string {
+  const uid = getUserId(eid)
+  if (uid === undefined || uid === '') return ''
+
+  for (let p in Network.instance.clients) {
+    if (Network.instance.clients[p].userId === uid) {
+      return Network.instance.clients[p].name
+    }
+  }
+
+  return ''
+}

@@ -1,5 +1,4 @@
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User'
@@ -17,10 +16,14 @@ import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src
 import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
 import { UserAction } from '../../store/UserAction'
-import { AuthAction, AuthActionType, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
+import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'
+import { hasComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -131,14 +134,14 @@ export const AuthService = {
       })
       .catch((err: any) => {
         console.log(err)
-        dispatchAlertError(dispatch, 'Failed to load user data')
+        AlertService.dispatchAlertError(dispatch, 'Failed to load user data')
       })
   },
   loginUserByPassword: (form: EmailLoginForm) => {
     return (dispatch: Dispatch): any => {
       // check email validation.
       if (!validateEmail(form.email)) {
-        dispatchAlertError(dispatch, 'Please input valid email address')
+        AlertService.dispatchAlertError(dispatch, 'Please input valid email address')
 
         return
       }
@@ -168,7 +171,7 @@ export const AuthService = {
           console.log(err)
 
           dispatch(AuthAction.loginUserError('Failed to login'))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -192,7 +195,7 @@ export const AuthService = {
       } catch (err) {
         console.log(err)
         dispatch(AuthAction.loginUserError('Failed to login'))
-        dispatchAlertError(dispatch, err.message)
+        AlertService.dispatchAlertError(dispatch, err.message)
       } finally {
         dispatch(AuthAction.actionProcessing(false))
       }
@@ -235,7 +238,7 @@ export const AuthService = {
       } catch (err) {
         console.log(err)
         dispatch(AuthAction.loginUserError('Failed to login'))
-        dispatchAlertError(dispatch, err.message)
+        AlertService.dispatchAlertError(dispatch, err.message)
         window.location.href = `${redirectError}?error=${err.message}`
         dispatch(AuthAction.actionProcessing(false))
       }
@@ -274,7 +277,7 @@ export const AuthService = {
         .catch((err: any) => {
           console.log('error', err)
           dispatch(AuthAction.registerUserByEmailError(err.message))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => {
           console.log('4 finally', dispatch)
@@ -299,7 +302,7 @@ export const AuthService = {
         .catch((err: any) => {
           console.log(err)
           dispatch(AuthAction.didVerifyEmail(false))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -384,7 +387,7 @@ export const AuthService = {
         const stripped = emailPhone.replace(/-/g, '')
         if (validatePhoneNumber(stripped)) {
           if (!enableSmsMagicLink) {
-            dispatchAlertError(dispatch, 'Please input valid email address')
+            AlertService.dispatchAlertError(dispatch, 'Please input valid email address')
 
             return
           }
@@ -393,13 +396,13 @@ export const AuthService = {
           emailPhone = '+1' + stripped
         } else if (validateEmail(emailPhone)) {
           if (!enableEmailMagicLink) {
-            dispatchAlertError(dispatch, 'Please input valid phone number')
+            AlertService.dispatchAlertError(dispatch, 'Please input valid phone number')
 
             return
           }
           type = 'email'
         } else {
-          dispatchAlertError(dispatch, 'Please input valid email or phone number')
+          AlertService.dispatchAlertError(dispatch, 'Please input valid email or phone number')
 
           return
         }
@@ -414,12 +417,12 @@ export const AuthService = {
         .then((res: any) => {
           console.log(res)
           dispatch(AuthAction.didCreateMagicLink(true))
-          dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
+          AlertService.dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
         })
         .catch((err: any) => {
           console.log(err)
           dispatch(AuthAction.didCreateMagicLink(false))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -442,7 +445,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -463,7 +466,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -490,7 +493,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -512,7 +515,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -538,7 +541,7 @@ export const AuthService = {
         name: selfUser.name.value
       })
       const result = res.data
-      dispatchAlertSuccess(dispatch, 'Avatar updated')
+      AlertService.dispatchAlertSuccess(dispatch, 'Avatar updated')
       dispatch(AuthAction.avatarUpdated(result))
     }
   },
@@ -671,7 +674,7 @@ export const AuthService = {
                       .service('user')
                       .patch(selfUser.id.value, { avatarId: name })
                       .then((_) => {
-                        dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.')
+                        AlertService.dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.')
                         if (Network?.instance?.transport)
                           (Network.instance.transport as any).sendNetworkStatUpdateMessage({
                             type: MessageTypes.AvatarUpdated,
@@ -712,7 +715,7 @@ export const AuthService = {
           query: { keys }
         })
         .then((_) => {
-          dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.')
+          AlertService.dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.')
           AuthService.fetchAvatarList()(dispatch)
         })
     }
@@ -741,7 +744,7 @@ export const AuthService = {
           name: name
         })
         .then((res: any) => {
-          dispatchAlertSuccess(dispatch, 'Username updated')
+          AlertService.dispatchAlertSuccess(dispatch, 'Username updated')
           dispatch(AuthAction.usernameUpdated(res))
         })
     }
@@ -907,6 +910,23 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         if (history.pushState) {
           window.history.replaceState({}, '', parsed.toString())
         }
+      }
+
+      if (typeof Network.instance?.localClientEntity !== 'undefined') {
+        if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
+          addComponent(Network.instance.localClientEntity, ProximityComponent, {
+            usersInRange: [],
+            usersInIntimateRange: [],
+            usersInHarassmentRange: [],
+            usersLookingTowards: []
+          })
+        }
+        if (!hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
+          addComponent(Network.instance.localClientEntity, WebCamInputComponent, {
+            emotions: []
+          })
+        }
+        console.log('added web cam input component to local client')
       }
     } else {
       if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId.value)

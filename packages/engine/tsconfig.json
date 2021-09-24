@@ -19,7 +19,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": true,
+    "isolatedModules": false,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
