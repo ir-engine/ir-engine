@@ -15,48 +15,48 @@ export interface LocationColumn {
 }
 
 export const locationColumns: LocationColumn[] = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'sceneId', label: 'SceneId', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 65 },
+  { id: 'sceneId', label: 'SceneId', minWidth: 65 },
   {
     id: 'maxUsersPerInstance',
     label: 'Max Users Per Instance',
-    minWidth: 170,
+    minWidth: 80,
     align: 'center'
   },
   {
     id: 'scene',
     label: 'Scene',
-    minWidth: 170,
+    minWidth: 65,
     align: 'center'
   },
   {
     id: 'type',
     label: 'Type',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'tags',
     label: 'Tags',
-    minWidth: 170,
+    minWidth: 65,
     align: 'center'
   },
   {
     id: 'instanceMediaChatEnabled',
     label: 'Instance Media Chat Enabled',
-    minWidth: 170,
+    minWidth: 80,
     align: 'center'
   },
   {
     id: 'videoEnabled',
     label: 'Video Enabled',
-    minWidth: 170,
+    minWidth: 65,
     align: 'center'
   },
   {
     id: 'action',
     label: 'Action',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   }
 ]
