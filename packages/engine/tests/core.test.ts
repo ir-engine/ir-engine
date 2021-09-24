@@ -4,6 +4,7 @@
 import { initializeEngine, shutdownEngine } from '../src/initializeEngine'
 import { Engine } from '../src/ecs/classes/Engine'
 import { engineTestSetup } from './util/setupEngine'
+import assert from 'assert'
 
 /**
  * tests
@@ -11,17 +12,17 @@ import { engineTestSetup } from './util/setupEngine'
 describe('Core', () => {
 
   // force close until we can reset the engine properly
-  afterAll(() => setTimeout(() => process.exit(0), 1000))
+  after(() => setTimeout(() => process.exit(0), 1000))
 
   describe('Initialise Engine', () => {
-    test('Can initialise engine', async () => {
+    it('Can initialise engine', async () => {
       await initializeEngine(engineTestSetup)
-      expect(Engine.isInitialized).toBe(true)
+      assert.equal(Engine.isInitialized, true)
     })
 
-    test('Can shutdown engine', async () => {
+    it('Can shutdown engine', async () => {
       await shutdownEngine()
-      expect(Engine.isInitialized).toBe(false)
+      assert.equal(Engine.isInitialized, false)
     })
   })
 

@@ -19,22 +19,17 @@
     "validate": "npm run test",
     "dev": "node -r ts-eager/register src/run-bot.ts",
     "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production rollup -c",
-    "test": "jest",
+    "test": "exit 0",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.17.0",
-    "chai": "4.3.4",
     "cross-env": "7.0.3",
-    "jest": "27.2.1",
-    "jest-puppeteer": "6.0.0",
-    "puppeteer": "10.4.0",
-    "ts-jest": "27.0.5"
+    "puppeteer": "10.4.0"
   },
   "devDependencies": {
     "@types/expect-puppeteer": "4.4.7",
-    "@types/jest": "27.0.2",
-    "@types/jest-environment-puppeteer": "4.4.1",
+    "@types/mocha": "9.0.0",
     "@types/node": "14.17.18",
     "@types/puppeteer": "5.4.4",
     "@types/react": "17.0.24",
@@ -44,6 +39,7 @@
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
     "eslint-plugin-react": "7.26.0",
+    "mocha": "^9.1.1",
     "semantic-release": "18.0.0",
     "semantic-release-monorepo": "7.0.5",
     "typescript": "4.4.3",
