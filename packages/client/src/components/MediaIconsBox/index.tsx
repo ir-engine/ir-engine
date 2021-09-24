@@ -3,7 +3,6 @@ import { Mic, MicOff, Videocam, VideocamOff } from '@material-ui/icons'
 import FaceIcon from '@material-ui/icons/Face'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
@@ -33,7 +32,6 @@ import { selectChannelConnectionState } from '../../reducers/channelConnection/s
 
 const mapStateToProps = (state: any): any => {
   return {
-    onBoardingStep: selectAppOnBoardingStep(state),
     locationState: selectLocationState(state),
     mediastream: state.get('mediastream'),
     chatState: selectChatState(state),

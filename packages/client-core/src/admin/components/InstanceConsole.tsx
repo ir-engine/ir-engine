@@ -22,7 +22,6 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import { selectAppState } from '../../common/reducers/app/selector'
 import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
 import { selectAdminInstanceState } from '../reducers/admin/instance/selector'
@@ -42,7 +41,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
     adminInstanceState: selectAdminInstanceState(state)
   }
 }

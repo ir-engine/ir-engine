@@ -1,4 +1,3 @@
-import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -20,8 +19,6 @@ import styles from './MapMediaIconsBox.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    onBoardingStep: selectAppOnBoardingStep(state),
-
     locationState: selectLocationState(state),
     mediastream: state.get('mediastream')
   }

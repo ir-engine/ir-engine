@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { fetchingFeedFires, feedFiresRetrieved } from './actions'
 import { addFeedFire, removeFeedFire } from '../feed/actions'
@@ -15,7 +15,7 @@ export function getFeedFires(feedId: string) {
       dispatch(feedFiresRetrieved(feedsResults.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -27,7 +27,7 @@ export function addFireToFeed(feedId: string) {
       dispatch(addFeedFire(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -39,7 +39,7 @@ export function removeFireToFeed(feedId: string) {
       dispatch(removeFeedFire(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

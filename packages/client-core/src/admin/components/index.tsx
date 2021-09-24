@@ -21,7 +21,7 @@ import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../common/reducers/app/selector'
+import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { client } from '../../feathers'
 import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
@@ -145,8 +145,6 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
-
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
@@ -423,22 +421,22 @@ const AdminConsole = (props: Props) => {
   }, [adminUsers])
 
   useEffect(() => {
-    if (user?.id.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
       fetchAdminLocations()
     }
-    if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
       fetchAdminScenes()
     }
-    if (user?.id.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       fetchLocationTypes()
     }
-    if (user?.id.value != null && adminUserState.get('users').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminUserState.get('users').get('updateNeeded') === true) {
       fetchUsersAsAdmin()
     }
-    if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
       fetchAdminInstances()
     }
-  }, [authState, adminSceneState, adminInstanceState, adminLocationState])
+  }, [authState.user?.id?.value, adminSceneState, adminInstanceState, adminLocationState])
 
   const handleClick = () => {
     console.info('You clicked the Chip.')

@@ -16,7 +16,6 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { createLocation, patchLocation, removeLocation } from '../reducers/admin/location/service'
-import { selectAppState } from '../../common/reducers/app/selector'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
@@ -37,8 +36,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
-
     adminSceneState: selectAdminSceneState(state),
     adminLocationState: selectAdminLocationState(state)
   }

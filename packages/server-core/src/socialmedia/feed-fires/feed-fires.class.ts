@@ -76,8 +76,26 @@ export class FeedFires extends Service {
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
     )
-    const newFire = await feedFiresModel.create({ feedId: data.feedId, creatorId })
-    return newFire
+
+    const transaction = await this.app.get('sequelizeClient').transaction()
+
+    try {
+      const newFire = await feedFiresModel.create({ feedId: data.feedId, creatorId })
+      const dataQuery = `DELETE FROM  \`feed_likes\` WHERE feedId=:feedId AND creatorId=:creatorId`
+      await this.app.get('sequelizeClient').query(dataQuery, {
+        type: QueryTypes.DELETE,
+        raw: true,
+        replacements: {
+          feedId: data.feedId,
+          creatorId
+        }
+      })
+      await transaction.commit()
+      return newFire
+    } catch (error) {
+      await transaction.rollback()
+      return null
+    }
   }
 
   async remove(feedId: string, params?: Params): Promise<any> {

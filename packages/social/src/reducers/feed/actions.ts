@@ -7,7 +7,9 @@ import {
   FEEDS_FETCH,
   FEEDS_FEATURED_RETRIEVED,
   ADD_FEED_FIRES,
+  ADD_FEED_LIKES,
   REMOVE_FEED_FIRES,
+  REMOVE_FEED_LIKES,
   ADD_FEED_BOOKMARK,
   REMOVE_FEED_BOOKMARK,
   ADD_FEED_VIEW,
@@ -238,5 +240,19 @@ export function addFeedReport(feedId: string): oneFeedAction {
   return {
     type: ADD_FEED_REPORT,
     feedId: feedId
+  }
+}
+
+export function addFeedLike(feedId: string): oneFeedAction {
+  return {
+    type: ADD_FEED_LIKES,
+    feedId: feedId
+  }
+}
+
+export function removeFeedLike(feedId: string): oneFeedAction {
+  return {
+    type: REMOVE_FEED_LIKES,
+    feedId
   }
 }
