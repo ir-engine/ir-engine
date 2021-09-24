@@ -10,7 +10,7 @@ import * as packs from '@xrengine/realitypacks/packs'
  * @param component
  * @param sceneProperty
  */
-export const loadCustomScript = (
+export const loadRealityPack = (
   sceneLoader: WorldScene,
   entity: Entity,
   component: SceneDataComponent,

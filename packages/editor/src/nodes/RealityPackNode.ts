@@ -11,8 +11,8 @@ export default class RealityPackNode extends EditorNodeMixin(Object3D) {
 
   packIndex: number = 0
   packName: string
-  static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(json) {
+    const node = await super.deserialize(json)
     const { packIndex, packName } = json.components.find((c) => c.name === 'realitypack').props
     node.packIndex = packIndex
     node.packName = packName

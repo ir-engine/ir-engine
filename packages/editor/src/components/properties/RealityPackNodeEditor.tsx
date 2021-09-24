@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
-import { Description } from '@material-ui/icons'
+import { Dashboard } from '@material-ui/icons'
 import InputGroup from '../inputs/InputGroup'
 import realitypacks from '@xrengine/realitypacks/manifest.json'
 import SelectInput from '../inputs/SelectInput'
@@ -28,7 +28,7 @@ type RealityPackNodeEditorProps = {
  */
 
 export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps, {}> {
-  static iconComponent = Description
+  static iconComponent = Dashboard
   static description = i18n.t('editor:properties.realitypacknode.description')
 
   constructor(props) {
