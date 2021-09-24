@@ -7,6 +7,8 @@ import InputGroup from '../inputs/InputGroup'
 import Editor from '../Editor'
 import CustomScriptNode from '../../nodes/CustomScriptNode'
 import StringInput from '../inputs/StringInput'
+import realitypacks from '@xrengine/realitypacks/manifest.json'
+import SelectInput from '../inputs/SelectInput'
 
 /**
  * Define properties for CustomScriptNode component.
@@ -39,17 +41,29 @@ export class CustomScriptNodeEditor extends Component<CustomScriptNodeEditorProp
     this.props.editor.setPropertySelected('scriptUrl', val)
   }
 
+  getRealityPacks = () => {
+    console.log('Condfasdf:' + JSON.stringify(realitypacks))
+    const packs = realitypacks.packs
+    const options = []
+    packs.forEach((value, index) => {
+      options.push({
+        label: value,
+        value: index
+      })
+    })
+    return options
+  }
+
   render() {
     const node = this.props.node
+    {
+      this.getRealityPacks()
+    }
     CustomScriptNodeEditor.description = i18n.t('editor:properties.customscriptnode.description')
     return (
-      <NodeEditor description={CustomScriptNodeEditor.description} {...this.props}>
-        {/**@ts-ignore */}
-        <InputGroup name="Code URL" label={i18n.t('editor:properties.customscriptnode.lbl-scripturl')}>
-          {/**@ts-ignore */}
-          <StringInput onChange={this.onChangeScript} value={node.scriptUrl} />
-        </InputGroup>
-      </NodeEditor>
+      <InputGroup name="RealityPack" label="Reality Pack">
+        <SelectInput options={this.getRealityPacks()} onChange={this.onChangeScript} value={node.scriptUrl} />
+      </InputGroup>
     )
   }
 }

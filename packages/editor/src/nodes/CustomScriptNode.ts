@@ -1,6 +1,5 @@
 import { Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
-import { getFiles } from '@xrengine/realitypacks'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 /**

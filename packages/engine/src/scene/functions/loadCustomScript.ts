@@ -1,7 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import fs from 'fs'
+import * as packs from '@xrengine/realitypacks/packs'
 
 /**
  * @author Abhishek Pathak
@@ -16,33 +16,12 @@ export const loadCustomScript = (
   component: SceneDataComponent,
   sceneProperty: ScenePropertyType
 ) => {
-  sceneLoader.loaders.push(
-    new Promise<void>((resolve, reject) => {
-      const url = component.props.scriptUrl
-      let code: string = ''
-      if (typeof window === 'undefined') {
-        require('node-fetch')(url)
-          .then(async (res) => {
-            code = await res.text()
-            console.log(code)
-          })
-          .catch((error) => {
-            console.log('Error loading:' + error)
-            reject()
-          })
-      } else {
-        fetch(url)
-          .then(async (res) => {
-            code = await res.text()
-            console.log(code)
-          })
-          .catch((error) => {
-            console.log('Error loading:' + error)
-            reject()
-          })
-      }
-
-      resolve()
-    })
-  )
+  const packName = 'test'
+  const pack = packs[packName]
+  if (!pack) {
+    console.log('Reality Packs Not Found!!')
+    return
+  }
+  //Do things with Reality Pack
+  /////
 }
