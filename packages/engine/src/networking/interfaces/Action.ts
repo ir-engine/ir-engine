@@ -115,13 +115,13 @@ export function defineActionCreator<
     [string, MatchesCallback<any>]
   >
   const initializerMatches = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.matches]))
-  const initializerValues = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.callback()]) as [string, any])
 
   // handle literal shape properties
   const literalEntries = shapeEntries.filter(([k, v]) => typeof v !== 'object') as Array<[string, string | number]>
   const literalValidators = Object.fromEntries(literalEntries.map(([k, v]) => [k, matches.literal(v)]))
 
   const actionCreator = (partialAction: PartialAction<Shape>) => {
+    const initializerValues = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.callback()]) as [string, any])
     let action = { ...partialAction, ...Object.fromEntries(literalEntries), ...initializerValues } as ResolvedAction
     console.log(action, initializerEntries)
     return action
