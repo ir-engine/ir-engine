@@ -10,7 +10,6 @@ import { Object3DComponent } from '../src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '../src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '../src/transform/components/TransformComponent'
 import { WorldScene } from "../src/scene/functions/SceneLoading";
-import { createCollider, createShape } from "../src/physics/functions/createCollider";
 import { isTriggerShape } from "../src/physics/classes/Physics";
 import assert from 'assert'
 
@@ -44,7 +43,7 @@ describe('Scene Loader', () => {
     parseGLTFModel(sceneLoader, entity, mockComponentData, undefined, mesh)
 
     const [loadedEntity] = colliderQuery(useWorld())
-    assert.equal(typeof loadedEntity, 'undefined')
+    assert.equal(typeof loadedEntity, 'number')
     assert.equal(getComponent(loadedEntity, NameComponent).name, entityName)
     assert.equal(getComponent(loadedEntity, CustomComponent).value, number)
     const shape = useWorld().physics.getOriginalShapeObject(getComponent(loadedEntity, ColliderComponent).body.getShapes())

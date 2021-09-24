@@ -25,7 +25,7 @@
     "check-errors": "tsc --noemit",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production vite build --config vite.build.js",
-    "test": "cross-env TS_NODE_FILES=true TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ./tests/setup.js 'tests/**/*.ts'",
+    "test": "cross-env TS_NODE_FILES=true TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --parallel -r ./tests/setup.js 'tests/**/*.ts'",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"

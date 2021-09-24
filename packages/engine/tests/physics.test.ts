@@ -81,7 +81,7 @@ describe('Physics', () => {
     //     'expected', indices[i], indices[i + 1], indices[i + 2]
     //   )
     // }
-    assert.equal(newVertices, vertices)
+    assert.deepEqual(newVertices, vertices)
     assert.equal(newIndices.length, indices.length)
   })
 
