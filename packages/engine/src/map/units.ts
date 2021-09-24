@@ -4,10 +4,12 @@ export const METERS_PER_LONGLAT = 111139
 /** Memnonic drop-in replacement for geojson.Position */
 export type LongLat = number[]
 
-export function toMetersFromCenter([lng, lat]: LongLat, [lngCenter, latCenter]: LongLat, sceneScale = 1): number[] {
-  const x = (lng - lngCenter) * 111134.861111 * sceneScale
-  const z = (lat - latCenter) * (Math.cos((latCenter * Math.PI) / 180) * 111321.377778) * sceneScale
-  return [x, z]
+export function toMetersFromCenter([lng, lat]: LongLat, [lngCenter, latCenter]: LongLat, target = Array(2)): number[] {
+  const x = (lng - lngCenter) * 111134.861111
+  const z = (lat - latCenter) * (Math.cos((latCenter * Math.PI) / 180) * 111321.377778)
+  target[0] = x
+  target[1] = z
+  return target
 }
 
 export function fromMetersFromCenter(

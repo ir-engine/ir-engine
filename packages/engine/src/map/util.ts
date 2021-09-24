@@ -6,8 +6,15 @@ export function vector3ToArray2(vector: Vector3): [number, number] {
 }
 
 // TODO(perf) add target param
-export function multiplyArray<ArrayType extends number[]>(array: ArrayType, scalar: number): ArrayType {
-  return array.map((value) => value * scalar) as any
+export function multiplyArray<ArrayType extends number[]>(
+  array: ArrayType,
+  scalar: number,
+  target = [] as ArrayType
+): ArrayType {
+  array.forEach((n, index) => {
+    target[index] = n * scalar
+  })
+  return target
 }
 
 export function addChildFast(parent: Object3D, child: Object3D, children = parent.children) {
