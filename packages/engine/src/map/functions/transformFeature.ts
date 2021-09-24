@@ -64,6 +64,8 @@ export default function transformFeature<FeatureType extends SupportedFeature>(
 
   const { width, height } = measure(feature)
 
+  // Account for the fact that Latitude decreases as we move south, while Z increases
+  centerPoint[1] *= -1
   const boundingCircleRadius = Math.max(width, height) / 2
 
   return {

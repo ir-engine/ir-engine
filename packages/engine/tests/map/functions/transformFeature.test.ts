@@ -42,7 +42,7 @@ describe('transformFeature', () => {
   })
 
   it("computes the feature's center point (in meters) scaled", () => {
-    expect(result.centerPoint).toEqual([12.5, 12.5])
+    expect(result.centerPoint).toEqual([12.5, -12.5])
   })
 
   it("computes the feature's bounding circle radius (in meters) scaled", () => {
