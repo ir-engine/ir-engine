@@ -1,10 +1,8 @@
-import { FeatureKey, TaskStatus, TileKey, VectorTile } from '../types'
-import { SUPPORTED_LAYERS, TILE_ZOOM } from '../constants'
+import { FeatureKey, SupportedFeature, TaskStatus, TileKey, VectorTile } from '../types'
+import { SUPPORTED_LAYERS, SUPPORTED_GEOMETRIES, TILE_ZOOM } from '../constants'
 import zipIndexes from '../zipIndexes'
 import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
 import { Store } from '../functions/createStore'
-import updateKeyVal from '../../common/functions/updateKeyVal'
-import ArrayKeyedMap from '../classes/ArrayKeyedMap'
 
 export const name = 'extract tile features'
 export const isAsyncPhase = false
@@ -33,10 +31,12 @@ export function execTask(store: Store, key: TileKey) {
       for (const [index, feature] of zipIndexes(
         getFeaturesFromVectorTileLayer(layerName, vectorTile, x, y, TILE_ZOOM)
       )) {
-        const featureKey = [layerName, x, y, `${index}`] as FeatureKey
-        store.featureCache.set(featureKey, feature)
-        store.featureMeta.set(featureKey, { tileKey: key })
-        store.tileMeta.get(key).cachedFeatureKeys.add(featureKey)
+        if (SUPPORTED_GEOMETRIES.includes(feature.geometry.type)) {
+          const featureKey = [layerName, x, y, `${index}`] as FeatureKey
+          store.featureCache.set(featureKey, feature as SupportedFeature)
+          store.featureMeta.set(featureKey, { tileKey: key })
+          store.tileMeta.get(key).cachedFeatureKeys.add(featureKey)
+        }
       }
     }
   }
