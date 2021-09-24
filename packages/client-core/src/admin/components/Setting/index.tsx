@@ -10,6 +10,11 @@ import Aws from './Aws'
 import ChargeBee from './Chargebee'
 import Redis from './Redis'
 import Sidebar from './SideBar'
+import MenuIcon from '@material-ui/icons/Menu'
+import Button from '@material-ui/core/Button'
+import Badge from '@material-ui/core/Badge'
+import IconButton from '@material-ui/core/IconButton'
+import ClearIcon from '@material-ui/icons/Clear'
 
 const Setting = () => {
   const classes = useStyles()
@@ -30,6 +35,7 @@ const Setting = () => {
   const [authFocused, setAuthFocused] = React.useState(false)
   const [chargebeeFocused, setChargebeeFocused] = React.useState(false)
   const [redisFocused, setRedisFocused] = React.useState(false)
+  const [menuVisible, setMenuVisible] = React.useState(false)
 
   // const handleNotAutoFocused = ()=>{
   //   setIsFocused(!isFocused)
@@ -52,6 +58,7 @@ const Setting = () => {
     setClientFocused(false)
     setChargebeeFocused(false)
     setRedisFocused(false)
+    setMenuVisible(false)
   }
   const handleAws = () => {
     setIsAws(!isAws)
@@ -70,6 +77,7 @@ const Setting = () => {
     setChargebeeFocused(false)
     setRedisFocused(false)
     setAuthFocused(false)
+    setMenuVisible(false)
   }
   const handleChargebee = () => {
     setIsChargebee(!isChargebee)
@@ -88,6 +96,7 @@ const Setting = () => {
     setAwsFocused(false)
     setRedisFocused(false)
     setAuthFocused(false)
+    setMenuVisible(false)
   }
   const handleRedis = () => {
     setIsRedis(!isRedis)
@@ -106,6 +115,7 @@ const Setting = () => {
     setAwsFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setMenuVisible(false)
   }
 
   const handleEmail = () => {
@@ -125,6 +135,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
+    setMenuVisible(false)
   }
   const handleClient = () => {
     setIsClient(!isClient)
@@ -143,6 +154,7 @@ const Setting = () => {
     setAuthFocused(false)
     setChargebeeFocused(false)
     setEmailFocused(false)
+    setMenuVisible(false)
   }
   const handleGameServer = () => {
     setIsGame(!isGame)
@@ -160,6 +172,7 @@ const Setting = () => {
     setAuthFocused(false)
     setChargebeeFocused(false)
     setEmailFocused(false)
+    setMenuVisible(false)
   }
   const handleServer = () => {
     setIsSever(!isServer)
@@ -178,6 +191,7 @@ const Setting = () => {
     setChargebeeFocused(false)
     setEmailFocused(false)
     setGameFocused(false)
+    setMenuVisible(false)
   }
   React.useEffect(() => {
     if (isAuth) setContents(<Authentication />)
@@ -192,8 +206,16 @@ const Setting = () => {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={0}>
-        <Grid item xs={12} sm={3}>
+      <div className={classes.invisible}>
+        <div style={{ position: 'fixed' }}>
+          <Button
+            onClick={() => setMenuVisible(!menuVisible)}
+            style={{ color: '#fff', fontSize: '3rem', background: '#43484F', position: 'fixed' }}
+          >
+            <MenuIcon />
+          </Button>
+        </div>
+        {menuVisible && (
           <div className={classes.settings}>
             <Typography variant="h6" className={classes.settingsHeading}>
               {' '}
@@ -218,8 +240,34 @@ const Setting = () => {
               redisFocused={redisFocused}
             />
           </div>
+        )}
+      </div>
+      <Grid container spacing={3}>
+        <Grid item sm={3} lg={3} className={classes.visible}>
+          <Typography variant="h6" className={classes.settingsHeading}>
+            {' '}
+            Settings
+          </Typography>
+          <Sidebar
+            handleAuth={handleAuth}
+            handleAws={handleAws}
+            handleChargebee={handleChargebee}
+            handleRedis={handleRedis}
+            handleEmail={handleEmail}
+            handleClient={handleClient}
+            handleGameServer={handleGameServer}
+            handleServer={handleServer}
+            serverFocused={serverFocused}
+            awsFocused={awsFocused}
+            emailFocused={emailFocused}
+            gameFocused={gameFocused}
+            clientFocused={clientFocused}
+            authFocused={authFocused}
+            chargebeeFocused={chargebeeFocused}
+            redisFocused={redisFocused}
+          />
         </Grid>
-        <Grid item xs={12} sm={9}>
+        <Grid item xs={12} sm={9} lg={9}>
           <div className={classes.contents}>{Contents}</div>
         </Grid>
       </Grid>

@@ -351,6 +351,20 @@ const SideMenuItem = (props: Props) => {
               <ListItemText primary={'Setting'} />
             </ListItem>
           </Link>
+          {/* <Link to="/admin/bots" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              className={classes.nested}
+              selected={'/admin/setting' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <ListItemIcon>
+                <Settings style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={'Setting'} />
+            </ListItem>
+          </Link> */}
           {allowedRoutes.bot && (
             <Link to="/admin/bots" className={classes.textLink}>
               <ListItem

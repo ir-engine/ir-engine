@@ -174,7 +174,7 @@ const CreateBot = (props: Props) => {
     <Card className={classes.rootLeft}>
       <Paper className={classes.header} style={{ display: 'flex' }}>
         <Typography className={classes.title}>
-          <Face style={{ paddingTop: '5px' }} /> <span style={{ marginLeft: '10px' }}> Create new bot </span>
+          <Face style={{ paddingTop: '5px' }} /> <span className={classes.smFont}> Create new bot </span>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
