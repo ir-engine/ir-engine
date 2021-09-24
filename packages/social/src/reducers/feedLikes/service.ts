@@ -1,8 +1,8 @@
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
 import { client } from '@xrengine/client-core/src/feathers'
 import { fetchingFeedLikes, feedLikesRetrieved } from './actions'
 import { addFeedLike, removeFeedLike } from '../feed/actions'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 
 export function getFeedLikes(feedId: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -11,7 +11,7 @@ export function getFeedLikes(feedId: string) {
       const feedsResults = await client.service('feed-likes').find({ query: { feedId: feedId } })
       dispatch(feedLikesRetrieved(feedsResults.data))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -22,7 +22,7 @@ export function addLikeToFeed(feedId: string) {
       await client.service('feed-likes').create({ feedId })
       dispatch(addFeedLike(feedId))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -33,7 +33,7 @@ export function removeLikeToFeed(feedId: string) {
       await client.service('feed-likes').remove(feedId)
       dispatch(removeFeedLike(feedId))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
