@@ -23,7 +23,10 @@ const botSetting = React.lazy(() => import('../pages/admin/bot'))
 // const creator = React.lazy(() => import('../pages/admin/social/creator'))
 const setting = React.lazy(() => import('../pages/admin/Setting'))
 
-interface Props {}
+interface Props {
+  authState?: any
+  doLoginAuto?: any
+}
 
 const mapStateToProps = (state: any): any => {
   return {}
@@ -57,6 +60,35 @@ const ProtectedRoutes = (props: Props) => {
   useEffect(() => {
     dispatch(AuthService.doLoginAuto(false))
   }, [])
+
+  scopes.forEach((scope) => {
+    if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
+      if (scope.type.split(':')[1] === 'read') {
+        allowedRoutes = {
+          ...allowedRoutes,
+          [scope.type.split(':')[0]]: true
+        }
+      }
+    }
+  })
+
+  // let allowedRoutes = {
+  //   location: false,
+  //   user: false,
+  //   bot: false,
+  //   scene: false,
+  //   party: false,
+  //   contentPacks: false,
+  //   groups: false,
+  //   instance: false,
+  //   invite: false,
+  //   globalAvatars: false
+  // }
+  // const scopes = admin.scopes || []
+
+  // useEffect(() => {
+  //   doLoginAuto(false)
+  // }, [])
 
   scopes.forEach((scope) => {
     if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {

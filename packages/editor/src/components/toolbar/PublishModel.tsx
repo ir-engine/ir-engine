@@ -20,7 +20,7 @@ import {
   patchLocation,
   removeLocation
 } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
-import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
+
 import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
@@ -45,8 +45,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
-
     adminSceneState: selectAdminSceneState(state),
     adminLocationState: selectAdminLocationState(state)
   }
@@ -153,9 +151,9 @@ const LocationModal = (props: Props): any => {
   useEffect(() => {
     if (currentScene) {
       const temp = adminScenes.find((el) => el.sid === (currentScene as any).projectId)
-      console.log('====================================')
-      console.log(temp)
-      console.log('====================================')
+      //console.log('====================================')
+      //console.log(temp)
+      //console.log('====================================')
       setScene(temp)
     }
   }, [adminScenes, currentScene])

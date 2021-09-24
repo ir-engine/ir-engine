@@ -49,6 +49,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
       try {
         const newWorldState = WorldStateModel.fromBuffer(buffer)
+        if (!newWorldState) return
         //console.log('new world state: ' + JSON.stringify(newWorldState))
 
         if (isClient) {

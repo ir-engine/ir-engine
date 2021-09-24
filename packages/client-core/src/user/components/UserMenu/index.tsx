@@ -1,7 +1,6 @@
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import LinkIcon from '@material-ui/icons/Link'
 import PersonIcon from '@material-ui/icons/Person'
-import FilterHdrIcon from '@material-ui/icons/FilterHdr'
 import SettingsIcon from '@material-ui/icons/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 // import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
@@ -11,8 +10,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import React, { useState, useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { alertSuccess } from '../../../common/reducers/alert/service'
-import { selectAppOnBoardingStep } from '../../../common/reducers/app/selector'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { useAuthState } from '../../reducers/auth/AuthState'
 import { AuthService } from '../../reducers/auth/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
@@ -35,19 +33,8 @@ type StateType = {
   hideLogin: boolean
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    onBoardingStep: selectAppOnBoardingStep(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  alertSuccess: bindActionCreators(alertSuccess, dispatch)
-  // provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-})
-
 const UserMenu = (props: UserMenuProps): any => {
-  const { alertSuccess, enableSharing, hideLogin } = props
+  const { enableSharing, hideLogin } = props
 
   const dispatch = useDispatch()
 
@@ -159,6 +146,10 @@ const UserMenu = (props: UserMenuProps): any => {
     setActiveLocation({ ...location })
   }
 
+  const alertSuccess = (message) => {
+    dispatch(AlertService.alertSuccess(message))
+  }
+
   const renderMenuPanel = () => {
     if (!currentActiveMenu) return null
 
@@ -258,4 +249,4 @@ const UserMenu = (props: UserMenuProps): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserMenu)
+export default UserMenu

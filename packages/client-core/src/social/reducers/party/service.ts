@@ -15,7 +15,7 @@ import {
 } from './actions'
 
 import { Config } from '@xrengine/common/src/config'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
@@ -29,7 +29,7 @@ export function getParty() {
       const partyResult = await client.service('party').get(null)
       dispatch(loadedParty(partyResult))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -86,7 +86,7 @@ export function createParty(values: any) {
       await client.service('party').create({})
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -106,7 +106,7 @@ export function removeParty(partyId: string) {
       await client.service('party').remove(partyId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -117,7 +117,7 @@ export function removePartyUser(partyUserId: string) {
       await client.service('party-user').remove(partyUserId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -130,7 +130,7 @@ export function transferPartyOwner(partyUserId: string) {
       })
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

@@ -1,18 +1,17 @@
 import { Dispatch } from 'redux'
 import { instancesRetrievedAction, instanceRemoved, instanceRemovedAction } from './actions'
 import { client } from '../../../../feathers'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
 import Store from '../../../../store'
 import { Config } from '@xrengine/common/src/config'
-import { useAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export function fetchAdminInstances(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('adminInstance').get('instances').get('skip')
     const limit = getState().get('adminInstance').get('instances').get('limit')
-    const user = useAuthState().user
+    const user = getState().get('auth').user
     try {
-      if (user.userRole.value === 'admin') {
+      if (user.userRole === 'admin') {
         const instances = await client.service('instance').find({
           query: {
             $sort: {
@@ -27,7 +26,7 @@ export function fetchAdminInstances(incDec?: 'increment' | 'decrement') {
       }
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

@@ -41,6 +41,18 @@
             width: auto;
         }
     }
+
+    .iconSubContainerVertical {
+        @extend .iconSubContainer;
+        margin-left: -15px;
+        padding-bottom: 56px;
+        padding-right: 15px;
+
+    }
+    .counter {
+        display: block;
+        text-align: center;
+    }
     .cardContent{
         padding: 0px 19pt;
         :global(.MuiCardHeader-root){
