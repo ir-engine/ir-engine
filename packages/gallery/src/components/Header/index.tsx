@@ -18,6 +18,7 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
 import { createFeed } from '../../reducers/post/service'
 import { selectCreatorsState } from '../../reducers/creator/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { Filesystem } from '@capacitor/filesystem'
 
 const mapStateToProps = (state: any): any => {
   return {

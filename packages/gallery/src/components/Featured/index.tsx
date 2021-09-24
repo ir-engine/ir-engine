@@ -131,6 +131,7 @@ const Featured = ({
     let ids = new Set([...removedIds, item])
     setRemovedIds(ids)
   }
+  console.log(feedsList)
   return (
     <section className={styles.feedContainer}>
       <Grid container spacing={3} style={{ marginTop: 30 }}>
@@ -156,14 +157,16 @@ const Featured = ({
                     elevation={0}
                     key={itemIndex}
                   >
-                    <CardMedia
-                      component="img"
-                      className={styles.image + ' ' + (viewType === 'list' ? styles.imageList : '')}
-                      image={item.previewUrl}
-                      onClick={() => {
-                        history.push('/post?postId=' + item.id)
-                      }}
-                    />
+                    <div className={styles.imageWrapper + ' ' + (viewType === 'list' ? styles.imageList : '')}>
+                      <CardMedia
+                        component="img"
+                        className={styles.image}
+                        image={item.previewUrl}
+                        onClick={() => {
+                          history.push('/post?postId=' + item.id)
+                        }}
+                      />
+                    </div>
                     <CardContent style={{ textAlign: 'center' }}>
                       <span className={styles.descr}>{item.description}</span>
                     </CardContent>
