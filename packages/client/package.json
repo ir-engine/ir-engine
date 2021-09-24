@@ -18,7 +18,7 @@
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview && cp src/server.js dist/server.js",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run test",
-    "test": "jest",
+    "test": "mocha",
     "localbuild": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run build",
     "localstart": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run start"
   },

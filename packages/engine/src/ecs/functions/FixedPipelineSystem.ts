@@ -31,7 +31,7 @@ export default async function FixedPipelineSystem(world: World, args: { updatesP
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       world.fixedElapsedTime += world.fixedDelta
 
-      for (const s of world.fixedSystems) s(world)
+      for (const s of world.fixedSystems) s()
 
       accumulator -= timestep
       ++updatesCount

@@ -12,16 +12,16 @@ import { TransformComponent } from '../src/transform/components/TransformCompone
 import { WorldScene } from "../src/scene/functions/SceneLoading";
 import { createCollider, createShape } from "../src/physics/functions/createCollider";
 import { isTriggerShape } from "../src/physics/classes/Physics";
-
+import assert from 'assert'
 
 describe('Scene Loader', () => {
 
   // force close until we can reset the engine properly
-  afterAll(async () => {
+  after(async () => {
     setTimeout(() => process.exit(0), 1000)
   })
 
-  test('Can load gltf metadata', async () => {
+  it('Can load gltf metadata', async () => {
 
     const mockComponentData = { data: { src: '' } } as any
     const CustomComponent = createMappedComponent<{ value: number}>('CustomComponent')
@@ -44,15 +44,15 @@ describe('Scene Loader', () => {
     parseGLTFModel(sceneLoader, entity, mockComponentData, undefined, mesh)
 
     const [loadedEntity] = colliderQuery(useWorld())
-    expect(typeof loadedEntity).not.toBe('undefined')
-    expect(getComponent(loadedEntity, NameComponent).name).toBe(entityName)
-    expect(getComponent(loadedEntity, CustomComponent).value).toBe(number)
+    assert.equal(typeof loadedEntity, 'undefined')
+    assert.equal(getComponent(loadedEntity, NameComponent).name, entityName)
+    assert.equal(getComponent(loadedEntity, CustomComponent).value, number)
     const shape = useWorld().physics.getOriginalShapeObject(getComponent(loadedEntity, ColliderComponent).body.getShapes())
-    expect(isTriggerShape(shape)).toBe(true)
+    assert.equal(isTriggerShape(shape), true)
   })
 
   // TODO
-  test.skip('Can load physics objects from gltf metadata', async () => {
+  it.skip('Can load physics objects from gltf metadata', async () => {
 
     const entity = createEntity()
     addComponent(entity, TransformComponent, { position: new Vector3(), rotation: new Quaternion(), scale: new Vector3(1,1,1), })
