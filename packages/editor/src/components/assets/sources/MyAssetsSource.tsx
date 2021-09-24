@@ -10,7 +10,6 @@ import { ItemTypes } from '../../../constants/AssetTypes'
 import { AcceptsAllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import UploadSourcePanel from '../UploadSourcePanel'
 import { BaseSource } from './index'
-import CustomScriptNode from '../../../nodes/CustomScriptNode'
 import { SceneManager } from '../../../managers/SceneManager'
 import { CommandManager } from '../../../managers/CommandManager'
 import EditorEvents from '../../../constants/EditorEvents'
@@ -26,8 +25,7 @@ export const UploadFileType = {
   'image/jpeg': ImageNode,
   'application/pdf': null,
   'video/mp4': VideoNode,
-  'audio/mpeg': AudioNode,
-  'application/octet-stream': CustomScriptNode
+  'audio/mpeg': AudioNode
 }
 
 export class MyAssetsSource extends BaseSource {

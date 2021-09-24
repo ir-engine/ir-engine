@@ -420,10 +420,9 @@
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
         },
-        "customscriptnode": {
-            "description": "Attach Custom Scripts.",
-            "lbl-attachscript": "Attach Custom Script",
-            "lbl-scripturl": "Custom Script URL"
+        "realitypacknode": {
+            "description": "Attach Reality Pack.",
+            "lbl-scripturl": "Reality Pack"
         },
         "portal": {
             "lbl-portal": "Linked Portal",
