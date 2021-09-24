@@ -30,7 +30,6 @@ import Button from '@material-ui/core/Button'
 import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
 import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
-import FormDialog from '../UI/SubmitDialog'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -38,6 +37,7 @@ const mapStateToProps = (state: any): any => {
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
     adminSceneState: selectAdminSceneState(state)
+    // adminScopeErrorState: selectScopeErrorState(state)
   }
 }
 
@@ -63,7 +63,6 @@ const LocationTable = (props: LocationProps) => {
     adminUserState,
     adminInstanceState,
     adminSceneState,
-
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)

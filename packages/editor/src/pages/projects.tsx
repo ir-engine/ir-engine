@@ -108,6 +108,10 @@ const ProjectsPage = (props: Props) => {
       isEditorAllowed = true
       if (isLocationAllowed) break
     }
+    if (scope.type.split(':')[0] === 'editor' && scope.type.split(':')[1] === 'write') {
+      isEditorAllowed = true
+      if (isLocationAllowed) break
+    }
   }
 
   const { t } = useTranslation()
@@ -232,7 +236,6 @@ const ProjectsPage = (props: Props) => {
           </ProjectGridHeaderRow>
         </ProjectGridHeader>
       )}
-
       {authUser && (
         <div className={classes.root}>
           <Tabs

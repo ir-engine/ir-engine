@@ -247,8 +247,8 @@ const ViewUser = (props: Props) => {
       <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawer()} classes={{ paper: classx.paper }}>
         {userAdmin && (
           <Paper elevation={3} className={classes.paperHeight}>
-            <Container maxWidth="sm">
-              <Grid container spacing={2}>
+            <Container maxWidth="sm" className={classes.pad}>
+              <Grid container spacing={2} className={classes.centering}>
                 <Grid item xs={4}>
                   <Avatar className={classes.large}>
                     {!userAdmin.avatarId ? (
@@ -259,8 +259,8 @@ const ViewUser = (props: Props) => {
                   </Avatar>
                 </Grid>
                 <Grid item xs={8}>
-                  <div className={classes.mt20}>
-                    <Typography variant="h4" component="span">
+                  <div>
+                    <Typography variant="h4" component="span" className={classes.typoFontTitle}>
                       {userAdmin.name}
                     </Typography>
                     <br />
@@ -318,7 +318,7 @@ const ViewUser = (props: Props) => {
         <Container maxWidth="sm">
           {editMode ? (
             <div className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={classes.mb10}>
+              <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
                 {' '}
                 Update personal Information{' '}
               </Typography>
@@ -393,56 +393,58 @@ const ViewUser = (props: Props) => {
               </Paper>
             </div>
           ) : (
-            <Grid container spacing={3} className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={classes.mb20px}>
+            <Grid container spacing={3} className={classes.mt5}>
+              <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.headingFont}`}>
                 Personal Information{' '}
               </Typography>
-              <Grid item xs={6}>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+              <Grid item xs={6} sm={6}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Location:
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Avatar:
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Invite Code:
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Instance:
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Grid item xs={4} sm={6}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.party?.location?.name || <span className={classx.spanNone}>None</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.avatarId || <span className={classx.spanNone}>None</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.inviteCode || <span className={classx.spanNone}>None</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}
                 </Typography>
               </Grid>
-              <Typography variant="h5" component="h5" className={classes.mb20px}>
+              <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
                 User scope
               </Typography>
-              {singleUserData.scopes?.map((el, index) => {
-                const [label, type] = el.type.split(':')
-                return (
-                  <Grid container spacing={3} style={{ paddingLeft: '10px' }} key={el.id}>
-                    <Grid item xs={4}>
-                      <Typography variant="h6" component="h6" className={classes.mb10}>
-                        {label}:
-                      </Typography>
+              <div className={classes.scopeContainer}>
+                {singleUserData.scopes?.map((el, index) => {
+                  const [label, type] = el.type.split(':')
+                  return (
+                    <Grid container spacing={3} style={{ paddingLeft: '10px', width: '100%' }} key={el.id}>
+                      <Grid item xs={8}>
+                        <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                          {label}:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Chip label={type} />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={8}>
-                      <Chip label={type} />
-                    </Grid>
-                  </Grid>
-                )
-              })}
+                  )
+                })}
+              </div>
             </Grid>
           )}
           <DialogActions className={classes.mb10}>
