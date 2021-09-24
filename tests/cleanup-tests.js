@@ -3,7 +3,7 @@ const dotenv = require("dotenv")
 const killport = require("kill-port")
 
 dotenv.config({
-  path: './.env.test'
+  path: './.env.local'
 })
 
 const killPorts = () => {
