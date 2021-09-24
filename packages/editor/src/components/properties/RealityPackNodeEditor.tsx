@@ -51,7 +51,7 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
 
   onChangeScript = (val) => {
     CommandManager.instance.setPropertyOnSelection('packIndex', val)
-    this.props.node.packName = this.options[val]
+    this.props.node.packName = this.options[val].label
   }
 
   render() {

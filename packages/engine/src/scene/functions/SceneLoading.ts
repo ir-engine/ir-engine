@@ -137,7 +137,7 @@ export class WorldScene {
         //}
         break
 
-      case 'customscript':
+      case 'realitypack':
         // const url = component.props.scriptUrl
         // if (!url) {
         //   console.log('Script Not Found')

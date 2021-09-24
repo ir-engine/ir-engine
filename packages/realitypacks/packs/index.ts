@@ -1,1 +1,3 @@
-export * as test from './test/'
+export default function (packName) {
+  return import(`./${packName}/index.ts`)
+}
