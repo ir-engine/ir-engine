@@ -24,6 +24,10 @@ import Me from '../Me'
 import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
 import { initEngine, retriveLocationByName, teleportToLocation, createOfflineUser } from './LocationLoadHelper'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
+import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
+import EmoteMenuCore from '@xrengine/client-core/src/common/components/EmoteMenu/index'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -90,6 +94,7 @@ const Layout = (props: Props): any => {
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
   const handle = useFullScreenHandle()
+  const instance = new EmoteMenuCore(props)
 
   const initialClickListener = () => {
     setUserHasInteracted()
@@ -169,26 +174,13 @@ const Layout = (props: Props): any => {
     )
   }
 
-  // const hoverRestart= (): void => {
-  //   const respawn=document.getElementById('respawn');
-  //   const restart=document.getElementById('restart');
-  //   restart.style.display="none";
-  //   respawn.style.display="flex";
-  // }
-  // const mouseLeave= (): void => {
-  //   const respawn=document.getElementById('respawn');
-  //   const restart=document.getElementById('restart');
-  //   restart.style.display="flex";
-  //   respawn.style.display="none";
-  // }
-  // const custClick= (): void => {
-  //    this.closeEmoteMenu();
-  // }
-
-  //this.closeEmoteMenu()
+  const stopAnimation = (): void => {
+    instance.spawnAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
+  }
 
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
+
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>
@@ -235,12 +227,9 @@ const Layout = (props: Props): any => {
               </>
             )}
 
-            {/*<button type="button" className={styles.restart} id="restart" onMouseOver={hoverRestart} disabled>
+            <button type="button" className={styles.respawn} id="respawn" onClick={stopAnimation}>
               <img src="/static/restart.svg" />
             </button>
-            <button type="button" className={styles.respawn} id="respawn"  onMouseOut={mouseLeave} onClick={() => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE})}>
-              <img src="/static/restart.svg" /> Respawn
-            </button>*/}
 
             <Harmony
               setHarmonyOpen={setHarmonyOpen}

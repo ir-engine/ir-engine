@@ -167,17 +167,6 @@ export class EmoteState extends AnimationState {
         action.setLoop(this.loopType, this.loopCount)
         action.clampWhenFinished = true
       }
-    },
-    {
-      name: AvatarAnimations.PAUSE,
-      weight: 0,
-      timeScale: 1,
-      loopType: 0,
-      decorateAction: function (action: AnimationAction) {
-        animation.action.reset()
-        action.setLoop(this.loopType, this.loopCount)
-        action.clampWhenFinished = true
-      }
     }
   ]
 
@@ -205,7 +194,13 @@ export class IdleState extends AnimationState {
   type = AnimationType.VELOCITY_BASED
   transitionDuration = 0.5
   animations: Animation[] = [
-    { name: AvatarAnimations.IDLE, weight: 1, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity }
+    {
+      name: AvatarAnimations.IDLE,
+      weight: 1,
+      timeScale: 1,
+      loopType: LoopRepeat,
+      loopCount: Infinity
+    }
   ]
 
   updateWeights = (): void => {
