@@ -182,25 +182,18 @@ export class World {
       })
     }
 
-    const _freeSystems = Promise.all(loadSystem('FREE', this._freePipeline))
-    const _fixedSystems = Promise.all(loadSystem('FIXED', this._fixedPipeline))
-    const _injectedSystems = Promise.all(
-      Object.entries(this._injectedPipelines).map(async ([pipelineType, pipeline]) => {
-        return [pipelineType, await Promise.all(loadSystem('Injected' + pipelineType, pipeline))]
-      })
-    ) as Promise<[keyof typeof this.injectedSystems, SystemInstanceType][]>
+    this.freeSystems = await Promise.all(loadSystem('FREE', this._freePipeline))
+    this.fixedSystems = await Promise.all(loadSystem('FIXED', this._fixedPipeline))
+    this.injectedSystems = Object.fromEntries(
+      (await Promise.all(
+        Object.entries(this._injectedPipelines).map(async ([pipelineType, pipeline]) => {
+          return [pipelineType, await Promise.all(loadSystem('Injected' + pipelineType, pipeline))]
+        })
+      )) as [keyof typeof this.injectedSystems, SystemInstanceType][]
+    ) as any
 
-    console.log('Awaiting system intializations...')
-    const [fixedSystems, freeSystems, injectedSystems] = await Promise.all([
-      _fixedSystems,
-      _freeSystems,
-      _injectedSystems
-    ])
-    this.fixedSystems = fixedSystems
-    this.freeSystems = freeSystems
-    this.injectedSystems = Object.fromEntries(injectedSystems) as any
-    for (const s of fixedSystems) console.log(s.systemLabel)
-    for (const s of freeSystems) console.log(s.systemLabel)
+    for (const s of this.fixedSystems) console.log(s.systemLabel)
+    for (const s of this.freeSystems) console.log(s.systemLabel)
     for (const pipeline in this.injectedSystems)
       for (const s of this.injectedSystems[pipeline]) {
         console.log(s.systemLabel)
