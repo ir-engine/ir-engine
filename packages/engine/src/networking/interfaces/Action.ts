@@ -123,7 +123,6 @@ export function defineActionCreator<
   const actionCreator = (partialAction: PartialAction<Shape>) => {
     const initializerValues = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.callback()]) as [string, any])
     let action = { ...partialAction, ...Object.fromEntries(literalEntries), ...initializerValues } as ResolvedAction
-    console.log(action, initializerEntries)
     return action
   }
 
