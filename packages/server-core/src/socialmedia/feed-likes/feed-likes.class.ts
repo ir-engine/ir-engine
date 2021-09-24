@@ -1,6 +1,3 @@
-/**
- * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
- */
 import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
@@ -12,7 +9,7 @@ import { getCreatorByUserId } from '../util/getCreator'
 /**
  * A class for ARC Feed service
  */
-export class FeedFires extends Service {
+export class FeedLikes extends Service {
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
   app: Application
   docs: any
@@ -37,9 +34,9 @@ export class FeedFires extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 100
 
-    const { feed_fires: feedFiresModel, creator: creatorModel } = this.app.get('sequelizeClient').models
+    const { feed_likes: feedLikesModel, creator: creatorModel } = this.app.get('sequelizeClient').models
 
-    const feed_fired_users = await feedFiresModel.findAndCountAll({
+    const feed_likes_users = await feedLikesModel.findAndCountAll({
       where: {
         feedId: params.query?.feedId
       },
@@ -49,8 +46,8 @@ export class FeedFires extends Service {
       order: [['createdAt', 'DESC']] // order not used in find?
     })
 
-    const data = feed_fired_users.rows.map((fire) => {
-      const creator = fire.creator.dataValues
+    const data = feed_likes_users.rows.map((like) => {
+      const creator = like.creator.dataValues
       return {
         // TODO: get creator from corresponding table
         id: creator.id,
@@ -64,14 +61,14 @@ export class FeedFires extends Service {
       data,
       skip: skip,
       limit: limit,
-      total: feed_fired_users.count
+      total: feed_likes_users.count
     }
 
     return feedsResult
   }
 
   async create(data: any, params?: Params): Promise<any> {
-    const { feed_fires: feedFiresModel } = this.app.get('sequelizeClient').models
+    const { feed_likes: feedLikesModel } = this.app.get('sequelizeClient').models
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
@@ -80,8 +77,8 @@ export class FeedFires extends Service {
     const transaction = await this.app.get('sequelizeClient').transaction()
 
     try {
-      const newFire = await feedFiresModel.create({ feedId: data.feedId, creatorId })
-      const dataQuery = `DELETE FROM  \`feed_likes\` WHERE feedId=:feedId AND creatorId=:creatorId`
+      const newLike = await feedLikesModel.create({ feedId: data.feedId, creatorId })
+      const dataQuery = `DELETE FROM  \`feed_fires\` WHERE feedId=:feedId AND creatorId=:creatorId`
       await this.app.get('sequelizeClient').query(dataQuery, {
         type: QueryTypes.DELETE,
         raw: true,
@@ -91,7 +88,7 @@ export class FeedFires extends Service {
         }
       })
       await transaction.commit()
-      return newFire
+      return newLike
     } catch (error) {
       await transaction.rollback()
       return null
@@ -103,7 +100,7 @@ export class FeedFires extends Service {
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
     )
-    const dataQuery = `DELETE FROM  \`feed_fires\` WHERE feedId=:feedId AND creatorId=:creatorId`
+    const dataQuery = `DELETE FROM  \`feed_likes\` WHERE feedId=:feedId AND creatorId=:creatorId`
     await this.app.get('sequelizeClient').query(dataQuery, {
       type: QueryTypes.DELETE,
       raw: true,
