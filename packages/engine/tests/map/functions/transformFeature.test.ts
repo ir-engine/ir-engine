@@ -27,14 +27,9 @@ describe('transformFeature', () => {
     originalMeasurements = measure(feature)
     result = transformFeature(feature, scale, center)
   })
-  it("scales the feature's coordinates", () => {
-    const {width, height} = measure(result.feature)
-    expect(width).toEqual(originalMeasurements.width * scale)
-    expect(height).toEqual(originalMeasurements.height * scale)
-  })
 
   it('converts LongLat in to scene (meters) coordinates', () => {
-    expect(toMetersFromCenter).toHaveBeenCalledTimes(5)
+    expect(toMetersFromCenter).toHaveBeenCalledTimes(6)
   })
 
   it("centers the feature's coordinates around (0,0)", () => {
@@ -42,10 +37,10 @@ describe('transformFeature', () => {
   })
 
   it("computes the feature's center point (in meters) scaled", () => {
-    expect(result.centerPoint).toEqual([12.5, -12.5])
+    expect(result.centerPoint).toEqual([25, -25])
   })
 
   it("computes the feature's bounding circle radius (in meters) scaled", () => {
-    expect(result.boundingCircleRadius).toEqual(2.5)
+    expect(result.boundingCircleRadius).toEqual(5)
   })
 })

@@ -16,15 +16,6 @@ interface Transformer {
   key: any
 }
 
-function createScaleTransform(scale: number) {
-  const fn: Transformer = (source, target) => {
-    target[0] = source[0] * scale
-    target[1] = source[1] * scale
-  }
-  fn.key = scale
-  return fn
-}
-
 function createMetersFromCenterTransform(center: LongLat) {
   const fn: Transformer = (source, target) => {
     toMetersFromCenter(source, center, target)
@@ -33,29 +24,27 @@ function createMetersFromCenterTransform(center: LongLat) {
   return fn
 }
 
-let applyScale: Transformer
 let transformToMetersFromCenter: Transformer
 
 export default function transformFeature<FeatureType extends SupportedFeature>(
   feature: FeatureType,
-  scale: number,
   center: LongLat
 ): MapTransformedFeature {
   const geometryType = feature.geometry.type
   const coordinates = feature.geometry.coordinates
 
-  if (!applyScale || applyScale.key !== scale) {
-    applyScale = createScaleTransform(scale)
-  }
+  const centerPointLongLat = findCenter(feature).geometry.coordinates
+  const centerPoint = toMetersFromCenter(centerPointLongLat, center) as [number, number]
+
   if (!transformToMetersFromCenter || transformToMetersFromCenter.key !== center) {
     transformToMetersFromCenter = createMetersFromCenterTransform(center)
   }
 
   // transforming in-place since the original feature coordinates will not be needed
-  transformGeometry(geometryType, coordinates, applyScale)
+  // transformGeometry(geometryType, coordinates, applyScale)
   transformGeometry(geometryType, coordinates, transformToMetersFromCenter)
 
-  const centerPoint = findCenter(feature).geometry.coordinates as any
+  // TODO(perf): finding the center and bounding circle radius depend on calculating the bounding box, so calculate bounding box once
 
   transformGeometry(geometryType, coordinates, (source, target) => {
     target[0] = source[0] - centerPoint[0]
@@ -64,9 +53,10 @@ export default function transformFeature<FeatureType extends SupportedFeature>(
 
   const { width, height } = measure(feature)
 
+  const boundingCircleRadius = Math.max(width, height) / 2
+
   // Account for the fact that Latitude decreases as we move south, while Z increases
   centerPoint[1] *= -1
-  const boundingCircleRadius = Math.max(width, height) / 2
 
   return {
     feature,
