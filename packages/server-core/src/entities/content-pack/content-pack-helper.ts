@@ -340,28 +340,38 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
   return Promise.all([avatarUploadPromise, avatarThumbnailUploadPromise])
 }
 
-export async function populateRealityPack(realityPack: any, app: Application, params: Params): Promise<any> {
+/**
+ *
+ * @param realityPack
+ * @param realityPack.name name of the reality pack
+ * @param realityPack.manifest manifest.json URL
+ * @param app
+ * @param params
+ */
+
+export async function populateRealityPack(
+  realityPack: { name: string; manifest: string },
+  app: Application,
+  params: Params
+): Promise<any> {
   const uploadPromises = []
   const existingPackResult = await (app.service('reality-pack') as any).Model.findOne({
     where: {
       name: realityPack.name
     }
   })
-  console.log(existingPackResult)
-  console.log(realityPack)
   if (existingPackResult != null) await app.service('reality-pack').remove(existingPackResult.id, params)
-  const manifest = await axios.get(realityPack.manifest, getAxiosConfig())
-  const data = JSON.parse(manifest.data.toString()) as RealityPackInterface
-  const files = data.files
+  const manifestStream = await axios.get(realityPack.manifest, getAxiosConfig())
+  const manifestData = JSON.parse(manifestStream.data.toString()) as RealityPackInterface
+  const files = manifestData.files
   uploadPromises.push(
     storageProvider.putObject({
       ACL: 'public-read',
-      Body: manifest.data,
+      Body: manifestStream.data,
       ContentType: getContentType(realityPack.manifest),
-      Key: `reality-pack/${realityPack.name}/manifest.json`
+      Key: `reality-pack/${manifestData.name}/manifest.json`
     })
   )
-  console.log(data)
   files.forEach((file) => {
     const path = file.replace('./', '')
     const subFileLink = realityPack.manifest.replace('manifest.json', path)
@@ -372,19 +382,18 @@ export async function populateRealityPack(realityPack: any, app: Application, pa
           ACL: 'public-read',
           Body: fileResult.data,
           ContentType: getContentType(path),
-          Key: `reality-pack/${realityPack.name}/${path}`
+          Key: `reality-pack/${manifestData.name}/${path}`
         })
         resolve(true)
       })
     )
   })
-  console.log(files)
   await app.service('reality-pack').create(
     {
-      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${realityPack.name}/manifest.json`,
-      localManifest: `/reality-packs/packs/${realityPack.name}/manifest.json`,
+      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${manifestData.name}/manifest.json`,
+      localManifest: `/reality-packs/packs/${manifestData.name}/manifest.json`,
       global: false,
-      name: realityPack.name
+      name: manifestData.name
     },
     params
   )

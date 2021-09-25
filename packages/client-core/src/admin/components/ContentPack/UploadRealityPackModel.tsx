@@ -53,7 +53,7 @@ const AddToContentPackModal = (props: Props): any => {
       if (realityPackURL !== '') {
         setProcessing(true)
         await uploadRealityPack({
-          url: realityPackURL
+          uploadURL: realityPackURL
         })
         setProcessing(false)
         closeModal()

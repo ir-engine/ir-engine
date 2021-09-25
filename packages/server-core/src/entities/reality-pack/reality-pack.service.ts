@@ -1,4 +1,4 @@
-import { ServiceAddons } from '@feathersjs/feathers'
+import { Params, ServiceAddons } from '@feathersjs/feathers'
 import hooks from './reality-pack.hooks'
 import { Application } from '../../../declarations'
 import { RealityPack } from './reality-pack.class'
@@ -16,13 +16,16 @@ declare module '../../../declarations' {
 }
 
 export const addRealityPack = (app: any): any => {
-  return async (req: express.Request, res: express.Response) => {
-    console.log(req, req.body)
-    const data = req.body
-    const manifestData = await axios.get(data.url, getAxiosConfig())
-    const manifest = JSON.parse(manifestData.data.toString()) as RealityPackInterface
-    await populateRealityPack({ name: manifest.name, manifest: data.url }, app, {})
-    res.json({})
+  return async (data: { uploadURL: string }, params: Params) => {
+    try {
+      const manifestData = await axios.get(data.uploadURL, getAxiosConfig())
+      const manifest = JSON.parse(manifestData.data.toString()) as RealityPackInterface
+      await populateRealityPack({ name: manifest.name, manifest: data.uploadURL }, app, params)
+    } catch (error) {
+      console.log(error)
+      return false
+    }
+    return true
   }
 }
 
@@ -36,7 +39,9 @@ export default (app: Application): void => {
   const event = new RealityPack(options, app)
   event.docs = realityPackDocs
   app.use('/reality-pack', event)
-  app.get('/reality-pack/add', addRealityPack(app))
+  app.use('/upload-reality-pack', {
+    create: addRealityPack(app)
+  })
 
   const service = app.service('reality-pack')
 

@@ -214,7 +214,7 @@ export class ContentPack implements ServiceMethods<Data> {
       promises.push(populateScene(scene.sid, sceneResult.data, manifestUrl, this.app, scene.thumbnail))
     }
     for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
-    for (const index in realityPacks) promises.push(populateRealityPack(realityPacks[index], this.app, params))
+    for (const index in realityPacks) promises.push(populateRealityPack(realityPacks[index].manifest, this.app, params))
     await Promise.all(promises)
     return data
   }

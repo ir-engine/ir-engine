@@ -1,3 +1,4 @@
+import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import { createdContentPack, patchedContentPack, loadedContentPacks, postRealityPack } from './actions'
@@ -84,7 +85,7 @@ export function addRealityPacksToContentPack(data: any) {
 
 export function uploadRealityPack(data: any) {
   return async (dispatch: Dispatch) => {
-    const result = await client.service('reality-pack/add').find(data)
+    const result = await client.service('upload-reality-pack').create(data)
     console.log('Upload reality-pack result', result)
     dispatch(postRealityPack())
   }
