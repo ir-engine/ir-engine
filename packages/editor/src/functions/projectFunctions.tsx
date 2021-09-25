@@ -112,8 +112,12 @@ export const createProject = async (
   if (parentSceneId) {
     project['parent_scene_id'] = parentSceneId
   }
-  Object.assign(ProjectManager.instance.ownedFileIds, ProjectManager.instance.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, ProjectManager.instance.ownedFileIds)
+  ProjectManager.instance.ownedFileIds = Object.assign(
+    {},
+    ProjectManager.instance.ownedFileIds,
+    ProjectManager.instance.currentOwnedFileIds
+  )
+  project.ownedFileIds = Object.assign({}, project.ownedFileIds, ProjectManager.instance.ownedFileIds)
   ProjectManager.instance.currentOwnedFileIds = {}
 
   let json = {}
@@ -216,8 +220,12 @@ export const saveProject = async (projectId, signal): Promise<any> => {
     project['scene_id'] = sceneId
   }
 
-  Object.assign(ProjectManager.instance.ownedFileIds, ProjectManager.instance.currentOwnedFileIds)
-  Object.assign(project.ownedFileIds, ProjectManager.instance.ownedFileIds)
+  ProjectManager.instance.ownedFileIds = Object.assign(
+    {},
+    ProjectManager.instance.ownedFileIds,
+    ProjectManager.instance.currentOwnedFileIds
+  )
+  project.ownedFileIds = Object.assign({}, project.ownedFileIds, ProjectManager.instance.ownedFileIds)
   ProjectManager.instance.currentOwnedFileIds = {}
 
   let json = {}

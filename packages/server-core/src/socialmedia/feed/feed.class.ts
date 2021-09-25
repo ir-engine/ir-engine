@@ -101,9 +101,10 @@ export class Feed extends Service {
        JOIN static_resource as sr ON sr.id=feed.previewId
        LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
        LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
-       WHERE creatorId NOT IN (select blockedId from block_creator where 
+       WHERE feed.creatorId NOT IN (select blockedId from block_creator where 
          creatorId = '${creatorId}')
-         AND feed.creatorId NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')`
+         AND feed.creatorId NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')
+         GROUP BY feed.id`
 
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
         type: QueryTypes.SELECT,
@@ -190,7 +191,7 @@ export class Feed extends Service {
 
     //change this to fired!!!!!!
     if (action === 'fired') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, feed.description as description, feed.title as title 
          FROM \`feed\` as feed
          JOIN \`static_resource\` as sr ON sr.id=feed.previewId
          JOIN \`feed_fires\` as fb ON fb.feedId=feed.id

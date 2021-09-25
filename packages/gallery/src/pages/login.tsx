@@ -3,8 +3,8 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useTranslation } from 'react-i18next'
+import AdminLogin from '../components/AdminLogin'
 
 interface Props {}
 
@@ -27,7 +27,7 @@ export const IndexPage = (props: Props): any => {
 
   return (
     <EmptyLayout pageTitle={t('login.pageTitle')}>
-      <style>
+      {/* <style>
         {' '}
         {`
                 [class*=menuPanel] {
@@ -35,8 +35,8 @@ export const IndexPage = (props: Props): any => {
                     bottom: initial;
                 }
             `}
-      </style>
-      <ProfileMenu />
+      </style> */}
+      <AdminLogin />
     </EmptyLayout>
   )
 }
