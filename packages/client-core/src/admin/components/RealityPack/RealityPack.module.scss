@@ -23,6 +23,10 @@
     opacity: 0.75;
   }
 }
+.avatar {
+  margin: 7px;
+  background-color: #3f51b5;
+}
 .form {
   width: 100%;
   margin-top: 14px;
@@ -69,12 +73,10 @@
   .trow {
     .tcell {
       color: lighten(white, 0.80);
-      background-color: black;
+      background-color: #343b41;
     }
 
     .tcellSelectable {
-
-
        .currentUser{
         color: lighten(white, 0.80);
         background-color: #4267B2;
@@ -99,7 +101,14 @@
 }
 
 .tableContainer {
-  overflow-y: auto;
+  flex-grow: 1;
+  width: 100%;
+  background-color: #43484F;
+  //color: #f1f1f1 !important;
+
+  * {
+    color: #f1f1f1 !important;
+  }
 }
 .tablePagination {
   min-height: 55px;
@@ -109,7 +118,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: black !important;
+  background-color: #15171B !important;
   color: #fff !important;
 }
 
@@ -136,63 +145,18 @@
   display: flex;
   flex-direction: column;
   width: 50%;
-  color: black;
 
   @media (max-width: 768px) {
     width: 90%;
   }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .title {
-    font-size: 2em;
-    text-align: center;
-  }
-
-  .body {
-    .avatars-container,
-    .scenes-container,
-    .reality-packs-container {
-      .header {
-        font-size: 1.5em;
-      }
-
-      .container {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-
-        .avatar,
-        .scene {
-          display: flex;
-          flex-direction: column;
-          margin-right: 10px;
-
-          .name {
-            font-size: 1.25em;
-          }
-
-          & > :not(:first-child) {
-            margin-top: 5px;
-          }
-
-          img {
-            max-width: 100px;
-          }
-        }
-      }
-    }
-  }
 }
 
 .tableFooter {
-  display: flex;
-  justify-content: space-between;
+  background-color: #343b41;
+
+  * {
+    color: #f1f1f1 !important;
+  }
 }
 .createLocation {
   height: 50px;
@@ -202,26 +166,6 @@
 .locationModalButtons {
   justify-content: space-between;
 }
-
-.closeButton {
-  &:hover {
-    cursor: pointer;
-    color: red;
-  }
-}
-
-.pack-list {
-  margin-top: 10px !important;
-  background-color: white;
-  color: black;
-}
-
-.success {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-}
-
 
 .pack-select {
   margin-bottom: 10px;
@@ -240,7 +184,6 @@
 
   .title {
     font-size: 1.5em;
-    color: black;
   }
 
   .closeButton {
@@ -251,14 +194,18 @@
   }
 }
 
-.processing {
-  color: black;
-  display: flex;
-  align-items: center;
-  margin-top: 5px;
+.checkbox {
+  color: white;
+}
 
-  .text {
-    margin-left: 5px;
-    font-size: 1.5em;
-  }
+.open-modal {
+  height: 50px;
+  margin: auto 5px;
+  width: 100%;
+  background: rgb(58, 65, 73);
+  color: #f1f1f1 !important;
+}
+
+.marginBottom {
+  margin-bottom: 10px;
 }
