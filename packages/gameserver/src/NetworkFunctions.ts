@@ -13,7 +13,6 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
 import { XRInputSourceComponent } from '../../engine/src/avatar/components/XRInputSourceComponent'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
@@ -213,22 +212,21 @@ export async function handleConnectToWorld(socket, data, callback, userId: UserI
   // Create a new client object
   // and add to the dictionary
   const world = Engine.defaultWorld
-  if (world.clients.has(userId))
-    world.clients.set(userId, {
-      userId: userId,
-      name: user.dataValues.name,
-      avatarDetail,
-      socket: socket,
-      socketId: socket.id,
-      lastSeenTs: Date.now(),
-      joinTs: Date.now(),
-      media: {},
-      consumerLayers: {},
-      stats: {},
-      subscribedChatUpdates: [],
-      dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
-      dataProducers: new Map<string, DataProducer>() // Key => label of data channel
-    })
+  world.clients.set(userId, {
+    userId: userId,
+    name: user.dataValues.name,
+    avatarDetail,
+    socket: socket,
+    socketId: socket.id,
+    lastSeenTs: Date.now(),
+    joinTs: Date.now(),
+    media: {},
+    consumerLayers: {},
+    stats: {},
+    subscribedChatUpdates: [],
+    dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
+    dataProducers: new Map<string, DataProducer>() // Key => label of data channel
+  })
 
   // Return initial world state to client to set things up
   callback({
@@ -255,6 +253,7 @@ function disconnectClientIfConnected(socket, userId: UserId): void {
 export async function handleJoinWorld(socket, data, callback, joinedUserId: UserId, user): Promise<any> {
   console.info('JoinWorld received', joinedUserId, data)
   const transport = Network.instance.transport as any
+  const world = Engine.defaultWorld
 
   // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
   const spawnPos = data?.spawnTransform
@@ -263,14 +262,6 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
         rotation: new Quaternion().copy(data.spawnTransform.rotation)
       }
     : SpawnPoints.instance.getRandomSpawnPoint()
-
-  const world = useWorld()
-  dispatchFrom(world.hostId, () =>
-    NetworkWorldAction.spawnAvatar({
-      userId: joinedUserId,
-      parameters: { ...spawnPos }
-    })
-  )
 
   // Get all client info and network objects and dispatch to joined user
   for (const [userId, client] of world.clients) {
@@ -282,6 +273,14 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
       })
     ).to(joinedUserId)
   }
+
+  dispatchFrom(world.hostId, () =>
+    NetworkWorldAction.spawnAvatar({
+      userId: joinedUserId,
+      parameters: { ...spawnPos }
+    })
+  )
+
   for (const eid of world.networkObjectQuery()) {
     const networkObject = getComponent(eid, NetworkObjectComponent)
     dispatchFrom(world.hostId, () =>
