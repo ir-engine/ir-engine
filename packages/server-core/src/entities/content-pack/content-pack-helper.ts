@@ -5,6 +5,7 @@ import mimeType from 'mime-types'
 import StorageProvider from '../../media/storageprovider/storageprovider'
 import { Agent } from 'https'
 import { Params } from '@feathersjs/feathers'
+import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 
 const storageProvider = new StorageProvider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
@@ -346,9 +347,11 @@ export async function populateRealityPack(realityPack: any, app: Application, pa
       name: realityPack.name
     }
   })
+  console.log(existingPackResult)
+  console.log(realityPack)
   if (existingPackResult != null) await app.service('reality-pack').remove(existingPackResult.id, params)
   const manifest = await axios.get(realityPack.manifest, getAxiosConfig())
-  const data = JSON.parse(manifest.data.toString())
+  const data = JSON.parse(manifest.data.toString()) as RealityPackInterface
   const files = data.files
   uploadPromises.push(
     storageProvider.putObject({
@@ -358,6 +361,7 @@ export async function populateRealityPack(realityPack: any, app: Application, pa
       Key: `reality-pack/${realityPack.name}/manifest.json`
     })
   )
+  console.log(data)
   files.forEach((file) => {
     const path = file.replace('./', '')
     const subFileLink = realityPack.manifest.replace('manifest.json', path)
@@ -374,6 +378,7 @@ export async function populateRealityPack(realityPack: any, app: Application, pa
       })
     )
   })
+  console.log(files)
   await app.service('reality-pack').create(
     {
       storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${realityPack.name}/manifest.json`,

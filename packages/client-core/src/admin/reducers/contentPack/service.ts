@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
-import { createdContentPack, patchedContentPack, loadedContentPacks } from './actions'
+import { createdContentPack, patchedContentPack, loadedContentPacks, postRealityPack } from './actions'
 
 export function uploadAvatars(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -79,6 +79,14 @@ export function addRealityPacksToContentPack(data: any) {
     const result = await client.service('content-pack').patch(null, data)
     console.log('Patch content-pack with reality-pack(s) result', result)
     dispatch(patchedContentPack())
+  }
+}
+
+export function uploadRealityPack(data: any) {
+  return async (dispatch: Dispatch) => {
+    const result = await client.service('reality-pack/add').find(data)
+    console.log('Upload reality-pack result', result)
+    dispatch(postRealityPack())
   }
 }
 
