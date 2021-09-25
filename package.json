@@ -40,6 +40,7 @@
   "scripts": {
     "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "npm run dev",
+    "local": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server \"cd packages/client && npm run local\"",
     "dev": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server npm:dev-client",
     "dev-windows": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-windows npm:dev-client",
     "golf": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-golf npm:dev-client",

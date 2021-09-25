@@ -9,7 +9,6 @@ const http = require('http');
 const app = express();
 const PORT = process.env.HOST_PORT || 3000;
 const HTTPS = process.env.VITE_LOCAL_BUILD ?? false
-console.log('HTTPS', HTTPS)
 
 app.use(express.static(path.join(packageRoot, 'packages', 'client', 'dist')));
 
