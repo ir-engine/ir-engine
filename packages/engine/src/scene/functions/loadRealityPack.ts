@@ -2,7 +2,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import importPack from '@xrengine/realitypacks/packs'
+import { importPack } from '@xrengine/realitypacks/loader'
 
 /**
  * @author Abhishek Pathak
@@ -17,7 +17,7 @@ export const loadRealityPack = async (
   component: SceneDataComponent,
   sceneProperty: ScenePropertyType
 ) => {
-  const { default: realityPack } = await importPack(component.data.packName)
+  const realityPack = await importPack(component.data.packName)
   const loadedSystem = await realityPack(useWorld(), component.data.args)
   const pipeline = component.data.pipeline ?? 'FIXED'
   useWorld().injectedSystems[pipeline].push(loadedSystem)

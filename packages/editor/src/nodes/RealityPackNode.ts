@@ -9,12 +9,11 @@ export default class RealityPackNode extends EditorNodeMixin(Object3D) {
   static disableTransform = true
   static haveStaticTags = false
 
-  packIndex: number = 0
   packName: string
+
   static async deserialize(json) {
     const node = await super.deserialize(json)
-    const { packIndex, packName } = json.components.find((c) => c.name === 'realitypack').props
-    node.packIndex = packIndex
+    const { packName } = json.components.find((c) => c.name === 'realitypack').props
     node.packName = packName
     return node
   }
@@ -22,7 +21,6 @@ export default class RealityPackNode extends EditorNodeMixin(Object3D) {
   async serialize(projectID) {
     return await super.serialize(projectID, {
       realitypack: {
-        packIndex: this.packIndex,
         packName: this.packName
       }
     })

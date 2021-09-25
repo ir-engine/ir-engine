@@ -1,7 +1,0 @@
-{
-  "version":1.0,
-  "entryPoint":"index.ts",
-  "packs":[
-    "test"
-  ]
-}
