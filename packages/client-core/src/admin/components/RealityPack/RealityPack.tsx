@@ -51,6 +51,7 @@ const RealityPack = (props: Props) => {
   const user = authState.user
   const adminRealityPacks = adminRealityPackState.get('realityPacks').get('realityPacks')
   const adminRealityPackCount = adminRealityPackState.get('realityPacks').get('total')
+  console.log(adminRealityPacks)
 
   const headCell = [
     { id: 'id', numeric: false, disablePadding: true, label: 'ID' },

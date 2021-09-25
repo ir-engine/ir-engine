@@ -77,7 +77,7 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
   getRealityPacks = async () => {
     let realityPacks: RealityPackInterface[] = []
     try {
-      realityPacks = await ProjectManager.instance.feathersClient.service('reality-pack').find()
+      realityPacks = (await ProjectManager.instance.feathersClient.service('reality-pack').find()).data
       console.log(realityPacks)
     } catch (e) {
       console.log(e)
