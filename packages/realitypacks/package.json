@@ -1,0 +1,19 @@
+{
+  "name": "@xrengine/realitypacks",
+  "version": "0.4.6",
+  "main":"index.ts",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XRFoundation/XREngine/issues"
+  },
+  "homepage": "https://github.com/XRFoundation/XREngine#readme"
+}
