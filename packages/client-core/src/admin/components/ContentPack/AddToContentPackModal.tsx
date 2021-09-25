@@ -2,7 +2,6 @@ import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectContentPackState } from '../../reducers/contentPack/selector'
 import styles from './ContentPack.module.scss'
 import {
@@ -40,7 +39,6 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
     contentPackState: selectContentPackState(state)
   }
 }

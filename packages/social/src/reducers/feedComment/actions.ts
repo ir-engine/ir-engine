@@ -8,7 +8,8 @@ import {
   ADD_FEED_COMMENT_FIRES,
   COMMENT_FIRES,
   FEED_COMMENTS_FETCH,
-  REMOVE_FEED_COMMENT_FIRES
+  REMOVE_FEED_COMMENT_FIRES,
+  FEED_COMMENTS_RETRIEVED
 } from '../actions'
 
 export interface FeedCommentsRetrievedAction {
@@ -49,6 +50,13 @@ export type FeedCommentsAction =
 export function fetchingFeedComments(): FetchingFeedCommentsAction {
   return {
     type: FEED_COMMENTS_FETCH
+  }
+}
+
+export function feedsCommentsRetrieved(comments: CommentInterface[]): FeedCommentsRetrievedAction {
+  return {
+    type: FEED_COMMENTS_RETRIEVED,
+    comments
   }
 }
 

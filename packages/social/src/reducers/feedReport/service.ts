@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Dispatch } from 'redux'
 
@@ -28,7 +28,7 @@ export function addReportToFeed(feedId: string) {
       // dispatch(addFeedReport(feedId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

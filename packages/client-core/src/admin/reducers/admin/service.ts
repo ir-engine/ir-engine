@@ -4,7 +4,7 @@ import { VideoCreationForm, VideoUpdateForm, videoCreated, videoUpdated, videoDe
 import axios from 'axios'
 import { Config } from '@xrengine/common/src/config'
 import { client } from '../../../feathers'
-import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
@@ -19,10 +19,10 @@ export function createVideo(data: VideoCreationForm) {
         }
       })
       const result = res.data
-      dispatchAlertSuccess(dispatch, 'Video uploaded')
+      AlertService.dispatchAlertSuccess(dispatch, 'Video uploaded')
       dispatch(videoCreated(result))
     } catch (err) {
-      dispatchAlertError(dispatch, 'Video upload error: ' + err.response.data.message)
+      AlertService.dispatchAlertError(dispatch, 'Video upload error: ' + err.response.data.message)
     }
   }
 }
@@ -33,7 +33,7 @@ export function updateVideo(data: VideoUpdateForm) {
       .service('static-resource')
       .patch(data.id, data)
       .then((updatedVideo) => {
-        dispatchAlertSuccess(dispatch, 'Video updated')
+        AlertService.dispatchAlertSuccess(dispatch, 'Video updated')
         dispatch(videoUpdated(updatedVideo))
       })
   }
@@ -45,7 +45,7 @@ export function deleteVideo(id: string) {
       .service('static-resource')
       .remove(id)
       .then((removedVideo) => {
-        dispatchAlertSuccess(dispatch, 'Video deleted')
+        AlertService.dispatchAlertSuccess(dispatch, 'Video deleted')
         dispatch(videoDeleted(removedVideo))
       })
   }

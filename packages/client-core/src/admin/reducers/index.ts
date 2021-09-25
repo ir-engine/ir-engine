@@ -1,17 +1,17 @@
 import adminReducer from './admin/reducers'
 import adminUserReducer from './admin/user/reducers'
 import contentPackReducer from './contentPack/reducers'
-import adminAvatarReducer from './admin/avatar/reducers'
+import { adminAvatarReducer } from './admin/avatar/AvatarState'
 import adminInstanceReducer from './admin/instance/reducers'
 import adminLocationReducer from './admin/location/reducers'
 import adminPartyReducer from './admin/party/reducers'
 import adminSceneReducer from './admin/scene/reducers'
-import adminBotsReducer from './admin/bots/reducers'
-import adminAnalyticsReducer from './admin/analytics/reducers'
+import { adminBotsReducer } from './admin/bots/BotsState'
+import { AdminAnalyticsReducer } from './admin/analytics/AnalyticsState'
 import arMediaReducer from '@xrengine/social/src/reducers/arMedia/reducers'
 import feedsReducer from '@xrengine/social/src/reducers/feed/reducers'
 import creatorReducer from '@xrengine/social/src/reducers/creator/reducers'
-import groupReducer from './admin/group/reducers'
+import { adminGroupReducer } from './admin/group/GroupState'
 import scopeReducer from './admin/scope/reducers'
 
 /**
@@ -30,10 +30,10 @@ export default {
   adminParty: adminPartyReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,
-  adminAnalytics: adminAnalyticsReducer,
+  adminAnalytics: AdminAnalyticsReducer,
   arMedia: arMediaReducer,
   feedsAdmin: feedsReducer,
   adminCreator: creatorReducer,
-  group: groupReducer,
+  group: adminGroupReducer,
   scope: scopeReducer
 }

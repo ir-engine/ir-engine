@@ -7,7 +7,7 @@ const maxTimeout = 60 * 1000
 const vector3 = new Vector3()
 
 export const teleportToBall = (bot: XREngineBot) => {
-  test(
+  it(
     'Can teleport to ball',
     async () => {
       await bot.delay(1000)

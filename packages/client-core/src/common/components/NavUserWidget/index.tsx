@@ -4,7 +4,7 @@ import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { AuthService } from '../../../user/reducers/auth/AuthService'
-import { showDialog } from '../../reducers/dialog/service'
+import { DialogAction } from '../../reducers/dialog/DialogActions'
 import SignIn from '../../../user/components/Auth/Login'
 import Dropdown from '../../../user/components/Profile/ProfileDropdown'
 import { useTranslation } from 'react-i18next'
@@ -15,17 +15,14 @@ const mapStateToProps = (state: any): any => {
   return {}
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  showDialog: bindActionCreators(showDialog, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
   login?: boolean
-  showDialog?: typeof showDialog
 }
 
 const NavUserBadge = (props: Props): any => {
-  const { login, showDialog } = props
+  const { login } = props
   const dispatch = useDispatch()
 
   const { t } = useTranslation()
@@ -41,7 +38,7 @@ const NavUserBadge = (props: Props): any => {
     const params = new URLSearchParams(document.location.search)
     const showLoginDialog = params.get('login')
     if (showLoginDialog === String(true)) {
-      showDialog({ children: <SignIn /> })
+      dispatch(DialogAction.dialogShow({ children: <SignIn /> }))
     }
   }
   const auth = useAuthState()
@@ -62,9 +59,11 @@ const NavUserBadge = (props: Props): any => {
           color="primary"
           className={styles.loginButton}
           onClick={() =>
-            showDialog({
-              children: <SignIn />
-            })
+            dispatch(
+              DialogAction.dialogShow({
+                children: <SignIn />
+              })
+            )
           }
         >
           {t('common:navUserWidget.login')}

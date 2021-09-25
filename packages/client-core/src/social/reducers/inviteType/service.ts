@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { fetchingInvitesTypes, retrievedInvitesTypes } from './actions'
 
 export function retrieveInvites() {
@@ -11,7 +11,7 @@ export function retrieveInvites() {
       dispatch(retrievedInvitesTypes(inviteTypeResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

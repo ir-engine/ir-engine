@@ -1,8 +1,8 @@
 import { Vector3 } from 'three'
-import { XREngineBot } from '@xrengine/bot'
+import { XREngineBot } from '@xrengine/bot/src/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
+import assert from 'assert'
 
-const maxTimeout = 60 * 1000
 const bot = new XREngineBot({ name: 'bot-1', verbose: true })
 const vector3 = new Vector3()
 
@@ -12,25 +12,23 @@ const sqrt2 = Math.sqrt(2)
 
 describe('My Bot Tests', () => {
 
-  beforeAll(async () => {
+  before(async () => {
     await bot.launchBrowser()
     await bot.enterLocation(`https://${domain}/location/${locationName}`)
     await bot.awaitHookPromise(BotHooks.LocationLoaded)
     await bot.runHook(BotHooks.InitializeBot)
     await bot.delay(1000)
-  }, 2 * maxTimeout)
+  })
 
-  afterAll(async () => {
+  after(async () => {
     await bot.delay(1500)
     await bot.quit()
-  }, maxTimeout)
+  })
 
-  test('Can spawn in the world', async () =>{
+  it('Can spawn in the world', async () =>{
     await bot.delay(1000)
     const pos = await bot.runHook(BotHooks.GetPlayerPosition)
-    expect(
-      vector3.copy(pos).length()
-    ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
+    assert(vector3.copy(pos).length() < sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
   })
 
 })
@@ -52,16 +50,16 @@ describe.skip('Multi-Bot Tests', () => {
     return bot
   }
 
-  afterAll(async () => {
+  after(async () => {
     console.log("AFTER ALL")
     for (const b of bots) {
       await bot.delay(1500)
       await b.quit()
     }
-  }, maxTimeout)
+  })
 
   // skip for now, as loading multiple uses seems to overload github actions and the test fails
-  test('Can connect multiple players', async () => {
+  it('Can connect multiple players', async () => {
     const numPlayers = 3
     const addedBots = [] as Promise<XREngineBot>[]
     for (let i = 0; i < numPlayers; i++) addedBots.push(addBot())
@@ -70,8 +68,8 @@ describe.skip('Multi-Bot Tests', () => {
     const clients = await bot.runHook(BotHooks.GetClients)
     console.log(JSON.stringify(clients))
     const clientIds = Object.keys(clients)
-    expect(clientIds.length).toEqual(numPlayers)
-  }, 5 * maxTimeout)
+    assert.equal(clientIds.length, numPlayers)
+  })
 
   // test('Can disconnect players', async () => {
   //   await bot.delay(1000)

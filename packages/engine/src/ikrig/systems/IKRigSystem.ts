@@ -1,6 +1,5 @@
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKRigComponent } from '../components/IKRigComponent'
-import { Not } from 'bitecs'
+import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
 // import DebugComponent from '../classes/Debug'
 import { IKPoseComponent } from '../components/IKPoseComponent'
 import {
@@ -14,6 +13,8 @@ import {
 
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
+import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
+import { Quaternion, Vector3 } from 'three'
 // export class DebugComponent {
 //   static points = null
 //   static lines = null
@@ -48,9 +49,8 @@ import { System } from '../../ecs/classes/System'
 //   }
 // }
 
-export const IKRigSystem = async (world: World): Promise<System> => {
-  const targetRigsQuery = defineQuery([IKRigComponent, Not(IKPoseComponent)])
-  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent])
+export default async function IKRigSystem(world: World): Promise<System> {
+  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
 
   return () => {
     // d.reset() // For this example, Lets reset visual debug for every compute.
@@ -59,8 +59,24 @@ export const IKRigSystem = async (world: World): Promise<System> => {
     for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)
       const rig = getComponent(entity, IKRigComponent)
-      if (!ikPose.targetRigs) {
-        continue
+      const targetRig = getComponent(entity, IKRigTargetComponent)
+
+      if (targetRig.name === 'custom') {
+        console.log('check bones')
+        bonesData2.forEach((boneData, index) => {
+          const p = new Vector3(...boneData.position)
+          const r = new Quaternion(...boneData.quaternion)
+          const s = new Vector3(...boneData.scale)
+          const tbone = targetRig.tpose.bones[index]
+          console.log(
+            '    ',
+            boneData.name,
+            p.equals(tbone.bone.position),
+            r.equals(tbone.bone.quaternion),
+            s.equals(tbone.bone.scale)
+          )
+        })
+        console.log('---------')
       }
 
       // // COMPUTE
@@ -80,10 +96,7 @@ export const IKRigSystem = async (world: World): Promise<System> => {
       // visualizeLookTwist(rig, rig.points.head, pose.head);
 
       // APPLY
-      for (const targetEntity of targetRigsQuery()) {
-        const targetRig = getComponent(targetEntity, IKRigComponent)
-        applyIKPoseToIKRig(targetRig, ikPose)
-      }
+      applyIKPoseToIKRig(targetRig, ikPose)
     }
   }
 }

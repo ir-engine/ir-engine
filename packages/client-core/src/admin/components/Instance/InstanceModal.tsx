@@ -17,7 +17,6 @@ import { useHistory } from 'react-router-dom'
 import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
 import { client } from '../../../feathers'
 import styles from '../Admin.module.scss'
 
@@ -26,14 +25,6 @@ interface Props {
   handleClose: any
   instance?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -234,4 +225,4 @@ const InstanceModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceModal)
+export default InstanceModal

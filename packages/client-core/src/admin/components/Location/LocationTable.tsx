@@ -9,7 +9,6 @@ import TableRow from '@material-ui/core/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
@@ -17,7 +16,7 @@ import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
-import { selectScopeErrorState } from '../../../common/reducers/error/selector'
+import { useErrorState } from '../../../common/reducers/error/ErrorState'
 import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
@@ -31,16 +30,14 @@ import Button from '@material-ui/core/Button'
 import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
 import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
-import FormDialog from '../UI/SubmitDialog'
 
 const mapStateToProps = (state: any): any => {
   return {
-    appState: selectAppState(state),
     adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
-    adminSceneState: selectAdminSceneState(state),
-    adminScopeErrorState: selectScopeErrorState(state)
+    adminSceneState: selectAdminSceneState(state)
+    // adminScopeErrorState: selectScopeErrorState(state)
   }
 }
 
@@ -66,7 +63,6 @@ const LocationTable = (props: LocationProps) => {
     adminUserState,
     adminInstanceState,
     adminSceneState,
-    adminScopeErrorState,
     removeLocation
   } = props
   const [page, setPage] = React.useState(0)
@@ -78,7 +74,7 @@ const LocationTable = (props: LocationProps) => {
 
   const authState = useAuthState()
   const user = authState.user
-  const adminScopeReadErrMsg = adminScopeErrorState.get('readError').get('scopeErrorMessage')
+  const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocations = adminLocationState.get('locations').get('locations')
   const adminLocationCount = adminLocationState.get('locations').get('total')
   const { t } = useTranslation()
@@ -94,7 +90,11 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value !== null && adminLocationState.get('locations').get('updateNeeded') && !adminScopeReadErrMsg) {
+    if (
+      user?.id?.value !== null &&
+      adminLocationState.get('locations').get('updateNeeded') &&
+      !adminScopeReadErrMsg?.value
+    ) {
       fetchAdminLocations()
     }
     if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
@@ -109,7 +109,7 @@ const LocationTable = (props: LocationProps) => {
     if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
       fetchAdminInstances()
     }
-  }, [authState, adminSceneState, adminInstanceState, adminLocationState])
+  }, [authState.user?.id?.value, adminSceneState, adminInstanceState, adminLocationState])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
