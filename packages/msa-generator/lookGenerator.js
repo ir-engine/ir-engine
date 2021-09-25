@@ -1,6 +1,17 @@
 const rarityModifierFactor = .1;
 const fixedRarityModifierFactor = .01;
 
+const getTableOutput = (randomNumber, table, factors) => {
+  let totalFactor = 0;
+  for (let i = 0; i < factors.length; i++) {
+    totalFactor += factors[i];
+    if (randomNumber <= totalFactor) {
+      return table[i];
+    }
+  }
+  return table[table.length - 1];
+};
+
 const GeneratorData = {
   VisualTraits: {
     Gender: {
@@ -83,10 +94,9 @@ const GeneratorData = {
 export default function generateBaller(alreadyCreatedBallers = []) {
   let baller = {};
   let hash = "";
-  for (let attribute in GeneratorData) {
-    let randomNumber = Math.random();
-    baller[attribute] = randomNumber
-    hash += attribute + "|"
+  for (let attribute in GeneratorData.VisualTraits) {
+    baller[attribute] = getTableOutput(Math.random() * 100, GeneratorData.VisualTraits[attribute].Type, GeneratorData.VisualTraits[attribute].Rarity)
+    hash += baller[attribute] + "|"
   }
 
   baller.hash = hash;
@@ -96,3 +106,5 @@ export default function generateBaller(alreadyCreatedBallers = []) {
 
   return baller;
 }
+
+// randomly selection between 
