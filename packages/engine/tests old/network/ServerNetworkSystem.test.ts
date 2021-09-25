@@ -132,7 +132,7 @@ afterEach(() => {
 const oneFixedRunTimeSpan = 1 / Engine.physicsFrameRate;
 let localTime = now();
 function runFixed() {
-  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Fixed);
+  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.FIXED);
   localTime += oneFixedRunTimeSpan;
 }
 

@@ -9,13 +9,14 @@ import { FacebookIcon } from '@xrengine/client-core/src/common/components/Icons/
 import { GoogleIcon } from '@xrengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@xrengine/client-core/src/common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '@xrengine/client-core/src/common/components/Icons/TwitterIcon'
-import { getAvatarURL, Views } from '../util'
+import { Views } from '../util'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../MapUserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 
 interface Props {
   changeActiveMenu?: any
@@ -50,7 +51,6 @@ const ProfileMenu = (props: Props): any => {
   }
 
   useEffect(() => {
-    getAvatarURL
     loadCredentialHandler()
   }, []) // Only run once
 
@@ -143,7 +143,7 @@ const ProfileMenu = (props: Props): any => {
       <div className={styles.settingPanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURL(selfUser?.id.value)} />
+            <img src={getAvatarURLForUser(selfUser?.id.value)} />
             {changeActiveMenu != null && (
               <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple>
                 <Create />

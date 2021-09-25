@@ -59,7 +59,7 @@ export {}
 
 //   // WorldStateInterface
 //   Network.instance.incomingMessageQueue.add(WorldStateModel.toBuffer(message, "Unreliable"));
-//   execute(1, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+//   execute(1, 1 / Engine.physicsFrameRate, SystemUpdateType.FIXED);
 
 //   return {
 //     createMessage: message.createObjects[0],

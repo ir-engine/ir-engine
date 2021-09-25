@@ -321,10 +321,12 @@ export default async function GolfSystem(world: World) {
   if (isClient) {
     registerGolfBotHooks()
     // pre-cache the assets we need for this game
-    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' })
-    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' })
-    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' })
-    await AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/golf_ball.glb' })
+    await Promise.all([
+      AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_head.glb' }),
+      AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_hands.glb' }),
+      AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/avatars/avatar_torso.glb' }),
+      AssetLoader.loadAsync({ url: Engine.publicPath + '/models/golf/golf_ball.glb' })
+    ])
   }
 
   return () => {

@@ -50,9 +50,9 @@ const oneFixedRunTimeSpan = 1 / Engine.physicsFrameRate;
 let localTime = now();
 
 function executeFrame() {
-    execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Fixed);
+    execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.FIXED);
     execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Network);
-    execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Free);
+    execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.UPDATE);
     localTime += oneFixedRunTimeSpan;
 }
 

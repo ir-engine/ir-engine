@@ -2,7 +2,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Action } from '../../networking/interfaces/Action'
 import { defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { InjectionPoint, SystemFactoryType, SystemInjectionType } from '../functions/SystemFunctions'
+import { SystemFactoryType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
 import { System } from './System'
 import { Engine } from './Engine'
@@ -13,8 +13,9 @@ import { Physics } from '../../physics/classes/Physics'
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
+import { SystemUpdateType } from '../functions/SystemUpdateType'
 
-type SystemInstanceType = { execute: System; systemLabel: string }
+type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
 
 type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
@@ -42,17 +43,7 @@ export class World {
   fixedTick = -1
 
   _removedComponents = new Map<Entity, Set<MappedComponent<any, any>>>()
-  _freePipeline = [] as SystemFactoryType<any>[]
-  _fixedPipeline = [] as SystemFactoryType<any>[]
-
-  _injectedPipelines = {
-    [InjectionPoint.UPDATE]: [] as SystemInjectionType<any>[],
-    [InjectionPoint.FIXED_EARLY]: [] as SystemInjectionType<any>[],
-    [InjectionPoint.FIXED]: [] as SystemInjectionType<any>[],
-    [InjectionPoint.FIXED_LATE]: [] as SystemInjectionType<any>[],
-    [InjectionPoint.PRE_RENDER]: [] as SystemInjectionType<any>[],
-    [InjectionPoint.POST_RENDER]: [] as SystemInjectionType<any>[]
-  }
+  _pipeline = [] as SystemFactoryType<any>[]
 
   physics = new Physics()
   entities = [] as Entity[]
@@ -106,12 +97,12 @@ export class World {
    * Custom systems injected into this world
    */
   injectedSystems = {
-    [InjectionPoint.UPDATE]: [],
-    [InjectionPoint.FIXED_EARLY]: [],
-    [InjectionPoint.FIXED]: [],
-    [InjectionPoint.FIXED_LATE]: [],
-    [InjectionPoint.PRE_RENDER]: [],
-    [InjectionPoint.POST_RENDER]: []
+    [SystemUpdateType.UPDATE]: [],
+    [SystemUpdateType.FIXED_EARLY]: [],
+    [SystemUpdateType.FIXED]: [],
+    [SystemUpdateType.FIXED_LATE]: [],
+    [SystemUpdateType.PRE_RENDER]: [],
+    [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstanceType[] }
 
   /**
@@ -173,40 +164,30 @@ export class World {
   }
 
   async initSystems() {
-    const loadSystem = (pipelineTypeLabel: string, pipeline: SystemFactoryType<any>[] | SystemInjectionType<any>[]) => {
-      return pipeline.map(async (s) => {
-        const systemFactory = (await s.system).default
-        const system = await systemFactory(this, s.args)
-        return {
-          execute: () => {
-            try {
-              system()
-            } catch (e) {
-              console.error(e)
-            }
-          },
-          systemLabel: `${pipelineTypeLabel} ${systemFactory.name}`
-        } as SystemInstanceType
-      })
+    const loadSystem = async (s) => {
+      const systemFactory = (await s.system).default
+      const system = await systemFactory(this, s.args)
+      return {
+        name: systemFactory.name,
+        type: s.type,
+        execute: () => {
+          try {
+            system()
+          } catch (e) {
+            console.error(e)
+          }
+        }
+      } as SystemInstanceType
     }
-
-    this.freeSystems = await Promise.all(loadSystem('FREE', this._freePipeline))
-    this.fixedSystems = await Promise.all(loadSystem('FIXED', this._fixedPipeline))
-    this.injectedSystems = Object.fromEntries(
-      (await Promise.all(
-        Object.entries(this._injectedPipelines).map(async ([pipelineType, pipeline]) => {
-          return [pipelineType, await Promise.all(loadSystem('Injected' + pipelineType, pipeline))]
-        })
-      )) as [keyof typeof this.injectedSystems, SystemInstanceType][]
-    ) as any
-
-    for (const s of this.fixedSystems) console.log(s.systemLabel)
-    for (const s of this.freeSystems) console.log(s.systemLabel)
-    for (const pipeline in this.injectedSystems)
-      for (const s of this.injectedSystems[pipeline]) {
-        console.log(s.systemLabel)
-      }
-    console.log('all systems initialized!')
+    const systems = await Promise.all(this._pipeline.map(loadSystem))
+    systems.forEach((s) => console.log(`${s.type} ${s.name}`))
+    this.freeSystems = systems.filter((s) => {
+      return !s.type.includes('FIXED')
+    })
+    this.fixedSystems = systems.filter((s) => {
+      return s.type.includes('FIXED')
+    })
+    console.log('[World]: All systems initialized!')
   }
 }
 
