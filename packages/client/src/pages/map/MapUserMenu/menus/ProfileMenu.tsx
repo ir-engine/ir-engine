@@ -3,15 +3,13 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import { FacebookIcon } from '@xrengine/client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '@xrengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@xrengine/client-core/src/common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '@xrengine/client-core/src/common/components/Icons/TwitterIcon'
-import { getAvatarURLFromNetwork, Views } from '../util'
+import { getAvatarURL, Views } from '../util'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../MapUserMenu.module.scss'
@@ -52,6 +50,7 @@ const ProfileMenu = (props: Props): any => {
   }
 
   useEffect(() => {
+    getAvatarURL
     loadCredentialHandler()
   }, []) // Only run once
 
@@ -144,7 +143,7 @@ const ProfileMenu = (props: Props): any => {
       <div className={styles.settingPanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id.value)} />
+            <img src={getAvatarURL(selfUser?.id.value)} />
             {changeActiveMenu != null && (
               <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple>
                 <Create />

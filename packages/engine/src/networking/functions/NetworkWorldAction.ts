@@ -16,6 +16,7 @@ export class NetworkWorldAction {
   static createClient = defineActionCreator({
     type: 'network.CREATE_CLIENT',
     userId: matchesUserId,
+    name: matches.string,
     avatarDetail: matchesAvatarProps
   })
 

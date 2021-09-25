@@ -1,5 +1,3 @@
-import type { Network } from '@xrengine/engine/src/networking/classes/Network'
-
 export const Views = {
   Closed: '',
   Profile: 'Profile',
@@ -36,12 +34,4 @@ export interface UserMenuProps {
 export interface SettingMenuProps {
   activeMenu: any
   setActiveMenu?: Function
-}
-
-export const DEFAULT_PROFILE_IMG_PLACEHOLDER = '/placeholders/default-silhouette.svg'
-
-export const getAvatarURLFromNetwork = (network: Network, userId: string) => {
-  if (!network || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  if (!network.clients[userId]) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  return network.clients[userId].avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER
 }

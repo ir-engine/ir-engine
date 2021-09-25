@@ -12,8 +12,13 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { Physics } from '../../physics/classes/Physics'
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 
 type SystemInstanceType = { execute: System; systemLabel: string }
+
+type RemoveIndex<T> = {
+  [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
+}
 
 const CreateWorld = Symbol('CreateWorld')
 export class World {
@@ -53,6 +58,9 @@ export class World {
   entities = [] as Entity[]
   portalEntities = [] as Entity[]
   isInPortal = false
+
+  /** Connected clients */
+  clients = new Map() as Map<UserId, NetworkClient> & { [key: string]: never }
 
   /** Incoming actions */
   incomingActions = new Set<Required<Action>>()

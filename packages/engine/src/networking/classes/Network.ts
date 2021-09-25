@@ -24,8 +24,6 @@ export class Network {
   transports = [] as any[]
   /** Schema of the component. */
   schema: NetworkSchema
-  /** Map of clients connected over this network. */
-  clients = new Map<UserId, NetworkClient>()
   /** List of data producer nodes. */
   dataProducers = new Map<string, any>()
   /** List of data consumer nodes. */

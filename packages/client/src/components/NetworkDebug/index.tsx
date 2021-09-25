@@ -140,7 +140,7 @@ export const NetworkDebug = ({ reinit }) => {
             </div>
             <div>
               <h1>Network Clients</h1>
-              <JSONTree data={{ ...Network.instance.clients }} />
+              <JSONTree data={{ ...Engine.defaultWorld.clients }} />
             </div>
             <div>
               <h1>Engine Entities</h1>

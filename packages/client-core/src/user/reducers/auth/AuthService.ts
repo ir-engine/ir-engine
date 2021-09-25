@@ -812,8 +812,10 @@ const getAvatarResources = (user) => {
 const loadAvatarForUpdatedUser = async (user) => {
   if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
 
+  const world = Engine.defaultWorld
+
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = world.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -851,7 +853,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
   if (!user || !user.id) Promise.resolve(true)
 
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = Engine.defaultWorld.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {

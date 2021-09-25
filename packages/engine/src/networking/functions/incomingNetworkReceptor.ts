@@ -1,7 +1,6 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
@@ -17,20 +16,20 @@ export const incomingNetworkReceptor = (action) => {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.createClient.matches, ({ userId, avatarDetail }) => {
-      if (!Network.instance.clients[userId]) {
-        Network.instance.clients[userId] = {
-          userId,
-          avatarDetail,
-          subscribedChatUpdates: []
-        }
-      }
+    .when(NetworkWorldAction.createClient.matches, ({ userId, name, avatarDetail }) => {
+      if (!isClient) return
+      world.clients.set(userId, {
+        userId,
+        name,
+        avatarDetail,
+        subscribedChatUpdates: []
+      })
     })
 
     .when(NetworkWorldAction.destroyClient.matches, ({ userId }) => {
+      if (!isClient) return
       for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
-      if (!isClient) return // TODO: why?
-      delete Network.instance.clients[userId].userId
+      world.clients.delete(userId)
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {

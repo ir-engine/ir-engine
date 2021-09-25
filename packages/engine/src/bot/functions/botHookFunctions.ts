@@ -1,7 +1,7 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../../networking/classes/Network'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BotHooks, XRBotHooks } from '../enums/BotHooks'
 import {
@@ -59,5 +59,5 @@ export function rotatePlayer({ angle }) {
 }
 
 export function getClients() {
-  return Network.instance.clients
+  return useWorld().clients
 }

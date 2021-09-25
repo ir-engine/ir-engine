@@ -1,4 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
@@ -6,7 +7,7 @@ import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export function getUserEntityByName(name: string) {
-  const client = Array.from(Network.instance.clients.values()).find((c) => {
+  const client = Array.from(Engine.defaultWorld.clients.values()).find((c) => {
     return c.name === name
   })
   return client ? useWorld().getUserAvatarEntity(client.userId) : undefined
@@ -16,7 +17,7 @@ export function getRemoteUsers(localUserId, notAfk: boolean): UserId[] {
   const world = useWorld()
   const res: UserId[] = []
 
-  for (let [_, client] of Network.instance.clients) {
+  for (let [_, client] of world.clients) {
     if (client.userId !== localUserId) {
       if (!notAfk) res.push(client.userId)
       else {
@@ -36,9 +37,9 @@ export function getPlayerName(eid): string {
   const uid = getComponent(eid, NetworkObjectComponent)?.userId
   if (uid === undefined || uid === '') return ''
 
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].userId === uid) {
-      return Network.instance.clients[p].name
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId === uid) {
+      return client.name
     }
   }
 

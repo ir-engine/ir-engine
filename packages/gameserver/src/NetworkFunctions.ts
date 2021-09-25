@@ -121,28 +121,20 @@ export async function cleanupOldGameservers(): Promise<void> {
   return
 }
 
-export function getUserIdFromSocketId(socketId): UserId | null {
-  let userId
-
-  for (const key in Network.instance.clients)
-    if (Network.instance.clients[key].socketId === socketId) {
-      userId = Network.instance.clients[key].userId
-      break
-    }
-
-  if (userId === undefined) return null
-  return userId
+export function getUserIdFromSocketId(socketId) {
+  const client = Array.from(Engine.defaultWorld.clients.values()).find((c) => c.socketId === socketId)
+  return client?.userId
 }
 
 export async function validateNetworkObjects(): Promise<void> {
   const world = Engine.defaultWorld!
-  for (const [userId] of Network.instance.clients) {
+  for (const [userId, client] of world.clients) {
     // Validate that user has phoned home recently
-    if (Date.now() - Network.instance.clients[userId].lastSeenTs > 30000) {
+    if (Date.now() - client.lastSeenTs > 30000) {
       console.log('Removing client ', userId, ' due to inactivity')
-      if (!Network.instance.clients[userId]) return console.warn('Client is not in client list')
+      if (!client) return console.warn('Client is not in client list')
 
-      const disconnectedClient = Object.assign({}, Network.instance.clients[userId])
+      const disconnectedClient = Object.assign({}, client)
 
       dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
 
@@ -175,7 +167,7 @@ export async function validateNetworkObjects(): Promise<void> {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
         dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
       }
-      if (Network.instance.clients[userId]) delete Network.instance.clients[userId]
+      if (world.clients.has(userId)) world.clients.delete(userId)
       console.log('Finished removing inactive client', userId)
     }
   }
@@ -185,7 +177,7 @@ export async function validateNetworkObjects(): Promise<void> {
     // Validate that the object has an associated user and doesn't belong to a non-existant user
     if (
       !hasComponent(networkObject.entity, AvatarComponent) ||
-      (networkObject.uniqueId !== undefined && Network.instance.clients[networkObject.uniqueId] !== undefined)
+      (networkObject.uniqueId !== undefined && world.clients.get(networkObject.uniqueId) !== undefined)
     )
       return
 
@@ -220,8 +212,9 @@ export async function handleConnectToWorld(socket, data, callback, userId: UserI
 
   // Create a new client object
   // and add to the dictionary
-  if (Network.instance.clients[userId] == null)
-    Network.instance.clients[userId] = {
+  const world = Engine.defaultWorld
+  if (world.clients.has(userId))
+    world.clients.set(userId, {
       userId: userId,
       name: user.dataValues.name,
       avatarDetail,
@@ -235,7 +228,7 @@ export async function handleConnectToWorld(socket, data, callback, userId: UserI
       subscribedChatUpdates: [],
       dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
       dataProducers: new Map<string, DataProducer>() // Key => label of data channel
-    }
+    })
 
   // Return initial world state to client to set things up
   callback({
@@ -245,16 +238,14 @@ export async function handleConnectToWorld(socket, data, callback, userId: UserI
 
 function disconnectClientIfConnected(socket, userId: UserId): void {
   // If we are already logged in, kick the other socket
-  if (Network.instance.clients[userId] !== undefined && Network.instance.clients[userId].socketId !== socket.id) {
+  const world = Engine.defaultWorld
+  if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
+    const client = world.clients.get(userId)!
     console.log('Client already exists, kicking the old client and disconnecting')
-    Network.instance.clients[userId].socket?.emit(
-      MessageTypes.Kick.toString(),
-      'You joined this world on another device'
-    )
-    Network.instance.clients[userId].socket?.disconnect()
+    client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
+    client.socket?.disconnect()
   }
 
-  const world = useWorld()
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
     dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
@@ -282,10 +273,11 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
   )
 
   // Get all client info and network objects and dispatch to joined user
-  for (const [userId, client] of Network.instance.clients) {
+  for (const [userId, client] of world.clients) {
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.createClient({
         userId,
+        name: client.name,
         avatarDetail: client.avatarDetail!
       })
     ).to(joinedUserId)
@@ -315,13 +307,14 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
 export function handleIncomingActions(socket, message) {
   if (!message) return
 
+  const world = Engine.defaultWorld
   const userIdMap = {} as { [socketId: string]: UserId }
-  for (const [id, _] of Network.instance.clients) userIdMap[Network.instance.clients[id].socketId] = id
+  for (const [id, client] of world.clients) userIdMap[client.socketId!] = id
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a.$from = userIdMap[socket.id]
-    Engine.defaultWorld!.incomingActions.add(a)
+    world.incomingActions.add(a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 }
@@ -331,15 +324,15 @@ export async function handleIncomingMessage(socket, message): Promise<any> {
 }
 
 export async function handleHeartbeat(socket): Promise<any> {
-  const userId = getUserIdFromSocketId(socket.id) as UserId
+  const userId = getUserIdFromSocketId(socket.id)!
   // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());
-  if (Network.instance.clients[userId] != undefined) Network.instance.clients[userId].lastSeenTs = Date.now()
+  if (Engine.defaultWorld.clients.has(userId)) Engine.defaultWorld.clients.get(userId)!.lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(socket): Promise<any> {
-  const world = useWorld()
+  const world = Engine.defaultWorld
   const userId = getUserIdFromSocketId(socket.id) as UserId
-  const disconnectedClient = Network.instance.clients[userId]
+  const disconnectedClient = world.clients.get(userId)
   if (disconnectedClient === undefined)
     return console.warn(
       'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake'
@@ -355,7 +348,7 @@ export async function handleDisconnect(socket): Promise<any> {
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
     if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()
     if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close()
-    if (Network.instance.clients[userId] !== undefined) delete Network.instance.clients[userId]
+    if (world.clients.has(userId)) world.clients.delete(userId)
   } else {
     console.warn("Socket didn't match for disconnecting client")
   }
@@ -366,7 +359,7 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
-  if (Network.instance.clients[userId] !== undefined) delete Network.instance.clients[userId]
+  if (Engine.defaultWorld.clients.has(userId)) Engine.defaultWorld.clients.delete(userId)
   logger.info('Removing ' + userId + ' from client list')
   if (callback !== undefined) callback({})
 }

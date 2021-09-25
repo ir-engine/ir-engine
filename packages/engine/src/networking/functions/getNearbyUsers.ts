@@ -1,24 +1,23 @@
-import { Network } from '../classes/Network'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-export type NearbyUser = { id: string; distance: number }
+export type NearbyUser = { id: UserId; distance: number }
 
 const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distance
 
 export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyUser> {
   const userAvatar = Engine.defaultWorld.getUserAvatarEntity(userId)
   const otherUsers = [] as UserId[]
-  for (const [otherUserId] of Network.instance.clients) {
+  for (const [otherUserId] of Engine.defaultWorld.clients) {
     if (userId === otherUserId) continue
     otherUsers.push(userId)
   }
   if (userAvatar != null) {
     const userPosition = getComponent(userAvatar, TransformComponent).position
     if (userPosition) {
-      const userDistances = [] as Array<{ id: string; distance: number }>
+      const userDistances = [] as Array<{ id: UserId; distance: number }>
       for (const id of otherUsers) {
         const avatar = Engine.defaultWorld.getUserAvatarEntity(id)
         const position = getComponent(avatar, TransformComponent).position

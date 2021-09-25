@@ -285,7 +285,7 @@ export default (app: Application): void => {
             )
           } catch (err) {
             if (err.code === 401 && err.data.name === 'TokenExpiredError') {
-              const jwtDecoded = decode(token)
+              const jwtDecoded = decode(token)!
               const idProvider = await app.service('identityProvider').get(jwtDecoded.sub as string)
               authResult = {
                 'identity-provider': idProvider
@@ -322,7 +322,7 @@ export default (app: Application): void => {
             console.log('user instanceId: ' + user.instanceId)
 
             if (instanceId != null && instance != null) {
-              const activeUsers = Object.keys(Network.instance.clients)
+              const activeUsers = Engine.defaultWorld.clients
               try {
                 await app.service('instance').patch(instanceId, {
                   currentUsers: activeUsers.length
@@ -334,7 +334,7 @@ export default (app: Application): void => {
               const user = await app.service('user').get(userId)
               const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
               if (
-                (Network.instance.clients[userId] == null && config.kubernetes.enabled) ||
+                (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
                 process.env.NODE_ENV === 'development'
               )
                 await app

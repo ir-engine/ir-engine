@@ -36,7 +36,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
         let distance: number = -1
         let dot: number = -1
 
-        for (const [_, client] of Network.instance.clients) {
+        for (const [_, client] of world.clients) {
           if (client.userId === userId) continue
           const userEntity = world.getUserAvatarEntity(client.userId)
           if (!userEntity) continue

@@ -472,7 +472,7 @@ function handleListAllUsersCommand(userId) {
   const players = getRemoteUsers(userId, true)
   if (players === undefined) return
 
-  const playerNames = players.map((userId) => Network.instance.clients.get(userId)?.name)
+  const playerNames = players.map((userId) => Engine.defaultWorld.clients.get(userId)?.name)
   console.log('players|' + playerNames)
 }
 function handleGetLocalUserIdCommand(userId) {

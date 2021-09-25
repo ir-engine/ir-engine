@@ -69,7 +69,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   tiltContainer.add(modelContainer)
 
   addComponent(entity, AvatarComponent, {
-    ...(Network.instance.clients.get(userId)?.avatarDetail || {
+    ...(world.clients.get(userId)?.avatarDetail || {
       avatarId: DEFAULT_AVATAR_ID
     }),
     avatarHalfHeight,

@@ -5,7 +5,9 @@ import type { AvatarProps } from './WorldState'
 
 export interface NetworkClient {
   userId: UserId
-  name?: string
+  name: string
+  subscribedChatUpdates: string[]
+  // The following properties are only present on the server
   socket?: SocketIO.Socket
   socketId?: string
   lastSeenTs?: any
@@ -21,5 +23,4 @@ export interface NetworkClient {
   dataProducers?: Map<string, any> // Key => label of data channel}
   avatarDetail?: AvatarProps
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
-  subscribedChatUpdates: string[]
 }
