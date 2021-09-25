@@ -17,8 +17,10 @@ export const loadRealityPack = async (
   component: SceneDataComponent,
   sceneProperty: ScenePropertyType
 ) => {
-  const realityPack = await importPack(component.data.packName)
-  const loadedSystem = await realityPack(useWorld(), component.data.args)
-  const pipeline = component.data.pipeline ?? 'FIXED'
-  useWorld().injectedSystems[pipeline].push(loadedSystem)
+  const moduleEntryPoints = await importPack(component.data.packName)
+  for (const entryPoint of moduleEntryPoints) {
+    const loadedSystem = await (await entryPoint).default(useWorld(), component.data.args)
+    const pipeline = component.data.pipeline ?? 'FIXED'
+    useWorld().injectedSystems[pipeline].push(loadedSystem)
+  }
 }
