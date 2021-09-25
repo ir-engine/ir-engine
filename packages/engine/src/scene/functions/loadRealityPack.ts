@@ -1,8 +1,12 @@
-import { Entity } from '../../ecs/classes/Entity'
-import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
-import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { importPack } from '@xrengine/realitypacks/loader'
+import { InjectionPoint } from '../../ecs/functions/SystemFunctions'
+
+type RealityPackNodeArguments = {
+  packName: string
+  injectionPoint: keyof typeof InjectionPoint
+  args: any
+}
 
 /**
  * @author Abhishek Pathak
@@ -11,16 +15,11 @@ import { importPack } from '@xrengine/realitypacks/loader'
  * @param component
  * @param sceneProperty
  */
-export const loadRealityPack = async (
-  sceneLoader: WorldScene,
-  entity: Entity,
-  component: SceneDataComponent,
-  sceneProperty: ScenePropertyType
-) => {
-  const moduleEntryPoints = await importPack(component.data.packName)
+export const loadRealityPack = async (data: RealityPackNodeArguments) => {
+  const moduleEntryPoints = await importPack(data.packName)
   for (const entryPoint of moduleEntryPoints) {
-    const loadedSystem = await (await entryPoint).default(useWorld(), component.data.args)
-    const pipeline = component.data.pipeline ?? 'FIXED'
+    const loadedSystem = await (await entryPoint).default(useWorld(), data.args)
+    const pipeline = data.injectionPoint ?? 'FIXED'
     useWorld().injectedSystems[pipeline].push(loadedSystem)
   }
 }

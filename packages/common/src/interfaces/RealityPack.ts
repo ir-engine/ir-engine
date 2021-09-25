@@ -1,6 +1,6 @@
 export interface RealityPack {
   name: string
-  version: number
+  version: string
   moduleEntryPoints: string[]
   clientReactEntryPoint: string[]
   files: string[]

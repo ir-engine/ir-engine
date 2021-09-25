@@ -138,13 +138,9 @@ export class WorldScene {
         break
 
       case 'realitypack':
-        // const url = component.props.scriptUrl
-        // if (!url) {
-        //   console.log('Script Not Found')
-        //   break
-        // }
-        loadRealityPack(this, entity, component, sceneProperty)
+        loadRealityPack(component.data)
         break
+
       case '_metadata':
         {
           addObject3DComponent(entity, new Object3D(), component.data)
