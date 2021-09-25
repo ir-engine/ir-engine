@@ -12,7 +12,6 @@ import { Network } from '../networking/classes/Network'
 import { AnimationGraph } from './animations/AnimationGraph'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
-import { IncomingAction } from '../networking/interfaces/Action'
 import { Engine } from '../ecs/classes/Engine'
 
 function animationActionReceptor(action: IncomingAction<typeof NetworkWorldAction>) {

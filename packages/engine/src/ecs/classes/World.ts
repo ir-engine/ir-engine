@@ -120,7 +120,7 @@ export class World {
    * @param userId
    */
   getOwnedNetworkObjects(userId: UserId) {
-    return this.networkObjectQuery().filter((eid) => getComponent(eid, NetworkObjectComponent).userId === userId)
+    return this.networkObjectQuery(this).filter((eid) => getComponent(eid, NetworkObjectComponent).userId === userId)
   }
 
   /**
@@ -128,7 +128,9 @@ export class World {
    * @returns
    */
   getNetworkObject(networkId: NetworkId) {
-    return this.networkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).networkId === networkId)!
+    return this.networkObjectQuery(this).find(
+      (eid) => getComponent(eid, NetworkObjectComponent).networkId === networkId
+    )!
   }
 
   /**

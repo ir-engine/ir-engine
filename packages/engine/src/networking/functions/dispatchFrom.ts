@@ -14,6 +14,8 @@ type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : H
  * using the `to()` and `delay()` modifiers.
  */
 export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId: U, actionCb: () => A) => {
+  const world = Engine.defaultWorld
+
   const options = {
     /**
      * Dispatch to select recipients
@@ -34,7 +36,6 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
       return options
     }
   }
-  const world = useWorld()
 
   if (Engine.userId !== userId) return options
 

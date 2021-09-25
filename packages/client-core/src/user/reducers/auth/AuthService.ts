@@ -908,18 +908,28 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       }
       const world = Engine.defaultWorld
       if (typeof world.localClientEntity !== 'undefined') {
-        if (!hasComponent(world.localClientEntity, ProximityComponent) && isBot(window)) {
-          addComponent(world.localClientEntity, ProximityComponent, {
-            usersInRange: [],
-            usersInIntimateRange: [],
-            usersInHarassmentRange: [],
-            usersLookingTowards: []
-          })
+        if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
+          addComponent(
+            world.localClientEntity,
+            ProximityComponent,
+            {
+              usersInRange: [],
+              usersInIntimateRange: [],
+              usersInHarassmentRange: [],
+              usersLookingTowards: []
+            },
+            world
+          )
         }
-        if (!hasComponent(world.localClientEntity, WebCamInputComponent)) {
-          addComponent(world.localClientEntity, WebCamInputComponent, {
-            emotions: []
-          })
+        if (!hasComponent(world.localClientEntity, WebCamInputComponent, world)) {
+          addComponent(
+            world.localClientEntity,
+            WebCamInputComponent,
+            {
+              emotions: []
+            },
+            world
+          )
         }
         console.log('added web cam input component to local client')
       }

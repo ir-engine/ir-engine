@@ -82,7 +82,7 @@ const createOfflineUser = () => {
   Engine.userId = userId
   // Replicate the server behavior
   const world = useWorld()
-  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, avatarDetail }))
+  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }))
   dispatchFrom(world.hostId, () => NetworkWorldAction.spawnAvatar({ userId, parameters }))
 }
 

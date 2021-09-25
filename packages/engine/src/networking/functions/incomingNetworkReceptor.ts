@@ -27,7 +27,7 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.destroyClient.matches, ({ userId }) => {
-      if (!isClient) return
+      if (!isClient || userId === Engine.userId) return
       for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
       world.clients.delete(userId)
     })

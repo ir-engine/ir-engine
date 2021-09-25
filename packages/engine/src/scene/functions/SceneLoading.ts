@@ -5,9 +5,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
-import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
@@ -125,7 +123,7 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
-    const world = useWorld()
+    const world = Engine.defaultWorld
     switch (name) {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
@@ -351,7 +349,7 @@ export class WorldScene {
       case 'cameraproperties':
         if (isClient) {
           EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
-            setCameraProperties(useWorld().localClientEntity, component.data)
+            setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
           })
         }
         break
