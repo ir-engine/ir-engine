@@ -6,6 +6,7 @@
       "dom",
       "dom.iterable"
     ],
+    "types": ["vite-plugin-svgr/client"],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

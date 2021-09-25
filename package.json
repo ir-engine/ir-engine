@@ -142,5 +142,8 @@
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
     "yuka": "0.7.6"
+  },
+  "dependencies": {
+    "vite-plugin-svgr": "^0.4.0"
   }
 }
