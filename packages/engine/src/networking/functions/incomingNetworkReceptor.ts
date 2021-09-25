@@ -12,7 +12,7 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
  */
-export const incomingNetworkReceptor = (action) => {
+export function incomingNetworkReceptor(action) {
   const world = useWorld()
 
   matches(action)

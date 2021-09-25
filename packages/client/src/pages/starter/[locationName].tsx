@@ -6,6 +6,7 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import Layout from '../../components/Layout/Layout'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -24,8 +25,8 @@ const LocationPage = (props) => {
   const engineInitializeOptions: InitializeOptions = {
     systems: [
       {
-        injectionPoint: 'FIXED',
-        system: import('./StarterGameSystem')
+        type: SystemUpdateType.FIXED,
+        systemModulePromise: import('./StarterGameSystem')
       }
     ]
   }

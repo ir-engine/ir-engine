@@ -9,6 +9,7 @@ import InstanceChat from '../../components/InstanceChat'
 import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -21,16 +22,16 @@ const LocationPage = (props) => {
   const engineInitializeOptions: InitializeOptions = {
     systems: [
       {
-        injectionPoint: 'FIXED',
-        system: import('@xrengine/client-core/src/systems/AvatarUISystem')
+        type: SystemUpdateType.FIXED,
+        systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
       },
       {
-        injectionPoint: 'FIXED',
-        system: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
+        type: SystemUpdateType.FIXED,
+        systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
       },
       {
-        injectionPoint: 'FIXED',
-        system: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
+        type: SystemUpdateType.FIXED,
+        systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
       }
     ]
   }

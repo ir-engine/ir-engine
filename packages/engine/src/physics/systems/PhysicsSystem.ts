@@ -20,7 +20,7 @@ import { CollisionComponent } from '../components/CollisionComponent'
 import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 
-function avatarActionReceptor(action: unknown) {
+function physicsActionReceptor(action: unknown) {
   const world = useWorld()
   matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
     const [x, y, z, qX, qY, qZ, qW] = a.pose
@@ -63,7 +63,7 @@ export default async function PhysicsSystem(
     }
   })
 
-  world.receptors.add(avatarActionReceptor)
+  world.receptors.add(physicsActionReceptor)
 
   return () => {
     // for (const entity of spawnRigidbodyQuery.enter()) {

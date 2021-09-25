@@ -33,7 +33,9 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
       if (action.$tick <= world.fixedTick) {
         console.log(`\n\nDELAYED ACTION ${action.type}`, action, '\n\n')
         delayedActions.delete(action)
-        for (const receptor of world.receptors) receptor(action)
+        for (const receptor of world.receptors) {
+          receptor(action)
+        }
       }
     }
     for (const action of incomingActions) {

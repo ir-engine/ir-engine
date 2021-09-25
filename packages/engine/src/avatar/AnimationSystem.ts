@@ -15,7 +15,7 @@ import { World } from '../ecs/classes/World'
 import { IncomingAction } from '../networking/interfaces/Action'
 import { Engine } from '../ecs/classes/Engine'
 
-function avatarActionReceptor(action: IncomingAction<typeof NetworkWorldAction>) {
+function animationActionReceptor(action: IncomingAction<typeof NetworkWorldAction>) {
   switch (action.type) {
     case NetworkWorldAction.ANIMATION_CHANGE: {
       if (!Network.instance.objects[action.networkId]) {
@@ -33,7 +33,7 @@ const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World): Promise<System> {
-  world.receptors.add(avatarActionReceptor)
+  // world.receptors.add(animationActionReceptor)
 
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
 

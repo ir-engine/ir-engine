@@ -2,7 +2,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Action } from '../../networking/interfaces/Action'
 import { defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { SystemFactoryType } from '../functions/SystemFunctions'
+import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
 import { System } from './System'
 import { Engine } from './Engine'
@@ -43,7 +43,7 @@ export class World {
   fixedTick = -1
 
   _removedComponents = new Map<Entity, Set<MappedComponent<any, any>>>()
-  _pipeline = [] as SystemFactoryType<any>[]
+  _pipeline = [] as SystemModuleType<any>[]
 
   physics = new Physics()
   entities = [] as Entity[]
@@ -164,11 +164,10 @@ export class World {
   }
 
   async initSystems() {
-    const loadSystem = async (s) => {
-      const systemFactory = (await s.system).default
-      const system = await systemFactory(this, s.args)
+    const loadSystem = async (s: SystemFactoryType<any>) => {
+      const system = await s.systemModule.default(this, s.args)
       return {
-        name: systemFactory.name,
+        name: s.systemModule.default.name,
         type: s.type,
         execute: () => {
           try {
@@ -179,7 +178,16 @@ export class World {
         }
       } as SystemInstanceType
     }
-    const systems = await Promise.all(this._pipeline.map(loadSystem))
+    const systemModule = await Promise.all(
+      this._pipeline.map(async (s) => {
+        return {
+          args: s.args,
+          type: s.type,
+          systemModule: await s.systemModulePromise
+        }
+      })
+    )
+    const systems = await Promise.all(systemModule.map(loadSystem))
     systems.forEach((s) => console.log(`${s.type} ${s.name}`))
     this.freeSystems = systems.filter((s) => {
       return !s.type.includes('FIXED')
