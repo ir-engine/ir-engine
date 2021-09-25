@@ -8,10 +8,16 @@
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/XRFoundation/XREngine/issues"
+  },
+  "scripts": {
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "homepage": "https://github.com/XRFoundation/XREngine#readme"
 }
