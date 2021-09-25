@@ -74,6 +74,14 @@ export function addAvatarsToContentPack(data: any) {
   }
 }
 
+export function addRealityPacksToContentPack(data: any) {
+  return async (dispatch: Dispatch) => {
+    const result = await client.service('content-pack').patch(null, data)
+    console.log('Patch content-pack with reality-pack(s) result', result)
+    dispatch(patchedContentPack())
+  }
+}
+
 export function downloadContentPack(url: string) {
   return async (dispatch: Dispatch, getState: any) => {
     await client.service('content-pack').update(null, {

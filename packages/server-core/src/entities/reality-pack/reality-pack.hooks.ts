@@ -1,17 +1,18 @@
 import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
 import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
 
 const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [],
     find: [],
     get: [],
-    create: [restrictUserRole('admin')],
-    update: [restrictUserRole('admin')],
-    patch: [restrictUserRole('admin')],
-    remove: [restrictUserRole('admin')]
+    create: [authenticate('jwt'), restrictUserRole('admin')],
+    update: [authenticate('jwt'), restrictUserRole('admin')],
+    patch: [authenticate('jwt'), restrictUserRole('admin')],
+    remove: [authenticate('jwt'), restrictUserRole('admin')]
   },
 
   after: {

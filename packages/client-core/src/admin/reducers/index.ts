@@ -8,6 +8,7 @@ import adminPartyReducer from './admin/party/reducers'
 import adminSceneReducer from './admin/scene/reducers'
 import { adminBotsReducer } from './admin/bots/BotsState'
 import { AdminAnalyticsReducer } from './admin/analytics/AnalyticsState'
+import adminRealityPackReducer from './admin/reality-pack/reducers'
 import arMediaReducer from '@xrengine/social/src/reducers/arMedia/reducers'
 import feedsReducer from '@xrengine/social/src/reducers/feed/reducers'
 import creatorReducer from '@xrengine/social/src/reducers/creator/reducers'
@@ -28,6 +29,7 @@ export default {
   adminInstance: adminInstanceReducer,
   adminLocation: adminLocationReducer,
   adminParty: adminPartyReducer,
+  adminRealityPack: adminRealityPackReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,
   adminAnalytics: AdminAnalyticsReducer,
