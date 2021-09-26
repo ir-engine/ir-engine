@@ -7,7 +7,6 @@ import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { download } from './downloadRealityPacks'
-
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 
