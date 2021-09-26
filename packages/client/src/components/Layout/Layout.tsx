@@ -23,6 +23,11 @@ import Harmony from '../Harmony'
 import Me from '../Me'
 import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
+import { initEngine, retriveLocationByName, teleportToLocation, createOfflineUser } from './LocationLoadHelper'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
+import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
+import EmoteMenuCore from '@xrengine/client-core/src/common/components/EmoteMenu/index'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -82,7 +87,11 @@ const Layout = (props: Props): any => {
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
   const handle = useFullScreenHandle()
+
+  const respawn = new EmoteMenuCore(props)
+
   const dispatch = useDispatch()
+
   const initialClickListener = () => {
     dispatch(AppAction.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
@@ -160,8 +169,14 @@ const Layout = (props: Props): any => {
       (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
     )
   }
+
+  const stopAnimation = (): void => {
+    respawn.spawnAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
+  }
+
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
+
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>
@@ -207,6 +222,10 @@ const Layout = (props: Props): any => {
                 )}
               </>
             )}
+
+            <button type="button" className={styles.respawn} id="respawn" onClick={stopAnimation}>
+              <img src="/static/restart.svg" />
+            </button>
 
             <Harmony
               setHarmonyOpen={setHarmonyOpen}
