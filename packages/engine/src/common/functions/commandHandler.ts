@@ -22,6 +22,7 @@ import { isBot } from './isBot'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { Network } from '../../networking/classes/Network'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -50,7 +51,7 @@ export function getStarterCount(text: string): number {
  * The eid in the server is the UserId, while in the client is the EntityId
  * @author Alex Titonis
  */
-export function handleCommand(cmd: string, eid: any, userId: any): boolean {
+export function handleCommand(cmd: string, eid: Entity, userId: UserId): boolean {
   //It checks for all messages, the default
   if (!isCommand(cmd)) return false
 
