@@ -14,8 +14,7 @@ const FeedMenu = () => {
   const featuredRef = useRef<HTMLInputElement>()
   const creatorsRef = useRef<HTMLInputElement>()
   const { t } = useTranslation()
-  const [type, setType] = useState('featured')
-  const [view, setView] = useState('')
+  const [view, setView] = useState('all')
   const [viewType, setViewType] = useState('grid')
 
   const padding = 40
@@ -38,7 +37,7 @@ const FeedMenu = () => {
       content = <Featured viewType={viewType} />
       break
     default:
-      content = <Featured type="myFeatured" viewType={viewType} />
+      content = <Featured type="fired" viewType={viewType} />
       break
   }
   const classes = {
@@ -67,23 +66,21 @@ const FeedMenu = () => {
           <Grid item xs>
             <section className={styles.switcher} ref={containerRef}>
               <Button
-                variant={type === 'featured' ? 'contained' : 'text'}
+                variant={view === 'featured' ? 'contained' : 'text'}
                 ref={featuredRef}
-                className={styles.switchButton + (type === 'featured' ? ' ' + styles.active : '')}
+                className={styles.switchButton + (view === 'featured' ? ' ' + styles.active : '')}
                 onClick={() => {
                   handleMenuClick('featured')
-                  setType('featured')
                 }}
               >
                 Featured
               </Button>
               <Button
-                variant={type === 'all' ? 'contained' : 'text'}
+                variant={view === 'all' ? 'contained' : 'text'}
                 ref={creatorsRef}
-                className={styles.switchButton + (type === 'all' ? ' ' + styles.active : '')}
+                className={styles.switchButton + (view === 'all' ? ' ' + styles.active : '')}
                 onClick={() => {
                   handleMenuClick('all')
-                  setType('all')
                 }}
               >
                 All

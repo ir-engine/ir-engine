@@ -67,6 +67,12 @@ export const scopeTypeSeed = {
     },
     {
       type: 'scene:write'
+    },
+    {
+      type: 'realityPacks:read'
+    },
+    {
+      type: 'realityPacks:write'
     }
   ]
 }

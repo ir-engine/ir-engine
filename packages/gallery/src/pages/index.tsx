@@ -2,8 +2,8 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import FeedMenu from '../components/FeedMenu'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
+import { selectCreatorsState } from '@xrengine/gallery/src/reducers/creator/selector'
+import { createCreator } from '@xrengine/gallery/src/reducers/creator/service'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -21,7 +21,6 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch)
 })
 
@@ -44,7 +43,6 @@ const Home = ({ createCreator, creatorsState }) => {
     dispatch(AuthService.doLoginAuto(true))
   }, [])
 
-  const [view, setView] = useState('featured')
   const currentCreator = creatorsState.get('currentCreator')
 
   return (

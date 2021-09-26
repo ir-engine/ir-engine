@@ -4,6 +4,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 import mimeType from 'mime-types'
 import StorageProvider from '../../media/storageprovider/storageprovider'
 import { Agent } from 'https'
+import { Params } from '@feathersjs/feathers'
 
 const storageProvider = new StorageProvider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
@@ -30,6 +31,8 @@ const getContentType = (url: string) => {
   if (/.glb$/.test(url) === true) return 'glb'
   if (/.jpeg$/.test(url) === true) return 'jpeg'
   if (/.json$/.test(url) === true) return 'json'
+  if (/.ts$/.test(url) === true) return 'ts'
+  if (/.tsx$/.test(url) === true) return 'tsx'
   return 'octet-stream'
 }
 
@@ -95,6 +98,47 @@ export function assembleScene(scene: any, contentPack: string): any {
     worldFile,
     uploadPromises
   }
+}
+
+export function assembleRealityPack(realityPack: any, contentPack: string): Promise<any> {
+  console.log('assembleRealityPack', realityPack, contentPack)
+  return new Promise(async (resolve, reject) => {
+    try {
+      const manifest = await axios.get(realityPack.storageProviderManifest, getAxiosConfig())
+      const data = JSON.parse(manifest.data.toString())
+      const files = data.files
+      const uploadPromises = []
+      uploadPromises.push(
+        storageProvider.putObject({
+          ACL: 'public-read',
+          Body: manifest.data,
+          ContentType: getContentType(realityPack.storageProviderManifest),
+          Key: `content-pack/${contentPack}/reality-pack/${realityPack.name}/manifest.json`
+        })
+      )
+      files.forEach((file) => {
+        const path = file.replace('./', '')
+        const subFileLink = realityPack.storageProviderManifest.replace('manifest.json', path)
+        uploadPromises.push(
+          new Promise(async (resolve) => {
+            const fileResult = await axios.get(subFileLink, getAxiosConfig())
+            await storageProvider.putObject({
+              ACL: 'public-read',
+              Body: fileResult.data,
+              ContentType: getContentType(path),
+              Key: `content-pack/${contentPack}/reality-pack/${realityPack.name}/${path}`
+            })
+            resolve(true)
+          })
+        )
+      })
+      resolve({
+        uploadPromises
+      })
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
 export async function populateScene(
@@ -293,4 +337,51 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
     }
   })
   return Promise.all([avatarUploadPromise, avatarThumbnailUploadPromise])
+}
+
+export async function populateRealityPack(realityPack: any, app: Application, params: Params): Promise<any> {
+  const uploadPromises = []
+  const existingPackResult = await (app.service('reality-pack') as any).Model.findOne({
+    where: {
+      name: realityPack.name
+    }
+  })
+  if (existingPackResult != null) await app.service('reality-pack').remove(existingPackResult.id, params)
+  const manifest = await axios.get(realityPack.manifest, getAxiosConfig())
+  const data = JSON.parse(manifest.data.toString())
+  const files = data.files
+  uploadPromises.push(
+    storageProvider.putObject({
+      ACL: 'public-read',
+      Body: manifest.data,
+      ContentType: getContentType(realityPack.manifest),
+      Key: `reality-pack/${realityPack.name}/manifest.json`
+    })
+  )
+  files.forEach((file) => {
+    const path = file.replace('./', '')
+    const subFileLink = realityPack.manifest.replace('manifest.json', path)
+    uploadPromises.push(
+      new Promise(async (resolve) => {
+        const fileResult = await axios.get(subFileLink, getAxiosConfig())
+        await storageProvider.putObject({
+          ACL: 'public-read',
+          Body: fileResult.data,
+          ContentType: getContentType(path),
+          Key: `reality-pack/${realityPack.name}/${path}`
+        })
+        resolve(true)
+      })
+    )
+  })
+  await app.service('reality-pack').create(
+    {
+      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${realityPack.name}/manifest.json`,
+      localManifest: `/reality-packs/packs/${realityPack.name}/manifest.json`,
+      global: false,
+      name: realityPack.name
+    },
+    params
+  )
+  await Promise.all(uploadPromises)
 }

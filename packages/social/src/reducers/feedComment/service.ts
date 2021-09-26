@@ -4,7 +4,7 @@
 import { Dispatch } from 'redux'
 import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
-import { feedsRetrieved } from '../feed/actions'
+import { feedsCommentsRetrieved } from './actions'
 import {
   addFeedComment,
   addFeedCommentFire,
@@ -18,7 +18,7 @@ export function getFeedComments(feedId: string, limit?: number) {
     try {
       dispatch(fetchingFeedComments())
       const comments = await client.service('comments').find({ query: { feedId } })
-      dispatch(feedsRetrieved(comments.data))
+      dispatch(feedsCommentsRetrieved(comments.data))
     } catch (err) {
       console.log(err)
       AlertService.dispatchAlertError(dispatch, err.message)
