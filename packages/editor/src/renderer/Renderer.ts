@@ -77,12 +77,16 @@ export default class Renderer {
         this.outlineEffect.selection.set(meshes)
       }
     })
+
+    this.configureEffectComposer()
   }
 
   update(dt, _time) {
     this.webglRenderer.info.reset()
     // Engine.csm.update();
-    this.effectComposer.render(dt)
+    this.effectComposer
+      ? this.effectComposer.render(dt)
+      : this.webglRenderer.render(SceneManager.instance.scene as any, SceneManager.instance.camera)
 
     if (this.onUpdateStats) {
       const renderStat = this.webglRenderer.info.render as any
@@ -124,20 +128,22 @@ export default class Renderer {
 
     const passes: any[] = []
 
-    Object.keys(postProcessingNode.postProcessingOptions).forEach((key: any) => {
-      const pass = postProcessingNode.postProcessingOptions[key]
-      const effect = effectType[key].effect
+    if (postProcessingNode) {
+      Object.keys(postProcessingNode.postProcessingOptions).forEach((key: any) => {
+        const pass = postProcessingNode.postProcessingOptions[key]
+        const effect = effectType[key].effect
 
-      if (pass.isActive)
-        if (effect === SSAOEffect) {
-          passes.push(new effect(camera, normalPass.texture, { ...pass, normalDepthBuffer }))
-        } else if (effect === DepthOfFieldEffect) passes.push(new effect(camera, pass))
-        else if (effect === OutlineEffect) {
-          const eff = new effect(scene, camera, pass)
-          passes.push(eff)
-          this.outlineEffect = eff
-        } else passes.push(new effect(pass))
-    })
+        if (pass.isActive)
+          if (effect === SSAOEffect) {
+            passes.push(new effect(camera, normalPass.texture, { ...pass, normalDepthBuffer }))
+          } else if (effect === DepthOfFieldEffect) passes.push(new effect(camera, pass))
+          else if (effect === OutlineEffect) {
+            const eff = new effect(scene, camera, pass)
+            passes.push(eff)
+            this.outlineEffect = eff
+          } else passes.push(new effect(pass))
+      })
+    }
 
     if (passes.length) {
       const textureEffect = new TextureEffect({
@@ -225,7 +231,7 @@ export default class Renderer {
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.disable(1)
     screenshotRenderer.setSize(width, height, true)
-    screenshotRenderer.render(SceneManager.instance.scene, scenePreviewCamera)
+    screenshotRenderer.render(SceneManager.instance.scene as any, scenePreviewCamera)
     const blob = await getCanvasBlob(screenshotRenderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
