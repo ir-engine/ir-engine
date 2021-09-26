@@ -565,7 +565,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.warn('loadScene:scene', scene)
       const projectFile = scene.data
 
-      await ProjectManager.instance.init()
       await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()

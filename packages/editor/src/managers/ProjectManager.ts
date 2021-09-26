@@ -86,6 +86,7 @@ export class ProjectManager {
    * @return {Promise}             [scene to render]
    */
   async loadProject(projectFile) {
+    await ProjectManager.instance.init()
     CommandManager.instance.removeListener(
       EditorEvents.OBJECTS_CHANGED.toString(),
       SceneManager.instance.onEmitSceneModified
