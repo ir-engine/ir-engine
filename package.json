@@ -40,6 +40,7 @@
   "scripts": {
     "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "npm run dev",
+    "local": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server \"cd packages/client && npm run local\"",
     "dev": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server npm:dev-client",
     "dev-windows": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-windows npm:dev-client",
     "golf": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-golf npm:dev-client",
@@ -76,6 +77,7 @@
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
     "make-user-admin": "ts-eager scripts/make-user-admin.js",
+    "install-reality-packs": "ts-eager scripts/install-reality-packs.js",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json"
   },
   "types": "lib/",

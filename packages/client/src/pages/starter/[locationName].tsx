@@ -5,7 +5,6 @@ import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import Layout from '../../components/Layout/Layout'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 
 const LocationPage = (props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
@@ -21,15 +20,6 @@ const LocationPage = (props) => {
     onSuccess: () => {}
   }
 
-  const engineInitializeOptions: InitializeOptions = {
-    systems: [
-      {
-        injectionPoint: 'FIXED',
-        system: import('./StarterGameSystem')
-      }
-    ]
-  }
-
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
       <LoadingScreen objectsToLoad={loadingItemCount} />
@@ -38,7 +28,6 @@ const LocationPage = (props) => {
         locationName={props.match.params.locationName}
         history={props.history}
         engineCallbacks={engineCallbacks}
-        engineInitializeOptions={engineInitializeOptions}
       >
         <UserMenu />
         <MediaIconsBox />

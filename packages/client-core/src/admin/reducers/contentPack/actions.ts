@@ -1,4 +1,4 @@
-import { CONTENT_PACK_CREATED, CONTENT_PACK_PATCHED, LOADED_CONTENT_PACKS } from '../actions'
+import { CONTENT_PACK_CREATED, CONTENT_PACK_PATCHED, LOADED_CONTENT_PACKS, REALITY_PACK_POSTED } from '../actions'
 
 export interface LoadedContentPacksAction {
   type: string
@@ -31,5 +31,11 @@ export function createdContentPack(): ContentPackAction {
 export function patchedContentPack(): ContentPackAction {
   return {
     type: CONTENT_PACK_PATCHED
+  }
+}
+
+export function postRealityPack(): ContentPackAction {
+  return {
+    type: REALITY_PACK_POSTED
   }
 }

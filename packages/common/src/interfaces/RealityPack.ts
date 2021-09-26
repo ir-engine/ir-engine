@@ -1,4 +1,4 @@
-export interface RealityPack {
+export interface RealityPackInterface {
   name: string
   version: string
   moduleEntryPoints: string[]

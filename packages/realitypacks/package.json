@@ -4,6 +4,7 @@
   "main": "index.ts",
   "description": "",
   "scripts": {
+    "download-reality-packs": "ts-eager scripts/download-reality-packs.ts",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": {
