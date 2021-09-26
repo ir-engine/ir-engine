@@ -17,33 +17,37 @@ db.url = process.env.MYSQL_URL ??
 
 
 async function installAllRealityPacks() {
+  
+  try {
+    const sequelizeClient = new Sequelize({
+      ...db,
+      logging: true,
+      define: {
+          freezeTableName: true
+      }
+    });
+    await sequelizeClient.sync();
 
-  const sequelizeClient = new Sequelize({
-    ...db,
-    logging: true,
-    define: {
-        freezeTableName: true
+    const RealityPacks = sequelizeClient.define('reality_pack', {
+      id: {
+          type: Sequelize.DataTypes.UUID,
+          defaultValue: Sequelize.DataTypes.UUIDV1,
+          allowNull: false,
+          primaryKey: true
+      },
+      name: {
+          type: Sequelize.DataTypes.STRING,
+          allowNull: false
+      }
+    });
+
+    const realityPacks = await RealityPacks.findAll()
+
+    for(const realityPack of realityPacks) {
+      await download(realityPack.name)
     }
-  });
-  await sequelizeClient.sync();
-
-  const RealityPacks = sequelizeClient.define('reality_pack', {
-    id: {
-        type: Sequelize.DataTypes.UUID,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-    },
-    name: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false
-    }
-  });
-
-  const realityPacks = await RealityPacks.findAll()
-
-  for(const realityPack of realityPacks) {
-    await download(realityPack.name)
+  } catch (e) {
+    console.log(e)
   }
 
 };

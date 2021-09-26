@@ -15,7 +15,7 @@
     "check-errors": "tsc --noemit",
     "dev": "cross-env NODE_ENV=development vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build",
-    "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite previews",
+    "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview",
     "start": "node server.js",
     "validate": "npm run test",
     "test": "exit 0",
