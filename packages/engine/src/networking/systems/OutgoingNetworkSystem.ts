@@ -32,8 +32,10 @@ function sendActions() {
 
   for (const out of outgoingActions) {
     out.$from = out.$from ?? Engine.userId
-    incomingActions.add(out as Required<Action>)
-    if (out.$to === Engine.userId) outgoingActions.delete(out)
+    if (out.$from === Engine.userId && out.$to === Engine.userId) {
+      incomingActions.add(out as Required<Action>)
+      outgoingActions.delete(out)
+    }
   }
   Network.instance.transport?.sendActions(outgoingActions)
 
