@@ -155,9 +155,9 @@ certs/
 *.ts.bak
 
 #project specific ignores
-packages/social
-packages/gallery
-packages/client
-packages/social/*
-packages/gallery/*
-packages/client/*
+*/packages/social
+*/packages/gallery
+*/packages/client
+*/packages/social/*
+*/packages/gallery/*
+*/packages/client/*

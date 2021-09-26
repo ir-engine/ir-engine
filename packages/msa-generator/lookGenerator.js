@@ -1,5 +1,26 @@
-const rarityModifierFactor = .1;
-const fixedRarityModifierFactor = .01;
+import { skewedNormalDistribution } from "./normalDistributionFuctions.js";
+
+function getLetterGrades(score) {
+  var map = [
+      {max: 98, grade: "A+"},
+      {max: 93, grade: "A"},
+      {max: 90, grade: "A-"},
+      {max: 88, grade: "B+"},
+      {max: 83, grade: "B"},
+      {max: 80, grade: "B-"},
+      {max: 78, grade: "C+"},
+      {max: 73, grade: "C"},
+      {max: 70, grade: "C-"},
+      {max: 68, grade: "D+"},
+      {max: 63, grade: "D"},
+      {max: 60, grade: "D-"}
+  ];
+  for(var loop = 0; loop < map.length; loop++) {
+      var data = map[loop];
+      if(score >= data.max) return data.grade;
+  }
+  return "F";
+}
 
 const getTableOutput = (randomNumber, table, factors) => {
   let totalFactor = 0;
@@ -79,32 +100,82 @@ const GeneratorData = {
       Rarity: [48, 24, 12, 8, 4, 2]
     }
   },
-  Weight: {
-    Male: { min: 120, max: 330, average: 185 },
-    Female: { min: 110, max: 240, average: 165 }
+  PhysicalTraits: {
+    Weight: { min: 100, max: 330, average: 175, postfix: "lbs" },
+    Height: { min: 150, max: 230, average: 180, postfix: "cm" },
+    Age: { min: 18, max: 29, average: 23, postfix: "yrs" }
   },
-  Height: {
-    Male: { min: 1.6, max: 2.3, average: 2 },
-    Female:  { min: 1.5, max: 2.2, average: 1.8 }
-  },
-  Age: { min: 17, max: 80, average: 24 }
+  Stats: {
+    Strength: { min: 60, max: 90, average: 80 },
+    Stamina: { min: 60, max: 90, average: 80 },
+    Speed: { min: 60, max: 90, average: 80 },
+    Steal: { min: 60, max: 90, average: 80 },
+    Block: { min: 60, max: 90, average: 80 },
+    OffensiveRebound: { min: 60, max: 90, average: 80 },
+    DefensiveRebound: { min: 60, max: 90, average: 80 },
+    Vertical: { min: 60, max: 90, average: 80 },
+    Acceleration: { min: 60, max: 90, average: 80 },
+    CloseShot: { min: 60, max: 90, average: 80 },
+    DrivingLayup: { min: 60, max: 90, average: 80 },
+    DrivingDunk: { min: 60, max: 90, average: 80 },
+    StandingDunk: { min: 60, max: 90, average: 80 },
+    PostControl: { min: 60, max: 90, average: 80 },
+    MidRangeShot: { min: 60, max: 90, average: 80 },
+    ThreePointShot: { min: 60, max: 90, average: 80 },
+    FreeThrow: { min: 60, max: 90, average: 80 },
+    BallHandling: { min: 60, max: 90, average: 80 },
+    SpeedWithBall: { min: 60, max: 90, average: 80 },
+    InteriorDefense: { min: 60, max: 90, average: 80 },
+    PerimeterDefense: { min: 60, max: 90, average: 80 },
+    SpeedWithBall: { min: 60, max: 90, average: 80 },
+    BallHog: { min: 60, max: 90, average: 80 },
+    RatingPeakPotential: { min: 60, max: 90, average: 80 },
+    RatingPeakLength: { min: 60, max: 90, average: 80 },
+    Turnovers: { min: 60, max: 90, average: 80 },
+    DefensiveIQ: { min: 60, max: 90, average: 80 },
+    OffensiveIQ: { min: 60, max: 90, average: 80 },
+    SeasonStamina: { min: 60, max: 90, average: 80 },
+    ReleaseTime: { min: 60, max: 90, average: 80 },
+    ContactShotPercentage: { min: 60, max: 90, average: 80 },
+    HighlightPotential: { min: 60, max: 90, average: 80 }
+  }
 }
 
 // for each attribute in GeneratorData, generate a random number between 0 and 1 and store in a corresponding attribute in a new object called GeneratorOutput
 export default function generateBaller(alreadyCreatedBallers = []) {
   let baller = {};
   let hash = "";
+
+  // Generate the visual traits for the 3D body
   for (let attribute in GeneratorData.VisualTraits) {
     baller[attribute] = getTableOutput(Math.random() * 100, GeneratorData.VisualTraits[attribute].Type, GeneratorData.VisualTraits[attribute].Rarity)
     hash += baller[attribute] + "|"
   }
 
-  baller.hash = hash;
-  baller.duplicate = alreadyCreatedBallers?.filter(baller => hash == baller.hash).length > 0;
+  // Generate physical traits -- height, weight, age -- these will modify the final 3D body
+  for (let attribute in GeneratorData.PhysicalTraits) {
+    // Calculate value from normal distribution using min max and mean
+    const attr = GeneratorData.PhysicalTraits[attribute];
+    baller[attribute] = Math.round(skewedNormalDistribution({range: [attr.min, attr.max], mean: attr.average})) + " " + attr.postfix;
+  }
 
-  alreadyCreatedBallers.push(baller);
+  let statAverages = []
+
+  // Generate stats for the game
+  for (let attribute in GeneratorData.Stats) {
+    const attr = GeneratorData.Stats[attribute];
+    baller[attribute] = Math.round(skewedNormalDistribution({range: [attr.min, attr.max], mean: attr.average}));
+    statAverages.push(baller[attribute]);
+    baller[attribute] = baller[attribute] + " (" + getLetterGrades(baller[attribute]) + ")";
+  }
+  baller['StatsAverage'] = Math.round(statAverages.reduce((a, b) => a + b) / statAverages.length);
+
+  baller['StatsAverage'] = baller['StatsAverage'] + " (" + getLetterGrades(baller['StatsAverage']) + ")";
+
+  // baller.hash = hash;
+  // baller.duplicate = alreadyCreatedBallers?.filter(baller => hash == baller.hash).length > 0;
+
+  // alreadyCreatedBallers.push(baller);
 
   return baller;
 }
-
-// randomly selection between 

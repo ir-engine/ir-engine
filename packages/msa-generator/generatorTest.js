@@ -1,11 +1,13 @@
 
 import fs from 'fs';
 import generateBaller from "./lookGenerator.js";
+import { skewedNormalDistribution } from "./normalDistributionFuctions.js";
+import asciichart from 'asciichart'
 
 const _testHash = "QmaBDgByQgwTuCBFdnRzRESYd5puE9SwE5u6sSZ7vVSjvE";
 
 // How many ballers to generate in the series?
-const seriesSize = 10000;
+const seriesSize = 10;
 
 // How many times should we run the simulation? (for generating averaged stats)
 const iterations = 1;
@@ -260,21 +262,15 @@ function procgen(seed = '', count = 1) {
 }
 
 const legendaryLengths = []
-
-for (let i = 0; i < iterations; i++) {
-  let createdCardArray = [];
-  const series = [];
-
-
-  const result = procgen(i, seriesSize);
-  result.forEach(generatedCard => {
-
-    const baller = generateBaller(createdCardArray)
-    if (!baller.duplicate) series.push(baller);
-  })
   // legendaryLengths.push(series.filter(d => d.rarity === "legendary").length);
-}
 
+  const statAverages = [];
+    // Generate stats for the game
+    for (let i = 0; i < 150; i++) {
+      const val = skewedNormalDistribution(60, 90, 80);
+      statAverages.push(val);
+    }
+  
 // const out = legendaryLengths.reduce((acc, current) => {
 //   return acc + current / legendaryLengths.length;
 // })
@@ -289,24 +285,24 @@ result.forEach(generatedCard => {
   if (!baller.duplicate) series.push(baller);
 })
 
-const data = JSON.stringify(series.sort((a, b) => a.hash > b.hash).map(d => { return { baller: d.hash } }));
+// const data = JSON.stringify(series.sort((a, b) => a.hash > b.hash).map(d => { return { baller: d.hash } }));
 
-console.log("Made a series with", seriesSize, "attempted. Generated", series.length, "ballers");
-if (createdCardArray.length < seriesSize) {
-  console.log("Try adding more unique options to generators to increase likelihood of successful generation");
-}
+// console.log("Made a series with", seriesSize, "attempted. Generated", series.length, "ballers");
+// if (createdCardArray.length < seriesSize) {
+//   console.log("Try adding more unique options to generators to increase likelihood of successful generation");
+// }
 
-console.log("Male Ballers:", series.filter(d => d.gender === "Male").length);
-console.log("Female Ballers:", series.filter(d => d.gender === "Female").length);
+// console.log("Male Ballers:", series.filter(d => d.gender === "Male").length);
+// console.log("Female Ballers:", series.filter(d => d.gender === "Female").length);
 
-console.log("Jewelry:", series.filter(d => d.jewelry !== "None").length);
+// console.log("Jewelry:", series.filter(d => d.jewelry !== "None").length);
 
 
-console.log("Common:", series.filter(d => d.rarity === "common").length);
-console.log("Uncommon:", series.filter(d => d.rarity === "uncommon").length);
-console.log("Rare:", series.filter(d => d.rarity === "rare").length);
-console.log("Epics:", series.filter(d => d.rarity === "epic").length);
-console.log("Legendaries:", series.filter(d => d.rarity === "legendary").length);
+// console.log("Common:", series.filter(d => d.rarity === "common").length);
+// console.log("Uncommon:", series.filter(d => d.rarity === "uncommon").length);
+// console.log("Rare:", series.filter(d => d.rarity === "rare").length);
+// console.log("Epics:", series.filter(d => d.rarity === "epic").length);
+// console.log("Legendaries:", series.filter(d => d.rarity === "legendary").length);
 
 console.log(series);
 
