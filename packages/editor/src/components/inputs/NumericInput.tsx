@@ -108,11 +108,11 @@ export class NumericInput extends Component<NumericInputProp, {}> {
   inputEl: any
 
   increment() {
-    this.handleStep(1, false)
+    this.handleStep(null, 1, false)
   }
 
   decrement() {
-    this.handleStep(-1, false)
+    this.handleStep(null, -1, false)
   }
 
   handleKeyPress = (event) => {
@@ -134,8 +134,9 @@ export class NumericInput extends Component<NumericInputProp, {}> {
   handleStep(event, direction, focus = true) {
     const { smallStep, mediumStep, largeStep, min, max, precision, convertTo, onChange, onCommit } = this.props as any
 
-    const nextValue =
-      parseFloat(this.inputEl.current.value) + getStepSize(event, smallStep, mediumStep, largeStep) * direction
+    const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
+
+    const nextValue = parseFloat(this.inputEl.current.value) + stepSize * direction
     const clampedValue = clamp(nextValue, min, max)
     const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
     const finalValue = convertTo(roundedValue)
