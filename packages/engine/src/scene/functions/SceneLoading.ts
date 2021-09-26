@@ -63,6 +63,9 @@ export class WorldScene {
   loaders: Promise<void>[] = []
   static callbacks: any
   static isLoading = false
+  static realityPackDownloadCallback = async (packName: string) => {
+    return true
+  }
 
   constructor(private onProgress?: Function) {}
 

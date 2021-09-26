@@ -54,7 +54,6 @@ export class CommandManager extends EventEmitter {
   selected: any[] = []
   selectedTransformRoots: any[] = []
   history: History
-  sceneLoading: boolean
 
   static buildCommandManager() {
     this.instance = new CommandManager()
@@ -86,8 +85,6 @@ export class CommandManager extends EventEmitter {
 
     window.addEventListener('copy', this.onCopy)
     window.addEventListener('paste', this.onPaste)
-
-    this.sceneLoading = false
   }
 
   executeCommand = (command: EditorCommandsType, affectedObject?: any, params?: CommandParamsType) => {
@@ -120,8 +117,6 @@ export class CommandManager extends EventEmitter {
   }
 
   emitEvent = (event: EditorEvents, ...args: any[]): void => {
-    if (this.sceneLoading) return
-
     this.emit(event.toString(), ...args)
   }
 

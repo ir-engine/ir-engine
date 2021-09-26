@@ -67,13 +67,13 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   async captureCubeMap(): Promise<WebGLCubeRenderTarget> {
     const sceneToBake = this.getSceneForBaking(SceneManager.instance.scene)
     const cubemapCapturer = new CubemapCapturer(
-      SceneManager.instance.renderer.renderer,
+      SceneManager.instance.renderer.webglRenderer,
       sceneToBake,
       this.cubemapBakeSettings.resolution
     )
     const result = cubemapCapturer.update(this.position)
     const imageData = (
-      await convertCubemapToEquiImageData(SceneManager.instance.renderer.renderer, result, 512, 512, false)
+      await convertCubemapToEquiImageData(SceneManager.instance.renderer.webglRenderer, result, 512, 512, false)
     ).imageData
     // downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
@@ -181,7 +181,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
 
   async uploadBakeToServer(projectID: any, rt: WebGLCubeRenderTarget) {
     const value = await uploadCubemap(
-      SceneManager.instance.renderer.renderer,
+      SceneManager.instance.renderer.webglRenderer,
       rt,
       this.cubemapBakeSettings.resolution,
       this.ownedFileIdentifier,

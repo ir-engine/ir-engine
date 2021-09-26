@@ -7,7 +7,7 @@ import SelectInput from '../inputs/SelectInput'
 import RealityPackNode from '../../nodes/RealityPackNode'
 import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
-import { RealityPack } from '@xrengine/common/src/interfaces/RealityPack'
+import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 import NodeEditor from './NodeEditor'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
@@ -15,15 +15,17 @@ import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdat
  * Define properties for RealityPack component.
  *
  * @author Abhishek Pathak
+ * @author Josh Field
  * @type {Object}
  */
+
 type RealityPackNodeEditorProps = {
   node?: RealityPackNode
   t: Function
 }
 
 type RealityPackEditorStates = {
-  realityPacks: RealityPack[]
+  realityPacks: RealityPackInterface[]
 }
 
 const InjectionPoints = [
@@ -73,11 +75,13 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
   }
 
   getRealityPacks = async () => {
-    let realityPacks: RealityPack[] = []
+    let realityPacks: RealityPackInterface[] = []
     try {
-      realityPacks = await ProjectManager.instance.feathersClient.service('realitypacks/list').find()
+      realityPacks = (await ProjectManager.instance.feathersClient.service('reality-pack').find()).data
+      console.log(realityPacks)
     } catch (e) {
       console.log(e)
+      return
     }
     this.setState({ realityPacks })
   }

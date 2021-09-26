@@ -5,6 +5,7 @@ import mimeType from 'mime-types'
 import StorageProvider from '../../media/storageprovider/storageprovider'
 import { Agent } from 'https'
 import { Params } from '@feathersjs/feathers'
+import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 
 const storageProvider = new StorageProvider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
@@ -339,7 +340,20 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
   return Promise.all([avatarUploadPromise, avatarThumbnailUploadPromise])
 }
 
-export async function populateRealityPack(realityPack: any, app: Application, params: Params): Promise<any> {
+/**
+ *
+ * @param realityPack
+ * @param realityPack.name name of the reality pack
+ * @param realityPack.manifest manifest.json URL
+ * @param app
+ * @param params
+ */
+
+export async function populateRealityPack(
+  realityPack: { name: string; manifest: string },
+  app: Application,
+  params: Params
+): Promise<any> {
   const uploadPromises = []
   const existingPackResult = await (app.service('reality-pack') as any).Model.findOne({
     where: {
@@ -347,15 +361,16 @@ export async function populateRealityPack(realityPack: any, app: Application, pa
     }
   })
   if (existingPackResult != null) await app.service('reality-pack').remove(existingPackResult.id, params)
-  const manifest = await axios.get(realityPack.manifest, getAxiosConfig())
-  const data = JSON.parse(manifest.data.toString())
-  const files = data.files
+  const manifestStream = await axios.get(realityPack.manifest, getAxiosConfig())
+  const manifestData = JSON.parse(manifestStream.data.toString()) as RealityPackInterface
+  console.log('Installing reality pack from ', realityPack.manifest, 'with manifest.json', manifestData)
+  const files = manifestData.files
   uploadPromises.push(
     storageProvider.putObject({
       ACL: 'public-read',
-      Body: manifest.data,
+      Body: manifestStream.data,
       ContentType: getContentType(realityPack.manifest),
-      Key: `reality-pack/${realityPack.name}/manifest.json`
+      Key: `reality-pack/${manifestData.name}/manifest.json`
     })
   )
   files.forEach((file) => {
@@ -368,7 +383,7 @@ export async function populateRealityPack(realityPack: any, app: Application, pa
           ACL: 'public-read',
           Body: fileResult.data,
           ContentType: getContentType(path),
-          Key: `reality-pack/${realityPack.name}/${path}`
+          Key: `reality-pack/${manifestData.name}/${path}`
         })
         resolve(true)
       })
@@ -376,12 +391,34 @@ export async function populateRealityPack(realityPack: any, app: Application, pa
   })
   await app.service('reality-pack').create(
     {
-      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${realityPack.name}/manifest.json`,
-      localManifest: `/reality-packs/packs/${realityPack.name}/manifest.json`,
+      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${manifestData.name}/manifest.json`,
+      localManifest: `/reality-packs/packs/${manifestData.name}/manifest.json`,
       global: false,
-      name: realityPack.name
+      name: manifestData.name
     },
     params
   )
   await Promise.all(uploadPromises)
+  // if (typeof (app as any).k8DefaultClient! == 'undefined') {
+  //   try {
+  //     console.log('Attempting to reload k8s clients!')
+  //     const restartClientsResponse = await (app as any).k8DefaultClient.patch(
+  //       `deployment/${config.server.releaseName}-xrengine-client`,
+  //       {
+  //         spec: {
+  //           template: {
+  //             metadata: {
+  //               annotations: {
+  //                 'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     )
+  //     console.log('restartClientsResponse', restartClientsResponse)
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // }
 }

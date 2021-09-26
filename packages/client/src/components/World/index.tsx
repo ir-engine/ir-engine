@@ -244,6 +244,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const reinit = () => {
+    // alert('reinit');
     const currentLocation = props.locationState.get('currentLocation').get('location')
     if (sceneId === null && currentLocation.sceneId !== null) {
       sceneId = currentLocation.sceneId
@@ -252,6 +253,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
+    // alert('init');
     initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
     setIsTeleporting(false)
   }

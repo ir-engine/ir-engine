@@ -131,8 +131,6 @@ export const PostProcessingProperties = (props: Props) => {
       if (id < op.length - 1) address += element + '.'
       else address += element
     })
-    {
-    }
     onChangeFunction(address, event)
   }
 
@@ -141,13 +139,9 @@ export const PostProcessingProperties = (props: Props) => {
     return val
   }
 
-  {
-  }
   if (value.keys === '') return <></>
 
   let renderVal = <></>
-  {
-  }
   switch (value.propertyType) {
     case PostProcessingPropertyTypes.Number:
       renderVal = (

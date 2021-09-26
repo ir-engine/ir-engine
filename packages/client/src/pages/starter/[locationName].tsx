@@ -39,7 +39,6 @@ const LocationPage = (props) => {
         locationName={props.match.params.locationName}
         history={props.history}
         engineCallbacks={engineCallbacks}
-        engineInitializeOptions={engineInitializeOptions}
       >
         <UserMenu />
         <MediaIconsBox />

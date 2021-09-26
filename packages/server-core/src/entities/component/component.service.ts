@@ -5,7 +5,6 @@ import createModel from './component.model'
 import hooks from './component.hooks'
 import componentDocs from './component.docs'
 import { getAllPortals, getPortal, getCubemapBake } from './portal.controller'
-import { getRealityPacks } from './realitypack.controller'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -29,7 +28,6 @@ export default (app: Application): any => {
   event.docs = componentDocs
   app.use('/component', event)
 
-  app.get('/realitypacks/list', getRealityPacks(app))
   app.get('/portal/list', getAllPortals(app))
   app.get('/portal/:entityId', getPortal(app))
   app.get('/cubemap/:entityId', getCubemapBake(app))

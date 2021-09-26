@@ -425,10 +425,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     registerPredefinedNodes()
     registerPredefinedSources()
 
-    ProjectManager.instance.init()
     ProjectManager.instance.initializeFeathersClient(getToken())
 
-    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
+    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)
+    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
+    CommandManager.instance.addListener(EditorEvents.ERROR.toString(), this.onEditorError)
+    CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
 
     this.state = {
       // error: null,
@@ -506,9 +508,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentWillUnmount() {
-    CommandManager.instance.removeListener(EditorEvents.SCENE_MODIFIED.toString(), this.onSceneModified)
     CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
-    CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
     CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), this.onEditorError)
     CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
     ProjectManager.instance.dispose()
@@ -529,8 +529,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
 
     try {
-      await ProjectManager.instance.init()
-
       if (templateFile.metadata) {
         delete templateFile.metadata.sceneUrl
         delete templateFile.metadata.sceneId
@@ -567,8 +565,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.warn('loadScene:scene', scene)
       const projectFile = scene.data
 
-      await ProjectManager.instance.init()
-
       await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()
@@ -598,8 +594,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
 
     try {
-      await ProjectManager.instance.init()
-
       await ProjectManager.instance.loadProject(projectFile)
 
       SceneManager.instance.sceneModified = true
@@ -648,7 +642,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         }
       })
 
-      await ProjectManager.instance.init()
       await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()
@@ -713,8 +706,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     ]
   }
 
-  onEditorInitialized = () => {
-    const gl = SceneManager.instance.renderer.renderer.getContext()
+  setDebuginfo = () => {
+    const gl = SceneManager.instance.renderer.webglRenderer.getContext()
 
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
 
@@ -726,10 +719,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
     }
 
-    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
-    CommandManager.instance.addListener(EditorEvents.ERROR.toString(), this.onEditorError)
-    CommandManager.instance.addListener(EditorEvents.SCENE_MODIFIED.toString(), this.onSceneModified)
-    CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
+    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)
   }
 
   /**
@@ -772,10 +762,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: error.message || this.t('editor:errorMsg'),
       error
     })
-  }
-
-  onSceneModified = () => {
-    this.updateModifiedState()
   }
 
   onProjectLoaded = () => {
@@ -1097,7 +1083,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const { project } = this.state as any
     return (
       (project && project.scene && project.scene.scene_id) ||
-      (SceneManager.instance.scene.metadata && SceneManager.instance.scene.metadata.sceneId)
+      (SceneManager.instance.scene &&
+        SceneManager.instance.scene.metadata &&
+        SceneManager.instance.scene.metadata.sceneId)
     )
   }
 
@@ -1111,7 +1099,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   render() {
-    const { DialogComponent, dialogProps, modified, settingsContext } = this.state
+    const { DialogComponent, dialogProps, settingsContext } = this.state
     const toolbarMenu = this.generateToolbarMenu()
     const isPublishedScene = !!this.getSceneId()
     const locations = this.props.adminLocationState.get('locations').get('locations')
@@ -1197,21 +1185,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
           <DialogContextProvider value={this.dialogContext}>
             <DndProvider backend={HTML5Backend}>
               <DragLayer />
-              {toolbarMenu && (
-                <ToolBar
-                  menu={toolbarMenu}
-                  onPublish={this.onPublishProject}
-                  isPublishedScene={isPublishedScene}
-                  onOpenScene={this.onOpenScene}
-                  queryParams={assigneeScene}
-                />
-              )}
+              {toolbarMenu && <ToolBar menu={toolbarMenu} />}
               <WorkspaceContainer>
                 <ViewportPanelContainer />
                 <DockContainer>
                   <DockLayout
                     defaultLayout={defaultLayout}
-                    style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+                    style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
                   />
                 </DockContainer>
               </WorkspaceContainer>

@@ -50,7 +50,7 @@ export function getStarterCount(text: string): number {
  * The eid in the server is the UserId, while in the client is the EntityId
  * @author Alex Titonis
  */
-export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: any): boolean {
+export function handleCommand(cmd: string, eid: any, userId: any): boolean {
   //It checks for all messages, the default
   if (!isCommand(cmd)) return false
 
@@ -77,17 +77,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
         return true
       }
 
-      if (!isServer) {
-        handleMoveCommand(x, y, z, eid)
-      }
+      handleMoveCommand(x, y, z, eid)
 
-      if (!isServer) return true
-      else return false
+      return false
     }
     case 'metadata': {
       //This command is handled only in the client and only if the caller is a bot
-      if (isServer) return false
-      //if (!Engine.isBot && !isBot(window)) return true
+      if (!Engine.isBot && !isBot(window)) return true
 
       //The params must either be 1 or 2, if it is scene, then 1 other wise 2 - world, max distance
       if (params.length > 0) {
@@ -102,8 +98,7 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'goTo': {
-      if (isServer) return false
-      //if(!Engine.isBot && !isBot(window)) return true
+      if (!Engine.isBot && !isBot(window)) return true
 
       if (params.length != 1) {
         console.log('invalid params, it should be /goTo landmark')
@@ -115,8 +110,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'emote': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params, it should be /emote emote_name')
         return true
@@ -127,8 +120,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'subscribe': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params, it should be /subscribe chat_system (emotions_system, all)')
         return true
@@ -139,8 +130,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'unsubscribe': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params, it should be /unsubscribe chat_system (emotions_system all)')
         return true
@@ -151,15 +140,11 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getSubscribed': {
-      if (isServer) return false
-
       handleGetSubscribedChatSystemsCommand(userId)
 
       return true
     }
     case 'face': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -170,8 +155,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getPosition': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -182,8 +165,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getRotation': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -194,8 +175,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getScale': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -206,8 +185,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getTransform': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -218,8 +195,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'follow': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -230,21 +205,17 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getChatHistory': {
-      if (isServer) return false
-
       handleGetChatHistoryCommand()
 
       return true
     }
     case 'listAllusers': {
-      if (isServer) return false
-
       handleListAllUsersCommand(userId)
 
       return true
     }
     case 'getLocalUserId': {
-      if (isServer || !isBot(window)) return false
+      if (!isBot(window)) return false
 
       handleGetLocalUserIdCommand(userId)
 
@@ -252,8 +223,7 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
     }
     default: {
       console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
-      if (!isServer) return true
-      else return false
+      return false
     }
   }
 }

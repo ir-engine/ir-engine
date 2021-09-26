@@ -128,7 +128,7 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
 export function createdMessage(message: Message, selfUser: User): ChatAction {
   if (message != undefined && message.text != undefined) {
     if (isPlayerLocal(message.senderId)) {
-      if (handleCommand(message.text, useWorld().localClientEntity, false, message.senderId)) return
+      if (handleCommand(message.text, useWorld().localClientEntity, message.senderId)) return
       else {
         const system = getChatMessageSystem(message.text)
         if (system !== 'none') {
