@@ -6,7 +6,6 @@ import createModel from './reality-pack.model'
 import realityPackDocs from './reality-pack.docs'
 import { getAxiosConfig, populateRealityPack } from '../content-pack/content-pack-helper'
 import axios from 'axios'
-import express from 'express'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 
 declare module '../../../declarations' {

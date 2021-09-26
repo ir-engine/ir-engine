@@ -363,6 +363,7 @@ export async function populateRealityPack(
   if (existingPackResult != null) await app.service('reality-pack').remove(existingPackResult.id, params)
   const manifestStream = await axios.get(realityPack.manifest, getAxiosConfig())
   const manifestData = JSON.parse(manifestStream.data.toString()) as RealityPackInterface
+  console.log('Installing reality pack with manifest.json', manifestData)
   const files = manifestData.files
   uploadPromises.push(
     storageProvider.putObject({
@@ -398,6 +399,19 @@ export async function populateRealityPack(
     params
   )
   await Promise.all(uploadPromises)
-
-  // feathers sync call to re-deploy pods
+  if (typeof (app as any).k8DefaultClient! == 'undefined') {
+    console.log('Attempting to reload k8s clients!')
+    const restartClientsResponse = await (app as any).k8DefaultClient.patch('clients', {
+      spec: {
+        template: {
+          metadata: {
+            annotations: {
+              'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
+            }
+          }
+        }
+      }
+    })
+    console.log('restartClientsResponse', restartClientsResponse)
+  }
 }
