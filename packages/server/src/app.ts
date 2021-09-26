@@ -74,8 +74,8 @@ if (config.server.enabled) {
       })
     )
     app.use(compress())
-    app.use(json())
     app.use(urlencoded({ extended: true }))
+    app.use(json())
     app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
 
     // Set up Plugins and providers

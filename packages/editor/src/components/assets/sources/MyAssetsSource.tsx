@@ -28,18 +28,6 @@ export const UploadFileType = {
   'audio/mpeg': AudioNode
 }
 
-const assetTypeToNode = {
-  model: ModelNode,
-  image: ImageNode,
-  video: VideoNode,
-  audio: AudioNode
-}
-const assetTypeToItemType = {
-  model: ItemTypes.Model,
-  image: ItemTypes.Image,
-  video: ItemTypes.Video,
-  audio: ItemTypes.Audio
-}
 export class MyAssetsSource extends BaseSource {
   component: typeof UploadSourcePanel
   tags: { label: string; value: string }[]

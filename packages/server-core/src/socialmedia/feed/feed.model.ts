@@ -60,6 +60,7 @@ export default function (app: Application): typeof Model {
     ;(Feed as any).belongsTo(models.static_resource, { as: 'video', required: true, constraints: false })
     ;(Feed as any).belongsTo(models.static_resource, { as: 'preview', required: true, constraints: false })
     ;(Feed as any).hasMany(models.feed_fires)
+    ;(Feed as any).hasMany(models.feed_likes)
     ;(Feed as any).hasMany(models.feed_bookmark)
     ;(Feed as any).hasMany(models.comments)
   }

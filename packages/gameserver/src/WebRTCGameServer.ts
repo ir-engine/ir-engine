@@ -5,6 +5,8 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { download } from './downloadRealityPacks'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 
@@ -24,6 +26,7 @@ export class WebRTCGameServer {
 
   initialize(app: any) {
     ;(WebRTCGameServer.options.networking as any).app = app
+    WorldScene.realityPackDownloadCallback = download
     return initializeEngine(WebRTCGameServer.options)
   }
 }

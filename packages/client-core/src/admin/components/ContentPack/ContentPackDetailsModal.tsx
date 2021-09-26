@@ -128,6 +128,18 @@ const ContentPackDetailsModal = (props: Props): any => {
                   })}
                 </div>
               </div>
+              <div className={styles['reality-packs-container']}>
+                <div className={styles['header']}>Reality Packs</div>
+                <div className={styles['container']}>
+                  {contentPack.data?.realityPacks?.map((realityPack) => {
+                    return (
+                      <div key={realityPack.name} className={styles['scene']}>
+                        <div className={styles['name']}>{realityPack.name}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
             {processing === true && (
               <div className={styles.processing}>

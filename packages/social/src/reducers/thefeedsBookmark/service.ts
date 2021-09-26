@@ -2,7 +2,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { addTheFeedsBookmark, removeTheFeedsBookmark } from '../thefeeds/actions'
 
@@ -17,7 +17,7 @@ export function addBookmarkToTheFeeds(thefeedsId: string) {
       dispatch(addTheFeedsBookmark(thefeedsId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -29,7 +29,7 @@ export function removeBookmarkToTheFeeds(thefeedsId: string) {
       dispatch(removeTheFeedsBookmark(thefeedsId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

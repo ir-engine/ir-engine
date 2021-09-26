@@ -99,5 +99,35 @@
                 margin: 0 0 0 5px;
             }
         }
+        .fireLine{            
+            width: 100%;
+            text-align: right;
+            box-sizing: border-box;
+            padding: 0 6pt;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            color: #FFF;
+            margin-top: -35px;
+            svg{
+                margin: 0 0 0 5px;
+            }
+        }
+        .favoriteLine{            
+            width: 100%;
+            text-align: right;
+            box-sizing: border-box;
+            padding: 0 6pt;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            color: #FFF;
+            margin-top: -35px;
+            svg{
+                margin: 0 0 0 5px;
+            }
+        }
     }
 }

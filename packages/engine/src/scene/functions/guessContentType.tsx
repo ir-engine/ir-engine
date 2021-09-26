@@ -12,7 +12,10 @@ export const CommonKnownContentTypes = {
   jpeg: 'image/jpeg',
   pdf: 'application/pdf',
   mp4: 'video/mp4',
-  mp3: 'audio/mpeg'
+  mp3: 'audio/mpeg',
+  tsx: 'application/octet-stream',
+  ts: 'application/octet-stream',
+  js: 'application/octet-stream'
 }
 
 /**

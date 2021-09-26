@@ -13,6 +13,9 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import TelegramIcon from '@material-ui/icons/Telegram'
+import AddCommentIcon from '@material-ui/icons/AddCommentOutlined'
+import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined'
+import FavoriteIcon from '@material-ui/icons/Favorite'
 // import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 // import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility'
@@ -31,9 +34,11 @@ import SimpleModal from '../SimpleModal'
 import { addViewToFeed, removeFeed } from '../../reducers/feed/service'
 // import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector'
+import { selectFeedLikesState } from '../../reducers/feedLikes/selector'
 
 // import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service'
+import { getFeedLikes, addLikeToFeed, removeLikeToFeed } from '../../reducers/feedLikes/service'
 import PopupLogin from '../PopupLogin/PopupLogin'
 // import { IndexPage } from '@xrengine/social/pages/login';
 import { selectCreatorsState } from '../../reducers/creator/selector'
@@ -45,10 +50,13 @@ import { Share } from '@capacitor/share'
 import { addReportToFeed } from '../../reducers/feedReport/service'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
+import CommentList from '../CommentList'
+import Grid from '@material-ui/core/Grid'
 
 const mapStateToProps = (state: any): any => {
   return {
     feedFiresState: selectFeedFiresState(state),
+    feedLikesState: selectFeedLikesState(state),
     authState: selectCreatorsState(state)
   }
 }
@@ -65,11 +73,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
   // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
   // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
-  addViewToFeed: bindActionCreators(addViewToFeed, dispatch)
+  addViewToFeed: bindActionCreators(addViewToFeed, dispatch),
+  getFeedLikes: bindActionCreators(getFeedLikes, dispatch),
+  addLikeToFeed: bindActionCreators(addLikeToFeed, dispatch),
+  removeLikeToFeed: bindActionCreators(removeLikeToFeed, dispatch)
 })
 interface Props {
   feed: Feed
   feedFiresState?: any
+  feedLikesState?: any
   authState?: any
   //     getFeedFires?: typeof getFeedFires;
   //     addFireToFeed? : typeof addFireToFeed;
@@ -77,6 +89,9 @@ interface Props {
   getFeedFires?: any
   addFireToFeed?: any
   removeFireToFeed?: any
+  getFeedLikes?: any
+  addLikeToFeed?: any
+  removeLikeToFeed?: any
   updateCreatorPageState?: any
   updateFeedPageState?: any
   // addBookmarkToFeed?: typeof addBookmarkToFeed;
@@ -86,6 +101,7 @@ interface Props {
   removeFeed?: typeof removeFeed
 }
 const FeedCard = (props: Props): any => {
+  const [liked, setLiked] = useState(false)
   const [buttonPopup, setButtonPopup] = useState(false)
   const [fired, setFired] = useState(false)
   const [reported, setReported] = useState(false)
@@ -99,6 +115,10 @@ const FeedCard = (props: Props): any => {
     feedFiresState,
     addFireToFeed,
     removeFireToFeed,
+    getFeedLikes,
+    feedLikesState,
+    addLikeToFeed,
+    removeLikeToFeed,
     addViewToFeed,
     addReportToFeed,
     updateCreatorPageState,
@@ -106,19 +126,39 @@ const FeedCard = (props: Props): any => {
     removeFeed
   } = props
   const [firedCount, setFiredCount] = useState(feed.fires)
+  const [likedCount, setLikedCount] = useState(feed.likes)
   const [videoDisplay, setVideoDisplay] = useState(false)
   const [feedFiresCreators, setFeedFiresCreators] = useState(null)
+  const [feedLikesCreators, setFeedLikesCreators] = useState(null)
 
   const handleAddFireClick = (feedId) => {
     addFireToFeed(feedId)
     setFiredCount(firedCount + 1)
     setFired(true)
+    if (liked) {
+      handleRemoveLikeClick(feedId)
+    }
   }
 
   const handleRemoveFireClick = (feedId) => {
     removeFireToFeed(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
+  }
+
+  const handleAddLikeClick = (feedId) => {
+    addLikeToFeed(feedId)
+    setLikedCount(likedCount + 1)
+    setLiked(true)
+    if (fired) {
+      handleRemoveFireClick(feedId)
+    }
+  }
+
+  const handleRemoveLikeClick = (feedId) => {
+    removeLikeToFeed(feedId)
+    setLikedCount(likedCount - 1)
+    setLiked(false)
   }
 
   const handleReportFeed = (feedId) => {
@@ -165,11 +205,9 @@ const FeedCard = (props: Props): any => {
   const creatorId = authState.get('currentCreator').id
 
   useEffect(() => {
-    setFired(!!feedFiresCreators?.data.find((i) => i.id === creatorId))
-  }, [feedFiresCreators])
-
-  useEffect(() => {
     setVideoDisplay(true)
+    setFired(feed.isFired)
+    setLiked(feed.isLiked)
   }, [feed.id])
 
   const previewImageClick = () => {
@@ -199,23 +237,54 @@ const FeedCard = (props: Props): any => {
         {/*                     title={feed.title}                       */}
         {/*                     onClick={()=>setIsVideo(true)}                */}
         {/*                 />} */}
+        <Grid container alignItems="flex-end">
+          <Grid xs item>
+            {!videoDisplay ? (
+              <img src={feed.previewUrl} className={styles.previewImage} alt={feed.title} onClick={previewImageClick} />
+            ) : (
+              <CardMedia
+                className={styles.previewImage}
+                component="video"
+                src={feed.videoUrl}
+                title={feed.title}
+                controls
+              />
+            )}
+            <span className={styles.eyeLine}>
+              {feed.viewsCount}
+              <VisibilityIcon style={{ fontSize: '16px' }} />
+            </span>
+          </Grid>
+          <Grid item>
+            <div className={styles.iconSubContainerVertical}>
+              <div>
+                {liked ? (
+                  <FavoriteIcon htmlColor="red" onClick={() => handleRemoveLikeClick(feed.id)} />
+                ) : (
+                  <FavoriteBorderOutlinedIcon htmlColor="#DDDDDD" onClick={() => handleAddLikeClick(feed.id)} />
+                )}
+                <span className={styles.counter}>{likedCount}</span>
+              </div>
+              <div>
+                {fired ? (
+                  <WhatshotIcon
+                    className={styles.fireIcon}
+                    htmlColor="#FF6201"
+                    onClick={() => handleRemoveFireClick(feed.id)}
+                  />
+                ) : (
+                  <WhatshotIcon
+                    className={styles.fireIcon}
+                    htmlColor="#DDDDDD"
+                    onClick={() => handleAddFireClick(feed.id)}
+                  />
+                )}
+                <span className={styles.counter}>{firedCount}</span>
+              </div>
+            </div>
+          </Grid>
+        </Grid>
 
-        {!videoDisplay ? (
-          <img src={feed.previewUrl} className={styles.previewImage} alt={feed.title} onClick={previewImageClick} />
-        ) : (
-          <CardMedia
-            className={styles.previewImage}
-            component="video"
-            src={feed.videoUrl}
-            title={feed.title}
-            controls
-          />
-        )}
-
-        <span className={styles.eyeLine}>
-          {feed.viewsCount}
-          <VisibilityIcon style={{ fontSize: '16px' }} />
-        </span>
         <CardContent className={styles.cardContent}>
           <section className={styles.iconsContainer}>
             {/*                         <Typography className={styles.titleContainer} gutterBottom variant="h4" */}
@@ -246,20 +315,8 @@ const FeedCard = (props: Props): any => {
               }
             />
             <section className={styles.iconSubContainer}>
-              {feed.isFired ? (
-                <WhatshotIcon
-                  className={styles.fireIcon}
-                  htmlColor="#FF6201"
-                  onClick={() => handleRemoveFireClick(feed.id)}
-                />
-              ) : (
-                <WhatshotIcon
-                  className={styles.fireIcon}
-                  htmlColor="#DDDDDD"
-                  onClick={() => handleAddFireClick(feed.id)}
-                />
-              )}
               <TelegramIcon onClick={shareVia} />
+              <AddCommentIcon onClick={null} />
               <ReportOutlinedIcon htmlColor="#FF0000" onClick={() => handleReportFeed(feed.id)} />
             </section>
             {/*hided for now*/}
@@ -273,6 +330,7 @@ const FeedCard = (props: Props): any => {
           <Typography className={styles.cartText} variant="h6">
             {feed.description}
           </Typography>
+          <CommentList feedId={feed.id} />
         </CardContent>
       </Card>
       {/* <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} /> */}

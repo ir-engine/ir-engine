@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { instancesRetrievedAction, instanceRemoved, instanceRemovedAction } from './actions'
 import { client } from '../../../../feathers'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
 import Store from '../../../../store'
 import { Config } from '@xrengine/common/src/config'
 
@@ -26,7 +26,7 @@ export function fetchAdminInstances(incDec?: 'increment' | 'decrement') {
       }
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

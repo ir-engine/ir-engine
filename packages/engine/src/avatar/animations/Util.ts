@@ -41,6 +41,7 @@ export const AvatarAnimations = {
   WAVE: 'wave',
   KISS: 'kiss',
   DEFEAT: 'defeat',
+  PAUSE: 'pause',
   CRY: 'cry'
 }
 

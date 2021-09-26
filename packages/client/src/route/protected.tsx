@@ -18,12 +18,16 @@ const scenes = React.lazy(() => import('../pages/admin/scenes'))
 const users = React.lazy(() => import('../pages/admin/users'))
 const party = React.lazy(() => import('../pages/admin/party'))
 const botSetting = React.lazy(() => import('../pages/admin/bot'))
+const realityPacks = React.lazy(() => import('../pages/admin/reality-packs'))
 // const arMedia = React.lazy(() => import('../pages/admin/social/armedia'))
 // const feeds = React.lazy(() => import('../pages/admin/social/feeds'))
 // const creator = React.lazy(() => import('../pages/admin/social/creator'))
 const setting = React.lazy(() => import('../pages/admin/Setting'))
 
-interface Props {}
+interface Props {
+  authState?: any
+  doLoginAuto?: any
+}
 
 const mapStateToProps = (state: any): any => {
   return {}
@@ -69,6 +73,35 @@ const ProtectedRoutes = (props: Props) => {
     }
   })
 
+  // let allowedRoutes = {
+  //   location: false,
+  //   user: false,
+  //   bot: false,
+  //   scene: false,
+  //   party: false,
+  //   contentPacks: false,
+  //   groups: false,
+  //   instance: false,
+  //   invite: false,
+  //   globalAvatars: false
+  // }
+  // const scopes = admin.scopes || []
+
+  // useEffect(() => {
+  //   doLoginAuto(false)
+  // }, [])
+
+  scopes.forEach((scope) => {
+    if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
+      if (scope.type.split(':')[1] === 'read') {
+        allowedRoutes = {
+          ...allowedRoutes,
+          [scope.type.split(':')[0]]: true
+        }
+      }
+    }
+  })
+
   return (
     <Fragment>
       <Suspense
@@ -100,6 +133,7 @@ const ProtectedRoutes = (props: Props) => {
           {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} />
           <PrivateRoute exact path="/admin/feeds" component={feeds} />
           <PrivateRoute exact path="/admin/creator" component={creator} /> */}
+          <PrivateRoute exact path="/admin/reality-packs" component={realityPacks} />
           <PrivateRoute exact path="/admin/settings" component={setting} />
           <PrivateRoute exact Path="/admin/users" component={users} />
         </Switch>

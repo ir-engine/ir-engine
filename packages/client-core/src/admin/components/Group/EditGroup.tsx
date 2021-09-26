@@ -8,12 +8,12 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import { formValid } from './validation'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { getScopeTypeService } from '../../reducers/admin/scope/service'
 import { selectScopeState } from '../../reducers/admin/scope/selector'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { patchGroupByAdmin } from '../../reducers/admin/group/service'
+import { GroupService } from '../../reducers/admin/group/GroupService'
 import { useGroupStyles, useGroupStyle } from './styles'
 
 interface Props {
@@ -21,13 +21,11 @@ interface Props {
   closeEditModal: any
   adminScopeState?: any
   getScopeTypeService?: any
-  patchGroup?: any
   closeViewModal?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch),
-  patchGroup: bindActionCreators(patchGroupByAdmin, dispatch)
+  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
 })
 
 const mapStateToProps = (state: any): any => {
@@ -39,8 +37,8 @@ const mapStateToProps = (state: any): any => {
 const EditGroup = (props: Props) => {
   const classes = useGroupStyles()
   const classx = useGroupStyle()
-
-  const { groupAdmin, closeEditModal, closeViewModal, patchGroup, adminScopeState } = props
+  const dispatch = useDispatch()
+  const { groupAdmin, closeEditModal, closeViewModal, adminScopeState } = props
   const user = useAuthState().user
   const adminScopes = adminScopeState.get('scopeType').get('scopeType')
 
@@ -92,7 +90,7 @@ const EditGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      patchGroup(groupAdmin.id, { name, description, scopeType })
+      dispatch(GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeType }))
       setState({
         ...state,
         name: '',

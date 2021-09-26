@@ -1,0 +1,23 @@
+{
+  "name": "@xrengine/realitypacks",
+  "version": "0.4.7",
+  "main": "index.ts",
+  "description": "",
+  "scripts": {
+    "download-reality-packs": "ts-eager scripts/download-reality-packs.ts",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XRFoundation/XREngine/issues"
+  },
+  "homepage": "https://github.com/XRFoundation/XREngine#readme"
+}

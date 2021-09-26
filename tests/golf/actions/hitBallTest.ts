@@ -8,7 +8,7 @@ const maxTimeout = 60 * 1000
 const vector3 = new Vector3()
 
 export const hitBallTest = (bot: XREngineBot) => {
-  test(
+  it(
     'Can hit ball',
     async () => {
       await bot.runHook(XRBotHooks.UpdateHead, {

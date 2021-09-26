@@ -1,6 +1,6 @@
 import { RethrownError } from '../../scene/functions/errors'
 import i18n from 'i18next'
-import { AudioFileTypes } from '../../assets/constants/fileTypes'
+import { AudioFileTypes, CustomScriptFileTypes } from '../../assets/constants/fileTypes'
 import { getToken } from './getToken'
 import { Config } from '@xrengine/common/src/config'
 
@@ -201,7 +201,7 @@ export const _uploadAsset = async (endpoint, editor, file, onProgress, signal): 
   let thumbnailFileId = null
   let thumbnailAccessToken = null
 
-  if (!matchesFileTypes(file, AudioFileTypes)) {
+  if (!matchesFileTypes(file, [...AudioFileTypes, ...CustomScriptFileTypes])) {
     const thumbnailBlob = await editor.generateFileThumbnail(file)
 
     const response = (await upload(thumbnailBlob, undefined, signal)) as any
