@@ -363,7 +363,7 @@ export async function populateRealityPack(
   if (existingPackResult != null) await app.service('reality-pack').remove(existingPackResult.id, params)
   const manifestStream = await axios.get(realityPack.manifest, getAxiosConfig())
   const manifestData = JSON.parse(manifestStream.data.toString()) as RealityPackInterface
-  console.log('Installing reality pack with manifest.json', manifestData)
+  console.log('Installing reality pack from ', realityPack.manifest, 'with manifest.json', manifestData)
   const files = manifestData.files
   uploadPromises.push(
     storageProvider.putObject({
