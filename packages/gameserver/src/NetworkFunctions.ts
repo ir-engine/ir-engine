@@ -281,7 +281,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
     })
   )
 
-  for (const eid of world.networkObjectQuery()) {
+  for (const eid of world.networkObjectQuery(world)) {
     const networkObject = getComponent(eid, NetworkObjectComponent)
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.spawnObject({

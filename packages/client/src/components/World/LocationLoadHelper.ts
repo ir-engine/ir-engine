@@ -69,7 +69,7 @@ const createOfflineUser = () => {
   const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
-    avatarId: 0
+    avatarId: ''
   } as any
 
   const userId = 'user' as UserId
