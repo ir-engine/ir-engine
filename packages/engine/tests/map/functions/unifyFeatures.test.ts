@@ -1,7 +1,8 @@
 import unifyFeatures from '../../../src/map/functions/unifyFeatures'
-import {Feature, Polygon, MultiPolygon} from "geojson"
-import {scalePolygon, translatePolygon} from "../../../src/map/GeoJSONFns"
+import { Feature, Polygon, MultiPolygon } from 'geojson'
+import { scalePolygon, translatePolygon } from '../../../src/map/GeoJSONFns'
 import polygonClipping from 'polygon-clipping'
+import assert from 'assert'
 
 const boxCoords = [
   [-1, -1],
@@ -42,15 +43,14 @@ describe('unifyFeatures', () => {
 
     const output = unifyFeatures(input)
 
-    expect((output.geometry as Polygon).coordinates).toEqual(
+    const expected = polygonClipping.union(
+      (input[0].geometry as Polygon).coordinates as any,
       polygonClipping.union(
-        (input[0].geometry as Polygon).coordinates as any,
-        polygonClipping.union(
-          (input[1].geometry as Polygon).coordinates as any,
-          (input[2].geometry as Polygon).coordinates as any
-        )[0]
+        (input[1].geometry as Polygon).coordinates as any,
+        (input[2].geometry as Polygon).coordinates as any
       )[0]
-    )
+    )[0]
+    assert.deepEqual((output.geometry as Polygon).coordinates, expected)
   })
 
   it('unifies properties intelligently', () => {
@@ -77,7 +77,7 @@ describe('unifyFeatures', () => {
 
     const output = unifyFeatures(input)
 
-    expect(output.properties.height).toEqual(42)
+    assert.equal(output.properties.height, 42)
   })
 
   it('handles multipolygons', () => {
@@ -102,15 +102,13 @@ describe('unifyFeatures', () => {
 
     const output = unifyFeatures(input)
 
-    expect((output.geometry as MultiPolygon).coordinates).toEqual(
-      polygonClipping.union(
+    const expected = polygonClipping.union(
         (input[0].geometry as MultiPolygon).coordinates as any,
         (input[1].geometry as MultiPolygon).coordinates as any
       )[0]
-    )
+    assert.deepEqual((output.geometry as MultiPolygon).coordinates, expected)
 
     // Not sure why this isn't a multipolygon, but I trust polygon-clipping
     // expect(output[0].geometry.type).toBe('MultiPolygon')
   })
-
 })

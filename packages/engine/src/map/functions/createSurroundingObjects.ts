@@ -1,4 +1,4 @@
-import { LongLat } from '../units'
+import { LongLat } from '../functions/UnitConversionFunctions'
 import createSurroundingTileIterator from './createSurroundingTileIterator'
 import fetchVectorTileUsingCache from './fetchVectorTile'
 import createObjectsFromVectorTile from './createObjectsFromVectorTile'

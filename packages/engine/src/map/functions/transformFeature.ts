@@ -1,5 +1,5 @@
 import { MapTransformedFeature, SupportedFeature } from '../types'
-import { LongLat, toMetersFromCenter } from '../units'
+import { LongLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
 import transformGeometry from './transformGeometry'
 import { bbox, center as findCenter } from '@turf/turf'
 

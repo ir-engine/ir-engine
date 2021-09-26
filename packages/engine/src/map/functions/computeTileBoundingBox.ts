@@ -1,6 +1,6 @@
 import { BBox } from 'geojson'
 import { TILE_ZOOM } from '../constants'
-import { LongLat, tileXToLong, tileYToLat, toMetersFromCenter } from '../units'
+import { LongLat, tileXToLong, tileYToLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
 
 const $array2 = Array(2)
 

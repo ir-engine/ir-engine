@@ -1,4 +1,5 @@
 import createSurroundingTileIterator from '../../../src/map/functions/createSurroundingTileIterator';
+import assert from 'assert'
 
 // TODO start with center tiles and work outward
 const testCaseSanFrancisco = {
@@ -42,7 +43,7 @@ describe('createSurroundingTileIterator', () => {
       results.push(coord)
     }
 
-    expect(results).toEqual(testCaseSanFrancisco.tiles)
+    assert.deepEqual(results, testCaseSanFrancisco.tiles)
   })
 })
 

@@ -1,9 +1,10 @@
-import { Store, TaskStatus, TileKey } from '../types'
+import { TaskStatus, TileKey } from '../types'
 import { VectorTile } from '../types'
 import createSurroundingTileIterator from '../functions/createSurroundingTileIterator'
 import { TILE_ZOOM } from '../constants'
 import fetchUsingCache from '../functions/fetchUsingCache'
 import fetchVectorTile from '../functions/fetchVectorTile'
+import { Store } from '../functions/createStore'
 
 const fetchVectorTileUsingCache = fetchUsingCache<TileKey, VectorTile>(fetchVectorTile)
 

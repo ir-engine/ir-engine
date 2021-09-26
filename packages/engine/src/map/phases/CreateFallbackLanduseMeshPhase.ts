@@ -18,7 +18,12 @@ const $tileBBox = Array(4)
 export function execTask(store: Store, key: TileKey) {
   const [x, y] = key
 
-  const [tileLeft, tileTop, tileRight, tileBottom] = computeTileBoundingBox(x, y, store.originalCenter, $tileBBox)
+  const [tileLeft, tileTop, tileRight, tileBottom] = computeTileBoundingBox(
+    x,
+    y,
+    store.originalCenter,
+    $tileBBox as any
+  )
 
   const tileWidth = tileRight - tileLeft
   const tileHeight = tileBottom - tileTop

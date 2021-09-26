@@ -1,20 +1,20 @@
 import { polygon, center as findCenter } from '@turf/turf'
-import transformFeature, {measure} from '../../../src/map/functions/transformFeature'
 import { MapTransformedFeature, SupportedFeature } from '../../../src/map/types'
-import { toMetersFromCenter } from '../../../src/map/units'
-
-jest.mock('../../../src/map/units', () => {
-  return {
-    toMetersFromCenter: jest.fn((point) => point)
-  }
-})
+import sinon, { SinonSpy } from 'sinon'
+import mock from 'mock-require'
+import assert from 'assert'
 
 describe('transformFeature', () => {
-  const scale = 0.5,
-    center = [25, 25]
-  let feature: SupportedFeature, result: MapTransformedFeature, originalMeasurements: {width: number, height: number}
+  const center = [25, 25]
+  let feature: SupportedFeature, result: MapTransformedFeature
+  let transformFeature, toMetersFromCenter
   beforeEach(() => {
-    jest.clearAllMocks()
+    mock('../../../src/map/functions/UnitConversionFunctions', {
+      toMetersFromCenter: sinon.spy((point) => point)
+    })
+
+    toMetersFromCenter = require('../../../src/map/functions/UnitConversionFunctions').toMetersFromCenter
+    transformFeature = require('../../../src/map/functions/transformFeature').default
     feature = polygon([
       [
         [20, 20],
@@ -24,23 +24,26 @@ describe('transformFeature', () => {
         [20, 20]
       ]
     ])
-    originalMeasurements = measure(feature)
-    result = transformFeature(feature, scale, center)
+    result = transformFeature(feature, center)
+  })
+
+  afterEach(() => {
+    mock.stopAll()
   })
 
   it('converts LongLat in to scene (meters) coordinates', () => {
-    expect(toMetersFromCenter).toHaveBeenCalledTimes(6)
+    assert.equal((toMetersFromCenter as SinonSpy).callCount, 6)
   })
 
   it("centers the feature's coordinates around (0,0)", () => {
-    expect(findCenter(result.feature).geometry.coordinates).toEqual([0,0])
+    assert.deepEqual(findCenter(result.feature).geometry.coordinates, [0, 0])
   })
 
   it("computes the feature's center point (in meters) scaled", () => {
-    expect(result.centerPoint).toEqual([25, -25])
+    assert.deepEqual(result.centerPoint, [25, -25])
   })
 
   it("computes the feature's bounding circle radius (in meters) scaled", () => {
-    expect(result.boundingCircleRadius).toEqual(5)
+    assert.equal(result.boundingCircleRadius, 5)
   })
 })

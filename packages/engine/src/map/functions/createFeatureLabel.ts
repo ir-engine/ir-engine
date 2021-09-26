@@ -4,7 +4,7 @@ import { Feature, LineString, Position } from 'geojson'
 import { length, lineSliceAlong } from '@turf/turf'
 import { Engine } from '../../ecs/classes/Engine'
 import { Vector3 } from 'three'
-import { LongLat, toMetersFromCenter } from '../units'
+import { LongLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
 
 const MINIMUM_FONT_SIZE = 6
 const MAXIMUM_FONT_SIZE = 10

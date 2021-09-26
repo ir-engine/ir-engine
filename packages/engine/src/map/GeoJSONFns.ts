@@ -1,5 +1,4 @@
 import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
-import rewind from '@mapbox/geojson-rewind'
 // stringified worker code relies on "turf" module being globally available
 import * as turf from '@turf/turf'
 
@@ -8,27 +7,6 @@ export function scalePolygon(coords: Position[], xFactor: number, zFactor: numbe
 }
 export function translatePolygon(coords: Position[], xDiff: number, zDiff: number): Position[] {
   return coords.map(([x, z]) => [x + xDiff, z + zDiff])
-}
-
-/**
- * Assumptions:
- *   - self completely surrounds all of the other polygons
- *   - self does not contain holes/interior rings
- *   - self is a simple polygon without overlapping edges
- *   - other polygons do not have holes, or not ones we care about
- */
-export function subtract(self: Polygon, others: (Polygon | MultiPolygon)[]): Polygon {
-  others.forEach((other) => {
-    switch (other.type) {
-      case 'Polygon':
-        subtractPolygonCoordinates(self, other.coordinates)
-      case 'MultiPolygon':
-        other.coordinates.forEach((polygonCoords) => {
-          subtractPolygonCoordinates(self, polygonCoords)
-        })
-    }
-  })
-  return rewind(self)
 }
 
 function subtractPolygonCoordinates(self: Polygon, other: Position[][]) {

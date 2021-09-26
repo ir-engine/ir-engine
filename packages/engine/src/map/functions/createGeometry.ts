@@ -2,7 +2,7 @@ import { Feature } from 'geojson'
 import { BufferAttribute, BufferGeometryLoader } from 'three'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from '../styles'
 import { ILayerName, MapDerivedFeatureGeometry } from '../types'
-import { LongLat } from '../units'
+import { LongLat } from '../functions/UnitConversionFunctions'
 import createGeometryWorker from './createGeometryWorker'
 
 const geometryWorker = createGeometryWorker()

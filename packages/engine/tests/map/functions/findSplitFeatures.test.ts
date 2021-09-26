@@ -2,6 +2,7 @@ import findSplitFeatures from '../../../src/map/functions/findSplitFeatures'
 import { Feature } from 'geojson'
 import { scalePolygon, translatePolygon } from '../../../src/map/GeoJSONFns'
 import { FeatureKey } from '../../../src/map/types'
+import assert from 'assert'
 
 const boxCoords = [
   [-1, -1],
@@ -65,7 +66,7 @@ describe('findSplitFeatures', () => {
       output.push(group)
     }
 
-    expect(output).toEqual([
+    assert.deepEqual(output, [
       [
         [keyArray[0], featureArray[0]],
         [keyArray[1], featureArray[1]],

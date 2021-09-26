@@ -3,7 +3,7 @@ import { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, 
 import { Feature } from 'geojson'
 import createTaskWorker from '../../common/functions/createTaskWorker'
 import { IStyles } from '../styles'
-import { LongLat, toMetersFromCenter, METERS_PER_LONGLAT } from '../units'
+import { LongLat, toMetersFromCenter, METERS_PER_LONGLAT } from '../functions/UnitConversionFunctions'
 import { computeBoundingCircleRadius } from '../GeoJSONFns'
 
 declare function importScripts(...urls: string[]): void

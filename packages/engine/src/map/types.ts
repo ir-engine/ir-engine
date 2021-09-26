@@ -37,6 +37,7 @@ export interface FeatureWithTileIndex extends Feature {
 }
 
 export interface Text3D extends Mesh {
+  fontSize: number
   sync(): void
   update(): void
   dispose(): void

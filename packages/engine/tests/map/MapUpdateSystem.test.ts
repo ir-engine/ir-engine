@@ -1,3 +1,6 @@
+import assert from 'assert'
+import sinon, {SinonSpy} from 'sinon'
+import mock from 'mock-require'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
@@ -8,26 +11,10 @@ import { Entity } from '../../src/ecs/classes/Entity'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import { FollowCameraComponent } from '../../src/camera/components/FollowCameraComponent'
 import { createWorld } from '../../src/ecs/functions/EngineFunctions'
-import { System } from 'bitecs'
-import createSUT from '../../src/map/MapUpdateSystem'
 import createStore from '../../src/map/functions/createStore'
-import getPhases from '../../src/map/functions/getPhases'
-import createFeatureLabel from '../../src/map/functions/createFeatureLabel'
 import { lineString } from '@turf/helpers'
-import actuateLazy from '../../src/map/functions/actuateLazy'
+import { System } from '../../src/ecs/classes/System'
 
-jest.mock('../../src/map/functions/actuateLazy')
-jest.mock('../../src/map/functions/getPhases')
-jest.mock('../../src/map/functions/createFeatureLabel', () => {
-  const { Object3D } = jest.requireActual('three')
-  const mesh = new Object3D()
-  mesh.update = jest.fn()
-  return () => ({
-    mesh,
-    centerPoint: [5, 7],
-    boundingCircleRadius: 2
-  })
-})
 
 describe('MapUpdateSystem', () => {
   const triggerRefreshRadius = 20 // meters
@@ -40,9 +27,30 @@ describe('MapUpdateSystem', () => {
     viewerEntity: Entity,
     mapEntity: Entity,
     store: ReturnType<typeof createStore>,
-    subScene: Object3D
+    subScene: Object3D,
+    actuateLazy: SinonSpy,
+    getPhases: SinonSpy,
+    createFeatureLabel: SinonSpy,
+    createSUT: (world: World) => Promise<System>
 
   beforeEach(async () => {
+
+    mock('../../src/map/functions/actuateLazy', sinon.spy())
+    mock('../../src/map/functions/getPhases', sinon.spy())
+    mock('../../src/map/functions/createFeatureLabel', (() => {
+      const { Object3D } = require('three')
+      const mesh = new Object3D()
+      mesh.update = sinon.spy()
+      return () => ({
+        mesh,
+        centerPoint: [5, 7],
+        boundingCircleRadius: 2
+      })
+    })())
+    createSUT = require('../../src/map/MapUpdateSystem').default
+    actuateLazy = require('../../src/map/functions/actuateLazy')
+    getPhases = require('../../src/map/functions/getPhases')
+    createFeatureLabel = require('../../src/map/functions/createFeatureLabel')
     world = createWorld()
     viewerEntity = createEntity(world)
     mapEntity = createEntity(world)
@@ -77,40 +85,40 @@ describe('MapUpdateSystem', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    sinon.restore()
   })
 
   it('does nothing while player moves within refresh boundary', () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
 
-    execute(world)
+    execute()
     viewerTransform.position.set((triggerRefreshRadius / 2) * mapScale, 0, 0)
-    execute(world)
+    execute()
 
-    expect(actuateLazy).not.toHaveBeenCalled()
+    assert.equal(actuateLazy.callCount, 0)
   })
 
-  it('start a new production run when player crosses the boundary', async () => {
+  it('lazily starts working when player crosses boundary', () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
 
-    execute(world)
+    execute()
     viewerTransform.position.set(triggerRefreshRadius * mapScale, 0, 0)
-    execute(world)
+    execute()
 
-    expect(getPhases).toHaveBeenCalledTimes(1)
-    expect(actuateLazy).toHaveBeenCalledTimes(1)
+    assert(getPhases.calledOnce)
+    assert(actuateLazy.calledOnce)
 
     viewerTransform.position.set(triggerRefreshRadius * 1.5 * mapScale, 0, 0)
-    execute(world)
+    execute()
 
-    expect(getPhases).toHaveBeenCalledTimes(1)
-    expect(actuateLazy).toHaveBeenCalledTimes(1)
+    assert(getPhases.calledOnce)
+    assert(actuateLazy.calledOnce)
 
     viewerTransform.position.set(triggerRefreshRadius * 2 * mapScale, 0, 0)
-    execute(world)
+    execute()
 
-    expect(getPhases).toHaveBeenCalledTimes(2)
-    expect(actuateLazy).toHaveBeenCalledTimes(2)
+    assert(getPhases.calledTwice)
+    assert(actuateLazy.calledTwice)
   })
 
   it('adds and positions labels in the scene (if close enough)', () => {
@@ -126,11 +134,11 @@ describe('MapUpdateSystem', () => {
     store.labelCache.set(['road', 0, 0, '0'], label)
 
     world.fixedElapsedTime = world.fixedDelta * 20
-    execute(world)
+    execute()
 
-    expect(subScene.children.includes(label.mesh)).toBe(true)
-    expect(label.mesh.parent).toBe(subScene)
-    expect(label.mesh.position.toArray()).toEqual([label.centerPoint[0], 0, label.centerPoint[1]])
-    expect(label.mesh.update).toHaveBeenCalledTimes(1)
+    assert(subScene.children.includes(label.mesh))
+    assert(label.mesh.parent === subScene)
+    assert.deepEqual(label.mesh.position.toArray(), [label.centerPoint[0], 0, label.centerPoint[1]])
+    assert(label.mesh.update.calledOnce)
   })
 })

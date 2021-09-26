@@ -1,27 +1,34 @@
+import assert from 'assert'
 import zipIterators from '../../../src/common/functions/zipIterators'
 
-test("zipIterators", () => {
-  const itNum = function*() {
-    yield 1
-    yield 2
-    yield 3
-  }
-  const itAlpha = function*() {
-    yield 'a'
-    yield 'b'
-    yield 'c'
-  }
-  const itClass = function*() {
-    yield Number
-    yield Boolean
-    yield Object
-  }
+describe('zipIterators', () => {
+  it('works', () => {
+    const itNum = function* () {
+      yield 1
+      yield 2
+      yield 3
+    }
+    const itAlpha = function* () {
+      yield 'a'
+      yield 'b'
+      yield 'c'
+    }
+    const itClass = function* () {
+      yield Number
+      yield Boolean
+      yield Object
+    }
 
-  const resultArray = []
+    const resultArray = []
 
-  for(const item of zipIterators(itNum(), itAlpha(), itClass())) {
-    resultArray.push(item)
-  }
+    for (const item of zipIterators(itNum(), itAlpha(), itClass())) {
+      resultArray.push(item)
+    }
 
-  expect(resultArray).toEqual([[1, 'a', Number], [2, 'b', Boolean], [3, 'c', Object]])
+    assert.deepEqual(resultArray, [
+      [1, 'a', Number],
+      [2, 'b', Boolean],
+      [3, 'c', Object]
+    ])
+  })
 })

@@ -1,8 +1,9 @@
 import computeDistanceFromCircle from '../functions/computeDistanceFromCircle'
-import { FeatureKey, Store, TaskStatus } from '../types'
+import { FeatureKey, TaskStatus } from '../types'
 import { multiplyArray } from '../util'
 import createUsingCache from '../functions/createUsingCache'
 import createCompleteObject from '../functions/createCompleteObject'
+import { Store } from '../functions/createStore'
 
 export const name = 'create complete object'
 export const isAsyncPhase = false

@@ -1,5 +1,10 @@
 import createIntersectTestTileCircle from './createIntersectionTestTileCircle'
-import { fromMetersFromCenter, LongLat, latToTileYFraction, longToTileXFraction } from '../units'
+import {
+  fromMetersFromCenter,
+  LongLat,
+  latToTileYFraction,
+  longToTileXFraction
+} from '../functions/UnitConversionFunctions'
 
 export default function* createSurroundingTileIterator(
   center: LongLat,

@@ -1,17 +1,25 @@
-import updateKeyVal from "../../../src/common/functions/updateKeyVal"
+import assert from 'assert'
+import updateKeyVal from '../../../src/common/functions/updateKeyVal'
 
-test("updateKeyVal", () => {
-  const map = new Map<string, number>()
+describe('updateKeyVal', () => {
+  it('works', () => {
+    const map = new Map<string, number>()
 
-  const add = updateKeyVal(map.get.bind(map), map.set.bind(map), (value: number, addend: number) => {
-    return value + addend
-  }, 0)
+    const add = updateKeyVal(
+      map.get.bind(map),
+      map.set.bind(map),
+      (value: number, addend: number) => {
+        return value + addend
+      },
+      0
+    )
 
-  add('beer', 2)
-  add('beer', 3)
-  add('hotdog', 7)
-  add('hotdog', -2)
+    add('beer', 2)
+    add('beer', 3)
+    add('hotdog', 7)
+    add('hotdog', -2)
 
-  expect(map.get('beer')).toBe(5)
-  expect(map.get('hotdog')).toBe(5)
+    assert(map.get('beer') === 5)
+    assert(map.get('hotdog') === 5)
+  })
 })

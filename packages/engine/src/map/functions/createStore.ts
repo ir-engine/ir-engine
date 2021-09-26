@@ -1,5 +1,5 @@
 import { MapProps } from '../MapProps'
-import { LongLat } from '../units'
+import { LongLat } from '../functions/UnitConversionFunctions'
 import ArrayKeyedMap from '../../map/classes/ArrayKeyedMap'
 import {
   FeatureKey,
