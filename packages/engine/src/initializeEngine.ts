@@ -235,12 +235,11 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
+  registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
+
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
     updatesPerSecond: 60
   })
-
-  registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
-
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/MediaStreamSystem'))
