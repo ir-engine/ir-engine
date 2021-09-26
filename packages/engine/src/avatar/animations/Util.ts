@@ -83,10 +83,10 @@ export type WeightsParameterType = {
   movement: MovementType
 
   /** Whether reset currrent playing animation. Useful while intra state transition */
-  resetAnimation?: boolean
+  resetAnimation: boolean
 
   /** Skip validation check and force state transition */
-  forceTransition?: boolean
+  forceTransition: boolean
 
   /** Other data to be passed with */
   [key: string]: any
@@ -101,26 +101,26 @@ export interface Animation {
   weight: number
 
   /** Weight when transition will start. Value will be used to interpolate */
-  transitionStartWeight?: number
+  transitionStartWeight: number
 
   /** Weight when transition will end. Value will be used to interpolate */
-  transitionEndWeight?: number
+  transitionEndWeight: number
 
   /** Type of the loop */
   loopType: AnimationActionLoopStyles
 
   /** Total loop counts */
-  loopCount?: number
+  loopCount: number
 
   /** Time scale of the animation. Default is 1. Value less then 1 will slow down the animation. */
-  timeScale?: number
+  timeScale: number
 
   /** Animation clip from the loaded animations */
-  clip?: AnimationClip
+  clip: AnimationClip
 
   /** Animation action for this animation */
-  action?: AnimationAction
+  action: AnimationAction
 
   /** A Decorator function to apply custom behaviour to the animation action */
-  decorateAction?: (action: AnimationAction) => void
+  decorateAction: (action: AnimationAction) => void
 }

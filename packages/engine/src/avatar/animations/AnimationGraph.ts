@@ -139,7 +139,7 @@ export class AnimationGraph {
   render = (entity: Entity, delta: number): void => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const avatar = getComponent(entity, AvatarComponent)
-    let params: WeightsParameterType = {}
+    let params: WeightsParameterType = {} as any
 
     // Calculate movement fo the avatar for this frame
     const velocity = getComponent(entity, VelocityComponent)
@@ -157,8 +157,8 @@ export class AnimationGraph {
     if (!avatar.isGrounded) {
       if (avatarAnimationComponent.currentState.name !== AvatarStates.JUMP) {
         avatarAnimationComponent.animationGraph.transitionState(entity, AvatarStates.JUMP, {
-          forceTransition: true,
-          ...params
+          ...params,
+          forceTransition: true
         })
       }
       // else, idle fall

@@ -43,6 +43,8 @@ import {
 } from './WebRTCFunctions'
 import { encode } from 'msgpackr'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
@@ -68,10 +70,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   public sendActions = (actions: Set<Action>): any => {
-    if (actions.size === 0) return
-    // TODO: only send an Action to the users in the action.$to field ?
-    if (this.socketIO != null)
-      this.socketIO.of('/').emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
+    if (actions.size === 0 || this.socketIO == null) return
+    const clients = useWorld().clients
+    for (const [socketID, socket] of this.socketIO.of('/').sockets) {
+      const arr: Action[] = []
+      for (const action of actions) {
+        if (!action.$to) continue
+        if (action.$to === 'all' || socketID === clients.get(action.$to as UserId)?.socketId) {
+          arr.push(action)
+        }
+      }
+      if (arr.length) socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ arr) //)
+    }
   }
 
   public sendReliableData = (message: any): any => {

@@ -28,6 +28,7 @@ import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
+import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -90,7 +91,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, AvatarAnimationComponent, {
-    animationGraph: new AnimationGraph(),
+    animationGraph: new AvatarAnimationGraph(),
     currentState: new AnimationState(),
     prevState: new AnimationState(),
     prevVelocity: new Vector3()
