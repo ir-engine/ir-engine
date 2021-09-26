@@ -13,26 +13,27 @@ import { AnimationGraph } from './animations/AnimationGraph'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
 import { Engine } from '../ecs/classes/Engine'
-
-function animationActionReceptor(action: IncomingAction<typeof NetworkWorldAction>) {
-  switch (action.type) {
-    case NetworkWorldAction.ANIMATION_CHANGE: {
-      if (!Network.instance.objects[action.networkId]) {
-        return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
-      }
-      if (Network.instance.objects[action.networkId].uniqueId === Engine.userId) return
-      const entity = Network.instance.objects[action.networkId].entity
-      action.params.forceTransition = true
-      AnimationGraph.forceUpdateAnimationState(entity, action.newStateName, action.params)
-    }
-  }
-}
+import { matches } from 'ts-matches'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World): Promise<System> {
-  // world.receptors.add(animationActionReceptor)
+  world.receptors.add(animationActionReceptor)
+
+  function animationActionReceptor(action) {
+    matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
+      if ($from === Engine.userId) return
+      const avatarEntity = world.getUserAvatarEntity($from)
+      const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
+      if (!networkObject) {
+        return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
+      }
+      action.params.forceTransition = true
+      AnimationGraph.forceUpdateAnimationState(avatarEntity, action.newStateName, action.params)
+    })
+  }
 
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
 
