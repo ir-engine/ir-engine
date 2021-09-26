@@ -49,6 +49,7 @@ import { setFog } from '../functions/setFog'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { loadRealityPack } from './loadRealityPack'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -64,6 +65,9 @@ export class WorldScene {
   loaders: Promise<void>[] = []
   static callbacks: any
   static isLoading = false
+  static realityPackDownloadCallback = async (packName: string) => {
+    return true
+  }
 
   constructor(private onProgress?: Function) {}
 
@@ -134,6 +138,10 @@ export class WorldScene {
         world.sceneMetadata = meta_data
         console.log('scene_metadata|' + meta_data)
         //}
+        break
+
+      case 'realitypack':
+        loadRealityPack(component.data)
         break
 
       case '_metadata':

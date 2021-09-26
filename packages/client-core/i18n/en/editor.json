@@ -420,6 +420,10 @@
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
         },
+        "realitypacknode": {
+            "description": "Attach Reality Pack.",
+            "lbl-scripturl": "Reality Pack"
+        },
         "portal": {
             "lbl-portal": "Linked Portal",
             "description": "A Portat to teleport players to specified location",
