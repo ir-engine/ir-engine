@@ -22,7 +22,7 @@ function sendActions() {
   // if hosting, forward all non-local incoming actions
   if (Engine.defaultWorld.isHosting) {
     for (const incoming of incomingActions) {
-      if (incoming.$to !== Engine.userId) {
+      if (incoming.$from !== Engine.userId) {
         outgoingActions.add(incoming)
       }
     }
@@ -30,16 +30,13 @@ function sendActions() {
 
   incomingActions.clear()
 
-  // move local actions directly to incoming queue
   for (const out of outgoingActions) {
     out.$from = out.$from ?? Engine.userId
-    if (out.$to === Engine.userId) {
-      incomingActions.add(out as Required<Action>)
-      outgoingActions.delete(out)
-    }
+    incomingActions.add(out as Required<Action>)
+    if (out.$to === Engine.userId) outgoingActions.delete(out)
   }
-
   Network.instance.transport?.sendActions(outgoingActions)
+
   outgoingActions.clear()
 }
 

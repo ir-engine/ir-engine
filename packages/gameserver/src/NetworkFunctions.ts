@@ -263,7 +263,6 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
       }
     : SpawnPoints.instance.getRandomSpawnPoint()
 
-  // Get all client info and network objects and dispatch to joined user
   for (const [userId, client] of world.clients) {
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.createClient({
@@ -271,7 +270,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
         name: client.name,
         avatarDetail: client.avatarDetail!
       })
-    ).to(joinedUserId)
+    ).to(userId === joinedUserId ? 'all' : joinedUserId)
   }
 
   dispatchFrom(world.hostId, () =>

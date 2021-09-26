@@ -27,11 +27,11 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
   return () => {
     const incomingActions = Engine.defaultWorld!.incomingActions
 
-    if (incomingActions.size) console.log(`\n\nDispatching actions for simulation tick: ${world.fixedTick}`)
+    if (incomingActions.size) console.log(`Dispatching actions for simulation tick: ${world.fixedTick}`)
 
     for (const action of delayedActions) {
       if (action.$tick <= world.fixedTick) {
-        console.log(`\n\nDELAYED ACTION ${action.type}`, action, '\n\n')
+        console.log(`DELAYED ACTION ${action.type}`, action)
         delayedActions.delete(action)
         for (const receptor of world.receptors) {
           receptor(action)
@@ -44,9 +44,9 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
         continue
       }
       if (action.$tick < world.fixedTick) {
-        console.warn(`\n\nLATE ACTION ${action.type}`, action, '\n\n')
+        console.warn(`LATE ACTION ${action.type}`, action)
       } else {
-        console.log(`\n\ACTION ${action.type}`, action, '\n\n')
+        console.log(`ACTION ${action.type}`, action)
       }
       for (const receptor of world.receptors) receptor(action)
     }
