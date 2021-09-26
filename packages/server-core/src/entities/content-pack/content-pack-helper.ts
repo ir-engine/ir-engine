@@ -398,4 +398,6 @@ export async function populateRealityPack(
     params
   )
   await Promise.all(uploadPromises)
+
+  // feathers sync call to re-deploy pods
 }
