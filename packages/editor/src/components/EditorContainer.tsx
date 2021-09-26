@@ -425,7 +425,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     registerPredefinedNodes()
     registerPredefinedSources()
 
-    ProjectManager.instance.init()
     ProjectManager.instance.initializeFeathersClient(getToken())
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)
@@ -566,6 +565,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.warn('loadScene:scene', scene)
       const projectFile = scene.data
 
+      await ProjectManager.instance.init()
       await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()
