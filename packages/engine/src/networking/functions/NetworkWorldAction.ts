@@ -8,9 +8,9 @@ import {
   matchesWithInitializer
 } from '../interfaces/Action'
 import { Network } from '../classes/Network'
-import { matchesWeightsParameters } from '../../avatar/animations/Util'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
+import { matchesWeightsParameters } from '../../avatar/animations/Util'
 
 export class NetworkWorldAction {
   static createClient = defineActionCreator({

@@ -63,7 +63,6 @@ export class Network {
   /** Disposes the network. */
   dispose(): void {
     // TODO: needs tests
-    this.clients.clear()
     if (this.transport && typeof this.transport.close === 'function') this.transport.close()
     this.transport = null!
     Network.instance = null!

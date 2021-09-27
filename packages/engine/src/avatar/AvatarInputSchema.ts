@@ -244,7 +244,7 @@ const setAvatarExpression: InputBehaviorType = (
   // console.warn(args.input + ": " + morphName + ":" + morphIndex + " = " + morphValue)
   if (morphName && morphValue !== null) {
     if (typeof morphValue === 'number') {
-      body.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
+      body.morphTargetInfluences![morphIndex] = morphValue // 0.0 - 1.0
     }
   }
 }
@@ -386,7 +386,7 @@ const lookByInputAxis: InputBehaviorType = (
 
 const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   const input = getComponent(entity, InputComponent)
-  const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
+  const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)!
   // TODO: fix this
   console.log('gamepadLook', data)
   if (data.type === InputType.TWODIM) {
