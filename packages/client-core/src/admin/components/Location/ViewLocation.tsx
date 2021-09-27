@@ -20,9 +20,11 @@ import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { connect, useDispatch } from 'react-redux'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+// import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+import { useLocationState } from '../../reducers/admin/location/store/LocationState'
 import { validateUserForm } from '../Users/validation'
-import { patchLocation } from '../../reducers/admin/location/service'
+// import { patchLocation } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
 import { bindActionCreators, Dispatch } from 'redux'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -40,14 +42,14 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminSceneState: selectAdminSceneState(state),
-    adminLocationState: selectAdminLocationState(state)
+    adminSceneState: selectAdminSceneState(state)
+    //  adminLocationState: useLocationState()//selectAdminLocationState(state)
     // authState: selectAuthState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  patchLocation: bindActionCreators(patchLocation, dispatch)
+  // patchLocation: bindActionCreators(LocationService.patchLocation, dispatch)
 })
 
 const Alert = (props) => {
@@ -55,7 +57,7 @@ const Alert = (props) => {
 }
 
 const ViewLocation = (props: Props) => {
-  const { openView, closeViewModel, adminSceneState, adminLocationState, patchLocation, locationAdmin } = props
+  const { openView, closeViewModel, adminSceneState, locationAdmin } = props
   const dispatch = useDispatch()
   const classex = useLocationStyle()
   const classes = useLocationStyles()
@@ -79,12 +81,13 @@ const ViewLocation = (props: Props) => {
       type: ''
     }
   })
+  const adminLocationState = useLocationState()
   const [location, setLocation] = React.useState<any>('')
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const { t } = useTranslation()
   const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
+  const locationTypes = adminLocationState.locationTypes?.locationTypes?.value
   const user = useAuthState().user // user initialized by getting value from authState object.
   const scopes = user?.scopes?.value || []
   let isLocationWrite = false
@@ -170,7 +173,7 @@ const ViewLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      patchLocation(location.id, locationData)
+      dispatch(LocationService.patchLocation(location.id, locationData))
       setState({
         ...state,
         name: '',
@@ -310,8 +313,8 @@ const ViewLocation = (props: Props) => {
                       <em>Select type</em>
                     </MenuItem>
                     {locationTypes.map((el) => (
-                      <MenuItem value={el.type} key={el.type}>
-                        {el.type}
+                      <MenuItem value={el.type?.value} key={el.type?.value}>
+                        {el.type?.value}
                       </MenuItem>
                     ))}
                   </Select>

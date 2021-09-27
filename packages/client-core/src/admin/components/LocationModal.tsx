@@ -15,12 +15,14 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createLocation, patchLocation, removeLocation } from '../reducers/admin/location/service'
+// import { createLocation, patchLocation, removeLocation } from '../reducers/admin/location/service'
+import { LocationService } from '../reducers/admin/location/store/LocationService'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { selectAdminSceneState } from '../reducers/admin/scene/selector'
-import { selectAdminLocationState } from '../reducers/admin/location/selector'
+// import { selectAdminLocationState } from '../reducers/admin/location/selector'
+import { useLocationState } from '../reducers/admin/location/store/LocationState'
 
 interface Props {
   open: boolean
@@ -37,14 +39,14 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     adminSceneState: selectAdminSceneState(state),
-    adminLocationState: selectAdminLocationState(state)
+    adminLocationState: useLocationState()
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createLocation: bindActionCreators(createLocation, dispatch),
-  patchLocation: bindActionCreators(patchLocation, dispatch),
-  removeLocation: bindActionCreators(removeLocation, dispatch)
+  createLocation: bindActionCreators(LocationService.createLocation, dispatch),
+  patchLocation: bindActionCreators(LocationService.patchLocation, dispatch),
+  removeLocation: bindActionCreators(LocationService.removeLocation, dispatch)
 })
 
 const LocationModal = (props: Props): any => {

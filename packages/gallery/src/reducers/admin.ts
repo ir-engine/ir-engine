@@ -3,7 +3,8 @@ import adminUserReducer from '@xrengine/client-core/src/admin/reducers/admin/use
 import contentPackReducer from '@xrengine/client-core/src/admin/reducers/contentPack/reducers'
 import { adminAvatarReducer } from '@xrengine/client-core/src/admin/reducers/admin/avatar/AvatarState'
 import adminInstanceReducer from '@xrengine/client-core/src/admin/reducers/admin/instance/reducers'
-import adminLocationReducer from '@xrengine/client-core/src/admin/reducers/admin/location/reducers'
+// import adminLocationReducer from '@xrengine/client-core/src/admin/reducers/admin/location/reducers'
+import { locationReducer } from '@xrengine/client-core/src/admin/reducers/admin/location/store/LocationState'
 import adminPartyReducer from '@xrengine/client-core/src/admin/reducers/admin/party/reducers'
 import adminSceneReducer from '@xrengine/client-core/src/admin/reducers/admin/scene/reducers'
 import { adminBotsReducer } from '@xrengine/client-core/src/admin/reducers/admin/bots/BotsState'
@@ -22,7 +23,7 @@ export default {
   contentPack: contentPackReducer,
   adminAvatar: adminAvatarReducer,
   adminInstance: adminInstanceReducer,
-  adminLocation: adminLocationReducer,
+  adminLocation: locationReducer,
   adminParty: adminPartyReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,

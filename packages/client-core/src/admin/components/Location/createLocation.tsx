@@ -2,7 +2,7 @@ import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -19,9 +19,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
 import { useTranslation } from 'react-i18next'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+// import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+import { useLocationState } from '../../reducers/admin/location/store/LocationState'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
-import { createLocation as createLocationAction } from '../../reducers/admin/location/service'
+// import { createLocation as createLocationAction } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
 import { validateUserForm } from '../Users/validation'
 import { useAlertState } from '../../../common/reducers/alert/AlertState'
 
@@ -32,7 +34,7 @@ const Alert = (props) => {
 interface Props {
   open: boolean
   handleClose: any
-  adminLocationState?: any
+  // adminLocationState?: any
   adminSceneState?: any
   createLocationAction?: any
   closeViewModel?: any
@@ -40,17 +42,19 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminLocationState: selectAdminLocationState(state),
+    // adminLocationState: useLocationState(),//selectAdminLocationState(state),
     adminSceneState: selectAdminSceneState(state)
   }
 }
-
+console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>adminlocationstate')
+const adminLocationState = useLocationState()
+const dispatch = useDispatch()
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createLocationAction: bindActionCreators(createLocationAction, dispatch)
+  // createLocationAction: bindActionCreators(LocationService.createLocation, dispatch)
 })
 
 const CreateLocation = (props: Props) => {
-  const { open, handleClose, adminLocationState, adminSceneState, createLocationAction, closeViewModel } = props
+  const { open, handleClose, adminSceneState, closeViewModel } = props
   const classesx = useLocationStyle()
   const classes = useLocationStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
@@ -76,15 +80,15 @@ const CreateLocation = (props: Props) => {
   })
 
   const { t } = useTranslation()
-  const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
-  const location = adminLocationState.get('locations')
+  const locationTypes = adminLocationState.locationTypes?.locationTypes?.value
+  const location = adminLocationState.locations?.value
   const adminScenes = adminSceneState.get('scenes').get('scenes')
   const alertState = useAlertState()
   const errorType = alertState.type
   const errorMessage = alertState.message
 
   React.useEffect(() => {
-    if (location.get('created')) {
+    if (location.created) {
       closeViewModel(false)
       setState({
         ...state,
@@ -170,7 +174,7 @@ const CreateLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      createLocationAction(data)
+      dispatch(LocationService.createLocation(data))
       //  closeViewModel(false)
     } else {
       setError('Please fill all required field')

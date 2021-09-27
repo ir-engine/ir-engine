@@ -7,8 +7,9 @@ import classNames from 'classnames'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import { bindActionCreators, Dispatch } from 'redux'
-import { fetchAdminLocations } from '../../reducers/admin/location/service'
-import { connect } from 'react-redux'
+// import { fetchAdminLocations } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
+import { connect, useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { createAdminParty } from '../../reducers/admin/party/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
@@ -18,22 +19,25 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { PartyProps } from './variables'
 import { usePartyStyle } from './style'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+// import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+import { useLocationState } from '../../reducers/admin/location/store/LocationState'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminInstanceState: selectAdminInstanceState(state),
-    adminLocationState: selectAdminLocationState(state)
+    adminInstanceState: selectAdminInstanceState(state)
+    // adminLocationState: useLocationState//selectAdminLocationState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
+  // fetchAdminLocations: bindActionCreators(LocationService.fetchAdminLocations, dispatch),
   fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
   createAdminParty: bindActionCreators(createAdminParty, dispatch)
 })
 
+const adminLocationState = useLocationState()
+const dispatch = useDispatch()
 const CreateParty = (props: PartyProps) => {
   const classes = usePartyStyle()
 
@@ -41,10 +45,10 @@ const CreateParty = (props: PartyProps) => {
     open,
     handleClose,
     createAdminParty,
-    fetchAdminLocations,
+    // fetchAdminLocations,
     fetchAdminInstances,
-    adminInstanceState,
-    adminLocationState
+    adminInstanceState
+    // adminLocationState
   } = props
 
   const [location, setLocation] = useState('')
@@ -52,20 +56,20 @@ const CreateParty = (props: PartyProps) => {
 
   const authState = useAuthState()
   const user = authState.user
-  const adminLocation = adminLocationState.get('locations')
-  const locationData = adminLocation.get('locations')
+  const adminLocation = adminLocationState.locations?.value
+  const locationData = adminLocation.locations
   const adminInstances = adminInstanceState.get('instances')
   const instanceData = adminInstances.get('instances')
 
   useEffect(() => {
-    if (user?.id.value != null && adminLocation.get('updateNeeded') === true) {
-      fetchAdminLocations()
+    if (user?.id.value != null && adminLocation.updateNeeded === true) {
+      dispatch(LocationService.fetchAdminLocations())
     }
 
     if (user.id.value && adminInstances.get('updateNeeded')) {
       fetchAdminInstances()
     }
-  }, [authState.user?.id?.value, adminLocationState, adminInstanceState])
+  }, [authState.user?.id?.value, adminLocationState.locations?.updateNeeded?.value, adminInstanceState])
 
   const defaultProps = {
     options: locationData,

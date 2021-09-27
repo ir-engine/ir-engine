@@ -7,4 +7,8 @@ export interface Location {
   locationSettingsId: string
   maxUsersPerInstance: number
   locationSettings: LocationSettings
+  slugifiedName: string
+  location_setting: any
+  isFeatured: boolean
+  isLobby: boolean
 }

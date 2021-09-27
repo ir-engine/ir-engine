@@ -16,7 +16,8 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchAdminScenes } from '../../reducers/admin/scene/service'
-import { fetchLocationTypes } from '../../reducers/admin/location/service'
+// import { fetchLocationTypes } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
 import styles from './Scenes.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
@@ -28,7 +29,7 @@ if (!global.setImmediate) {
 interface Props {
   locationState?: any
   fetchAdminScenes?: any
-  fetchLocationTypes?: any
+  // fetchLocationTypes?: any
   adminSceneState?: any
 }
 
@@ -39,8 +40,8 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
+  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch)
+  // fetchLocationTypes: bindActionCreators(LocationService.fetchLocationTypes, dispatch)
 })
 
 const Scenes = (props: Props) => {

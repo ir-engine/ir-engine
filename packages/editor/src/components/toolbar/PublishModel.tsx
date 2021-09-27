@@ -13,19 +13,21 @@ import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import {
-  createLocation,
-  patchLocation,
-  removeLocation
-} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+// import {
+//   createLocation,
+//   patchLocation,
+//   removeLocation
+// } from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+import { LocationService } from '../../../../client-core/src/admin/reducers/admin/location/store/LocationService'
 
 import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
-import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
+// import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
+import { useLocationState } from '../../../../client-core/src/admin/reducers/admin/location/store/LocationState'
 import { useParams } from 'react-router-dom'
 import { createPublishProject } from '@xrengine/client-core/src/world/reducers/scenes/service'
 
@@ -34,26 +36,28 @@ interface Props {
   handleClose: any
   location: any
   editing: boolean
-  createLocation?: any
-  patchLocation?: any
-  removeLocation?: any
+  // createLocation?: any
+  // patchLocation?: any
+  // removeLocation?: any
   adminSceneState?: any
-  adminLocationState?: any
+  // adminLocationState?: any
 
   createPublishProject?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminSceneState: selectAdminSceneState(state),
-    adminLocationState: selectAdminLocationState(state)
+    adminSceneState: selectAdminSceneState(state)
+    // adminLocationState: useLocationState()//selectAdminLocationState(state)
   }
 }
 
+const adminLocationState = useLocationState()
+const dispatch = useDispatch()
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createLocation: bindActionCreators(createLocation, dispatch),
-  patchLocation: bindActionCreators(patchLocation, dispatch),
-  removeLocation: bindActionCreators(removeLocation, dispatch),
+  // createLocation: bindActionCreators(LocationService.createLocation, dispatch),
+  // patchLocation: bindActionCreators(LocationService.patchLocation, dispatch),
+  // removeLocation: bindActionCreators(LocationService.removeLocation, dispatch),
   createPublishProject: bindActionCreators(createPublishProject, dispatch)
 })
 
@@ -63,11 +67,11 @@ const LocationModal = (props: Props): any => {
     handleClose,
     location,
     editing,
-    createLocation,
-    patchLocation,
-    removeLocation,
+    // createLocation,
+    // patchLocation,
+    // removeLocation,
     adminSceneState,
-    adminLocationState,
+    //  adminLocationState,
     createPublishProject
   } = props
 
@@ -79,7 +83,7 @@ const LocationModal = (props: Props): any => {
   const [scene, setScene] = useState(null)
   const [locationType, setLocationType] = useState('private')
   const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
+  const locationTypes = adminLocationState.locationTypes?.locationTypes?.value
 
   const [state, setState] = React.useState({
     feature: false,
@@ -112,7 +116,7 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      patchLocation(location.id, submission)
+      dispatch(LocationService.patchLocation(location.id, submission))
     } else {
       createPublishProject(submission)
       //   createLocation(submission)
@@ -122,7 +126,7 @@ const LocationModal = (props: Props): any => {
   }
 
   const deleteLocation = () => {
-    removeLocation(location.id)
+    dispatch(LocationService.removeLocation(location.id))
     handleClose()
   }
 

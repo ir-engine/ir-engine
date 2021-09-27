@@ -15,7 +15,8 @@ import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/AvatarState'
-import { fetchLocationTypes } from '../../reducers/admin/location/service'
+// import { fetchLocationTypes } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
 import { AvatarService } from '../../reducers/admin/avatar/AvatarService'
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
@@ -37,7 +38,7 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
+  fetchLocationTypes: bindActionCreators(LocationService.fetchLocationTypes, dispatch)
 })
 
 const Avatars = (props: Props) => {

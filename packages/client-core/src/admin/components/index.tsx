@@ -19,19 +19,21 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { Config } from '@xrengine/common/src/config'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { client } from '../../feathers'
 import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
-import { selectAdminLocationState } from '../reducers/admin/location/selector'
+// import { selectAdminLocationState } from '../reducers/admin/location/selector'
+import { useLocationState } from '../reducers/admin/location/store/LocationState'
 import { fetchAdminScenes } from '../reducers/admin/scene/service'
 import { fetchUsersAsAdmin } from '../reducers/admin/user/service'
 import { fetchAdminInstances } from '../reducers/admin/instance/service'
 import { selectAdminUserState } from './../reducers/admin/user/selector'
 import { selectAdminInstanceState } from './../reducers/admin/instance/selector'
-import { fetchAdminLocations, fetchLocationTypes } from '../reducers/admin/location/service'
+//import { fetchAdminLocations, fetchLocationTypes } from '../reducers/admin/location/service'
+import { LocationService } from '../reducers/admin/location/store/LocationService'
 import { selectAdminSceneState } from './../reducers/admin/scene/selector'
 import Grid from '@material-ui/core/Grid'
 import styles from './Admin.module.scss'
@@ -143,9 +145,11 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   )
 }
 
+const adminLocationState = useLocationState()
+
 const mapStateToProps = (state: any): any => {
   return {
-    adminLocationState: selectAdminLocationState(state),
+    // adminLocationState: useLocationState(),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
     adminSceneState: selectAdminSceneState(state)
@@ -153,9 +157,9 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
+  // fetchAdminLocations: bindActionCreators(LocationService.fetchAdminLocations, dispatch),
   fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
+  // fetchLocationTypes: bindActionCreators(LocationService.fetchLocationTypes, dispatch),
   fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
   fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
 })
@@ -179,19 +183,19 @@ const useStyles = makeStyles((theme: Theme) =>
 const AdminConsole = (props: Props) => {
   const classes = useStyles()
   const {
-    fetchAdminLocations,
+    // fetchAdminLocations,
     fetchAdminScenes,
-    fetchLocationTypes,
+    //   fetchLocationTypes,
     fetchUsersAsAdmin,
     fetchAdminInstances,
-    adminLocationState,
+    // adminLocationState,
     adminUserState,
     adminInstanceState,
     adminSceneState
   } = props
 
   const router = useHistory()
-
+  const dispatch = useDispatch()
   const authState = useAuthState()
   const initialLocation = {
     id: null,
@@ -265,8 +269,8 @@ const AdminConsole = (props: Props) => {
   const [userRole, setUserRole] = React.useState('')
   const [selectedUser, setSelectedUser] = React.useState({})
 
-  const adminLocations = adminLocationState.get('locations').get('locations')
-  const adminLocationCount = adminLocationState.get('locations').get('total')
+  const adminLocations = adminLocationState.locations?.locations?.value
+  const adminLocationCount = adminLocationState?.locations?.total?.value
   const adminUsers = adminUserState.get('users').get('users')
   const adminUserCount = adminUserState.get('users').get('total')
   const adminInstances = adminInstanceState.get('instances').get('instances')
@@ -349,7 +353,7 @@ const AdminConsole = (props: Props) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     switch (selectedTab) {
       case 'locations':
-        fetchAdminLocations(incDec)
+        dispatch(LocationService.fetchAdminLocations(incDec))
         break
       case 'users':
         fetchUsersAsAdmin(incDec)
@@ -421,14 +425,14 @@ const AdminConsole = (props: Props) => {
   }, [adminUsers])
 
   useEffect(() => {
-    if (user?.id?.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
-      fetchAdminLocations()
+    if (user?.id?.value != null && adminLocationState.locations?.updateNeeded?.value === true) {
+      dispatch(LocationService.fetchAdminLocations())
     }
     if (user?.id?.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
       fetchAdminScenes()
     }
-    if (user?.id?.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
-      fetchLocationTypes()
+    if (user?.id?.value != null && adminLocationState.locationTypes?.updateNeeded?.value === true) {
+      dispatch(LocationService.fetchLocationTypes())
     }
     if (user?.id?.value != null && adminUserState.get('users').get('updateNeeded') === true) {
       fetchUsersAsAdmin()

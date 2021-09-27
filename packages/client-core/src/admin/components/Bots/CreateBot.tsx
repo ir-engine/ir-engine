@@ -21,32 +21,34 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
-import { fetchAdminLocations } from '../../reducers/admin/location/service'
+// import { fetchAdminLocations } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
 import { connect } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import { BotService } from '../../reducers/admin/bots/BotsService'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+// import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+import { useLocationState } from '../../reducers/admin/location/store/LocationState'
 import { validateForm } from './validation'
 
 interface Props {
   fetchAdminInstances?: any
   adminInstanceState?: any
   adminLocationState?: any
-  fetchAdminLocations?: any
+  // fetchAdminLocations?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     adminInstanceState: selectAdminInstanceState(state),
-    adminLocationState: selectAdminLocationState(state)
+    adminLocationState: useLocationState()
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch)
+  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
+  // fetchAdminLocations: bindActionCreators(LocationService.fetchAdminLocations, dispatch)
 })
 
 const Alert = (props) => {
@@ -54,7 +56,7 @@ const Alert = (props) => {
 }
 
 const CreateBot = (props: Props) => {
-  const { adminInstanceState, fetchAdminLocations, adminLocationState } = props
+  const { adminInstanceState, adminLocationState } = props
   const [command, setCommand] = React.useState({
     name: '',
     description: ''
@@ -81,14 +83,14 @@ const CreateBot = (props: Props) => {
   const user = authState.user
   const adminInstances = adminInstanceState.get('instances')
   const instanceData = adminInstances.get('instances')
-  const adminLocation = adminLocationState.get('locations')
-  const locationData = adminLocation.get('locations')
+  const adminLocation = adminLocationState.locations
+  const locationData = adminLocation.locations
   React.useEffect(() => {
     if (user.id.value && adminInstances.get('updateNeeded')) {
       fetchAdminInstances()
     }
     if (user?.id.value != null && adminLocation.get('updateNeeded') === true) {
-      fetchAdminLocations()
+      dispatch(LocationService.fetchAdminLocations())
     }
   }, [user, adminInstanceState])
 
@@ -246,7 +248,7 @@ const CreateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={() => fetchAdminLocations()}>
+                <IconButton onClick={() => dispatch(LocationService.fetchAdminLocations())}>
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>

@@ -1,5 +1,7 @@
 import React, { ReactElement, useEffect } from 'react'
-import { fetchAdminLocations, fetchLocationTypes } from '../../reducers/admin/location/service'
+// import { fetchAdminLocations, fetchLocationTypes } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
+import { useLocationState, LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/store/LocationState'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -9,7 +11,7 @@ import TableRow from '@material-ui/core/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+// import { selectAdminLocationState } from '../../reducers/admin/location/selector'
 import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
 import { fetchAdminScenes } from '../../reducers/admin/scene/service'
@@ -17,7 +19,7 @@ import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
 import { fetchAdminInstances } from '../../reducers/admin/instance/service'
 import { useErrorState } from '../../../common/reducers/error/ErrorState'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
 import Chip from '@material-ui/core/Chip'
@@ -27,13 +29,13 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
-import { removeLocation } from '../../reducers/admin/location/service'
+// import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
-import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
+// import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminLocationState: selectAdminLocationState(state),
+    // adminLocationState: selectAdminLocationState(state),
     adminUserState: selectAdminUserState(state),
     adminInstanceState: selectAdminInstanceState(state),
     adminSceneState: selectAdminSceneState(state)
@@ -42,28 +44,28 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
+  // fetchAdminLocations: bindActionCreators(LocationService.fetchAdminLocations(), dispatch),
   fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
+  // fetchLocationTypes: bindActionCreators(LocationService.fetchLocationTypes(), dispatch),
   fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  removeLocation: bindActionCreators(removeLocation, dispatch)
+  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
+  // removeLocation: bindActionCreators(LocationService.removeLocation, dispatch)
 })
 
 const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const {
-    fetchAdminLocations,
+    // fetchAdminLocations,
     fetchAdminScenes,
-    fetchLocationTypes,
+    // fetchLocationTypes,
     fetchUsersAsAdmin,
     fetchAdminInstances,
-    adminLocationState,
+    //adminLocationState,
     adminUserState,
     adminInstanceState,
-    adminSceneState,
-    removeLocation
+    adminSceneState
+    //  removeLocation
   } = props
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
@@ -73,14 +75,16 @@ const LocationTable = (props: LocationProps) => {
   const [locationAdmin, setLocationAdmin] = React.useState('')
 
   const authState = useAuthState()
+  const adminLocationState = useLocationState()
+  const dispatch = useDispatch()
   const user = authState.user
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
-  const adminLocations = adminLocationState.get('locations').get('locations')
-  const adminLocationCount = adminLocationState.get('locations').get('total')
+  const adminLocations = adminLocationState.locations?.locations?.value
+  const adminLocationCount = adminLocationState.locations?.total?.value
   const { t } = useTranslation()
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminLocations(incDec)
+    dispatch(LocationService.fetchAdminLocations(incDec))
     setPage(newPage)
   }
 
@@ -90,18 +94,14 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (
-      user?.id?.value !== null &&
-      adminLocationState.get('locations').get('updateNeeded') &&
-      !adminScopeReadErrMsg?.value
-    ) {
-      fetchAdminLocations()
+    if (user?.id?.value !== null && adminLocationState.locations?.updateNeeded?.value && !adminScopeReadErrMsg?.value) {
+      dispatch(LocationService.fetchAdminLocations())
     }
     if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
       fetchAdminScenes('all')
     }
-    if (user?.id.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
-      fetchLocationTypes()
+    if (user?.id.value != null && adminLocationState.locationTypes?.updateNeeded?.value === true) {
+      dispatch(LocationService.fetchLocationTypes())
     }
     if (user?.id.value != null && adminUserState.get('users').get('updateNeeded') === true) {
       fetchUsersAsAdmin()
@@ -109,7 +109,13 @@ const LocationTable = (props: LocationProps) => {
     if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
       fetchAdminInstances()
     }
-  }, [authState.user?.id?.value, adminSceneState, adminInstanceState, adminLocationState])
+  }, [
+    authState.user?.id?.value,
+    adminSceneState,
+    adminInstanceState,
+    adminLocationState.locations?.updateNeeded?.value,
+    adminLocationState.locationTypes?.updateNeeded?.value
+  ])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -131,7 +137,7 @@ const LocationTable = (props: LocationProps) => {
     id: string,
     name: string,
     sceneId: string,
-    maxUsersPerInstance: string,
+    maxUsersPerInstance: number,
     scene: string,
     type: string,
     tags: any,
@@ -178,7 +184,7 @@ const LocationTable = (props: LocationProps) => {
       el.sceneId,
       el.maxUsersPerInstance,
       el.slugifiedName,
-      el.location_setting?.locationType,
+      el.location_setting,
       <div>
         {' '}
         {el.isFeatured && (
@@ -265,7 +271,7 @@ const LocationTable = (props: LocationProps) => {
           <Button
             className={classes.spanDange}
             onClick={async () => {
-              await removeLocation(locationId)
+              await dispatch(LocationService.removeLocation(locationId))
               setPopConfirmOpen(false)
             }}
             autoFocus

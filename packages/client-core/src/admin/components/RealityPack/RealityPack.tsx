@@ -15,7 +15,8 @@ import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/reality-pack/reducers'
-import { fetchLocationTypes } from '../../reducers/admin/location/service'
+// import { fetchLocationTypes } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/store/LocationService'
 import { fetchAdminRealityPacks } from '../../reducers/admin/reality-pack/service'
 import styles from './RealityPack.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
@@ -29,7 +30,7 @@ if (!global.setImmediate) {
 interface Props {
   locationState?: any
   fetchAdminRealityPacks?: any
-  fetchLocationTypes?: any
+  // fetchLocationTypes?: any
   adminRealityPackState?: any
 }
 
@@ -40,8 +41,8 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminRealityPacks: bindActionCreators(fetchAdminRealityPacks, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
+  fetchAdminRealityPacks: bindActionCreators(fetchAdminRealityPacks, dispatch)
+  // fetchLocationTypes: bindActionCreators(LocationService.fetchLocationTypes, dispatch)
 })
 
 const RealityPack = (props: Props) => {

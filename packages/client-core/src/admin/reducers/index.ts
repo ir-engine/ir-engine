@@ -3,7 +3,8 @@ import adminUserReducer from './admin/user/reducers'
 import contentPackReducer from './contentPack/reducers'
 import { adminAvatarReducer } from './admin/avatar/AvatarState'
 import adminInstanceReducer from './admin/instance/reducers'
-import adminLocationReducer from './admin/location/reducers'
+// import adminLocationReducer from './admin/location/reducers'
+import { locationReducer } from './admin/location/store/LocationState'
 import adminPartyReducer from './admin/party/reducers'
 import adminSceneReducer from './admin/scene/reducers'
 import { adminBotsReducer } from './admin/bots/BotsState'
@@ -27,7 +28,7 @@ export default {
   contentPack: contentPackReducer,
   adminAvatar: adminAvatarReducer,
   adminInstance: adminInstanceReducer,
-  adminLocation: adminLocationReducer,
+  adminLocation: locationReducer,
   adminParty: adminPartyReducer,
   adminRealityPack: adminRealityPackReducer,
   adminScene: adminSceneReducer,
