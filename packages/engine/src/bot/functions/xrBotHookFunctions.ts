@@ -5,7 +5,7 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../../networking/classes/Network'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
@@ -161,7 +161,7 @@ export const getInputSourceRotation = (inputSource: InputSource) => {
   }
 }
 
-const tweens = []
+const tweens: any[] = []
 
 export const sendXRInputData = () => {
   tweens.forEach((call) => call())

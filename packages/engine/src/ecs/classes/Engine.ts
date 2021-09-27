@@ -103,7 +103,7 @@ export class Engine {
    */
   static camera: PerspectiveCamera | OrthographicCamera = null!
   static activeCameraEntity: Entity
-  static activeCameraFollowTarget: Entity
+  static activeCameraFollowTarget: Entity | null
 
   /**
    * Reference to the Transform component of the three.js camera object.
