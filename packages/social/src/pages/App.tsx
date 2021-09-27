@@ -50,7 +50,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, changeWebXrNative, getWebXrNative }) => {
   const auth = useAuthState()
-  console.log(auth.user.userRole.value)
   /*hided for now*/
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
@@ -61,6 +60,10 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
 
   const currentCreator = creatorsState.get('currentCreator')
   const currentTime = new Date(Date.now()).toISOString()
+
+  console.log(auth.user.userRole.value)
+  console.log('currentCreator')
+  console.log(currentCreator)
 
   useEffect(() => {
     if (!!currentCreator && !!currentCreator.createdAt) {
@@ -78,6 +81,7 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
   const platformClass = isIOS ? styles.isIos : ''
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
+  console.log(!currentCreator || currentCreator === null || currentCreator?.isBlocked == false)
   if (!currentCreator || currentCreator === null || (splashTimeout && currentCreator.isBlocked == false)) {
     //add additional duration Splash after initialized user
     const splash = setTimeout(() => {
@@ -87,7 +91,7 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
     return <Splash />
   }
 
-  if (currentCreator.isBlocked == true) {
+  if (currentCreator?.isBlocked == true) {
     return (
       <div>
         <Splash />
@@ -99,28 +103,32 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
   return (
-    <div className={platformClass + ' ' + hideContentOnRecord}>
-      {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
-      <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-        <AppHeader />
-        {/* <Stories stories={stories} /> */}
-        <FeedMenu view={view} setView={setView} />
-        <AppFooter setView={setView} />
-        {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
-        <ArMediaPopup />
-        <WebXRStart
-          feedHintsOnborded={feedHintsOnborded}
-          webxrRecorderActivity={webxrRecorderActivity}
-          setContentHidden={changeWebXrNative}
-          setFeedHintsOnborded={setFeedHintsOnborded}
-        />
-        <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedFormPopup setView={setView} />
-        <SharedFormPopup setView={setView} />
+    <>
+      <div className={platformClass + ' ' + hideContentOnRecord}>
+        {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
+        <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
+          <AppHeader />
+          {/* <Stories stories={stories} /> */}
+          <FeedMenu view={view} setView={setView} />
+          <AppFooter setView={setView} />
+          {currentCreator &&
+            (!!!currentCreator.terms || !!!currentCreator.policy) &&
+            auth.user.userRole.value === 'user' && <TermsAndPolicy />}
+          <ArMediaPopup />
+          <WebXRStart
+            feedHintsOnborded={feedHintsOnborded}
+            webxrRecorderActivity={webxrRecorderActivity}
+            setContentHidden={changeWebXrNative}
+            setFeedHintsOnborded={setFeedHintsOnborded}
+          />
+          <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+          <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+          <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+          <FeedFormPopup setView={setView} />
+          <SharedFormPopup setView={setView} />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -92,10 +92,11 @@ export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
         <DialogContent>
           <DialogContentText>
             <Typography align="center" variant="subtitle1">
-              By tapping "I agree to Terms of Service and Policy of Service", you agree to our{' '}
+              {'By tapping "I agree to Terms of Service and Policy of Service", you agree to our '}
               <Link to="/terms">Terms of Service</Link>
-              and acknowledge that you have our <Link to="/policy">Privacy Policy</Link>
-              to learn how we collect, use, and share your data.
+              {' and acknowledge that you have our '}
+              <Link to="/policy">Privacy Policy</Link>
+              {' to learn how we collect, use, and share your data.'}
             </Typography>
           </DialogContentText>
         </DialogContent>
