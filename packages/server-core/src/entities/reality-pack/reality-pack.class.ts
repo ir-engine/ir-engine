@@ -1,6 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+
+interface Data {}
 
 export class RealityPack extends Service {
   app: Application

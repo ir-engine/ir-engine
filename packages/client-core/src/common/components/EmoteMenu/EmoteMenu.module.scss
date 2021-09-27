@@ -68,6 +68,17 @@
         align-items: center;
         border-radius: 50%;
         border: solid 100px rgba(0, 0, 0, 0.8);
+        border-bottom-color: transparent;
+        opacity:0.9;
+        position:relative;
+        width:361.4px !important;
+        height:361.4px !important;
+        border-width: 70px !important;
+        left: -30px;
+
+
+
+
 
         .menuItemBlock {
             position: relative;
@@ -91,6 +102,37 @@
     }
 }
 
+
+
 .hideMenu {
     transform: scale(0);
 }
+       .itemContainer::before {
+     content: "";
+    width: 33px;
+    height: 70px;
+    position: absolute;
+    left: 2.9px;
+    top: 190px;
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: rotate(45deg);
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    opacity: 1;
+}
+.itemContainer::after {
+    content: "";
+    width: 33px;
+    height: 70px;
+    position: absolute;
+    right: 2.9px;
+    top: 190px;
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: rotate(135deg);
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    opacity: 1;
+}
+
+
+

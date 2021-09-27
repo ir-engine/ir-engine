@@ -8,20 +8,25 @@ import { SceneManager } from '../../../managers/SceneManager'
 import { CommandManager } from '../../../managers/CommandManager'
 
 const GridTool = () => {
-  const [temp, setTemp] = useState(0)
+  const [isGridVisible, setGridVisible] = useState(true)
+  const [gridHeight, setGridHeight] = useState(0)
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), update)
-    CommandManager.instance.addListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), update)
+    CommandManager.instance.addListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), updateGridHeight)
+    CommandManager.instance.addListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), updateGridVisibility)
 
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), update)
-      CommandManager.instance.removeListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), update)
+      CommandManager.instance.removeListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), updateGridHeight)
+      CommandManager.instance.removeListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), updateGridVisibility)
     }
   }, [])
 
-  const update = () => {
-    setTemp(temp + 1)
+  const updateGridVisibility = () => {
+    setGridVisible(SceneManager.instance.grid.visible)
+  }
+
+  const updateGridHeight = () => {
+    setGridHeight(SceneManager.instance.grid.position.y)
   }
 
   const onToggleGridVisible = () => {
@@ -35,18 +40,21 @@ const GridTool = () => {
   return (
     <div id="transform-grid" className={styles.toolbarInputGroup}>
       <InfoTooltip info="Toggle Grid Visibility">
-        <button onClick={onToggleGridVisible} className={styles.toggleButton}>
+        <button
+          onClick={onToggleGridVisible}
+          className={styles.toolButton + ' ' + (isGridVisible ? styles.selected : '')}
+        >
           <Grid size={16} />
         </button>
       </InfoTooltip>
       <NumericStepperInput
         className={styles.toolbarNumericStepperInput}
-        value={SceneManager.instance.grid.position.y}
+        value={gridHeight}
         onChange={onChangeGridHeight}
         precision={0.01}
-        smallStep={0.25}
-        mediumStep={1.5}
-        largeStep={4.5}
+        smallStep={0.5}
+        mediumStep={1}
+        largeStep={5}
         unit="m"
         incrementTooltip="[-] Increment Grid Height"
         decrementTooltip="[=] Decrement Grid Height"

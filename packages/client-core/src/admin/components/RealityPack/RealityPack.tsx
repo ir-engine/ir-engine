@@ -20,6 +20,7 @@ import { LocationService } from '../../reducers/admin/location/store/LocationSer
 import { fetchAdminRealityPacks } from '../../reducers/admin/reality-pack/service'
 import styles from './RealityPack.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
+import UploadRealityPackModel from '../ContentPack/UploadRealityPackModel'
 import { selectAdminRealityPackState } from '../../reducers/admin/reality-pack/selector'
 import { AuthService } from '../../../user/reducers/auth/AuthService'
 
@@ -138,6 +139,7 @@ const RealityPack = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(REALITY_PACK_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
+  const [uploadRealityPackModalOpen, setUploadRealityPackModalOpen] = useState(false)
   const [selectedRealityPacks, setSelectedRealityPacks] = useState([])
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
@@ -225,6 +227,17 @@ const RealityPack = (props: Props) => {
               type="button"
               variant="contained"
               color="primary"
+              onClick={() => setUploadRealityPackModalOpen(true)}
+            >
+              {'Add Reality Pack'}
+            </Button>
+          </Grid>
+          <Grid item xs={6}>
+            <Button
+              className={styles['open-modal']}
+              type="button"
+              variant="contained"
+              color="primary"
               onClick={() => setAddToContentPackModalOpen(true)}
             >
               {dimensions.width <= 768 ? '+ Pack' : 'Add to Content Pack'}
@@ -243,7 +256,7 @@ const RealityPack = (props: Props) => {
               rowCount={adminRealityPackCount || 0}
             />
             <TableBody>
-              {stableSort(adminRealityPacks, getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(adminRealityPacks ?? [], getComparator(order, orderBy)).map((row, index) => {
                 return (
                   <TableRow
                     hover
@@ -299,6 +312,10 @@ const RealityPack = (props: Props) => {
           open={addToContentPackModalOpen}
           realityPacks={selectedRealityPacks}
           handleClose={() => setAddToContentPackModalOpen(false)}
+        />
+        <UploadRealityPackModel
+          open={uploadRealityPackModalOpen}
+          handleClose={() => setUploadRealityPackModalOpen(false)}
         />
       </Paper>
     </div>
