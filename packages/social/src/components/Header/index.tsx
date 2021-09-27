@@ -29,8 +29,9 @@ interface Props {
   getLoggedCreator?: any
   logo?: string
   updateCreatorFormState?: typeof updateCreatorFormState
+  setView: any
 }
-const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState }: Props) => {
+const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState, setView }: any) => {
   const { t } = useTranslation()
   useEffect(() => getLoggedCreator(), [])
   const creator =
@@ -40,7 +41,17 @@ const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState }: P
 
   return (
     <nav className={styles.headerContainer}>
-      <img src="/assets/LogoColored.png" className={styles.headerLogo} alt="ARC" />
+      <img
+        src="/assets/LogoColored.png"
+        className={styles.headerLogo}
+        alt="ARC"
+        style={{
+          cursor: 'pointer'
+        }}
+        onClick={() => {
+          setView('featured')
+        }}
+      />
       {creator &&
         {
           /*!checkGuest*/
