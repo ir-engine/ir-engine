@@ -79,7 +79,7 @@ export class World {
   /**
    * The local client entity
    */
-  localClientEntity = undefined! as Entity
+  localClientEntity: Entity
 
   /**
    * Systems that run only once every frame.
