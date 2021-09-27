@@ -22,12 +22,16 @@ import { selectInstanceConnectionState } from '../../reducers/instanceConnection
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import { provisionChannelServer } from '../../reducers/channelConnection/service'
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import InstanceChat from '../../components/InstanceChat'
+import MediaIconsBox from '../../components/MediaIconsBox'
+import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -117,6 +121,17 @@ export const EnginePage = (props: Props) => {
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
   let sceneId = null
+
+  const [loadingItemCount, setLoadingItemCount] = useState(99)
+
+  const onSceneLoadProgress = (loadingItemCount: number): void => {
+    setLoadingItemCount(loadingItemCount || 0)
+  }
+
+  const engineCallbacks: EngineCallbacks = {
+    onSceneLoadProgress,
+    onSceneLoaded: () => setLoadingItemCount(0)
+  }
 
   const userState = useUserState()
   const dispatch = useDispatch()
@@ -286,40 +301,54 @@ export const EnginePage = (props: Props) => {
 
   if (isInXR) return <></>
 
+  const defaultOverlayElements = () => {
+    return (
+      <>
+        <LoadingScreen objectsToLoad={loadingItemCount} />
+        {!isValidLocation && (
+          <Snackbar
+            open
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'center'
+            }}
+          >
+            <>
+              <section>Location is invalid</section>
+              <Button onClick={goHome}>Return Home</Button>
+            </>
+          </Snackbar>
+        )}
+
+        {props.allowDebug && <NetworkDebug reinit={reinit} />}
+
+        {props.children}
+
+        {props.showTouchpad && isTouchAvailable ? (
+          <Suspense fallback={<></>}>
+            <TouchGamepad layout="default" />
+          </Suspense>
+        ) : null}
+
+        <GameServerWarnings
+          isTeleporting={isTeleporting}
+          locationName={props.locationName}
+          instanceId={selfUser?.instanceId.value ?? party?.instanceId}
+        />
+        <InteractableModal />
+        {/* <RecordingApp /> */}
+        <MediaIconsBox />
+        <UserMenu />
+        <EmoteMenu />
+        <InstanceChat />
+      </>
+    )
+  }
+
   return (
     <>
-      {!isValidLocation && (
-        <Snackbar
-          open
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center'
-          }}
-        >
-          <>
-            <section>Location is invalid</section>
-            <Button onClick={goHome}>Return Home</Button>
-          </>
-        </Snackbar>
-      )}
-
-      {props.allowDebug && <NetworkDebug reinit={reinit} />}
-
-      {props.children}
-
       <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
-
-      {props.showTouchpad && isTouchAvailable ? (
-        <Suspense fallback={<></>}>
-          <TouchGamepad layout="default" />
-        </Suspense>
-      ) : null}
-
-      <GameServerWarnings
-        isTeleporting={isTeleporting}
-        locationName={props.locationName}
-        instanceId={selfUser?.instanceId.value ?? party?.instanceId}
-      />
+      {defaultOverlayElements()}
     </>
   )
 }
