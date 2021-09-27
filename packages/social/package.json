@@ -57,7 +57,8 @@
     "sass": "1.42.1",
     "styled-components": "5.3.1",
     "volumetric": "0.2.28",
-    "webxr-native": "0.3.0"
+    "webxr-native": "0.3.0",
+    "notistack": "1.0.10"
   },
   "devDependencies": {
     "@types/node": "14.17.19",

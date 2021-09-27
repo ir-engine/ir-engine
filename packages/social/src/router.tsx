@@ -56,6 +56,13 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/auth/forgotpassword" component={React.lazy(() => import('./pages/auth/forgotpassword'))} />
         <Route path="/auth/magiclink" component={React.lazy(() => import('./pages/auth/magiclink'))} />
 
+        {/* Registration Routes */}
+        <Route
+          path="/registration/stepOne"
+          component={React.lazy(() => import('./pages/Registration/RegistrationStepOne'))}
+        />
+        <Route path="/registration" component={React.lazy(() => import('./pages/Registration'))} />
+
         {/* Post Routes */}
         <Route path="/post/:pid" component={React.lazy(() => import('./pages/post/[pid]'))} />
 
