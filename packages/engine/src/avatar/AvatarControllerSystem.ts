@@ -16,6 +16,7 @@ import { SpawnPoints } from './ServerAvatarSpawnSystem'
 import { dispatchFromClient } from '../networking/functions/dispatch'
 import { NetworkWorldAction } from '../networking/interfaces/NetworkWorldActions'
 import { SpawnPoseComponent } from './components/SpawnPoseComponent'
+import { respawnAvatar } from './functions/respawnAvatar'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -104,19 +105,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {
-        const { position, rotation } = getComponent(entity, SpawnPoseComponent)
-        const networkObject = getComponent(entity, NetworkObjectComponent)
-        dispatchFromClient(
-          NetworkWorldAction.teleportObject(networkObject.networkId, [
-            position.x,
-            position.y,
-            position.z,
-            rotation.x,
-            rotation.y,
-            rotation.z,
-            rotation.w
-          ])
-        )
+        respawnAvatar(entity)
         continue
       }
     }
