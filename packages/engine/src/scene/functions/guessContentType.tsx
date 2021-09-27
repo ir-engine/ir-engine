@@ -27,6 +27,6 @@ export const CommonKnownContentTypes = {
  */
 
 export function guessContentType(url): string {
-  const extension = new URL(url).pathname.split('.').pop()
+  const extension = new URL(url).pathname.split('.').pop()!
   return CommonKnownContentTypes[extension]
 }

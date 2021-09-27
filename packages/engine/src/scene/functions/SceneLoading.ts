@@ -1,4 +1,15 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, Object3D, PointLight, SpotLight } from 'three'
+import {
+  AmbientLight,
+  DirectionalLight,
+  Euler,
+  HemisphereLight,
+  Mesh,
+  Object3D,
+  PointLight,
+  Quaternion,
+  SpotLight,
+  Vector3
+} from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -36,7 +47,6 @@ import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
 import { createPortal } from '../functions/createPortal'
 import { createSkybox } from '../functions/createSkybox'
-import { createTransformComponent } from '../functions/createTransformComponent'
 import { createTriggerVolume } from '../functions/createTriggerVolume'
 import { configureCSM, handleRendererSettings } from '../functions/handleRendererSettings'
 import { loadGLTFModel } from '../functions/loadGLTFModel'
@@ -242,7 +252,14 @@ export class WorldScene {
         break
 
       case 'transform':
-        createTransformComponent(entity, component.data)
+        const { position, rotation, scale } = component.data
+        addComponent(entity, TransformComponent, {
+          position: new Vector3(position.x, position.y, position.z),
+          rotation: new Quaternion().setFromEuler(
+            new Euler().setFromVector3(new Vector3(rotation.x, rotation.y, rotation.z), 'XYZ')
+          ),
+          scale: new Vector3(scale.x, scale.y, scale.z)
+        })
         break
 
       case 'fog':
