@@ -64,8 +64,11 @@ export const download = async (packName) => {
 
     const localRealityPackDirectory = path.resolve(__dirname, '../../realitypacks/packs', packName)
     if (fs.existsSync(localRealityPackDirectory)) {
+      console.log('[Reality pack temp debug]: fs exists, deleting')
       deleteFolderRecursive(localRealityPackDirectory)
     }
+
+    console.log('[Reality pack temp debug]: local dir', localRealityPackDirectory)
 
     writeFileSyncRecursive(path.resolve(localRealityPackDirectory, 'manifest.json'), manifestResult.Body.toString()) //, 'utf8')
 
