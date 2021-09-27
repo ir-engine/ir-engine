@@ -15,7 +15,7 @@ import InputLabel from '@material-ui/core/InputLabel'
 import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import { client } from '@xrengine/client-core/src/feathers'
-import { showAlert } from '@xrengine/client-core/src/common/reducers/alert/actions'
+import { AlertAction } from '@xrengine/client-core/src/common/reducers/alert/AlertActions'
 import styles from '../MapUserMenu.module.scss'
 import { Views } from '../util'
 
@@ -71,7 +71,7 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
 
     upsertPromise
       .then((_) => {
-        dispatch(showAlert('success', t('user:usermenu.newLocation.success')))
+        dispatch(AlertAction.showAlert('success', t('user:usermenu.newLocation.success')))
         changeActiveMenu(Views.Location)
       })
       .catch((err) => {
@@ -80,7 +80,7 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
           return
         }
 
-        dispatch(showAlert('error', t('user:usermenu.newLocation.failure')))
+        dispatch(AlertAction.alertError(t('user:usermenu.newLocation.failure')))
         console.error('Error =>', err)
       })
   }
@@ -90,11 +90,11 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
       .service('location')
       .remove(location.id)
       .then((_) => {
-        dispatch(showAlert('success', t('user:usermenu.newLocation.removeSuccess')))
+        dispatch(AlertAction.alertSuccess(t('user:usermenu.newLocation.removeSuccess')))
         changeActiveMenu(Views.Location)
       })
       .catch((err) => {
-        dispatch(showAlert('error', t('user:usermenu.newLocation.failure')))
+        dispatch(AlertAction.alertError(t('user:usermenu.newLocation.failure')))
         console.error('Error =>', err)
       })
     setShowDeleteDialog(false)

@@ -2,6 +2,7 @@ import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
 import { AudioListener } from './audio/StereoAudioListener'
+//@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
@@ -131,8 +132,8 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.Free, import('./networking/systems/IncomingNetworkSystem'))
 
   // Input
-  registerSystem(SystemUpdateType.Free, import('./input/systems/ClientInputSystem'))
   registerSystem(SystemUpdateType.Free, import('./xr/systems/XRSystem'))
+  registerSystem(SystemUpdateType.Free, import('./input/systems/ClientInputSystem'))
   registerSystem(SystemUpdateType.Free, import('./camera/systems/CameraSystem'))
   registerSystem(SystemUpdateType.Free, import('./navigation/systems/AutopilotSystem'))
 

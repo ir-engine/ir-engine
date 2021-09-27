@@ -8,7 +8,6 @@ import { System } from '../classes/System'
  * @author Gheric Speiginer <github.com/speigg>
  */
 export default async function FixedPipelineSystem(world: World, args: { updatesPerSecond: number }): Promise<System> {
-  console.log(args)
   let accumulator = 0
 
   const timestep = 1 / args.updatesPerSecond
@@ -31,7 +30,7 @@ export default async function FixedPipelineSystem(world: World, args: { updatesP
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       world.fixedElapsedTime += world.fixedDelta
 
-      for (const s of world.fixedSystems) s(world)
+      for (const s of world.fixedSystems) s()
 
       accumulator -= timestep
       ++updatesCount

@@ -231,7 +231,7 @@ const ProfileMenu = (props: Props): any => {
                 </form>
               </section>
             )}
-            {selfUser?.userRole.value === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && changeActiveMenu != null && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}

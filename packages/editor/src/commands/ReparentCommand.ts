@@ -109,6 +109,7 @@ export default class ReparentCommand extends Command {
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, {
       shouldGizmoUpdate: false
     })
+
     CommandManager.instance.updateTransformRoots()
     this.emitAfterExecuteEvent()
   }
@@ -142,7 +143,7 @@ export default class ReparentCommand extends Command {
         throw new Error(i18n.t('editor:errors.noParent', { node: object.nodeName || object.type, name: object.name }))
       }
 
-      const newParent = Array.isArray(parents) ? parents[i] : parents
+      const newParent = parents[i] ?? parents[0]
 
       if (!newParent) {
         throw new Error(i18n.t('editor:errors.undefinedParent'))

@@ -33,6 +33,8 @@ export class ControlManager {
     this.flyControls = new FlyControls(SceneManager.instance.camera as any, this.inputManager)
     this.editorControls = new EditorControls(SceneManager.instance.camera, this.inputManager, this.flyControls)
     this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls)
+
+    this.editorControls.center.set(0, 0, 0)
     this.editorControls.enable()
   }
 
@@ -45,7 +47,7 @@ export class ControlManager {
     this.isInPlayMode = true
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
     SceneManager.instance.camera.layers.disable(1)
-    ControlManager.instance.playModeControls.enable()
+    this.playModeControls.enable()
     SceneManager.instance.scene.traverse((node) => {
       if (node.isNode) {
         node.onPlay()

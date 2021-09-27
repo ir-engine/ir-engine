@@ -77,12 +77,9 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
           } else if (entityId === root) {
             scene = node
             scene.metadata = metadata
-            // Needed so that scene is set correctly when used in nodes deserialize methods.
-            SceneManager.instance.scene = scene
           } else {
             throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
           }
-          node.onChange()
         } catch (e) {
           console.error('Node failed to load - it will be removed', e)
           errors.push(e)
@@ -246,7 +243,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   async setUpEnvironmentMapTexture() {
-    const pmremGenerator = new PMREMGenerator(SceneManager.instance.renderer.renderer)
+    const pmremGenerator = new PMREMGenerator(SceneManager.instance.renderer.webglRenderer)
     switch (this.envMapTextureType) {
       case EnvMapTextureType.Equirectangular:
         try {
@@ -339,7 +336,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       data[i + 1] = Math.floor(col.g * 255)
       data[i + 2] = Math.floor(col.b * 255)
     }
-    const pmren = new PMREMGenerator(SceneManager.instance.renderer.renderer)
+    const pmren = new PMREMGenerator(SceneManager.instance.renderer.webglRenderer)
     const texture = new DataTexture(data, resolution, resolution, RGBFormat)
     texture.encoding = sRGBEncoding
     this.environment = pmren.fromEquirectangular(texture).texture

@@ -1,6 +1,6 @@
 import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { client } from '../../../feathers'
 import Store from '../../../store'
 import {
@@ -32,7 +32,7 @@ export function getGroups(skip?: number, limit?: number) {
       dispatch(loadedGroups(groupResults))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -46,7 +46,7 @@ export function createGroup(values: any) {
       })
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -64,7 +64,7 @@ export function patchGroup(values: any) {
       await client.service('group').patch(values.id, patch)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -83,7 +83,7 @@ export function removeGroup(groupId: string) {
       await client.service('group').remove(groupId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -94,7 +94,7 @@ export function removeGroupUser(groupUserId: string) {
       await client.service('group-user').remove(groupUserId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -113,7 +113,7 @@ export function getInvitableGroups(skip?: number, limit?: number) {
       dispatch(loadedInvitableGroups(groupResults))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
       dispatch(loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
     }
   }

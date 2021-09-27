@@ -1,15 +1,19 @@
 import { WebGL1Renderer, WebGLRenderer, PCFSoftShadowMap, LinearToneMapping, sRGBEncoding } from 'three'
+import WebGL from '@xrengine/engine/src/renderer/THREE.WebGL'
+
 export default function makeRenderer(width, height, props = {}) {
   let { canvas } = props as any
   if (!canvas) {
     canvas = document.createElement('canvas')
   }
-  let context
-  try {
-    context = canvas.getContext('webgl2', { antialias: true })
-  } catch (error) {
-    context = canvas.getContext('webgl', { antialias: true })
+
+  let supportWebGL2 = WebGL.isWebGL2Available()
+
+  if (!supportWebGL2 && !WebGL.isWebGLAvailable()) {
+    WebGL.dispatchWebGLDisconnectedEvent()
   }
+
+  const context = supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
   const options = {
     ...props,
     canvas,

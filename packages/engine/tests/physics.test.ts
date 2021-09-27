@@ -2,10 +2,11 @@ import { initializeEngine } from '../src/initializeEngine'
 import { engineTestSetup } from './util/setupEngine'
 import { useWorld } from "../src/ecs/functions/SystemHooks"
 import { putIntoPhysXHeap, vectorToArray } from "../src/physics/functions/physxHelpers"
+import assert from 'assert'
 
 describe('Physics', () => {
 
-  afterAll(() => setTimeout(() => process.exit(0), 500))
+  after(() => setTimeout(() => process.exit(0), 500))
 
   // face indexed cube data
   const vertices = [
@@ -33,7 +34,7 @@ describe('Physics', () => {
     0, 2, 4
   ]
 
-  test.skip('Can load physics convex mesh', async () => {
+  it.skip('Can load physics convex mesh', async () => {
     await initializeEngine(engineTestSetup)
     const world = useWorld()
 
@@ -48,11 +49,11 @@ describe('Physics', () => {
     PhysX._free(verticesPtr)
 
     const newVertices = vectorToArray(trimesh.getVertices())
-    expect(newVertices).toEqual(vertices)
+    assert.equal(newVertices, vertices)
   })
 
 
-  test('Can load physics trimesh', async () => {
+  it('Can load physics trimesh', async () => {
     await initializeEngine(engineTestSetup)
     const world = useWorld()
 
@@ -80,9 +81,8 @@ describe('Physics', () => {
     //     'expected', indices[i], indices[i + 1], indices[i + 2]
     //   )
     // }
-    // console.log(newIndices, indices)
-    expect(newVertices).toEqual(vertices)
-    expect(newIndices.length).toEqual(indices.length)
+    assert.deepEqual(newVertices, vertices)
+    assert.equal(newIndices.length, indices.length)
   })
 
 })

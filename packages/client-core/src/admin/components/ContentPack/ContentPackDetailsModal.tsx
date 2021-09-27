@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
 import styles from './ContentPack.module.scss'
 import { downloadContentPack } from '../../reducers/contentPack/service'
 import { Done } from '@material-ui/icons'
@@ -23,9 +22,7 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -126,6 +123,18 @@ const ContentPackDetailsModal = (props: Props): any => {
                       <div key={scene.name} className={styles['scene']}>
                         <div className={styles['name']}>{scene.name}</div>
                         {scene.thumbnail && <img src={scene.thumbnail} />}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              <div className={styles['reality-packs-container']}>
+                <div className={styles['header']}>Reality Packs</div>
+                <div className={styles['container']}>
+                  {contentPack.data?.realityPacks?.map((realityPack) => {
+                    return (
+                      <div key={realityPack.name} className={styles['scene']}>
+                        <div className={styles['name']}>{realityPack.name}</div>
                       </div>
                     )
                   })}

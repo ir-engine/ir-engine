@@ -126,8 +126,6 @@ export const processLocationChange = async (): Promise<void> => {
 type SystemGroupInterface = (() => void)[]
 
 export function createWorld() {
-  console.log('Creating world')
-
   const worldShape = {
     sceneMetadata: undefined as string | undefined,
     worldMetadata: {} as { [key: string]: string },

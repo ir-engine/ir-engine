@@ -23,7 +23,7 @@ import { selectAdminLocationState } from '../../reducers/admin/location/selector
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 import { createLocation as createLocationAction } from '../../reducers/admin/location/service'
 import { validateUserForm } from '../Users/validation'
-import { selectAlertState } from '../../../common/reducers/alert/selector'
+import { useAlertState } from '../../../common/reducers/alert/AlertState'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -36,14 +36,12 @@ interface Props {
   adminSceneState?: any
   createLocationAction?: any
   closeViewModel?: any
-  adminAlert?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     adminLocationState: selectAdminLocationState(state),
-    adminSceneState: selectAdminSceneState(state),
-    adminAlert: selectAlertState(state)
+    adminSceneState: selectAdminSceneState(state)
   }
 }
 
@@ -52,8 +50,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const CreateLocation = (props: Props) => {
-  const { open, handleClose, adminLocationState, adminSceneState, createLocationAction, closeViewModel, adminAlert } =
-    props
+  const { open, handleClose, adminLocationState, adminSceneState, createLocationAction, closeViewModel } = props
   const classesx = useLocationStyle()
   const classes = useLocationStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
@@ -82,8 +79,9 @@ const CreateLocation = (props: Props) => {
   const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
   const location = adminLocationState.get('locations')
   const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const errorType = adminAlert.get('type')
-  const errorMessage = adminAlert.get('message')
+  const alertState = useAlertState()
+  const errorType = alertState.type
+  const errorMessage = alertState.message
 
   React.useEffect(() => {
     if (location.get('created')) {
@@ -106,14 +104,14 @@ const CreateLocation = (props: Props) => {
   }, [location])
 
   React.useEffect(() => {
-    if (errorType === 'error') {
-      setError(errorMessage)
+    if (errorType.value === 'error') {
+      setError(errorMessage.value)
       setOpenWarning(true)
       setTimeout(() => {
         setOpenWarning(false)
       }, 5000)
     }
-  }, [errorType, errorMessage])
+  }, [errorType.value, errorMessage.value])
 
   const handleCloseWarning = (event, reason) => {
     if (reason === 'clickaway') {

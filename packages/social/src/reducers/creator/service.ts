@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
@@ -36,7 +36,7 @@ export function createCreator() {
       dispatch(creatorLoggedRetrieved(creator))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -49,7 +49,7 @@ export function getLoggedCreator() {
       dispatch(creatorLoggedRetrieved(creator))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -62,7 +62,7 @@ export function getCreators(limit?: number) {
       dispatch(creatorsRetrieved(results))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -75,7 +75,7 @@ export function getCreator(creatorId) {
       dispatch(creatorRetrieved(creator))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -97,7 +97,7 @@ export function updateCreator(creator: Creator, callBack: Function) {
       }
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
       callBack(err.message)
     }
   }
@@ -112,7 +112,7 @@ export function getCreatorNotificationList() {
       dispatch(creatorNotificationList(notificationList))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -124,7 +124,7 @@ export function followCreator(creatorId: string) {
       follow && dispatch(updateCreatorAsFollowed())
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -136,7 +136,7 @@ export function unFollowCreator(creatorId: string) {
       follow && dispatch(updateCreatorNotFollowed())
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -148,7 +148,7 @@ export function blockCreator(creatorId: string) {
       follow && dispatch(updateCreatorAsBlocked(creatorId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -163,7 +163,7 @@ export function unBlockCreator(blokedCreatorId: string) {
       }
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -175,7 +175,7 @@ export function getBlockedList(creatorId: string) {
       dispatch(creatorBlockedUsers(list.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -187,7 +187,7 @@ export function getFollowersList(creatorId: string) {
       dispatch(creatorFollowers(list.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -199,7 +199,7 @@ export function getFollowingList(creatorId: string) {
       dispatch(creatorFollowing(list.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

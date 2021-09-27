@@ -124,81 +124,62 @@
       "lbl-automatic": "Automatic"
     },
     "profile": {
-      "lbl-username": "Username",
-      "youAreA": "You are a",
-      "youAreAn": "You are an",
-      "logout": "Log out",
-      "inviteCode": "Invite Code",
-      "connectPhone": "Connect your email or phone number",
-      "ph-phoneEmail": "Phone Number / Email",
-      "phoneEmailError": "Valid Email or Phone number is required",
-      "or": "Or",
-      "lbl-wallet": "Login with Wallet",
-      "loginWithReadyPlayerMe": "Login with ready player me",
-      "connectSocial": "Or connect with social accounts",
-      "createOne": "If you don’t have an account, a new one will be created for you."
+        "lbl-profile": "Profile",
+        "lbl-settings": "Settings",
+        "connections": {
+            "title": "Connections",
+            "ipError": "Can not remove active Identity Provider",
+            "disconnect": "disconnect",
+            "connect": "Connect"
+        },
+        "profileDropdown": {
+            "avatar": "User Avatar Icon",
+            "profile": "Profile",
+            "adminConsole": "Admin Console",
+            "logout": "Logout"
+        },
+        "userIcon": {
+            "lbl-name": "Your name",
+            "lbl-update": "Update",
+            "userId": "User ID",
+            "ph-uploadImg": "Upload Product Image",
+            "lbl-selectAcvatar": "Select Avatar",
+            "lbl-submit": "Submit"
+        },
+        "userSettings": {
+            "volume": "Volume",
+            "microphone": "Microphone",
+            "resolution": "Resolution",
+            "high": "High",
+            "low": "Low",
+            "spatialAudio": "Use Spatial Audio",
+            "enterMuted": "Enter Room Muted"
+        }
     },
-    "registration": {
-      "ph-phoneEmail": "Use phone / email",
-      "facebook": "Continue with Facebook",
-      "google": "Continue with Google",
-      "linkedin": "Continue with Linkedin",
-      "twitter": "Continue with Twitter",
-      "gitHub": "Continue with GitHub",
-      "connect": "Connect your email or phone number"
+    "oauth": {
+        "authenticating": "Authenticating...",
+        "authFailed": "{{service}} authentication failed."
     },
-    "avatar": {
-      "title": "Upload Avatar",
-      "lbl-browse": "Browse",
-      "lbl-thumbnail": "Thumbnail",
-      "lbl-upload": "Upload",
-      "selectAvatar": "Select Avatar...",
-      "selectThumbnail": "Select Thumbnail...",
-      "rotate": "Rotate",
-      "pan": "Pan",
-      "noBone": "Obejct does not contain any bones or skin",
-      "outOfBound": "Object is out of bound.",
-      "emptyObj": "Object is empty.",
-      "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
-      "selectValidFile": "Select valid 3d avatar file.",
-      "selectValidThumbnail": "Selected valid Thumbnail file.",
-      "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
-      "confirmation": "Are you sure?",
-      "canNotBeRemoved": "Active Avatar can not be removed",
-      "remove": "Remove avatar"
-    }
-  },
-  "profile": {
-    "lbl-profile": "Profile",
-    "lbl-settings": "Settings",
-    "connections": {
-      "title": "Connections",
-      "ipError": "Can not remove active Identity Provider",
-      "disconnect": "disconnect",
-      "connect": "Connect"
+    "magikLink": {
+        "wait": "Please wait a moment while processing..."
     },
-    "profileDropdown": {
-      "avatar": "User Avatar Icon",
-      "profile": "Profile",
-      "adminConsole": "Admin Console",
-      "logout": "Logout"
-    },
-    "userIcon": {
-      "lbl-name": "Your name",
-      "lbl-update": "Update",
-      "userId": "User ID",
-      "ph-uploadImg": "Upload Product Image",
-      "lbl-selectAcvatar": "Select Avatar",
-      "lbl-submit": "Submit"
-    },
-    "userSettings": {
-      "volume": "Volume",
-      "microphone": "Microphone",
-      "resolution": "Resolution",
-      "high": "High",
-      "low": "Low",
-      "spatialAudio": "Use Spatial Audio",
-      "enterMuted": "Enter Room Muted"
+    "dashboard": {
+        "header": "Dashboard",
+        "dashboard": "Dashboard",
+        "users": "Users",
+        "feeds": "Feeds",
+        "instance": "Instance",
+        "locations": "Locations",
+        "invites": "Invites",
+        "sessions": "Sessions",
+        "groups": "Groups",
+        "parties": "Parties",
+        "chats": "Chats",
+        "content": "Content Packs",
+        "realityPacks": "Reality Packs",
+        "scenes": "Scenes",
+        "avatars": "Avatars",
+        "bots": "Bots"
     }
   },
   "oauth": {

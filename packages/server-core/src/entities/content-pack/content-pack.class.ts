@@ -2,7 +2,15 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import StorageProvider from '../../media/storageprovider/storageprovider'
-import { assembleScene, getAxiosConfig, populateAvatar, populateScene, uploadAvatar } from './content-pack-helper'
+import {
+  assembleScene,
+  getAxiosConfig,
+  populateAvatar,
+  populateScene,
+  uploadAvatar,
+  assembleRealityPack,
+  populateRealityPack
+} from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
 
@@ -29,6 +37,11 @@ const getAvatarUrl = (packName: string, avatar: any) =>
   `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/${avatar.key}`
 const getAvatarThumbnailUrl = (packName: string, thumbnail: any) =>
   `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/${thumbnail.key}`
+
+const getRealityPackManifestUrl = (packName: string, realityPack: any) =>
+  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/reality-pack/${realityPack.name}/manifest.json`
+const getRealityPackManifestKey = (packName: string, realityPack: any) =>
+  `/content-pack/${packName}/reality-pack/${realityPack.name}/manifest.json`
 
 /**
  * A class for Upload Media service
@@ -91,14 +104,16 @@ export class ContentPack implements ServiceMethods<Data> {
     }
 
     let uploadPromises = []
-    const { scenes, contentPack, avatars } = data as any
+    const { scenes, contentPack, avatars, realityPacks } = data as any
     await storageProvider.checkObjectExistence(getManifestKey(contentPack))
     const body = {
       version: 1,
       avatars: [],
-      scenes: []
+      scenes: [],
+      realityPacks: []
     }
     const promises = []
+    console.log('incoming realityPacks', realityPacks)
     if (scenes != null) {
       for (const scene of scenes) {
         promises.push(
@@ -160,6 +175,21 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
+    } else if (realityPacks != null) {
+      for (const realityPack of realityPacks) {
+        const newRealityPack = {
+          name: realityPack.name,
+          manifest: getRealityPackManifestUrl(contentPack, realityPack)
+        }
+        promises.push(
+          new Promise(async (resolve) => {
+            const assembleResponse = await assembleRealityPack(realityPack, contentPack)
+            uploadPromises = assembleResponse.uploadPromises
+            resolve(true)
+          })
+        )
+        body.realityPacks.push(newRealityPack)
+      }
     }
 
     await Promise.all(promises)
@@ -176,7 +206,7 @@ export class ContentPack implements ServiceMethods<Data> {
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     const manifestUrl = (data as any).manifestUrl
     const manifestResult = await axios.get(manifestUrl, getAxiosConfig('json'))
-    const { avatars, scenes } = manifestResult.data
+    const { avatars, scenes, realityPacks } = manifestResult.data
     const promises = []
     for (const index in scenes) {
       const scene = scenes[index]
@@ -184,13 +214,14 @@ export class ContentPack implements ServiceMethods<Data> {
       promises.push(populateScene(scene.sid, sceneResult.data, manifestUrl, this.app, scene.thumbnail))
     }
     for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
+    for (const index in realityPacks) promises.push(populateRealityPack(realityPacks[index].manifest, this.app, params))
     await Promise.all(promises)
     return data
   }
 
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     let uploadPromises = []
-    const { scenes, contentPack, avatars } = data as any
+    const { scenes, contentPack, avatars, realityPacks } = data as any
     let pack = await storageProvider.getObject(getManifestKey(contentPack))
     const body = JSON.parse((pack as any).Body.toString())
     const invalidationItems = [`/content-pack/${contentPack}/manifest.json`]
@@ -261,6 +292,26 @@ export class ContentPack implements ServiceMethods<Data> {
             resolve(true)
           })
         )
+      }
+    } else if (realityPacks != null) {
+      if (body.realityPacks == null) body.realityPacks = []
+      for (const realityPack of realityPacks) {
+        body.realityPacks = body.realityPacks.filter(
+          (existingRealityPack) => existingRealityPack.name !== realityPack.name
+        )
+        const newRealityPack = {
+          name: realityPack.name,
+          manifest: getRealityPackManifestUrl(contentPack, realityPack)
+        }
+        invalidationItems.push(getRealityPackManifestKey(contentPack, realityPack))
+        promises.push(
+          new Promise(async (resolve) => {
+            const assembleResponse = await assembleRealityPack(realityPack, contentPack)
+            uploadPromises = assembleResponse.uploadPromises
+            resolve(true)
+          })
+        )
+        body.realityPacks.push(newRealityPack)
       }
     }
 

@@ -10,6 +10,8 @@ import { Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
 import VisibilityIcon from '@material-ui/icons/Visibility'
+import WhatshotIcon from '@material-ui/icons/Whatshot'
+import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectCreatorsState } from '../../reducers/creator/selector'
@@ -189,6 +191,14 @@ const Featured = ({
               <span className={styles.eyeLine}>
                 {item.viewsCount}
                 <VisibilityIcon style={{ fontSize: '16px' }} />
+              </span>
+              <span className={styles.fireLine}>
+                {item.fires}
+                <WhatshotIcon style={{ fontSize: '16px' }} />
+              </span>
+              <span className={styles.favoriteLine}>
+                {item.likes}
+                <FavoriteIcon style={{ fontSize: '16px' }} />
               </span>
             </Card>
           )

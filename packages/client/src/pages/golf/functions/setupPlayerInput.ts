@@ -43,15 +43,14 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('KeyK', GolfInput.TELEPORT)
-  // inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT) // todo: gamepad stuff broken
+  inputs.schema.inputMap.set(GamepadButtons.A, GolfInput.TELEPORT) // todo: gamepad stuff broken
 
   inputs.schema.behaviorMap.set(
     GolfInput.TELEPORT,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-      if (inputValue.lifecycleState !== LifecycleValue.ENDED) return
+      if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
       const playerNumber = getGolfPlayerNumber(entity)
       const ballEntity = getBall(world, playerNumber)
-      console.log('k', playerNumber, ballEntity)
       if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position
@@ -87,12 +86,13 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
   )
 
   inputs.schema.inputMap.set('KeyY', GolfInput.TOGGLECLUB)
-  // inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
+  inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
 
   inputs.schema.behaviorMap.set(
     GolfInput.TOGGLECLUB,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+      console.log(inputValue.lifecycleState)
 
       const playerNumber = getGolfPlayerNumber(entity)
       const clubEntity = getClub(world, playerNumber)
@@ -100,7 +100,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
       golfClubComponent.hidden = !golfClubComponent.hidden
 
       if (isClient) {
-        hideClub(clubEntity, golfClubComponent.hidden, false)
+        hideClub(clubEntity, golfClubComponent.hidden)
       }
     }
   )
@@ -195,7 +195,7 @@ export const setupPlayerInput = (world: World, entityPlayer: Entity) => {
   inputs.schema.behaviorMap.set(
     showScorecardKey,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-      if (inputValue.lifecycleState !== LifecycleValue.ENDED) return
+      if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
       console.log('SHOW SCORECARD')
       dispatchFromClient(GolfAction.showScorecard('toggle'))
     }

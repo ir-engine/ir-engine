@@ -48,7 +48,7 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView }: Props) => {
       <Button onClick={handleAddPosts}>Publish</Button>
       <section className={styles.feedContainer}>
         {filesTarget
-          ? Array.from(filesTarget).map((item, itemIndex) => {
+          ? Array.from(filesTarget).map((item: any, itemIndex) => {
               console.log(item)
               return (
                 <Card className={styles.creatorItem} elevation={0} key={itemIndex}>

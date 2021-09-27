@@ -95,12 +95,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       })
 
       // Generate BVH
-      object3DComponent.value.traverse((obj: Mesh) => {
-        if (!obj.isMesh) {
-          return
-        }
-        generateMeshBVH(obj)
-      })
+      object3DComponent.value.traverse(generateMeshBVH)
     }
 
     for (const entity of sceneObjectQuery.exit()) {

@@ -17,7 +17,7 @@ import waitForClientAuthenticated from '../../../util/wait-for-client-authentica
 
 import { User } from '@xrengine/common/src/interfaces/User'
 import Store from '../../../store'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 
 import { Config } from '@xrengine/common/src/config'
 
@@ -38,7 +38,7 @@ export function getChannels(skip?: number, limit?: number) {
       dispatch(loadedChannels(channelResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -53,7 +53,7 @@ export function getInstanceChannel() {
       })
       dispatch(loadedChannel(channelResult.data[0], 'instance'))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -68,7 +68,7 @@ export function createMessage(values: any) {
       })
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -111,7 +111,7 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
       dispatch(loadedMessages(channelId, messageResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -122,7 +122,7 @@ export function removeMessage(messageId: string) {
       await client.service('message').remove(messageId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -135,7 +135,7 @@ export function patchMessage(messageId: string, text: string) {
       })
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

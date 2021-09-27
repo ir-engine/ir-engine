@@ -1,6 +1,6 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import { GeneralStateList, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions'
+import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
@@ -82,7 +82,6 @@ interface Props {
   provisionChannelServer?: typeof provisionChannelServer
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
-  setAppSpecificOnBoardingStep?: typeof setAppSpecificOnBoardingStep
   showTouchpad?: boolean
   engineCallbacks?: EngineCallbacks
   children?: any
@@ -104,8 +103,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   //doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
-  setAppSpecificOnBoardingStep: bindActionCreators(setAppSpecificOnBoardingStep, dispatch)
+  resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch)
 })
 
 export const EnginePage = (props: Props) => {
@@ -185,7 +183,7 @@ export const EnginePage = (props: Props) => {
         !props.locationState.get('fetchingCurrentLocation')
       ) {
         setIsValidLocation(false)
-        props.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false)
+        dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
       }
     }
   }, [props.locationState])
@@ -248,6 +246,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const reinit = () => {
+    // alert('reinit');
     const currentLocation = props.locationState.get('currentLocation').get('location')
     if (sceneId === null && currentLocation.sceneId !== null) {
       sceneId = currentLocation.sceneId
@@ -256,6 +255,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
+    // alert('init');
     initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
     setIsTeleporting(false)
   }

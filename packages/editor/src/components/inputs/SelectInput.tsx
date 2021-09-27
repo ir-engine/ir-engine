@@ -69,6 +69,8 @@ interface SelectInputProp {
   error?: any
   styles?: any
   creatable?: any
+  className?: string
+  isSearchable?: boolean
   filterOption?: (option: any, searchString: string) => boolean
   getOptionLabel?: (option: any) => any
   formatCreateLabel?: (value: any) => any

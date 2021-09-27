@@ -52,7 +52,7 @@ export const loadAvatar = (entity: Entity) => {
   }
 }
 
-const setAvatarLayer = (obj: Object3D) => {
+export const setAvatarLayer = (obj: Object3D) => {
   obj.layers.disable(CameraLayers.Scene)
   obj.layers.enable(CameraLayers.Avatar)
 }
