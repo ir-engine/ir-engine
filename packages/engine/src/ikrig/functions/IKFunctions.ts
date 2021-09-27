@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { IKRigComponent, IKRigComponentType, PointData } from '../components/IKRigComponent'
 import { Bone, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'

@@ -37,5 +37,5 @@ export const getControllerCollisions = (
   return {
     controllerCollisionEvent: undefined,
     controllerCollisionEntity: undefined
-  }
+  } as any
 }

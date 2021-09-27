@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../classes/Chain'

@@ -12,6 +12,7 @@ import { World } from '../ecs/classes/World'
 import { Engine } from '../ecs/classes/Engine'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
+import { Raycaster } from 'three'
 
 export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
   world.receptors.add((action) => {
@@ -35,7 +36,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
           phi: 0,
           shoulderSide: true,
           locked: true,
-          raycaster: null!
+          raycaster: new Raycaster()
         })
         addComponent(entity, PersistTagComponent, {})
       }
