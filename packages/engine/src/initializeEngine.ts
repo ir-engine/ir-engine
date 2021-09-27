@@ -94,7 +94,7 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
   await registerEditorSystems(options)
 }
 
-const configureServer = async (options: Required<InitializeOptions>) => {
+const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
   Network.instance = new Network()
 
@@ -116,11 +116,15 @@ const configureServer = async (options: Required<InitializeOptions>) => {
     Engine.hasJoinedWorld = true
   })
 
-  await loadDRACODecoder()
+  if (!isMediaServer) {
+    await loadDRACODecoder()
 
-  new SpawnPoints()
+    new SpawnPoints()
 
-  await registerServerSystems(options)
+    await registerServerSystems(options)
+  } else {
+    await registerMediaServerSystems(options)
+  }
 }
 
 // todo - expose this as a default and overridable pipeline
@@ -268,6 +272,11 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerInjectedSystems(SystemUpdateType.POST_RENDER, options.systems)
 }
 
+const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
+  console.log('\n\n\n\n\n\n\n\n============================register media server systems')
+  registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
+}
+
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
@@ -300,6 +309,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     await configureEditor(options)
   } else if (options.type === EngineSystemPresets.SERVER) {
     await configureServer(options)
+  } else if (options.type === EngineSystemPresets.MEDIA) {
+    await configureServer(options, true)
   }
 
   await sceneWorld.physics.createScene()
@@ -338,6 +349,9 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
+    Engine.engineTimer.start()
+  } else if (options.type === EngineSystemPresets.MEDIA) {
+    Engine.userId = 'mediaserver' as UserId
     Engine.engineTimer.start()
   }
 
