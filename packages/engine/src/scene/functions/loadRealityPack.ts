@@ -21,14 +21,18 @@ type RealityPackNodeArguments = {
 export const loadRealityPack = async (data: RealityPackNodeArguments) => {
   console.log(data)
 
-  const downloadResult = await WorldScene.realityPackDownloadCallback(data.packName)
-  if (!downloadResult) return console.warn(`[Scene Loading] Reality Pack ${data.packName} could not be downloaded!`)
+  try {
+    const downloadResult = await WorldScene.realityPackDownloadCallback(data.packName)
+    if (!downloadResult) return console.warn(`[RealityPackLoader] Pack ${data.packName} could not be downloaded!`)
 
-  const moduleEntryPoints = await importPack(data.packName)
+    const moduleEntryPoints = await importPack(data.packName)
 
-  for (const entryPoint of moduleEntryPoints) {
-    const loadedSystem = await (await entryPoint).default(useWorld(), data.args)
-    const pipeline = data.injectionPoint ?? 'FIXED'
-    useWorld().injectedSystems[pipeline].push(loadedSystem)
+    for (const entryPoint of moduleEntryPoints) {
+      const loadedSystem = await (await entryPoint).default(useWorld(), data.args)
+      const pipeline = data.injectionPoint ?? 'FIXED'
+      useWorld().injectedSystems[pipeline].push(loadedSystem)
+    }
+  } catch (e) {
+    console.log(`[RealityPackLoader]: Failed to load reality pack with error ${e}`)
   }
 }
