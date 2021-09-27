@@ -1,4 +1,4 @@
-import fs from 'fs';
+  import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import config from "config";
 import inject from '@rollup/plugin-inject'
@@ -54,6 +54,9 @@ export default defineConfig((command) => {
       target: 'esnext',
       sourcemap: 'inline',
       minify: 'esbuild',
+      dynamicImportVarsOptions: {
+        warnOnError: true,
+      },
       rollupOptions: {
         output: {
           dir: 'dist',
