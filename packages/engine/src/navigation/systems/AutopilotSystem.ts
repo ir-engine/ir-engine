@@ -149,7 +149,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
             Engine.inputState.set(stick, {
               type: InputType.TWODIM,
               value: [0, 0, 0],
-              lifecycleState: LifecycleValue.CHANGED
+              lifecycleState: LifecycleValue.Changed
             })
 
             // Path is finished - remove component
@@ -180,7 +180,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           Engine.inputState.set(stick, {
             type: InputType.TWODIM,
             value: stickPosition,
-            lifecycleState: LifecycleValue.STARTED
+            lifecycleState: LifecycleValue.Started
           })
         } else {
           // If position set, check it's value
@@ -192,7 +192,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
             Engine.inputState.set(stick, {
               type: InputType.TWODIM,
               value: stickPosition,
-              lifecycleState: LifecycleValue.CHANGED
+              lifecycleState: LifecycleValue.Changed
             })
           }
         }
@@ -221,7 +221,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       Engine.inputState.set(stick, {
         type: InputType.TWODIM,
         value: [0, 0],
-        lifecycleState: LifecycleValue.CHANGED
+        lifecycleState: LifecycleValue.Changed
       })
     }
   }

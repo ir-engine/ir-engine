@@ -48,7 +48,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
   inputs.schema.behaviorMap.set(
     GolfInput.TELEPORT,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-      if (inputValue.lifecycleState !== LifecycleValue.ENDED) return
+      if (inputValue.lifecycleState !== LifecycleValue.Ended) return
       const playerNumber = getGolfPlayerNumber(Engine.userId)
       const ballEntity = getBall(Engine.userId)
       if (!ballEntity) return
@@ -91,7 +91,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
   inputs.schema.behaviorMap.set(
     GolfInput.TOGGLECLUB,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-      if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+      if (inputValue.lifecycleState !== LifecycleValue.Started) return
       console.log(inputValue.lifecycleState)
 
       const clubEntity = getClub(Engine.userId)
@@ -113,7 +113,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       inputs.schema.behaviorMap.set(
         teleportballkey,
         (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-          if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+          if (inputValue.lifecycleState !== LifecycleValue.Started) return
           if (!isCurrentGolfPlayer(Engine.userId)) return
           const currentHole = GolfState.currentHole.value
           const holeEntity = getHole(currentHole)
@@ -132,7 +132,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       inputs.schema.behaviorMap.set(
         teleportballOut,
         (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-          if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+          if (inputValue.lifecycleState !== LifecycleValue.Started) return
           if (!isCurrentGolfPlayer(Engine.userId)) return
           const ballEntity = getBall(Engine.userId)
           const collider = getComponent(ballEntity, ColliderComponent)
@@ -152,7 +152,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       inputs.schema.behaviorMap.set(
         teleportplayerOut,
         (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-          if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+          if (inputValue.lifecycleState !== LifecycleValue.Started) return
           const controller = getComponent(entity, AvatarControllerComponent)
           const pos = new Vector3(0, -5, 0)
           controller.controller.setPosition(pos)
@@ -174,7 +174,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
     inputs.schema.behaviorMap.set(
       swingClubKey,
       (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-        if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+        if (inputValue.lifecycleState !== LifecycleValue.Started) return
         updateHead({
           position: [0, 2, 1],
           rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
@@ -191,7 +191,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
   inputs.schema.behaviorMap.set(
     showScorecardKey,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number) => {
-      if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+      if (inputValue.lifecycleState !== LifecycleValue.Started) return
       console.log('SHOW SCORECARD')
       dispatchFrom(Engine.userId, () => GolfAction.lookAtScorecard({ userId: Engine.userId, value: 'toggle' }))
     }

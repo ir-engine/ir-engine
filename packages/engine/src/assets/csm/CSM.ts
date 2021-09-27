@@ -112,11 +112,10 @@ export class CSM {
         this.parent.add(light, light.target)
         this.lights[sourceLightIndex].push(light)
       }
+      return
     }
-    // }
 
     // if no lights are provided, create default ones
-    if (lights.length) return
 
     this.lights[0] = []
 
@@ -202,7 +201,7 @@ export class CSM {
         break
       case CSMModes.CUSTOM:
         if (this.customSplitsCallback === undefined) console.error('CSM: Custom split scheme callback not defined.')
-        this.customSplitsCallback(this.cascades, camera.near, far, this.breaks)
+        this.customSplitsCallback!(this.cascades, camera.near, far, this.breaks)
         break
     }
 
@@ -306,7 +305,7 @@ export class CSM {
       shaders.set(material, shader)
     }
 
-    shaders.set(material, null)
+    shaders.set(material, null!)
     this.materials.set(mesh, material)
   }
 
@@ -322,11 +321,11 @@ export class CSM {
         uniforms.shadowFar.value = far
       }
 
-      if (!this.fade && 'CSM_FADE' in material.defines) {
+      if (!this.fade && 'CSM_FADE' in material.defines!) {
         delete material.defines.CSM_FADE
         material.needsUpdate = true
-      } else if (this.fade && !('CSM_FADE' in material.defines)) {
-        material.defines.CSM_FADE = ''
+      } else if (this.fade && !('CSM_FADE' in material.defines!)) {
+        material.defines!.CSM_FADE = ''
         material.needsUpdate = true
       }
     }, this)
@@ -368,10 +367,10 @@ export class CSM {
   dispose(): void {
     const shaders = this.shaders
     shaders.forEach(function (shader: ShaderType, material: Material) {
-      delete material.onBeforeCompile
-      delete material.defines.USE_CSM
-      delete material.defines.CSM_CASCADES
-      delete material.defines.CSM_FADE
+      material.onBeforeCompile = null!
+      material.defines!.USE_CSM = null!
+      material.defines!.CSM_CASCADES = null!
+      material.defines!.CSM_FADE = null!
 
       if (shader !== null) {
         delete shader.uniforms.CSM_cascades

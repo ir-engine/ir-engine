@@ -46,6 +46,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
         isAfk: false,
         prevPosition: new Vector3(0, 0, 0),
         cStep: 0,
+        cStep2: 0,
         timer: 0
       })
   }

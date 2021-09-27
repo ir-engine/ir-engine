@@ -15,7 +15,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { Chain } from '../classes/Chain'
 import { solveLimb, solveThreeBone } from './IKSolvers'
-// import { debug } from '../classes/Debug'
 
 const aToBVector = new Vector3()
 const boneAWorldPos = new Vector3()

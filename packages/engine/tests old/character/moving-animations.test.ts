@@ -145,7 +145,7 @@ describe("moving animations", () => {
         const input = getComponent(player, Input);
         input.data.set(BaseInput.JUMP, {
             type: InputType.BUTTON,
-            lifecycleState: LifecycleValue.STARTED,
+            lifecycleState: LifecycleValue.Started,
             value: BinaryValue.ON
         });
         executeFrame();

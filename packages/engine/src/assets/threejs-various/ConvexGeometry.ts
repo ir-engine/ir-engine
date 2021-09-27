@@ -7,8 +7,8 @@ class ConvexGeometry extends BufferGeometry {
 
     // buffers
 
-    const vertices = []
-    const normals = []
+    const vertices: any[] = []
+    const normals: any[] = []
 
     if (ConvexHull === undefined) {
       console.error('THREE.ConvexBufferGeometry: ConvexBufferGeometry relies on ConvexHull')

@@ -30,24 +30,24 @@ export default async function ClientInputSystem(world: World): Promise<System> {
       if (Engine.prevInputState.has(key)) {
         if (value.type === InputType.BUTTON) {
           if (
-            value.lifecycleState === LifecycleValue.STARTED &&
-            Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.STARTED
+            value.lifecycleState === LifecycleValue.Started &&
+            Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
           ) {
-            value.lifecycleState = LifecycleValue.CONTINUED
+            value.lifecycleState = LifecycleValue.Continued
             console.log('started => continued')
           }
         } else {
-          if (value.lifecycleState !== LifecycleValue.ENDED) {
+          if (value.lifecycleState !== LifecycleValue.Ended) {
             value.lifecycleState =
               JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key)?.value)
-                ? LifecycleValue.UNCHANGED
-                : LifecycleValue.CHANGED
+                ? LifecycleValue.Unchanged
+                : LifecycleValue.Changed
           }
         }
 
         if (
-          Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.ENDED &&
-          value.lifecycleState === LifecycleValue.ENDED
+          Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.Ended &&
+          value.lifecycleState === LifecycleValue.Ended
         ) {
           Engine.inputState.delete(key)
         }

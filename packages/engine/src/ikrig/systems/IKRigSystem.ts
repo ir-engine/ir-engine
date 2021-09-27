@@ -1,6 +1,5 @@
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
-// import DebugComponent from '../classes/Debug'
 import { IKPoseComponent } from '../components/IKPoseComponent'
 import {
   applyIKPoseToIKRig,
@@ -67,7 +66,7 @@ export default async function IKRigSystem(world: World): Promise<System> {
           const p = new Vector3(...boneData.position)
           const r = new Quaternion(...boneData.quaternion)
           const s = new Vector3(...boneData.scale)
-          const tbone = targetRig.tpose.bones[index]
+          const tbone = targetRig.tpose!.bones[index]
           console.log(
             '    ',
             boneData.name,
