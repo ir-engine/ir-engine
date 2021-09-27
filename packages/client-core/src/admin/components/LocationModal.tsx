@@ -13,53 +13,34 @@ import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createLocation, patchLocation, removeLocation } from '../reducers/admin/location/service'
+import { LocationService } from '../reducers/admin/location/LocationService'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { selectAdminSceneState } from '../reducers/admin/scene/selector'
-import { selectAdminLocationState } from '../reducers/admin/location/selector'
+import { useLocationState } from '../reducers/admin/location/LocationState'
 
 interface Props {
   open: boolean
   handleClose: any
   location: any
   editing: boolean
-  createLocation?: any
-  patchLocation?: any
-  removeLocation?: any
   adminSceneState?: any
-  adminLocationState?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminSceneState: selectAdminSceneState(state),
-    adminLocationState: selectAdminLocationState(state)
+    adminSceneState: selectAdminSceneState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createLocation: bindActionCreators(createLocation, dispatch),
-  patchLocation: bindActionCreators(patchLocation, dispatch),
-  removeLocation: bindActionCreators(removeLocation, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const LocationModal = (props: Props): any => {
-  const {
-    open,
-    handleClose,
-    location,
-    editing,
-    createLocation,
-    patchLocation,
-    removeLocation,
-    adminSceneState,
-    adminLocationState
-  } = props
-
+  const { open, handleClose, location, editing, adminSceneState } = props
+  const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [sceneId, setSceneId] = useState('')
   const [maxUsers, setMaxUsers] = useState(10)
@@ -67,7 +48,7 @@ const LocationModal = (props: Props): any => {
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [locationType, setLocationType] = useState('private')
   const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
+  const locationTypes = useLocationState().locationTypes.locationTypes
   const [state, setState] = React.useState({
     feature: false,
     lobby: false
@@ -89,16 +70,16 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      patchLocation(location.id, submission)
+      dispatch(LocationService.patchLocation(location.id, submission))
     } else {
-      createLocation(submission)
+      dispatch(LocationService.createLocation(submission))
     }
 
     handleClose()
   }
 
   const deleteLocation = () => {
-    removeLocation(location.id)
+    dispatch(LocationService.removeLocation(location.id))
     handleClose()
   }
 
@@ -202,7 +183,7 @@ const LocationModal = (props: Props): any => {
                 value={locationType}
                 onChange={(e) => setLocationType(e.target.value as string)}
               >
-                {locationTypes.map((type) => (
+                {locationTypes.value.map((type) => (
                   <MenuItem key={type.type} value={type.type}>
                     {type.type}
                   </MenuItem>

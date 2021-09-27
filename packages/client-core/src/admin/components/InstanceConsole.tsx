@@ -11,7 +11,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
@@ -24,8 +24,8 @@ import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
 import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
-import { selectAdminInstanceState } from '../reducers/admin/instance/selector'
-import { fetchAdminInstances, removeInstance } from '../reducers/admin/instance/service'
+import { useInstanceState } from '../reducers/admin/instance/InstanceState'
+import { InstanceService } from '../reducers/admin/instance/InstanceService'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
 if (!global.setImmediate) {
@@ -33,22 +33,8 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  adminInstanceState?: any
   locationState?: any
-  fetchAdminInstances?: any
-  removeInstance?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminInstanceState: selectAdminInstanceState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  removeInstance: bindActionCreators(removeInstance, dispatch)
-})
 
 const Transition = React.forwardRef(
   (props: TransitionProps & { children?: React.ReactElement<any, any> }, ref: React.Ref<unknown>) => {
@@ -74,19 +60,18 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function InstanceConsole(props: Props) {
   const classes = useStyles()
-  const { adminInstanceState, fetchAdminInstances, removeInstance } = props
   const initialInstance = {
     id: '',
     ipAddress: '',
     currentUsers: 0,
     locationId: ''
   }
-
+  const adminInstanceState = useInstanceState()
   const user = useAuthState().user
   const [selectedInstance, setSelectedInstance] = useState(initialInstance)
   const [instanceCreateOpen, setInstanceCreateOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
-  const adminInstances = adminInstanceState.get('instances').get('instances')
+  const adminInstances = adminInstanceState.instances.instances
 
   const headCells = {
     instances: [
@@ -184,8 +169,8 @@ function InstanceConsole(props: Props) {
   const [instanceEditing, setInstanceEditing] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [instanceId, setInstanceId] = React.useState('')
-
-  const displayInstances = adminInstances.map((instance) => {
+  const dispatch = useDispatch()
+  const displayInstances = adminInstances.value.map((instance) => {
     return {
       id: instance.id,
       ipAddress: instance.ipAddress,
@@ -205,13 +190,13 @@ function InstanceConsole(props: Props) {
   }
 
   const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selected = adminInstances.find((instance) => instance.id === id)
+    const selected = adminInstances.value.find((instance) => instance.id === id)
     setSelectedInstance(selected)
     setInstanceModalOpen(true)
   }
 
   const handleInstanceUpdateClick = (id: string) => {
-    const selected = adminInstances.find((instance) => instance.id === id)
+    const selected = adminInstances.value.find((instance) => instance.id === id)
     setInstanceEdit(selected)
     setInstanceCreateOpen(true)
     setInstanceEditing(true)
@@ -229,14 +214,11 @@ function InstanceConsole(props: Props) {
   }
 
   useEffect(() => {
-    if (
-      user?.id.value != null &&
-      (adminInstanceState.get('instances').get('updateNeeded') === true || refetch === true)
-    ) {
-      fetchAdminInstances()
+    if (user?.id.value != null && (adminInstanceState.instances.updateNeeded.value === true || refetch === true)) {
+      dispatch(InstanceService.fetchAdminInstances())
     }
     setRefetch(false)
-  }, [useAuthState(), adminInstanceState, refetch])
+  }, [useAuthState(), adminInstanceState.instances.updateNeeded.value, refetch])
 
   const handleClickOpen = (instance: any) => {
     setInstanceId(instance)
@@ -249,7 +231,7 @@ function InstanceConsole(props: Props) {
   }
 
   const deleteInstance = () => {
-    removeInstance((instanceId as any).id)
+    dispatch(InstanceService.removeInstance((instanceId as any).id))
     setOpen(false)
     setInstanceId('')
   }
@@ -373,4 +355,4 @@ function InstanceConsole(props: Props) {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceConsole)
+export default InstanceConsole

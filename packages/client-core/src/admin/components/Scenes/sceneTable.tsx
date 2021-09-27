@@ -15,22 +15,19 @@ import { Dispatch, bindActionCreators } from 'redux'
 import { useSceneStyles, useSceneStyle } from './styles'
 import { sceneColumns, SceneData } from './variables'
 import TablePagination from '@material-ui/core/TablePagination'
-import { fetchAdminScenes, deleteScene } from '../../reducers/admin/scene/service'
+import { fetchAdminScenes, deleteScene } from '../../reducers/admin/scene/SceneService'
 import { connect } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { useSceneState } from '../../reducers/admin/scene/SceneState'
 import ViewScene from './ViewScene'
-import { SCENE_PAGE_LIMIT } from '../../reducers/admin/scene/reducers'
+import { SCENE_PAGE_LIMIT } from '../../reducers/admin/scene/SceneState'
 
 interface Props {
   fetchSceneAdmin?: any
-  adminSceneState?: any
   deleteScene?: any
 }
 
-const mapStateToProps = (state: any): any => ({
-  adminSceneState: selectAdminSceneState(state)
-})
+const mapStateToProps = (state: any): any => ({})
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchSceneAdmin: bindActionCreators(fetchAdminScenes, dispatch),
@@ -38,14 +35,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const SceneTable = (props: Props) => {
-  const { fetchSceneAdmin, deleteScene, adminSceneState } = props
+  const { fetchSceneAdmin, deleteScene } = props
   const classx = useSceneStyles()
   const classes = useSceneStyle()
   const authState = useAuthState()
   const user = authState.user
-  const scene = adminSceneState?.get('scenes')
-  const sceneData = scene?.get('scenes')
-  const sceneCount = scene?.get('total')
+
+  const scene = useSceneState().scenes
+  const sceneData = scene?.scenes
+  const sceneCount = scene?.total
   const [singleScene, setSingleScene] = React.useState('')
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
@@ -54,10 +52,10 @@ const SceneTable = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(SCENE_PAGE_LIMIT)
 
   React.useEffect(() => {
-    if (user.id.value && scene.get('updateNeeded')) {
+    if (user.id.value && scene.updateNeeded.value) {
       fetchSceneAdmin()
     }
-  }, [user, scene])
+  }, [user, scene.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -74,7 +72,7 @@ const SceneTable = (props: Props) => {
   }
 
   const handleViewScene = (id: string) => {
-    const scene = sceneData.find((sc) => sc.id === id)
+    const scene = sceneData?.value.find((sc) => sc.id === id)
     setSingleScene(scene)
     setOpen(true)
   }
@@ -124,7 +122,7 @@ const SceneTable = (props: Props) => {
     }
   }
 
-  const rows = sceneData.map((el) => {
+  const rows = sceneData?.value.map((el) => {
     return createData(
       el.id,
       el.name || <span className={classes.spanNone}>None</span>,
@@ -174,7 +172,7 @@ const SceneTable = (props: Props) => {
       <TablePagination
         rowsPerPageOptions={[SCENE_PAGE_LIMIT]}
         component="div"
-        count={sceneCount || 12}
+        count={sceneCount?.value || 12}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}

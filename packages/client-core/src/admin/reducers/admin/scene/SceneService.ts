@@ -1,11 +1,12 @@
 import { client } from '../../../../feathers'
 import { Dispatch } from 'redux'
-import { collectionsFetched } from './actions'
-
+import { SceneAction } from './SceneActions'
+import { accessSceneState } from './SceneState'
 export function fetchAdminScenes(incDec?: 'increment' | 'decrement' | 'all') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const skip = getState().get('adminScene').get('scenes').get('skip')
-    const limit = getState().get('adminScene').get('scenes').get('limit')
+    const adminScene = accessSceneState()
+    const skip = adminScene.scenes.skip.value
+    const limit = adminScene.scenes.limit.value
     const scenes = await client.service('collection').find({
       query: {
         $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
@@ -15,7 +16,7 @@ export function fetchAdminScenes(incDec?: 'increment' | 'decrement' | 'all') {
         }
       }
     })
-    dispatch(collectionsFetched(scenes))
+    dispatch(SceneAction.collectionsFetched(scenes))
   }
 }
 export function deleteScene() {

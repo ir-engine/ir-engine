@@ -2,21 +2,21 @@ import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarActionType } from './AvatarActions'
+import { RealityPackActionType } from './RealityPackActions'
 
-export const AVATAR_PAGE_LIMIT = 100
+export const REALITY_PACK_PAGE_LIMIT = 100
 
-const state = createState({
+export const state = createState({
   isLoggedIn: false,
   isProcessing: false,
   error: '',
   authUser: AuthUserSeed,
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
-  avatars: {
-    avatars: [],
+  realityPacks: {
+    realityPacks: [],
     skip: 0,
-    limit: AVATAR_PAGE_LIMIT,
+    limit: REALITY_PACK_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -25,20 +25,20 @@ const state = createState({
   }
 })
 
-export const adminAvatarReducer = (_, action: AvatarActionType) => {
-  Promise.resolve().then(() => avatarReceptor(action))
+export const adminRealityPackReducer = (_, action: RealityPackActionType) => {
+  Promise.resolve().then(() => realityPackReceptor(action))
   return state.attach(Downgraded).value
 }
 
-const avatarReceptor = (action: AvatarActionType): any => {
+const realityPackReceptor = (action: RealityPackActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
-      case 'AVATARS_RETRIEVED':
-        result = action.avatars
+      case 'REALITY_PACKS_RETRIEVED':
+        result = action.realityPacks
 
-        s.avatars.merge({
-          avatars: result.data,
+        return s.realityPacks.merge({
+          realityPacks: result.data,
           skip: result.skip,
           limit: result.limit,
           total: result.total,
@@ -51,5 +51,5 @@ const avatarReceptor = (action: AvatarActionType): any => {
   }, action.type)
 }
 
-export const accessAvatarState = () => state
-export const useAvatarState = () => useState(state)
+export const accessRealityPackState = () => state
+export const useRealityPackState = () => useState(state)

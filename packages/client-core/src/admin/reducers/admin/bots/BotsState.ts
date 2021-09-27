@@ -46,19 +46,23 @@ export const botsReceptor = (action: BotsActionType): void => {
     switch (action.type) {
       case 'BOT_ADMIN_DISPLAY':
         s.merge({ error: '' })
-        return s.merge({
-          bots: { bots: result.data, retrieving: false, fetched: true, updateNeeded: false, lastFetched: new Date() }
+        return s.bots.merge({
+          bots: result.data,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: new Date()
         })
       case 'BOT_ADMIN_CREATE':
-        return s.merge({ bots: { updateNeeded: true } })
+        return s.bots.merge({ updateNeeded: true })
       case 'BOT_COMMAND_ADMIN_CREATE':
-        return s.merge({ bots: { updateNeeded: true } })
+        return s.bots.merge({ updateNeeded: true })
       case 'BOT_ADMIN_REMOVE':
-        return s.merge({ bots: { updateNeeded: true } })
+        return s.bots.merge({ updateNeeded: true })
       case 'BOT_COMMAND_ADMIN_REMOVE':
-        return s.merge({ bots: { updateNeeded: true } })
+        return s.bots.merge({ updateNeeded: true })
       case 'BOT_ADMIN_UPDATE':
-        return s.merge({ bots: { updateNeeded: true } })
+        return s.bots.merge({ updateNeeded: true })
     }
   }, action.type)
 }

@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react'
-import { fetchAdminLocations, fetchLocationTypes } from '../../reducers/admin/location/service'
+import { LocationService } from '../../reducers/admin/location/LocationService'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -9,15 +9,15 @@ import TableRow from '@material-ui/core/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
+import { useLocationState } from '../../reducers/admin/location/LocationState'
+import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
 import { selectAdminUserState } from '../../reducers/admin/user/selector'
-import { fetchAdminScenes } from '../../reducers/admin/scene/service'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { fetchAdminScenes } from '../../reducers/admin/scene/SceneService'
+import { useSceneState } from '../../reducers/admin/scene/SceneState'
 import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
-import { fetchAdminInstances } from '../../reducers/admin/instance/service'
+import { InstanceService } from '../../reducers/admin/instance/InstanceService'
 import { useErrorState } from '../../../common/reducers/error/ErrorState'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
 import Chip from '@material-ui/core/Chip'
@@ -27,60 +27,43 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
-import { removeLocation } from '../../reducers/admin/location/service'
 import ViewLocation from './ViewLocation'
-import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/reducers'
+import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/LocationState'
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminLocationState: selectAdminLocationState(state),
-    adminUserState: selectAdminUserState(state),
-    adminInstanceState: selectAdminInstanceState(state),
-    adminSceneState: selectAdminSceneState(state)
-    // adminScopeErrorState: selectScopeErrorState(state)
+    adminUserState: selectAdminUserState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
   fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
-  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  removeLocation: bindActionCreators(removeLocation, dispatch)
+  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch)
 })
 
 const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
-  const {
-    fetchAdminLocations,
-    fetchAdminScenes,
-    fetchLocationTypes,
-    fetchUsersAsAdmin,
-    fetchAdminInstances,
-    adminLocationState,
-    adminUserState,
-    adminInstanceState,
-    adminSceneState,
-    removeLocation
-  } = props
+  const adminInstanceState = useInstanceState()
+  const { fetchAdminScenes, fetchUsersAsAdmin, adminUserState } = props
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [locationId, setLocationId] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
   const [locationAdmin, setLocationAdmin] = React.useState('')
-
+  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
+  const adminSceneState = useSceneState()
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
-  const adminLocations = adminLocationState.get('locations').get('locations')
-  const adminLocationCount = adminLocationState.get('locations').get('total')
+  const adminLocationState = useLocationState()
+  const adminLocations = adminLocationState.locations.locations
+  const adminLocationCount = adminLocationState.locations.total
   const { t } = useTranslation()
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminLocations(incDec)
+    dispatch(LocationService.fetchAdminLocations(incDec))
     setPage(newPage)
   }
 
@@ -90,26 +73,28 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (
-      user?.id?.value !== null &&
-      adminLocationState.get('locations').get('updateNeeded') &&
-      !adminScopeReadErrMsg?.value
-    ) {
-      fetchAdminLocations()
+    if (user?.id?.value !== null && adminLocationState.locations.updateNeeded.value && !adminScopeReadErrMsg?.value) {
+      dispatch(LocationService.fetchAdminLocations())
     }
-    if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
+    if (user?.id.value != null && adminSceneState.scenes.updateNeeded.value === true) {
       fetchAdminScenes('all')
     }
-    if (user?.id.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
-      fetchLocationTypes()
+    if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
+      dispatch(LocationService.fetchLocationTypes())
     }
     if (user?.id.value != null && adminUserState.get('users').get('updateNeeded') === true) {
       fetchUsersAsAdmin()
     }
-    if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
-      fetchAdminInstances()
+    if (user?.id.value != null && adminInstanceState.instances.updateNeeded.value === true) {
+      dispatch(InstanceService.fetchAdminInstances())
     }
-  }, [authState.user?.id?.value, adminSceneState, adminInstanceState, adminLocationState])
+  }, [
+    authState.user?.id?.value,
+    adminSceneState.scenes.updateNeeded.value,
+    adminInstanceState.instances.updateNeeded.value,
+    adminLocationState.locations.updateNeeded.value,
+    adminLocationState.locationTypes.updateNeeded.value
+  ])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -170,7 +155,7 @@ const LocationTable = (props: LocationProps) => {
     }
   }
 
-  const rows = adminLocations.map((el) => {
+  const rows = adminLocations.value.map((el) => {
     return createData(
       el,
       el.id,
@@ -242,7 +227,7 @@ const LocationTable = (props: LocationProps) => {
         <TablePagination
           rowsPerPageOptions={[12]}
           component="div"
-          count={adminLocationCount}
+          count={adminLocationCount.value}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handlePageChange}
@@ -265,7 +250,7 @@ const LocationTable = (props: LocationProps) => {
           <Button
             className={classes.spanDange}
             onClick={async () => {
-              await removeLocation(locationId)
+              await dispatch(LocationService.removeLocation(locationId))
               setPopConfirmOpen(false)
             }}
             autoFocus

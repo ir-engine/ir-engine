@@ -30,25 +30,21 @@ const groupReceptor = (action: GroupActionType): any => {
         return s.merge({ fetching: true })
       case 'GROUP_ADMIN_RETRIEVED':
         result = action.list
-
-        return s.merge({
-          group: {
-            group: result.data,
-            skip: result.skip,
-            limit: result.limit,
-            retrieving: false,
-            fetched: true,
-            updateNeeded: false,
-            lastFetched: new Date()
-          }
+        return s.group.merge({
+          group: result.data,
+          skip: result.skip,
+          limit: result.limit,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: new Date()
         })
-
       case 'ADD_GROUP':
-        return s.merge({ group: { updateNeeded: true } })
+        return s.group.merge({ updateNeeded: true })
       case 'GROUP_ADMIN_UPDATE':
-        return s.merge({ group: { updateNeeded: true } })
+        return s.group.merge({ updateNeeded: true })
       case 'GROUP_ADMIN_DELETE':
-        return s.merge({ group: { updateNeeded: true } })
+        return s.group.merge({ updateNeeded: true })
     }
   }, action.type)
 }

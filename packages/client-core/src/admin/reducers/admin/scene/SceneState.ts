@@ -2,21 +2,22 @@ import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarActionType } from './AvatarActions'
+import { ADMIN_SCENES_RETRIEVED } from '../../actions'
+import { SceneActionType } from './SceneActions'
 
-export const AVATAR_PAGE_LIMIT = 100
+export const SCENE_PAGE_LIMIT = 100
 
-const state = createState({
+export const state = createState({
   isLoggedIn: false,
   isProcessing: false,
   error: '',
   authUser: AuthUserSeed,
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
-  avatars: {
-    avatars: [],
+  scenes: {
+    scenes: [],
     skip: 0,
-    limit: AVATAR_PAGE_LIMIT,
+    limit: SCENE_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -25,20 +26,19 @@ const state = createState({
   }
 })
 
-export const adminAvatarReducer = (_, action: AvatarActionType) => {
-  Promise.resolve().then(() => avatarReceptor(action))
+export const adminSceneReducer = (_, action: SceneActionType) => {
+  Promise.resolve().then(() => sceneReceptor(action))
   return state.attach(Downgraded).value
 }
 
-const avatarReceptor = (action: AvatarActionType): any => {
+const sceneReceptor = (action: SceneActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
-      case 'AVATARS_RETRIEVED':
-        result = action.avatars
-
-        s.avatars.merge({
-          avatars: result.data,
+      case ADMIN_SCENES_RETRIEVED:
+        result = action.collections
+        return s.scenes.merge({
+          scenes: result.data,
           skip: result.skip,
           limit: result.limit,
           total: result.total,
@@ -51,5 +51,5 @@ const avatarReceptor = (action: AvatarActionType): any => {
   }, action.type)
 }
 
-export const accessAvatarState = () => state
-export const useAvatarState = () => useState(state)
+export const accessSceneState = () => state
+export const useSceneState = () => useState(state)
