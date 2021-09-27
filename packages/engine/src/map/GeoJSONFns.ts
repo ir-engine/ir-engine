@@ -93,7 +93,7 @@ export function unifyFeatures(features: Feature[]): Feature[] {
       const unifiedCoords = polygonClipping.union.apply(null, allCoords)
       let maxHeight = 0
 
-      features.forEach((f) => {
+      features.forEach((f: any) => {
         maxHeight = f.properties.height ? Math.max(f.properties.height) : maxHeight
       })
       const unifiedProperties = {

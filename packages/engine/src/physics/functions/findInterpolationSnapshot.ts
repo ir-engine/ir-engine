@@ -8,5 +8,5 @@ export const findInterpolationSnapshot = (
   snapshot: Snapshot | InterpolatedSnapshot
 ): StateInterEntity | StateEntity => {
   const networkId = getComponent(entity, NetworkObjectComponent).networkId
-  return snapshot?.state.find((v) => v.networkId == networkId)
+  return snapshot?.state.find((v) => v.networkId == networkId) as any
 }

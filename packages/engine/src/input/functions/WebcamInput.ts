@@ -113,8 +113,8 @@ export const startLipsyncTracking = () => {
   let sensitivityPerPole
   let spectrum
   let spectrumRMS
-  const IndicesFrequencyFemale = []
-  const IndicesFrequencyMale = []
+  const IndicesFrequencyFemale: number[] = []
+  const IndicesFrequencyMale: number[] = []
 
   for (let m = 0; m < BoundingFrequencyMasc.length; m++) {
     IndicesFrequencyMale[m] = Math.round(((2 * FFT_SIZE) / samplingFrequency) * BoundingFrequencyMasc[m])

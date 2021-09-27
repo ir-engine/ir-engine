@@ -1,4 +1,4 @@
-import { Quaternion, Raycaster, Vector3 } from 'three'
+import { Intersection, Quaternion, Raycaster, Vector3 } from 'three'
 import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
@@ -57,7 +57,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
-      const raycasterResults = []
+      const raycasterResults: Intersection[] = []
 
       const clickResult = navmeshesQuery().reduce(
         (previousEntry, currentEntity) => {
@@ -109,12 +109,14 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       // reuse component
       //   autopilotComponent = getComponent(entity, AutoPilotComponent)
       // } else {
-      autopilotComponent = addComponent(entity, AutoPilotComponent, { path: null, navEntity: null })
       // }
-      autopilotComponent.navEntity = request.navEntity
 
       const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
-      autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate)
+
+      autopilotComponent = addComponent(entity, AutoPilotComponent, {
+        path: findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate),
+        navEntity: request.navEntity
+      })
 
       // TODO: "mount" player? disable movement, etc.
 

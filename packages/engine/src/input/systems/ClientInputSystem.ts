@@ -31,7 +31,7 @@ export default async function ClientInputSystem(world: World): Promise<System> {
         if (value.type === InputType.BUTTON) {
           if (
             value.lifecycleState === LifecycleValue.STARTED &&
-            Engine.prevInputState.get(key).lifecycleState === LifecycleValue.STARTED
+            Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.STARTED
           ) {
             value.lifecycleState = LifecycleValue.CONTINUED
             console.log('started => continued')
@@ -39,7 +39,7 @@ export default async function ClientInputSystem(world: World): Promise<System> {
         } else {
           if (value.lifecycleState !== LifecycleValue.ENDED) {
             value.lifecycleState =
-              JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
+              JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key)?.value)
                 ? LifecycleValue.UNCHANGED
                 : LifecycleValue.CHANGED
           }
