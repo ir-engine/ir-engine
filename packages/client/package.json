@@ -19,7 +19,7 @@
     "start": "node server.js",
     "validate": "npm run test",
     "test": "exit 0",
-    "local": "concurrently \"npm run localbuild\" \"npm run localstart\"",
+    "local": "npm run localbuild && npm run localstart",
     "localbuild": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run build",
     "localstart": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run start"
   },

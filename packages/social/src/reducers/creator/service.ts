@@ -29,9 +29,10 @@ export function createCreator() {
     try {
       dispatch(fetchingCurrentCreator())
       let userNumber = Math.floor(Math.random() * 1000) + 1
-      const creator = await client
-        .service('creator')
-        .create({ name: 'User' + userNumber, username: 'user_' + userNumber })
+      const creator = await client.service('creator').create({
+        name: 'User' + userNumber,
+        username: 'user_' + userNumber
+      })
       dispatch(creatorLoggedRetrieved(creator))
     } catch (err) {
       console.log(err)
@@ -79,7 +80,7 @@ export function getCreator(creatorId) {
   }
 }
 
-export function updateCreator(creator: Creator) {
+export function updateCreator(creator: Creator, callBack: Function) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingCurrentCreator())
@@ -90,10 +91,14 @@ export function updateCreator(creator: Creator) {
         delete creator.newAvatar
       }
       const updatedCreator = await client.service('creator').patch(creator.id, creator)
-      dispatch(creatorLoggedRetrieved(updatedCreator))
+      if (updatedCreator) {
+        dispatch(creatorLoggedRetrieved(updatedCreator))
+        callBack('succes')
+      }
     } catch (err) {
       console.log(err)
       AlertService.dispatchAlertError(dispatch, err.message)
+      callBack(err.message)
     }
   }
 }
