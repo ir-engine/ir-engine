@@ -273,7 +273,7 @@ export function interpolate(
  * @returns Interpolated snapshot.
  */
 let hasLostConnection = true
-export function calculateInterpolation(parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
+export function calculateInterpolation(parameters: string, arrayName = ''): InterpolatedSnapshot {
   // get the snapshots [_interpolationBuffer] ago
   const serverTime =
     Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer
@@ -288,7 +288,7 @@ export function calculateInterpolation(parameters: string, arrayName = ''): Inte
       hasLostConnection: true
     })
     hasLostConnection = true
-    return
+    return null!
   }
   if (hasLostConnection) {
     hasLostConnection = false
@@ -298,7 +298,7 @@ export function calculateInterpolation(parameters: string, arrayName = ''): Inte
     })
   }
   const { older, newer } = shots
-  if (!older || !newer) return
+  if (!older || !newer) return null!
   // we record the time of the snapshots that we managed to get
 
   //NetworkInterpolation.instance.serverTimePrev = serverTime;

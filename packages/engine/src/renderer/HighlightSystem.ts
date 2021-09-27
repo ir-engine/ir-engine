@@ -25,7 +25,7 @@ export default async function HighlightSystem(world: World): Promise<System> {
     }
 
     for (const entity of highlightsQuery.exit()) {
-      const highlightedObject = getComponent(entity, Object3DComponent, true)
+      const highlightedObject = getComponent(entity, Object3DComponent)
       highlightedObject?.value?.traverse((obj) => {
         if (obj !== undefined) {
           Engine.effectComposer.OutlineEffect.selection.delete(obj)

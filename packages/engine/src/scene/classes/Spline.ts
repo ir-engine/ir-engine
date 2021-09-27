@@ -5,9 +5,9 @@ export default class Spline extends Object3D {
   ARC_SEGMENTS = 200
   INIT_POINTS_COUNT = 2
 
-  _splineHelperObjects = []
+  _splineHelperObjects: Object3D[] = []
   _splinePointsLength = this.INIT_POINTS_COUNT
-  _positions = []
+  _positions: Vector3[] = []
   _point = new Vector3()
 
   _splines = {} as any
@@ -19,7 +19,7 @@ export default class Spline extends Object3D {
     this.helperNode = helperNode
   }
 
-  init(loadedSplinePositions = null) {
+  init(loadedSplinePositions: any = null) {
     /*******
      * Curves
      *********/
@@ -31,7 +31,7 @@ export default class Spline extends Object3D {
     }
 
     for (let i = 0; i < this._splinePointsLength; i++) {
-      this.addSplineObject(this._positions[i])
+      this.addSplineObject(this._positions[i] as any)
     }
 
     this._positions.length = 0
@@ -179,7 +179,7 @@ export default class Spline extends Object3D {
   }
 
   exportSpline() {
-    const strplace = []
+    const strplace: Vector3[] = []
 
     for (let i = 0; i < this._splinePointsLength; i++) {
       const p = this._splineHelperObjects[i].position
