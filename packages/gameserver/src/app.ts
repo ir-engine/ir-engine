@@ -16,13 +16,11 @@ import channels from './channels'
 import authentication from '@xrengine/server-core/src/user/authentication'
 import sync from 'feathers-sync'
 import { api } from '@xrengine/server-core/src/k8s'
-import { WebRTCGameServer } from './WebRTCGameServer'
 import winston from 'winston'
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
-import { awaitEngineLoaded } from '@xrengine/engine/src/ecs/classes/Engine'
 import { register } from 'trace-unhandled'
 register()
 
@@ -102,11 +100,11 @@ export const createApp = (): Application => {
           (io) => {
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
-              awaitEngineLoaded().then(() => {
-                ;(socket as any).feathers.socketQuery = socket.handshake.query
-                ;(socket as any).socketQuery = socket.handshake.query
-                next()
-              })
+              // awaitEngineLoaded().then(() => {
+              ;(socket as any).feathers.socketQuery = socket.handshake.query
+              ;(socket as any).socketQuery = socket.handshake.query
+              next()
+              // })
             })
           }
         )
@@ -163,10 +161,6 @@ export const createApp = (): Application => {
         setInterval(() => agonesSDK.health(), 1000)
 
         app.configure(channels)
-
-        WebRTCGameServer.instance.initialize(app).then(() => {
-          console.log('Initialized new gameserver instance')
-        })
       } else {
         console.warn('Did not create gameserver')
       }

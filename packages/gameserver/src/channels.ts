@@ -14,15 +14,14 @@ import { getPortalByEntityId } from '@xrengine/server-core/src/entities/componen
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { WebRTCGameServer } from './WebRTCGameServer'
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
   }
-
   app.on('connection', async (connection) => {
-    await awaitEngineLoaded()
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.NODE_ENV === 'development' ||
@@ -71,7 +70,11 @@ export default (app: Application): void => {
                 (app as any).instance.channelId !== channelId)
 
             if (isReady || isNeedingNewServer) {
-              logger.info('Starting new instance')
+              console.info('Starting new instance')
+
+              await WebRTCGameServer.instance.initialize(app)
+              console.log('Initialized new gameserver instance')
+
               const localIp = await getLocalServerIp((app as any).isChannelInstance)
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
               const newInstance = {

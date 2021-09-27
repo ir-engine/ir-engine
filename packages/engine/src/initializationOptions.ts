@@ -8,7 +8,8 @@ import { PhysXConfig } from './physics/types/PhysicsTypes'
 export enum EngineSystemPresets {
   CLIENT,
   EDITOR,
-  SERVER
+  SERVER,
+  MEDIA
 }
 
 export type InitializeOptions = {

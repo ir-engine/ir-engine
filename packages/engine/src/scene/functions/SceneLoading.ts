@@ -74,8 +74,8 @@ export class WorldScene {
     WorldScene.isLoading = true
 
     // reset renderer settings for if we are teleporting and the new scene does not have an override
-    configureCSM(null, true)
-    handleRendererSettings(null, true)
+    configureCSM(null!, true)
+    handleRendererSettings(null!, true)
 
     const sceneProperty: ScenePropertyType = {
       directionalLights: [],
@@ -356,9 +356,7 @@ export class WorldScene {
 
       case 'cameraproperties':
         if (isClient) {
-          EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
-            setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
-          })
+          setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
         }
         break
 
