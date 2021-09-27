@@ -34,7 +34,7 @@
     "socket.io": "4.2.0"
   },
   "dependencies": {
-    "@capacitor/core": "3.2.3",
+    "@capacitor/core": "3.2.4",
     "@emotion/styled": "11.3.0",
     "@feathersjs/client": "5.0.0-pre.10",
     "@hookstate/core": "3.0.12",
