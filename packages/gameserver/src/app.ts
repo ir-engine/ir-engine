@@ -22,6 +22,7 @@ import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { register } from 'trace-unhandled'
+import { WebRTCGameServer } from './WebRTCGameServer'
 register()
 
 export const createApp = (): Application => {
@@ -98,13 +99,12 @@ export const createApp = (): Application => {
             }
           },
           (io) => {
+            WebRTCGameServer.instance.initialize(app)
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
-              // awaitEngineLoaded().then(() => {
               ;(socket as any).feathers.socketQuery = socket.handshake.query
               ;(socket as any).socketQuery = socket.handshake.query
               next()
-              // })
             })
           }
         )

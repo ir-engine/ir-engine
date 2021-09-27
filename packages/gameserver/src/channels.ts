@@ -1,6 +1,5 @@
 import '@feathersjs/transport-commons'
-import { awaitEngineLoaded, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import config from '@xrengine/server-core/src/appconfig'
 import { Application } from '@xrengine/server-core/declarations'
@@ -14,7 +13,6 @@ import { getPortalByEntityId } from '@xrengine/server-core/src/entities/componen
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { WebRTCGameServer } from './WebRTCGameServer'
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -71,8 +69,6 @@ export default (app: Application): void => {
 
             if (isReady || isNeedingNewServer) {
               console.info('Starting new instance')
-
-              await WebRTCGameServer.instance.initialize(app)
               console.log('Initialized new gameserver instance')
 
               const localIp = await getLocalServerIp((app as any).isChannelInstance)
@@ -157,11 +153,7 @@ export default (app: Application): void => {
 
                 console.log('Scene loaded!')
                 clearInterval(loadingInterval)
-                EngineEvents.instance.dispatchEvent({
-                  type: EngineEvents.EVENTS.ENABLE_SCENE,
-                  renderer: true,
-                  physics: true
-                })
+                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
                 const portals = getAllComponentsOfType(PortalComponent)
                 await Promise.all(

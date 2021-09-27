@@ -107,6 +107,7 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
     (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')
   ) {
     Network.instance.transport.initialize()
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT })
     Network.instance.isInitialized = true
   }
 

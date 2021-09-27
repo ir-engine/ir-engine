@@ -111,8 +111,7 @@ export const initEngine = async (
     const didConnect = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
-    await Store.store.dispatch(connectToInstanceServer('instance'))
-    await didConnect
+    await Promise.all([Store.store.dispatch(connectToInstanceServer('instance')), didConnect])
   }
 
   if (typeof engineCallbacks?.onConnectedToServer === 'function') {
