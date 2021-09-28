@@ -124,37 +124,48 @@
       "lbl-automatic": "Automatic"
     },
     "profile": {
-        "lbl-profile": "Profile",
-        "lbl-settings": "Settings",
-        "connections": {
-            "title": "Connections",
-            "ipError": "Can not remove active Identity Provider",
-            "disconnect": "disconnect",
-            "connect": "Connect"
-        },
-        "profileDropdown": {
-            "avatar": "User Avatar Icon",
-            "profile": "Profile",
-            "adminConsole": "Admin Console",
-            "logout": "Logout"
-        },
-        "userIcon": {
-            "lbl-name": "Your name",
-            "lbl-update": "Update",
-            "userId": "User ID",
-            "ph-uploadImg": "Upload Product Image",
-            "lbl-selectAcvatar": "Select Avatar",
-            "lbl-submit": "Submit"
-        },
-        "userSettings": {
-            "volume": "Volume",
-            "microphone": "Microphone",
-            "resolution": "Resolution",
-            "high": "High",
-            "low": "Low",
-            "spatialAudio": "Use Spatial Audio",
-            "enterMuted": "Enter Room Muted"
-        }
+      "lbl-profile": "Profile",
+      "lbl-settings": "Settings",
+      "lbl-username": "Name",
+      "inviteCode": "Invite Code",
+      "youAreAn": "You are an",
+      "youAreA": "You are a",
+      "logout": "Log out",
+      "connectPhone": "Connect your email or phone number",
+      "ph-phoneEmail": "Phone Number / Email",
+      "phoneEmailError": "Invalid phone or email address",
+      "loginWithReadyPlayerMe": "Login with Ready Player Me",
+      "connectSocial": "Or connect with social accounts",
+      "createOne": "If you don't have an account, a new one will be created for you",
+      "connections": {
+        "title": "Connections",
+        "ipError": "Can not remove active Identity Provider",
+        "disconnect": "disconnect",
+        "connect": "Connect"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Profile",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Your name",
+        "lbl-update": "Update",
+        "userId": "User ID",
+        "ph-uploadImg": "Upload Product Image",
+        "lbl-selectAcvatar": "Select Avatar",
+        "lbl-submit": "Submit"
+      },
+      "userSettings": {
+        "volume": "Volume",
+        "microphone": "Microphone",
+        "resolution": "Resolution",
+        "high": "High",
+        "low": "Low",
+        "spatialAudio": "Use Spatial Audio",
+        "enterMuted": "Enter Room Muted"
+      }
     },
     "oauth": {
         "authenticating": "Authenticating...",
@@ -164,22 +175,22 @@
         "wait": "Please wait a moment while processing..."
     },
     "dashboard": {
-        "header": "Dashboard",
-        "dashboard": "Dashboard",
-        "users": "Users",
-        "feeds": "Feeds",
-        "instance": "Instance",
-        "locations": "Locations",
-        "invites": "Invites",
-        "sessions": "Sessions",
-        "groups": "Groups",
-        "parties": "Parties",
-        "chats": "Chats",
-        "content": "Content Packs",
-        "realityPacks": "Reality Packs",
-        "scenes": "Scenes",
-        "avatars": "Avatars",
-        "bots": "Bots"
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "feeds": "Feeds",
+      "instance": "Instance",
+      "locations": "Locations",
+      "invites": "Invites",
+      "sessions": "Sessions",
+      "groups": "Groups",
+      "parties": "Parties",
+      "chats": "Chats",
+      "content": "Content Packs",
+      "realityPacks": "Reality Packs",
+      "scenes": "Scenes",
+      "avatars": "Avatars",
+      "bots": "Bots"
     }
   },
   "oauth": {

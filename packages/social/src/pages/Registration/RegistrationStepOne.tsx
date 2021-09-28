@@ -171,7 +171,7 @@ const Registration = (props: any): any => {
     <div className={styles.menuPanel}>
       <section className={styles.profilePanel}>
         <div className={styles.logo}>
-          <span>Log in to</span>
+          <span>{t('social:registration.LogInTo')}</span>
           <img src="/assets/LogoColored.png" alt="logo" crossOrigin="anonymous" className="logo" />
         </div>
         {emailPhoneForm && creatorsState.get('currentCreator')?.username && (
@@ -180,13 +180,13 @@ const Registration = (props: any): any => {
               <ArrowBackIosIcon />
             </div>
             <Typography align="center" variant="body1">
-              {t('user:usermenu.registration.connect')}
+              {t('social:registration.connect')}
             </Typography>
             <form onSubmit={handleSubmit}>
               <TextField
                 margin="none"
                 size="small"
-                label={t('user:usermenu.profile.lbl-username')}
+                label={t('social:profile.lbl-username')}
                 variant="outlined"
                 defaultValue={creatorsState.get('currentCreator')?.username}
                 onKeyDown={(e) => {
@@ -207,19 +207,19 @@ const Registration = (props: any): any => {
               <TextField
                 className={styles.emailField}
                 size="small"
-                placeholder={t('user:usermenu.registration.ph-phoneEmail')}
+                placeholder={t('social:registration.ph-phoneEmail')}
                 variant="outlined"
                 onChange={handleInputChange}
                 onBlur={validate}
                 error={error}
-                helperText={error ? t('user:usermenu.registration.ph-phoneEmail') : null}
+                helperText={error ? t('social:registration.ph-phoneEmail') : null}
               />
               <Button className={styles.logIn} variant="contained" onClick={handleSubmit}>
-                Log in
+                {t('social:registration.logIn')}
               </Button>
               <Link to="/">
                 <Button className={styles.logIn} variant="contained">
-                  Continue as guest
+                  {t('social:registration.continueAsGuest')}
                 </Button>
               </Link>
             </form>
@@ -253,7 +253,7 @@ const Registration = (props: any): any => {
                   </svg>
                 </a>
                 <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.registration.ph-phoneEmail')}
+                  {t('social:registration.ph-phoneEmail')}
                   {/* Login as guest */}
                 </Typography>
               </div>
@@ -262,7 +262,7 @@ const Registration = (props: any): any => {
                   <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                 </a>
                 <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.registration.facebook')}
+                  {t('social:registration.facebook')}
                 </Typography>
               </div>
               <div className={styles.socialWrap} id="google" onClick={handleOAuthServiceClick}>
@@ -270,7 +270,7 @@ const Registration = (props: any): any => {
                   <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
                 </a>
                 <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.registration.google')}
+                  {t('social:registration.google')}
                 </Typography>
               </div>
               <div className={styles.socialWrap} id="linkedin2" onClick={handleOAuthServiceClick}>
@@ -278,7 +278,7 @@ const Registration = (props: any): any => {
                   <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                 </a>
                 <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.registration.linkedin')}
+                  {t('social:registration.linkedin')}
                 </Typography>
               </div>
               <div className={styles.socialWrap} id="twitter" onClick={handleOAuthServiceClick}>
@@ -286,7 +286,7 @@ const Registration = (props: any): any => {
                   <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
                 </a>
                 <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.registration.twitter')}
+                  {t('social:registration.twitter')}
                 </Typography>
               </div>
               <div className={styles.socialWrap} id="github" onClick={handleOAuthServiceClick}>
@@ -294,12 +294,12 @@ const Registration = (props: any): any => {
                   <GitHub />
                 </a>
                 <Typography variant="h3" className={styles.textBlock}>
-                  {t('user:usermenu.registration.gitHub')}
+                  {t('social:registration.gitHub')}
                 </Typography>
               </div>
             </div>
             <Typography variant="h4" className={styles.smallTextBlock}>
-              {t('user:usermenu.profile.createOne')}
+              {t('social:profile.createOne')}
             </Typography>
           </section>
         )}

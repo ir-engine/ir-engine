@@ -399,26 +399,26 @@ export async function populateRealityPack(
     params
   )
   await Promise.all(uploadPromises)
-  // if (typeof app.k8DefaultClient! == 'undefined') {
-  //   try {
-  //     console.log('Attempting to reload k8s clients!')
-  //     const restartClientsResponse = await app.k8DefaultClient.patch(
-  //       `deployment/${config.server.releaseName}-xrengine-client`,
-  //       {
-  //         spec: {
-  //           template: {
-  //             metadata: {
-  //               annotations: {
-  //                 'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     )
-  //     console.log('restartClientsResponse', restartClientsResponse)
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
+  if (typeof app.k8DefaultClient !== 'undefined') {
+    try {
+      console.log('Attempting to reload k8s clients!')
+      const restartClientsResponse = await app.k8DefaultClient.patch(
+        `deployment/${config.server.releaseName}-xrengine-client`,
+        {
+          spec: {
+            template: {
+              metadata: {
+                annotations: {
+                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
+                }
+              }
+            }
+          }
+        }
+      )
+      console.log('restartClientsResponse', restartClientsResponse)
+    } catch (e) {
+      console.log(e)
+    }
+  }
 }
