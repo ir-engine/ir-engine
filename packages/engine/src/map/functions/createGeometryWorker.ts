@@ -1,10 +1,9 @@
-import * as turf from '@turf/turf'
 import { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, ExtrudeGeometry } from 'three'
-import { Feature } from 'geojson'
 import createTaskWorker from '../../common/functions/createTaskWorker'
 import { IStyles } from '../styles'
 import { LongLat, toMetersFromCenter, METERS_PER_LONGLAT } from '../functions/UnitConversionFunctions'
 import { computeBoundingCircleRadius } from '../GeoJSONFns'
+import { SupportedFeature } from '../types'
 
 declare function importScripts(...urls: string[]): void
 // TODO eliminate duplicate code
@@ -34,7 +33,7 @@ const baseColorByFeatureType = {
   retail: 0xd8d8b2
 }
 
-function getBuildingColor(feature: Feature) {
+function getBuildingColor(feature: SupportedFeature) {
   const specialColor = baseColorByFeatureType[feature.properties.type]
   return new Color(specialColor || 0xcacaca)
 }
@@ -61,63 +60,34 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color,
   }
 }
 
-function subtractArray2([a1, b1]: number[], [a2, b2]: number[]) {
-  return [a1 - a2, b1 - b2]
-}
-
-function transformFeaturePoint(featurePoint: LongLat, featureCenterPointInScene: number[], mapCenter: LongLat) {
-  const pointInScene = toMetersFromCenter(featurePoint, mapCenter)
-  return subtractArray2(pointInScene as any, featureCenterPointInScene)
-}
-
-function buildGeometry(
-  feature: Feature,
-  center: LongLat,
-  style: IStyles
-): { geometry: BufferGeometry; centerPoint: LongLat; boundingCircleRadius: number } | null {
+function buildGeometry(feature: SupportedFeature, style: IStyles): BufferGeometry {
   const shape = new Shape()
-
-  const { geometry } =
-    feature.geometry.type === 'LineString' ||
-    feature.geometry.type === 'Point' ||
-    feature.geometry.type === 'MultiLineString'
-      ? turf.buffer(feature, style.width || 1, {
-          units: 'meters'
-        })
-      : feature
 
   let coords: LongLat[]
 
-  // TODO switch statement
-  if (geometry.type === 'MultiPolygon') {
-    coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
-  } else if (geometry.type === 'Polygon') {
-    coords = geometry.coordinates[0] // TODO: handle interior rings
-  } else if (geometry.type === 'MultiPoint') {
-    // TODO is this a bug?
-    coords = geometry.coordinates[0] as any
-  } else {
-    // TODO handle feature.geometry.type === 'GeometryCollection'?
+  {
+    const { geometry } = feature
+    // TODO switch statement
+    if (geometry.type === 'MultiPolygon') {
+      coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
+    } else if (geometry.type === 'Polygon') {
+      coords = geometry.coordinates[0] // TODO: handle interior rings
+    } else {
+      throw new Error(`unexpected geometry type ${geometry.type}`)
+    }
   }
 
-  // TODO(perf): finding the center and bounding circle radius depend on calculating the bounding box,
-  // so calculate bouding box once
-  const centerPointLongLat = turf.center(turf.points(coords)).geometry.coordinates
-  const centerPoint = toMetersFromCenter(centerPointLongLat, center)
-  const centerPointFlippedY = [centerPoint[0], -centerPoint[1]]
-  const boundingCircleRadius = computeBoundingCircleRadius(feature) * METERS_PER_LONGLAT
-
-  var point = transformFeaturePoint(coords[0], centerPoint, center)
+  let point = coords[0]
   shape.moveTo(point[0], point[1])
 
-  coords.slice(1).forEach((coord: LongLat) => {
-    point = transformFeaturePoint(coord, centerPoint, center)
+  // TODO(perf) replace with for index loop, no slice
+  coords.slice(1).forEach((point) => {
     shape.lineTo(point[0], point[1])
   })
-  point = transformFeaturePoint(coords[0], centerPoint, center)
+  point = coords[0]
   shape.lineTo(point[0], point[1])
 
-  let height: number
+  let height = 0
 
   // TODO handle min_height
   if (style.height === 'a') {
@@ -128,21 +98,19 @@ function buildGeometry(
     } else if (feature.properties.area) {
       height = Math.sqrt(feature.properties.area)
     } else {
-      // ignore standalone building labels.
-      console.warn('just a label.', feature.properties)
-      return null
+      console.warn('just a label.', feature)
     }
     height *= style.height_scale || 1
   } else {
     height = style.height || 4
   }
 
-  let threejsGeometry: BufferGeometry | null = null
+  let bufferGeometry: BufferGeometry
 
   if (style.extrude === 'flat') {
-    threejsGeometry = new ShapeGeometry(shape)
+    bufferGeometry = new ShapeGeometry(shape)
   } else if (style.extrude === 'rounded') {
-    threejsGeometry = new ExtrudeGeometry(shape, {
+    bufferGeometry = new ExtrudeGeometry(shape, {
       steps: 1,
       depth: height || 1,
       bevelEnabled: true,
@@ -151,30 +119,29 @@ function buildGeometry(
       bevelSegments: 16
     })
   } else {
-    threejsGeometry = new ExtrudeGeometry(shape, {
+    bufferGeometry = new ExtrudeGeometry(shape, {
       steps: 1,
       depth: height || 1,
       bevelEnabled: false
     })
   }
 
-  if (threejsGeometry) {
-    threejsGeometry.rotateX(-Math.PI / 2)
-  }
+  bufferGeometry.rotateX(-Math.PI / 2)
 
   // TODO this isn't quite working as intended
   if (style.color && style.color.builtin_function === 'purple_haze') {
     const light = new Color(0xa0c0a0)
     const shadow = new Color(0x303050)
-    colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
+    colorVertices(bufferGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
   }
 
-  return { geometry: threejsGeometry, centerPoint: centerPointFlippedY, boundingCircleRadius }
+  return bufferGeometry
 }
 
 export function createTaskHandler() {
   // TODO how to import from resources we control?
   importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
+  // TODO only need bbox
   importScripts('https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js')
 
   const { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, ExtrudeGeometry } =
@@ -183,8 +150,8 @@ export function createTaskHandler() {
 
   Object.assign(this, { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, ExtrudeGeometry })
 
-  return function handleBuildGeometryTask(feature: Feature, center: LongLat, style: IStyles) {
-    const { geometry, centerPoint, boundingCircleRadius } = buildGeometry(feature, center, style)
+  return function handleBuildGeometryTask(feature: SupportedFeature, style: IStyles) {
+    const geometry = buildGeometry(feature, style)
 
     const bufferGeometry = new BufferGeometry().copy(geometry)
 
@@ -201,32 +168,25 @@ export function createTaskHandler() {
       }
     }
 
-    this.postResult(
-      { geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } }, centerPoint, boundingCircleRadius },
-      arrayBuffers
-    )
+    this.postResult({ geometry: { json: bufferGeometry.toJSON(), transfer: { attributes } } }, arrayBuffers)
 
     geometry.dispose()
     bufferGeometry.dispose()
   }
 }
 
-interface SerializedGeometry {
+interface WorkerResult {
   geometry: {
     json: object
     transfer: {
       attributes: { [attributeName: string]: { array: Int32Array; itemSize: number; normalized: boolean } }
     }
   }
-  centerPoint: [number, number]
-  boundingCircleRadius: number
 }
 
 export default () => {
-  return createTaskWorker<string, [Feature, LongLat, IStyles], SerializedGeometry>(createTaskHandler, {
+  return createTaskWorker<string, [SupportedFeature, IStyles], WorkerResult>(createTaskHandler, {
     buildGeometry,
-    transformFeaturePoint,
-    subtractArray2,
     colorVertices,
     getBuildingColor,
     baseColorByFeatureType,
