@@ -13,6 +13,7 @@ import { World } from '../ecs/classes/World'
 import actuateLazy from './functions/actuateLazy'
 import getPhases from './functions/getPhases'
 import isIntersectCircleCircle from './functions/isIntersectCircleCircle'
+import { MAX_CACHED_FEATURES } from './functions/createStore'
 
 const $vector3 = new Vector3()
 
@@ -63,23 +64,30 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     if (shouldUpdateChildren) {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
       const subSceneChildren = []
-      for (const object of mapComponent.completeObjects.values()) {
-        // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
-        if (object.mesh) {
-          if (
-            isIntersectCircleCircle(
-              viewerPositionScaled,
-              mapComponent.minimumSceneRadius,
-              object.centerPoint,
-              object.boundingCircleRadius
-            )
-          ) {
-            setPosition(object.mesh, object.centerPoint)
-            addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
-          } else {
-            object.mesh.parent = null
+      let count = 0
+      for (const key of mapComponent.completeObjects.keys()) {
+        if (key[0] !== 'landuse_fallback') {
+          const object = mapComponent.completeObjects.get(key)
+          // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
+          if (object.mesh) {
+            if (
+              isIntersectCircleCircle(
+                viewerPositionScaled,
+                mapComponent.minimumSceneRadius,
+                object.centerPoint,
+                object.boundingCircleRadius
+              )
+            ) {
+              setPosition(object.mesh, object.centerPoint)
+              addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+            } else {
+              object.mesh.parent = null
+            }
           }
         }
+
+        count++
+        if (count > MAX_CACHED_FEATURES) break
       }
       for (const label of mapComponent.labelCache.values()) {
         if (label.mesh) {
