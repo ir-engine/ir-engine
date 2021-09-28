@@ -6,7 +6,7 @@ import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/Al
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { accessAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 import {
   fetchingFeeds,
@@ -83,7 +83,7 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         })
         dispatch(feedsMyFeaturedRetrieved(feedsResults.data))
       } else if (type && type === 'admin') {
-        const user = useAuthState().user
+        const user = accessAuthState().user
         if (user.userRole.value === 'admin') {
           dispatch(fetchingAdminFeeds())
           const feedsResults = await client.service('feed').find({

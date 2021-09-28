@@ -16,18 +16,18 @@ import {
 } from './actions'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import Store from '../../../store'
-import { User } from '@xrengine/common/src/interfaces/User'
 import { accessAuthState } from '../../../user/reducers/auth/AuthState'
 const store = Store.store
+
+import { Config } from '@xrengine/common/src/config'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 const phoneRegex = /^[0-9]{10}$/
 const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
-
-import { Config } from '@xrengine/common/src/config'
-import { AlertService } from '../../../common/reducers/alert/AlertService'
 
 export function sendInvite(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -82,14 +82,19 @@ export function sendInvite(data: any) {
     }
 
     try {
-      const inviteResult = await client.service('invite').create({
+      const params = {
         inviteType: data.type,
         token: data.token,
         inviteCode: data.inviteCode,
         targetObjectId: data.targetObjectId,
         identityProviderType: data.identityProviderType,
         inviteeId: data.invitee
-      })
+      }
+
+      const existingInviteResult = await client.service('invite').find(params)
+
+      let inviteResult
+      if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
 
       AlertService.dispatchAlertSuccess(dispatch, 'Invite Sent')
       dispatch(sentInvite(inviteResult))
@@ -106,6 +111,7 @@ export function retrieveReceivedInvites(incDec?: 'increment' | 'decrement') {
     const skip = getState().get('invite').get('receivedInvites').get('skip')
     const limit = getState().get('invite').get('receivedInvites').get('limit')
     try {
+      await waitForClientAuthenticated()
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'received',
@@ -127,6 +133,7 @@ export function retrieveSentInvites(incDec?: 'increment' | 'decrement') {
     const skip = getState().get('invite').get('sentInvites').get('skip')
     const limit = getState().get('invite').get('sentInvites').get('limit')
     try {
+      await waitForClientAuthenticated()
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'sent',

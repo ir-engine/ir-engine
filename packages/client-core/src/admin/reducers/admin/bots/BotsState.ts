@@ -45,6 +45,7 @@ export const botsReceptor = (action: BotsActionType): void => {
   state.batch((s) => {
     switch (action.type) {
       case 'BOT_ADMIN_DISPLAY':
+        result = action.bots
         s.merge({ error: '' })
         return s.merge({
           bots: { bots: result.data, retrieving: false, fetched: true, updateNeeded: false, lastFetched: new Date() }

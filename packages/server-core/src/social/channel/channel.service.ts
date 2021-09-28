@@ -66,7 +66,7 @@ export default (app: Application): any => {
         // if (user2AvatarResult.total > 0) {
         //   data.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url;
         // }
-        targetIds = [data.userId1, data.userId2]
+        targetIds = []
       } else if (data.channelType === 'group') {
         if (data.group == null) {
           data.group = await (app.service('group') as any).Model.findOne({
