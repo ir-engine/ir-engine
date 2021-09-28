@@ -27,7 +27,7 @@ function avatarActionReceptor(action) {
 
   matches(action)
     .when(NetworkWorldAction.setXRMode.matches, (a) => {
-      if (a.$from !== world.hostId && a.$from !== a.userId) return
+      // if (a.$from !== world.hostId && a.$from !== a.userId) return
       const entity = world.getUserAvatarEntity(a.userId)
       if (typeof entity !== 'undefined') {
         if (a.enabled) {

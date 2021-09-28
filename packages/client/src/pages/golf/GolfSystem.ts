@@ -114,9 +114,10 @@ function golfReceptor(action) {
         } else {
           console.log(`player ${userId} rejoined`)
         }
-        dispatchFrom(world.hostId, () => {
-          return GolfAction.sendState({ state: s.attach(Downgraded).value })
-        }).to(userId)
+        if (!isClient)
+          dispatchFrom(world.hostId, () => {
+            return GolfAction.sendState({ state: s.attach(Downgraded).value })
+          }).to(userId)
       })
 
       /**
@@ -180,7 +181,7 @@ function golfReceptor(action) {
           const position = action.outOfBounds ? teePosition : action.position
           resetBall(entityBall, position)
         }
-        dispatchFrom(world.hostId, () => GolfAction.nextTurn({ userId }))
+        if (!isClient) dispatchFrom(world.hostId, () => GolfAction.nextTurn({ userId }))
         return
       })
 
@@ -229,12 +230,13 @@ function golfReceptor(action) {
 
           // the ball might be in the old hole still
           if (nextPlayer.stroke === 0) {
-            dispatchFrom(world.hostId, () =>
-              GolfAction.resetBall({
-                userId: nextPlayer.userId,
-                position: getTeePosition(s.currentHole.value)
-              })
-            )
+            if (!isClient)
+              dispatchFrom(world.hostId, () =>
+                GolfAction.resetBall({
+                  userId: nextPlayer.userId,
+                  position: getTeePosition(s.currentHole.value)
+                })
+              )
           }
 
           const nextBallEntity = getBall(nextPlayer.userId)
@@ -242,7 +244,7 @@ function golfReceptor(action) {
           console.log(`it is now player ${nextPlayer.userId}'s turn`)
         } else {
           // if not, the round has finished
-          dispatchFrom(world.hostId, () => GolfAction.nextHole({}))
+          if (!isClient) dispatchFrom(world.hostId, () => GolfAction.nextHole({}))
         }
       })
 
@@ -275,12 +277,13 @@ function golfReceptor(action) {
 
         // set current player to the first player
         s.currentPlayerId.set(s.players[0].userId.value)
-        dispatchFrom(world.hostId, () =>
-          GolfAction.resetBall({
-            userId: s.players[0].userId.value,
-            position: getTeePosition(s.currentHole.value)
-          })
-        )
+        if (!isClient)
+          dispatchFrom(world.hostId, () =>
+            GolfAction.resetBall({
+              userId: s.players[0].userId.value,
+              position: getTeePosition(s.currentHole.value)
+            })
+          )
       })
 
       /**
@@ -298,9 +301,9 @@ function golfReceptor(action) {
       /**
        * Show scorecard
        */
-      .when(GolfAction.lookAtScorecard.matchesFromAny, ({ $from }) => {
-        const player = s.players.find((p) => p.userId.value === $from)
-        if (player) player.viewingScorecard.set((v) => (typeof action.value === 'boolean' ? action.value : !v))
+      .when(GolfAction.lookAtScorecard.matchesFromAny, ({ userId, value }) => {
+        const player = s.players.find((p) => p.userId.value === userId)
+        if (player) player.viewingScorecard.set((v) => (typeof value === 'boolean' ? value : !v))
       })
   })
 }
@@ -332,10 +335,12 @@ export default async function GolfSystem(world: World) {
   return () => {
     for (const entity of playerAvatarQuery.enter()) {
       const { userId } = getComponent(entity, NetworkObjectComponent)
-      dispatchFrom(world.hostId, () => GolfAction.playerJoined({ userId }))
-      dispatchFrom(world.hostId, () => GolfAction.spawnBall({ userId }))
-      dispatchFrom(world.hostId, () => GolfAction.spawnClub({ userId }))
-      setupPlayerAvatar(entity)
+      if (!isClient) {
+        dispatchFrom(world.hostId, () => GolfAction.playerJoined({ userId }))
+        dispatchFrom(world.hostId, () => GolfAction.spawnBall({ userId }))
+        dispatchFrom(world.hostId, () => GolfAction.spawnClub({ userId }))
+      }
+      if (isClient) setupPlayerAvatar(entity)
       setupPlayerInput(entity)
     }
 

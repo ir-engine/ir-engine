@@ -212,8 +212,9 @@ export const GolfScorecardUISystem = async (world: World) => {
     layer.matrix.compose(layer.position, layer.quaternion, layer.scale).premultiply(Engine.camera.matrixWorld)
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
 
-    const localPlayerNumber = getGolfPlayerNumber()
-    const viewingScorecard = GolfState.players[localPlayerNumber]?.viewingScorecard.value
+    const localPlayerNumber = getGolfPlayerNumber(Engine.userId)
+    const viewingScorecard = GolfState.players[localPlayerNumber].viewingScorecard.value
+    // console.log(GolfState.players[localPlayerNumber].viewingScorecard)
 
     const targetOpacity = viewingScorecard ? 1 : 0
     layer.rootLayer.traverseLayersPreOrder((layer) => {

@@ -14,7 +14,6 @@ import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/encode'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
-import { NameComponent } from '../../scene/components/NameComponent'
 
 function sendActions() {
   const incomingActions = Engine.defaultWorld.incomingActions
@@ -32,8 +31,8 @@ function sendActions() {
   incomingActions.clear()
 
   for (const out of outgoingActions) {
-    out.$from = out.$from ?? Engine.userId
-    if (out.$from === Engine.userId && out.$to === Engine.userId) {
+    out.$from = Engine.userId
+    if (out.$to === Engine.userId) {
       incomingActions.add(out as Required<Action>)
       outgoingActions.delete(out)
     }
