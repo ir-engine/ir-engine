@@ -97,12 +97,12 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
             const networkObjectEntity = world.getNetworkObject(pose.networkId)
             if (!networkObjectEntity) console.warn(`Rejecting update for non-existing network object ${pose.networkId}`)
             const networkComponent = getComponent(networkObjectEntity, NetworkObjectComponent)
-            if (networkComponent.userId !== userId)
-              console.warn(`Rejecting non-authoritative update for network object ${pose.networkId}`)
+            if (networkComponent.userId !== userId) continue
+            // console.warn(`Rejecting non-authoritative update for network object ${pose.networkId}`)
             // console.log(`Recieved update for network object ${pose.networkId}, ${JSON.stringify(getEntityComponents(world, networkObjectEntity))}`)
 
-            if (hasComponent(networkObjectEntity, AvatarComponent)) {
-              if (hasComponent(networkObjectEntity, AvatarControllerComponent)) continue
+            if (hasComponent(networkObjectEntity, TransformComponent)) {
+              // if (hasComponent(networkObjectEntity, AvatarControllerComponent)) continue
               const transformComponent = getComponent(networkObjectEntity, TransformComponent)
               transformComponent.position.copy(decodeVector3(pose.position))
               transformComponent.rotation.copy(decodeQuaternion(pose.rotation))
@@ -126,7 +126,6 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
                 },
                 true
               )
-              console.log('updated collider')
             }
             // }
           }
