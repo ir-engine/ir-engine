@@ -15,18 +15,19 @@ import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { useTranslation } from 'react-i18next'
 import Layout from '../Layout/Layout'
+import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 
 const goHome = () => (window.location.href = window.location.origin)
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 const mapStateToProps = (state: any) => {
-  return {}
+  return {
+    partyState: selectPartyState(state)
+  }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
-})
+const mapDispatchToProps = (dispatch: Dispatch) => ({})
 
 interface Props {
   canvasElement: JSX.Element
@@ -45,7 +46,7 @@ const DefaultLayoutView = (props: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const selfUser = authState.user
-  const party = props.partyState.get('party')
+  const party = props.partyState?.get('party')
   const [harmonyOpen, setHarmonyOpen] = useState(false)
 
   return (
