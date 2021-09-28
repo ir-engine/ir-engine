@@ -31,7 +31,8 @@ const LocationPage = (props) => {
 
   return (
     <>
-      {/* <UserProfile isUserProfileShowing={isUserProfileOpen} showHideProfile={setShowUserProfile} /> */}
+      {/* todo: remove this in favour of reality packs */}
+      <UserProfile isUserProfileShowing={isUserProfileOpen} showHideProfile={setShowUserProfile} />
       <World
         allowDebug={true}
         locationName={props.match.params.locationName}

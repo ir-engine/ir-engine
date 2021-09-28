@@ -83,7 +83,7 @@ const DefaultLayoutView = (props: Props) => {
         {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
 
         {props.children}
-        {props.customComponents()}
+        {props.customComponents && props.customComponents()}
 
         {props.showTouchpad && isTouchAvailable ? (
           <Suspense fallback={<></>}>
