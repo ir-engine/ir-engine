@@ -18,6 +18,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { decodeVector3, decodeQuaternion } from '@xrengine/common/src/utils/decode'
 import { Action } from '../interfaces/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getEntityComponents } from 'bitecs'
 
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
@@ -60,7 +61,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
       try {
         const newWorldState = WorldStateModel.fromBuffer(buffer)
-        //console.log('new world state: ' + JSON.stringify(newWorldState))
+        // if (newWorldState.pose.length) console.log('new world state: ' + JSON.stringify(newWorldState))
 
         if (isClient) {
           world.fixedTick = newWorldState.tick
@@ -94,9 +95,11 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
         } else if (newWorldState) {
           for (const pose of newWorldState.pose) {
             const networkObjectEntity = world.getNetworkObject(pose.networkId)
-            if (!networkObjectEntity) continue
-
+            if (!networkObjectEntity) console.warn(`Rejecting update for non-existing network object ${pose.networkId}`)
             const networkComponent = getComponent(networkObjectEntity, NetworkObjectComponent)
+            if (networkComponent.userId !== userId)
+              console.warn(`Rejecting non-authoritative update for network object ${pose.networkId}`)
+            // console.log(`Recieved update for network object ${pose.networkId}, ${JSON.stringify(getEntityComponents(world, networkObjectEntity))}`)
 
             if (hasComponent(networkObjectEntity, AvatarComponent)) {
               if (hasComponent(networkObjectEntity, AvatarControllerComponent)) continue
@@ -112,24 +115,18 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
               else velC.velocity.copy(decodeVector3(pose.linearVelocity))
             }
 
-            if (networkComponent.userId === userId) {
-              const transform = getComponent(networkObjectEntity, TransformComponent)
-              if (transform) {
-                transform.position.copy(decodeVector3(pose.position))
-                transform.rotation.copy(decodeQuaternion(pose.rotation))
-              }
+            if (hasComponent(networkObjectEntity, ColliderComponent)) {
               const collider = getComponent(networkObjectEntity, ColliderComponent)
-              if (collider) {
-                const pos = decodeVector3(pose.position)
-                const rot = decodeQuaternion(pose.rotation)
-                collider.body.setGlobalPose(
-                  {
-                    translation: { x: pos.x, y: pos.y, z: pos.z },
-                    rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w }
-                  },
-                  true
-                )
-              }
+              const pos = decodeVector3(pose.position)
+              const rot = decodeQuaternion(pose.rotation)
+              collider.body.setGlobalPose(
+                {
+                  translation: { x: pos.x, y: pos.y, z: pos.z },
+                  rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w }
+                },
+                true
+              )
+              console.log('updated collider')
             }
             // }
           }

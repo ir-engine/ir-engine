@@ -64,7 +64,7 @@ export class NetworkWorldAction {
 
   static avatarAnimation = defineActionCreator(
     {
-      type: 'network.ANIMATION_CHANGE',
+      type: 'network.AVATAR_ANIMATION',
       newStateName: matches.string,
       params: matchesWeightsParameters
     },

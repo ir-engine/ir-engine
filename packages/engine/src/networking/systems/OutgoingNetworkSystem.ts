@@ -14,6 +14,7 @@ import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/encode'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 function sendActions() {
   const incomingActions = Engine.defaultWorld.incomingActions
@@ -168,7 +169,6 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     }
 
     try {
-      // console.log('SENDING WORLD STATE', newWorldState)
       const buffer = WorldStateModel.toBuffer(newWorldState)
       Network.instance.transport.sendData(buffer)
       prevWorldState = newWorldState

@@ -22,7 +22,8 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = b
     value: componentMap
   })
   Object.defineProperty(component, '_name', {
-    value: name
+    value: name,
+    enumerable: true
   })
   Object.defineProperty(component, 'get', {
     value: function (eid: number) {

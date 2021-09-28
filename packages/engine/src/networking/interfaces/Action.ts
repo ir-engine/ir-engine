@@ -152,16 +152,23 @@ const matchesVec3Shape = matches.shape({
   z: matches.number
 })
 
-const matchesQuatShape = matches.shape({
-  x: matches.number,
-  y: matches.number,
-  z: matches.number,
-  w: matches.number
-})
+const matchesQuatShape = matches.some(
+  matches.shape({
+    _x: matches.number,
+    _y: matches.number,
+    _z: matches.number,
+    _w: matches.number
+  }),
+  matches.shape({
+    x: matches.number,
+    y: matches.number,
+    z: matches.number,
+    w: matches.number
+  })
+)
 
 export const matchesVector3 = matches.guard((v): v is Vector3 => matchesVec3Shape.test(v))
 export const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape.test(v))
-
 export const matchesUserId = matches.string as Validator<unknown, UserId>
 export const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 
