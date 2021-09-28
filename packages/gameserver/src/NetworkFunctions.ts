@@ -81,7 +81,7 @@ export async function cleanupOldGameservers(): Promise<void> {
       ended: false
     }
   })
-  const gameservers = await (transport.app as any).k8AgonesClient.get('gameservers')
+  const gameservers = await transport.app.k8AgonesClient.get('gameservers')
   const gsIds = gameservers.items.map((gs) =>
     gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
   )
@@ -199,7 +199,7 @@ export async function validateNetworkObjects(): Promise<void> {
 
 export async function handleConnectToWorld(socket, data, callback, userId: UserId, user, avatarDetail): Promise<any> {
   const transport = Network.instance.transport as any
-  if (!Engine.sceneLoaded && (transport.app as any).isChannelInstance !== true) {
+  if (!Engine.sceneLoaded && transport.app.isChannelInstance !== true) {
     await new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
     })

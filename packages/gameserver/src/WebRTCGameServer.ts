@@ -27,7 +27,7 @@ export class WebRTCGameServer {
   initialize(app: any) {
     ;(WebRTCGameServer.options.networking as any).app = app
     WorldScene.realityPackDownloadCallback = download
-    if ((app as any).isChannelInstance) {
+    if (app.isChannelInstance) {
       WebRTCGameServer.options.type = EngineSystemPresets.SERVER
     }
     return initializeEngine(WebRTCGameServer.options)

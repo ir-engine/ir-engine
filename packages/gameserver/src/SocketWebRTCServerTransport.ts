@@ -45,7 +45,7 @@ import { encode } from 'msgpackr'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Application } from '@feathersjs/express/lib'
+import { Application } from '@xrengine/server-core/declarations'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
@@ -291,15 +291,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       }
     else if (config.kubernetes.enabled) {
       await cleanupOldGameservers()
-      this.gameServer = await (this.app as any).agonesSDK.getGameServer()
+      this.gameServer = await this.app.agonesSDK.getGameServer()
       const name = this.gameServer.objectMeta.name
-      ;(this.app as any).gsName = name
+      this.app.gsName = name
 
       const gsIdentifier = gsNameRegex.exec(name)!
       stringSubdomainNumber = await getFreeSubdomain(gsIdentifier[1], 0)
-      ;(this.app as any).gsSubdomainNumber = stringSubdomainNumber
+      this.app.gsSubdomainNumber = stringSubdomainNumber
 
-      gsResult = await (this.app as any).agonesSDK.getGameServer()
+      gsResult = await this.app.agonesSDK.getGameServer()
       const params = {
         ChangeBatch: {
           Changes: [

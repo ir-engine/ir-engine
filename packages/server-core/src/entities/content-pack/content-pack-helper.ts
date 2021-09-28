@@ -399,10 +399,10 @@ export async function populateRealityPack(
     params
   )
   await Promise.all(uploadPromises)
-  // if (typeof (app as any).k8DefaultClient! == 'undefined') {
+  // if (typeof app.k8DefaultClient! == 'undefined') {
   //   try {
   //     console.log('Attempting to reload k8s clients!')
-  //     const restartClientsResponse = await (app as any).k8DefaultClient.patch(
+  //     const restartClientsResponse = await app.k8DefaultClient.patch(
   //       `deployment/${config.server.releaseName}-xrengine-client`,
   //       {
   //         spec: {

@@ -29,7 +29,7 @@ export default (app: Application): void => {
     // @ts-ignore
     app.setup = function (...args: any): Application {
       let promiseResolve, promiseReject
-      ;(app as any).isSetup = new Promise((resolve, reject) => {
+      app.isSetup = new Promise((resolve, reject) => {
         promiseResolve = resolve
         promiseReject = reject
       })
@@ -56,25 +56,28 @@ export default (app: Application): void => {
           return sequelize
             .sync({ force: forceRefresh })
             .then(() => {
-              return (app as any)
-                .configure(
-                  seeder({
-                    delete: forceRefresh,
-                    disabled: !forceRefresh,
-                    services: seederConfig
+              return (
+                app
+                  .configure(
+                    seeder({
+                      delete: forceRefresh,
+                      disabled: !forceRefresh,
+                      services: seederConfig
+                    })
+                  )
+                  // @ts-ignore
+                  .seed()
+                  .then(() => {
+                    console.log('Server Ready')
+                    return Promise.resolve()
                   })
-                )
-                .seed()
-                .then(() => {
-                  console.log('Server Ready')
-                  return Promise.resolve()
-                })
-                .catch((err) => {
-                  console.log('Feathers seeding error')
-                  console.log(err)
-                  promiseReject()
-                  throw err
-                })
+                  .catch((err) => {
+                    console.log('Feathers seeding error')
+                    console.log(err)
+                    promiseReject()
+                    throw err
+                  })
+              )
 
               if (performDryRun) {
                 setTimeout(() => process.exit(0), 5000)
