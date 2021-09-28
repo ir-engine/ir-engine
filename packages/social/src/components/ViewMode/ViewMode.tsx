@@ -76,9 +76,7 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
     }
     return (
       <div>
-        <p>
-          Welcome to ARC!  Make personal videos with one of our holograms and post it to your social media channels!
-        </p>
+        <p>{t('social:view.welcome')}</p>
       </div>
     )
   }
@@ -89,8 +87,8 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 1</h3>
-        <p>Choose a hologram from the library.</p>
+        <h3 className="text-center">{t('social:view.step', { step: '1' })}</h3>
+        <p>{t('social:view.text-step-1')}</p>
       </div>
     )
   }
@@ -102,11 +100,8 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 2</h3>
-        <p>
-          This is Augmented Reality, so scan the space with your camera from side to side  for 3-5 seconds where you
-          want the hologram performance to be.
-        </p>
+        <h3 className="text-center">{t('social:view.step', { step: '2' })}</h3>
+        <p>{t('social:view.text-step-2')}</p>
       </div>
     )
   }
@@ -118,10 +113,10 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 3</h3>
-        <p>Tap screen once on location where you want the hologram anchored.  </p>
-        <p>TIP!  Tap once elsewhere to move the hologram to another position.   </p>
-        <p>TIP!  You can resize the hologram by pinching or expanding the screen with your thumb and index finger.  </p>
+        <h3 className="text-center">{t('social:view.step', { step: '3' })}</h3>
+        <p>{t('social:view.text-step-3-part-1')}</p>
+        <p>{t('social:view.text-step-3-part-2')}</p>
+        <p>{t('social:view.text-step-3-part-3')}</p>
       </div>
     )
   }
@@ -133,9 +128,9 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 4</h3>
-        <p>Double tap red record button to START your video recording.</p>
-        <p>Double tap red record button to STOP.</p>
+        <h3 className="text-center">{t('social:view.step', { step: '4' })}</h3>
+        <p>{t('social:view.text-step-4-part-1')}</p>
+        <p>{t('social:view.text-step-4-part-2')}</p>
       </div>
     )
   }
@@ -201,7 +196,7 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
       >
         <div className={classes.popup}>
           <Button onClick={handleClose} color="primary" className={classes.btn_cancel}>
-            {t('social:view.cancel')}
+            {t('social:cancel')}
           </Button>
           <div>
             <StepWizard nav={<Nav />} transitions={state.transitions}>
@@ -213,8 +208,7 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
             </StepWizard>
           </div>
           <Button color="primary" className={classes.btn_dont} onClick={handleSteps}>
-            {' '}
-            Do not show it again
+            {t('social:view.not-show')}
           </Button>
           <Button
             onClick={() => {

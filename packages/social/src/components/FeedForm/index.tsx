@@ -379,7 +379,7 @@ const FeedForm = ({
               <div>
                 <Button variant="contained" className={styles.submit} onClick={() => handleCreateFeed()}>
                   {/*                         {t('social:feedForm.lbl-share')} */}
-                  Add Feed
+                  {t('social:shareForm.addFeed')}
                 </Button>
               </div>
             )}
@@ -389,7 +389,7 @@ const FeedForm = ({
                 className={styles.submit}
                 onClick={() => shareVideo('ARC_Perfomance', lastFeedVideoUrl)}
               >
-                Share
+                {t('social:shareForm.arcMedia')}
               </Button>
             )}
 
@@ -404,11 +404,11 @@ const FeedForm = ({
                   setSaveStatus(true)
                 }}
               >
-                Save
+                {t('social:save')}
               </Button>
             )}
             <Button variant="contained" className={styles.submit} onClick={() => closePopUp()}>
-              Cancel
+              {t('social:cancel')}
             </Button>
           </div>
 
