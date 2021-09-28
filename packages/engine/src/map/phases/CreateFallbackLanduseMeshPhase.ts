@@ -35,12 +35,12 @@ export function execTask(store: Store, key: TileKey) {
 
   const geometry = new PlaneBufferGeometry(tileWidth, tileHeight)
 
-  geometry.rotateX(Math.PI / 2)
+  geometry.rotateX(-Math.PI / 2)
   const mesh = new Mesh(geometry, material)
   mesh.renderOrder = -MAX_Z_INDEX
   store.completeObjects.set(['landuse_fallback', x, y, '0'], {
     centerPoint: [tileLeft + tileWidth / 2, -1 * (tileTop + tileHeight / 2)],
-    boundingCircleRadius: Math.max(tileWidth, tileHeight),
+    boundingCircleRadius: Math.max(tileWidth, tileHeight) / 2,
     mesh
   })
 }
