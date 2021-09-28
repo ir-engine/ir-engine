@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 
-export class Server extends Service {
+export class Analytics extends Service {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {

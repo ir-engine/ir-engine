@@ -14,7 +14,15 @@ import feedsReducer from '@xrengine/social/src/reducers/feed/reducers'
 import creatorReducer from '@xrengine/social/src/reducers/creator/reducers'
 import { adminGroupReducer } from './admin/group/GroupState'
 import scopeReducer from './admin/scope/reducers'
-
+import settingAnalyticsReducer from './admin/Setting/analytics/reducers'
+import settingServerReducer from './admin/Setting/server/reducers'
+import clientSettingReducer from './admin/Setting/client/reducers'
+import gameServerSettingReducer from './admin/Setting/game-server/reducers'
+import emailSettingReducer from './admin/Setting/email/reducers'
+import chargebeeSettingReducer from './admin/Setting/chargebee/reducers'
+import authSettingReducer from './admin/Setting/authentication-setting/reducers'
+import awsSettingReducer from './admin/Setting/aws/reducer'
+import redisSettingReducer from './admin/Setting/redis/reducer'
 /**
  * TODO: I am moving admin reducer to different packages
  *
@@ -37,5 +45,14 @@ export default {
   feedsAdmin: feedsReducer,
   adminCreator: creatorReducer,
   group: adminGroupReducer,
-  scope: scopeReducer
+  scope: scopeReducer,
+  settingAnalytics: settingAnalyticsReducer,
+  serverSettings: settingServerReducer,
+  clientSettings: clientSettingReducer,
+  gameServer: gameServerSettingReducer,
+  email: emailSettingReducer,
+  adminAuthSetting: authSettingReducer,
+  adminAwsSetting: awsSettingReducer,
+  adminChargeBeeSetting: chargebeeSettingReducer,
+  adminRedisSetting: redisSettingReducer
 }

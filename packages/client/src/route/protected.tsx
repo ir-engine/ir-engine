@@ -135,6 +135,11 @@ const ProtectedRoutes = (props: Props) => {
           <PrivateRoute exact path="/admin/creator" component={creator} /> */}
           <PrivateRoute exact path="/admin/reality-packs" component={realityPacks} />
           <PrivateRoute exact path="/admin/settings" component={setting} />
+          {/* <PrivateRoute exact path="/admin/settings" component={setting} />
+          <PrivateRoute exact path="/admin/armedia" component={arMedia} />
+          <PrivateRoute exact path="/admin/feeds" component={feeds} />
+          <PrivateRoute exact path="/admin/creator" component={creator} /> */}
+          <PrivateRoute exact path="/admin/settings" component={setting} />
           <PrivateRoute exact Path="/admin/users" component={users} />
         </Switch>
       </Suspense>
