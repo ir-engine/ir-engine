@@ -50,6 +50,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
           receptor(action)
         } catch (e) {
           console.error(e)
+          incomingActions.delete(action)
         }
     }
 

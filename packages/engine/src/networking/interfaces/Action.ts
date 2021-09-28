@@ -8,7 +8,7 @@ export type Action = {
   type: string
 } & ActionOptions
 
-export type ActionRecipients = UserId | UserId[] | 'all'
+export type ActionRecipients = UserId | UserId[] | 'all' | 'local'
 
 export type ActionOptions = {
   /** The user who sent this action */

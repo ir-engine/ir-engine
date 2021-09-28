@@ -46,3 +46,8 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
 
   return options
 }
+
+export const dispatchLocal = (action: Action & { __ALLOW_DISPATCH_FROM_ANY: true }) => {
+  const options = dispatchFrom(Engine.userId, () => action).to('local')
+  return options as Omit<typeof options, 'to'>
+}

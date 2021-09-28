@@ -31,8 +31,8 @@ function sendActions() {
   incomingActions.clear()
 
   for (const out of outgoingActions) {
-    out.$from = Engine.userId
-    if (out.$to === Engine.userId) {
+    out.$from = out.$from ?? Engine.userId
+    if (out.$from === Engine.userId && out.$to === 'local') {
       incomingActions.add(out as Required<Action>)
       outgoingActions.delete(out)
     }
