@@ -69,6 +69,10 @@ export interface MapFeatureLabel {
   boundingCircleRadius: number
 }
 
+export interface MapHelpers {
+  tileNavMesh: Mesh
+}
+
 export type TileKey = [number, number]
 export type FeatureKey = [ILayerName, number, number, string]
 

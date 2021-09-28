@@ -56,7 +56,7 @@ export default class MutableNavMesh extends NavMesh {
             const nodeFrom = graph.getNode(from)
             const nodeTo = graph.getNode(to)
 
-            const cost = nodeFrom.position.distanceTo(nodeTo.position)
+            const cost = (nodeFrom as any).position.distanceTo((nodeTo as any).position)
 
             graph.addEdge(new NavEdge(from, to, cost))
           }

@@ -15,7 +15,6 @@ export function execTask(store: Store, _: TileKey) {
   for (const value of store.tileNavMeshCache.values()) {
     builder.addGeometry({ type: 'MultiPolygon', coordinates: value })
   }
-  console.log('building navMesh')
   return builder.build(store.navMesh)
 }
 

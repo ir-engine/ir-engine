@@ -98,6 +98,13 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           }
         }
       }
+      for (const helpers of mapComponent.helpersCache.values()) {
+        if (helpers.tileNavMesh) {
+          addChildFast(object3dComponent.value, helpers.tileNavMesh, subSceneChildren)
+        } else {
+          helpers.tileNavMesh.parent = null
+        }
+      }
 
       // Update (sub)scene
       object3dComponent.value.children = subSceneChildren

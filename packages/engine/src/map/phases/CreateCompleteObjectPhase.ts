@@ -1,6 +1,4 @@
-import computeDistanceFromCircle from '../functions/computeDistanceFromCircle'
 import { FeatureKey, TaskStatus } from '../types'
-import { multiplyArray } from '../util'
 import createUsingCache from '../functions/createUsingCache'
 import createCompleteObject from '../functions/createCompleteObject'
 import { Store } from '../functions/createStore'
@@ -20,15 +18,7 @@ const createCompleteObjectUsingCache = createUsingCache((store: Store, ...key: F
 export function* getTaskKeys(store: Store) {
   for (const key of store.featureCache.keys()) {
     const geometry = store.geometryCache.get(key)
-    // TODO create separate worker for centerPoint and boundingCircleRadius? that way we could do this check in an earlier phase
-    if (
-      geometry &&
-      computeDistanceFromCircle(
-        multiplyArray(store.viewerPosition, 1 / store.scale),
-        geometry.centerPoint,
-        geometry.boundingCircleRadius
-      ) < store.minimumSceneRadius
-    ) {
+    if (geometry) {
       yield key
     }
   }

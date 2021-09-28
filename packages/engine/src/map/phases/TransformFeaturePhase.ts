@@ -13,7 +13,7 @@ const transformFeatureUsingCache = createUsingCache((store: Store, ...key: Featu
     // throw new Error("feature being transformed more than once")
     console.warn('Feature being transformed more than once!')
   }
-  const transformed = transformFeature(feature, store.originalCenter)
+  const transformed = transformFeature(layerName, feature, store.originalCenter)
   feature.properties.transformed = true
   return transformed
 })

@@ -2,13 +2,14 @@ import { bboxPolygon as convertBboxToPolygon, clone } from '@turf/turf'
 import computeTileBoundingBox from '../functions/computeTileBoundingBox'
 import { Store } from '../functions/createStore'
 import createUsingCache from '../functions/createUsingCache'
-import { TaskStatus, TileKey } from '../types'
-import computePolygonsOfFeaturesNegative from '../functions/computePolygonsOfFeaturesNegative'
-import { toMetersFromCenter } from '../functions/UnitConversionFunctions'
+import { MapTransformedFeature, TaskStatus, TileKey } from '../types'
+import computePolygonDifference from '../functions/computePolygonDifference'
 import { TILE_ZOOM } from '../constants'
 import createSurroundingTileIterator from '../functions/createSurroundingTileIterator'
-import { Feature, Polygon } from 'geojson'
-import transformPolygon from '../functions/transformPolygon'
+import { Feature, MultiPolygon, Polygon } from 'geojson'
+import transformGeometry from '../functions/transformGeometry'
+import * as PC from 'polygon-clipping'
+import tesselatePolygon from '../functions/tesselatePolygon'
 
 export const name = 'create navigation mesh polygons for tile'
 export const isAsyncPhase = false
@@ -21,17 +22,30 @@ function createScaleTransform(scale: number) {
   }
 }
 
+export default function getPCPolygons(features: Feature<Polygon | MultiPolygon>[]) {
+  const result = []
+  for (const feature of features) {
+    if (feature.geometry.type === 'MultiPolygon') {
+      result.push(...feature.geometry.coordinates)
+    } else {
+      result.push(feature.geometry.coordinates)
+    }
+  }
+  return result
+}
+
+function fixLastPair(coordinates: Polygon) {
+  const outerRing = coordinates[0]
+  outerRing[outerRing.length - 1] = outerRing[0].slice() as PC.Pair
+}
+
 const createNavMeshUsingCache = createUsingCache((store: Store, ...key: TileKey) => {
   const [x, y] = key
 
-  // const relevantGeometries: MapDerivedFeatureGeometry[] = []
-  const relevantFeatures = []
+  const relevantFeatures: MapTransformedFeature[] = []
   for (const featureKey of store.tileMeta.get(key).cachedFeatureKeys) {
     if (featureKey[0] === 'building') {
-      // relevantGeometries.push(store.geometryCache.get(featureKey))
-      // }
-      // }
-      const feature = store.featureCache.get(featureKey)
+      const feature = store.transformedFeatureCache.get(featureKey)
       relevantFeatures.push(feature)
     }
   }
@@ -39,33 +53,31 @@ const createNavMeshUsingCache = createUsingCache((store: Store, ...key: TileKey)
   const bbox = computeTileBoundingBox(x, y, store.originalCenter)
   const bboxPolygon = convertBboxToPolygon(bbox)
 
-  // const transformedFeatures = relevantGeometries.map((geometry) => {
-  //   const coordinates = []
-  //   const normals = geometry.geometry.getAttribute('normal')
-  //   const positions = geometry.geometry.getAttribute('position')
-  //   const [centerX, centerZ] = geometry.centerPoint
-  //   for (let index = 0, length = normals.count; index < length; index++) {
-  //     if (normals.getY(index) === 1) {
-  //       coordinates.push([(positions.getX(index) + centerX) * store.scale, (positions.getZ(index) + centerZ) * store.scale])
-  //     }
-  //   }
-  //   coordinates.push([coordinates[0][0], coordinates[0][1]])
-  //   return polygon([coordinates])
-  // })
   const scaleCoord = createScaleTransform(store.scale)
-  const scaleAndConvertCoord = (source: [number, number], target: [number, number]) => {
-    toMetersFromCenter(source, store.originalCenter, target)
-    scaleCoord(source, target)
-  }
 
-  transformPolygon('Polygon', bboxPolygon.geometry.coordinates as any, scaleCoord)
-  const transformedFeatures = []
-  for (const feature of relevantFeatures) {
-    const clonedFeature: Feature<Polygon> = clone(feature)
-    transformPolygon(clonedFeature.geometry.type, clonedFeature.geometry.coordinates as any, scaleAndConvertCoord)
-    transformedFeatures.push(clonedFeature)
-  }
-  return computePolygonsOfFeaturesNegative(bboxPolygon, transformedFeatures)
+  fixLastPair(bboxPolygon.geometry.coordinates as any)
+  transformGeometry('Polygon', bboxPolygon.geometry.coordinates as any, scaleCoord)
+  const transformedFeatures = relevantFeatures.map((feature) => {
+    const clonedFeature: Feature<Polygon> = clone(feature.feature)
+    transformGeometry(clonedFeature.geometry.type, clonedFeature.geometry.coordinates, (source, target) => {
+      target[0] = source[0] + feature.centerPoint[0]
+      target[1] = source[1] - feature.centerPoint[1]
+    })
+    transformGeometry(clonedFeature.geometry.type, clonedFeature.geometry.coordinates, scaleCoord)
+    return clonedFeature
+  })
+
+  const pcPolygons: PC.MultiPolygon = getPCPolygons(transformedFeatures)
+  const clippedPCPolygons = computePolygonDifference(bboxPolygon.geometry.coordinates as PC.Polygon, ...pcPolygons)
+
+  const nonOverlappingConvexPolygons = []
+  clippedPCPolygons.forEach((polygon) => {
+    polygon.length > 1
+      ? nonOverlappingConvexPolygons.push(...tesselatePolygon(polygon))
+      : nonOverlappingConvexPolygons.push(polygon)
+  })
+
+  return nonOverlappingConvexPolygons
 })
 
 export function getTaskKeys(store: Store) {

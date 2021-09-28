@@ -6,18 +6,18 @@ function transformRing(
   coordinatesTarget = coordinatesSource
 ) {
   for (let index = 0, length = coordinatesSource.length; index < length; index++) {
-    const coordSource = coordinatesSource[index]
-    const coordTarget = coordinatesTarget[index]
-    transformer(coordSource, coordTarget)
+    transformer(coordinatesSource[index], coordinatesTarget[index])
   }
+  return coordinatesTarget
 }
 
-export default function transformPolygon<Coordinates extends Position[] | Position[][] | Position[][][]>(
+export default function transformGeometry<Coordinates extends Position[] | Position[][] | Position[][][]>(
   type: Geometry['type'],
   coordSource: Coordinates,
   transformer: (source: [number, number], target: [number, number]) => void,
   coordTarget = coordSource
 ) {
+  // TODO use ts-matches
   switch (type) {
     case 'LineString':
       transformRing(coordSource as Position[], transformer)
@@ -25,17 +25,26 @@ export default function transformPolygon<Coordinates extends Position[] | Positi
     case 'MultiLineString':
     case 'Polygon':
       for (let index = 0, length = coordSource.length; index < length; index++) {
-        const ringSource = coordSource[index]
-        const ringTarget = coordTarget[index]
-        transformRing(ringSource as Position[], transformer, ringTarget as any)
+        coordTarget[index] = transformRing(
+          coordSource[index] as Position[],
+          transformer,
+          coordTarget[index] as Position[]
+        ) as Position[]
       }
       break
     case 'MultiPolygon':
       for (let index = 0, length = coordSource.length; index < length; index++) {
         const polySource = coordSource[index]
-        const polyTarget = coordTarget[index]
-        transformPolygon('Polygon', polySource as Position[][], transformer, polyTarget as any)
+        coordTarget[index] = transformGeometry(
+          'Polygon',
+          polySource as Position[][],
+          transformer,
+          coordTarget[index] as any
+        ) as any
       }
+      break
+    default:
+      throw new Error('encountered unsupported geometry type ' + type)
   }
   return coordTarget
 }

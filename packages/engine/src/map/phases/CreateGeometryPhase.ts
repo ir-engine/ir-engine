@@ -1,13 +1,22 @@
 import createGeometry from '../functions/createGeometry'
 import { MAX_CACHED_FEATURES, Store } from '../functions/createStore'
 import fetchUsingCache from '../functions/fetchUsingCache'
+import isIntersectCircleCircle from '../functions/isIntersectCircleCircle'
 import { FeatureKey, TaskStatus } from '../types'
+import { multiplyArray } from '../util'
+
+const $array2 = Array(2)
 
 /** using fetchUsingCache since createGeometry returns a promise */
-const createGeometryUsingCache = fetchUsingCache((store: Store, ...key: FeatureKey) => {
-  const feature = store.featureCache.get(key)
+const createGeometryUsingCache = fetchUsingCache(async (store: Store, ...key: FeatureKey) => {
+  const { feature, centerPoint, boundingCircleRadius } = store.transformedFeatureCache.get(key)
   const [layerName] = key
-  return createGeometry(store.geometryCache.map.getKey(key), layerName, feature, store.originalCenter)
+  const geometry = await createGeometry(store.geometryCache.map.getKey(key), layerName, feature)
+  return {
+    geometry,
+    centerPoint,
+    boundingCircleRadius
+  }
 })
 
 export const name = 'create geometry'
@@ -16,14 +25,15 @@ export const isCachingPhase = true
 
 export function* getTaskKeys(store: Store) {
   let count = 0
-  for (const key of store.featureCache.keys()) {
-    const feature = store.featureCache.get(key)
-    if (feature.geometry.type !== 'Point') {
+  const viewerPositionScaled = multiplyArray(store.viewerPosition, 1 / store.scale, $array2) as [number, number]
+  for (const key of store.transformedFeatureCache.keys()) {
+    const { centerPoint, boundingCircleRadius } = store.transformedFeatureCache.get(key)
+    if (isIntersectCircleCircle(centerPoint, boundingCircleRadius, viewerPositionScaled, store.minimumSceneRadius)) {
       yield key
-      // TODO why does this for loop not end on its own??
-      if (count > MAX_CACHED_FEATURES) break
-      count++
     }
+    // TODO why does this for loop not end on its own??
+    if (count > MAX_CACHED_FEATURES) break
+    count++
   }
 }
 

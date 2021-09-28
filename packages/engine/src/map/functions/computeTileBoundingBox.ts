@@ -12,13 +12,15 @@ export default function computeTileBoundingBox(
 ): BBox {
   toMetersFromCenter([tileXToLong(x, TILE_ZOOM), tileYToLat(y, TILE_ZOOM)], center, $array2)
 
-  target[0] = $array2[0]
-  target[1] = $array2[1]
+  const [x1, y1] = $array2
 
   toMetersFromCenter([tileXToLong(x + 1, TILE_ZOOM), tileYToLat(y + 1, TILE_ZOOM)], center, $array2)
 
-  target[2] = $array2[0]
-  target[3] = $array2[1]
+  const [x2, y2] = $array2
 
+  target[0] = Math.min(x1, x2)
+  target[1] = Math.min(y1, y2)
+  target[2] = Math.max(x1, x2)
+  target[3] = Math.max(y1, y2)
   return target
 }
