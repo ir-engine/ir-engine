@@ -8,9 +8,9 @@ export const isAsyncPhase = false
 export const isCachingPhase = true
 
 const transformFeatureUsingCache = createUsingCache((store: Store, ...key: FeatureKey) => {
+  const [layerName] = key
   const feature = store.featureCache.get(key)
   if (feature.properties.transformed) {
-    // throw new Error("feature being transformed more than once")
     console.warn('Feature being transformed more than once!')
   }
   const transformed = transformFeature(layerName, feature, store.originalCenter)
