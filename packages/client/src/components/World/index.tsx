@@ -54,6 +54,11 @@ interface Props {
   showTouchpad?: boolean
   children?: any
   chatState?: any
+  // todo: remove these props in favour of reality packs
+  customComponents?: any
+  theme?: any
+  hideVideo?: boolean
+  hideFullscreen?: boolean
 }
 
 const mapStateToProps = (state: any) => {
@@ -172,6 +177,11 @@ export const EnginePage = (props: Props) => {
         showTouchpad={props.showTouchpad}
         isTeleporting={isTeleporting}
         locationName={props.locationName}
+        // todo: remove these props in favour of reality packs
+        customComponents={props.customComponents}
+        theme={props.theme}
+        hideVideo={props.hideVideo}
+        hideFullscreen={props.hideFullscreen}
       />
     </>
   )

@@ -40,6 +40,11 @@ interface Props {
   isTeleporting
   locationName
   partyState
+  // todo: remove these props in favour of reality packs
+  customComponents?: any
+  theme?: any
+  hideVideo?: boolean
+  hideFullscreen?: boolean
 }
 
 const DefaultLayoutView = (props: Props) => {
@@ -55,6 +60,9 @@ const DefaultLayoutView = (props: Props) => {
         pageTitle={t('location.locationName.pageTitle')}
         harmonyOpen={harmonyOpen}
         setHarmonyOpen={setHarmonyOpen}
+        theme={props.theme}
+        hideVideo={props.hideVideo}
+        hideFullscreen={props.hideFullscreen}
       >
         <LoadingScreen objectsToLoad={props.loadingItemCount} />
         {!props.isValidLocation && (
@@ -75,6 +83,7 @@ const DefaultLayoutView = (props: Props) => {
         {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
 
         {props.children}
+        {props.customComponents()}
 
         {props.showTouchpad && isTouchAvailable ? (
           <Suspense fallback={<></>}>

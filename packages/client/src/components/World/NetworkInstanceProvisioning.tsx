@@ -92,7 +92,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 export const NetworkInstanceProvisioning = (props: Props) => {
-  const { t } = useTranslation()
   const { sceneId, setSceneId, reinit, isUserBanned, setIsValidLocation } = props
 
   const authState = useAuthState()
