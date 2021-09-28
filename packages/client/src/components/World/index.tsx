@@ -1,5 +1,3 @@
-import Button from '@material-ui/core/Button'
-import Snackbar from '@material-ui/core/Snackbar'
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
@@ -7,31 +5,25 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import querystring from 'querystring'
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
-import GameServerWarnings from './GameServerWarnings'
-import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
+import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import { provisionChannelServer } from '../../reducers/channelConnection/service'
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import InstanceChat from '../../components/InstanceChat'
-import MediaIconsBox from '../../components/MediaIconsBox'
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
+import DefaultLayoutView from './DefaultLayoutView'
+import Layout from '../Layout/Layout'
+import { useTranslation } from 'react-i18next'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -52,10 +44,6 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
   }
 }
 
-const goHome = () => (window.location.href = window.location.origin)
-
-const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
-
 const canvasStyle = {
   zIndex: 0,
   width: '100%',
@@ -65,14 +53,7 @@ const canvasStyle = {
   userSelect: 'none'
 } as React.CSSProperties
 
-export type EngineCallbacks = {
-  onEngineInitialized?: Function
-  onConnectedToServer?: Function
-  onSceneLoaded?: Function
-  onSceneLoadProgress?: Function
-  onJoinedToNewWorld?: Function
-  onSuccess?: Function
-}
+const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
   locationName: string
@@ -87,7 +68,6 @@ interface Props {
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
   showTouchpad?: boolean
-  engineCallbacks?: EngineCallbacks
   children?: any
   chatState?: any
 }
@@ -111,6 +91,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 export const EnginePage = (props: Props) => {
+  const { t } = useTranslation()
   const [isUserBanned, setUserBanned] = useState(true)
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
@@ -118,7 +99,6 @@ export const EnginePage = (props: Props) => {
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
   const authState = useAuthState()
   const selfUser = authState.user
-  const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
   let sceneId = null
 
@@ -269,7 +249,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
-    initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
+    initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
     setIsTeleporting(false)
   }
 
@@ -299,54 +279,20 @@ export const EnginePage = (props: Props) => {
 
   if (isInXR) return <></>
 
-  const defaultOverlayElements = () => {
-    return (
-      <>
-        <LoadingScreen objectsToLoad={loadingItemCount} />
-        {!isValidLocation && (
-          <Snackbar
-            open
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'center'
-            }}
-          >
-            <>
-              <section>Location is invalid</section>
-              <Button onClick={goHome}>Return Home</Button>
-            </>
-          </Snackbar>
-        )}
-
-        {props.allowDebug && <NetworkDebug reinit={reinit} />}
-
-        {props.children}
-
-        {props.showTouchpad && isTouchAvailable ? (
-          <Suspense fallback={<></>}>
-            <TouchGamepad layout="default" />
-          </Suspense>
-        ) : null}
-
-        <GameServerWarnings
-          isTeleporting={isTeleporting}
-          locationName={props.locationName}
-          instanceId={selfUser?.instanceId.value ?? party?.instanceId}
-        />
-        <InteractableModal />
-        {/* <RecordingApp /> */}
-        <MediaIconsBox />
-        <UserMenu />
-        <EmoteMenu />
-        <InstanceChat />
-      </>
-    )
-  }
-
   return (
     <>
-      <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
-      {defaultOverlayElements()}
+      <DefaultLayoutView
+        partyState={props.partyState}
+        canvasElement={canvas}
+        loadingItemCount={loadingItemCount}
+        isValidLocation={isValidLocation}
+        allowDebug={props.allowDebug}
+        reinit={reinit}
+        children={props.children}
+        showTouchpad={props.showTouchpad}
+        isTeleporting={isTeleporting}
+        locationName={props.locationName}
+      />
     </>
   )
 }

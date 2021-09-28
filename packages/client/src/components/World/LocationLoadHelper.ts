@@ -18,7 +18,6 @@ import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportTo
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { connectToChannelServer, resetChannelServer } from '../../reducers/channelConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { EngineCallbacks } from './'
 import { incomingNetworkReceptor } from '@xrengine/engine/src/networking/functions/incomingNetworkReceptor'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
@@ -43,6 +42,15 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
       Store.store.dispatch(getLocationByName(locationName))
     }
   }
+}
+
+export type EngineCallbacks = {
+  onEngineInitialized?: Function
+  onConnectedToServer?: Function
+  onSceneLoaded?: Function
+  onSceneLoadProgress?: Function
+  onJoinedToNewWorld?: Function
+  onSuccess?: Function
 }
 
 export const getSceneData = async (sceneId: string, isOffline: boolean) => {
