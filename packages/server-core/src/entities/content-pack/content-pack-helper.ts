@@ -399,7 +399,7 @@ export async function populateRealityPack(
     params
   )
   await Promise.all(uploadPromises)
-  if (typeof (app as any).k8DefaultClient! == 'undefined') {
+  if ((app as any).k8DefaultClient) {
     try {
       console.log('Attempting to reload k8s clients!')
       const restartClientsResponse = await (app as any).k8DefaultClient.patch(

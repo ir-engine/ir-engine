@@ -39,6 +39,9 @@ export default defineConfig((command) => {
   };
 
   const returned = {
+    optimizeDeps: {
+      exclude: ['@xrengine/realitypacks']
+    },
     plugins: [],
     server: {
       host: true,
