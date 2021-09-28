@@ -1,14 +1,16 @@
 import { MapFeatureLabel, Text3D } from '../types'
 import { Text } from 'troika-three-text'
-import { Feature, LineString, Position } from 'geojson'
-import { length, lineSliceAlong } from '@turf/turf'
+import { Feature, LineString, MultiLineString, Position } from 'geojson'
+import * as turf from '@turf/turf'
 import { Engine } from '../../ecs/classes/Engine'
 import { Vector3 } from 'three'
 import { LongLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
+import { multiplyArray } from '../util'
 
 const MINIMUM_FONT_SIZE = 6
 const MAXIMUM_FONT_SIZE = 10
 const WorldUp = new Vector3(0, 1, 0)
+const $array2 = Array(2)
 
 function normalizeAngle(angle: number) {
   return angle < 0 ? Math.PI * 2 + angle : angle
@@ -58,21 +60,22 @@ function createUpdateClosure(mesh: Text3D, middleSlice: Position[]) {
   }
 }
 
-export default function createFeatureLabel(feature: Feature<LineString>, center: LongLat): MapFeatureLabel {
-  const featureLen = length(feature)
-  const middleSlice = lineSliceAlong(feature, featureLen * 0.48, featureLen * 0.52).geometry.coordinates
+export default function createFeatureLabel(lineString: Feature<LineString>, mapCenterPoint: LongLat): MapFeatureLabel {
+  const lineLen = turf.length(lineString)
+  const middleSlice = turf.lineSliceAlong(lineString, lineLen * 0.48, lineLen * 0.52).geometry.coordinates
 
-  const [x1, y1] = middleSlice[Math.floor(middleSlice.length / 2)]
+  const middlePoint = middleSlice[Math.floor(middleSlice.length / 2)]
 
-  const mesh = createText(feature.properties.name)
-  const centerPoint = toMetersFromCenter([x1, y1], center)
-  const centerPointFlippedY = [centerPoint[0], -centerPoint[1]] as [number, number]
+  const [x1, y1] = toMetersFromCenter(middlePoint, mapCenterPoint)
+
+  const mesh = createText(lineString.properties.name)
+  const centerPoint = [x1, -y1] as [number, number]
 
   mesh.update = createUpdateClosure(mesh, middleSlice)
 
   return {
     mesh,
-    centerPoint: centerPointFlippedY,
+    centerPoint,
     boundingCircleRadius: 2
   }
 }
