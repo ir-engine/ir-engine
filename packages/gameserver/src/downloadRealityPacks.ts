@@ -60,24 +60,27 @@ export const download = async (packName) => {
     const manifestResult = await storageProvider.getObject(`reality-pack/${packName}/manifest.json`)
     const manifest = JSON.parse(manifestResult.Body.toString()) as RealityPackInterface
 
-    console.log('Installing reality pack', packName, '...')
+    console.log('[RealityPackLoader]: Installing reality pack', packName, '...')
 
     const localRealityPackDirectory = path.resolve(__dirname, '../../realitypacks/packs', packName)
     if (fs.existsSync(localRealityPackDirectory)) {
+      console.log('[Reality pack temp debug]: fs exists, deleting')
       deleteFolderRecursive(localRealityPackDirectory)
     }
+
+    console.log('[Reality pack temp debug]: local dir', localRealityPackDirectory)
 
     writeFileSyncRecursive(path.resolve(localRealityPackDirectory, 'manifest.json'), manifestResult.Body.toString()) //, 'utf8')
 
     for (const filePath of manifest.files) {
-      console.log(`- downloading "reality-pack/${packName}/${filePath}"`)
+      console.log(`[RealityPackLoader]: - downloading "reality-pack/${packName}/${filePath}"`)
       const fileResult = await storageProvider.getObject(`reality-pack/${packName}/${filePath}`)
       writeFileSyncRecursive(path.resolve(localRealityPackDirectory, filePath), fileResult.Body.toString()) //, 'utf8')
     }
 
-    console.log('Successfully downloaded and mounted reality pack', packName)
+    console.log('[RealityPackLoader]: Successfully downloaded and mounted reality pack', packName)
   } catch (e) {
-    console.log(e)
+    console.log(`[RealityPackLoader]: Failed to download reality pack with error ${e}`)
     return false
   }
 
