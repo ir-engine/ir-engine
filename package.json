@@ -72,7 +72,7 @@
     "validate": "npm run lint && lerna run validate",
     "build": "lerna run build --parallel",
     "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
-    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
+    "build-docker": "lerna run --ignore @xrengine/client --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
