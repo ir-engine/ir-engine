@@ -171,7 +171,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
 
   // Avatar Systems
-  registerSystem(SystemUpdateType.FIXED, import('./physics/systems/InterpolationSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/ClientAvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))

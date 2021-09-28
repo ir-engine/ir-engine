@@ -2,7 +2,6 @@ import { FollowCameraComponent } from '../camera/components/FollowCameraComponen
 import { CameraMode } from '../camera/types/CameraMode'
 import { addComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { createAvatar } from './functions/createAvatar'
@@ -20,7 +19,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
       const entity = createAvatar(spawnAction)
 
       addComponent(entity, AudioTagComponent, {})
-      addComponent(entity, InterpolationComponent, {})
+      // addComponent(entity, InterpolationComponent, {})
       addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
       if (spawnAction.userId === Engine.userId) {

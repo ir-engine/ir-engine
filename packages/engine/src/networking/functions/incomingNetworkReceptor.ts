@@ -1,5 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
@@ -7,6 +7,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { dispatchFrom } from './dispatchFrom'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -27,23 +28,28 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.destroyClient.matches, ({ userId }) => {
+      for (const eid of world.getOwnedNetworkObjects(userId)) {
+        const { networkId } = getComponent(eid, NetworkObjectComponent)
+        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
+      }
       if (!isClient || userId === Engine.userId) return
-      for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
       world.clients.delete(userId)
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
-      if (world.getNetworkObject(a.networkId))
-        throw new Error(`Cannot spawn network object with existing network id ${a.networkId}`)
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
       const isOwnedByMe = a.userId === Engine.userId
-      const entity = isSpawningAvatar && isOwnedByMe ? world.localClientEntity : createEntity()
+      const entity =
+        isSpawningAvatar && isOwnedByMe
+          ? world.localClientEntity
+          : world.getNetworkObject(a.networkId) ?? createEntity()
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, a)
     })
 
     .when(NetworkWorldAction.destroyObject.matches, (a) => {
       const entity = world.getNetworkObject(a.networkId)
+      if (entity === world.localClientEntity) return
       if (entity) removeEntity(entity)
     })
 }

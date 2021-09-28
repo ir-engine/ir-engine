@@ -121,7 +121,9 @@ export function defineActionCreator<
   const literalValidators = Object.fromEntries(literalEntries.map(([k, v]) => [k, matches.literal(v)]))
 
   const actionCreator = (partialAction: PartialAction<Shape>) => {
-    const initializerValues = Object.fromEntries(initializerEntries.map(([k, v]) => [k, v.callback()]) as [string, any])
+    const initializerValues = Object.fromEntries(
+      initializerEntries.map(([k, v]) => [k, partialAction[k] ?? v.callback()]) as [string, any]
+    )
     let action = { ...partialAction, ...Object.fromEntries(literalEntries), ...initializerValues } as ResolvedAction
     return action
   }

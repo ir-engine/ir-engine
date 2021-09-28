@@ -4,7 +4,6 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
 import { isClient } from '../../common/functions/isClient'
 import { Network } from '../../networking/classes/Network'
-import { Vault } from '../../networking/classes/Vault'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -71,7 +70,6 @@ export async function reset(): Promise<void> {
 
   Network.instance.dispose()
 
-  Vault.instance.clear()
   AssetLoader.Cache.clear()
 
   Engine.isInitialized = false
