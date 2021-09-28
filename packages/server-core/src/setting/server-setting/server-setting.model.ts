@@ -3,8 +3,8 @@ import { Application } from '../../../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Server = sequelizeClient.define(
-    'server',
+  const ServerSetting = sequelizeClient.define(
+    'serverSetting',
     {
       id: {
         type: DataTypes.UUID,
@@ -60,14 +60,17 @@ export default (app: Application): any => {
         type: DataTypes.STRING,
         allowNull: true
       },
-      hubEndpoint: {
-        type: DataTypes.STRING,
+      hub: {
+        type: DataTypes.JSON,
         allowNull: true
       },
       paginate: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        defaultValue: 10
+        defaultValue: 10,
+        validate: {
+          max: 100
+        }
       },
       url: {
         type: DataTypes.STRING,
@@ -102,9 +105,6 @@ export default (app: Application): any => {
       }
     }
   )
-  ;(Server as any).associate = (models: any): void => {
-    ;(Server as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: true })
-  }
 
-  return Server
+  return ServerSetting
 }
