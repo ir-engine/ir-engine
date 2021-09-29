@@ -2,7 +2,7 @@ import { Box3, BufferAttribute, BufferGeometry, Sphere } from 'three'
 
 // Author: Fyrestar https://mevedia.com (https://github.com/Fyrestar/THREE.BufferGeometry-toIndexed)
 
-let list = [],
+let list: number[] = [],
   vertices = {}
 
 let _src, attributesKeys, morphKeys

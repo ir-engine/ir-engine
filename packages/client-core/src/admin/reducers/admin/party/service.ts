@@ -2,6 +2,7 @@ import { partyAdminCreated, partyRetrievedAction } from './actions'
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { AlertService } from '../../../../common/reducers/alert/AlertService'
+import { accessAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export const createAdminParty = (data) => {
   return async (dispatch: Dispatch): Promise<any> => {
@@ -17,11 +18,11 @@ export const createAdminParty = (data) => {
 
 export const fetchAdminParty = (incDec?: 'increment' | 'decrement') => {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const user = getState().get('auth').user
+    const user = accessAuthState().user
     const skip = getState().get('adminParty').get('parties').get('skip')
     const limit = getState().get('adminParty').get('parties').get('limit')
     try {
-      if (user.userRole === 'admin') {
+      if (user.userRole.value === 'admin') {
         const parties = await client.service('party').find({
           query: {
             $sort: {

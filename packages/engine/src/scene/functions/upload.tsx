@@ -106,7 +106,7 @@ export const uploadAssets = async (editor, files, onProgress, signal): Promise<a
  */
 
 export const _uploadAssets = async (endpoint, editor, files, onProgress, signal): Promise<any> => {
-  const assets = []
+  const assets: any[] = []
 
   for (const file of Array.from(files)) {
     if (signal.aborted) {

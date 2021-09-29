@@ -24,11 +24,11 @@ export const start = async (): Promise<Application> => {
       await psList()
     ).filter((e) => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi
-      return e[key].match(regexp)
+      return e[key]?.match(regexp)
     })
-    const dockerProcess = processList.find((c) => c[key].match(/docker-compose/))
-    const dockerProxy = processList.find((c) => c[key].match(/docker-proxy/))
-    const processMysql = processList.find((c) => c[key].match(/mysql/))
+    const dockerProcess = processList.find((c) => c[key]?.match(/docker-compose/))
+    const dockerProxy = processList.find((c) => c[key]?.match(/docker-proxy/))
+    const processMysql = processList.find((c) => c[key]?.match(/mysql/))
     const databaseService = (dockerProcess && dockerProxy) || processMysql
 
     if (!databaseService) {
@@ -51,7 +51,7 @@ export const start = async (): Promise<Application> => {
   const certOptions = {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
-  }
+  } as any
   const port = config.gameserver.port
   if (useSSL) console.log('Starting gameserver with HTTPS on', port)
   else

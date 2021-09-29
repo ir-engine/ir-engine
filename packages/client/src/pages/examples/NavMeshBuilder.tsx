@@ -246,8 +246,8 @@ const Page = () => {
     ;(async function () {
       await initializeEngine()
       // Register our systems to do stuff
-      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: NavigationSystem }))
-      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: RenderSystem }))
+      registerSystem(SystemUpdateType.FIXED, Promise.resolve({ default: NavigationSystem }))
+      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
       await Engine.defaultWorld.initSystems()
 
       // Set up rendering and basic scene for demo

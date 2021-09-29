@@ -99,11 +99,10 @@ export const createApp = (): Application => {
               credentials: true
             }
           },
-          async (io) => {
+          (io) => {
             Network.instance = new Network()
             Network.instance.transport = new SocketWebRTCServerTransport(app)
             Network.instance.transport.initialize()
-
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               ;(socket as any).feathers.socketQuery = socket.handshake.query
@@ -123,7 +122,7 @@ export const createApp = (): Application => {
                 : `redis://${config.redis.address}:${config.redis.port}`
           })
         )
-        ;(app as any).sync.ready.then(() => {
+        app.sync.ready.then(() => {
           logger.info('Feathers-sync started')
         })
       }
@@ -136,7 +135,7 @@ export const createApp = (): Application => {
       app.configure(services)
 
       if (config.gameserver.mode === 'realtime') {
-        ;(app as any).k8AgonesClient = api({
+        app.k8AgonesClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
           version: '/apis/agones.dev/v1',
           auth: {
@@ -144,7 +143,7 @@ export const createApp = (): Application => {
             token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
           }
         })
-        ;(app as any).k8DefaultClient = api({
+        app.k8DefaultClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
           version: '/api/v1',
           auth: {
@@ -161,7 +160,7 @@ export const createApp = (): Application => {
             '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
           )
         })
-        ;(app as any).agonesSDK = agonesSDK
+        app.agonesSDK = agonesSDK
         setInterval(() => agonesSDK.health(), 1000)
 
         app.configure(channels)

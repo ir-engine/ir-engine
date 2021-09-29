@@ -1,17 +1,18 @@
 import React from 'react'
 import World from '../../components/World'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const LocationPage = (props) => {
   const engineInitializeOptions: InitializeOptions = {
     systems: [
       {
-        injectionPoint: 'FIXED',
-        system: import('./GolfSystem')
+        type: SystemUpdateType.FIXED,
+        systemModulePromise: import('./GolfSystem')
       },
       {
-        injectionPoint: 'PRE_RENDER',
-        system: import('./GolfXRUISystem')
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./GolfXRUISystem')
       }
     ]
   }

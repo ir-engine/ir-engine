@@ -1,9 +1,10 @@
 import { User } from './User'
 import { MessageStatus } from './MessageStatus'
+import { UserId } from './UserId'
 
 export type Message = {
   id: string
-  senderId: string
+  senderId: UserId
   channelId: string
   text: string
   createdAt: string

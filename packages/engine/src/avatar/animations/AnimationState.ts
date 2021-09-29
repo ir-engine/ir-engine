@@ -16,16 +16,16 @@ export class AnimationState {
   animations: Animation[] = []
 
   /** Time elapsed since last weight update. */
-  timeElapsedSinceUpdate?: number = 0
+  timeElapsedSinceUpdate: number = 0
 
   /** Duration for which transition from this state is paused */
-  pauseTransitionDuration?: number
+  pauseTransitionDuration: number
 
   /** Duration in seconds after which the transition will be completed */
   transitionDuration = 1
 
   /** After finising the animation automatically transition to the given state */
-  autoTransitionTo?: string
+  autoTransitionTo: string // TODO should autoTransitionTo be nullable?
 
   /** Parameters to update the weights of the animation in the state */
   weightParams: WeightsParameterType
@@ -74,7 +74,7 @@ export class LoopableEmoteState extends AnimationState {
       weight: 0,
       timeScale: 1,
       loopType: LoopRepeat
-    }
+    } as any
   ]
 
   updateWeights = (): void => {
@@ -168,7 +168,7 @@ export class EmoteState extends AnimationState {
         action.clampWhenFinished = true
       }
     }
-  ]
+  ] as any
 
   updateWeights = (): void => {
     if (!this.weightParams.animationName) return
@@ -201,7 +201,7 @@ export class IdleState extends AnimationState {
       loopType: LoopRepeat,
       loopCount: Infinity
     }
-  ]
+  ] as any
 
   updateWeights = (): void => {
     this.weightParams.interpolate = true
@@ -226,7 +226,7 @@ export class JumpState extends AnimationState {
         action.clampWhenFinished = true
       }
     }
-  ]
+  ] as any
 
   updateWeights = (): void => {
     this.animations.forEach((a) => (a.weight = 1))
@@ -254,7 +254,7 @@ export class WalkState extends AnimationState {
       loopType: LoopRepeat,
       loopCount: Infinity
     }
-  ]
+  ] as any
 
   updateWeights = (): void => {
     const { velocity, distanceFromGround } = this.weightParams.movement
@@ -288,7 +288,7 @@ export class RunState extends AnimationState {
     { name: AvatarAnimations.RUN_BACKWARD, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity },
     { name: AvatarAnimations.RUN_STRAFE_LEFT, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity },
     { name: AvatarAnimations.RUN_STRAFE_RIGHT, weight: 0, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity }
-  ]
+  ] as any
 
   updateWeights = (): void => {
     const { velocity, distanceFromGround } = this.weightParams.movement

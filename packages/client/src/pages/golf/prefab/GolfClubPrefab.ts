@@ -1,14 +1,13 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
-import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
+import { GolfCollisionGroups, GolfColours } from '../GolfGameConstants'
 import {
   BoxBufferGeometry,
   DoubleSide,
   Euler,
   Group,
   Material,
-  MathUtils,
   Mesh,
   MeshStandardMaterial,
   Vector3,
@@ -17,20 +16,17 @@ import {
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '@xrengine/engine/src/xr/functions/WebXRFunctions'
-import { NetworkObjectOwnerComponent } from '@xrengine/engine/src/networking/components/NetworkObjectOwnerComponent'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { DebugArrowComponent } from '@xrengine/engine/src/debug/DebugArrowComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getGolfPlayerNumber } from '../functions/golfFunctions'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
-import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { BodyType, SceneQueryType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { GolfAction } from '../GolfAction'
+import { getGolfPlayerNumber } from '../functions/golfFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { BodyType, SceneQueryType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { RaycastComponentType } from '@xrengine/engine/src/physics/components/RaycastComponent'
 import { CollisionComponent } from '@xrengine/engine/src/physics/components/CollisionComponent'
 
@@ -43,16 +39,16 @@ const eulerX90 = new Euler(Math.PI * 0.5, 0, 0)
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnClub = (entityPlayer: Entity): void => {
-  const networkId = Network.getNetworkId()
-  const uuid = MathUtils.generateUUID()
+// export const spawnClub = (entityPlayer: Entity): void => {
+//   const networkId = Network.getNetworkId()
+//   const uuid = MathUtils.generateUUID()
 
-  const parameters: GolfClubSpawnParameters = {
-    playerNumber: getGolfPlayerNumber(entityPlayer)
-  }
+//   const parameters: GolfClubSpawnParameters = {
+//     playerNumber: getGolfPlayerNumber(entityPlayer)
+//   }
 
-  dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, GolfPrefabTypes.Club, parameters))
-}
+//   dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, GolfPrefabTypes.Club, parameters))
+// }
 
 export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {
   golfClubComponent?.meshGroup?.traverse((obj: Mesh) => {
@@ -80,13 +76,12 @@ export const hideClub = (entityClub: Entity, hide: boolean): void => {
  */
 
 export const updateClub = (entityClub: Entity): void => {
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwnerComponent).networkId
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.entity
+  const world = useWorld()
+  const { networkId, userId: ownerId } = getComponent(entityClub, NetworkObjectComponent)
+  const ownerEntity = world.getUserAvatarEntity(ownerId)
   if (typeof ownerEntity === 'undefined') return
 
   const golfClubComponent = getComponent(entityClub, GolfClubComponent)
-
-  const world = useWorld()
 
   const transformClub = getComponent(entityClub, TransformComponent)
   const collider = getComponent(entityClub, ColliderComponent)
@@ -169,7 +164,7 @@ export const updateClub = (entityClub: Entity): void => {
     vector1.applyQuaternion(golfClubComponent.headGroup.quaternion)
     vector0.add(vector1)
 
-    const shape = useWorld().physics.getOriginalShapeObject(collider.body.getShapes())
+    const shape = useWorld().physics.getOriginalShapeObject(collider.body.getShapes())!
 
     // get club velocity in local space
     golfClubComponent.headGroup.getWorldPosition(vector1)
@@ -208,9 +203,11 @@ type GolfClubSpawnParameters = {
   playerNumber: number
 }
 
-export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, parameters: GolfClubSpawnParameters) => {
-  const ownerNetworkId = getComponent(ownerEntity, NetworkObjectComponent).networkId
-  const { playerNumber } = parameters
+export const initializeGolfClub = (action: typeof GolfAction.spawnBall.matches._TYPE) => {
+  const world = useWorld()
+  const ownerEntity = world.getUserAvatarEntity(action.userId)
+  const entityClub = world.getNetworkObject(action.networkId)
+  const playerNumber = getGolfPlayerNumber(action.userId)
 
   const transform = addComponent(entityClub, TransformComponent, {
     position: new Vector3(),
@@ -220,11 +217,8 @@ export const initializeGolfClub = (entityClub: Entity, ownerEntity: Entity, para
 
   addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
   addComponent(entityClub, NameComponent, { name: `GolfClub-${playerNumber}` })
-  addComponent(entityClub, NetworkObjectOwnerComponent, { networkId: ownerNetworkId })
 
   const color = GolfColours[playerNumber].clone()
-
-  const world = useWorld()
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course, 0)

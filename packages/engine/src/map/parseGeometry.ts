@@ -6,8 +6,8 @@ function parseGeometry(data: { index: number[]; position: number[] }): Polygon[]
   console.log('parseGeometry.position.length', position.length)
   console.log('parseGeometry.index.length', index.length)
 
-  const vertices = []
-  const polygons = []
+  const vertices: Vector3[] = []
+  const polygons: Polygon[] = []
 
   // vertices
 

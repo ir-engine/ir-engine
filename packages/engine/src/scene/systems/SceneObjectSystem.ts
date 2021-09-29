@@ -99,7 +99,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
     }
 
     for (const entity of sceneObjectQuery.exit()) {
-      const object3DComponent = getComponent(entity, Object3DComponent, true)
+      const object3DComponent = getComponent(entity, Object3DComponent)
 
       // Remove from scene
       if (object3DComponent && Engine.scene.children.includes(object3DComponent.value)) {

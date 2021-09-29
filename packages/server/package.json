@@ -32,7 +32,7 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\" \"cd ../gameserver && npm run dev-channel\"",
+    "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",
     "golf": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run golf\" \"npm run serve-local-files\"",
     "mappa": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run mappa\" \"npm run serve-local-files\"",
     "starter": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run starter\" \"npm run serve-local-files\"",
@@ -124,7 +124,7 @@
   "devDependencies": {
     "@types/compression": "1.7.2",
     "@types/cors": "2.8.12",
-    "@types/node": "14.17.19",
+    "@types/node": "14.17.20",
     "@types/serve-favicon": "2.5.3",
     "@typescript-eslint/eslint-plugin": "4.32.0",
     "@typescript-eslint/parser": "4.32.0",

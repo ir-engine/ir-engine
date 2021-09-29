@@ -51,6 +51,7 @@ export default defineConfig((command) => {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
+        "ts-matches":"@xrengine/common/src/libs/ts-matches/matches.ts"
       }
     },
     build: {

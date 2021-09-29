@@ -24,6 +24,7 @@ import { hasComponent, addComponent } from '@xrengine/engine/src/ecs/functions/C
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -811,8 +812,10 @@ const getAvatarResources = (user) => {
 const loadAvatarForUpdatedUser = async (user) => {
   if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
 
+  const world = Engine.defaultWorld
+
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = world.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -838,13 +841,9 @@ const loadAvatarForUpdatedUser = async (user) => {
       networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
-      for (let key of Object.keys(Network.instance.networkObjects)) {
-        const obj = Network.instance.networkObjects[key]
-        if (obj?.uniqueId === user.id) {
-          setAvatar(obj.entity, user.avatarId, avatarURL)
-          break
-        }
-      }
+      const world = Engine.defaultWorld
+      const userEntity = world.getUserAvatarEntity(user.id)
+      setAvatar(userEntity, user.avatarId, avatarURL)
     }
     resolve(true)
   })
@@ -854,7 +853,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
   if (!user || !user.id) Promise.resolve(true)
 
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = Engine.defaultWorld.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -871,13 +870,9 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
-    for (let key of Object.keys(Network.instance.networkObjects)) {
-      const obj = Network.instance.networkObjects[key]
-      if (obj?.uniqueId === user.id) {
-        setAvatar(obj.entity, user.avatarId, avatarURL)
-        break
-      }
-    }
+    const world = Engine.defaultWorld
+    const userEntity = world.getUserAvatarEntity(user.id)
+    setAvatar(userEntity, user.avatarId, avatarURL)
     resolve(true)
   })
 }
@@ -911,20 +906,30 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
-
-      if (typeof Network.instance?.localClientEntity !== 'undefined') {
-        if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
-          addComponent(Network.instance.localClientEntity, ProximityComponent, {
-            usersInRange: [],
-            usersInIntimateRange: [],
-            usersInHarassmentRange: [],
-            usersLookingTowards: []
-          })
+      const world = Engine.defaultWorld
+      if (typeof world.localClientEntity !== 'undefined') {
+        if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
+          addComponent(
+            world.localClientEntity,
+            ProximityComponent,
+            {
+              usersInRange: [],
+              usersInIntimateRange: [],
+              usersInHarassmentRange: [],
+              usersLookingTowards: []
+            },
+            world
+          )
         }
-        if (!hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
-          addComponent(Network.instance.localClientEntity, WebCamInputComponent, {
-            emotions: []
-          })
+        if (!hasComponent(world.localClientEntity, WebCamInputComponent, world)) {
+          addComponent(
+            world.localClientEntity,
+            WebCamInputComponent,
+            {
+              emotions: []
+            },
+            world
+          )
         }
         console.log('added web cam input component to local client')
       }

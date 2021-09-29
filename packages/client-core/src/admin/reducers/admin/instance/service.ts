@@ -4,14 +4,15 @@ import { client } from '../../../../feathers'
 import { AlertService } from '../../../../common/reducers/alert/AlertService'
 import Store from '../../../../store'
 import { Config } from '@xrengine/common/src/config'
+import { accessAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export function fetchAdminInstances(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const skip = getState().get('adminInstance').get('instances').get('skip')
     const limit = getState().get('adminInstance').get('instances').get('limit')
-    const user = getState().get('auth').user
+    const user = accessAuthState().user
     try {
-      if (user.userRole === 'admin') {
+      if (user.userRole.value === 'admin') {
         const instances = await client.service('instance').find({
           query: {
             $sort: {

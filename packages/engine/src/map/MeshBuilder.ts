@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { buffer, centerOfMass } from '@turf/turf'
 import { Feature, Geometry, Position } from 'geojson'
 import { MeshBasicMaterial } from 'three'

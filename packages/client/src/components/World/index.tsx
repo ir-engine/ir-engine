@@ -31,16 +31,16 @@ const getDefaulEngineInitializeOptions = (): InitializeOptions => {
     },
     systems: [
       {
-        injectionPoint: 'FIXED',
-        system: import('@xrengine/client-core/src/systems/AvatarUISystem')
+        type: 'FIXED',
+        systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
       },
       {
-        injectionPoint: 'FIXED',
-        system: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
+        type: 'FIXED',
+        systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
       },
       {
-        injectionPoint: 'FIXED',
-        system: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
+        type: 'FIXED',
+        systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
       }
     ]
   }
@@ -87,12 +87,12 @@ export const EnginePage = (props: Props) => {
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
   const [isTeleporting, setIsTeleporting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
   const [sceneId, setSceneId] = useState(null)
   const [loadingItemCount, setLoadingItemCount] = useState(99)
-  const [customComponents, setCustomComponents] = useState([])
+  const [customComponents, setCustomComponents] = useState([] as any[])
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -105,7 +105,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     addUIEvents()
-    if (!engineInitializeOptions.networking.schema.transport) {
+    if (!engineInitializeOptions.networking?.schema.transport) {
       init(props.locationName)
     }
   }, [])
@@ -136,7 +136,7 @@ export const EnginePage = (props: Props) => {
     if (sceneId === null && currentLocation.sceneId !== null) {
       setSceneId(currentLocation.sceneId)
     }
-    init(sceneId)
+    init(sceneId!)
   }
 
   const init = async (sceneId: string): Promise<any> => {

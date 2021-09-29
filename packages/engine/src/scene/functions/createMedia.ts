@@ -11,7 +11,7 @@ import { PositionalAudioComponent } from '../../audio/components/PositionalAudio
 
 const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
-const DracosisPlayer = null
+const DracosisPlayer = null as any
 if (isBrowser()) {
   // import("volumetric").then(imported => {
   //   DracosisPlayer = imported;
@@ -59,7 +59,7 @@ export function createAudio(entity, props: AudioProps): void {
 }
 
 export function createVideo(entity, props: VideoProps): void {
-  const video = new Video(Engine.audioListener, props.elementId)
+  const video = new Video(Engine.audioListener, props.elementId!)
   if (props.synchronize) {
     video.startTime = props.synchronize
     video.isSynced = props.synchronize > 0

@@ -16,8 +16,10 @@ import {
   removedGroupUser
 } from './actions'
 import { UserAction } from '../../../user/store/UserAction'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { accessAuthState } from '../../../user/reducers/auth/AuthState'
+import { clearChatTargetIfCurrent } from '../chat/service'
 const store = Store.store
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -103,6 +105,7 @@ export function getInvitableGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingInvitableGroups())
     try {
+      await waitForClientAuthenticated()
       const groupResults = await client.service('group').find({
         query: {
           invitable: true,
@@ -121,7 +124,7 @@ export function getInvitableGroups(skip?: number, limit?: number) {
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('group-user').on('created', (params) => {
     const newGroupUser = params.groupUser
-    const selfUser = useAuthState().user
+    const selfUser = accessAuthState().user
     store.dispatch(createdGroupUser(newGroupUser))
     if (
       newGroupUser.user.channelInstanceId != null &&
@@ -134,7 +137,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('group-user').on('patched', (params) => {
     const updatedGroupUser = params.groupUser
-    const selfUser = useAuthState().user
+    const selfUser = accessAuthState().user
     store.dispatch(patchedGroupUser(updatedGroupUser))
     if (
       updatedGroupUser.user.channelInstanceId != null &&
@@ -147,15 +150,11 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('group-user').on('removed', (params) => {
     const deletedGroupUser = params.groupUser
-    const selfUser = useAuthState().user
+    const selfUser = accessAuthState().user
     store.dispatch(removedGroupUser(deletedGroupUser, params.self))
-    if (
-      deletedGroupUser.user.channelInstanceId != null &&
-      deletedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
-    )
-      store.dispatch(UserAction.addedChannelLayerUser(deletedGroupUser.user))
-    if (deletedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      store.dispatch(UserAction.removedChannelLayerUser(deletedGroupUser.user))
+    store.dispatch(UserAction.removedChannelLayerUser(deletedGroupUser.user))
+    if (deletedGroupUser.userId === selfUser.id.value)
+      store.dispatch(clearChatTargetIfCurrent('group', { id: params.groupUser.groupId }))
   })
 
   client.service('group').on('created', (params) => {
@@ -168,6 +167,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('group').on('removed', (params) => {
     store.dispatch(removedGroup(params.group))
+    store.dispatch(clearChatTargetIfCurrent('group', params.group))
   })
 
   client.service('group').on('refresh', (params) => {

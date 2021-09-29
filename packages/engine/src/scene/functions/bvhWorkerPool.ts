@@ -35,7 +35,7 @@ function runBVHGenerator() {
       continue
     }
 
-    const mesh = meshQueue.shift()
+    const mesh = meshQueue.shift() as Mesh
 
     worker.generate(mesh.geometry).then((bvh) => {
       ;(mesh.geometry as any).boundsTree = bvh

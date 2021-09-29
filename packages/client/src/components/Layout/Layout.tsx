@@ -25,6 +25,7 @@ import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -161,7 +162,7 @@ const Layout = (props: Props): any => {
   }
 
   const respawnCallback = (): void => {
-    respawnAvatar(Network.instance.localClientEntity)
+    respawnAvatar(useWorld().localClientEntity)
   }
 
   //info about current mode to conditional render menus

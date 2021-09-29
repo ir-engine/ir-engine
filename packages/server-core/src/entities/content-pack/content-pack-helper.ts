@@ -399,10 +399,10 @@ export async function populateRealityPack(
     params
   )
   await Promise.all(uploadPromises)
-  if ((app as any).k8DefaultClient) {
+  if (app.k8DefaultClient) {
     try {
       console.log('Attempting to reload k8s clients!')
-      const restartClientsResponse = await (app as any).k8DefaultClient.patch(
+      const restartClientsResponse = await app.k8DefaultClient.patch(
         `deployment/${config.server.releaseName}-xrengine-client`,
         {
           spec: {

@@ -8,8 +8,8 @@ import RealityPackNode from '../../nodes/RealityPackNode'
 import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
-import { InjectionPoint } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import NodeEditor from './NodeEditor'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 /**
  * Define properties for RealityPack component.
@@ -31,27 +31,27 @@ type RealityPackEditorStates = {
 const InjectionPoints = [
   {
     label: 'Update',
-    value: InjectionPoint.UPDATE
+    value: SystemUpdateType.UPDATE
   },
   {
     label: 'Fixed Early',
-    value: InjectionPoint.FIXED_EARLY
+    value: SystemUpdateType.FIXED_EARLY
   },
   {
     label: 'Fixed',
-    value: InjectionPoint.FIXED
+    value: SystemUpdateType.FIXED
   },
   {
     label: 'Fixed Late',
-    value: InjectionPoint.FIXED_LATE
+    value: SystemUpdateType.FIXED_LATE
   },
   {
     label: 'Pre Render',
-    value: InjectionPoint.PRE_RENDER
+    value: SystemUpdateType.PRE_RENDER
   },
   {
     label: 'Post Render',
-    value: InjectionPoint.POST_RENDER
+    value: SystemUpdateType.POST_RENDER
   }
 ]
 

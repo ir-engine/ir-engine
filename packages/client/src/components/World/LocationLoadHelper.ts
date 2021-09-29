@@ -16,16 +16,14 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
-import { connectToChannelServer, resetChannelServer } from '../../reducers/channelConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { incomingNetworkReceptor } from '@xrengine/engine/src/networking/functions/incomingNetworkReceptor'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
-import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { Vector3, Quaternion } from 'three'
 import { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -77,24 +75,24 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
 }
 
 const createOfflineUser = () => {
-  const avatar = {
+  const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
-    avatarId: 0
+    avatarId: ''
   } as any
 
-  const userId = 'user'
-  const netId = 0
-  const params = {
+  const userId = 'user' as UserId
+  const parameters = {
     position: new Vector3(0.18393396470500378, 0, 0.2599274866972079),
     rotation: new Quaternion()
   }
 
   // it is needed by ClientAvatarSpawnSystem
-  Network.instance.userId = userId
+  Engine.userId = userId
   // Replicate the server behavior
-  incomingNetworkReceptor(NetworkWorldAction.createClient(userId, avatar))
-  incomingNetworkReceptor(NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params))
+  const world = useWorld()
+  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }))
+  dispatchFrom(world.hostId, () => NetworkWorldAction.spawnAvatar({ userId, parameters }))
 }
 
 export const initEngine = async (
@@ -103,19 +101,8 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
-  const userLoaded = new Promise<void>((resolve) => {
-    const listener = ({ uniqueId }) => {
-      if (uniqueId === Network.instance.userId) {
-        resolve()
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-      }
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-  })
-
   // 1.
-
-  const isOffline = typeof initOptions.networking.schema.transport === 'undefined'
+  const isOffline = typeof initOptions.networking?.schema.transport === 'undefined'
   const sceneData = await getSceneData(sceneId, isOffline)
   console.log(sceneData)
 
@@ -123,7 +110,7 @@ export const initEngine = async (
   console.log(packs)
 
   for (const system of packs.systems) {
-    initOptions.systems.push(system)
+    initOptions.systems?.push(system)
   }
 
   const realityPackReactComponentPromises = Promise.all(packs.react)
@@ -140,10 +127,10 @@ export const initEngine = async (
 
   // 3. Connect to server
   if (!isOffline) {
-    await Store.store.dispatch(connectToInstanceServer('instance'))
-    await new Promise<void>((resolve) => {
+    const didConnect = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
+    await Promise.all([Store.store.dispatch(connectToInstanceServer('instance')), didConnect])
   }
 
   if (typeof engineCallbacks?.onConnectedToServer === 'function') {
@@ -153,7 +140,12 @@ export const initEngine = async (
   // 4. Start scene loading
   Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
-  await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
+  console.log('Awaiting scene load')
+
+  const [realityPackReactComponents] = await Promise.all([
+    realityPackReactComponentPromises,
+    WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
+  ])
 
   getPortalDetails()
   Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
@@ -167,21 +159,15 @@ export const initEngine = async (
       spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
     }
 
-    const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+    await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
       MessageTypes.JoinWorld.toString(),
       { spawnTransform }
     )
-    worldState.forEach((action) => {
-      // TODO: send the correct world when we support multiple worlds
-      incomingNetworkReceptor(action)
-    })
   }
 
   if (isOffline) {
     createOfflineUser()
   }
-
-  const [realityPackReactComponents] = await Promise.all([realityPackReactComponentPromises, userLoaded])
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
@@ -207,7 +193,7 @@ export const teleportToLocation = async (
   // TODO: this needs to be implemented on the server too
   // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
   //   teleportPlayer(
-  //     Network.instance.localClientEntity,
+  //     useWorld().localClientEntity,
   //     portalComponent.remoteSpawnPosition,
   //     portalComponent.remoteSpawnRotation
   //   )

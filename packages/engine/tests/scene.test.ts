@@ -40,14 +40,14 @@ describe('Scene Loader', () => {
     }
     const colliderQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent, ColliderComponent])
   
-    parseGLTFModel(sceneLoader, entity, mockComponentData, undefined, mesh)
+    parseGLTFModel(sceneLoader, entity, mockComponentData, undefined!, mesh)
 
     const [loadedEntity] = colliderQuery(useWorld())
     assert.equal(typeof loadedEntity, 'number')
     assert.equal(getComponent(loadedEntity, NameComponent).name, entityName)
     assert.equal(getComponent(loadedEntity, CustomComponent).value, number)
     const shape = useWorld().physics.getOriginalShapeObject(getComponent(loadedEntity, ColliderComponent).body.getShapes())
-    assert.equal(isTriggerShape(shape), true)
+    assert.equal(isTriggerShape(shape!), true)
   })
 
   // TODO

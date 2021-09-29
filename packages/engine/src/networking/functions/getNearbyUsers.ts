@@ -1,36 +1,31 @@
-import { Network } from '../classes/Network'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { NetworkObjectList } from '../interfaces/NetworkObjectList'
+import { Engine } from '../../ecs/classes/Engine'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-export type NearbyUser = { id: string; distance: number }
+export type NearbyUser = { id: UserId; distance: number }
 
 const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distance
 
-export function getNearbyUsers(userId: string, maxMediaUsers = 8): Array<NearbyUser> {
-  const otherAvatars = [] as Array<NetworkObjectList[any]>
-  const { clients, networkObjects } = Network.instance!
-  let userAvatar: NetworkObjectList[any]
-  for (const id in networkObjects) {
-    const object = networkObjects[id]
-    if (!object) continue
-    if (object.uniqueId === userId) userAvatar = object
-    else if (object.uniqueId in clients) otherAvatars.push(object)
+export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyUser> {
+  const userAvatar = Engine.defaultWorld.getUserAvatarEntity(userId)
+  const otherUsers = [] as UserId[]
+  for (const [otherUserId] of Engine.defaultWorld.clients) {
+    if (userId === otherUserId) continue
+    otherUsers.push(userId)
   }
   if (userAvatar != null) {
-    const userComponent = getComponent(userAvatar.entity, Object3DComponent)
-    const userPosition = userComponent?.value?.position
-    if (userPosition != null) {
-      const userDistances = [] as Array<{ id: string; distance: number }>
-      for (const avatar of otherAvatars) {
-        if (typeof avatar !== 'undefined') {
-          const component = getComponent(avatar.entity, Object3DComponent)
-          const position = component?.value?.position
-          if (position != null)
-            userDistances.push({
-              id: avatar.uniqueId,
-              distance: position.distanceTo(userPosition)
-            })
+    const userPosition = getComponent(userAvatar, TransformComponent).position
+    if (userPosition) {
+      const userDistances = [] as Array<{ id: UserId; distance: number }>
+      for (const id of otherUsers) {
+        const avatar = Engine.defaultWorld.getUserAvatarEntity(id)
+        const position = getComponent(avatar, TransformComponent).position
+        if (position) {
+          userDistances.push({
+            id,
+            distance: position.distanceTo(userPosition)
+          })
         }
       }
       return userDistances.sort(compareDistance).slice(0, maxMediaUsers)

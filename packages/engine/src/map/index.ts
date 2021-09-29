@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import { Group } from 'three'
 import { NavMesh } from 'yuka'
