@@ -151,6 +151,6 @@
     "yuka": "0.7.6"
   },
   "dependencies": {
-    "@iconify/react": "^3.0.1"
+    "@iconify/react": "3.0.1"
   }
 }
