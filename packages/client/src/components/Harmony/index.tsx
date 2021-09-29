@@ -1383,6 +1383,7 @@ const Harmony = (props: Props): any => {
                                 maxLength: 1000
                               }}
                               onChange={handleEditingMessageChange}
+                              ListItemIcon
                             />
                             <div className={styles['editing-controls']}>
                               <Clear

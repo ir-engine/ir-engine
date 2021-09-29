@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
       textAlign: 'center',
       color: theme.palette.text.secondary,
-      height: '50vh',
+      minHeight: '50vh',
       width: '99.9%'
     },
     mtopp: {
