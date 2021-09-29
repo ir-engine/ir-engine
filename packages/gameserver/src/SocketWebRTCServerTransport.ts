@@ -108,80 +108,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   public async initialize(): Promise<void> {
-    // Set up our gameserver according to our current environment
-    const localIp = await getLocalServerIp()
-    let stringSubdomainNumber, gsResult
-    if (!config.kubernetes.enabled)
-      try {
-        await (this.app.service('instance') as any).Model.patch(null, { ended: true }, { where: {} })
-      } catch (error) {
-        logger.warn(error)
-      }
-    else if (config.kubernetes.enabled) {
-      await cleanupOldGameservers()
-      this.gameServer = await (this.app as any).agonesSDK.getGameServer()
-      const name = this.gameServer.objectMeta.name
-      ;(this.app as any).gsName = name
-
-      const gsIdentifier = gsNameRegex.exec(name)
-      stringSubdomainNumber = await getFreeSubdomain(gsIdentifier[1], 0)
-      ;(this.app as any).gsSubdomainNumber = stringSubdomainNumber
-
-      gsResult = await (this.app as any).agonesSDK.getGameServer()
-      const params = {
-        ChangeBatch: {
-          Changes: [
-            {
-              Action: 'UPSERT',
-              ResourceRecordSet: {
-                Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
-                ResourceRecords: [{ Value: gsResult.status.address }],
-                TTL: 0,
-                Type: 'A'
-              }
-            }
-          ]
-        },
-        HostedZoneId: config.aws.route53.hostedZoneId
-      }
-      if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params).promise()
-    }
-
-    localConfig.mediasoup.webRtcTransport.listenIps = [
-      {
-        ip: '0.0.0.0',
-        announcedIp: config.kubernetes.enabled
-          ? config.gameserver.local === true
-            ? gsResult.status.address
-            : `${stringSubdomainNumber}.${config.gameserver.domain}`
-          : localIp.ipAddress
-      }
-    ]
-
-    logger.info('Initializing WebRTC Connection')
-    await startWebRTC()
-
-    this.outgoingDataTransport = await this.routers.instance[0].createDirectTransport()
-    const options = {
-      ordered: false,
-      label: 'outgoingProducer',
-      protocol: 'raw',
-      appData: { peerID: 'outgoingProducer' }
-    }
-    this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options)
-
-    const currentRouter = this.routers.instance[0]
-
-    await Promise.all(
-      (this.routers.instance as any).map(async (router) => {
-        if (router._internal.routerId !== currentRouter._internal.routerId)
-          return currentRouter.pipeToRouter({ dataProducerId: this.outgoingDataProducer.id, router: router })
-        else return Promise.resolve()
-      })
-    )
-
-    setInterval(() => validateNetworkObjects(), 5000)
-
     // Set up realtime channel on socket.io
     this.socketIO = (this.app as any)?.io
 
@@ -344,5 +270,78 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           }
         })
       })
+    // Set up our gameserver according to our current environment
+    const localIp = await getLocalServerIp()
+    let stringSubdomainNumber, gsResult
+    if (!config.kubernetes.enabled)
+      try {
+        await (this.app.service('instance') as any).Model.patch(null, { ended: true }, { where: {} })
+      } catch (error) {
+        logger.warn(error)
+      }
+    else if (config.kubernetes.enabled) {
+      await cleanupOldGameservers()
+      this.gameServer = await (this.app as any).agonesSDK.getGameServer()
+      const name = this.gameServer.objectMeta.name
+      ;(this.app as any).gsName = name
+
+      const gsIdentifier = gsNameRegex.exec(name)
+      stringSubdomainNumber = await getFreeSubdomain(gsIdentifier[1], 0)
+      ;(this.app as any).gsSubdomainNumber = stringSubdomainNumber
+
+      gsResult = await (this.app as any).agonesSDK.getGameServer()
+      const params = {
+        ChangeBatch: {
+          Changes: [
+            {
+              Action: 'UPSERT',
+              ResourceRecordSet: {
+                Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
+                ResourceRecords: [{ Value: gsResult.status.address }],
+                TTL: 0,
+                Type: 'A'
+              }
+            }
+          ]
+        },
+        HostedZoneId: config.aws.route53.hostedZoneId
+      }
+      if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params).promise()
+    }
+
+    localConfig.mediasoup.webRtcTransport.listenIps = [
+      {
+        ip: '0.0.0.0',
+        announcedIp: config.kubernetes.enabled
+          ? config.gameserver.local === true
+            ? gsResult.status.address
+            : `${stringSubdomainNumber}.${config.gameserver.domain}`
+          : localIp.ipAddress
+      }
+    ]
+
+    logger.info('Initializing WebRTC Connection')
+    await startWebRTC()
+
+    this.outgoingDataTransport = await this.routers.instance[0].createDirectTransport()
+    const options = {
+      ordered: false,
+      label: 'outgoingProducer',
+      protocol: 'raw',
+      appData: { peerID: 'outgoingProducer' }
+    }
+    this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options)
+
+    const currentRouter = this.routers.instance[0]
+
+    await Promise.all(
+      (this.routers.instance as any).map(async (router) => {
+        if (router._internal.routerId !== currentRouter._internal.routerId)
+          return currentRouter.pipeToRouter({ dataProducerId: this.outgoingDataProducer.id, router: router })
+        else return Promise.resolve()
+      })
+    )
+
+    setInterval(() => validateNetworkObjects(), 5000)
   }
 }

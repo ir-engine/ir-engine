@@ -94,19 +94,10 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 
 const configureServer = async (options: Required<InitializeOptions>) => {
   Engine.scene = new Scene()
-  Network.instance = new Network()
 
-  const { schema, app } = options.networking
+  const { schema } = options.networking
   Network.instance.schema = schema
-  Network.instance.transport = new schema.transport(app)
-
-  if (
-    process.env.SERVER_MODE !== undefined &&
-    (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')
-  ) {
-    Network.instance.transport.initialize()
-    Network.instance.isInitialized = true
-  }
+  Network.instance.isInitialized = true
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     console.log('joined world')

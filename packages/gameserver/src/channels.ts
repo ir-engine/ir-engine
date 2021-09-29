@@ -14,6 +14,9 @@ import { getPortalByEntityId } from '@xrengine/server-core/src/entities/componen
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
+import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
+import { initializeServerEngine } from './initializeServerEngine'
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -22,7 +25,6 @@ export default (app: Application): void => {
   }
 
   app.on('connection', async (connection) => {
-    await awaitEngineLoaded()
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.NODE_ENV === 'development' ||
@@ -135,7 +137,11 @@ export default (app: Application): void => {
                   service = regexResult[1]
                   serviceId = regexResult[2]
                 }
-                const result = await app.service(service).get(serviceId)
+                const sceneData = (await app.service(service).get(serviceId)) as SceneData
+                const packs = await getPacksFromSceneData(sceneData, false)
+
+                await initializeServerEngine(packs.systems)
+                console.log('Initialized new gameserver instance')
 
                 let entitiesLeft = -1
                 let lastEntitiesLeft = -1
@@ -148,7 +154,7 @@ export default (app: Application): void => {
 
                 console.log('Loading scene...')
 
-                await WorldScene.load(result, (left) => {
+                await WorldScene.load(sceneData, (left) => {
                   entitiesLeft = left
                 })
 
