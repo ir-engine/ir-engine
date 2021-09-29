@@ -126,6 +126,7 @@ export function getUserIdFromSocketId(socketId) {
 }
 
 export async function validateNetworkObjects(): Promise<void> {
+  if (!Engine.isInitialized) return
   const world = Engine.defaultWorld!
   for (const [userId, client] of world.clients) {
     // Validate that user has phoned home recently
