@@ -132,7 +132,7 @@
     "cli": "1.0.1",
     "concurrently": "6.2.2",
     "cpy-cli": "3.1.1",
-    "esbuild": "0.13.2",
+    "esbuild": "0.13.3",
     "esbuild-plugin-sass": "0.6.0",
     "jest": "27.2.3",
     "jest-puppeteer": "6.0.0",
@@ -151,6 +151,6 @@
     "yuka": "0.7.6"
   },
   "dependencies": {
-    "@iconify/react": "^3.0.1"
+    "@iconify/react": "3.0.1"
   }
 }
