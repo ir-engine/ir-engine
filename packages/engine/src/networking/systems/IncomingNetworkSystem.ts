@@ -66,7 +66,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
         // if (newWorldState.pose.length) console.log('new world state: ' + JSON.stringify(newWorldState))
 
         if (isClient) {
-          world.fixedTick = newWorldState.tick
+          world.fixedTick = Math.max(newWorldState.tick, world.fixedTick)
         }
 
         //add velocity to player to check how it works and apply here the read of velocities

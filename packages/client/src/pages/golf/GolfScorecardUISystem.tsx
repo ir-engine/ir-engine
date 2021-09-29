@@ -213,7 +213,7 @@ export const GolfScorecardUISystem = async (world: World) => {
     layer.matrix.decompose(layer.position, layer.quaternion, layer.scale)
 
     const localPlayerNumber = getGolfPlayerNumber(Engine.userId)
-    const viewingScorecard = GolfState.players[localPlayerNumber]?.viewingScorecard.value
+    const viewingScorecard = GolfState.players.value[localPlayerNumber]?.viewingScorecard
     // console.log(GolfState.players[localPlayerNumber].viewingScorecard)
 
     const targetOpacity = viewingScorecard ? 1 : 0

@@ -36,7 +36,9 @@ function sendActions() {
       incomingActions.add(out as Required<Action>)
       outgoingActions.delete(out)
     }
-    if (Engine.defaultWorld.isHosting) incomingActions.add(out as Required<Action>)
+    if (Engine.defaultWorld.isHosting && out.$from === Engine.userId) {
+      incomingActions.add(out as Required<Action>)
+    }
   }
   Network.instance.transport?.sendActions(outgoingActions)
 

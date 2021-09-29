@@ -119,16 +119,21 @@ export function defineActionCreator<
   // handle literal shape properties
   const literalEntries = shapeEntries.filter(([k, v]) => typeof v !== 'object') as Array<[string, string | number]>
   const literalValidators = Object.fromEntries(literalEntries.map(([k, v]) => [k, matches.literal(v)]))
+  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, initializerMatches) as any // as ResolvedActionShape<Shape>
+  const allValuesNull = Object.fromEntries(Object.entries(resolvedActionShape).map(([k]) => [k, null]))
 
   const actionCreator = (partialAction: PartialAction<Shape>) => {
     const initializerValues = Object.fromEntries(
       initializerEntries.map(([k, v]) => [k, partialAction[k] ?? v.callback()]) as [string, any]
     )
-    let action = { ...partialAction, ...Object.fromEntries(literalEntries), ...initializerValues } as ResolvedAction
-    return action
+    return {
+      ...allValuesNull,
+      ...partialAction,
+      ...Object.fromEntries(literalEntries),
+      ...initializerValues
+    } as ResolvedAction
   }
 
-  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, initializerMatches) as any // as ResolvedActionShape<Shape>
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
 
   actionCreator.actionShape = actionShape as Shape
@@ -140,8 +145,8 @@ export function defineActionCreator<
   const matchExtensions = options?.extensions?.(matchesShape)
   Object.assign(actionCreator, matchExtensions)
 
-  type ValidatorKeys = true extends AllowDispatchFromAny ? FromAnyUserValidators : never
-  type FunctionProps = Pick<typeof actionCreator, 'type' | 'actionShape' | 'matches' | ValidatorKeys> & Extensions
+  type ValidatorKeys = true extends AllowDispatchFromAny ? FromAnyUserValidators : 'matches'
+  type FunctionProps = Pick<typeof actionCreator, 'type' | 'actionShape' | ValidatorKeys> & Extensions
   return actionCreator as unknown as ((partialAction: PartialAction<Shape>) => ResolvedAction) & FunctionProps
 }
 

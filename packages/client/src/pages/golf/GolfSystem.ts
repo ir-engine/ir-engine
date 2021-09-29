@@ -43,11 +43,11 @@ import { useState } from '@hookstate/core'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './functions/setupPlayerAvatar'
-import { XRInputSourceComponent } from '@xrengine/engine/src/avatar/components/XRInputSourceComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 
 /**
  *
@@ -75,7 +75,7 @@ GolfState.attach(() => ({
 }))
 
 export function useGolfState() {
-  return useState(GolfState)
+  return useState(GolfState) as any as typeof GolfState
 }
 
 const getTeePosition = (currentHole: number) => {
@@ -90,7 +90,7 @@ function golfReceptor(action) {
   GolfState.batch((s) => {
     matches(action)
       .when(GolfAction.sendState.matches, ({ state }) => {
-        s.merge(state)
+        s.set(state)
       })
 
       /**
@@ -99,7 +99,7 @@ function golfReceptor(action) {
        * - spawn golf club
        * - spawn golf ball
        */
-      .when(GolfAction.playerJoined.matches, ({ userId }) => {
+      .when(NetworkWorldAction.spawnAvatar.matches, ({ userId }) => {
         const playerAlreadyExists = s.players.find((p) => p.userId.value === userId)
         if (!playerAlreadyExists) {
           s.players.merge([
@@ -114,23 +114,21 @@ function golfReceptor(action) {
         } else {
           console.log(`player ${userId} rejoined`)
         }
-        if (!isClient)
-          dispatchFrom(world.hostId, () => {
-            return GolfAction.sendState({ state: s.attach(Downgraded).value })
-          }).to(userId)
+        dispatchFrom(world.hostId, () => GolfAction.sendState({ state: s.attach(Downgraded).value })).to(userId)
+        dispatchFrom(world.hostId, () => GolfAction.spawnBall({ userId }))
+        dispatchFrom(world.hostId, () => GolfAction.spawnClub({ userId }))
+        const entity = world.getUserAvatarEntity(userId)
+        setupPlayerAvatar(entity)
+        setupPlayerInput(entity)
       })
 
-      /**
-       * on PLAYER_READY
-       *   - IF player is current player, reset their ball position to the current tee
-       */
-      // .when(GolfAction.playerReady.matchesFromAny, ({$from}) => {
-      //   if (s.currentPlayerId.value === $from) {
-      //     dispatchFrom(world.hostId, () => GolfAction.resetBall({
-      //       position: getTeePosition(s.currentHole.value)
-      //     }))
-      //   }
-      // })
+      // Setup player XR avatars
+      .when(NetworkWorldAction.setXRMode.matchesFromAny, (a) => {
+        if (a.$from !== world.hostId || a.$from !== a.userId) return
+        const entity = world.getUserAvatarEntity(a.userId)
+        if (a.enabled) setupPlayerAvatarVR(entity)
+        else setupPlayerAvatarNotInVR(entity)
+      })
 
       /**
        * on PLAYER_STROKE
@@ -149,6 +147,7 @@ function golfReceptor(action) {
        * on spawn Goll ball
        */
       .when(GolfAction.spawnBall.matches, (action) => {
+        console.log('MAKIGN BALL')
         const eid = initializeGolfBall(action)
         if (GolfState.currentPlayerId.value === action.userId) {
           setBallState(eid, BALL_STATES.WAITING)
@@ -161,11 +160,8 @@ function golfReceptor(action) {
        * on spawn Golf club
        */
       .when(GolfAction.spawnClub.matches, (action) => {
+        console.log('MAKIGN CLUB')
         initializeGolfClub(action)
-        // if (isEntityLocalClient(ownerEntity)) {
-        //   console.log('i am ready')
-        //   dispatch(GolfAction.playerReady(GolfState.players.value[parameters.playerNumber].id), {to:'all'})
-        // }
       })
 
       /**
@@ -181,8 +177,7 @@ function golfReceptor(action) {
           const position = action.outOfBounds ? teePosition : action.position
           resetBall(entityBall, position)
         }
-        if (!isClient) dispatchFrom(world.hostId, () => GolfAction.nextTurn({ userId }))
-        return
+        dispatchFrom(world.hostId, () => GolfAction.nextTurn({ userId }))
       })
 
       /**
@@ -316,8 +311,6 @@ let ballTimer = 0
 export default async function GolfSystem(world: World) {
   world.receptors.add(golfReceptor)
 
-  const playerAvatarQuery = defineQuery([AvatarComponent, NetworkObjectComponent])
-  const playerVRQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
   const namedComponentQuery = defineQuery([NameComponent])
   const golfClubQuery = defineQuery([GolfClubComponent])
 
@@ -333,17 +326,6 @@ export default async function GolfSystem(world: World) {
   }
 
   return () => {
-    for (const entity of playerAvatarQuery.enter()) {
-      const { userId } = getComponent(entity, NetworkObjectComponent)
-      if (!isClient) {
-        dispatchFrom(world.hostId, () => GolfAction.playerJoined({ userId }))
-        dispatchFrom(world.hostId, () => GolfAction.spawnBall({ userId }))
-        dispatchFrom(world.hostId, () => GolfAction.spawnClub({ userId }))
-      }
-      if (isClient) setupPlayerAvatar(entity)
-      setupPlayerInput(entity)
-    }
-
     for (const entity of golfClubQuery()) {
       const { networkId } = getComponent(entity, NetworkObjectComponent)
       const { number } = getComponent(entity, GolfClubComponent)
@@ -368,24 +350,6 @@ export default async function GolfSystem(world: World) {
         }
       }
     }
-
-    // for (const entity of networkPlayerQuery.exit()) {
-    //   const { uniqueId } = getComponent(entity, NetworkObjectComponent, true)
-    //   const playerNum = getGolfPlayerNumber(entity)
-    //   console.log(`player ${playerNum} leave???`)
-    //   // if a player disconnects and it's their turn, change turns to the next player
-    //   if (currentPlayer?.id === uniqueId) dispatchFromServer(GolfAction.nextTurn())
-    //   const clubEntity = getClub(world, playerNum)
-    //   if (clubEntity)
-    //     dispatchFromServer(
-    //       NetworkWorldAction.destroyObject(getComponent(clubEntity, NetworkObjectComponent).networkId)
-    //     )
-    //   const ballEntity = getBall(world, playerNum)
-    //   if (ballEntity)
-    //     dispatchFromServer(
-    //       NetworkWorldAction.destroyObject(getComponent(ballEntity, NetworkObjectComponent).networkId)
-    //     )
-    // }
 
     for (const entity of namedComponentQuery.enter()) {
       const { name } = getComponent(entity, NameComponent)
@@ -439,45 +403,6 @@ export default async function GolfSystem(world: World) {
             }, 1000)
           }
         }
-      }
-    }
-
-    /**
-     * we use an plain query here in case the player and club/ball arrive at the client in the same frame,
-     * as there can be a race condition between the two
-     */
-    // for (const entity of spawnGolfBallQuery()) {
-    //   const { parameters } = getComponent(entity, SpawnNetworkObjectComponent)
-    //   const ownerEntity = getPlayerEntityFromNumber(parameters.playerNumber)
-    //   if (typeof ownerEntity !== 'undefined') {
-    //     removeComponent(entity, SpawnNetworkObjectComponent)
-    //     // removeComponent(entity, GolfBallTagComponent)
-    //   }
-    // }
-
-    // for (const entity of spawnGolfClubQuery()) {
-    //   const { parameters } = getComponent(entity, SpawnNetworkObjectComponent)
-    //   const ownerEntity = getPlayerEntityFromNumber(parameters.playerNumber)
-    //   if (typeof ownerEntity !== 'undefined') {
-    //     if (typeof parameters.playerNumber !== 'undefined') {
-    //       const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-    //       // removeComponent(entity, GolfClubTagComponent)
-    //       initializeGolfClub(entity, ownerEntity, parameters)
-    //       if (isEntityLocalClient(ownerEntity)) {
-    //         console.log('i am ready')
-    //         dispatch(GolfAction.playerReady(GolfState.players.value[parameters.playerNumber].id), {to:'all'})
-    //       }
-    //     }
-    //   }
-    // }
-
-    if (isClient) {
-      for (const entity of playerVRQuery.enter()) {
-        setupPlayerAvatarVR(entity)
-      }
-
-      for (const entity of playerVRQuery.exit()) {
-        setupPlayerAvatarNotInVR(entity)
       }
     }
 

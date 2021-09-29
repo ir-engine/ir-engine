@@ -14,10 +14,10 @@ export const GolfAction = {
     par: matches.number
   }),
 
-  playerJoined: defineActionCreator({
-    type: 'puttclub.PLAYER_JOINED',
-    userId: matchesUserId
-  }),
+  // playerJoined: defineActionCreator({
+  //   type: 'puttclub.PLAYER_JOINED',
+  //   userId: matchesUserId
+  // }),
 
   // playerReady: defineActionCreator({
   //   type: 'puttclub.PLAYER_READY',

@@ -1,6 +1,5 @@
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '../../ecs/classes/Engine'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { Action, ActionRecipients } from '../interfaces/Action'
 
 type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : HostUserId
@@ -14,6 +13,7 @@ type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : H
  * using the `to()` and `delay()` modifiers.
  */
 export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId: U, actionCb: () => A) => {
+  let action!: A
   const world = Engine.defaultWorld
 
   const options = {
@@ -28,7 +28,7 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
     /**
      * Dispatch on a future tick
      * @param tickOffset The number of ticks in the future specifying when this action should be dispatched.
-     * Default is 1 tick in the future
+     * Default is 2 ticks in the future
      */
     delay(tickOffset: number) {
       if (!action) return
@@ -39,9 +39,9 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
 
   if (Engine.userId !== userId) return options
 
-  const action = actionCb()
+  action = actionCb()
   action.$to = action.$to ?? 'all'
-  action.$tick = action.$tick ?? world.fixedTick + 1
+  action.$tick = action.$tick ?? world.fixedTick + 2
   world.outgoingActions.add(action)
 
   return options
