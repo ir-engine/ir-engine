@@ -52,7 +52,7 @@
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.14",
-    "@vladmandic/face-api": "1.5.3",
+    "@vladmandic/face-api": "1.5.4",
     "@xrengine/client-core": "^0.4.8",
     "@xrengine/editor": "^0.4.8",
     "@xrengine/engine": "^0.4.8",
