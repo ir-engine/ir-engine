@@ -150,7 +150,7 @@ describe('unifyFeatures', () => {
 
     const output = unifyFeatures(input)
 
-    expect(output[0].properties.height).toEqual(42)
+    expect(output[0].properties?.height).toEqual(42)
   })
 
   it('handles multipolygons', () => {

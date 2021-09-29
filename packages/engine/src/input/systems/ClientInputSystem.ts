@@ -30,24 +30,24 @@ export default async function ClientInputSystem(world: World): Promise<System> {
       if (Engine.prevInputState.has(key)) {
         if (value.type === InputType.BUTTON) {
           if (
-            value.lifecycleState === LifecycleValue.STARTED &&
-            Engine.prevInputState.get(key).lifecycleState === LifecycleValue.STARTED
+            value.lifecycleState === LifecycleValue.Started &&
+            Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
           ) {
-            value.lifecycleState = LifecycleValue.CONTINUED
+            value.lifecycleState = LifecycleValue.Continued
             console.log('started => continued')
           }
         } else {
-          if (value.lifecycleState !== LifecycleValue.ENDED) {
+          if (value.lifecycleState !== LifecycleValue.Ended) {
             value.lifecycleState =
-              JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
-                ? LifecycleValue.UNCHANGED
-                : LifecycleValue.CHANGED
+              JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key)?.value)
+                ? LifecycleValue.Unchanged
+                : LifecycleValue.Changed
           }
         }
 
         if (
-          Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.ENDED &&
-          value.lifecycleState === LifecycleValue.ENDED
+          Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.Ended &&
+          value.lifecycleState === LifecycleValue.Ended
         ) {
           Engine.inputState.delete(key)
         }
@@ -65,13 +65,13 @@ export default async function ClientInputSystem(world: World): Promise<System> {
       inputComponent.data.clear()
       Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
         if (inputComponent.schema.inputMap.has(key)) {
-          inputComponent.data.set(inputComponent.schema.inputMap.get(key), JSON.parse(JSON.stringify(value)))
+          inputComponent.data.set(inputComponent.schema.inputMap.get(key)!, JSON.parse(JSON.stringify(value)))
         }
       })
 
       inputComponent.data.forEach((value: InputValue, key: InputAlias) => {
         if (inputComponent.schema.behaviorMap.has(key)) {
-          inputComponent.schema.behaviorMap.get(key)(entity, key, value, delta)
+          inputComponent.schema.behaviorMap.get(key)!(entity, key, value, delta)
         }
       })
     }

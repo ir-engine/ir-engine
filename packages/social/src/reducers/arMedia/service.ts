@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import { Dispatch } from 'redux'
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import {
   fetchingArMedia,
@@ -29,7 +29,7 @@ export function getArMediaService(type?: string, limit: Number = 12) {
       dispatch(setAdminArMedia(list))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -42,7 +42,7 @@ export function getArMedia(type?: string) {
       dispatch(setArMedia(list.data))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -55,7 +55,7 @@ export function getArMediaItem(itemId: string) {
       dispatch(retrievedArMediaItem(item))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -84,7 +84,7 @@ export function createArMedia(mediaItem: any, files: any) {
       dispatch(addAdminArMedia(newItem))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -101,7 +101,7 @@ export const updateArMedia =
       dispatch(updateAdminArMedia(newItem))
     } catch (error) {
       console.error(error)
-      dispatchAlertError(dispatch, error.message)
+      AlertService.dispatchAlertError(dispatch, error.message)
     }
   }
 
@@ -112,7 +112,7 @@ export function removeArMedia(mediaItemId: string) {
       dispatch(removeArMediaItem(mediaItemId))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

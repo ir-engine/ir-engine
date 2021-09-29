@@ -206,7 +206,7 @@ const LeftDrawer = (props: Props): any => {
       if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
         getFriends(0)
       }
-      if (friendState.get('closeDetails') === selectedUser.id) {
+      if (selectedUser.id?.length > 0 && friendState.get('closeDetails') === selectedUser.id) {
         closeDetails()
         friendState.set('closeDetails', '')
       }
@@ -216,7 +216,7 @@ const LeftDrawer = (props: Props): any => {
       if (groupState.get('updateNeeded') === true && groupState.get('getGroupsInProgress') !== true) {
         getGroups(0)
       }
-      if (groupState.get('closeDetails') === selectedGroup.id) {
+      if (selectedGroup?.id.length > 0 && groupState.get('closeDetails') === selectedGroup.id) {
         closeDetails()
         groupState.set('closeDetails', '')
       }

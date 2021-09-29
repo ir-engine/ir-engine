@@ -6,7 +6,7 @@ import {
   locationPatched,
   locationRemoved
 } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
 import { ErrorAction } from '../../../../common/reducers/error/ErrorActions'
 import { client } from '../../../../feathers'
 
@@ -24,7 +24,7 @@ export function patchLocation(id: string, location: any) {
       dispatch(locationPatched(result))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -43,7 +43,7 @@ export function createLocation(location: any) {
       dispatch(locationCreated(result))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

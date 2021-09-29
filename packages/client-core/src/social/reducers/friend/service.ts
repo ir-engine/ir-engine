@@ -1,12 +1,14 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import { loadedFriends, createdFriend, patchedFriend, removedFriend, fetchingFriends } from './actions'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import Store from '../../../store'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { Config } from '@xrengine/common/src/config'
 import { UserAction } from '../../../user/store/UserAction'
 import { accessAuthState } from '../../../user/reducers/auth/AuthState'
+import { clearChatTargetIfCurrent } from '../chat/service'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 const store = Store.store
 
@@ -34,6 +36,7 @@ export function getFriends(search: string, skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingFriends())
     try {
+      await waitForClientAuthenticated()
       const friendResult = await client.service('user').find({
         query: {
           action: 'friends',
@@ -45,7 +48,7 @@ export function getFriends(search: string, skip?: number, limit?: number) {
       dispatch(loadedFriends(friendResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
       dispatch(loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
     }
   }
@@ -73,7 +76,7 @@ function removeFriend(relatedUserId: string) {
       await client.service('user-relationship').remove(relatedUserId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -144,13 +147,8 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const selfUser = accessAuthState().user
     if (deletedUserRelationship.userRelationshipType === 'friend') {
       store.dispatch(removedFriend(deletedUserRelationship, selfUser.value))
-      if (
-        deletedUserRelationship.user.channelInstanceId != null &&
-        deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
-      )
-        store.dispatch(UserAction.addedChannelLayerUser(deletedUserRelationship.user))
-      if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-        store.dispatch(UserAction.removedChannelLayerUser(deletedUserRelationship.user))
+      store.dispatch(clearChatTargetIfCurrent('user', deletedUserRelationship))
+      store.dispatch(UserAction.removedChannelLayerUser(deletedUserRelationship.user))
     }
   })
 }

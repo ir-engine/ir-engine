@@ -18,11 +18,13 @@ import { getGolfPlayerNumber } from './functions/golfFunctions'
 import { GolfColours } from './GolfGameConstants'
 import { useGolfState } from './GolfSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 
 const scratchColor = new Color()
 
-export function createNetworkPlayerUI(playerNumber: number) {
-  const ui = createXRUI(GolfNetworkPlayerView, createAvatarDetailState(playerNumber))
+export function createNetworkPlayerUI(userId: UserId) {
+  const ui = createXRUI(GolfNetworkPlayerView, createAvatarDetailState(userId))
   addComponent(ui.entity, TransformComponent, {
     position: new Vector3(),
     rotation: new Quaternion(),
@@ -31,9 +33,9 @@ export function createNetworkPlayerUI(playerNumber: number) {
   return ui
 }
 
-function createAvatarDetailState(playerNumber: number) {
+function createAvatarDetailState(userId: UserId) {
   return createState({
-    playerNumber
+    userId
   })
 }
 
@@ -43,11 +45,12 @@ const GolfNetworkPlayerView = () => {
   const detailState = useXRUIState() as GolfNetworkPlayerState
   const golfState = useGolfState()
   const userState = useUserState()
-  const playerNumber = detailState.playerNumber.value
+  const userId = detailState.userId.value
+  const playerNumber = getGolfPlayerNumber(userId)
   const playerColor = GolfColours[playerNumber]
-  const playerState = golfState.players[playerNumber]
-  const user = playerState ? userState.layerUsers.find((user) => user.id.value === playerState.id.value) : null
-  const isPlayersTurn = golfState.currentPlayer.value === playerNumber
+  const playerState = golfState.players[playerNumber].value
+  const user = playerState ? userState.layerUsers.find((user) => user.id.value === playerState.userId) : null
+  const isPlayersTurn = golfState.currentPlayerId.value === userId
   return user ? (
     <>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Racing+Sans+One"></link>
@@ -84,8 +87,9 @@ export const GolfPlayerUISystem = async (world: World) => {
     // Network Player XRUI
     if (isClient) {
       for (const entity of playerQuery.enter()) {
-        if (entity === Network.instance.localClientEntity) continue
-        const playerUI = createNetworkPlayerUI(getGolfPlayerNumber(entity))
+        if (entity === world.localClientEntity) continue
+        const networkComponent = getComponent(entity, NetworkObjectComponent)
+        const playerUI = createNetworkPlayerUI(networkComponent.userId)
         GolfNetworkPlayerUI.set(entity, playerUI)
       }
 
@@ -103,7 +107,7 @@ export const GolfPlayerUISystem = async (world: World) => {
       }
 
       for (const entity of playerQuery.exit()) {
-        const ui = GolfNetworkPlayerUI.get(entity)
+        const ui = GolfNetworkPlayerUI.get(entity)!
         removeEntity(ui.entity)
         GolfNetworkPlayerUI.delete(entity)
       }

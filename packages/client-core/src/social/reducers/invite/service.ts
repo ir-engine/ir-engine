@@ -16,9 +16,12 @@ import {
 } from './actions'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import Store from '../../../store'
-import { User } from '@xrengine/common/src/interfaces/User'
 import { accessAuthState } from '../../../user/reducers/auth/AuthState'
 const store = Store.store
+
+import { Config } from '@xrengine/common/src/config'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -26,27 +29,24 @@ const phoneRegex = /^[0-9]{10}$/
 const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
-import { Config } from '@xrengine/common/src/config'
-import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
-
 export function sendInvite(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     if (data.identityProviderType === 'email') {
       if (emailRegex.test(data.token) !== true) {
-        dispatchAlertError(dispatch, 'Invalid email address')
+        AlertService.dispatchAlertError(dispatch, 'Invalid email address')
         return
       }
     }
     if (data.identityProviderType === 'sms') {
       if (phoneRegex.test(data.token) !== true) {
-        dispatchAlertError(dispatch, 'Invalid 10-digit US phone number')
+        AlertService.dispatchAlertError(dispatch, 'Invalid 10-digit US phone number')
         return
       }
     }
 
     if (data.inviteCode != null) {
       if (inviteCodeRegex.test(data.inviteCode) !== true) {
-        dispatchAlertError(dispatch, 'Invalid Invite Code')
+        AlertService.dispatchAlertError(dispatch, 'Invalid Invite Code')
         return
       } else {
         const userResult = await client.service('user').find({
@@ -56,12 +56,12 @@ export function sendInvite(data: any) {
           }
         })
         if (userResult.errors || userResult.code) {
-          dispatchAlertError(dispatch, userResult.message)
+          AlertService.dispatchAlertError(dispatch, userResult.message)
           return
         }
 
         if (userResult.total === 0) {
-          dispatchAlertError(dispatch, 'No user has that invite code')
+          AlertService.dispatchAlertError(dispatch, 'No user has that invite code')
           return
         } else {
           data.invitee = userResult.data[0].id
@@ -71,31 +71,36 @@ export function sendInvite(data: any) {
 
     if (data.invitee != null) {
       if (userIdRegex.test(data.invitee) !== true) {
-        dispatchAlertError(dispatch, 'Invalid user ID')
+        AlertService.dispatchAlertError(dispatch, 'Invalid user ID')
         return
       }
     }
 
     if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
-      dispatchAlertError(dispatch, `Not a valid recipient`)
+      AlertService.dispatchAlertError(dispatch, `Not a valid recipient`)
       return
     }
 
     try {
-      const inviteResult = await client.service('invite').create({
+      const params = {
         inviteType: data.type,
         token: data.token,
         inviteCode: data.inviteCode,
         targetObjectId: data.targetObjectId,
         identityProviderType: data.identityProviderType,
         inviteeId: data.invitee
-      })
+      }
 
-      dispatchAlertSuccess(dispatch, 'Invite Sent')
+      const existingInviteResult = await client.service('invite').find(params)
+
+      let inviteResult
+      if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
+
+      AlertService.dispatchAlertSuccess(dispatch, 'Invite Sent')
       dispatch(sentInvite(inviteResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -106,6 +111,7 @@ export function retrieveReceivedInvites(incDec?: 'increment' | 'decrement') {
     const skip = getState().get('invite').get('receivedInvites').get('skip')
     const limit = getState().get('invite').get('receivedInvites').get('limit')
     try {
+      await waitForClientAuthenticated()
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'received',
@@ -116,7 +122,7 @@ export function retrieveReceivedInvites(incDec?: 'increment' | 'decrement') {
       dispatch(retrievedReceivedInvites(inviteResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -127,6 +133,7 @@ export function retrieveSentInvites(incDec?: 'increment' | 'decrement') {
     const skip = getState().get('invite').get('sentInvites').get('skip')
     const limit = getState().get('invite').get('sentInvites').get('limit')
     try {
+      await waitForClientAuthenticated()
       const inviteResult = await client.service('invite').find({
         query: {
           type: 'sent',
@@ -136,7 +143,7 @@ export function retrieveSentInvites(incDec?: 'increment' | 'decrement') {
       })
       dispatch(retrievedSentInvites(inviteResult))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -148,7 +155,7 @@ export function removeInvite(invite: Invite) {
       dispatch(removedSentInvite())
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -164,7 +171,7 @@ export function acceptInvite(inviteId: string, passcode: string) {
       dispatch(acceptedInvite())
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -175,7 +182,7 @@ export function declineInvite(invite: Invite) {
       await client.service('invite').remove(invite.id)
       dispatch(declinedInvite())
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }

@@ -33,5 +33,5 @@ export const getCollisions = (entity: Entity, component: ComponentConstructor<an
   return {
     collisionEvent: undefined,
     collisionEntity: undefined
-  }
+  } as any
 }

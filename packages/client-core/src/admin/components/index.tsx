@@ -421,22 +421,22 @@ const AdminConsole = (props: Props) => {
   }, [adminUsers])
 
   useEffect(() => {
-    if (user?.id.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminLocationState.get('locations').get('updateNeeded') === true) {
       fetchAdminLocations()
     }
-    if (user?.id.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
       fetchAdminScenes()
     }
-    if (user?.id.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
       fetchLocationTypes()
     }
-    if (user?.id.value != null && adminUserState.get('users').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminUserState.get('users').get('updateNeeded') === true) {
       fetchUsersAsAdmin()
     }
-    if (user?.id.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
+    if (user?.id?.value != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
       fetchAdminInstances()
     }
-  }, [authState, adminSceneState, adminInstanceState, adminLocationState])
+  }, [authState.user?.id?.value, adminSceneState, adminInstanceState, adminLocationState])
 
   const handleClick = () => {
     console.info('You clicked the Chip.')

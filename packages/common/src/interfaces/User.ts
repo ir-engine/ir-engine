@@ -1,6 +1,7 @@
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
+import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
 
 export interface UserSetting {
@@ -15,7 +16,7 @@ export interface UserScope {
 }
 
 export interface User {
-  id: string
+  id: UserId
   name: string
   userRole: string
   avatarId: string
@@ -34,7 +35,7 @@ export interface User {
 }
 
 export const UserSeed: User = {
-  id: '',
+  id: '' as UserId,
   name: '',
   userRole: '',
   avatarId: '',
@@ -70,7 +71,7 @@ export function resolveUser(user: any): User {
 
 export function resolveWalletUser(credentials: any): User {
   let returned = {
-    id: '',
+    id: '' as UserId,
     instanceId: credentials.user.id,
     name: credentials.user.displayName,
     userRole: 'guest',

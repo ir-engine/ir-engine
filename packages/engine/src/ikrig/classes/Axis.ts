@@ -42,7 +42,7 @@ export class Axis {
     return this
   }
 
-  rotate(rad, axis = 'x', out = null) {
+  rotate(rad, axis = 'x', out: any = null) {
     out = out || this
 
     const sin = Math.sin(rad),

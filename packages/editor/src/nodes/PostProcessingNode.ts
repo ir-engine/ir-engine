@@ -14,7 +14,7 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
 
   constructor() {
     super()
-    this.postProcessingOptions = PostProcessing.defaultOptions
+    this.postProcessingOptions = Object.assign({}, PostProcessing.defaultOptions)
   }
 
   static canAddNode() {
@@ -25,7 +25,7 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
     const node = await super.deserialize(json)
     const postProcessing = json.components.find((c) => c.name === 'postprocessing')
     const { options } = postProcessing.props
-    node.postProcessingOptions = options ?? PostProcessing.defaultOptions
+    node.postProcessingOptions = Object.assign({}, options ?? PostProcessing.defaultOptions)
     return node
   }
 

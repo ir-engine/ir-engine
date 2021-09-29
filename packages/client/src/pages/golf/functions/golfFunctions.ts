@@ -1,42 +1,41 @@
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkObjectType } from '@xrengine/engine/src/networking/interfaces/NetworkObjectList'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { GolfState } from '../GolfSystem'
 
-export const getGolfPlayerNumber = (entity: Entity = Network.instance.localClientEntity) => {
-  const uniqueId = getComponent(entity, NetworkObjectComponent, true)?.uniqueId
-  if (!uniqueId) return undefined
-  const number = GolfState.players.findIndex((player) => player.id.value === uniqueId)
-  if (number < 0) return undefined
-  return number
+export const getGolfPlayerNumber = (userId: UserId = GolfState.currentPlayerId.value) => {
+  return GolfState.players.findIndex((player) => player.userId.value === userId)
 }
 
-export function getGolfPlayerState(
-  playerNumber = GolfState.currentPlayer.value
-): typeof GolfState.players[0]['value'] | undefined {
-  return GolfState.players[playerNumber].value
+export function getGolfPlayerState(userId: UserId = GolfState.currentPlayerId.value) {
+  return GolfState.players.find((player) => player.userId.value === userId)
 }
 
-export const isCurrentGolfPlayer = (entity: Entity) => {
-  const currentPlayerNumber = GolfState.currentPlayer.value
-  const currentPlayerId = GolfState.players[currentPlayerNumber].id.value
-  return currentPlayerId === getComponent(entity, NetworkObjectComponent).uniqueId
+export const isCurrentGolfPlayer = (userId: UserId) => {
+  return userId === GolfState.currentPlayerId.value
 }
 
 export const getCurrentGolfPlayerEntity = () => {
-  const currentPlayerNumber = GolfState.currentPlayer.value
-  const currentPlayerId = GolfState.players[currentPlayerNumber].id.value
-  return Object.values(Network.instance.networkObjects).find((obj) => obj.uniqueId === currentPlayerId)?.entity
+  const currentPlayerId = GolfState.currentPlayerId.value
+  return useWorld().getUserAvatarEntity(currentPlayerId)
 }
 
 export const getPlayerEntityFromNumber = (number: number) => {
-  const player = GolfState.players[number]
-  if (!player) return undefined
-  const entity = Object.values(Network.instance.networkObjects).find(
-    (obj: NetworkObjectType) => obj.uniqueId === player.value.id
-  )?.entity
-  if (entity < 0) return undefined
-  return entity
+  const playerId = GolfState.players[number].userId.value
+  return useWorld().getUserAvatarEntity(playerId)
+}
+
+export function getBall(u: UserId) {
+  const playerNumber = getGolfPlayerNumber(u)
+  return useWorld().namedEntities.get(`GolfBall-${playerNumber}`)!
+}
+export function getClub(u: UserId) {
+  const playerNumber = getGolfPlayerNumber(u)
+  return useWorld().namedEntities.get(`GolfClub-${playerNumber}`)!
+}
+
+export function getTee(hole: number) {
+  return useWorld().namedEntities.get(`GolfTee-${hole}`)!
+}
+export function getHole(hole: number) {
+  return useWorld().namedEntities.get(`GolfHole-${hole}`)!
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { IKRigComponent, IKRigComponentType, PointData } from '../components/IKRigComponent'
 import { Bone, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
@@ -14,7 +15,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { Chain } from '../classes/Chain'
 import { solveLimb, solveThreeBone } from './IKSolvers'
-// import { debug } from '../classes/Debug'
 
 const aToBVector = new Vector3()
 const boneAWorldPos = new Vector3()

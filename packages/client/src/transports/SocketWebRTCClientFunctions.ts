@@ -4,6 +4,7 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 
 let networkTransport: any
 
@@ -136,6 +137,7 @@ export async function createTransport(direction: string, channelType?: string, c
     // failed, or disconnected, leave the  and reset
     transport.on('connectionstatechange', async (state: string) => {
       if (networkTransport.leaving !== true && (state === 'closed' || state === 'failed' || state === 'disconnected')) {
+        EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
         console.error('Transport', transport, ' transitioned to state', state)
         console.error(
           'If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.'

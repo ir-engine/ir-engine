@@ -228,7 +228,6 @@ export default async function CameraSystem(world: World): Promise<System> {
 
     for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycaster = new Raycaster()
       cameraFollow.raycaster.layers.set(CameraLayers.Scene) // Ignore avatars
       ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
       cameraFollow.raycaster.far = cameraFollow.maxDistance

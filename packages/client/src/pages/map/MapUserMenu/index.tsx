@@ -1,6 +1,5 @@
 import Badge from '@material-ui/core/Badge'
-import { alertSuccess } from '@xrengine/client-core/src/common/reducers/alert/service'
-import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -37,17 +36,8 @@ enum ActivePanel {
   CHAT
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  alertSuccess: bindActionCreators(alertSuccess, dispatch)
-  // provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-})
-
 const UserMenu = (props: UserMenuProps): any => {
-  const { alertSuccess, uploadAvatarModel, enableSharing, hideLogin, showHideProfile } = props
+  const { uploadAvatarModel, enableSharing, hideLogin, showHideProfile } = props
   const dispatch = useDispatch()
   const menuPanel = {
     [Views.Profile]: ProfileMenu,
@@ -138,6 +128,10 @@ const UserMenu = (props: UserMenuProps): any => {
     showHideProfile(true)
   }
 
+  const alertSuccess = (message) => {
+    dispatch(AlertService.alertSuccess(message))
+  }
+
   const renderMenuPanel = () => {
     if (!currentActiveMenu) return null
 
@@ -213,7 +207,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const runAnimation = (animationName: string, params: WeightsParameterType) => {
-    const entity = Network.instance.localClientEntity
+    const entity = useWorld().localClientEntity
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     if (
@@ -338,4 +332,4 @@ const UserMenu = (props: UserMenuProps): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserMenu)
+export default UserMenu

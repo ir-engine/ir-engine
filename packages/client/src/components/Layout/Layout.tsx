@@ -16,13 +16,18 @@ import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { connect, useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { bindActionCreators, Dispatch } from 'redux'
+import { Dispatch } from 'redux'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
 import Harmony from '../Harmony'
 import Me from '../Me'
 import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
+import { AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
+import EmoteMenuCore from '@xrengine/client-core/src/common/components/EmoteMenu/index'
+import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -82,7 +87,9 @@ const Layout = (props: Props): any => {
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
   const handle = useFullScreenHandle()
+
   const dispatch = useDispatch()
+
   const initialClickListener = () => {
     dispatch(AppAction.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
@@ -160,8 +167,14 @@ const Layout = (props: Props): any => {
       (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
     )
   }
+
+  const respawnCallback = (): void => {
+    respawnAvatar(useWorld().localClientEntity)
+  }
+
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
+
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>
@@ -207,6 +220,10 @@ const Layout = (props: Props): any => {
                 )}
               </>
             )}
+
+            <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
+              <img src="/static/restart.svg" />
+            </button>
 
             <Harmony
               setHarmonyOpen={setHarmonyOpen}

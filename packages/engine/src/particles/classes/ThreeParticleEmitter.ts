@@ -170,14 +170,14 @@ export class ThreeParticleEmitter extends Mesh {
     tempGeo.index = planeGeometry.index
     tempGeo.attributes = planeGeometry.attributes
 
-    const positions = []
-    const colors = []
-    const lifetimes = []
-    const ages = []
-    const initialAges = []
-    const initialPositions = []
-    const particleSizeRandomness = []
-    const angles = []
+    const positions: number[] = []
+    const colors: number[] = []
+    const lifetimes: number[] = []
+    const ages: number[] = []
+    const initialAges: number[] = []
+    const initialPositions: number[] = []
+    const particleSizeRandomness: number[] = []
+    const angles: number[] = []
 
     ;(this as any).getWorldScale(this.worldScale)
 

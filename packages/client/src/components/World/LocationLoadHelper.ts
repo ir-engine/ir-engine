@@ -19,11 +19,11 @@ import { connectToInstanceServer, resetInstanceServer } from '../../reducers/ins
 import { connectToChannelServer, resetChannelServer } from '../../reducers/channelConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { EngineCallbacks } from './'
-import { incomingNetworkReceptor } from '@xrengine/engine/src/networking/functions/incomingNetworkReceptor'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
-import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { Vector3, Quaternion } from 'three'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -66,24 +66,24 @@ export const getSceneData = async (sceneId: string, isOffline: boolean) => {
 }
 
 const createOfflineUser = () => {
-  const avatar = {
+  const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
-    avatarId: 0
+    avatarId: ''
   } as any
 
-  const userId = 'user'
-  const netId = 0
-  const params = {
+  const userId = 'user' as UserId
+  const parameters = {
     position: new Vector3(0.18393396470500378, 0, 0.2599274866972079),
     rotation: new Quaternion()
   }
 
   // it is needed by ClientAvatarSpawnSystem
-  Network.instance.userId = userId
+  Engine.userId = userId
   // Replicate the server behavior
-  incomingNetworkReceptor(NetworkWorldAction.createClient(userId, avatar))
-  incomingNetworkReceptor(NetworkWorldAction.createObject(netId, userId, PrefabType.Player, params))
+  const world = useWorld()
+  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }))
+  dispatchFrom(world.hostId, () => NetworkWorldAction.spawnAvatar({ userId, parameters }))
 }
 
 export const initEngine = async (
@@ -92,16 +92,7 @@ export const initEngine = async (
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
-  const userLoaded = new Promise<void>((resolve) => {
-    const listener = ({ uniqueId }) => {
-      if (uniqueId === Network.instance.userId) {
-        resolve()
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-      }
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
-  })
-
+  console.log('LOADING SCENE', sceneId)
   // 1. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
@@ -117,10 +108,10 @@ export const initEngine = async (
 
   // 2. Connect to server
   if (!isOffline) {
-    await Store.store.dispatch(connectToInstanceServer('instance'))
-    await new Promise<void>((resolve) => {
+    const didConnect = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
+    await Promise.all([Store.store.dispatch(connectToInstanceServer('instance')), didConnect])
   }
 
   if (typeof engineCallbacks?.onConnectedToServer === 'function') {
@@ -130,6 +121,7 @@ export const initEngine = async (
   // 3. Start scene loading
   Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
+  console.log('Awaiting scene load')
   await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
 
   getPortalDetails()
@@ -144,22 +136,17 @@ export const initEngine = async (
       spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
     }
 
-    const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+    await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
       MessageTypes.JoinWorld.toString(),
       { spawnTransform }
     )
-    worldState.forEach((action) => {
-      // TODO: send the correct world when we support multiple worlds
-      incomingNetworkReceptor(action)
-    })
   }
 
   if (isOffline) {
     createOfflineUser()
   }
 
-  await userLoaded
-
+  console.log('JOINED WORLD')
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
   if (typeof engineCallbacks?.onJoinedToNewWorld === 'function') {
@@ -182,7 +169,7 @@ export const teleportToLocation = async (
   // TODO: this needs to be implemented on the server too
   // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
   //   teleportPlayer(
-  //     Network.instance.localClientEntity,
+  //     useWorld().localClientEntity,
   //     portalComponent.remoteSpawnPosition,
   //     portalComponent.remoteSpawnRotation
   //   )

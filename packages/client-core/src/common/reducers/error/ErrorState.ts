@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-import { SET_SCOPE_READ_ERROR, SET_SCOPE_WRITE_ERROR } from '../actions'
 import { ErrorActionType } from './ErrorActions'
 
 import { createState, useState, none, Downgraded } from '@hookstate/core'
@@ -23,9 +21,9 @@ export const ErrorReducer = (_, action: ErrorActionType) => {
 const errorReceptor = (action: ErrorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case SET_SCOPE_READ_ERROR:
+      case 'SET_SCOPE_READ_ERROR':
         return s.merge({ readError: { scopeErrorMessage: action.message, statusCode: action.statusCode } })
-      case SET_SCOPE_WRITE_ERROR:
+      case 'SET_SCOPE_WRITE_ERROR':
         return s.merge({ writeError: { scopeErrorMessage: action.message, statusCode: action.statusCode } })
     }
   }, action.type)

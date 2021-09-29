@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'

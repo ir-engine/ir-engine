@@ -119,30 +119,33 @@ const Layout = (props: Props): any => {
           <Alerts />
           {childrenWithProps}
         </Fragment>
-        {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && user?.id?.value != null && (
-          <Fragment>
-            <LeftDrawer
-              harmony={true}
-              detailsType={detailsType}
-              setDetailsType={setDetailsType}
-              groupFormOpen={groupFormOpen}
-              setGroupFormOpen={setGroupFormOpen}
-              groupFormMode={groupFormMode}
-              setGroupFormMode={setGroupFormMode}
-              groupForm={groupForm}
-              setGroupForm={setGroupForm}
-              selectedUser={selectedUser}
-              setSelectedUser={setSelectedUser}
-              selectedGroup={selectedGroup}
-              setSelectedGroup={setSelectedGroup}
-              openBottomDrawer={bottomDrawerOpen}
-              leftDrawerOpen={leftDrawerOpen}
-              setLeftDrawerOpen={setLeftDrawerOpen}
-              setRightDrawerOpen={setRightDrawerOpen}
-              setBottomDrawerOpen={setBottomDrawerOpen}
-            />
-          </Fragment>
-        )}
+        {authUser?.accessToken?.value != null &&
+          authUser.accessToken.value.length > 0 &&
+          user?.id?.value != null &&
+          user.id.value.length > 0 && (
+            <Fragment>
+              <LeftDrawer
+                harmony={true}
+                detailsType={detailsType}
+                setDetailsType={setDetailsType}
+                groupFormOpen={groupFormOpen}
+                setGroupFormOpen={setGroupFormOpen}
+                groupFormMode={groupFormMode}
+                setGroupFormMode={setGroupFormMode}
+                groupForm={groupForm}
+                setGroupForm={setGroupForm}
+                selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+                selectedGroup={selectedGroup}
+                setSelectedGroup={setSelectedGroup}
+                openBottomDrawer={bottomDrawerOpen}
+                leftDrawerOpen={leftDrawerOpen}
+                setLeftDrawerOpen={setLeftDrawerOpen}
+                setRightDrawerOpen={setRightDrawerOpen}
+                setBottomDrawerOpen={setBottomDrawerOpen}
+              />
+            </Fragment>
+          )}
         {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
           <Fragment>
             <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />

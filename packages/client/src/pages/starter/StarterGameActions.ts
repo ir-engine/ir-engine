@@ -1,10 +1,13 @@
-export const StarterAction = {
-  playerJoined(playerId: string) {
-    return {
-      type: 'starter.PLAYER_JOINED' as const,
-      playerId
-    }
-  }
-}
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { defineActionCreator, matches, matchesVector3 } from '@xrengine/engine/src/networking/interfaces/Action'
+export class StarterAction {
+  static spawnCubes = defineActionCreator({ type: 'starter.spawnCubes' })
 
-export type StarterActionType = ReturnType<typeof StarterAction[keyof typeof StarterAction]>
+  static spawnCube = defineActionCreator({
+    ...NetworkWorldAction.spawnObject.actionShape,
+    prefab: 'starter.cube',
+    parameters: matches.shape({
+      position: matchesVector3
+    })
+  })
+}

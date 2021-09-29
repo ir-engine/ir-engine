@@ -10,19 +10,22 @@ import { Quaternion, Vector3 } from 'three'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { setAvatarLayer } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { generateMeshBVH } from '@xrengine/engine/src/scene/functions/bvhWorkerPool'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 
 const avatarScale = 1.3
 const rotateHalfY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 export const setupPlayerAvatar = async (entityPlayer: Entity) => {
+  if (!isClient) return
   const avatarComponent = getComponent(entityPlayer, AvatarComponent)
   const { value } = getComponent(entityPlayer, Object3DComponent)
   value.remove(avatarComponent.modelContainer)
   avatarComponent.modelContainer.children.forEach((child) => child.removeFromParent())
 
-  const { scene: headGLTF } = AssetLoader.getFromCache('/models/golf/avatars/avatar_head.glb')
-  const { scene: handGLTF } = AssetLoader.getFromCache('/models/golf/avatars/avatar_hands.glb')
-  const { scene: torsoGLTF } = AssetLoader.getFromCache('/models/golf/avatars/avatar_torso.glb')
+  const { scene: headGLTF } = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/avatars/avatar_head.glb')
+  const { scene: handGLTF } = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/avatars/avatar_hands.glb')
+  const { scene: torsoGLTF } = AssetLoader.getFromCache(Engine.publicPath + '/models/golf/avatars/avatar_torso.glb')
 
   const headModel = SkeletonUtils.clone(headGLTF)
   headModel.scale.multiplyScalar(avatarScale)

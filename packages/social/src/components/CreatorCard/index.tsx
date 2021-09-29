@@ -213,7 +213,7 @@ const CreatorCard = ({
               className={styles.followButton}
               onClick={() => handleBlockedList(creator.id)}
             >
-              Blocked List
+              {t('social:creator.blocked-list')}
             </Button>
           ) : (
             ' '
@@ -222,7 +222,7 @@ const CreatorCard = ({
             ''
           ) : (
             <Button onClick={openBlockConfirm} variant={'outlined'} color="primary" className={styles.followButton}>
-              Block User
+              {t('social:creator.block-user')}
             </Button>
           )}
           <Dialog
@@ -233,16 +233,14 @@ const CreatorCard = ({
           >
             <DialogTitle id="alert-dialog-title">{'Block this user?'}</DialogTitle>
             <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                You will not see the user's profile and content
-              </DialogContentText>
+              <DialogContentText id="alert-dialog-description">{t('social:creator.dialog-content')}</DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button onClick={closeBlockConfirm} color="primary">
-                Cancel
+                {t('social:cancel')}
               </Button>
               <Button onClick={() => handleBlockCreator(creator.id)} color="primary" autoFocus>
-                Confirm
+                {t('social:confirm')}
               </Button>
             </DialogActions>
           </Dialog>

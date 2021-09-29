@@ -21,7 +21,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   })
   addComponent(entity, GeoLabelSetComponent, { value: new Set(labels) })
   if (args.enableDebug) {
-    addComponent(entity, DebugNavMeshComponent, null)
+    addComponent(entity, DebugNavMeshComponent, {})
   }
   currentEnt = entity
 }
@@ -30,7 +30,7 @@ export async function updateMap(args: MapProps, longtitude, latitude, position):
   const remobj = Engine.scene.getObjectByName('MapObject')
   const { mapMesh, navMesh, groundMesh } = await update(args, longtitude, latitude, position)
 
-  remobj.removeFromParent()
+  remobj?.removeFromParent()
   Engine.scene.add(mapMesh)
 
   // getComponent(currentEnt, Object3DComponent).value.clear()

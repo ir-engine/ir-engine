@@ -86,13 +86,19 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     },
     avatarPosition: {
       display: 'flex',
-      marginLeft: '80%'
+      alignItems: 'center',
+      justifyItems: 'center'
     },
     selected: {
       background: '#15171B !important'
     },
     nested: {
       paddingLeft: '2rem !important'
+    },
+    mdFont: {
+      [theme.breakpoints.down('xs')]: {
+        fontSize: '1rem'
+      }
     }
   })
 )

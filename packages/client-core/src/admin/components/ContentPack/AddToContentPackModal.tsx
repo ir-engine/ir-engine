@@ -7,6 +7,7 @@ import styles from './ContentPack.module.scss'
 import {
   addAvatarsToContentPack,
   addScenesToContentPack,
+  addRealityPacksToContentPack,
   createContentPack,
   fetchContentPacks
 } from '../../reducers/contentPack/service'
@@ -30,9 +31,11 @@ interface Props {
   handleClose: any
   scenes?: any
   avatars?: any
+  realityPacks?: any
   contentPackState?: any
   addScenesToContentPack?: any
   addAvatarsToContentPack?: any
+  addRealityPacksToContentPack?: any
   createContentPack?: any
   fetchContentPacks?: any
 }
@@ -46,6 +49,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   addScenesToContentPack: bindActionCreators(addScenesToContentPack, dispatch),
   addAvatarsToContentPack: bindActionCreators(addAvatarsToContentPack, dispatch),
+  addRealityPacksToContentPack: bindActionCreators(addRealityPacksToContentPack, dispatch),
   createContentPack: bindActionCreators(createContentPack, dispatch),
   fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch)
 })
@@ -54,11 +58,13 @@ const AddToContentPackModal = (props: Props): any => {
   const {
     addAvatarsToContentPack,
     addScenesToContentPack,
+    addRealityPacksToContentPack,
     createContentPack,
     open,
     handleClose,
     avatars,
     scenes,
+    realityPacks,
     contentPackState,
     fetchContentPacks
   } = props
@@ -122,6 +128,24 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
+  const addCurrentRealityPacksToContentPack = async () => {
+    try {
+      setProcessing(true)
+      if (contentPackName !== '') {
+        await addRealityPacksToContentPack({
+          realityPacks: realityPacks,
+          contentPack: contentPackName
+        })
+        setProcessing(false)
+        window.location.href = '/admin/content-packs'
+        closeModal()
+      } else throw new Error('Existing content pack must be selected')
+    } catch (err) {
+      setProcessing(false)
+      showError(err.message)
+    }
+  }
+
   const createNewContentPack = async () => {
     try {
       setProcessing(true)
@@ -134,6 +158,11 @@ const AddToContentPackModal = (props: Props): any => {
         else if (avatars != null)
           await createContentPack({
             avatars: avatars,
+            contentPack: newContentPackName
+          })
+        else if (realityPacks != null)
+          await createContentPack({
+            realityPacks: realityPacks,
             contentPack: newContentPackName
           })
         setProcessing(false)
@@ -191,6 +220,11 @@ const AddToContentPackModal = (props: Props): any => {
                   Adding {avatars.length} {avatars.length === 1 ? 'Avatar' : 'Avatars'}
                 </div>
               )}
+              {realityPacks && (
+                <div className={styles['title']}>
+                  Adding {realityPacks.length} {realityPacks.length === 1 ? 'Reality Pack' : 'Reality Packs'}
+                </div>
+              )}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -231,7 +265,13 @@ const AddToContentPackModal = (props: Props): any => {
                     type="submit"
                     variant="contained"
                     color="primary"
-                    onClick={scenes != null ? addCurrentScenesToContentPack : addCurrentAvatarsToContentPack}
+                    onClick={
+                      scenes != null
+                        ? addCurrentScenesToContentPack
+                        : realityPacks != null
+                        ? addCurrentRealityPacksToContentPack
+                        : addCurrentAvatarsToContentPack
+                    }
                   >
                     Update Content Pack
                   </Button>

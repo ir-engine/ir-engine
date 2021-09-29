@@ -22,8 +22,6 @@ import { selectInstanceConnectionState } from '../../reducers/instanceConnection
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'

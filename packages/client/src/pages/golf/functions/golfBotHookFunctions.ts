@@ -1,12 +1,12 @@
 import { Vector3 } from 'three'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
-import { tweenXRInputSource, updateController, updateHead } from '@xrengine/engine/src/bot/functions/xrBotHookFunctions'
-import { GolfState, getHole, getBall, getClub, getTee } from '../GolfSystem'
-import { getGolfPlayerNumber, isCurrentGolfPlayer } from './golfFunctions'
+import { tweenXRInputSource, updateController } from '@xrengine/engine/src/bot/functions/xrBotHookFunctions'
+import { GolfState } from '../GolfSystem'
+import { isCurrentGolfPlayer, getHole, getBall, getClub, getTee } from './golfFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const GolfBotHookFunctions = {
@@ -21,13 +21,12 @@ export const GolfBotHookFunctions = {
 }
 
 export function getIsPlayerTurn() {
-  if (!Network.instance.localClientEntity) return false
-  return isCurrentGolfPlayer(Network.instance.localClientEntity)
+  return isCurrentGolfPlayer(Engine.userId)
 }
 
 export function getIsGoal() {
-  // if (!Network.instance.localClientEntity) return false
-  // return hasComponent(Network.instance.localClientEntity, GolfState.Goal)
+  // if (!useWorld().localClientEntity) return false
+  // return hasComponent(useWorld().localClientEntity, GolfState.Goal)
 }
 
 export function getIsOutOfCourse() {
@@ -61,25 +60,20 @@ export function swingClub() {
   })
 }
 
-export function getPlayerNumber() {
-  if (!Network.instance.localClientEntity) return
-  return getGolfPlayerNumber(Network.instance.localClientEntity)
-}
-
 export function getTeePosition() {
-  const teeEntity = getTee(Engine.defaultWorld, GolfState.currentHole.value)
+  const teeEntity = getTee(GolfState.currentHole.value)
   const teeTransform = getComponent(teeEntity, TransformComponent)
   return teeTransform.position
 }
 
 export function getHolePosition() {
-  const holeEntity = getHole(Engine.defaultWorld, GolfState.currentHole.value)
+  const holeEntity = getHole(GolfState.currentHole.value)
   const holeTransform = getComponent(holeEntity, TransformComponent)
   return holeTransform.position
 }
 
 export function getBallPosition() {
-  const ballEntity = getBall(Engine.defaultWorld, GolfState.currentPlayer.value)
+  const ballEntity = getBall(GolfState.currentPlayerId.value)
   const ballTransform = getComponent(ballEntity, TransformComponent)
   return ballTransform.position
 }

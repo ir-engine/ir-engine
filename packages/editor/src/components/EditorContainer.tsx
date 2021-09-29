@@ -425,7 +425,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     registerPredefinedNodes()
     registerPredefinedSources()
 
-    ProjectManager.instance.init()
     ProjectManager.instance.initializeFeathersClient(getToken())
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)

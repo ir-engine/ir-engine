@@ -56,8 +56,8 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
 const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
   const builder = new NavMeshBuilder()
   const gBuildings = tiles
-    .reduce((acc, tiles) => acc.concat(tiles.building), [])
-    .map((feature) => {
+    .reduce((acc, tiles) => acc.concat(tiles.building as any), [])
+    .map((feature: any) => {
       return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
     })
 

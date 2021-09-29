@@ -46,10 +46,10 @@ const PartyTable = (props: PartyPropsTable) => {
   }
 
   React.useEffect(() => {
-    if (user.id.value && adminParty.get('updateNeeded') === true) {
+    if (user?.id?.value && adminParty.get('updateNeeded') === true) {
       fetchAdminParty()
     }
-  }, [authState, adminPartyState])
+  }, [authState.user?.id?.value, adminPartyState])
 
   const createData = (id: string, instance: string, location: string): PartyData => {
     return {
@@ -78,8 +78,8 @@ const PartyTable = (props: PartyPropsTable) => {
   const rows = adminPartyData.map((el) =>
     createData(
       el.id,
-      el.instance.ipAddress || <span className={classes.spanNone}>None</span>,
-      el.location.name || <span className={classes.spanNone}>None</span>
+      el.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
+      el.location?.name || <span className={classes.spanNone}>None</span>
     )
   )
 

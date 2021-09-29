@@ -1,10 +1,10 @@
 import { Vector2 } from 'three'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchFromClient } from '../../networking/functions/dispatch'
-import { getLocalNetworkId } from '../../networking/functions/getLocalNetworkId'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -139,7 +139,7 @@ export class AnimationGraph {
   render = (entity: Entity, delta: number): void => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const avatar = getComponent(entity, AvatarComponent)
-    let params: WeightsParameterType = {}
+    let params: WeightsParameterType = {} as any
 
     // Calculate movement fo the avatar for this frame
     const velocity = getComponent(entity, VelocityComponent)
@@ -157,8 +157,8 @@ export class AnimationGraph {
     if (!avatar.isGrounded) {
       if (avatarAnimationComponent.currentState.name !== AvatarStates.JUMP) {
         avatarAnimationComponent.animationGraph.transitionState(entity, AvatarStates.JUMP, {
-          forceTransition: true,
-          ...params
+          ...params,
+          forceTransition: true
         })
       }
       // else, idle fall
@@ -183,7 +183,7 @@ export class AnimationGraph {
 
     if (avatarAnimationComponent.currentState.type === AnimationType.VELOCITY_BASED) {
       // update weights based on velocity of the character
-      avatarAnimationComponent.currentState.updateWeights()
+      avatarAnimationComponent.currentState.updateWeights?.()
     }
 
     // Set velocity as prev velocity
@@ -200,7 +200,7 @@ export class AnimationGraph {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     // Send change animation commnad over network for the local client entity
     if (isEntityLocalClient(entity) && avatarAnimationComponent.currentState.type === AnimationType.STATIC) {
-      dispatchFromClient(NetworkWorldAction.avatarAnimation(getLocalNetworkId(), newStateName, params))
+      dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
     }
   }
 
@@ -225,6 +225,6 @@ export class AnimationGraph {
     }
 
     // Update weights of the state
-    avatarAnimationComponent.currentState.updateWeights()
+    avatarAnimationComponent.currentState.updateWeights?.()
   }
 }

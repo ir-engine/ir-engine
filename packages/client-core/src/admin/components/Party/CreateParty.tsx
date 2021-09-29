@@ -65,7 +65,7 @@ const CreateParty = (props: PartyProps) => {
     if (user.id.value && adminInstances.get('updateNeeded')) {
       fetchAdminInstances()
     }
-  }, [authState, adminLocationState, adminInstanceState])
+  }, [authState.user?.id?.value, adminLocationState, adminInstanceState])
 
   const defaultProps = {
     options: locationData,

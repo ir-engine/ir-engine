@@ -18,10 +18,10 @@ export class LocalStorage implements StorageProviderInterface {
     return { Body: result }
   }
 
-  listObjects = async (prefix: string): Promise<any> => {
+  listObjects = async (prefix: string, pattern?: string): Promise<any> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, prefix)
     if (!fs.existsSync(filePath)) await fs.promises.mkdir(filePath, { recursive: true })
-    const globResult = glob.sync(path.join(filePath, '**/*.json'))
+    const globResult = glob.sync(path.join(filePath, pattern || '**/*.*'))
     return {
       Contents: globResult.map((result) => {
         return { Key: result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '') }
