@@ -8,7 +8,6 @@ import Paper from '@material-ui/core/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { useAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/AnalyticsState'
 import { AnalyticsService } from '../../reducers/admin/analytics/AnalyticsService'
@@ -27,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
       textAlign: 'center',
       color: theme.palette.text.secondary,
-      height: '40vh',
+      height: '50vh',
       width: '99.9%'
     },
     mtopp: {
@@ -73,46 +72,38 @@ const Analytics = (props: Props) => {
 
   const activityGraphData = [
     {
-      id: 'Active Parties',
-      color: 'hsl(77, 70%, 20%)',
-      data: activeParties
+      name: 'Active Parties',
+      data: dailyUsers
     },
     {
-      id: 'Active Locations',
-      color: 'hsl(128, 20%, 80%)',
-      data: activeLocations
+      name: 'Active Locations',
+      data: dailyNewUsers
     },
     {
-      id: 'Active Instances',
-      color: 'hsl(50, 20%, 80%)',
-      data: activeInstances
+      name: 'Active Instances',
+      data: dailyUsers.slice(0, 10)
     },
     {
-      id: 'Active Scenes',
-      color: 'hsl(0, 20%, 80%)',
-      data: activeScenes
+      name: 'Active Scenes',
+      data: dailyNewUsers.slice(0, 10)
     },
     {
-      id: 'Instance Users',
-      color: 'hsl(212, 20%, 80%)',
-      data: instanceUsers
+      name: 'Instance Users',
+      data: dailyUsers.slice(10, 20)
     },
     {
-      id: 'Channel Users',
-      color: 'hsl(250, 20%, 80%)',
-      data: channelUsers
+      name: 'Channel Users',
+      data: dailyNewUsers.slice(10, 20)
     }
   ]
 
   const userGraphData = [
     {
-      id: 'Daily Users',
-      color: 'hsl(77, 70%, 20%)',
+      name: 'Daily Users',
       data: dailyUsers
     },
     {
-      id: 'Daily New Users',
-      color: 'hsl(250, 10%, 20%)',
+      name: 'Daily New Users',
       data: dailyNewUsers
     }
   ]
@@ -160,16 +151,15 @@ const Analytics = (props: Props) => {
       label: 'Active Instances'
     },
     {
-      number: dailyUsers[dailyUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: dailyUsers[dailyUsers.length - 1]?.y ?? 0,
       label: 'Users Today'
     },
     {
-      number: dailyNewUsers[dailyNewUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: dailyNewUsers[dailyNewUsers.length - 1]?.y ?? 0,
       label: 'New Users Today'
     }
   ]
   const graphData = graphSelector === 'activity' ? activityGraphData : userGraphData
-
   return (
     <div>
       <Grid container spacing={3}>

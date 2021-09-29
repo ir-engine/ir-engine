@@ -1,69 +1,81 @@
 import React from 'react'
-import { ResponsiveLine } from '@nivo/line'
+import ReactApexChart from 'react-apexcharts'
+
 const ActivityGraph = ({ data /* see data tab */ }) => {
-  return (
-    <ResponsiveLine
-      data={data}
-      margin={{ top: 50, right: 110, bottom: 100, left: 60 }}
-      xScale={{ type: 'time', reverse: true } as any}
-      yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
-      yFormat=" >-.2f"
-      axisTop={null}
-      axisRight={null}
-      axisBottom={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: 'Datetime',
-        legendOffset: 36,
-        legendPosition: 'middle',
-        format: '%Y-%m-%d, %I:%M:%S'
-      }}
-      axisLeft={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        tickValues: data
-          .find((series) => series.id === 'Active Locations')
-          .data?.map((item) => item.y)
-          .filter((value, index, self) => self.indexOf(value) === index),
-        legend: 'count',
-        legendOffset: -40,
-        legendPosition: 'middle'
-      }}
-      pointSize={10}
-      pointColor={{ theme: 'background' }}
-      pointBorderWidth={2}
-      pointBorderColor={{ from: 'serieColor' }}
-      pointLabelYOffset={-12}
-      useMesh={true}
-      legends={[
-        {
-          anchor: 'bottom-right',
-          direction: 'column',
-          justify: false,
-          translateX: 100,
-          translateY: 0,
-          itemsSpacing: 0,
-          itemDirection: 'left-to-right',
-          itemWidth: 80,
-          itemHeight: 20,
-          itemOpacity: 0.75,
-          symbolSize: 12,
-          symbolShape: 'circle',
-          symbolBorderColor: 'rgba(0, 0, 0, .5)',
-          effects: [
-            {
-              on: 'hover',
-              style: {
-                itemBackground: 'rgba(0, 0, 0, .03)',
-                itemOpacity: 1
-              }
-            }
-          ]
+  const [state, setState] = React.useState({
+    series: data,
+    options: {
+      chart: {
+        id: 'area-datetime',
+        type: 'area',
+        height: 350,
+        zoom: {
+          autoScaleYaxis: true
+        },
+        toolbar: {
+          tools: {
+            zoomin: false,
+            zoomout: false,
+            zoom: false,
+            pan: false,
+            show: false,
+            reset: false
+          }
         }
-      ]}
-    />
+      },
+      dataLabels: {
+        enabled: false
+      },
+      markers: {
+        size: 0,
+        style: 'hollow'
+      },
+      xaxis: {
+        type: 'datetime',
+        min: data[0].data[0] ? data[0].data[0][0] : new Date().setMonth(new Date().getMonth() - 1),
+        max: new Date().getTime(),
+        tickAmount: 6
+      },
+      yaxis: {
+        title: {
+          text: 'Activities',
+          style: {
+            fontSize: '18px',
+            fontWeight: '400'
+          }
+        },
+        min: 0,
+        max: 10
+      },
+      tooltip: {
+        x: {
+          format: 'dd MMM yyy'
+        }
+      },
+      fill: {
+        colors: ['#F44336']
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false
+        }
+      },
+      title: {
+        text: '',
+        align: 'center',
+        margin: 20,
+        offsetY: 20,
+        style: {
+          fontSize: '25px'
+        }
+      },
+      colors: ['#42570f', '#c2d6c5', '#d6d3c2', '#d6c2c2', '#c2cbd6', '	#c5c2d6']
+    }
+  })
+  return (
+    <div id="chart-timeline">
+      <ReactApexChart options={state.options} series={state.series} type="line" height={380} width="100%" />
+    </div>
   )
 }
 
