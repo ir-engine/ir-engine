@@ -39,6 +39,9 @@ export default defineConfig((command) => {
   };
 
   const returned = {
+    optimizeDeps: {
+      exclude: ['@xrengine/realitypacks']
+    },
     plugins: [],
     server: {
       host: true,
@@ -51,32 +54,37 @@ export default defineConfig((command) => {
         "ts-matches":"@xrengine/common/src/libs/ts-matches/matches.ts"
       }
     },
-    // build: {
-    //   target: 'esnext',
-    //   sourcemap: 'inline',
-    //   minify: 'esbuild',
-    //   dynamicImportVarsOptions: {
-    //     warnOnError: true,
-    //   },
-    //   rollupOptions: {
-    //     output: {
-    //       dir: 'dist',
-    //       format: 'es',
-    //       // we may need this at some point for dynamically loading static asset files from src, keep it here
-    //       // entryFileNames: `assets/[name].js`,
-    //       // chunkFileNames: `assets/[name].js`,
-    //       // assetFileNames: `assets/[name].[ext]`
-    //     },
-    //   },
-    // },
+    build: {
+      target: 'esnext',
+      sourcemap: 'inline',
+      minify: 'esbuild',
+      dynamicImportVarsOptions: {
+        warnOnError: true,
+      },
+      rollupOptions: {
+        output: {
+          dir: 'dist',
+          format: 'es',
+          // we may need this at some point for dynamically loading static asset files from src, keep it here
+          // entryFileNames: `assets/[name].js`,
+          // chunkFileNames: `assets/[name].js`,
+          // assetFileNames: `assets/[name].[ext]`
+        },
+      },
+    },
   };
   if(process.env.NODE_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.server.https = {
       key: fs.readFileSync('../../certs/key.pem'),
       cert: fs.readFileSync('../../certs/cert.pem')
     }
-  } else {
-    returned.server.hmr = false
+  }
+  if (command.command === 'build' && process.env.VITE_LOCAL_BUILD !== 'true') {
+   returned.build.rollupOptions.plugins = [
+       inject({
+         process: 'process'
+       })
+   ]
   }
   if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') { 
     returned.define = {
