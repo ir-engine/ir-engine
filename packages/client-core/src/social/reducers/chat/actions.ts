@@ -26,6 +26,7 @@ import {
   hasSubscribedToChatSystem,
   removeMessageSystem
 } from '@xrengine/engine/src/networking/utils/chatSystem'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export interface LoadedChannelsAction {
   type: string
@@ -127,7 +128,7 @@ export function loadedChannels(channelResult: ChannelResult): ChatAction {
 export function createdMessage(message: Message, selfUser: User): ChatAction {
   if (message != undefined && message.text != undefined) {
     if (isPlayerLocal(message.senderId)) {
-      if (handleCommand(message.text, Network.instance.localClientEntity, message.senderId)) return
+      if (handleCommand(message.text, useWorld().localClientEntity, message.senderId)) return
       else {
         const system = getChatMessageSystem(message.text)
         if (system !== 'none') {

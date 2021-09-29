@@ -4,7 +4,7 @@ export const loadPhysX = async () => {
   const { default: PHYSX } = (await (isClient
     ? import('./physx.release.esm.js')
     : import('./physx.release.cjs.js'))) as any
-  let pathLib = isClient ? undefined : await import('path')
+  let pathLib = isClient ? undefined : ((await import('path')) as any)
   globalThis.PhysX = await PHYSX({
     locateFile(path) {
       if (path.endsWith('.wasm')) {

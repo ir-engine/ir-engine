@@ -71,6 +71,7 @@
     "three": "^0.132.0",
     "three-mesh-bvh": "^0.4.3",
     "troika-three-text": "^0.43.0",
+    "ts-matches": "^5.0.0",
     "twitch-m3u8": "^1.1.4",
     "vite": "2.5.10",
     "volumetric": "0.2.28",

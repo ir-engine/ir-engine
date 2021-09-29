@@ -16,7 +16,7 @@ import {
 } from '@material-ui/icons'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
@@ -438,10 +438,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             videoStreamPaused == true ||
             videoProducerPaused == true ||
             videoProducerGlobalMute == true) && (
-            <img
-              src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id : user?.id)}
-              draggable={false}
-            />
+            <img src={getAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
           )}
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>

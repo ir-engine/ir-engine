@@ -11,7 +11,7 @@ export const putIntoPhysXHeap = (heap, array: ArrayLike<number>) => {
 }
 
 export const getFromPhysXHeap = (heap, address, count) => {
-  const result = []
+  const result: number[] = []
   let offset = 0
   for (let i = 0; i < count; i++) {
     result.push(heap[(address + offset) >> 2])
@@ -25,7 +25,7 @@ export const vectorToArray = (vector: PhysX.VectorBase<any>) => {
   //   return vector.get(i)
   // })
 
-  const arr = []
+  const arr: number[] = []
   for (let i = 0; i < vector.size(); i++) {
     arr.push(vector.get(i))
   }

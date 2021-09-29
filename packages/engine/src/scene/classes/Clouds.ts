@@ -123,8 +123,8 @@ export class Clouds extends Mesh {
     geometry.attributes = planeGeometry.attributes
 
     const particleItemSize = 4
-    const particleArray = []
-    const zRotationArray = []
+    const particleArray: number[] = []
+    const zRotationArray: number[] = []
 
     for (let x = 0; x < this.dimensions.x; x++) {
       for (let y = 0; y < this.dimensions.y; y++) {

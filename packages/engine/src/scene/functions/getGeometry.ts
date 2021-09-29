@@ -1,4 +1,4 @@
-import { BufferGeometry, Vector3, Quaternion, Matrix4 } from 'three'
+import { BufferGeometry, Vector3, Quaternion, Matrix4, Mesh } from 'three'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 
 /**
@@ -42,7 +42,7 @@ export function getGeometry(object) {
 }
 
 function getMeshes(object) {
-  const meshes = []
+  const meshes: Mesh[] = []
   object.traverse((o) => {
     if (o.type === 'Mesh' || o.type === 'SkinnedMesh') {
       meshes.push(o)

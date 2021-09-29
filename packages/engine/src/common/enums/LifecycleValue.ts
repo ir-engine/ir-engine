@@ -1,7 +1,7 @@
 export const LifecycleValue = {
-  STARTED: 'Started' as const,
-  CONTINUED: 'Continued' as const,
-  ENDED: 'Ended' as const,
-  CHANGED: 'Changed' as const,
-  UNCHANGED: 'Unchanged' as const
+  Started: 'Started' as const,
+  Continued: 'Continued' as const,
+  Ended: 'Ended' as const,
+  Changed: 'Changed' as const,
+  Unchanged: 'Unchanged' as const
 }

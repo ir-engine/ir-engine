@@ -1,3 +1,4 @@
+//@ts-nocheck
 import * as THREE from 'three'
 import { IFeatureStyles, IFeatureStylesByLayerName, DEFAULT_FEATURE_STYLES } from './styles'
 import { vectors } from './vectors'

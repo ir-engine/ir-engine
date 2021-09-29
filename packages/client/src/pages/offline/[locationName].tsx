@@ -9,6 +9,7 @@ import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/
 import Layout from '../../components/Layout/Layout'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import World, { EngineCallbacks } from '../../components/World'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -22,16 +23,16 @@ const engineInitializeOptions: InitializeOptions = {
   },
   systems: [
     {
-      injectionPoint: 'FIXED',
-      system: import('@xrengine/client-core/src/systems/AvatarUISystem')
+      type: SystemUpdateType.FIXED,
+      systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
     },
     {
-      injectionPoint: 'FIXED',
-      system: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
+      type: SystemUpdateType.FIXED,
+      systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
     },
     {
-      injectionPoint: 'FIXED',
-      system: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
+      type: SystemUpdateType.FIXED,
+      systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
     }
   ]
 }

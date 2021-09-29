@@ -99,7 +99,7 @@ export function getCenterTile(llCenter: Position) {
  * @returns promise resolving to array containing one array of features per tile
  */
 export function fetchVectorTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
-  const promises = []
+  const promises: Promise<TileFeaturesByLayer>[] = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchTileFeatures(tileX, tileY)))
   return Promise.all(promises)
 }
@@ -108,7 +108,7 @@ export function fetchVectorTiles(llCenter: Position): Promise<TileFeaturesByLaye
  * @returns promise resolving to array of raster tiles
  */
 export function fetchRasterTiles(llCenter: Position): Promise<ImageBitmap[]> {
-  const promises = []
+  const promises: Promise<ImageBitmap>[] = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchRasterTile(tileX, tileY)))
   return Promise.all(promises)
 }

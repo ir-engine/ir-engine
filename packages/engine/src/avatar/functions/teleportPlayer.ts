@@ -15,12 +15,8 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
 
   const pos = new Vector3(position.x, position.y, position.z)
   pos.y += actor.avatarHalfHeight
-  controller.controller.updateTransform({
-    translation: pos,
-    rotation
-  })
+  controller.controller.setPosition(pos)
 
   const euler = new Euler().setFromQuaternion(rotation)
   // rotateViewVectorXZ(actor.viewVector, euler.y)
-  controller.controller.velocity.setScalar(0)
 }

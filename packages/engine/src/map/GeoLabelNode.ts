@@ -40,7 +40,7 @@ export class GeoLabelNode {
     this.geoFeature = feature
     this.transformGeoPosition = transformGeoPosition
 
-    this.object3d = createTextObject(feature.properties.name)
+    this.object3d = createTextObject(feature.properties?.name)
 
     // Update the rendering:
     this.object3d.sync()

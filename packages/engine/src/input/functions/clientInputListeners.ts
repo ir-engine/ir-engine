@@ -22,8 +22,8 @@ const supportsPassive = (function () {
         supportsPassiveValue = true
       }
     })
-    window.addEventListener('testPassive', null, opts)
-    window.removeEventListener('testPassive', null, opts)
+    window.addEventListener('testPassive', null!, opts)
+    window.removeEventListener('testPassive', null!, opts)
   } catch (error) {}
   return supportsPassiveValue
 })()

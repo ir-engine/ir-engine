@@ -17,6 +17,7 @@ export class NavMeshBuilder {
           new Array<YUKA.Polygon>()
         )
     }
+    return null!
   }
 
   /**

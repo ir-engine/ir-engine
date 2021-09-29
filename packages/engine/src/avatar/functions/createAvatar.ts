@@ -1,5 +1,5 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -16,49 +16,43 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { Network } from '../../networking/classes/Network'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { isClient } from '../../common/functions/isClient'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
-import { World } from '../../ecs/classes/World'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { Engine } from '../../ecs/classes/Engine'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
+import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
 const capsuleHeight = avatarHeight - avatarRadius * 2
 const avatarHalfHeight = avatarHeight / 2
 
-/**
- *
- * @param {Entity} entity
- * @param {string} uniqueId
- * @param {networkId} networkId
- * @param isRemotePlayer
- */
-export const createAvatar = (
-  world: World,
-  entity: Entity,
-  spawnTransform: { position: Vector3; rotation: Quaternion },
-  isRemotePlayer = true
-): void => {
+export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
+  const world = useWorld()
+  const userId = spawnAction.userId
+  const entity = world.getNetworkObject(spawnAction.networkId)
+
   if (isClient) {
     if (!hasComponent(entity, AfkCheckComponent))
       addComponent(entity, AfkCheckComponent, {
         isAfk: false,
         prevPosition: new Vector3(0, 0, 0),
         cStep: 0,
+        cStep2: 0,
         timer: 0
       })
   }
   const transform = addComponent(entity, TransformComponent, {
-    position: new Vector3().copy(spawnTransform.position),
-    rotation: new Quaternion().copy(spawnTransform.rotation),
+    position: new Vector3().copy(spawnAction.parameters.position),
+    rotation: new Quaternion().copy(spawnAction.parameters.rotation),
     scale: new Vector3(1, 1, 1)
   })
 
@@ -77,7 +71,7 @@ export const createAvatar = (
   tiltContainer.add(modelContainer)
 
   addComponent(entity, AvatarComponent, {
-    ...(Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.avatarDetail || {
+    ...(world.clients.get(userId)?.avatarDetail || {
       avatarId: DEFAULT_AVATAR_ID
     }),
     avatarHalfHeight,
@@ -87,19 +81,18 @@ export const createAvatar = (
   })
 
   addComponent(entity, NameComponent, {
-    name: Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId
+    name: userId as string
   })
-  console.log('uniqueID: ' + getComponent(entity, NetworkObjectComponent).uniqueId)
-  console.log('userID: ' + Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.userId)
+  console.log('userID: ' + userId)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
-    animations: [],
+    animations: [] as AnimationClip[],
     animationSpeed: 1
   })
 
   addComponent(entity, AvatarAnimationComponent, {
-    animationGraph: new AnimationGraph(),
+    animationGraph: new AvatarAnimationGraph(),
     currentState: new AnimationState(),
     prevState: new AnimationState(),
     prevVelocity: new Vector3()
@@ -124,7 +117,7 @@ export const createAvatar = (
 
   addComponent(entity, CollisionComponent, { collisions: [] })
 
-  if (isRemotePlayer) {
+  if (userId !== Engine.userId) {
     const shape = world.physics.createShape(
       new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
       world.physics.physics.createMaterial(0, 0, 0),
@@ -151,11 +144,13 @@ export const createAvatar = (
     addComponent(entity, ColliderComponent, { body })
   } else {
     addComponent(entity, SpawnPoseComponent, {
-      position: new Vector3().copy(spawnTransform.position),
-      rotation: new Quaternion().copy(spawnTransform.rotation)
+      position: new Vector3().copy(spawnAction.parameters.position),
+      rotation: new Quaternion().copy(spawnAction.parameters.rotation)
     })
     createAvatarController(entity)
   }
+
+  return entity
 }
 
 export const createAvatarController = (entity: Entity) => {
@@ -183,7 +178,7 @@ export const createAvatarController = (entity: Entity) => {
     userData: {
       entity
     }
-  })
+  }) as PhysX.PxCapsuleController
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   frustumCamera.position.setY(avatarHalfHeight)
@@ -191,7 +186,7 @@ export const createAvatarController = (entity: Entity) => {
 
   value.add(frustumCamera)
   addComponent(entity, InteractorComponent, {
-    focusedInteractive: null,
+    focusedInteractive: null!,
     frustumCamera,
     subFocusedArray: []
   })

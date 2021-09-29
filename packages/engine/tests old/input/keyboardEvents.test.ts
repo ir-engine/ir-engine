@@ -73,7 +73,7 @@ describe.skip('full lifecycle', () => {
     expect(input.data.has(BaseInput.FORWARD)).toBeTruthy();
     const data1 = input.data.get(BaseInput.FORWARD);
     expect(data1.value).toBe(BinaryValue.ON);
-    expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Started);
   });
 
   it("on next execution switches CONTINUED", () => {
@@ -82,7 +82,7 @@ describe.skip('full lifecycle', () => {
     execute(); // continued
 
     const data1 = input.data.get(BaseInput.FORWARD);
-    expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Continued);
   });
 
   it("subsequent keydown triggers CONTINUED", () => {
@@ -92,7 +92,7 @@ describe.skip('full lifecycle', () => {
     execute();
 
     const data1 = input.data.get(BaseInput.FORWARD);
-    expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Continued);
   });
 
   it ("sets associated input to OFF, ENDED", () => {
@@ -104,7 +104,7 @@ describe.skip('full lifecycle', () => {
     expect(input.data.has(BaseInput.FORWARD)).toBeFalsy();
     // const data2 = input.data.get(BaseInput.FORWARD);
     // expect(data2.value).toBe(BinaryValue.OFF);
-    // expect(data2.lifecycleState).toBe(LifecycleValue.ENDED);
+    // expect(data2.lifecycleState).toBe(LifecycleValue.Ended);
   });
 
   // it("on next execution it's deleted", () => {

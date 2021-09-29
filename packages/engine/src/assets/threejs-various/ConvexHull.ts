@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Line3, Plane, Triangle, Vector3 } from 'three'
 
 /**

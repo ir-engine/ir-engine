@@ -158,7 +158,7 @@ export class EngineRenderer {
       })
     }
 
-    this.renderContext = context
+    this.renderContext = context!
     const options: any = {
       canvas,
       context,
@@ -214,7 +214,7 @@ export class EngineRenderer {
     console.log('resetPostProcessing')
     Engine.effectComposer.dispose()
     Engine.effectComposer = new EffectComposer(Engine.renderer)
-    this.postProcessingSchema = undefined
+    this.postProcessingSchema = undefined!
     console.log('resetPostProcessing done')
   }
 

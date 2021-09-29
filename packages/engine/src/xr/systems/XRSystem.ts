@@ -70,22 +70,22 @@ export default async function XRSystem(world: World): Promise<System> {
               value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
               lifecycleState: button.pressed
                 ? continued
-                  ? LifecycleValue.CONTINUED
-                  : LifecycleValue.STARTED
-                : LifecycleValue.ENDED
+                  ? LifecycleValue.Continued
+                  : LifecycleValue.Started
+                : LifecycleValue.Ended
             })
           })
           if (source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[2], source.gamepad.axes[3]],
-              lifecycleState: LifecycleValue.STARTED
+              lifecycleState: LifecycleValue.Started
             })
           } else {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[0], source.gamepad.axes[1]],
-              lifecycleState: LifecycleValue.STARTED
+              lifecycleState: LifecycleValue.Started
             })
           }
         }

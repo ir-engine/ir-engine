@@ -1,11 +1,11 @@
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { importPack } from '@xrengine/realitypacks/loader'
-import { InjectionPoint } from '../../ecs/functions/SystemFunctions'
 import { WorldScene } from './SceneLoading'
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 
 type RealityPackNodeArguments = {
   packName: string
-  injectionPoint: keyof typeof InjectionPoint
+  injectionPoint: SystemUpdateType
   args: any
 }
 
@@ -28,9 +28,16 @@ export const loadRealityPack = async (data: RealityPackNodeArguments) => {
     const moduleEntryPoints = await importPack(data.packName)
 
     for (const entryPoint of moduleEntryPoints) {
-      const loadedSystem = await (await entryPoint).default(useWorld(), data.args)
+      const factory = (await entryPoint).default
+      const loadedSystem = await factory(useWorld(), data.args)
       const pipeline = data.injectionPoint ?? 'FIXED'
-      useWorld().injectedSystems[pipeline].push(loadedSystem)
+      useWorld().injectedSystems[pipeline].push({
+        name: factory.name,
+        execute: () => {
+          loadedSystem()
+        },
+        type: pipeline
+      })
     }
   } catch (e) {
     console.log(`[RealityPackLoader]: Failed to load reality pack with error ${e}`)

@@ -1,11 +1,11 @@
 import * as bitECS from 'bitecs'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { Entity } from '../classes/Entity'
 import { getComponent, hasComponent, removeAllComponents } from './ComponentFunctions'
 import { useWorld } from './SystemHooks'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 export const createEntity = (world = useWorld()): Entity => {
-  const entity = bitECS.addEntity(world)
+  const entity = bitECS.addEntity(world) as Entity
   world.entities.push(entity)
   return entity
 }

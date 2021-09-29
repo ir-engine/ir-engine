@@ -2,30 +2,24 @@
  * @author Mohsen Heydari <github.com/mohsenheydari>
  */
 
-import { Group, MathUtils, Quaternion, Vector3, Mesh } from 'three'
+import { Group, Quaternion, Vector3, Mesh } from 'three'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { VelocityComponent } from '@xrengine/engine/src/physics/components/VelocityComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
-import { dispatchFromServer } from '@xrengine/engine/src/networking/functions/dispatch'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { BodyType } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { CollisionComponent } from '@xrengine/engine/src/physics/components/CollisionComponent'
-import { StarterGameCollisionGroups, StarterGamePrefabTypes } from '../StarterGameConstants'
+import { StarterGameCollisionGroups } from '../StarterGameConstants'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { CubeComponent } from '../components/CubeComponent'
-
-type CubeSpawnParameters = {
-  spawnPosition: Vector3
-}
+import { StarterAction } from '../StarterGameActions'
 
 interface CubeGroupType extends Group {
   userData: {
@@ -35,18 +29,6 @@ interface CubeGroupType extends Group {
 
 let cubeCounter = 0
 const defaultCubeScale = 1.0
-
-export const spawnCube = (position: Vector3): void => {
-  const networkId = Network.getNetworkId()
-  const uuid = MathUtils.generateUUID()
-
-  const parameters: CubeSpawnParameters = {
-    spawnPosition: new Vector3().copy(position)
-  }
-
-  // This spawns the cube on the server
-  dispatchFromServer(NetworkWorldAction.createObject(networkId, uuid, StarterGamePrefabTypes.Cube, parameters))
-}
 
 function assetLoadCallback(group: Group, cubeEntity: Entity) {
   const nameComponent = getComponent(cubeEntity, NameComponent)
@@ -67,8 +49,10 @@ export const updateCube = (entity: Entity): void => {
   // Add custom update logic to the cube entity
 }
 
-export const initializeCube = (cubeEntity: Entity, parameters: CubeSpawnParameters) => {
-  const { spawnPosition } = parameters
+export const initializeCube = (spawnAction: typeof StarterAction.spawnCube.matches._TYPE) => {
+  const world = useWorld()
+  const cubeEntity = world.getNetworkObject(spawnAction.networkId)
+  const spawnPosition = spawnAction.parameters.position
 
   const transform = addComponent(cubeEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z),
@@ -84,8 +68,6 @@ export const initializeCube = (cubeEntity: Entity, parameters: CubeSpawnParamete
     const gltf = AssetLoader.getFromCache(Engine.publicPath + '/models/debug/cube.glb')
     assetLoadCallback(gltf.scene, cubeEntity)
   }
-
-  const world = useWorld()
 
   const shape = world.physics.createShape(
     new PhysX.PxBoxGeometry(defaultCubeScale, defaultCubeScale, defaultCubeScale),
