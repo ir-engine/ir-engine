@@ -23,6 +23,9 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/interfaces/NetworkWorldActions'
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { Vector3, Quaternion } from 'three'
+import { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
+import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
+import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -53,7 +56,7 @@ export type EngineCallbacks = {
   onSuccess?: Function
 }
 
-export const getSceneData = async (sceneId: string, isOffline: boolean) => {
+export const getSceneData = async (sceneId: string, isOffline: boolean): Promise<SceneData> => {
   if (isOffline) {
     return testScenes[sceneId] || testScenes.test
   }
@@ -70,7 +73,7 @@ export const getSceneData = async (sceneId: string, isOffline: boolean) => {
     serviceId = regexResult[2]
   }
 
-  return client.service(service).get(serviceId)
+  return client.service(service).get(serviceId) as SceneData
 }
 
 const createOfflineUser = () => {
@@ -110,7 +113,22 @@ export const initEngine = async (
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
   })
 
-  // 1. Initialize Engine if not initialized
+  // 1.
+
+  const isOffline = typeof initOptions.networking.schema.transport === 'undefined'
+  const sceneData = await getSceneData(sceneId, isOffline)
+  console.log(sceneData)
+
+  const packs = await getPacksFromSceneData(sceneData, true)
+  console.log(packs)
+
+  for (const system of packs.systems) {
+    initOptions.systems.push(system)
+  }
+
+  const realityPackReactComponentPromises = Promise.all(packs.react)
+
+  // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
     await initializeEngine(initOptions)
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
@@ -120,10 +138,7 @@ export const initEngine = async (
     }
   }
 
-  const isOffline = Engine.offlineMode
-  let sceneData = await getSceneData(sceneId, isOffline)
-
-  // 2. Connect to server
+  // 3. Connect to server
   if (!isOffline) {
     await Store.store.dispatch(connectToInstanceServer('instance'))
     await new Promise<void>((resolve) => {
@@ -135,7 +150,7 @@ export const initEngine = async (
     engineCallbacks.onConnectedToServer()
   }
 
-  // 3. Start scene loading
+  // 4. Start scene loading
   Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
   await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
@@ -144,7 +159,7 @@ export const initEngine = async (
   Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Store.store.dispatch(AppAction.setAppLoaded(true))
 
-  // 4. Join to new world
+  // 5. Join to new world
   if (!isOffline) {
     // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     let spawnTransform
@@ -166,7 +181,7 @@ export const initEngine = async (
     createOfflineUser()
   }
 
-  await userLoaded
+  const [realityPackReactComponents] = await Promise.all([realityPackReactComponentPromises, userLoaded])
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
@@ -174,12 +189,14 @@ export const initEngine = async (
     engineCallbacks.onJoinedToNewWorld()
   }
 
-  // 5. Dispatch success
+  // 6. Dispatch success
   Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
 
   if (typeof engineCallbacks?.onSuccess === 'function') {
     engineCallbacks.onSuccess()
   }
+
+  return realityPackReactComponents
 }
 
 export const teleportToLocation = async (

@@ -1,10 +1,54 @@
 import type { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
-import type { SystemModulePromise } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import type { InjectionPoint, SystemInjectionType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import type { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
 
-export const importPack = async (packName): Promise<SystemModulePromise<any>[]> => {
+interface RealityPackNodeArguments {
+  packName: string
+  injectionPoint: keyof typeof InjectionPoint
+  args: any
+}
+
+type RealityPackReactComponent = Promise<{ default: (...args: any) => JSX.Element }>
+
+interface RealityPackModules {
+  systems: SystemInjectionType<any>[]
+  react: RealityPackReactComponent[]
+}
+
+export const getPacksFromSceneData = async (sceneData: SceneData, isClient: boolean): Promise<RealityPackModules> => {
+  const modules = {
+    systems: [],
+    react: []
+  }
+  for (const entity of Object.values(sceneData.entities)) {
+    for (const component of entity.components) {
+      if (component.type === 'realitypack') {
+        const data: RealityPackNodeArguments = component.data
+        const realityPackModules = await importPack(data.packName, isClient)
+        modules.systems.push(
+          ...realityPackModules.systems.map((s) => {
+            return {
+              system: s,
+              args: data.args,
+              injectionPoint: data.injectionPoint as keyof typeof InjectionPoint
+            } as SystemInjectionType<any>
+          })
+        )
+        modules.react.push(...realityPackModules.react)
+      }
+    }
+  }
+  return modules
+}
+
+export const importPack = async (packName: string, isClient: boolean) => {
+  const modules = {
+    systems: [],
+    react: []
+  }
+
   try {
     const realityPackManifest = (await import(`./packs/${packName}/manifest.json`)) as RealityPackInterface
-    const modules: SystemModulePromise<any>[] = []
 
     for (const entryPoint of realityPackManifest.moduleEntryPoints) {
       const entryPointSplit = entryPoint.split('.')
@@ -15,16 +59,10 @@ export const importPack = async (packName): Promise<SystemModulePromise<any>[]> 
       try {
         switch (entryPointExtension) {
           case 'js':
-            modules.push(await import(`./packs/${packName}/${entryPointFileName}.js`))
-            break
-          case 'jsx':
-            modules.push(await import(`./packs/${packName}/${entryPointFileName}.jsx`))
+            modules.systems.push(await import(`./packs/${packName}/${entryPointFileName}.js`))
             break
           case 'ts':
-            modules.push(await import(`./packs/${packName}/${entryPointFileName}.ts`))
-            break
-          case 'tsx':
-            modules.push(await import(`./packs/${packName}/${entryPointFileName}.tsx`))
+            modules.systems.push(await import(`./packs/${packName}/${entryPointFileName}.ts`))
             break
           default:
             console.error(
@@ -36,10 +74,34 @@ export const importPack = async (packName): Promise<SystemModulePromise<any>[]> 
         console.log('[RealityPackLoader]: Failed to load reality pack entry point:', entryPoint, e)
       }
     }
-    return modules
+
+    if (isClient) {
+      for (const entryPoint of realityPackManifest.clientReactEntryPoint) {
+        const entryPointSplit = entryPoint.split('.')
+        const entryPointExtension = entryPointSplit.pop()
+        const entryPointFileName = entryPointSplit.join('')
+        try {
+          switch (entryPointExtension) {
+            case 'jsx':
+              modules.react.push(await import(`./packs/${packName}/${entryPointFileName}.jsx`))
+              break
+            case 'tsx':
+              modules.react.push(await import(`./packs/${packName}/${entryPointFileName}.tsx`))
+              break
+            default:
+              console.error(
+                `[RealityPackLoader]: Failed to load reality pack. File type '${entryPointExtension} 'not supported.`
+              )
+              break
+          }
+        } catch (e) {
+          console.log('[RealityPackLoader]: Failed to load reality pack entry point:', entryPoint, e)
+        }
+      }
+    }
   } catch (e) {
     console.log(`[RealityPackLoader]: Failed to load reality pack manifest ${packName} with error ${e}`)
   }
 
-  return []
+  return modules
 }

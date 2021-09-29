@@ -69,7 +69,6 @@ interface Props {
   children?: any
   chatState?: any
   // todo: remove these props in favour of reality packs
-  customComponents?: any
   theme?: any
   hideVideo?: boolean
   hideFullscreen?: boolean
@@ -92,8 +91,8 @@ export const EnginePage = (props: Props) => {
   const authState = useAuthState()
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
   const [sceneId, setSceneId] = useState(null)
-
   const [loadingItemCount, setLoadingItemCount] = useState(99)
+  const [customComponents, setCustomComponents] = useState([])
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -141,7 +140,16 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
-    initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
+    initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks).then((componentFunctions) => {
+      let key = 0
+      const props = {} // TODO
+      componentFunctions.forEach((componentFunction) => {
+        setCustomComponents([
+          ...customComponents,
+          React.cloneElement(componentFunction.default(props), { key: `reality-pack-component-${key++}` })
+        ])
+      })
+    })
     setIsTeleporting(false)
   }
 
@@ -192,7 +200,7 @@ export const EnginePage = (props: Props) => {
         isTeleporting={isTeleporting}
         locationName={props.locationName}
         // todo: remove these props in favour of reality packs
-        customComponents={props.customComponents}
+        customComponents={customComponents}
         theme={props.theme}
         hideVideo={props.hideVideo}
         hideFullscreen={props.hideFullscreen}
