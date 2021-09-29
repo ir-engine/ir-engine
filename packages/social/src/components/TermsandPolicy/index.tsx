@@ -93,9 +93,13 @@ export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
           <DialogContentText>
             <Typography align="center" variant="subtitle1">
               {'By tapping "I agree to Terms of Service and Policy of Service", you agree to our '}
-              <Link to="/terms">Terms of Service</Link>
+              <Link className={styles.styleLink} to="/terms">
+                Terms of Service
+              </Link>
               {' and acknowledge that you have our '}
-              <Link to="/policy">Privacy Policy</Link>
+              <Link className={styles.styleLink} to="/policy">
+                Privacy Policy
+              </Link>
               {' to learn how we collect, use, and share your data.'}
             </Typography>
           </DialogContentText>
@@ -104,7 +108,7 @@ export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
           <div>
             {/* Don't miss the exclamation mark* */}
             <Button variant="contained" onClick={handleAccept}>
-              I agree to Terms and Policy of Service
+              Agree and continue
             </Button>
           </div>
         </div>
