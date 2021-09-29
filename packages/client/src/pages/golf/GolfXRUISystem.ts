@@ -5,5 +5,10 @@ import { GolfCourseScoreUISystem } from './GolfCourseScoreUISystem'
 import { pipe } from 'bitecs'
 
 export default async function GolfXRUISystem(world: World) {
-  return pipe(await GolfPlayerUISystem(world), await GolfScorecardUISystem(world), await GolfCourseScoreUISystem(world))
+  // prettier-ignore
+  return pipe(
+    await GolfPlayerUISystem(world),
+    await GolfScorecardUISystem(world),
+    await GolfCourseScoreUISystem(world),
+  )
 }
