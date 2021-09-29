@@ -23,8 +23,9 @@ const strokeToParScore = {
 
 const GolfCourseScoreView = () => {
   const playerState = getGolfPlayerState()
-  const stroke = playerState ? playerState.stroke.value : 0
-  const parScore = strokeToParScore[stroke]
+  const scores = playerState ? playerState.scores.value : []
+  const currentCourseScore = scores[scores.length - 1] || 0
+  const parScore = strokeToParScore[currentCourseScore]
   return (
     <>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></link>

@@ -217,7 +217,8 @@ function golfReceptor(action) {
           stroke >= par + overParLimit
         ) {
           // finish their round
-          currentPlayerState.scores.set([...currentPlayerState.scores.value, stroke - par])
+          const total = stroke - par
+          currentPlayerState.scores.set([...currentPlayerState.scores.value, total])
           dispatchFrom(world.hostId, () => GolfAction.showCourseScore({ userId }))
         }
 
