@@ -15,7 +15,6 @@ import {
 } from './actions'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
-import { User } from '@xrengine/common/src/interfaces/User'
 import Store from '../../../store'
 import { AlertService } from '../../../common/reducers/alert/AlertService'
 
@@ -152,6 +151,22 @@ export function updateChatTarget(targetObjectType: string, targetObject: any) {
     dispatch(
       setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : '')
     )
+  }
+}
+
+export function clearChatTargetIfCurrent(targetObjectType: string, targetObject: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    const chatState = store.getState().get('chat')
+    const chatStateTargetObjectType = chatState.get('targetObjectType')
+    const chatStateTargetObjectId = chatState.get('targetObject').id
+    if (
+      targetObjectType === chatStateTargetObjectType &&
+      (targetObject.id === chatStateTargetObjectId ||
+        targetObject.relatedUserId === chatStateTargetObjectId ||
+        targetObject.userId === chatStateTargetObjectId)
+    ) {
+      dispatch(setChatTarget('', {}, ''))
+    }
   }
 }
 

@@ -18,7 +18,8 @@ import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../../common/reducers/alert/AlertService'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { accessAuthState } from '../../../user/reducers/auth/AuthState'
+import { clearChatTargetIfCurrent } from '../chat/service'
 
 const store = Store.store
 
@@ -40,7 +41,7 @@ let socketId: any
 export const getParties = async (): Promise<void> => {
   const parties = await client.service('party').find()
   console.log('PARTIES', parties)
-  const userId = useAuthState().user.id.value
+  const userId = accessAuthState().user.id.value
   console.log('USERID: ', userId)
   if ((client as any).io && socketId === undefined) {
     ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
@@ -137,7 +138,7 @@ export function transferPartyOwner(partyUserId: string) {
 
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('party-user').on('created', async (params) => {
-    const selfUser = useAuthState().user
+    const selfUser = accessAuthState().user
     if ((store.getState() as any).get('party').get('party') == null) {
       store.dispatch(createdParty(params))
     }
@@ -162,7 +163,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('party-user').on('patched', (params) => {
     const updatedPartyUser = params.partyUser
-    const selfUser = useAuthState().user
+    const selfUser = accessAuthState().user
     store.dispatch(patchedPartyUser(updatedPartyUser))
     if (
       updatedPartyUser.user.channelInstanceId != null &&
@@ -175,17 +176,11 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('party-user').on('removed', (params) => {
     const deletedPartyUser = params.partyUser
-    const selfUser = useAuthState().user
+    const selfUser = accessAuthState().user
     store.dispatch(removedPartyUser(deletedPartyUser))
-    if (
-      deletedPartyUser.user.channelInstanceId != null &&
-      deletedPartyUser.user.channelInstanceId === selfUser.channelInstanceId.value
-    )
-      store.dispatch(UserAction.addedChannelLayerUser(deletedPartyUser.user))
-    if (deletedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      store.dispatch(UserAction.removedChannelLayerUser(deletedPartyUser.user))
+    store.dispatch(UserAction.removedChannelLayerUser(deletedPartyUser.user))
     if (params.partyUser.userId === selfUser.id) {
-      console.log('Attempting to end video call')
+      store.dispatch(clearChatTargetIfCurrent('party', { id: params.partyUser.partyId }))
       // TODO: Reenable me!
       // endVideoChat({ leftParty: true });
     }
@@ -197,6 +192,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('party').on('patched', (params) => {
     store.dispatch(patchedParty(params.party))
+    store.dispatch(clearChatTargetIfCurrent('party', params.party))
   })
 
   client.service('party').on('removed', (params) => {

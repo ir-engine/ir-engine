@@ -8,10 +8,12 @@ import {
   socialLocationBanCreated,
   socialLocationNotFound
 } from './actions'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 export function getLocations(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
+      await waitForClientAuthenticated()
       const locationResults = await client.service('location').find({
         query: {
           $limit: limit != null ? limit : getState().get('locations').get('limit'),

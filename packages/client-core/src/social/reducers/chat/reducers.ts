@@ -28,7 +28,6 @@ import {
 } from '../actions'
 
 import { Message } from '@xrengine/common/src/interfaces/Message'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
 
 import _ from 'lodash'
 import moment from 'moment'
