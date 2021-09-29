@@ -27,6 +27,7 @@ import { setupPlayerInput } from './functions/setupPlayerInput'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
 import {
   getBall,
+  getCoursePar,
   getCurrentGolfPlayerEntity,
   getHole,
   getPlayerEntityFromNumber,
@@ -59,6 +60,7 @@ export const GolfState = createState({
     scores: Array<number | undefined>
     stroke: number
     viewingScorecard: boolean
+    viewingCourseScore: boolean
   }>,
   currentPlayerId: undefined! as UserId,
   currentHole: 0
@@ -107,7 +109,8 @@ function golfReceptor(action) {
               userId: userId,
               scores: [],
               stroke: 0,
-              viewingScorecard: false
+              viewingScorecard: false,
+              viewingCourseScore: false
             }
           ])
           console.log(`player ${userId} joined`)
@@ -198,17 +201,24 @@ function golfReceptor(action) {
         const currentPlayerState = s.players.find((c) => c.userId.value === currentPlayerId)!
         const currentPlayerIndex = s.players.indexOf(currentPlayerState)
         const currentHole = s.currentHole.value
-        const entityBall = getBall(userId)
 
-        // if hole in ball or player has had too many shots, finish their round
+        const stroke = currentPlayerState.stroke.value
+
+        const par = getCoursePar(currentHole)
+        const overParLimit = 3 // todo: expose as external config?
+
+        const entityBall = getBall(userId)
+        const { state } = getComponent(entityBall, GolfBallComponent)
+
         if (
-          getComponent(entityBall, GolfBallComponent).state === BALL_STATES.IN_HOLE ||
-          currentPlayerState.stroke.value > 8 /**s.holes.value[s.currentHole].par.value + 3*/
+          // if ball is in hole
+          state === BALL_STATES.IN_HOLE ||
+          // or player is over the par limit
+          stroke >= par + overParLimit
         ) {
-          currentPlayerState.scores.set([
-            ...currentPlayerState.scores.value,
-            currentPlayerState.stroke.value - s.holes[currentHole].par.value
-          ])
+          // finish their round
+          currentPlayerState.scores.set([...currentPlayerState.scores.value, stroke - par])
+          dispatchFrom(world.hostId, () => GolfAction.showCourseScore({ userId }))
         }
 
         setBallState(entityBall, BALL_STATES.INACTIVE)
@@ -299,6 +309,14 @@ function golfReceptor(action) {
       .when(GolfAction.lookAtScorecard.matchesFromAny, ({ userId, value }) => {
         const player = s.players.find((p) => p.userId.value === userId)
         if (player) player.viewingScorecard.set((v) => (typeof value === 'boolean' ? value : !v))
+      })
+
+      /**
+       * Show score for the course
+       */
+      .when(GolfAction.showCourseScore.matches, ({ userId }) => {
+        const player = s.players.find((p) => p.userId.value === userId)
+        if (player) player.viewingCourseScore.set((v) => (typeof action.value === 'boolean' ? action.value : !v))
       })
   })
 }

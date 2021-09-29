@@ -13,10 +13,6 @@ import { GolfState } from './GolfSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-export function createScorecardUI() {
-  return createXRUI(GolfScorecardView, GolfState)
-}
-
 function getUserById(id: UserId, userState: ReturnType<typeof useUserState>) {
   return userState.layerUsers.find((user) => user.id.value === id)
 }
@@ -194,14 +190,14 @@ const GolfScorecardView = () => {
   )
 }
 
-const mat4 = new Matrix4()
+export function createScorecardUI() {
+  return createXRUI(GolfScorecardView, GolfState)
+}
 
 export const GolfScorecardUISystem = async (world: World) => {
   const ui = createScorecardUI()
 
   return () => {
-    // return world
-
     const uiComponent = getComponent(ui.entity, XRUIComponent)
     if (!uiComponent) return world
 

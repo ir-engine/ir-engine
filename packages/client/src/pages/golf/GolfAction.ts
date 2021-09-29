@@ -71,5 +71,10 @@ export const GolfAction = {
       value: matches.some(matches.boolean, matches.literal('toggle'))
     },
     { allowDispatchFromAny: true }
-  )
+  ),
+
+  showCourseScore: defineActionCreator({
+    type: 'puttclub.SHOW_COURSE_SCORE',
+    userId: matchesUserId
+  })
 }
