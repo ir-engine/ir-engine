@@ -1,17 +1,18 @@
 import type { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
-import type { InjectionPoint, SystemInjectionType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemModulePromise, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import type { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
 
 interface RealityPackNodeArguments {
   packName: string
-  injectionPoint: keyof typeof InjectionPoint
+  injectionPoint: keyof typeof SystemUpdateType
   args: any
 }
 
 type RealityPackReactComponent = Promise<{ default: (...args: any) => JSX.Element }>
 
 interface RealityPackModules {
-  systems: SystemInjectionType<any>[]
+  systems: SystemModuleType<any>[]
   react: RealityPackReactComponent[]
 }
 
@@ -28,10 +29,10 @@ export const getPacksFromSceneData = async (sceneData: SceneData, isClient: bool
         modules.systems.push(
           ...realityPackModules.systems.map((s) => {
             return {
-              system: s,
+              systemModulePromise: s,
               args: data.args,
-              injectionPoint: data.injectionPoint as keyof typeof InjectionPoint
-            } as SystemInjectionType<any>
+              type: data.injectionPoint as keyof typeof SystemUpdateType
+            } as SystemModuleType<any>
           })
         )
         modules.react.push(...realityPackModules.react)

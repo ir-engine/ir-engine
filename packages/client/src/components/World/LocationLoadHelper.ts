@@ -104,10 +104,8 @@ export const initEngine = async (
   // 1.
   const isOffline = typeof initOptions.networking?.schema.transport === 'undefined'
   const sceneData = await getSceneData(sceneId, isOffline)
-  console.log(sceneData)
 
   const packs = await getPacksFromSceneData(sceneData, true)
-  console.log(packs)
 
   for (const system of packs.systems) {
     initOptions.systems?.push(system)
