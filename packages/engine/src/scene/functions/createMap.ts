@@ -8,7 +8,7 @@ import { MapComponent } from '../../map/MapComponent'
 import { Group, Vector3 } from 'three'
 import getPhases from '../../map/functions/getPhases'
 import actuateEager from '../../map/functions/actuateEager'
-import createStore, { MAX_CACHED_TILES } from '../../map/functions/createStore'
+import createStore from '../../map/functions/createStore'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { setPosition } from '../../map/util'
@@ -34,7 +34,6 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
   await actuateEager(store, getPhases())
 
-  let count = 0
   for (const key of store.completeObjects.keys()) {
     const layerName = key[0]
     if (layerName === 'landuse_fallback') {
@@ -44,8 +43,6 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
       Engine.scene.add(mesh)
       navigationRaycastTarget.add(mesh)
     }
-    count++
-    if (count > MAX_CACHED_TILES) break
   }
 
   navigationRaycastTarget.scale.setScalar(store.scale)

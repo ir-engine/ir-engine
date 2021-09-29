@@ -64,7 +64,6 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     if (shouldUpdateChildren) {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
       const subSceneChildren = []
-      let count = 0
       for (const key of mapComponent.completeObjects.keys()) {
         if (key[0] !== 'landuse_fallback') {
           const object = mapComponent.completeObjects.get(key)
@@ -85,9 +84,6 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
             }
           }
         }
-
-        count++
-        if (count > MAX_CACHED_FEATURES) break
       }
       for (const label of mapComponent.labelCache.values()) {
         if (label.mesh) {

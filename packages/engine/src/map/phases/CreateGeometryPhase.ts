@@ -24,16 +24,12 @@ export const isAsyncPhase = true
 export const isCachingPhase = true
 
 export function* getTaskKeys(store: Store) {
-  let count = 0
   const viewerPositionScaled = multiplyArray(store.viewerPosition, 1 / store.scale, $array2) as [number, number]
   for (const key of store.transformedFeatureCache.keys()) {
     const { centerPoint, boundingCircleRadius } = store.transformedFeatureCache.get(key)
     if (isIntersectCircleCircle(centerPoint, boundingCircleRadius, viewerPositionScaled, store.minimumSceneRadius)) {
       yield key
     }
-    // TODO why does this for loop not end on its own??
-    if (count > MAX_CACHED_FEATURES) break
-    count++
   }
 }
 

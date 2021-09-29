@@ -48,8 +48,14 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
     }
   }
 
-  keys() {
-    return this.map.keys()
+  *keys(maxCount = this.maxSize) {
+    let count = 0
+    for (const key of this.map.keys()) {
+      yield key
+      count++
+      // Stopgap for until I figure out why this generator doesn't finish
+      if (count > maxCount) break
+    }
   }
   values() {
     return this.map.values()
