@@ -21,7 +21,6 @@ import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
-import { awaitEngineLoaded } from '@xrengine/engine/src/ecs/classes/Engine'
 import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
@@ -101,11 +100,9 @@ export const createApp = (): Application => {
             }
           },
           async (io) => {
-            console.log('=========== creating server transport')
             Network.instance = new Network()
             Network.instance.transport = new SocketWebRTCServerTransport(app)
             Network.instance.transport.initialize()
-            console.log('=========== created server transport')
 
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)

@@ -153,7 +153,6 @@ export default (app: Application): void => {
                 }, 1000)
 
                 console.log('Loading scene...')
-
                 await WorldScene.load(sceneData, (left) => {
                   entitiesLeft = left
                 })
