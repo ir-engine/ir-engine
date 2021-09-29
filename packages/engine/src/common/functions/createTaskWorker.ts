@@ -1,6 +1,8 @@
 import { createInlineWorkerFromString } from './createInlineWorkerFromString'
 import { isClient } from './isClient'
 
+// TODO: replace this or wrap around something like https://www.npmjs.com/package/workerpool ?
+
 export interface TaskContext {
   onmessage: (msg: MessageEvent) => void
   postResult(result: any, transfer?: Transferable[]): void

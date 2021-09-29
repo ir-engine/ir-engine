@@ -54,7 +54,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
   return () => {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
-      const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)
+      const overrideComponent = getComponent(entity, AutoPilotOverrideComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
@@ -82,12 +82,13 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       )
 
       if (clickResult.point) {
-        if (overrideCoords) clickResult.point = overridePosition
-        const c = addComponent(entity, AutoPilotRequestComponent, {
+        if (overrideComponent?.overrideCoords) clickResult.point = overrideComponent.overridePosition
+
+        addComponent(entity, AutoPilotRequestComponent, {
           point: clickResult.point,
           navEntity: clickResult.entity
         })
-        //console.log('clickResult: ' + JSON.stringify(clickResult) + ' - ' + JSON.stringify(c))
+        // console.log('clickResult: ' + JSON.stringify(clickResult))
       }
 
       removeComponent(entity, AutoPilotClickRequestComponent)
@@ -101,6 +102,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
       if (!navMeshComponent) {
         console.error('AutopilotSystem unable to process request - navigation entity does not have NavMeshComponent')
+        continue
       }
       const { position } = getComponent(entity, TransformComponent)
 
