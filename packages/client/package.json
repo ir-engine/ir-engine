@@ -14,14 +14,14 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "cross-env NODE_ENV=development vite",
-    "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite",
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview",
-    "start": "node server.js",
+    "start": "cross-env NODE_ENV=development vite",
     "validate": "npm run test",
     "test": "exit 0",
     "local": "npm run localbuild && npm run localstart",
     "localbuild": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run build",
-    "localstart": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run start"
+    "localstart": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true vite"
   },
   "resolutions": {
     "socket.io": "4.2.0",
@@ -43,7 +43,7 @@
     "@material-ui/icons": "4.11.2",
     "@material-ui/styles": "4.11.4",
     "@mui-treasury/components": "1.10.1",
-    "@mui/material": "5.0.1",
+    "@mui/material": "5.0.2",
     "@rollup/plugin-inject": "4.0.2",
     "@styled-icons/boxicons-regular": "10.38.0",
     "@styled-icons/boxicons-solid": "10.38.0",
