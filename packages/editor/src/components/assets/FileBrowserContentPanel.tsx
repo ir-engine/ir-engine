@@ -15,6 +15,9 @@ import EditorEvents from '../../constants/EditorEvents'
 import { SourceManager } from '../../managers/SourceManager'
 import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
+import { ContextMenu, MenuItem } from '../layout/ContextMenu'
+import { ContextMenuTrigger } from 'react-contextmenu'
+import i18next from 'i18next'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -98,30 +101,28 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
     const returningObjects = []
     for (let element of Object.keys(ownedFileIds)) {
-      if (element !== 'thumbnailOwnedFileId') {
-        const fileId = ownedFileIds[element]
-        const { url } = await getUrlFromId(fileId)
-        if (!url) continue
-        const contentType = await getContentType(new URL(url))
-        const nodeClass = UploadFileType[contentType]
-        const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
-        const returningObject = {
-          description: url,
-          fileId: fileId,
-          projectId: projects[index].sid,
-          id: element,
-          label: element,
-          nodeClass: nodeClass,
-          url: url,
-          type: 'Element',
-          contentType: contentType,
-          initialProps: { src: new URL(url) },
-          iconComponent: nodeEditor.WrappedComponent
-            ? nodeEditor.WrappedComponent.iconComponent
-            : nodeEditor.iconComponent
-        }
-        returningObjects.push(returningObject)
+      const fileId = ownedFileIds[element]
+      const { url } = await getUrlFromId(fileId)
+      if (!url) continue
+      const contentType = await getContentType(new URL(url))
+      const nodeClass = UploadFileType[contentType]
+      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
+      const returningObject = {
+        description: url,
+        fileId: fileId,
+        projectId: projects[index].sid,
+        id: element,
+        label: element,
+        nodeClass: nodeClass,
+        url: url,
+        type: 'Element',
+        contentType: contentType,
+        initialProps: { src: new URL(url) },
+        iconComponent: nodeEditor.WrappedComponent
+          ? nodeEditor.WrappedComponent.iconComponent
+          : nodeEditor.iconComponent
       }
+      returningObjects.push(returningObject)
     }
     setSelectedProjectFiles(returningObjects)
   }
@@ -156,18 +157,26 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         <SelectInput options={projectSelectTypes} onChange={onChangeSelectedProject} value={selectedProjectIndex} />
       </InputGroup>
 
-      <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
-        <AssetPanelContentContainer>
-          <AssetGrid
-            source={selectedSource}
-            items={selectedProjectFiles}
-            onLoadMore={loadMore}
-            hasMore={hasMore}
-            onSelect={onSelect}
-            isLoading={false}
-          />
-        </AssetPanelContentContainer>
-      </AssetsPanelContainer>
+      <ContextMenuTrigger id={'uniqueId.current'}>
+        <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
+          <AssetPanelContentContainer>
+            <AssetGrid
+              source={selectedSource}
+              items={selectedProjectFiles}
+              onLoadMore={loadMore}
+              hasMore={hasMore}
+              onSelect={onSelect}
+              isLoading={false}
+            />
+          </AssetPanelContentContainer>
+        </AssetsPanelContainer>
+      </ContextMenuTrigger>
+
+      <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
+        <MenuItem onClick={() => console.log('Place new Folder')}>
+          {i18next.t('editor:layout.filebrowser.addnewfolder')}
+        </MenuItem>
+      </ContextMenu>
     </>
   )
 }

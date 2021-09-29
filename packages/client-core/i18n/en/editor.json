@@ -466,7 +466,11 @@
             "copyURL": "Copy URL",
             "openInNewTab": "Open URL in New Tab",
             "deleteAsset": "Delete Asset"
+        },
+        "filebrowser":{
+            "addnewfolder":"Add New Folder"
         }
+        
     },
     "hierarchy": {
         "lbl-rename": "Rename",
