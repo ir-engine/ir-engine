@@ -1,10 +1,7 @@
 import { Schema } from '../../assets/superbuffer'
 import { RingBuffer } from '../../common/classes/RingBuffer'
-import { Snapshot } from '../types/SnapshotDataTypes'
-import { NetworkClient } from '../interfaces/NetworkClient'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
 /** Component Class for Network. */
@@ -16,8 +13,6 @@ export class Network {
   isInitialized: boolean
   /** Whether to apply compression on packet or not. */
   packetCompression = true
-  /** we dont senr unit64 now, then its a value to -minus from time to get a little value for unit32 */
-  timeSnaphotCorrection = Date.now()
   /** Object holding transport details over network. */
   transport: NetworkTransport
   /** Network transports. */
@@ -34,8 +29,6 @@ export class Network {
   channelSocketId: string
   /** Access tocken of the User. */
   accessToken: string
-  /** Snapshot of the network. */
-  snapshot: Snapshot // TODO: REMOVE
 
   /** Schema of the network. */
   static _schemas: Map<string, Schema> = new Map()

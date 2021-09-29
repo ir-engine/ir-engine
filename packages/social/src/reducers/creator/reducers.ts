@@ -23,7 +23,8 @@ import {
   CURRENT_CREATOR_FETCH,
   SET_CREATOR_AS_BLOCKED,
   SET_CREATOR_AS_UN_BLOCKED,
-  CREATOR_BLOCKED_RETRIEVED
+  CREATOR_BLOCKED_RETRIEVED,
+  SET_STATE_CREATORS
 } from '../actions'
 
 export const initialCreatorState = {
@@ -38,7 +39,8 @@ export const initialCreatorState = {
     followers: [],
     following: [],
     fetching: false,
-    blocked: []
+    blocked: [],
+    splashTimeout: true
   }
 }
 
@@ -46,8 +48,8 @@ const immutableState = Immutable.fromJS(initialCreatorState) as any
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
   switch (action.type) {
-    // case TEST:
-    //   Object.entries(action.payload).map()
+    case SET_STATE_CREATORS:
+      return Immutable.merge(state, (action as { type: string; payload: any }).payload)
     case CURRENT_CREATOR_FETCH:
       return state.set('fetchingCurrentCreator', true)
     case CURRENT_CREATOR_RETRIEVED:

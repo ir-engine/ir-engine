@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { SnackbarProvider } from 'notistack'
 
@@ -33,7 +33,7 @@ import Splash from '@xrengine/social/src/components/Splash'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
-import { WebXRStart } from '../components/popups/WebXR'
+import WebXRStart from '../components/popups/WebXR'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -49,12 +49,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, changeWebXrNative, getWebXrNative }) => {
+  const dispatch = useDispatch()
   const auth = useAuthState()
-  console.log(auth.user.userRole.value)
   /*hided for now*/
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
-  const [splashTimeout, setSplashTimeout] = useState(true)
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
   const [registrationForm, setRegistrationForm] = useState(true)
   const [view, setView] = useState('featured')
@@ -76,12 +75,18 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
     setFeedHintsOnborded(false)
   }
   const platformClass = isIOS ? styles.isIos : ''
+  const splashTimeout = creatorsState.get('splashTimeout')
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
   if (!currentCreator || currentCreator === null || (splashTimeout && currentCreator.isBlocked == false)) {
     //add additional duration Splash after initialized user
     const splash = setTimeout(() => {
-      setSplashTimeout(false)
+      dispatch({
+        type: 'SET_STATE_CREATORS',
+        payload: {
+          splashTimeout: false
+        }
+      })
       clearTimeout(splash)
     }, 5000)
     return <Splash />
@@ -106,7 +111,9 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
         {/* <Stories stories={stories} /> */}
         <FeedMenu view={view} setView={setView} />
         <AppFooter setView={setView} />
-        {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
+        {currentCreator &&
+          (!!!currentCreator.terms || !!!currentCreator.policy) &&
+          auth.user.userRole.value === 'user' && <TermsAndPolicy />}
         <ArMediaPopup />
         <WebXRStart
           feedHintsOnborded={feedHintsOnborded}

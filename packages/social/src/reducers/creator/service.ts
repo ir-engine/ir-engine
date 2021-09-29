@@ -80,7 +80,7 @@ export function getCreator(creatorId) {
   }
 }
 
-export function updateCreator(creator: Creator, callBack: Function) {
+export function updateCreator(creator: Creator, callBack?: Function) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingCurrentCreator())
@@ -91,14 +91,16 @@ export function updateCreator(creator: Creator, callBack: Function) {
         delete creator.newAvatar
       }
       const updatedCreator = await client.service('creator').patch(creator.id, creator)
-      if (updatedCreator) {
+      if (updatedCreator && callBack) {
         dispatch(creatorLoggedRetrieved(updatedCreator))
         callBack('succes')
       }
     } catch (err) {
       console.log(err)
       AlertService.dispatchAlertError(dispatch, err.message)
-      callBack(err.message)
+      if (callBack) {
+        callBack(err.message)
+      }
     }
   }
 }

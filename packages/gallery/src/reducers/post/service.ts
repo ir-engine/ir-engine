@@ -1,4 +1,3 @@
-import { Value } from './../../../../engine/src/networking/types/SnapshotDataTypes'
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
