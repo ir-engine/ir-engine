@@ -40,8 +40,8 @@ import {
 import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
 import { ChatAction } from '@xrengine/client-core/src/social/reducers/chat/ChatActions'
-import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
-import { getFriends, unfriend } from '@xrengine/client-core/src/social/reducers/friend/service'
+import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
 import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
 import {
   createGroup,
@@ -109,7 +109,6 @@ const engineRendererCanvasId = 'engine-renderer-canvas'
 const mapStateToProps = (state: any): any => {
   return {
     channelConnectionState: selectChannelConnectionState(state),
-    friendState: selectFriendState(state),
     groupState: selectSocialGroupState(state),
     locationState: selectLocationState(state),
     partyState: selectPartyState(state),
@@ -122,8 +121,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
   connectToChannelServer: bindActionCreators(connectToChannelServer, dispatch),
   resetChannelServer: bindActionCreators(resetChannelServer, dispatch),
-  getFriends: bindActionCreators(getFriends, dispatch),
-  unfriend: bindActionCreators(unfriend, dispatch),
   getGroups: bindActionCreators(getGroups, dispatch),
   createGroup: bindActionCreators(createGroup, dispatch),
   patchGroup: bindActionCreators(patchGroup, dispatch),
@@ -146,8 +143,7 @@ interface Props {
   provisionChannelServer?: typeof provisionChannelServer
   connectToChannelServer?: typeof connectToChannelServer
   resetChannelServer?: typeof resetChannelServer
-  friendState?: any
-  getFriends?: any
+
   groupState?: any
   getGroups?: any
   partyState?: any
@@ -187,8 +183,6 @@ const Harmony = (props: Props): any => {
     provisionChannelServer,
     connectToChannelServer,
     resetChannelServer,
-    friendState,
-    getFriends,
     groupState,
     getGroups,
     partyState,
@@ -261,8 +255,9 @@ const Harmony = (props: Props): any => {
   const channelLayerUsers = userState.channelLayerUsers.value
   const layerUsers =
     instanceChannel && instanceChannel[0] === activeAVChannelId ? instanceLayerUsers : channelLayerUsers
-  const friendSubState = friendState.get('friends')
-  const friends = friendSubState.get('friends')
+  const friendState = useFriendState()
+  const friendSubState = friendState.friends
+  const friends = friendSubState.friends.value
   const groupSubState = groupState.get('groups')
   const groups = groupSubState.get('groups')
   const party = partyState.get('party')
@@ -866,8 +861,8 @@ const Harmony = (props: Props): any => {
   }
 
   const nextFriendsPage = (): void => {
-    if (friendSubState.get('skip') + friendSubState.get('limit') < friendSubState.get('total')) {
-      getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+    if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
+      dispatch(FriendService.getFriends('', friendSubState.skip.value, friendSubState.limit.value))
     }
   }
 
@@ -1026,7 +1021,7 @@ const Harmony = (props: Props): any => {
             <List onScroll={(e) => onListScroll(e)}>
               {friends &&
                 friends.length > 0 &&
-                friends
+                [...friends]
                   .sort((a, b) => a.name - b.name)
                   .map((friend, index) => {
                     return (

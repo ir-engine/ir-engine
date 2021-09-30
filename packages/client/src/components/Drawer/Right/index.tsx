@@ -26,8 +26,8 @@ import {
   SupervisedUserCircle
 } from '@material-ui/icons'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
-import { getFriends } from '@xrengine/client-core/src/social/reducers/friend/service'
+import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
 import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
 import { getInvitableGroups } from '@xrengine/client-core/src/social/reducers/group/service'
 import { selectInviteState } from '@xrengine/client-core/src/social/reducers/invite/selector'
@@ -46,7 +46,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { provisionInstanceServer } from '../../../reducers/instanceConnection/service'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
@@ -54,7 +54,6 @@ import styles from './Right.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    friendState: selectFriendState(state),
     inviteState: selectInviteState(state),
     groupState: selectSocialGroupState(state),
     partyState: selectPartyState(state),
@@ -63,11 +62,10 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFriends: bindActionCreators(getFriends, dispatch),
   retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
   retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch),
   sendInvite: bindActionCreators(sendInvite, dispatch),
-  removeInvite: bindActionCreators(removeInvite, dispatch),
+
   acceptInvite: bindActionCreators(acceptInvite, dispatch),
   declineInvite: bindActionCreators(declineInvite, dispatch),
   updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
@@ -77,13 +75,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 interface Props {
-  friendState?: any
   inviteState?: any
   retrieveReceivedInvites?: typeof retrieveReceivedInvites
   retrieveSentInvites?: typeof retrieveSentInvites
   sendInvite?: typeof sendInvite
-  getFriends?: typeof getFriends
-  removeInvite?: typeof removeInvite
   acceptInvite?: typeof acceptInvite
   declineInvite?: typeof declineInvite
   rightDrawerOpen?: any
@@ -103,13 +98,10 @@ identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
   const {
-    friendState,
     inviteState,
     sendInvite,
     retrieveReceivedInvites,
     retrieveSentInvites,
-    getFriends,
-    removeInvite,
     acceptInvite,
     declineInvite,
     groupState,
@@ -123,8 +115,8 @@ const Invites = (props: Props): any => {
     setRightDrawerOpen
   } = props
   const user = useAuthState().user
-  const friendSubState = friendState.get('friends')
-  const friends = friendSubState.get('friends')
+  const friendSubState = useFriendState().friends
+  const friends = friendSubState.friends.value
   const receivedInviteState = inviteState.get('receivedInvites')
   const receivedInvites = receivedInviteState.get('invites')
   const sentInviteState = inviteState.get('sentInvites')
@@ -143,6 +135,7 @@ const Invites = (props: Props): any => {
   const [userToken, setUserToken] = useState('')
   const [deletePending, setDeletePending] = useState('')
   const [selectedAccordion, setSelectedAccordion] = useState('invite')
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (groupState.get('invitableUpdateNeeded') === true && groupState.get('getInvitableGroupsInProgress') !== true) {
@@ -281,8 +274,8 @@ const Invites = (props: Props): any => {
   }
 
   const nextFriendsPage = (): void => {
-    if (friendSubState.get('skip') + friendSubState.get('limit') < friendSubState.get('total')) {
-      getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+    if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
+      dispatch(FriendService.getFriends('', friendSubState.skip.value, friendSubState.limit.value))
     }
   }
 

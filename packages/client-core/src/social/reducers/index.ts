@@ -1,5 +1,5 @@
 import { chatReducer } from './chat/ChatState'
-import friendReducer from './friend/reducers'
+import { friendReducer } from './friend/FriendState'
 import locationReducer from './location/reducers'
 import groupReducer from './group/reducers'
 import partyReducer from './party/reducers'

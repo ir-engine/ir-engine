@@ -9,8 +9,8 @@ import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
 import TextField from '@material-ui/core/TextField'
 import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@material-ui/icons'
 import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
-import { getFriends, unfriend } from '@xrengine/client-core/src/social/reducers/friend/service'
+import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
 import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
 import {
   createGroup,
@@ -45,7 +45,6 @@ import styles from './Left.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    friendState: selectFriendState(state),
     groupState: selectSocialGroupState(state),
     locationState: selectLocationState(state),
     partyState: selectPartyState(state)
@@ -53,8 +52,6 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFriends: bindActionCreators(getFriends, dispatch),
-  unfriend: bindActionCreators(unfriend, dispatch),
   getGroups: bindActionCreators(getGroups, dispatch),
   createGroup: bindActionCreators(createGroup, dispatch),
   patchGroup: bindActionCreators(patchGroup, dispatch),
@@ -77,9 +74,6 @@ interface Props {
   setLeftDrawerOpen: any
   setRightDrawerOpen: any
   authState?: any
-  friendState?: any
-  getFriends?: any
-  unfriend?: any
   groupState?: any
   getGroups?: any
   createGroup?: any
@@ -130,10 +124,7 @@ const initialGroupForm = {
 const LeftDrawer = (props: Props): any => {
   try {
     const {
-      friendState,
       locationState,
-      getFriends,
-      unfriend,
       groupState,
       getGroups,
       createGroup,
@@ -171,8 +162,9 @@ const LeftDrawer = (props: Props): any => {
     const dispatch = useDispatch()
     const userState = useUserState()
     const user = useAuthState().user
-    const friendSubState = friendState.get('friends')
-    const friends = friendSubState.get('friends')
+    const friendState = useFriendState()
+    const friendSubState = friendState.friends
+
     const groupSubState = groupState.get('groups')
     const groups = groupSubState.get('groups')
     const party = partyState.get('party')
@@ -195,14 +187,14 @@ const LeftDrawer = (props: Props): any => {
     const currentLocation = locationState.get('currentLocation').get('location')
 
     useEffect(() => {
-      if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
-        getFriends(0)
+      if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
+        dispatch(FriendService.getFriends(''))
       }
-      if (friendState.get('closeDetails') === selectedUser.id) {
+      /*s if (friendState.closeDetails.value === selectedUser.id) {
         closeDetails()
         friendState.set('closeDetails', '')
-      }
-    }, [friendState])
+      }*/
+    }, [friendState.updateNeeded.value])
 
     useEffect(() => {
       if (groupState.get('updateNeeded') === true && groupState.get('getGroupsInProgress') !== true) {
@@ -240,14 +232,14 @@ const LeftDrawer = (props: Props): any => {
     const confirmFriendDelete = (e, friendId) => {
       e.preventDefault()
       setFriendDeletePending('')
-      unfriend(friendId)
+      dispatch(FriendService.unfriend(friendId))
       closeDetails()
       setLeftDrawerOpen(false)
     }
 
     const nextFriendsPage = (): void => {
-      if (friendSubState.get('skip') + friendSubState.get('limit') < friendSubState.get('total')) {
-        getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+      if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
+        dispatch(FriendService.getFriends('', friendSubState.skip.value, friendSubState.limit.value))
       }
     }
 
