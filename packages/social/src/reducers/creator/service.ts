@@ -90,7 +90,9 @@ export function updateCreator(creator: Creator, callBack?: Function) {
         creator.avatarId = storedAvatar.file_id
         delete creator.newAvatar
       }
+      console.log(creator)
       const updatedCreator = await client.service('creator').patch(creator.id, creator)
+      console.log(updatedCreator)
       if (updatedCreator && callBack) {
         dispatch(creatorLoggedRetrieved(updatedCreator))
         callBack('succes')
