@@ -102,7 +102,7 @@ export default async function PhysicsSystem(
       const transform = getComponent(entity, TransformComponent)
       const network = getComponent(entity, NetworkObjectComponent)
 
-      if ((!isClient && network.userId === Engine.userId) || hasComponent(entity, AvatarComponent)) continue
+      // if ((!isClient && network.userId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
 
       if (isStaticBody(collider.body)) {
         const body = collider.body as PhysX.PxRigidDynamic

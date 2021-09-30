@@ -56,6 +56,9 @@ export class World {
   /** Incoming actions */
   incomingActions = new Set<Required<Action>>()
 
+  /** Delayed actions */
+  delayedActions = new Set<Required<Action>>()
+
   /** Outgoing actions */
   outgoingActions = new Set<Action>()
 
