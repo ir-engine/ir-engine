@@ -23,7 +23,7 @@
   },
   "resolutions": {
     "socket.io": "4.2.0",
-    "@types/react": "17.0.24",
+    "@types/react": "17.0.25",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -62,12 +62,12 @@
   },
   "devDependencies": {
     "@types/node": "14.17.20",
-    "@types/react": "17.0.24",
+    "@types/react": "17.0.25",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
     "typescript": "4.4.3",
-    "vite": "2.6.0"
+    "vite": "2.6.1"
   },
   "browser": {
     "fs": false
