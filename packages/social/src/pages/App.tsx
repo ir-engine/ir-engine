@@ -111,9 +111,12 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
         {/* <Stories stories={stories} /> */}
         <FeedMenu view={view} setView={setView} />
         <AppFooter setView={setView} />
-        {currentCreator &&
-          (!!!currentCreator.terms || !!!currentCreator.policy) &&
-          auth.user.userRole.value === 'user' && <TermsAndPolicy />}
+        {currentCreator && (
+          // Made at the time of the test Aleks951
+          // (!!!currentCreator.terms || !!!currentCreator.policy) &&
+          // auth.user.userRole.value === 'user' &&
+          <TermsAndPolicy />
+        )}
         <ArMediaPopup />
         <WebXRStart
           feedHintsOnborded={feedHintsOnborded}

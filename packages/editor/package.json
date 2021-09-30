@@ -23,7 +23,7 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "@types/react": "17.0.24",
+    "@types/react": "17.0.26",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -33,7 +33,7 @@
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.10",
     "@google/model-viewer": "1.8.0",
-    "@hookstate/core": "3.0.12",
+    "@hookstate/core": "3.0.13",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",
@@ -118,7 +118,7 @@
     "@rollup/plugin-node-resolve": "13.0.5",
     "@rollup/plugin-replace": "3.0.0",
     "@types/node": "14.17.20",
-    "@types/react": "17.0.24",
+    "@types/react": "17.0.26",
     "@types/react-dom": "17.0.9",
     "@types/three": "0.132.1",
     "create-ts-index": "1.13.6",

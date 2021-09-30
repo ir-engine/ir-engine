@@ -51,7 +51,9 @@ const Home = ({ createCreator, creatorsState }) => {
         <AppHeader title={'CREATOR'} setAddFilesView={setAddFilesView} setFilesTarget={setFilesTarget} />
       )}
       {currentCreator && !addFilesView && <FeedMenu />}
-      {addFilesView && <AddFilesForm filesTarget={filesTarget} setAddFilesView={setAddFilesView} />}
+      {addFilesView && (
+        <AddFilesForm filesTarget={filesTarget} setAddFilesView={setAddFilesView} setFilesTarget={setFilesTarget} />
+      )}
     </div>
   )
 }
