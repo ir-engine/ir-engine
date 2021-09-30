@@ -34,7 +34,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
   const currentCreator = creatorsState.get('currentCreator')
 
-  const [openTerms, setOpenTerms] = useState(!!!currentCreator.terms)
+  // Сделано на время теста
+  // const [openTerms, setOpenTerms] = useState(!!!currentCreator.terms)
+  const [openTerms, setOpenTerms] = useState(true)
   const [openPolicy, setOpenPolicy] = useState(!!!currentCreator.terms ? false : !!!currentCreator.policy)
   const { t } = useTranslation()
   const [agree, setAgree] = useState(false)
