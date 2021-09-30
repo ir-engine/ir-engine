@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from 'react'
+import React, { useEffect, useState, useReducer, useRef } from 'react'
 import { connect } from 'react-redux'
 import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
@@ -25,16 +25,18 @@ interface Props {
   createFeed?: typeof createFeed
 }
 
-const descriptionState = {}
+const descriptionState = new Map()
 
 const descriptionReducer = (state, action) => {
   const { name, value } = action.payload
   switch (action.type) {
     case 'CHANGE_TEXT':
-      return {
-        ...state,
-        [name]: value
-      }
+      state.set(name, value)
+      return new Map(state.entries())
+      break
+    case 'DELETE_ITEM':
+      state.delete(name)
+      return new Map(state.entries())
       break
 
     default:
@@ -73,10 +75,10 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
   const [titleFile, setTitleFile] = useState('')
   const [preview, setPreview] = useState(null)
   const [video, setVideo] = useState(null)
+  const inputFileRef = useRef(null)
 
   // const handleDescrTextChange = (event: any): void => setDescrText(event.target.value)
-  const handleDescrTextChange = (event: any, name: string) => {
-    console.log(descriptions)
+  const handleDescrTextChange = (event: any, name: any) => {
     dispatch({
       type: 'CHANGE_TEXT',
       payload: {
@@ -87,9 +89,8 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
   }
   const handleAddPosts = () => {
     ;[...filesTarget].forEach((file, index) => {
-      const { title, description } = getTitleAndDescription(descriptions[`description-${index}`] || titleFile)
+      const { title, description } = getTitleAndDescription(descriptions.get(file) || titleFile)
       console.group('Title and description')
-      console.log({ title, description })
       console.groupEnd()
       const newPost = {
         title,
@@ -105,18 +106,29 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
     const entries = filesTarget.filter((item, itemIndex) => {
       return itemIndex !== index
     })
+    dispatch({
+      type: 'DELETE_ITEM',
+      payload: `description-${index}`
+    })
     setFilesTarget([...entries])
+  }
+  const handleAddFiles = () => {
+    inputFileRef?.current.click()
+  }
+  const handleFilesTarget = (files: Array<any>) => {
+    setFilesTarget([...filesTarget, ...files])
   }
   return (
     <section className={styles.viewport}>
-      <AppHeader title="CREATOR" hideAddButtons />
-      <Button className={styles.addFilesButton}>ADD FILES:</Button>
+      <AppHeader title="CREATOR" hideAddButtons inputFileRef={inputFileRef} setFilesTarget={handleFilesTarget} />
+      <Button className={styles.addFilesButton} onClick={handleAddFiles}>
+        ADD FILES:
+      </Button>
       <section className={styles.content}>
         <section className={styles.feedContainer}>
           <Grid container spacing={3} style={{ marginTop: 30 }}>
             {filesTarget
               ? filesTarget.map((item: any, itemIndex) => {
-                  console.log(item)
                   return (
                     <Grid item xs={12} lg={6} xl={4} key={itemIndex} className={styles.gridItem}>
                       <Card className={styles.creatorItem} elevation={0} key={itemIndex}>
@@ -131,7 +143,6 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
                             <CloseIcon className={styles.close} />
                           </span>
                         </div>
-                        {/* <Typography>{item.name}</Typography> */}
                         <div style={{ padding: '0 30px 30px', margin: '25px 0' }}>
                           <TextField
                             autoFocus
@@ -148,8 +159,8 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
                             variant="outlined"
                             fullWidth
                             multiline
-                            value={descriptions[`description-${itemIndex}`]}
-                            onChange={(e) => handleDescrTextChange(e, `description-${itemIndex}`)}
+                            value={descriptions.get(item)}
+                            onChange={(e) => handleDescrTextChange(e, item)}
                           />
                         </div>
                       </Card>

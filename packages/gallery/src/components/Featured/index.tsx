@@ -48,6 +48,8 @@ interface Props {
   viewType?: string
   addFireToFeed?: typeof addFireToFeed
   removeFireToFeed?: typeof removeFireToFeed
+  isFeatured?: boolean
+  setIsFeatured?: Function
 }
 
 const gridValues = {
@@ -88,7 +90,9 @@ const Featured = ({
   removeFeed,
   viewType,
   addFireToFeed,
-  removeFireToFeed
+  removeFireToFeed,
+  isFeatured,
+  setIsFeatured
 }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const [removedIds, setRemovedIds] = useState(new Set())
@@ -97,17 +101,24 @@ const Featured = ({
   const history = useHistory()
   const auth = useAuthState()
 
+  const removeIdsStringify = JSON.stringify([...removedIds])
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       getFeeds(type, creatorId)
     } else {
       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-      userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
+      userIdentityType !== 'guest'
+        ? getFeeds('featured').then(() => {
+            if (type !== 'fired') {
+              getFeeds('fired', creatorId)
+            }
+          })
+        : getFeeds('featuredGuest')
     }
     if (type !== 'fired') {
       setRemovedIds(new Set())
     }
-  }, [type, creatorId, feedsState.get('feedsFetching')])
+  }, [type, creatorId, feedsState.get('feedsFetching'), removeIdsStringify])
 
   useEffect(
     () =>
@@ -138,6 +149,10 @@ const Featured = ({
       type === 'fired' && feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired')),
     [feedsState.get('feedsFiredFetching'), feedsState.get('feedsFired')]
   )
+  const feedsFiredStringify = JSON.stringify(feedsState.get('feedsFired'))
+  useEffect(() => {
+    typeof setIsFeatured === 'function' && setIsFeatured(!!feedsState.get('feedsFired')?.length)
+  }, [feedsState.get('feedsFetching'), feedsFiredStringify])
 
   const handleAddToFeatured = (item) => {
     if (!feedIds.has(item)) {
@@ -145,6 +160,7 @@ const Featured = ({
       removedIds.delete(item)
       setRemovedIds(new Set([...removedIds]))
       addFireToFeed(item)
+      setIsFeatured(true)
     }
   }
 
@@ -155,8 +171,6 @@ const Featured = ({
     feedIds.delete(item)
     setFeedIds(new Set([...feedIds]))
   }
-
-  console.log(removedIds)
 
   return (
     <section className={styles.feedContainer}>

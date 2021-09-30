@@ -2,7 +2,7 @@ import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import AppsIcon from '@material-ui/icons/Apps'
 import ViewAgendaIcon from '@material-ui/icons/ViewAgenda'
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 
@@ -16,6 +16,13 @@ const FeedMenu = () => {
   const { t } = useTranslation()
   const [view, setView] = useState('all')
   const [viewType, setViewType] = useState('grid')
+  const [isFeatured, setIsFeatured] = useState(false)
+
+  useEffect(() => {
+    if (view !== 'all' && !isFeatured) {
+      setView('all')
+    }
+  }, [view, isFeatured])
 
   const padding = 40
   const handleMenuClick = (view) => {
@@ -34,10 +41,10 @@ const FeedMenu = () => {
   let content = null
   switch (view) {
     case 'all':
-      content = <Featured viewType={viewType} />
+      content = <Featured viewType={viewType} setIsFeatured={setIsFeatured} isFeatured={isFeatured} />
       break
     default:
-      content = <Featured type="fired" viewType={viewType} />
+      content = <Featured type="fired" viewType={viewType} setIsFeatured={setIsFeatured} isFeatured={isFeatured} />
       break
   }
   const classes = {
@@ -68,7 +75,12 @@ const FeedMenu = () => {
               <Button
                 variant={view === 'featured' ? 'contained' : 'text'}
                 ref={featuredRef}
-                className={styles.switchButton + (view === 'featured' ? ' ' + styles.active : '')}
+                className={
+                  styles.switchButton +
+                  (view === 'featured' ? ' ' + styles.active : '') +
+                  (view === 'all' && !isFeatured ? ' ' + styles.disabled : '')
+                }
+                disabled={view === 'all' && !isFeatured}
                 onClick={() => {
                   handleMenuClick('featured')
                 }}

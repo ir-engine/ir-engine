@@ -29,6 +29,18 @@
         }
     }
 
+    @media (min-width:768px) {
+       .switcher {
+           width: 40%;
+       } 
+    }
+
+    @media (min-width:425px) {
+       .switcher {
+           width: 50%;
+       } 
+    }
+
     .viewSwitcher{
         @extend .switcher;
         width: fit-content;
@@ -38,6 +50,12 @@
                 @extend .active;
             }
         }
+    }
+
+    @media (max-width: 1024px) {
+       .viewSwitcher {
+           display: none
+       } 
     }
 
     .subWrapper{
@@ -93,6 +111,10 @@
                 background-color: #F2AD31;
             }
         }
+    }
+    .disabled {
+        color: #e3e3e3 !important;
+        cursor: not-allowed !important;
     }
 }
 
