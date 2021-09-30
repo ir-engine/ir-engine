@@ -34,7 +34,6 @@ export default async function ClientInputSystem(world: World): Promise<System> {
             Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
           ) {
             value.lifecycleState = LifecycleValue.Continued
-            console.log('started => continued')
           }
         } else {
           if (value.lifecycleState !== LifecycleValue.Ended) {
