@@ -7,6 +7,8 @@ import realityPackDocs from './reality-pack.docs'
 import { getAxiosConfig, populateRealityPack } from '../content-pack/content-pack-helper'
 import axios from 'axios'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import express from 'express'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -27,7 +29,6 @@ export const addRealityPack = (app: any): any => {
     return true
   }
 }
-
 export default (app: Application): void => {
   const options = {
     Model: createModel(app),
@@ -41,6 +42,10 @@ export default (app: Application): void => {
   app.use('/upload-reality-pack', {
     create: addRealityPack(app)
   })
+
+  if (isDev) {
+    app.use('/reality-pack/list', async (req: express.Request, res: express.Response) => {})
+  }
 
   const service = app.service('reality-pack')
 
