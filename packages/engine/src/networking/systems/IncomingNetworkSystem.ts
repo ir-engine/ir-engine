@@ -177,7 +177,12 @@ const applyUnreliableQueue = (world: World) => {
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
 
-  const applyIncomingNetworkState = pipe(applyDelayedActions, applyIncomingActions, applyUnreliableQueue)
+  // prettier-ignore
+  const applyIncomingNetworkState = pipe(
+    applyDelayedActions, 
+    applyIncomingActions,
+    applyUnreliableQueue,
+  )
 
   return () => applyIncomingNetworkState(world)
 }
