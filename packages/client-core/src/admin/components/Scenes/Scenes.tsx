@@ -10,12 +10,11 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { connect, useDispatch } from 'react-redux'
 
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/AdminState'
-import { fetchAdminScenes } from '../../reducers/admin/scene/SceneService'
+import { SceneService } from '../../reducers/admin/scene/SceneService'
 import { LocationService } from '../../reducers/admin/location/LocationService'
 import styles from './Scenes.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
@@ -27,20 +26,9 @@ if (!global.setImmediate) {
 
 interface Props {
   locationState?: any
-  fetchAdminScenes?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch)
-})
 
 const Scenes = (props: Props) => {
-  const { fetchAdminScenes } = props
-
   const authState = useAuthState()
   const user = authState.user
   const adminSceneState = useSceneState()
@@ -134,7 +122,7 @@ const Scenes = (props: Props) => {
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedScenes, setSelectedScenes] = useState([])
-
+  const dispatch = useDispatch()
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
@@ -152,7 +140,7 @@ const Scenes = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminScenes(incDec)
+    dispatch(SceneService.fetchAdminScenes(incDec))
     setPage(newPage)
   }
 
@@ -182,7 +170,7 @@ const Scenes = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value != null && (adminSceneState.scenes.updateNeeded.value === true || refetch === true)) {
-      fetchAdminScenes()
+      dispatch(SceneService.fetchAdminScenes())
     }
     setRefetch(false)
   }, [authState.user?.id?.value, adminSceneState.scenes.updateNeeded.value, refetch])
@@ -276,4 +264,4 @@ const Scenes = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Scenes)
+export default Scenes

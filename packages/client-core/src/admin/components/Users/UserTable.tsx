@@ -6,9 +6,9 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { removeUserAdmin, fetchUsersAsAdmin, refetchSingleUserAdmin } from '../../reducers/admin/user/UserService'
+import { UserService } from '../../reducers/admin/user/UserService'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { useUserState } from '../../reducers/admin/user/UserState'
 import { USER_PAGE_LIMIT } from '../../reducers/admin/user/UserState'
@@ -20,18 +20,7 @@ import ViewUser from './ViewUser'
 import { useUserStyle, useUserStyles } from './styles'
 import { userColumns, UserData, UserProps } from './Variables'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  removeUserAdmin: bindActionCreators(removeUserAdmin, dispatch),
-  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-  refetchSingleUserAdmin: bindActionCreators(refetchSingleUserAdmin, dispatch)
-})
-
 const UserTable = (props: UserProps) => {
-  const { removeUserAdmin, refetchSingleUserAdmin, fetchUsersAsAdmin } = props
   const classes = useUserStyle()
   const classx = useUserStyles()
   const [page, setPage] = React.useState(0)
@@ -41,13 +30,13 @@ const UserTable = (props: UserProps) => {
   const [viewModel, setViewModel] = React.useState(false)
   const [userAdmin, setUserAdmin] = React.useState('')
   const user = useAuthState().user
-
+  const dispatch = useDispatch()
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users.users
   const adminUserCount = adminUserState.users.total
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchUsersAsAdmin(incDec)
+    dispatch(UserService.fetchUsersAsAdmin(incDec))
     setPage(newPage)
   }
 
@@ -57,13 +46,13 @@ const UserTable = (props: UserProps) => {
   }
   React.useEffect(() => {
     const fetchData = async () => {
-      await fetchUsersAsAdmin()
+      await dispatch(UserService.fetchUsersAsAdmin())
     }
     if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
-  }, [adminUserState.users.updateNeeded.value, user, fetchUsersAsAdmin])
+  }, [adminUserState.users.updateNeeded.value, user])
 
   const openViewModel = (open: boolean, user: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    refetchSingleUserAdmin()
+    dispatch(UserService.refetchSingleUserAdmin())
     if (
       event.type === 'keydown' &&
       ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
@@ -209,7 +198,7 @@ const UserTable = (props: UserProps) => {
           <Button
             className={classes.spanDange}
             onClick={async () => {
-              await removeUserAdmin(userId)
+              await dispatch(UserService.removeUserAdmin(userId))
               setPopConfirmOpen(false)
             }}
             autoFocus
@@ -223,4 +212,4 @@ const UserTable = (props: UserProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserTable)
+export default UserTable

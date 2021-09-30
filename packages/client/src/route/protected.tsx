@@ -24,18 +24,7 @@ const realityPacks = React.lazy(() => import('../pages/admin/reality-packs'))
 // const creator = React.lazy(() => import('../pages/admin/social/creator'))
 const setting = React.lazy(() => import('../pages/admin/Setting'))
 
-interface Props {
-  authState?: any
-  doLoginAuto?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
+interface Props {}
 
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
@@ -142,4 +131,4 @@ const ProtectedRoutes = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProtectedRoutes)
+export default ProtectedRoutes

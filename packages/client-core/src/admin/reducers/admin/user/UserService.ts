@@ -86,7 +86,7 @@ export const UserService = {
       }
     }
   },
-  searchUserAction: (data: any, offset: string) => {
+  searchUserAction: (data: any) => {
     return async (dispatch: Dispatch): Promise<any> => {
       try {
         const userState = accessUserState()

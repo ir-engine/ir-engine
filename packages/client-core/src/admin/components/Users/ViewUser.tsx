@@ -18,15 +18,10 @@ import Button from '@material-ui/core/Button'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { bindActionCreators, Dispatch } from 'redux'
-import { fetchUserRole } from '../../reducers/admin/user/UserService'
+import { UserService } from '../../reducers/admin/user/UserService'
 import { connect, useDispatch } from 'react-redux'
 import InputBase from '@material-ui/core/InputBase'
-import {
-  updateUserRole,
-  patchUser,
-  fetchSingleUserAdmin,
-  fetchStaticResource
-} from '../../reducers/admin/user/UserService'
+
 import { useUserStyles, useUserStyle } from './styles'
 import { useUserState } from '../../reducers/admin/user/UserState'
 import { validateUserForm } from './validation'
@@ -42,14 +37,7 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 interface Props {
   openView: boolean
   userAdmin: any
-  fetchUserRole?: any
-  patchUser?: any
   closeViewModel?: any
-  updateUserRole?: any
-  fetchSingleUserAdmin?: any
-
-  fetchStaticResource?: any
-
   //doLoginAuto?: any
 }
 
@@ -57,13 +45,7 @@ const mapStateToProps = (state: any): any => {
   return {}
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-  patchUser: bindActionCreators(patchUser, dispatch),
-  updateUserRole: bindActionCreators(updateUserRole, dispatch),
-  fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -77,13 +59,7 @@ const ViewUser = (props: Props) => {
   const {
     openView,
     closeViewModel,
-    fetchUserRole,
-    userAdmin,
-    patchUser,
-    updateUserRole,
-    fetchSingleUserAdmin,
-
-    fetchStaticResource
+    userAdmin
     //doLoginAuto
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
@@ -124,15 +100,15 @@ const ViewUser = (props: Props) => {
   React.useEffect(() => {
     const fetchData = async () => {
       dispatch(AuthService.doLoginAuto(false))
-      await fetchUserRole()
+      await dispatch(UserService.fetchUserRole())
     }
     if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      fetchSingleUserAdmin(userAdmin.id)
+      dispatch(UserService.fetchSingleUserAdmin(userAdmin.id))
       setRefetch(false)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
-      fetchStaticResource()
+      dispatch(UserService.fetchStaticResource())
     }
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
       dispatch(ScopeService.getScopeTypeService())
@@ -167,7 +143,7 @@ const ViewUser = (props: Props) => {
   }
 
   const patchUserRole = async (user: any, role: string) => {
-    await updateUserRole(user, role)
+    await dispatch(UserService.updateUserRole(user, role))
     handleCloseDialog()
     setRefetch(true)
   }
@@ -210,7 +186,7 @@ const ViewUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      patchUser(userAdmin.id, data)
+      dispatch(UserService.patchUser(userAdmin.id, data))
       setState({
         ...state,
         name: '',

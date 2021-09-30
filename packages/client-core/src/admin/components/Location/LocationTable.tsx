@@ -12,7 +12,7 @@ import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { useLocationState } from '../../reducers/admin/location/LocationState'
 import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
 import { useUserState } from '../../reducers/admin/user/UserState'
-import { fetchAdminScenes } from '../../reducers/admin/scene/SceneService'
+import { SceneService } from '../../reducers/admin/scene/SceneService'
 import { useSceneState } from '../../reducers/admin/scene/SceneState'
 import { UserService } from '../../reducers/admin/user/UserService'
 import { InstanceService } from '../../reducers/admin/instance/InstanceService'
@@ -30,19 +30,11 @@ import Button from '@material-ui/core/Button'
 import ViewLocation from './ViewLocation'
 import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/LocationState'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch)
-})
-
 const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const adminInstanceState = useInstanceState()
-  const { fetchAdminScenes } = props
+
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
@@ -75,7 +67,7 @@ const LocationTable = (props: LocationProps) => {
       dispatch(LocationService.fetchAdminLocations())
     }
     if (user?.id.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      fetchAdminScenes('all')
+      dispatch(SceneService.fetchAdminScenes('all'))
     }
     if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
       dispatch(LocationService.fetchLocationTypes())
@@ -263,4 +255,4 @@ const LocationTable = (props: LocationProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationTable)
+export default LocationTable

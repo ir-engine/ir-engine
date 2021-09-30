@@ -25,7 +25,7 @@ import { client } from '../../feathers'
 import { useAuthState } from '../../user/reducers/auth/AuthState'
 import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
 import { useLocationState } from '../reducers/admin/location/LocationState'
-import { fetchAdminScenes } from '../reducers/admin/scene/SceneService'
+import { SceneService } from '../reducers/admin/scene/SceneService'
 import { UserService } from '../reducers/admin/user/UserService'
 import { InstanceService } from '../reducers/admin/instance/InstanceService'
 import { useUserState } from './../reducers/admin/user/UserState'
@@ -45,7 +45,6 @@ if (!global.setImmediate) {
 
 interface Props {
   locationState?: any
-  fetchAdminScenes?: any
 }
 
 type Order = 'asc' | 'desc'
@@ -133,14 +132,6 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   )
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch)
-})
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     formControl: {
@@ -159,7 +150,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const AdminConsole = (props: Props) => {
   const classes = useStyles()
-  const { fetchAdminScenes } = props
 
   const router = useHistory()
   const adminInstanceState = useInstanceState()
@@ -399,7 +389,7 @@ const AdminConsole = (props: Props) => {
       dispatch(LocationService.fetchAdminLocations())
     }
     if (user?.id?.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      fetchAdminScenes()
+      dispatch(SceneService.fetchAdminScenes())
     }
     if (user?.id?.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
       dispatch(LocationService.fetchLocationTypes())
@@ -667,4 +657,4 @@ const AdminConsole = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminConsole)
+export default AdminConsole

@@ -15,27 +15,16 @@ import { Dispatch, bindActionCreators } from 'redux'
 import { useSceneStyles, useSceneStyle } from './styles'
 import { sceneColumns, SceneData } from './variables'
 import TablePagination from '@material-ui/core/TablePagination'
-import { fetchAdminScenes, deleteScene } from '../../reducers/admin/scene/SceneService'
-import { connect } from 'react-redux'
+import { SceneService } from '../../reducers/admin/scene/SceneService'
+import { connect, useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { useSceneState } from '../../reducers/admin/scene/SceneState'
 import ViewScene from './ViewScene'
 import { SCENE_PAGE_LIMIT } from '../../reducers/admin/scene/SceneState'
 
-interface Props {
-  fetchSceneAdmin?: any
-  deleteScene?: any
-}
-
-const mapStateToProps = (state: any): any => ({})
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchSceneAdmin: bindActionCreators(fetchAdminScenes, dispatch),
-  deleteScene: bindActionCreators(deleteScene, dispatch)
-})
+interface Props {}
 
 const SceneTable = (props: Props) => {
-  const { fetchSceneAdmin, deleteScene } = props
   const classx = useSceneStyles()
   const classes = useSceneStyle()
   const authState = useAuthState()
@@ -50,16 +39,17 @@ const SceneTable = (props: Props) => {
   const [sceneId, setSceneId] = React.useState('')
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(SCENE_PAGE_LIMIT)
+  const dispatch = useDispatch()
 
   React.useEffect(() => {
     if (user.id.value && scene.updateNeeded.value) {
-      fetchSceneAdmin()
+      dispatch(SceneService.fetchAdminScenes())
     }
   }, [user, scene.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchSceneAdmin(incDec)
+    dispatch(SceneService.fetchAdminScenes(incDec))
     setPage(newPage)
   }
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +78,7 @@ const SceneTable = (props: Props) => {
 
   const deleteSceneHandler = () => {
     setShowWarning(false)
-    deleteScene(sceneId)
+    dispatch(SceneService.deleteScene(sceneId))
   }
 
   const createData = (
@@ -206,4 +196,4 @@ const SceneTable = (props: Props) => {
     </div>
   )
 }
-export default connect(mapStateToProps, mapDispatchToProps)(SceneTable)
+export default SceneTable
