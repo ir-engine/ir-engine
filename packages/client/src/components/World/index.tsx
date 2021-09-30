@@ -140,17 +140,16 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
-    initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks).then((componentFunctions) => {
-      let key = 0
-      const props = {} // TODO
-      componentFunctions.forEach((componentFunction) => {
-        setCustomComponents([
-          ...customComponents,
-          React.cloneElement(componentFunction.default(props), { key: `reality-pack-component-${key++}` })
-        ])
-      })
-    })
     setIsTeleporting(false)
+    const componentFunctions = await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
+    let key = 0
+    const props = {} // TODO
+    componentFunctions.forEach((componentFunction) => {
+      setCustomComponents([
+        ...customComponents,
+        React.cloneElement(componentFunction.default(props), { key: `reality-pack-component-${key++}` })
+      ])
+    })
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {

@@ -5,8 +5,11 @@ import type { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
 
 interface RealityPackNodeArguments {
   packName: string
-  injectionPoint: keyof typeof SystemUpdateType
-  args: any
+  entryPoints: {
+    systemUpdateType: keyof typeof SystemUpdateType
+    entryPoint: string
+    args: any
+  }[]
 }
 
 type RealityPackReactComponent = Promise<{ default: (...args: any) => JSX.Element }>
@@ -25,16 +28,8 @@ export const getPacksFromSceneData = async (sceneData: SceneData, isClient: bool
     for (const component of entity.components) {
       if (component.type === 'realitypack') {
         const data: RealityPackNodeArguments = component.data
-        const realityPackModules = await importPack(data.packName, isClient)
-        modules.systems.push(
-          ...realityPackModules.systems.map((s) => {
-            return {
-              systemModulePromise: s,
-              args: data.args,
-              type: data.injectionPoint as keyof typeof SystemUpdateType
-            } as SystemModuleType<any>
-          })
-        )
+        const realityPackModules = await importPack(data, isClient)
+        modules.systems.push(...realityPackModules.systems)
         modules.react.push(...realityPackModules.react)
       }
     }
@@ -42,28 +37,35 @@ export const getPacksFromSceneData = async (sceneData: SceneData, isClient: bool
   return modules
 }
 
-export const importPack = async (packName: string, isClient: boolean) => {
+export const importPack = async (data: RealityPackNodeArguments, isClient: boolean): Promise<RealityPackModules> => {
   const modules = {
     systems: [],
     react: []
   }
-
   try {
-    const realityPackManifest = (await import(`./packs/${packName}/manifest.json`)) as RealityPackInterface
+    const realityPackManifest = (await import(`./packs/${data.packName}/manifest.json`)) as RealityPackInterface
 
-    for (const entryPoint of realityPackManifest.moduleEntryPoints) {
+    for (const { entryPoint, systemUpdateType, args } of data.entryPoints) {
       const entryPointSplit = entryPoint.split('.')
       const entryPointExtension = entryPointSplit.pop()
-      const entryPointFileName = entryPointSplit.join('')
+      const entryPointFileName = entryPointSplit.join('.')
       // vite MUST have the extension as part of the string, so unfortunately we have to manually try all potential file paths
       // TODO: we could make our own derivate of https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars which can handle this more elegantly
       try {
         switch (entryPointExtension) {
           case 'js':
-            modules.systems.push(await import(`./packs/${packName}/${entryPointFileName}.js`))
+            modules.systems.push({
+              systemModulePromise: await import(`./packs/${data.packName}/${entryPointFileName}.js`),
+              type: systemUpdateType,
+              args
+            })
             break
           case 'ts':
-            modules.systems.push(await import(`./packs/${packName}/${entryPointFileName}.ts`))
+            modules.systems.push({
+              systemModulePromise: await import(`./packs/${data.packName}/${entryPointFileName}.ts`),
+              type: systemUpdateType,
+              args
+            })
             break
           default:
             console.error(
@@ -80,14 +82,14 @@ export const importPack = async (packName: string, isClient: boolean) => {
       for (const entryPoint of realityPackManifest.clientReactEntryPoint) {
         const entryPointSplit = entryPoint.split('.')
         const entryPointExtension = entryPointSplit.pop()
-        const entryPointFileName = entryPointSplit.join('')
+        const entryPointFileName = entryPointSplit.join('.')
         try {
           switch (entryPointExtension) {
             case 'jsx':
-              modules.react.push(await import(`./packs/${packName}/${entryPointFileName}.jsx`))
+              modules.react.push(await import(`./packs/${data.packName}/${entryPointFileName}.jsx`))
               break
             case 'tsx':
-              modules.react.push(await import(`./packs/${packName}/${entryPointFileName}.tsx`))
+              modules.react.push(await import(`./packs/${data.packName}/${entryPointFileName}.tsx`))
               break
             default:
               console.error(
@@ -101,7 +103,7 @@ export const importPack = async (packName: string, isClient: boolean) => {
       }
     }
   } catch (e) {
-    console.log(`[RealityPackLoader]: Failed to load reality pack manifest ${packName} with error ${e}`)
+    console.log(`[RealityPackLoader]: Failed to load reality pack manifest ${data.packName} with error ${e}`)
   }
 
   return modules

@@ -9,6 +9,8 @@ import axios from 'axios'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import express from 'express'
+import fs from 'fs'
+import path from 'path'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -29,6 +31,30 @@ export const addRealityPack = (app: any): any => {
     return true
   }
 }
+
+export const getDownloadedRealityPacks = async () => {
+  const packs = fs
+    .readdirSync(path.resolve(__dirname, '../../../../realitypacks/packs/'), { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name)
+    .map((dir) => {
+      try {
+        const json: RealityPackInterface = JSON.parse(
+          fs.readFileSync(path.resolve(__dirname, '../../../../realitypacks/packs/' + dir + '/manifest.json'), 'utf8')
+        )
+        json.name = dir
+        return json
+      } catch (e) {
+        console.warn('[getRealityPacks]: Failed to read manifest.json for reality pack', dir, 'with error', e)
+        return
+      }
+    })
+    .filter((val) => val !== undefined)
+  return {
+    data: packs
+  } as any
+}
+
 export default (app: Application): void => {
   const options = {
     Model: createModel(app),
@@ -38,14 +64,16 @@ export default (app: Application): void => {
 
   const event = new RealityPack(options, app)
   event.docs = realityPackDocs
+
+  // override dev such that the /packages/realitypacks/packs/ directory can be used directly
+  if (isDev) {
+    event.find = getDownloadedRealityPacks
+  }
+
   app.use('/reality-pack', event)
   app.use('/upload-reality-pack', {
     create: addRealityPack(app)
   })
-
-  if (isDev) {
-    app.use('/reality-pack/list', async (req: express.Request, res: express.Response) => {})
-  }
 
   const service = app.service('reality-pack')
 
