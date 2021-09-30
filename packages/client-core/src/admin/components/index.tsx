@@ -23,12 +23,12 @@ import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { client } from '../../feathers'
 import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
+import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
 import { useLocationState } from '../reducers/admin/location/LocationState'
 import { fetchAdminScenes } from '../reducers/admin/scene/SceneService'
-import { fetchUsersAsAdmin } from '../reducers/admin/user/service'
+import { UserService } from '../reducers/admin/user/UserService'
 import { InstanceService } from '../reducers/admin/instance/InstanceService'
-import { selectAdminUserState } from './../reducers/admin/user/selector'
+import { useUserState } from './../reducers/admin/user/UserState'
 import { useInstanceState } from './../reducers/admin/instance/InstanceState'
 import { LocationService } from '../reducers/admin/location/LocationService'
 import { useSceneState } from './../reducers/admin/scene/SceneState'
@@ -46,8 +46,6 @@ if (!global.setImmediate) {
 interface Props {
   locationState?: any
   fetchAdminScenes?: any
-  fetchUsersAsAdmin?: any
-  adminUserState?: any
 }
 
 type Order = 'asc' | 'desc'
@@ -136,14 +134,11 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    adminUserState: selectAdminUserState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch)
+  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch)
 })
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -164,7 +159,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const AdminConsole = (props: Props) => {
   const classes = useStyles()
-  const { fetchAdminScenes, fetchUsersAsAdmin, adminUserState } = props
+  const { fetchAdminScenes } = props
 
   const router = useHistory()
   const adminInstanceState = useInstanceState()
@@ -245,19 +240,20 @@ const AdminConsole = (props: Props) => {
   const adminLocationState = useLocationState()
   const adminLocations = adminLocationState.locations.locations
   const adminLocationCount = adminLocationState.locations.total
-  const adminUsers = adminUserState.get('users').get('users')
-  const adminUserCount = adminUserState.get('users').get('total')
+  const adminUserState = useUserState()
+  const adminUsers = adminUserState.users.users
+  const adminUserCount = adminUserState.users.total
   const adminInstances = adminInstanceState.instances.instances
-  const adminInstanceCount = adminInstanceState.instances.total.value
+  const adminInstanceCount = adminInstanceState.instances.total
   const { t } = useTranslation()
 
   const selectCount =
     selectedTab === 'locations'
-      ? adminLocationCount
+      ? adminLocationCount.value
       : selectedTab === 'users'
-      ? adminUserCount
+      ? adminUserCount.value
       : selectedTab === 'instances'
-      ? adminInstanceCount
+      ? adminInstanceCount.value
       : 0
   const displayLocations = adminLocations.value.map((location) => {
     return {
@@ -330,7 +326,7 @@ const AdminConsole = (props: Props) => {
         dispatch(LocationService.fetchAdminLocations(incDec))
         break
       case 'users':
-        fetchUsersAsAdmin(incDec)
+        dispatch(UserService.fetchUsersAsAdmin(incDec))
         break
       case 'instances':
         dispatch(InstanceService.fetchAdminInstances(incDec))
@@ -391,7 +387,7 @@ const AdminConsole = (props: Props) => {
   useEffect(() => {
     if (Object.keys(selectedUser).length === 0) {
       let role = {}
-      adminUsers.forEach((element) => {
+      adminUsers.value.forEach((element) => {
         role[element.id] = element.userRole
       })
       setSelectedUser(role)
@@ -408,8 +404,8 @@ const AdminConsole = (props: Props) => {
     if (user?.id?.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
       dispatch(LocationService.fetchLocationTypes())
     }
-    if (user?.id?.value != null && adminUserState.get('users').get('updateNeeded') === true) {
-      fetchUsersAsAdmin()
+    if (user?.id?.value != null && adminUserState.users.updateNeeded.value === true) {
+      dispatch(UserService.fetchUsersAsAdmin())
     }
     if (user?.id?.value != null && adminInstanceState.instances.updateNeeded.value === true) {
       dispatch(InstanceService.fetchAdminInstances())
@@ -531,7 +527,7 @@ const AdminConsole = (props: Props) => {
             )}
             {selectedTab === 'users' && (
               <TableBody className={styles.thead}>
-                {stableSort(adminUsers, getComparator(order, orderBy)).map((row, index) => {
+                {stableSort(adminUsers.value, getComparator(order, orderBy)).map((row, index) => {
                   return (
                     <TableRow
                       className={styles.trow}

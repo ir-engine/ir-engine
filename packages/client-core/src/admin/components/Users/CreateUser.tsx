@@ -1,10 +1,9 @@
 import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
-import { createUser as createUserAction, fetchStaticResource } from '../../reducers/admin/user/service'
+import { UserService } from '../../reducers/admin/user/UserService'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { fetchUserRole } from '../../reducers/admin/user/service'
+import { connect, useDispatch } from 'react-redux'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import CreateUserRole from './CreateUserRole'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -15,7 +14,7 @@ import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
 import { useUserStyles, useUserStyle } from './styles'
-import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import { useUserState } from '../../reducers/admin/user/UserState'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -23,8 +22,8 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
-import { getScopeTypeService } from '../../reducers/admin/scope/service'
-import { selectScopeState } from '../../reducers/admin/scope/selector'
+import { ScopeService } from '../../reducers/admin/scope/ScopeService'
+import { useScopeState } from '../../reducers/admin/scope/ScopeState'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -33,41 +32,13 @@ const Alert = (props) => {
 interface Props {
   open: boolean
   handleClose: any
-  createUserAction?: any
-  fetchUserRole?: any
   closeViewModel: any
-  adminUserState?: any
-  fetchStaticResource?: any
-  getScopeTypeService?: any
-  adminScopeState?: any
 }
-const mapStateToProps = (state: any): any => {
-  return {
-    adminUserState: selectAdminUserState(state),
-    adminScopeState: selectScopeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createUserAction: bindActionCreators(createUserAction, dispatch),
-  fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
-})
 
 const CreateUser = (props: Props) => {
-  const {
-    open,
-    handleClose,
-    closeViewModel,
-    fetchUserRole,
-    adminUserState,
-    fetchStaticResource,
-    createUserAction,
-    getScopeTypeService,
-    adminScopeState
-  } = props
+  const { open, handleClose, closeViewModel } = props
 
+  const dispatch = useDispatch()
   const classes = useUserStyles()
   const classesx = useUserStyle()
   const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false)
@@ -88,25 +59,28 @@ const CreateUser = (props: Props) => {
   const [error, setError] = React.useState('')
 
   const user = useAuthState().user
-  const userRole = adminUserState.get('userRole')
-  const userRoleData = userRole ? userRole.get('userRole') : []
-  const staticResource = adminUserState.get('staticResource')
-  const staticResourceData = staticResource.get('staticResource')
-  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
+  const adminUserState = useUserState()
+  const userRole = adminUserState.userRole
+  const userRoleData = userRole ? userRole.userRole?.value : []
+  const staticResource = adminUserState.staticResource
+  const staticResourceData = staticResource.staticResource
+
+  const adminScopeState = useScopeState()
+  const adminScopes = adminScopeState.scopeType.scopeType
 
   React.useEffect(() => {
     const fetchData = async () => {
-      await fetchUserRole()
+      await dispatch(UserService.fetchUserRole())
     }
-    const role = userRole ? userRole.get('updateNeeded') : false
+    const role = userRole ? userRole.updateNeeded.value : false
     if (role === true && user.id.value) fetchData()
-    if (user.id.value && staticResource.get('updateNeeded')) {
-      fetchStaticResource()
+    if (user.id.value && staticResource.updateNeeded.value) {
+      dispatch(UserService.fetchStaticResource())
     }
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
-      getScopeTypeService()
+    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
+      dispatch(ScopeService.getScopeTypeService())
     }
-  }, [adminUserState, user])
+  }, [adminScopeState.scopeType.updateNeeded.value, user])
 
   const createUserRole = () => {
     setOpenCreateUserRole(true)
@@ -165,7 +139,7 @@ const CreateUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      createUserAction(data)
+      dispatch(UserService.createUser(data))
       closeViewModel(false)
       setState({
         ...state,
@@ -219,7 +193,7 @@ const CreateUser = (props: Props) => {
                 <MenuItem value="" disabled>
                   <em>Select avatar</em>
                 </MenuItem>
-                {staticResourceData.map((el) => (
+                {staticResourceData.value.map((el) => (
                   <MenuItem value={el.name} key={el.id}>
                     {el.name}
                   </MenuItem>
@@ -276,7 +250,7 @@ const CreateUser = (props: Props) => {
               className={classes.selector}
               classes={{ paper: classesx.selectPaper, inputRoot: classes.select }}
               id="tags-standard"
-              options={adminScopes}
+              options={adminScopes.value}
               disableCloseOnSelect
               filterOptions={(options: any) =>
                 options.filter((option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null)
@@ -312,4 +286,4 @@ const CreateUser = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateUser)
+export default CreateUser

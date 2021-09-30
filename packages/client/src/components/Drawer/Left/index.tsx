@@ -8,8 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
 import TextField from '@material-ui/core/TextField'
 import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@material-ui/icons'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
-import { updateChatTarget, updateMessageScrollInit } from '@xrengine/client-core/src/social/reducers/chat/service'
+import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
 import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
 import { getFriends, unfriend } from '@xrengine/client-core/src/social/reducers/friend/service'
 import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
@@ -46,7 +45,6 @@ import styles from './Left.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    chatState: selectChatState(state),
     friendState: selectFriendState(state),
     groupState: selectSocialGroupState(state),
     locationState: selectLocationState(state),
@@ -68,8 +66,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removePartyUser: bindActionCreators(removePartyUser, dispatch),
   transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
   updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
-  updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
-  updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
   banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch)
 })
 
@@ -99,8 +95,6 @@ interface Props {
   transferPartyOwner?: any
   setBottomDrawerOpen: any
   updateInviteTarget?: any
-  updateChatTarget?: any
-  updateMessageScrollInit?: any
   banUserFromLocation?: any
   detailsType?: string
   setDetailsType?: any
@@ -159,8 +153,6 @@ const LeftDrawer = (props: Props): any => {
       setRightDrawerOpen,
       setBottomDrawerOpen,
       updateInviteTarget,
-      updateChatTarget,
-      updateMessageScrollInit,
       banUserFromLocation,
       detailsType,
       setDetailsType,
@@ -466,8 +458,8 @@ const LeftDrawer = (props: Props): any => {
       if (harmony !== true) setBottomDrawerOpen(true)
       // else if (harmony === true) setHarmonyOpen(true);
       setTimeout(() => {
-        updateChatTarget(targetObjectType, targetObject)
-        updateMessageScrollInit(true)
+        dispatch(ChatService.updateChatTarget(targetObjectType, targetObject))
+        dispatch(ChatService.updateMessageScrollInit(true))
       }, 100)
     }
 

@@ -26,7 +26,7 @@ import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPl
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
+import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 import { provisionChannelServer } from '../../reducers/channelConnection/service'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -85,7 +85,6 @@ interface Props {
   showTouchpad?: boolean
   engineCallbacks?: EngineCallbacks
   children?: any
-  chatState?: any
 }
 
 const mapStateToProps = (state: any) => {
@@ -94,8 +93,7 @@ const mapStateToProps = (state: any) => {
 
     instanceConnectionState: selectInstanceConnectionState(state), //
     locationState: selectLocationState(state),
-    partyState: selectPartyState(state),
-    chatState: selectChatState(state)
+    partyState: selectPartyState(state)
   }
 }
 
@@ -117,7 +115,7 @@ export const EnginePage = (props: Props) => {
   const party = props.partyState.get('party')
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
   let sceneId = null
-
+  const chatState = useChatState()
   const userState = useUserState()
   const dispatch = useDispatch()
 
@@ -200,12 +198,13 @@ export const EnginePage = (props: Props) => {
   }, [props.instanceConnectionState])
 
   useEffect(() => {
-    if (props.chatState.get('instanceChannelFetched')) {
-      const channels = props.chatState.get('channels').get('channels')
-      const instanceChannel = [...channels.entries()].find((channel) => channel[1].channelType === 'instance')
+    if (chatState.instanceChannelFetched.value) {
+      const channels = chatState.channels.channels.value
+
+      const instanceChannel = Object.entries(channels).find((channel) => channel[1].channelType === 'instance')
       props.provisionChannelServer(null, instanceChannel[0])
     }
-  }, [props.chatState.get('instanceChannelFetched')])
+  }, [chatState.instanceChannelFetched.value])
 
   useEffect(() => {
     return (): void => {

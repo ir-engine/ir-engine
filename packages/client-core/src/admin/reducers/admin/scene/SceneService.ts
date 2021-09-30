@@ -3,7 +3,7 @@ import { Dispatch } from 'redux'
 import { SceneAction } from './SceneActions'
 import { accessSceneState } from './SceneState'
 export function fetchAdminScenes(incDec?: 'increment' | 'decrement' | 'all') {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+  return async (dispatch: Dispatch): Promise<any> => {
     const adminScene = accessSceneState()
     const skip = adminScene.scenes.skip.value
     const limit = adminScene.scenes.limit.value

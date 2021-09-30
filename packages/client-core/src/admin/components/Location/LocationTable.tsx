@@ -11,10 +11,10 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { useLocationState } from '../../reducers/admin/location/LocationState'
 import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
-import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import { useUserState } from '../../reducers/admin/user/UserState'
 import { fetchAdminScenes } from '../../reducers/admin/scene/SceneService'
 import { useSceneState } from '../../reducers/admin/scene/SceneState'
-import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
+import { UserService } from '../../reducers/admin/user/UserService'
 import { InstanceService } from '../../reducers/admin/instance/InstanceService'
 import { useErrorState } from '../../../common/reducers/error/ErrorState'
 import { connect, useDispatch } from 'react-redux'
@@ -31,21 +31,18 @@ import ViewLocation from './ViewLocation'
 import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/LocationState'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    adminUserState: selectAdminUserState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch)
+  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch)
 })
 
 const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const adminInstanceState = useInstanceState()
-  const { fetchAdminScenes, fetchUsersAsAdmin, adminUserState } = props
+  const { fetchAdminScenes } = props
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
@@ -61,6 +58,7 @@ const LocationTable = (props: LocationProps) => {
   const adminLocations = adminLocationState.locations.locations
   const adminLocationCount = adminLocationState.locations.total
   const { t } = useTranslation()
+  const adminUserState = useUserState()
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     dispatch(LocationService.fetchAdminLocations(incDec))
@@ -82,8 +80,8 @@ const LocationTable = (props: LocationProps) => {
     if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
       dispatch(LocationService.fetchLocationTypes())
     }
-    if (user?.id.value != null && adminUserState.get('users').get('updateNeeded') === true) {
-      fetchUsersAsAdmin()
+    if (user?.id.value != null && adminUserState.users.updateNeeded.value === true) {
+      dispatch(UserService.fetchUsersAsAdmin())
     }
     if (user?.id.value != null && adminInstanceState.instances.updateNeeded.value === true) {
       dispatch(InstanceService.fetchAdminInstances())

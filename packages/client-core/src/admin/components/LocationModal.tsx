@@ -19,7 +19,7 @@ import { LocationService } from '../reducers/admin/location/LocationService'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { selectAdminSceneState } from '../reducers/admin/scene/selector'
+import { useSceneState } from '../reducers/admin/scene/SceneState'
 import { useLocationState } from '../reducers/admin/location/LocationState'
 
 interface Props {
@@ -27,19 +27,10 @@ interface Props {
   handleClose: any
   location: any
   editing: boolean
-  adminSceneState?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminSceneState: selectAdminSceneState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const LocationModal = (props: Props): any => {
-  const { open, handleClose, location, editing, adminSceneState } = props
+  const { open, handleClose, location, editing } = props
   const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [sceneId, setSceneId] = useState('')
@@ -47,7 +38,8 @@ const LocationModal = (props: Props): any => {
   const [videoEnabled, setVideoEnabled] = useState(false)
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [locationType, setLocationType] = useState('private')
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
+  const adminSceneState = useSceneState()
+  const adminScenes = adminSceneState.scenes.scenes
   const locationTypes = useLocationState().locationTypes.locationTypes
   const [state, setState] = React.useState({
     feature: false,
@@ -170,7 +162,7 @@ const LocationModal = (props: Props): any => {
             <FormControl>
               <InputLabel id="scene">{t('admin:components.locationModel.lbl-scene')}</InputLabel>
               <Select labelId="scene" id="scene" value={sceneId} onChange={(e) => setSceneId(e.target.value as string)}>
-                {adminScenes.map((scene) => (
+                {adminScenes.value.map((scene) => (
                   <MenuItem key={scene.sid} value={scene.sid}>{`${scene.name} (${scene.sid})`}</MenuItem>
                 ))}
               </Select>
@@ -272,4 +264,4 @@ const LocationModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationModal)
+export default LocationModal

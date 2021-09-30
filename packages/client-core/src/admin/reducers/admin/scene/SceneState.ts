@@ -7,7 +7,7 @@ import { SceneActionType } from './SceneActions'
 
 export const SCENE_PAGE_LIMIT = 100
 
-export const state = createState({
+const state = createState({
   isLoggedIn: false,
   isProcessing: false,
   error: '',

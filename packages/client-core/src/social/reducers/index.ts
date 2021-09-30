@@ -1,4 +1,4 @@
-import chatReducer from './chat/reducers'
+import { chatReducer } from './chat/ChatState'
 import friendReducer from './friend/reducers'
 import locationReducer from './location/reducers'
 import groupReducer from './group/reducers'

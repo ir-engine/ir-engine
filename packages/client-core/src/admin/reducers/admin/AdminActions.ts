@@ -1,5 +1,4 @@
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
-import { VIDEO_CREATED, VIDEO_DELETED, VIDEO_UPDATED } from '../actions'
 
 export interface VideoCreationForm {
   name: string
@@ -49,37 +48,25 @@ export interface VideoDeletedResponse {
   staticResourceType: string
 }
 
-export interface VideoCreatedAction {
-  type: string
-  data: StaticResource
-}
-export interface VideoDeletedAction {
-  type: string
-  data: StaticResource
-}
-
-export interface VideoUpdatedAction {
-  type: string
-  data: StaticResource
-}
-
-export function videoCreated(data: VideoCreatedResponse): VideoCreatedAction {
-  return {
-    type: VIDEO_CREATED,
-    data: data
+export const AdminAction = {
+  videoCreated: (data: VideoCreatedResponse) => {
+    return {
+      type: 'VIDEO_CREATED' as const,
+      data: data
+    }
+  },
+  videoUpdated: (data: VideoUpdatedResponse) => {
+    return {
+      type: 'VIDEO_UPDATED' as const,
+      data: data
+    }
+  },
+  videoDeleted: (data: VideoDeletedResponse) => {
+    return {
+      type: 'VIDEO_DELETED' as const,
+      data: data
+    }
   }
 }
 
-export function videoUpdated(data: VideoUpdatedResponse): VideoUpdatedAction {
-  return {
-    type: VIDEO_UPDATED,
-    data: data
-  }
-}
-
-export function videoDeleted(data: VideoDeletedResponse): VideoDeletedAction {
-  return {
-    type: VIDEO_DELETED,
-    data: data
-  }
-}
+export type AdminActionType = ReturnType<typeof AdminAction[keyof typeof AdminAction]>

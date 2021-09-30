@@ -5,14 +5,16 @@ import { AlertService } from '../../../../common/reducers/alert/AlertService'
 import Store from '../../../../store'
 import { Config } from '@xrengine/common/src/config'
 import { accessInstanceState } from './InstanceState'
+import { accessAuthState } from '../../../../user/reducers/auth/AuthState'
+
 export const InstanceService = {
   fetchAdminInstances: (incDec?: 'increment' | 'decrement') => {
-    return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    return async (dispatch: Dispatch): Promise<any> => {
       const skip = accessInstanceState().instances.skip.value
       const limit = accessInstanceState().instances.limit.value
-      const user = getState().get('auth').user
+      const user = accessAuthState().user
       try {
-        if (user.userRole === 'admin') {
+        if (user.userRole.value === 'admin') {
           const instances = await client.service('instance').find({
             query: {
               $sort: {

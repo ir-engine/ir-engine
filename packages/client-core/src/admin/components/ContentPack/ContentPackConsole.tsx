@@ -7,21 +7,18 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import DownloadModal from './DownloadModal'
-import { selectContentPackState } from '../../reducers/contentPack/selector'
+import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { fetchContentPacks } from '../../reducers/contentPack/service'
+import { fetchContentPacks } from '../../reducers/contentPack/ContentPackService'
 import ContentPackDetailsModal from './ContentPackDetailsModal'
 import styles from './ContentPack.module.scss'
 
 interface Props {
-  contentPackState?: any
   fetchContentPacks?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    contentPackState: selectContentPackState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -29,11 +26,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const ContentPacksConsole = (props: Props) => {
-  const { fetchContentPacks, contentPackState } = props
+  const { fetchContentPacks } = props
   const [downloadModalOpen, setDownloadModalOpen] = useState(false)
   const [contentPackDetailsModalOpen, setContentPackDetailsModalOpen] = useState(false)
   const [selectedContentPack, setSelectedContentPack] = useState({ avatars: [], scenes: [] })
-  const contentPacks = contentPackState.get('contentPacks')
+  const contentPackState = useContentPackState()
+  const contentPacks = contentPackState.contentPacks
 
   const openDownloadModal = () => {
     setDownloadModalOpen(true)
@@ -53,10 +51,10 @@ const ContentPacksConsole = (props: Props) => {
   }
 
   useEffect(() => {
-    if (contentPackState.get('updateNeeded') === true) {
+    if (contentPackState.updateNeeded.value === true) {
       fetchContentPacks()
     }
-  }, [contentPackState])
+  }, [contentPackState.updateNeeded.value])
 
   return (
     <div>
@@ -75,7 +73,7 @@ const ContentPacksConsole = (props: Props) => {
           </ListSubheader>
         }
       >
-        {contentPacks.map((contentPack) => (
+        {contentPacks.value.map((contentPack) => (
           <ListItem key={contentPack.name} onClick={() => openDetailsModal(contentPack)} button>
             <ListItemText>{contentPack.name}</ListItemText>
           </ListItem>

@@ -1,6 +1,6 @@
-import adminReducer from './admin/reducers'
-import adminUserReducer from './admin/user/reducers'
-import contentPackReducer from './contentPack/reducers'
+import { adminReducer } from './admin/AdminState'
+import { adminUserReducer } from './admin/user/UserState'
+import { contentPackReducer } from './contentPack/ContentPackState'
 import { adminAvatarReducer } from './admin/avatar/AvatarState'
 import { adminInstanceReducer } from './admin/instance/InstanceState'
 import { adminLocationReducer } from './admin/location/LocationState'
@@ -13,7 +13,7 @@ import arMediaReducer from '@xrengine/social/src/reducers/arMedia/reducers'
 import feedsReducer from '@xrengine/social/src/reducers/feed/reducers'
 import creatorReducer from '@xrengine/social/src/reducers/creator/reducers'
 import { adminGroupReducer } from './admin/group/GroupState'
-import scopeReducer from './admin/scope/reducers'
+import { adminScopeReducer } from './admin/scope/ScopeState'
 
 /**
  * TODO: I am moving admin reducer to different packages
@@ -37,5 +37,5 @@ export default {
   feedsAdmin: feedsReducer,
   adminCreator: creatorReducer,
   group: adminGroupReducer,
-  scope: scopeReducer
+  scope: adminScopeReducer
 }

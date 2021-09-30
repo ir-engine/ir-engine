@@ -7,6 +7,7 @@ import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { client } from '@xrengine/client-core/src/feathers'
 import Store from '@xrengine/client-core/src/store'
+import { accessChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 
 import {
   channelServerConnected,
@@ -58,12 +59,11 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       const authState = accessAuthState()
       const user = authState.user.value
       const token = authState.authUser.accessToken.value
-      const chatState = getState().get('chat')
-      const channelState = chatState.get('channels')
-      const channels = channelState.get('channels')
-      const channelEntries = [...channels.entries()]
+      const chatState = accessChatState()
+      const channelState = chatState.channels
+      const channels = channelState.channels.value
+      const channelEntries = Object.entries(channels)
       const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
-
       const channelConnectionState = getState().get('channelConnection')
       const instance = channelConnectionState.get('instance')
       const locationId = channelConnectionState.get('locationId')

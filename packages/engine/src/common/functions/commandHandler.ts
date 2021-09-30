@@ -20,7 +20,7 @@ import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { isBot } from './isBot'
 import { Engine } from '../../ecs/classes/Engine'
-
+import { accessChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
 
@@ -415,10 +415,10 @@ function handleFollowCommand(param: string, eid: number) {
 }
 
 function handleGetChatHistoryCommand() {
-  const chatState = globalThis.store.getState().get('chat')
-  const channelState = chatState.get('channels')
-  const channels = channelState.get('channels')
-  const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance')
+  const chatState = accessChatState()
+  const channelState = chatState.channels
+  const channels = channelState.channels
+  const activeChannelMatch = Object.entries(channels).find(([, channel]) => channel.channelType === 'instance')
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     const activeChannel = activeChannelMatch[1]
     if (activeChannel === undefined) return

@@ -7,7 +7,7 @@ import { LocationActionType } from './LocationActions'
 
 export const LOCATION_PAGE_LIMIT = 100
 
-export const state = createState({
+const state = createState({
   isLoggedIn: false,
   isProcessing: false,
   error: '',

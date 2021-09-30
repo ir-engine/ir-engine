@@ -5,20 +5,17 @@ import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 import { GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { selectCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/selector'
+import { useSceneState } from '@xrengine/client-core/src/world/reducers/scenes/SceneState'
 interface Props {
   objectsToLoad?: number
-  currentScene?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    currentScene: selectCurrentScene(state)
-  }
+  return {}
 }
 
 const LoadingScreen = (props: Props) => {
-  const { objectsToLoad, currentScene } = props
+  const { objectsToLoad } = props
   const onBoardingStep = useAppState().onBoardingStep
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')

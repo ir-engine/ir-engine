@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
+import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -34,7 +34,6 @@ const mapStateToProps = (state: any): any => {
   return {
     locationState: selectLocationState(state),
     mediastream: state.get('mediastream'),
-    chatState: selectChatState(state),
     channelConnectionState: selectChannelConnectionState(state)
   }
 }
@@ -44,15 +43,16 @@ const mapDispatchToProps = (dispatch): any => ({
 })
 
 const MediaIconsBox = (props) => {
-  const { locationState, mediastream, chatState, changeFaceTrackingState, channelConnectionState } = props
+  const { locationState, mediastream, changeFaceTrackingState, channelConnectionState } = props
   const [xrSupported, setXRSupported] = useState(false)
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const user = useAuthState().user
-  const channelState = chatState.get('channels')
-  const channels = channelState.get('channels')
-  const channelEntries = [...channels.entries()]
+  const chatState = useChatState()
+  const channelState = chatState.channels
+  const channels = channelState.channels.value
+  const channelEntries = Object.entries(channels)
   const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
   const currentLocation = locationState.get('currentLocation').get('location')
 

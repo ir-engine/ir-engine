@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/reducers'
+import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/AdminState'
 import { fetchAdminScenes } from '../../reducers/admin/scene/SceneService'
 import { LocationService } from '../../reducers/admin/location/LocationService'
 import styles from './Scenes.module.scss'

@@ -1,5 +1,3 @@
-import { VIDEOS_FETCHED_SUCCESS, VIDEOS_FETCHED_ERROR } from '../../../user/reducers/actions'
-
 export interface PublicVideoState {
   videos: PublicVideo[]
   error: string
@@ -26,12 +24,6 @@ export interface Image {
   type: string
   url: string
 }
-export interface VideosFetchedAction {
-  type: string
-  videos?: PublicVideo[]
-  image?: Image
-  message?: string
-}
 
 export interface UploadAction {
   type: string
@@ -39,16 +31,19 @@ export interface UploadAction {
   message?: string
 }
 
-export function videosFetchedSuccess(videos: PublicVideo[]): VideosFetchedAction {
-  return {
-    type: VIDEOS_FETCHED_SUCCESS,
-    videos: videos
+export const VideoAction = {
+  videosFetchedSuccess: (videos: PublicVideo[]) => {
+    return {
+      type: 'VIDEOS_FETCHED_SUCCESS' as const,
+      videos: videos
+    }
+  },
+  videosFetchedError: (err: string) => {
+    return {
+      type: 'VIDEOS_FETCHED_ERROR' as const,
+      message: err
+    }
   }
 }
 
-export function videosFetchedError(err: string): VideosFetchedAction {
-  return {
-    type: VIDEOS_FETCHED_ERROR,
-    message: err
-  }
-}
+export type VideoActionType = ReturnType<typeof VideoAction[keyof typeof VideoAction]>

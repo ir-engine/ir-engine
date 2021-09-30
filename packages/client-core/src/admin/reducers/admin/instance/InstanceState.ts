@@ -6,7 +6,7 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 
 export const INSTNCE_PAGE_LIMIT = 100
 
-export const state = createState({
+const state = createState({
   isLoggedIn: false,
   isProcessing: false,
   error: '',
