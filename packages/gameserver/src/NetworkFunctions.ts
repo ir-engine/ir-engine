@@ -129,7 +129,7 @@ export async function validateNetworkObjects(): Promise<void> {
   const world = Engine.defaultWorld!
   for (const [userId, client] of world.clients) {
     // Validate that user has phoned home recently
-    if (Date.now() - client.lastSeenTs > 30000) {
+    if (process.env.NODE_ENV !== 'development' && Date.now() - client.lastSeenTs > 30000) {
       console.log('Removing client ', userId, ' due to inactivity')
       if (!client) return console.warn('Client is not in client list')
 
