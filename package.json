@@ -68,7 +68,7 @@
     "validate": "npm run lint && lerna run validate",
     "build": "lerna run build --parallel",
     "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
-    "build-docker": "lerna run --ignore @xrengine/client --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
+    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
@@ -143,6 +143,7 @@
     "puppeteer": "10.4.0",
     "react-router-dom": "5.3.0",
     "supertest": "6.1.6",
+    "ts-eager": "2.0.2",
     "trace-unhandled": "2.0.1",
     "yuka": "0.7.6"
   },

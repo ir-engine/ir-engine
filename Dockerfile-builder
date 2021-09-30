@@ -5,7 +5,7 @@ RUN apt update
 # Create app directory
 WORKDIR /app
 
-RUN npm install -g lerna cross-env rimraf --loglevel notice
+RUN npm install -g lerna cross-env rimraf ts-eager --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
@@ -23,15 +23,14 @@ COPY packages/gallery/package.json ./packages/gallery/
 COPY packages/bot/package.json ./packages/bot/
 COPY packages/realitypacks/package.json ./packages/realitypacks/
 
-#RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 
 COPY . .
 
-# copy then compile the code
+RUN rm .dockerignore
 
-RUN npm run build-docker
+# copy then compile the code
 
 ENV APP_ENV=production
 
-CMD ["scripts/start-server.sh"]
+CMD ["scripts/run-builder.sh"]
