@@ -8,7 +8,6 @@ import { getAxiosConfig, populateRealityPack } from '../content-pack/content-pac
 import axios from 'axios'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import express from 'express'
 import fs from 'fs'
 import path from 'path'
 
