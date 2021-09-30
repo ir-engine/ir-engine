@@ -87,6 +87,7 @@ export const createApp = (): Application => {
         socketio(
           {
             serveClient: false,
+            pingTimeout: process.env.NODE_ENV === 'development' ? 1200000 : 20000,
             cors: {
               origin: [
                 'https://' + config.gameserver.clientHost,
