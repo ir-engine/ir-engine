@@ -38,7 +38,8 @@ function avatarActionReceptor(action) {
               controllerGripLeft: new Group(),
               controllerGripRight: new Group(),
               container: new Group(),
-              head: new Group()
+              head: new Group(),
+              hands: []
             })
         } else {
           if (hasComponent(entity, XRInputSourceComponent)) {
@@ -74,7 +75,6 @@ export default async function AvatarSystem(world: World): Promise<System> {
 
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
-  const avatarQuery = defineQuery([AvatarComponent, ColliderComponent])
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
 
@@ -87,7 +87,8 @@ export default async function AvatarSystem(world: World): Promise<System> {
         xrInputSourceComponent.controllerLeft,
         xrInputSourceComponent.controllerGripLeft,
         xrInputSourceComponent.controllerRight,
-        xrInputSourceComponent.controllerGripRight
+        xrInputSourceComponent.controllerGripRight,
+        ...xrInputSourceComponent.hands
       )
 
       xrInputSourceComponent.container.applyQuaternion(rotate180onY)

@@ -2,6 +2,7 @@ import {
   AdditiveBlending,
   BufferGeometry,
   Float32BufferAttribute,
+  Group,
   Line,
   LineBasicMaterial,
   Mesh,
@@ -14,6 +15,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 
 export const addDefaultControllerModels = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -60,6 +62,25 @@ export const addDefaultControllerModels = (entity: Entity) => {
 
   xrInputSourceComponent.controllerGripRight.add(controllerMeshRight)
   xrInputSourceComponent.controllerGripLeft.add(controllerMeshLeft)
+}
+
+export const addDefaultHandModel = (entity: Entity) => {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+
+  xrInputSourceComponent.hands.forEach((controller: Group) => {
+    controller.addEventListener('connected', (ev) => {
+      const xrInputSource = ev.data
+
+      if (!xrInputSource.hand || controller.userData.mesh) {
+        return
+      }
+
+      const handMesh = AssetLoader.getFromCache(`/models/webxr/controllers/hands/${xrInputSource.handedness}.glb`).scene
+        .children[0]
+      controller.userData.mesh = new XRHandMeshModel(controller, handMesh, xrInputSource)
+      controller.add(controller.userData.mesh)
+    })
+  })
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
