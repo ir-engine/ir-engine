@@ -112,7 +112,7 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
         <FeedMenu view={view} setView={setView} />
         <AppFooter setView={setView} />
         {currentCreator && (
-          // Сделано на время теста
+          // Made at the time of the test Aleks951
           // (!!!currentCreator.terms || !!!currentCreator.policy) &&
           // auth.user.userRole.value === 'user' &&
           <TermsAndPolicy />

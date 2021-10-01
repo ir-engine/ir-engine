@@ -25,7 +25,7 @@
   },
   "resolutions": {
     "socket.io": "4.2.0",
-    "@types/react": "17.0.25",
+    "@types/react": "17.0.26",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -108,13 +108,13 @@
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
-    "vite": "2.6.1",
+    "vite": "2.6.2",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
     "@types/node": "14.17.20",
-    "@types/react": "17.0.25",
+    "@types/react": "17.0.26",
     "@types/react-dom": "17.0.9",
     "config": "3.3.6",
     "cross-env": "7.0.3",

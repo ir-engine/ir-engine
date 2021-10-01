@@ -12,19 +12,20 @@ import { accessAuthState } from '../../../user/reducers/auth/AuthState'
 
 import { accessChatState } from './ChatState'
 
+
 const store = Store.store
 
 export const ChatService = {
-  getChannels: (skip?: number, limit?: number) => {
+getChannels:(skip?: number, limit?: number)=>{
     return async (dispatch: Dispatch, getState: any): Promise<any> => {
       try {
         await waitForClientAuthenticated()
-        const chatState = accessChatState()
+        const chatState = accessChatState().value
 
         const channelResult = await client.service('channel').find({
           query: {
-            $limit: limit != null ? limit : chatState.channels.limit.value,
-            $skip: skip != null ? skip : chatState.channels.skip.value
+            $limit: limit != null ? limit : chatState.channels.limit,
+            $skip: skip != null ? skip : chatState.channels.skip
           }
         })
         dispatch(ChatAction.loadedChannels(channelResult))
@@ -34,7 +35,7 @@ export const ChatService = {
       }
     }
   },
-  getInstanceChannel: () => {
+  getInstanceChannel:()=>{
     return async (dispatch: Dispatch, getState: any): Promise<any> => {
       try {
         const channelResult = await client.service('channel').find({
@@ -48,7 +49,7 @@ export const ChatService = {
       }
     }
   },
-  createMessage: (values: any) => {
+  createMessage:(values: any)=>{
     return async (dispatch: Dispatch): Promise<any> => {
       try {
         await client.service('message').create({
@@ -62,7 +63,7 @@ export const ChatService = {
       }
     }
   },
-  sendChatMessage: (values: any) => {
+  sendChatMessage:(values: any)=>{
     try {
       client.service('message').create({
         targetObjectId: values.targetObjectId,
@@ -73,18 +74,15 @@ export const ChatService = {
       console.log(err)
     }
   },
-
-  //sends a chat message in the current channel
-  sendMessage: (text: string) => {
+  sendMessage: (text: string)=>{
     const user = accessAuthState().user.value
-
     ChatService.sendChatMessage({
       targetObjectId: user.instanceId,
       targetObjectType: 'instance',
       text: text
     })
   },
-  getChannelMessages: (channelId: string, skip?: number, limit?: number) => {
+  getChannelMessages:(channelId: string, skip?: number, limit?: number)=>{
     return async (dispatch: Dispatch, getState: any): Promise<any> => {
       try {
         const chatState = accessChatState().value
@@ -105,7 +103,7 @@ export const ChatService = {
       }
     }
   },
-  removeMessage: (messageId: string) => {
+removeMessage:(messageId: string)=>{
     return async (dispatch: Dispatch): Promise<any> => {
       try {
         await client.service('message').remove(messageId)
@@ -115,7 +113,7 @@ export const ChatService = {
       }
     }
   },
-  patchMessage: (messageId: string, text: string) => {
+  patchMessage:(messageId: string, text: string)=>{
     return async (dispatch: Dispatch): Promise<any> => {
       try {
         await client.service('message').patch(messageId, {
@@ -127,7 +125,7 @@ export const ChatService = {
       }
     }
   },
-  updateChatTarget: (targetObjectType: string, targetObject: any) => {
+  updateChatTarget:(targetObjectType: string, targetObject: any)=>{
     return async (dispatch: Dispatch): Promise<any> => {
       const targetChannelResult = await client.service('channel').find({
         query: {
@@ -137,19 +135,32 @@ export const ChatService = {
         }
       })
       dispatch(
-        ChatAction.setChatTarget(
-          targetObjectType,
-          targetObject,
-          targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
-        )
+        ChatAction.setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : '')
       )
     }
   },
-  updateMessageScrollInit: (value: boolean) => {
+  clearChatTargetIfCurrent:(targetObjectType: string, targetObject: any)=>{
+    return async (dispatch: Dispatch): Promise<any> => {
+      const chatState = accessChatState().value
+      const chatStateTargetObjectType = chatState.targetObjectType
+      const chatStateTargetObjectId = chatState.targetObject.id
+      if (
+        targetObjectType === chatStateTargetObjectType &&
+        (targetObject.id === chatStateTargetObjectId ||
+          targetObject.relatedUserId === chatStateTargetObjectId ||
+          targetObject.userId === chatStateTargetObjectId)
+      ) {
+        dispatch(ChatAction.setChatTarget('', {}, ''))
+      }
+    }
+  },
+  updateMessageScrollInit:(value: boolean)=>{
     return async (dispatch: Dispatch): Promise<any> => {
       dispatch(ChatAction.setMessageScrollInit(value))
     }
   }
+  
+
 }
 
 if (!Config.publicRuntimeConfig.offlineMode) {

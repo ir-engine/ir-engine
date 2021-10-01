@@ -23,7 +23,6 @@ import chargebeeSettingReducer from './admin/Setting/chargebee/reducers'
 import authSettingReducer from './admin/Setting/authentication-setting/reducers'
 import awsSettingReducer from './admin/Setting/aws/reducer'
 import redisSettingReducer from './admin/Setting/redis/reducer'
-
 /**
  * TODO: I am moving admin reducer to different packages
  *

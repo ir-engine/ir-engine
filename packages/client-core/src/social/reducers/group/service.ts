@@ -17,7 +17,7 @@ import {
 } from './actions'
 import { UserAction } from '../../../user/store/UserAction'
 import { accessAuthState } from '../../../user/reducers/auth/AuthState'
-import { clearChatTargetIfCurrent } from '../chat/service'
+import { ChatService } from '../chat/ChatService'
 const store = Store.store
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
@@ -154,7 +154,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     store.dispatch(removedGroupUser(deletedGroupUser, params.self))
     store.dispatch(UserAction.removedChannelLayerUser(deletedGroupUser.user))
     if (deletedGroupUser.userId === selfUser.id.value)
-      store.dispatch(clearChatTargetIfCurrent('group', { id: params.groupUser.groupId }))
+      store.dispatch(ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId }))
   })
 
   client.service('group').on('created', (params) => {
@@ -167,7 +167,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('group').on('removed', (params) => {
     store.dispatch(removedGroup(params.group))
-    store.dispatch(clearChatTargetIfCurrent('group', params.group))
+    store.dispatch(ChatService.clearChatTargetIfCurrent('group', params.group))
   })
 
   client.service('group').on('refresh', (params) => {

@@ -37,6 +37,7 @@ interface Props {
   setAddFilesView?: any
   setFilesTarget?: any
   hideAddButtons?: boolean
+  inputFileRef?: any
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -49,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons }: Props) => {
+const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons, inputFileRef }: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const classes = useStyles()
@@ -63,7 +64,7 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons }: P
 
   const handlePickFiles = async (file) => {
     setFilesTarget([...file.target.files])
-    setAddFilesView(true)
+    setAddFilesView && setAddFilesView(true)
   }
 
   return (
@@ -77,6 +78,7 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons }: P
         multiple
         type="file"
         onChange={handlePickFiles}
+        ref={inputFileRef}
       />
       {!hideAddButtons && userRole && userRole != 'guest' ? (
         <div

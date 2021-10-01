@@ -110,7 +110,7 @@
     .publish {
         --size: 127px;
         --radius: calc(var(--size) / 2);
-        display: grid;
+        display: grid; 
         width: var(--size);
         height: var(--size);
         border-radius: var(--radius);
