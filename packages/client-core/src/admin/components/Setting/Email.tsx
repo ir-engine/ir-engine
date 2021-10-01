@@ -5,31 +5,19 @@ import InputBase from '@material-ui/core/InputBase'
 import Switch from '@material-ui/core/Switch'
 import { Icon } from '@iconify/react'
 import IconButton from '@material-ui/core/IconButton'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectEmailSettingState } from '../../reducers/admin/Setting/email/selectors'
-import { fetchedEmailSettings } from '../../reducers/admin/Setting/email/services'
+import { useEmailSettingState } from '../../reducers/admin/Setting/email/EmailSettingState'
+import { EmailSettingService } from '../../reducers/admin/Setting/email/EmailSettingServices'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    emailSettingState: selectEmailSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchedEmailSettings: bindActionCreators(fetchedEmailSettings, dispatch)
-})
-interface emailProps {
-  emailSettingState?: any
-  fetchedEmailSettings?: any
-}
+interface emailProps {}
 
 const Email = (props: emailProps) => {
   const classes = useStyles()
-  const { emailSettingState, fetchedEmailSettings } = props
-  const emailSetting = emailSettingState.get('Email').get('email')
-
+  const emailSettingState = useEmailSettingState()
+  const emailSetting = emailSettingState?.Email?.email?.value || []
+  const dispatch = useDispatch()
   const [secure, setSecure] = React.useState({
     checkedA: true,
     checkedB: true
@@ -45,8 +33,8 @@ const Email = (props: emailProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && emailSettingState.get('Email').get('updateNeeded') === true) {
-      fetchedEmailSettings()
+    if (user?.id?.value != null && emailSettingState?.Email?.updateNeeded?.value === true) {
+      dispatch(EmailSettingService.fetchedEmailSettings())
     }
   }, [authState])
 
@@ -195,4 +183,4 @@ const Email = (props: emailProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Email)
+export default Email

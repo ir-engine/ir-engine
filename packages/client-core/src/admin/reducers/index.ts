@@ -14,15 +14,15 @@ import feedsReducer from '@xrengine/social/src/reducers/feed/reducers'
 import creatorReducer from '@xrengine/social/src/reducers/creator/reducers'
 import { adminGroupReducer } from './admin/group/GroupState'
 import { adminScopeReducer } from './admin/scope/ScopeState'
-import settingAnalyticsReducer from './admin/Setting/analytics/reducers'
-import settingServerReducer from './admin/Setting/server/reducers'
-import clientSettingReducer from './admin/Setting/client/reducers'
-import gameServerSettingReducer from './admin/Setting/game-server/reducers'
-import emailSettingReducer from './admin/Setting/email/reducers'
-import chargebeeSettingReducer from './admin/Setting/chargebee/reducers'
-import authSettingReducer from './admin/Setting/authentication-setting/reducers'
-import awsSettingReducer from './admin/Setting/aws/reducer'
-import redisSettingReducer from './admin/Setting/redis/reducer'
+import { settingAnalyticsReducer } from './admin/Setting/analytics/SettingAnalyticsState'
+import { serverSettingReducer } from './admin/Setting/server/ServerSettingState'
+import { clientSettingReducer } from './admin/Setting/client/ClientSettingState'
+import { gameServerSettingReducer } from './admin/Setting/game-server/GameServerSettingState'
+import { emailSettingReducer } from './admin/Setting/email/EmailSettingState'
+import { chargebeeSettingReducer } from './admin/Setting/chargebee/ChargebeeSettingState'
+import { adminAuthSettingReducer } from './admin/Setting/authentication-setting/AuthSettingState'
+import { adminAwsSettingReducer } from './admin/Setting/aws/AwsSettingState'
+import { adminRedisSettingReducer } from './admin/Setting/redis/AdminRedisSettingState'
 /**
  * TODO: I am moving admin reducer to different packages
  *
@@ -47,12 +47,12 @@ export default {
   group: adminGroupReducer,
   scope: adminScopeReducer,
   settingAnalytics: settingAnalyticsReducer,
-  serverSettings: settingServerReducer,
+  serverSettings: serverSettingReducer,
   clientSettings: clientSettingReducer,
   gameServer: gameServerSettingReducer,
   email: emailSettingReducer,
-  adminAuthSetting: authSettingReducer,
-  adminAwsSetting: awsSettingReducer,
+  adminAuthSetting: adminAuthSettingReducer,
+  adminAwsSetting: adminAwsSettingReducer,
   adminChargeBeeSetting: chargebeeSettingReducer,
-  adminRedisSetting: redisSettingReducer
+  adminRedisSetting: adminRedisSettingReducer
 }
