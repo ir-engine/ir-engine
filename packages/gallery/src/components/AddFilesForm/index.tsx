@@ -8,7 +8,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import AddIcon from '@material-ui/icons/Add'
 import AppHeader from '../Header'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createFeed } from '../../reducers/post/service'
+import { createFeed } from '../../../../social/src/reducers/feed/service'
 
 const mapStateToProps = (state: any): any => {
   return {}

@@ -3,8 +3,8 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, Typography, CardContent, CardMedia } from '@material-ui/core'
-import { selectFeedsState } from '../../reducers/post/selector'
-import { getFeed } from '../../reducers/post/service'
+import { selectFeedsState } from '../../../../social/src/reducers/feed/selector'
+import { getFeed } from '../../../../social/src/reducers/feed/service'
 import { Document, Page, pdfjs } from 'react-pdf'
 import Pagination from '@mui/material/Pagination'
 
@@ -72,7 +72,7 @@ const Feed = ({ feedsState, getFeed, feedId }: Props) => {
         <Card className={styles.card}>
           {componentType !== 'pdf' ? (
             <CardMedia
-              component={componentType === 'audio' ? 'audio' : 'img'}
+              component={componentType}
               src={feed.previewUrl}
               alt={feed.title}
               className={styles.previewImage}
