@@ -20,11 +20,13 @@ import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'
-import { hasComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
+import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -886,6 +888,16 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     console.log('User patched', user)
     await loadAvatarForUpdatedUser(user)
     _updateUsername(user.id, user.name)
+
+    const eid = getEid(user.id)
+    console.log('adding username component to user: ' + user.name + ' eid: ' + eid)
+    if (eid !== undefined) {
+      if (!hasComponent(eid, UserNameComponent)) {
+        addComponent(eid, UserNameComponent, { username: user.name })
+      } else {
+        getComponent(eid, UserNameComponent).username = user.name
+      }
+    }
 
     if (selfUser.id.value === user.id) {
       store.dispatch(UserAction.clearLayerUsers())
