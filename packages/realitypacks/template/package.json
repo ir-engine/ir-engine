@@ -1,0 +1,10 @@
+{
+  "name": "template",
+  "version": "0.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "update-files": "node update-files.js"
+  },
+  "license": "ISC"
+}

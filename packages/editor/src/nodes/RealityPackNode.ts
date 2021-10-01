@@ -1,6 +1,7 @@
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
-import { InjectionPoint } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
@@ -11,13 +12,16 @@ export default class RealityPackNode extends EditorNodeMixin(Object3D) {
   static haveStaticTags = false
 
   packName: string
-  injectionPoint: keyof typeof InjectionPoint
+  entryPoints: {
+    systemUpdateType: keyof typeof SystemUpdateType
+    entryPoint: string
+  }[] = []
 
   static async deserialize(json) {
     const node = await super.deserialize(json)
-    const { packName, injectionPoint } = json.components.find((c) => c.name === 'realitypack').props
+    const { packName, entryPoints } = json.components.find((c) => c.name === 'realitypack').props
     node.packName = packName
-    node.injectionPoint = injectionPoint
+    node.entryPoints = entryPoints ?? []
     return node
   }
 
@@ -25,7 +29,7 @@ export default class RealityPackNode extends EditorNodeMixin(Object3D) {
     return await super.serialize(projectID, {
       realitypack: {
         packName: this.packName,
-        injectionPoint: this.injectionPoint
+        entryPoints: this.entryPoints
       }
     })
   }

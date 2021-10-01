@@ -22,7 +22,8 @@ import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { register } from 'trace-unhandled'
-import { WebRTCGameServer } from './WebRTCGameServer'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 register()
 
 export const createApp = (): Application => {
@@ -100,7 +101,8 @@ export const createApp = (): Application => {
             }
           },
           (io) => {
-            WebRTCGameServer.instance.initialize(app)
+            Network.instance.transport = new SocketWebRTCServerTransport(app)
+            Network.instance.transport.initialize()
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               ;(socket as any).feathers.socketQuery = socket.handshake.query
