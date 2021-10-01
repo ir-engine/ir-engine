@@ -14,7 +14,6 @@ import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { useTranslation } from 'react-i18next'
-import Layout from '../Layout/Layout'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 
 const goHome = () => (window.location.href = window.location.origin)
@@ -48,62 +47,51 @@ interface Props {
 }
 
 const DefaultLayoutView = (props: Props) => {
-  const { t } = useTranslation()
   const authState = useAuthState()
   const selfUser = authState.user
   const party = props.partyState?.get('party')
-  const [harmonyOpen, setHarmonyOpen] = useState(false)
 
   return (
     <>
-      <Layout
-        pageTitle={t('location.locationName.pageTitle')}
-        harmonyOpen={harmonyOpen}
-        setHarmonyOpen={setHarmonyOpen}
-        theme={props.theme}
-        hideVideo={props.hideVideo}
-        hideFullscreen={props.hideFullscreen}
-      >
-        <LoadingScreen objectsToLoad={props.loadingItemCount} />
-        {!props.isValidLocation && (
-          <Snackbar
-            open
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'center'
-            }}
-          >
-            <>
-              <section>Location is invalid</section>
-              <Button onClick={goHome}>Return Home</Button>
-            </>
-          </Snackbar>
-        )}
+      <LoadingScreen objectsToLoad={props.loadingItemCount} />
+      {!props.isValidLocation && (
+        <Snackbar
+          open
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'center'
+          }}
+        >
+          <>
+            <section>Location is invalid</section>
+            <Button onClick={goHome}>Return Home</Button>
+          </>
+        </Snackbar>
+      )}
 
-        {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
+      {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
 
-        {props.children}
-        {props.customComponents}
+      {props.children}
+      {props.customComponents}
 
-        {props.showTouchpad && isTouchAvailable ? (
-          <Suspense fallback={<></>}>
-            <TouchGamepad layout="default" />
-          </Suspense>
-        ) : null}
+      {props.showTouchpad && isTouchAvailable ? (
+        <Suspense fallback={<></>}>
+          <TouchGamepad layout="default" />
+        </Suspense>
+      ) : null}
 
-        <GameServerWarnings
-          isTeleporting={props.isTeleporting}
-          locationName={props.locationName}
-          instanceId={selfUser?.instanceId.value ?? party?.instanceId}
-        />
-        {props.canvasElement}
-        <InteractableModal />
-        {/* <RecordingApp /> */}
-        <MediaIconsBox />
-        <UserMenu />
-        <EmoteMenu />
-        <InstanceChat />
-      </Layout>
+      <GameServerWarnings
+        isTeleporting={props.isTeleporting}
+        locationName={props.locationName}
+        instanceId={selfUser?.instanceId.value ?? party?.instanceId}
+      />
+      {props.canvasElement}
+      <InteractableModal />
+      {/* <RecordingApp /> */}
+      <MediaIconsBox />
+      <UserMenu />
+      <EmoteMenu />
+      <InstanceChat />
     </>
   )
 }

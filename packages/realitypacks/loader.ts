@@ -86,10 +86,10 @@ export const importPack = async (data: RealityPackNodeArguments, isClient: boole
         try {
           switch (entryPointExtension) {
             case 'jsx':
-              modules.react.push(await import(`./packs/${data.packName}/${entryPointFileName}.jsx`))
+              modules.react.push(import(`./packs/${data.packName}/${entryPointFileName}.jsx`))
               break
             case 'tsx':
-              modules.react.push(await import(`./packs/${data.packName}/${entryPointFileName}.tsx`))
+              modules.react.push(import(`./packs/${data.packName}/${entryPointFileName}.tsx`))
               break
             default:
               console.error(

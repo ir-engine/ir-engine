@@ -24,6 +24,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import React from 'react'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -111,7 +112,7 @@ export const initEngine = async (
     initOptions.systems?.push(system)
   }
 
-  const realityPackReactComponentPromises = Promise.all(packs.react)
+  const realityPackReactComponents = packs.react.map((c) => React.lazy(() => c))
 
   // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
@@ -140,10 +141,7 @@ export const initEngine = async (
 
   console.log('Awaiting scene load')
 
-  const [realityPackReactComponents] = await Promise.all([
-    realityPackReactComponentPromises,
-    WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
-  ])
+  await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
 
   getPortalDetails()
   Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))

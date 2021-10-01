@@ -4,7 +4,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
@@ -12,6 +12,9 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import DefaultLayoutView from './DefaultLayoutView'
 import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
+import Layout from '../Layout/Layout'
+import { useTranslation } from 'react-i18next'
+import { RealityPackReactProps } from './RealityPackReactProps'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -83,6 +86,7 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: Dispatch) => ({})
 
 export const EnginePage = (props: Props) => {
+  const { t } = useTranslation()
   const [isUserBanned, setUserBanned] = useState(true)
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
@@ -92,7 +96,8 @@ export const EnginePage = (props: Props) => {
   const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
   const [sceneId, setSceneId] = useState(null)
   const [loadingItemCount, setLoadingItemCount] = useState(99)
-  const [customComponents, setCustomComponents] = useState([] as any[])
+  const [harmonyOpen, setHarmonyOpen] = useState(false)
+  const [realityPackComponents, setRealityPackComponents] = useState([] as any[])
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -141,15 +146,23 @@ export const EnginePage = (props: Props) => {
 
   const init = async (sceneId: string): Promise<any> => {
     setIsTeleporting(false)
+
     const componentFunctions = await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
+
+    const customProps: RealityPackReactProps = {
+      harmonyOpen,
+      setHarmonyOpen,
+      canvas
+    }
+
+    const components: any[] = []
+
     let key = 0
-    const props = {} // TODO
-    componentFunctions.forEach((componentFunction) => {
-      setCustomComponents([
-        ...customComponents,
-        React.cloneElement(componentFunction.default(props), { key: `reality-pack-component-${key++}` })
-      ])
+    componentFunctions.forEach((ComponentFunction) => {
+      components.push(...components, <ComponentFunction {...customProps} key={key++} />)
     })
+
+    setRealityPackComponents(components)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
@@ -188,22 +201,30 @@ export const EnginePage = (props: Props) => {
         isUserBanned={isUserBanned}
         setIsValidLocation={setIsValidLocation}
       />
-      <DefaultLayoutView
-        canvasElement={canvas}
-        loadingItemCount={loadingItemCount}
-        isValidLocation={isValidLocation}
-        allowDebug={props.allowDebug}
-        reinit={reinit}
-        children={props.children}
-        showTouchpad={props.showTouchpad}
-        isTeleporting={isTeleporting}
-        locationName={props.locationName}
-        // todo: remove these props in favour of reality packs
-        customComponents={customComponents}
-        theme={props.theme}
-        hideVideo={props.hideVideo}
-        hideFullscreen={props.hideFullscreen}
-      />
+      {realityPackComponents.length ? (
+        realityPackComponents
+      ) : (
+        <Layout
+          pageTitle={t('location.locationName.pageTitle')}
+          harmonyOpen={harmonyOpen}
+          setHarmonyOpen={setHarmonyOpen}
+          theme={props.theme}
+          hideVideo={props.hideVideo}
+          hideFullscreen={props.hideFullscreen}
+        >
+          <DefaultLayoutView
+            canvasElement={canvas}
+            loadingItemCount={loadingItemCount}
+            isValidLocation={isValidLocation}
+            allowDebug={props.allowDebug}
+            reinit={reinit}
+            children={props.children}
+            showTouchpad={props.showTouchpad}
+            isTeleporting={isTeleporting}
+            locationName={props.locationName}
+          />
+        </Layout>
+      )}
     </>
   )
 }
