@@ -37,7 +37,7 @@ export function getLoader(): any {
 }
 
 export function disposeDracoLoaderWorkers(): void {
-  loader.dracoLoader.dispose()
+  loader.dracoLoader?.dispose()
 }
 
 /**
@@ -100,7 +100,7 @@ const loadLightmaps = (parser) => {
 
 const loadLights = (gltf) => {
   if (gltf.parser.json?.extensions?.MOZ_hubs_components?.MOZ_hubs_components?.version === 3) {
-    const objsToRemove = []
+    const objsToRemove: any[] = []
     gltf.scene.traverse((obj) => {
       if (obj.userData.gltfExtensions && obj.userData.gltfExtensions.MOZ_hubs_components) {
         let replacement

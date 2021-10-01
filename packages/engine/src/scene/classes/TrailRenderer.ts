@@ -39,13 +39,13 @@ const LocalOrientationTangent = new Vector3(1, 0, 0)
 const LocalHeadOrigin = new Vector3(0, 0, 0)
 const tempQuaternion = new Quaternion()
 const tempOffset = new Vector3()
-const tempLocalHeadGeometry = []
+const tempLocalHeadGeometry: Vector3[] = []
 
 const tempMatrix3 = new Matrix3()
 const worldOrientation = new Vector3()
 const tempDirection = new Vector3()
 
-const tempLocalHeadGeometry2 = []
+const tempLocalHeadGeometry2: Vector3[] = []
 for (let i = 0; i < MaxHeadVertices; i++) {
   const vertex = new Vector3()
   tempLocalHeadGeometry2.push(vertex)
@@ -339,7 +339,7 @@ class TrailRenderer extends Mesh {
   }
 
   zeroIndices() {
-    const indices = this.geometry.getIndex()
+    const indices = this.geometry.getIndex()!
 
     for (let i = 0; i < this.faceCount; i++) {
       const index = i * 3
@@ -354,7 +354,7 @@ class TrailRenderer extends Mesh {
   formInitialFaces() {
     this.zeroIndices()
 
-    const indices = this.geometry.getIndex()
+    const indices = this.geometry.getIndex()!
 
     for (let i = 0; i < this.length - 1; i++) {
       this.connectNodes(i, i + 1)
@@ -368,9 +368,9 @@ class TrailRenderer extends Mesh {
     this.currentLength = 0
     this.currentEnd = -1
 
-    this.lastNodeCenter = null
-    this.currentNodeCenter = null
-    this.lastOrientationDir = null
+    this.lastNodeCenter = null!
+    this.currentNodeCenter = null!
+    this.lastOrientationDir = null!
 
     this.currentNodeID = 0
 
@@ -589,7 +589,7 @@ class TrailRenderer extends Mesh {
   }
 
   connectNodes(srcNodeIndex, destNodeIndex) {
-    const indices = this.geometry.getIndex()
+    const indices = this.geometry.getIndex()!
 
     for (let i = 0; i < this.localHeadGeometry.length - 1; i++) {
       const srcVertexIndex = this.VerticesPerNode * srcNodeIndex + i
@@ -614,7 +614,7 @@ class TrailRenderer extends Mesh {
   }
 
   disconnectNodes(srcNodeIndex) {
-    const indices = this.geometry.getIndex()
+    const indices = this.geometry.getIndex()!
 
     for (let i = 0; i < this.localHeadGeometry.length - 1; i++) {
       const faceIndex = (srcNodeIndex * this.FacesPerNode + i * FacesPerQuad) * IndicesPerFace

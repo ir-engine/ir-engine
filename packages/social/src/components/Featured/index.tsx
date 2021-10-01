@@ -70,7 +70,6 @@ const Featured = ({
       userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
     }
   }, [type, creatorId])
-  // }, [type, creatorId, feedsState.get('feedsFeatured')])
 
   useEffect(
     () =>

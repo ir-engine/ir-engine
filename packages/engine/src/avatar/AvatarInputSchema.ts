@@ -50,7 +50,7 @@ const getParityFromInputValue = (key: InputAlias): ParityValue => {
  */
 
 const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
-  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+  if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const parityValue = getParityFromInputValue(inputKey)
 
   const interactor = getComponent(entity, InteractorComponent)
@@ -64,7 +64,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
  * @param entity Entity holding {@link camera/components/FollowCameraComponent.FollowCameraComponent | Follow camera} component.
  */
 const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
-  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+  if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const cameraFollow = getComponent(entity, FollowCameraComponent)
 
   switch (cameraFollow?.mode) {
@@ -95,7 +95,7 @@ const fixedCameraBehindAvatar: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
-  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+  if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const follower = getComponent(entity, FollowCameraComponent)
   if (follower && follower.mode !== CameraMode.FirstPerson) {
     follower.locked = !follower.locked
@@ -108,7 +108,7 @@ const switchShoulderSide: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
-  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+  if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const cameraFollow = getComponent(entity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
@@ -244,7 +244,7 @@ const setAvatarExpression: InputBehaviorType = (
   // console.warn(args.input + ": " + morphName + ":" + morphIndex + " = " + morphValue)
   if (morphName && morphValue !== null) {
     if (typeof morphValue === 'number') {
-      body.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
+      body.morphTargetInfluences![morphIndex] = morphValue // 0.0 - 1.0
     }
   }
 }
@@ -283,7 +283,7 @@ const setWalking: InputBehaviorType = (
   delta: number
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
-  controller.isWalking = inputValue.lifecycleState !== LifecycleValue.ENDED
+  controller.isWalking = inputValue.lifecycleState !== LifecycleValue.Ended
 }
 
 const setLocalMovementDirection: InputBehaviorType = (
@@ -293,7 +293,7 @@ const setLocalMovementDirection: InputBehaviorType = (
   delta: number
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
-  const hasEnded = inputValue.lifecycleState === LifecycleValue.ENDED
+  const hasEnded = inputValue.lifecycleState === LifecycleValue.Ended
   switch (inputKey) {
     case BaseInput.JUMP:
       controller.localMovementDirection.y = hasEnded ? 0 : 1
@@ -386,26 +386,26 @@ const lookByInputAxis: InputBehaviorType = (
 
 const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   const input = getComponent(entity, InputComponent)
-  const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
+  const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)!
   // TODO: fix this
   console.log('gamepadLook', data)
   if (data.type === InputType.TWODIM) {
     input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
       value: [data.value[0], data.value[1]],
-      lifecycleState: LifecycleValue.CHANGED
+      lifecycleState: LifecycleValue.Changed
     })
   } else if (data.type === InputType.THREEDIM) {
     input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
       value: [data.value[0], data.value[2]],
-      lifecycleState: LifecycleValue.CHANGED
+      lifecycleState: LifecycleValue.Changed
     })
   }
 }
 
 export const clickNavMesh: InputBehaviorType = (entity, inputKey, inputValue): void => {
-  if (inputValue.lifecycleState !== LifecycleValue.ENDED) {
+  if (inputValue.lifecycleState !== LifecycleValue.Ended) {
     return
   }
   const input = getComponent(entity, InputComponent)

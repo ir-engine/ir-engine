@@ -7,11 +7,6 @@ export enum GolfCollisionGroups {
   Course = 1 << 13
 }
 
-export const GolfPrefabTypes = {
-  Ball: 'ball', // TODO: make a prefab register
-  Club: 'club'
-}
-
 export const GolfColours = [
   new Color(0xff0000), // RED
   new Color(0x00ff00), // GREEN

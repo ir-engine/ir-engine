@@ -132,7 +132,7 @@ afterEach(() => {
 const oneFixedRunTimeSpan = 1 / Engine.physicsFrameRate;
 let localTime = now();
 function runFixed() {
-  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Fixed);
+  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.FIXED);
   localTime += oneFixedRunTimeSpan;
 }
 
@@ -200,7 +200,7 @@ test("continuous move forward and then stop", () => {
   const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
 
   const messagePressing = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.ON);
-  const messageStopped = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
+  const messageStopped = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.OFF, LifecycleValue.Ended);
   const messageEmpty:NetworkClientInputInterface = {
     axes1d: [], axes2d: [], buttons: [],
     networkId: networkObject.networkId,
@@ -263,7 +263,7 @@ test("move forward, then 2 messages stop + empty in one execution", () => {
   const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
 
   const messagePressing = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.ON);
-  const messageStopped = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
+  const messageStopped = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.OFF, LifecycleValue.Ended);
   const messageEmpty:NetworkClientInputInterface = {
     axes1d: [], axes2d: [], buttons: [],
     networkId: networkObject.networkId,
@@ -329,21 +329,21 @@ test("2 buttons states in one execution propagate back to client", () => {
     "axes1d": [
       {
         input: BaseInput.CROUCH,
-        lifecycleState: LifecycleValue.CHANGED,
+        lifecycleState: LifecycleValue.Changed,
         value: 0.2
       }
     ],
     "axes2d": [
       {
         input: BaseInput.SCREENXY,
-        lifecycleState: LifecycleValue.CHANGED,
+        lifecycleState: LifecycleValue.Changed,
         value: [ 0.1, 240 ]
       }
     ],
     "buttons": [
       {
         "input": BaseInput.FORWARD,
-        "lifecycleState": LifecycleValue.CONTINUED,
+        "lifecycleState": LifecycleValue.Continued,
         "value": BinaryValue.ON,
       }
     ],
@@ -359,21 +359,21 @@ test("2 buttons states in one execution propagate back to client", () => {
     "axes1d": [
       {
         input: BaseInput.CROUCH,
-        lifecycleState: LifecycleValue.CHANGED,
+        lifecycleState: LifecycleValue.Changed,
         value: 0.9
       }
     ],
     "axes2d": [
       {
         input: BaseInput.SCREENXY,
-        lifecycleState: LifecycleValue.CHANGED,
+        lifecycleState: LifecycleValue.Changed,
         value: [ 50, 21 ]
       }
     ],
     "buttons": [
       {
         "input": BaseInput.FORWARD,
-        "lifecycleState": LifecycleValue.ENDED,
+        "lifecycleState": LifecycleValue.Ended,
         "value": BinaryValue.OFF,
       }
     ],
@@ -450,7 +450,7 @@ test("incoming input propagates to network", () => {
     buttons: [
     {
       input: BaseInput.FORWARD,
-      lifecycleState: LifecycleValue.STARTED,
+      lifecycleState: LifecycleValue.Started,
       value: BinaryValue.ON
     }
   ],
@@ -458,14 +458,14 @@ test("incoming input propagates to network", () => {
       {
         input: BaseInput.JUMP,
         value: 0.3,
-        lifecycleState: LifecycleValue.CHANGED
+        lifecycleState: LifecycleValue.Changed
       }
     ],
     axes2d: [
       {
         input: BaseInput.SCREENXY,
         value: [ 0.1, 0.7 ],
-        lifecycleState: LifecycleValue.CHANGED
+        lifecycleState: LifecycleValue.Changed
       }
     ],
     viewVector: {
@@ -482,7 +482,7 @@ test("incoming input propagates to network", () => {
     buttons: [
       {
         input: BaseInput.FORWARD,
-        lifecycleState: LifecycleValue.STARTED,
+        lifecycleState: LifecycleValue.Started,
         value: BinaryValue.ON
       }
     ],
@@ -490,14 +490,14 @@ test("incoming input propagates to network", () => {
       {
         input: BaseInput.CROUCH,
         value: 0.6,
-        lifecycleState: LifecycleValue.CHANGED
+        lifecycleState: LifecycleValue.Changed
       }
     ],
     axes2d: [
       {
         input: BaseInput.SCREENXY,
         value: [ 0.4, 0.9 ],
-        lifecycleState: LifecycleValue.CHANGED
+        lifecycleState: LifecycleValue.Changed
       }
     ],
     viewVector: {
@@ -564,7 +564,7 @@ test("incoming input propagates to network", () => {
 });
 
 function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle:LifecycleValue = null, viewVector:{x:number,y:number,z:number} = null):NetworkClientInputInterface {
-  const lifecycleState = lifecycle ?? ( value === BinaryValue.OFF? LifecycleValue.ENDED : LifecycleValue.CONTINUED );
+  const lifecycleState = lifecycle ?? ( value === BinaryValue.OFF? LifecycleValue.Ended : LifecycleValue.Continued );
   const _viewVector = viewVector ?? { x:0, y:0, z:1 };
   return {
     networkId: networkId,

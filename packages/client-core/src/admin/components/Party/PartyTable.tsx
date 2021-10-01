@@ -69,8 +69,8 @@ const PartyTable = (props: PartyPropsTable) => {
   const rows = adminPartyData.map((el) =>
     createData(
       el.id,
-      el.instance.ipAddress || <span className={classes.spanNone}>None</span>,
-      el.location.name || <span className={classes.spanNone}>None</span>
+      el.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
+      el.location?.name || <span className={classes.spanNone}>None</span>
     )
   )
 

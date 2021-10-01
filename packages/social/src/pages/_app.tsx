@@ -8,6 +8,7 @@ import { initGA, logPageView } from '@xrengine/client-core/src/common/components
 import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
 import theme from '../../theme'
 import { Config } from '@xrengine/common/src/config'
+import { SnackbarProvider } from 'notistack'
 import { restoreState } from '@xrengine/client-core/src/persisted.store'
 import RouterComp from '../router'
 import reducers from '../reducers'
@@ -42,8 +43,10 @@ const App = (): any => {
         />
       </Helmet>
       <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <RouterComp />
+        <SnackbarProvider maxSnack={3}>
+          <GlobalStyle />
+          <RouterComp />
+        </SnackbarProvider>
       </ThemeProvider>
     </>
   )

@@ -2,7 +2,7 @@ import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { GroupAction } from './GroupActions'
 import { AlertService } from '../../../../common/reducers/alert/AlertService'
-import { useGroupState } from './GroupState'
+import { accessGroupState } from './GroupState'
 /**
  *
  * @param files FIle type
@@ -13,8 +13,8 @@ import { useGroupState } from './GroupState'
 export const GroupService = {
   getGroupService: (incDec?: 'increment' | 'decrement') => {
     return async (dispatch: Dispatch): Promise<any> => {
-      const skip = useGroupState().group.skip.value
-      const limit = useGroupState().group.limit.value
+      const skip = accessGroupState().group.skip.value
+      const limit = accessGroupState().group.limit.value
       try {
         dispatch(GroupAction.fetchingGroup())
         const list = await client.service('group').find({

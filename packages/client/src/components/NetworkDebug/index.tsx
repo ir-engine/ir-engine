@@ -8,7 +8,6 @@ import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Downgraded } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import Store from '@xrengine/client-core/src/store'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 export const NetworkDebug = ({ reinit }) => {
   const [isShowing, setShowing] = useState(false)
@@ -141,11 +140,7 @@ export const NetworkDebug = ({ reinit }) => {
             </div>
             <div>
               <h1>Network Clients</h1>
-              <JSONTree data={{ ...Network.instance.clients }} />
-            </div>
-            <div>
-              <h1>Network Objects</h1>
-              <JSONTree data={{ ...Network.instance.networkObjects }} />
+              <JSONTree data={{ ...Engine.defaultWorld.clients }} />
             </div>
             <div>
               <h1>Engine Entities</h1>

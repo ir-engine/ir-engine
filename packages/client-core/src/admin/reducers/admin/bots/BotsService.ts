@@ -1,12 +1,12 @@
 import { Dispatch } from 'redux'
 import { client } from '../../../../feathers'
 import { BotsAction } from './BotsActions'
-import { useBotState } from './BotsState'
+import { accessBotState } from './BotsState'
 import { accessAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export const BotService = {
   createBotAsAdmin: (data: any) => {
-    ;async (dispatch: Dispatch): Promise<any> => {
+    return async (dispatch: Dispatch): Promise<any> => {
       try {
         const bot = await client.service('bot').create(data)
         dispatch(BotsAction.botCreated(bot))
@@ -16,11 +16,11 @@ export const BotService = {
     }
   },
   fetchBotAsAdmin: (incDec?: 'increment' | 'decrement') => {
-    ;async (dispatch: Dispatch): Promise<any> => {
+    return async (dispatch: Dispatch, getState: any): Promise<any> => {
       try {
         const user = accessAuthState().user
-        const skip = useBotState().bots.skip.value
-        const limit = useBotState().bots.limit.value
+        const skip = accessBotState().bots.skip.value
+        const limit = accessBotState().bots.limit.value
         if (user.userRole.value === 'admin') {
           const bots = await client.service('bot').find({
             query: {
@@ -40,7 +40,7 @@ export const BotService = {
     }
   },
   createBotCammand: (data: any) => {
-    ;async (dispatch: Dispatch): Promise<any> => {
+    return async (dispatch: Dispatch): Promise<any> => {
       try {
         const botCammand = await client.service('bot-command').create(data)
         dispatch(BotsAction.botCammandCreated(botCammand))
@@ -50,7 +50,7 @@ export const BotService = {
     }
   },
   removeBots: (id: string) => {
-    ;async (dispatch: Dispatch): Promise<any> => {
+    return async (dispatch: Dispatch): Promise<any> => {
       try {
         const bot = await client.service('bot').remove(id)
         dispatch(BotsAction.botRemoved(bot))
@@ -60,7 +60,7 @@ export const BotService = {
     }
   },
   removeBotsCommand: (id: string) => {
-    ;async (dispatch: Dispatch): Promise<any> => {
+    return async (dispatch: Dispatch): Promise<any> => {
       try {
         const result = await client.service('bot-command').remove(id)
         dispatch(BotsAction.botCommandRemoved(result))
@@ -70,7 +70,7 @@ export const BotService = {
     }
   },
   updateBotAsAdmin: (id: string, bot: any) => {
-    ;async (dispatch: Dispatch): Promise<any> => {
+    return async (dispatch: Dispatch): Promise<any> => {
       try {
         const result = await client.service('bot').patch(id, bot)
         dispatch(BotsAction.botPatched(result))

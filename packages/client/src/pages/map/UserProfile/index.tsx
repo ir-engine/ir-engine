@@ -11,7 +11,7 @@ import styles from './UserProfile.module.scss'
 import { useSceneState } from '@xrengine/client-core/src/world/reducers/scenes/SceneState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { getAvatarURLFromNetwork, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { getAvatarURLForUser, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SearchIcon } from '../icons/Search'
 import { Close } from '../icons/Close'
@@ -127,11 +127,11 @@ const UserProfileScreen = (props: Props) => {
   }
 
   const handleCloseProfile = (): void => {
-    showHideProfile(false)
+    showHideProfile?.(false)
   }
 
   const renderAvatarList = () => {
-    const avatarListData = []
+    const avatarListData = [] as JSX.Element[]
     if (avatarList != undefined) {
       const startIndex = page * imgPerPage
       const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
@@ -142,9 +142,9 @@ const UserProfileScreen = (props: Props) => {
           avatarListData.push(
             <Card key={`avatar_${i}`} className={styles.profileImage} onClick={() => selectAvatar(characterAvatar)}>
               <LazyImage
-                key={characterAvatar.avatar.id}
+                key={characterAvatar?.avatar?.id}
                 src={characterAvatar['user-thumbnail'].url}
-                alt={characterAvatar.avatar.name}
+                alt={characterAvatar?.avatar?.name}
               />
             </Card>
           )
@@ -180,7 +180,7 @@ const UserProfileScreen = (props: Props) => {
     <div>
       <section className={`${styles.blockbg} ${isUserProfileShowing === false ? styles.hideProfile : ''}`}>
         <div className={styles.avatarBlock}>
-          <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id.value)} />
+          <img src={getAvatarURLForUser(selfUser?.id.value)} />
           <div
             className={`${styles.avatarBtn} ${
               !isEditProfile ? styles.editBtn : isProfileEdited ? styles.enableBtn : styles.disableBtn

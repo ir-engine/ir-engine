@@ -1,10 +1,10 @@
-import { Network } from '../classes/Network'
+import { Engine } from '../../ecs/classes/Engine'
 
 //updates the client list with the right username for the user
 export async function _updateUsername(userId, username) {
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].userId === userId) {
-      Network.instance.clients[p].name = username
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId === userId) {
+      client.name = username
       return
     }
   }
@@ -14,9 +14,9 @@ export async function _updateUsername(userId, username) {
 export function hasSubscribedToChatSystem(userId, system: string): boolean {
   if (system === undefined || system === '' || userId === undefined) return false
 
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].userId === userId) {
-      return Network.instance.clients[p].subscribedChatUpdates.includes(system)
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId === userId) {
+      return client.subscribedChatUpdates.includes(system)
     }
   }
 
@@ -26,15 +26,15 @@ export function hasSubscribedToChatSystem(userId, system: string): boolean {
 export function subscribeToChatSystem(userId, system: string) {
   if (system === undefined || system === '' || userId === undefined) return
 
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].userId === userId) {
-      if (system !== 'all' && !Network.instance.clients[p].subscribedChatUpdates.includes(system)) {
-        Network.instance.clients[p].subscribedChatUpdates.push(system)
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId === userId) {
+      if (system !== 'all' && !client.subscribedChatUpdates.includes(system)) {
+        client.subscribedChatUpdates.push(system)
         return
       } else if (system === 'all') {
-        Network.instance.clients[p].subscribedChatUpdates.push('emotions_system')
-        Network.instance.clients[p].subscribedChatUpdates.push('jl_system')
-        Network.instance.clients[p].subscribedChatUpdates.push('proximity_system')
+        client.subscribedChatUpdates.push('emotions_system')
+        client.subscribedChatUpdates.push('jl_system')
+        client.subscribedChatUpdates.push('proximity_system')
         //add all chat systems
         return
       }
@@ -45,16 +45,13 @@ export function subscribeToChatSystem(userId, system: string) {
 export function unsubscribeFromChatSystem(userId, system: string) {
   if (system === undefined || system === '' || userId === undefined) return
 
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].userId === userId) {
-      if (system !== 'all' && Network.instance.clients[p].subscribedChatUpdates.includes(system)) {
-        Network.instance.clients[p].subscribedChatUpdates.splice(
-          Network.instance.clients[p].subscribedChatUpdates.indexOf(system),
-          1
-        )
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId === userId) {
+      if (system !== 'all' && client.subscribedChatUpdates.includes(system)) {
+        client.subscribedChatUpdates.splice(client.subscribedChatUpdates.indexOf(system), 1)
         return
       } else if (system === 'all') {
-        Network.instance.clients[p].subscribedChatUpdates = []
+        client.subscribedChatUpdates = []
         return
       }
     }
@@ -62,15 +59,15 @@ export function unsubscribeFromChatSystem(userId, system: string) {
 }
 //gets all the systems that a user has subscribed to
 export function getSubscribedChatSystems(userId): string[] {
-  if (userId === undefined) return undefined
+  if (userId === undefined) return []
 
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].userId === userId) {
-      return Network.instance.clients[p].subscribedChatUpdates
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId === userId) {
+      return client.subscribedChatUpdates
     }
   }
 
-  return undefined
+  return []
 }
 
 //gets the chat system from a chat message

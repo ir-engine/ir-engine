@@ -1,5 +1,3 @@
-import { ComponentConstructor } from '../../ecs/functions/ComponentFunctions'
-
 /** Interface for Network schema. */
 export interface NetworkSchema {
   /** Transporter of the message. */
@@ -8,6 +6,4 @@ export interface NetworkSchema {
   messageTypes: {
     [key: string]: any
   }
-  /** Prefabs for the schema. */
-  prefabs: Map<string, ComponentConstructor<any, any>>
 }

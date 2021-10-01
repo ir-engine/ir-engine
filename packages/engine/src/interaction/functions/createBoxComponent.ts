@@ -25,7 +25,7 @@ export const createBoxComponent = (entity: Entity) => {
   object3D.traverse((obj3d: Mesh) => {
     if (obj3d instanceof Mesh) {
       if (!obj3d.geometry.boundingBox) obj3d.geometry.computeBoundingBox()
-      const aabb = new Box3().copy(obj3d.geometry.boundingBox)
+      const aabb = new Box3().copy(obj3d.geometry.boundingBox!)
       if (!calcBoundingBox.dynamic) aabb.applyMatrix4(obj3d.matrixWorld)
       if (hasBoxExpanded) {
         calcBoundingBox.box.union(aabb)

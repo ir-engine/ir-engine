@@ -187,6 +187,7 @@ const LeftDrawer = (props: Props): any => {
     const currentLocation = locationState.get('currentLocation').get('location')
 
     useEffect(() => {
+      
       if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
         dispatch(FriendService.getFriends(''))
       }
@@ -238,7 +239,7 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const nextFriendsPage = (): void => {
-      if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
+      if ((friendSubState.skip.value + friendSubState.limit.value) < friendSubState.total.value) {
         dispatch(FriendService.getFriends('', friendSubState.skip.value, friendSubState.limit.value))
       }
     }

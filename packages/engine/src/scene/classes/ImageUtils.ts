@@ -77,7 +77,7 @@ const fragmentShader = `
 //download the imagedata as png
 export const downloadImage = (imageData: ImageData, imageName = 'Image', width: number, height: number): void => {
   const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   canvas.width = width
   canvas.height = height
   ctx.putImageData(imageData, 0, 0)
@@ -143,11 +143,11 @@ export const convertCubemapToEquiImageData = async (
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   if (returnAsBlob) {
     const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
     canvas.width = width
     canvas.height = height
     ctx.putImageData(imageData, 0, 0)
-    const blob = (await new Promise((resolve) => canvas.toBlob(resolve))) as Blob
+    const blob = (await new Promise((resolve) => canvas.toBlob(resolve as any))) as Blob
     return { blob }
   }
   return { imageData }

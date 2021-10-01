@@ -1,3 +1,4 @@
+// @ts-nocheck
 import WebXRPolyfill from './webxr-polyfill/WebXRPolyfill'
 import { XR_COMPATIBLE } from './webxr-polyfill/constants'
 import XRSystem from './webxr-polyfill/api/XRSystem'

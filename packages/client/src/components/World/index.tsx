@@ -22,8 +22,6 @@ import { selectInstanceConnectionState } from '../../reducers/instanceConnection
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import GameServerWarnings from './GameServerWarnings'
 import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
@@ -245,7 +243,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const reinit = () => {
-    // alert('reinit');
     const currentLocation = props.locationState.get('currentLocation').get('location')
     if (sceneId === null && currentLocation.sceneId !== null) {
       sceneId = currentLocation.sceneId
@@ -254,7 +251,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (sceneId: string): Promise<any> => {
-    // alert('init');
     initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
     setIsTeleporting(false)
   }

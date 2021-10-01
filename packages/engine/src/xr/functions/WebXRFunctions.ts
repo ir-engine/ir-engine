@@ -2,15 +2,14 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../../networking/classes/Network'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { dispatchFromClient } from '../../networking/functions/dispatch'
-import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -30,9 +29,11 @@ export const startWebXR = (): void => {
   container.add(Engine.camera)
   const head = new Group()
 
-  removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
+  const world = useWorld()
 
-  addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
+  removeComponent(world.localClientEntity, FollowCameraComponent)
+
+  addComponent(world.localClientEntity, XRInputSourceComponent, {
     head,
     container,
     controllerLeft,
@@ -41,8 +42,7 @@ export const startWebXR = (): void => {
     controllerGripRight
   })
 
-  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
-  dispatchFromClient(NetworkWorldAction.enterVR(networkId, true))
+  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: true }))
 }
 
 /**
@@ -52,14 +52,13 @@ export const startWebXR = (): void => {
 
 export const endXR = (): void => {
   Engine.xrSession.end()
-  Engine.xrSession = null
+  Engine.xrSession = null!
   Engine.scene.add(Engine.camera)
 
-  addComponent(Network.instance.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
-  removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
+  addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
+  removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
 
-  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
-  dispatchFromClient(NetworkWorldAction.enterVR(networkId, false))
+  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: false }))
 }
 
 /**

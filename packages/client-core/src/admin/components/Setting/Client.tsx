@@ -1,16 +1,40 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useStyles } from './styles'
 import { Paper, Button, Typography } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import InputBase from '@material-ui/core/InputBase'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { selectClientSettingState } from '../../reducers/admin/Setting/client/selectors'
+import { fetchedClientSettings } from '../../reducers/admin/Setting/client/services'
+import { useAuthState } from '../../../user/reducers/auth/AuthState'
 
-const Client = () => {
+const mapStateToProps = (state: any): any => {
+  return {
+    clientSettingState: selectClientSettingState(state)
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  fetchedClientSettings: bindActionCreators(fetchedClientSettings, dispatch)
+})
+interface clientProps {
+  clientSettingState?: any
+  fetchedClientSettings?: any
+}
+
+const Client = (props: clientProps) => {
   const classes = useStyles()
+  const { clientSettingState, fetchedClientSettings } = props
+  const clientSettings = clientSettingState.get('Client').get('client')
+
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
     checkedB: true
   })
 
+  const authState = useAuthState()
+  const user = authState.user
   const handleEnable = (event) => {
     setEnabled({ ...enabled, [event.target.name]: event.target.checked })
   }
@@ -19,6 +43,12 @@ const Client = () => {
     e.preventDefault()
   }
 
+  useEffect(() => {
+    if (user?.id?.value != null && clientSettingState.get('Client').get('updateNeeded') === true) {
+      fetchedClientSettings()
+    }
+  }, [authState])
+
   return (
     <div className={classes.clientSettingsContainer}>
       <form onSubmit={handleSave}>
@@ -26,32 +56,42 @@ const Client = () => {
           CLIENT
         </Typography>
         <label>Enabled</label>
-        <Paper component="div" className={classes.createInput}>
-          <Switch
-            disabled
-            checked={enabled.checkedB}
-            onChange={handleEnable}
-            color="primary"
-            name="checkedB"
-            inputProps={{ 'aria-label': 'primary checkbox' }}
-          />
-        </Paper>
-        <label>Logo</label>
-        <Paper component="div" className={classes.createInput}>
-          <InputBase name="logo" className={classes.input} style={{ color: '#fff' }} />
-        </Paper>
-        <label>Title</label>
-        <Paper component="div" className={classes.createInput}>
-          <InputBase name="title" className={classes.input} style={{ color: '#fff' }} />
-        </Paper>
-        <label>URL</label>
-        <Paper component="div" className={classes.createInput}>
-          <InputBase name="url" className={classes.input} disabled style={{ color: '#fff' }} />
-        </Paper>
-        <label>Release Name</label>
-        <Paper component="div" className={classes.createInput}>
-          <InputBase name="releaseName" className={classes.input} disabled style={{ color: '#fff' }} />
-        </Paper>
+        {clientSettings.map((el) => (
+          <div key={el.id}>
+            <Paper component="div" className={classes.createInput}>
+              <Switch
+                disabled
+                checked={enabled.checkedB}
+                onChange={handleEnable}
+                color="primary"
+                name="checkedB"
+                inputProps={{ 'aria-label': 'primary checkbox' }}
+              />
+            </Paper>
+            <label>Logo</label>
+            <Paper component="div" className={classes.createInput}>
+              <InputBase name="logo" className={classes.input} style={{ color: '#fff' }} value={el.logo} />
+            </Paper>
+            <label>Title</label>
+            <Paper component="div" className={classes.createInput}>
+              <InputBase name="title" className={classes.input} style={{ color: '#fff' }} value={el.title} />
+            </Paper>
+            <label>URL</label>
+            <Paper component="div" className={classes.createInput}>
+              <InputBase name="url" className={classes.input} disabled style={{ color: '#fff' }} value={el.url} />
+            </Paper>
+            <label>Release Name</label>
+            <Paper component="div" className={classes.createInput}>
+              <InputBase
+                name="releaseName"
+                className={classes.input}
+                disabled
+                style={{ color: '#fff' }}
+                value={el.releaseName}
+              />
+            </Paper>
+          </div>
+        ))}
         <Button variant="outlined" style={{ color: '#fff' }}>
           Cancel
         </Button>
@@ -64,4 +104,4 @@ const Client = () => {
   )
 }
 
-export default Client
+export default connect(mapStateToProps, mapDispatchToProps)(Client)

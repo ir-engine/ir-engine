@@ -141,9 +141,9 @@ const Page = () => {
     ;(async function () {
       await initializeEngine({ scene: { disabled: true } })
       // Register our systems to do stuff
-      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: AnimationSystem }))
-      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: IKRigSystem }))
-      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: RenderSystem }))
+      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: AnimationSystem }))
+      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: IKRigSystem }))
+      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
       await Engine.defaultWorld.initSystems()
 
       initExample()

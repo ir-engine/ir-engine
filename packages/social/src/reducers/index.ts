@@ -7,6 +7,7 @@ import popupsStateReducer from './popupsState/reducers'
 import thefeedsReducer from './thefeeds/reducers'
 import thefeedsFiresReducer from './thefeedsFires/reducers'
 import webxrnativeReducer from './webxr_native/reducers'
+import registrationReducer from './registration/reducers'
 
 export default {
   creators: creatorReducer,
@@ -17,5 +18,6 @@ export default {
   popups: popupsStateReducer,
   thefeeds: thefeedsReducer,
   thefeedsFires: thefeedsFiresReducer,
-  webxrnative: webxrnativeReducer
+  webxrnative: webxrnativeReducer,
+  registrationReducer: registrationReducer
 }

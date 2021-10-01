@@ -1,7 +1,5 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { FriendActionType } from './FriendActions'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import _ from 'lodash'
 
 const state = createState({
@@ -21,7 +19,7 @@ export const friendReducer = (_, action: FriendActionType) => {
 }
 
 const friendReceptor = (action: FriendActionType): any => {
-  let newValues, selfUser, otherUser
+  let newValues, selfUser, otherUser,otherUserId
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_FRIENDS':

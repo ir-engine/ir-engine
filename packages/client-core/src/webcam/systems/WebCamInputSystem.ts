@@ -1,14 +1,17 @@
-import { defineQuery } from 'bitecs'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { hasComponent, getComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  hasComponent,
+  getComponent,
+  addComponent,
+  defineQuery
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { ChatService } from '../../social/reducers/chat/ChatService'
 import { accessAuthState } from '../../user/reducers/auth/AuthState'
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 
-export default async function ProximitySystem(world: World): Promise<System> {
+export default async function WebCamInputSystem(world: World): Promise<System> {
   const webcamInputQuery = defineQuery([WebCamInputComponent])
 
   return () => {
