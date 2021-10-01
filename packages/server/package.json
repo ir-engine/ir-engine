@@ -96,7 +96,7 @@
     "internal-ip": "6.2.0",
     "js-yaml": "4.1.0",
     "lodash": "4.17.21",
-    "mime-types": "2.1.32",
+    "mime-types": "2.1.33",
     "moment": "2.29.1",
     "multer": "1.4.3",
     "mysql2": "2.3.0",
