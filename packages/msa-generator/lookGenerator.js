@@ -129,8 +129,6 @@ const GeneratorData = {
     PerimeterDefense: { min: 60, max: 90, average: 80 },
     SpeedWithBall: { min: 60, max: 90, average: 80 },
     BallHog: { min: 60, max: 90, average: 80 },
-    RatingPeakPotential: { min: 60, max: 90, average: 80 },
-    RatingPeakLength: { min: 60, max: 90, average: 80 },
     Turnovers: { min: 60, max: 90, average: 80 },
     DefensiveIQ: { min: 60, max: 90, average: 80 },
     OffensiveIQ: { min: 60, max: 90, average: 80 },
@@ -140,6 +138,10 @@ const GeneratorData = {
     HighlightPotential: { min: 60, max: 90, average: 80 }
   }
 }
+
+// Age / skill curve
+// RatingPeakPotential: { min: 60, max: 90, average: 80 },
+// RatingPeakLength: { min: 60, max: 90, average: 80 },
 
 // for each attribute in GeneratorData, generate a random number between 0 and 1 and store in a corresponding attribute in a new object called GeneratorOutput
 export default function generateBaller(alreadyCreatedBallers = []) {

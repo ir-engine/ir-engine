@@ -1,0 +1,16 @@
+[package]
+name = "nft"
+version = "0.1.0"
+authors = ["Daniel Graczer <daniel@fleek.co>"]
+edition = "2018"
+
+[dependencies]
+ic-kit = "0.4.2"
+ic-cdk = "0.3.1"
+common = {path = "../common"}
+serde = { version="1.0.130", features = ["derive"] }
+derive-new = "0.5"
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"

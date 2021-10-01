@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "dfx": "0.8.0",
+  "canisters": {
+    "nft": {
+        "build": "cargo build --target wasm32-unknown-unknown --release --package nft",
+        "candid": "nft/candid/nft.did",
+        "wasm": "target/wasm32-unknown-unknown/release/nft.wasm",
+        "type": "custom"
+     }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  }
+}

@@ -6,7 +6,8 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "test": "node ./generatorTest.js"
+    "ballers": "node ./generatorTest.js",
+    "crowns": "node ./crowntest.js"
   },
   "dependencies": {
     "asciichart": "^1.5.25",

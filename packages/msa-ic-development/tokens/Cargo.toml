@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "nft",
+]
+
+[profile.release]
+lto = true
+opt-level = 'z'
+overflow-checks = true
+
+[profile.bench]
+overflow-checks = true
