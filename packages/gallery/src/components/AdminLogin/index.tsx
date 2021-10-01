@@ -2,11 +2,9 @@ import Button from '@material-ui/core/Button'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Grid } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from './AdminLogin.module.scss'
@@ -17,6 +15,7 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 interface Props {
   changeActiveMenu?: any
   setProfileMenuOpen?: any
+  classes?: any
 
   hideLogin?: any
 }
@@ -32,6 +31,7 @@ const AdminLogin = (props: Props): any => {
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
+  const { classes } = props
 
   let type = ''
 
@@ -80,10 +80,10 @@ const AdminLogin = (props: Props): any => {
   }
 
   return (
-    <div>
-      <>
-        <section className={styles.emailPhoneSection}>
-          <form onSubmit={handleSubmit}>
+    <div className={styles.container}>
+      <Grid container className={styles.gridContainer}>
+        <Grid item>
+          <form onSubmit={handleSubmit} style={{ display: 'grid' }}>
             <TextField
               className={styles.emailField}
               size="small"
@@ -98,8 +98,8 @@ const AdminLogin = (props: Props): any => {
               Send Magic Link
             </Button>
           </form>
-        </section>
-      </>
+        </Grid>
+      </Grid>
     </div>
   )
 }

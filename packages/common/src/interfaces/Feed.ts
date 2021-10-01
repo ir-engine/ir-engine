@@ -16,6 +16,8 @@ export interface Feed extends FeedShort {
   isFired?: boolean
   isLiked?: boolean
   isBookmarked?: boolean
+  previewType?: string
+  videoType?: string
 }
 
 export interface FeedDatabaseRow {
