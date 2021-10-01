@@ -128,7 +128,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.issues = []
     this.gltfJson = null
     if (this.model) {
-      SceneManager.instance.renderer.removeBatchedObject(this.model)
+      // SceneManager.instance.renderer.removeBatchedObject(this.model)
       this.remove(this.model)
       this.model = null
     }
@@ -137,7 +137,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.isValidURL = true
       const { url, files } = await resolveMedia(src)
       if (this.model) {
-        SceneManager.instance.renderer.removeBatchedObject(this.model)
+        // SceneManager.instance.renderer.removeBatchedObject(this.model)
       }
       await super.load(url)
 
@@ -168,7 +168,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       if (this.model) {
         this.model.traverse((object) => {
           if (object.material && object.material.isMeshStandardMaterial) {
-            object.material.envMap = SceneManager.instance.scene.environmentMap
+            object.material.envMap = SceneManager.instance.scene?.environmentMap
             object.material.needsUpdate = true
           }
         })
@@ -194,12 +194,12 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   onAdd() {
     if (this.model) {
-      SceneManager.instance.renderer.addBatchedObject(this.model)
+      // SceneManager.instance.renderer.addBatchedObject(this.model)
     }
   }
   onRemove() {
     if (this.model) {
-      SceneManager.instance.renderer.removeBatchedObject(this.model)
+      // SceneManager.instance.renderer.removeBatchedObject(this.model)
     }
   }
   onPlay() {
