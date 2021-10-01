@@ -1,9 +1,6 @@
-import { Vector3 } from 'three'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { string, float32, Schema, uint32, uint8, uint64, int8 } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
-import { setVelocityScaleAt } from '../../particles/classes/ParticleMesh'
-import { PostProcessingSchema } from '../../renderer/interfaces/PostProcessingSchema'
-import { Pose } from '../../transform/TransformInterfaces'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -43,7 +40,7 @@ export interface WorldStateInterface {
   time: number
   /** transform of world. */
   pose: {
-    networkId: number
+    networkId: NetworkId
     position: number[]
     rotation: number[]
     linearVelocity: number[]
@@ -51,7 +48,7 @@ export interface WorldStateInterface {
   }[]
   /** transform of ik avatars. */
   ikPose: {
-    networkId: number
+    networkId: NetworkId
     headPosePosition: number[]
     headPoseRotation: number[]
     leftPosePosition: number[]
@@ -70,14 +67,10 @@ export class WorldStateModel {
   }
 
   static fromBuffer(buffer: any): WorldStateInterface {
-    try {
-      const state = WorldStateModel.model.fromBuffer(buffer) as any
-      return {
-        ...state,
-        time: Number(state.time) // cast from bigint to number
-      }
-    } catch (error) {
-      console.warn("Couldn't deserialize buffer", buffer, error)
+    const state = WorldStateModel.model.fromBuffer(buffer) as any
+    return {
+      ...state,
+      time: Number(state.time) // cast from bigint to number
     }
   }
 }

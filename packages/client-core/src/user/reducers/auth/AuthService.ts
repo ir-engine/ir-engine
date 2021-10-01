@@ -1,5 +1,4 @@
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User'
@@ -17,10 +16,15 @@ import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src
 import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
 import { UserAction } from '../../store/UserAction'
-import { AuthAction, AuthActionType, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
+import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'
+import { hasComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -131,14 +135,14 @@ export const AuthService = {
       })
       .catch((err: any) => {
         console.log(err)
-        dispatchAlertError(dispatch, 'Failed to load user data')
+        AlertService.dispatchAlertError(dispatch, 'Failed to load user data')
       })
   },
   loginUserByPassword: (form: EmailLoginForm) => {
     return (dispatch: Dispatch): any => {
       // check email validation.
       if (!validateEmail(form.email)) {
-        dispatchAlertError(dispatch, 'Please input valid email address')
+        AlertService.dispatchAlertError(dispatch, 'Please input valid email address')
 
         return
       }
@@ -168,7 +172,7 @@ export const AuthService = {
           console.log(err)
 
           dispatch(AuthAction.loginUserError('Failed to login'))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -192,7 +196,7 @@ export const AuthService = {
       } catch (err) {
         console.log(err)
         dispatch(AuthAction.loginUserError('Failed to login'))
-        dispatchAlertError(dispatch, err.message)
+        AlertService.dispatchAlertError(dispatch, err.message)
       } finally {
         dispatch(AuthAction.actionProcessing(false))
       }
@@ -235,7 +239,7 @@ export const AuthService = {
       } catch (err) {
         console.log(err)
         dispatch(AuthAction.loginUserError('Failed to login'))
-        dispatchAlertError(dispatch, err.message)
+        AlertService.dispatchAlertError(dispatch, err.message)
         window.location.href = `${redirectError}?error=${err.message}`
         dispatch(AuthAction.actionProcessing(false))
       }
@@ -274,7 +278,7 @@ export const AuthService = {
         .catch((err: any) => {
           console.log('error', err)
           dispatch(AuthAction.registerUserByEmailError(err.message))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => {
           console.log('4 finally', dispatch)
@@ -299,7 +303,7 @@ export const AuthService = {
         .catch((err: any) => {
           console.log(err)
           dispatch(AuthAction.didVerifyEmail(false))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -384,7 +388,7 @@ export const AuthService = {
         const stripped = emailPhone.replace(/-/g, '')
         if (validatePhoneNumber(stripped)) {
           if (!enableSmsMagicLink) {
-            dispatchAlertError(dispatch, 'Please input valid email address')
+            AlertService.dispatchAlertError(dispatch, 'Please input valid email address')
 
             return
           }
@@ -393,13 +397,13 @@ export const AuthService = {
           emailPhone = '+1' + stripped
         } else if (validateEmail(emailPhone)) {
           if (!enableEmailMagicLink) {
-            dispatchAlertError(dispatch, 'Please input valid phone number')
+            AlertService.dispatchAlertError(dispatch, 'Please input valid phone number')
 
             return
           }
           type = 'email'
         } else {
-          dispatchAlertError(dispatch, 'Please input valid email or phone number')
+          AlertService.dispatchAlertError(dispatch, 'Please input valid email or phone number')
 
           return
         }
@@ -414,12 +418,12 @@ export const AuthService = {
         .then((res: any) => {
           console.log(res)
           dispatch(AuthAction.didCreateMagicLink(true))
-          dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
+          AlertService.dispatchAlertSuccess(dispatch, 'Login Magic Link was sent. Please check your Email or SMS.')
         })
         .catch((err: any) => {
           console.log(err)
           dispatch(AuthAction.didCreateMagicLink(false))
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -442,7 +446,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -463,7 +467,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -490,7 +494,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -512,7 +516,7 @@ export const AuthService = {
         })
         .catch((err: any) => {
           console.log(err)
-          dispatchAlertError(dispatch, err.message)
+          AlertService.dispatchAlertError(dispatch, err.message)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -538,7 +542,7 @@ export const AuthService = {
         name: selfUser.name.value
       })
       const result = res.data
-      dispatchAlertSuccess(dispatch, 'Avatar updated')
+      AlertService.dispatchAlertSuccess(dispatch, 'Avatar updated')
       dispatch(AuthAction.avatarUpdated(result))
     }
   },
@@ -671,7 +675,7 @@ export const AuthService = {
                       .service('user')
                       .patch(selfUser.id.value, { avatarId: name })
                       .then((_) => {
-                        dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.')
+                        AlertService.dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.')
                         if (Network?.instance?.transport)
                           (Network.instance.transport as any).sendNetworkStatUpdateMessage({
                             type: MessageTypes.AvatarUpdated,
@@ -712,7 +716,7 @@ export const AuthService = {
           query: { keys }
         })
         .then((_) => {
-          dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.')
+          AlertService.dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.')
           AuthService.fetchAvatarList()(dispatch)
         })
     }
@@ -741,7 +745,7 @@ export const AuthService = {
           name: name
         })
         .then((res: any) => {
-          dispatchAlertSuccess(dispatch, 'Username updated')
+          AlertService.dispatchAlertSuccess(dispatch, 'Username updated')
           dispatch(AuthAction.usernameUpdated(res))
         })
     }
@@ -808,8 +812,10 @@ const getAvatarResources = (user) => {
 const loadAvatarForUpdatedUser = async (user) => {
   if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
 
+  const world = Engine.defaultWorld
+
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = world.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -835,13 +841,9 @@ const loadAvatarForUpdatedUser = async (user) => {
       networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
-      for (let key of Object.keys(Network.instance.networkObjects)) {
-        const obj = Network.instance.networkObjects[key]
-        if (obj?.uniqueId === user.id) {
-          setAvatar(obj.entity, user.avatarId, avatarURL)
-          break
-        }
-      }
+      const world = Engine.defaultWorld
+      const userEntity = world.getUserAvatarEntity(user.id)
+      setAvatar(userEntity, user.avatarId, avatarURL)
     }
     resolve(true)
   })
@@ -851,7 +853,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
   if (!user || !user.id) Promise.resolve(true)
 
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = Engine.defaultWorld.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -868,13 +870,9 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
-    for (let key of Object.keys(Network.instance.networkObjects)) {
-      const obj = Network.instance.networkObjects[key]
-      if (obj?.uniqueId === user.id) {
-        setAvatar(obj.entity, user.avatarId, avatarURL)
-        break
-      }
-    }
+    const world = Engine.defaultWorld
+    const userEntity = world.getUserAvatarEntity(user.id)
+    setAvatar(userEntity, user.avatarId, avatarURL)
     resolve(true)
   })
 }
@@ -886,10 +884,8 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const user = resolveUser(params.userRelationship)
 
     console.log('User patched', user)
-    if (Network.instance != null) {
-      await loadAvatarForUpdatedUser(user)
-      _updateUsername(user.id, user.name)
-    }
+    await loadAvatarForUpdatedUser(user)
+    _updateUsername(user.id, user.name)
 
     if (selfUser.id.value === user.id) {
       store.dispatch(UserAction.clearLayerUsers())
@@ -907,6 +903,33 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         if (history.pushState) {
           window.history.replaceState({}, '', parsed.toString())
         }
+      }
+      const world = Engine.defaultWorld
+      if (typeof world.localClientEntity !== 'undefined') {
+        if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
+          addComponent(
+            world.localClientEntity,
+            ProximityComponent,
+            {
+              usersInRange: [],
+              usersInIntimateRange: [],
+              usersInHarassmentRange: [],
+              usersLookingTowards: []
+            },
+            world
+          )
+        }
+        if (!hasComponent(world.localClientEntity, WebCamInputComponent, world)) {
+          addComponent(
+            world.localClientEntity,
+            WebCamInputComponent,
+            {
+              emotions: []
+            },
+            world
+          )
+        }
+        console.log('added web cam input component to local client')
       }
     } else {
       if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId.value)

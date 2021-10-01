@@ -5,15 +5,12 @@ export default class Spline extends Object3D {
   ARC_SEGMENTS = 200
   INIT_POINTS_COUNT = 2
 
-  _splineHelperObjects = []
+  _splineHelperObjects: Object3D[] = []
   _splinePointsLength = this.INIT_POINTS_COUNT
-  _positions = []
+  _positions: Vector3[] = []
   _point = new Vector3()
 
   _splines = {} as any
-  editor: any
-
-  _editor = null
 
   helperNode: any
 
@@ -22,7 +19,7 @@ export default class Spline extends Object3D {
     this.helperNode = helperNode
   }
 
-  init(editor = null, loadedSplinePositions = null) {
+  init(loadedSplinePositions: any = null) {
     /*******
      * Curves
      *********/
@@ -33,10 +30,8 @@ export default class Spline extends Object3D {
       this._splinePointsLength = loadedSplinePositions.length
     }
 
-    this._editor = editor
-
     for (let i = 0; i < this._splinePointsLength; i++) {
-      this.addSplineObject(this._positions[i])
+      this.addSplineObject(this._positions[i] as any)
     }
 
     this._positions.length = 0
@@ -105,7 +100,7 @@ export default class Spline extends Object3D {
   }
 
   addSplineObject(position = null) {
-    const splineHelperNode = new this.helperNode(this._editor, this)
+    const splineHelperNode = new this.helperNode(this)
     const object = splineHelperNode
 
     if (position) {
@@ -184,7 +179,7 @@ export default class Spline extends Object3D {
   }
 
   exportSpline() {
-    const strplace = []
+    const strplace: Vector3[] = []
 
     for (let i = 0; i < this._splinePointsLength; i++) {
       const p = this._splineHelperObjects[i].position

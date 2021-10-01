@@ -79,7 +79,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
   function tpsSubMeasureStart(name) {
     let measureData: { time: number; ticks: number }
     if (tpsMeasureStartData.has(name)) {
-      measureData = tpsMeasureStartData.get(name)
+      measureData = tpsMeasureStartData.get(name)!
     } else {
       measureData = { time: 0, ticks: 0 }
       tpsMeasureStartData.set(name, measureData)
@@ -88,7 +88,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
     measureData.time = nowMilliseconds()
   }
   function tpsSubMeasureEnd(name) {
-    const measureData = tpsMeasureStartData.get(name)
+    const measureData = tpsMeasureStartData.get(name)!
     newEngineTicks[name] += Engine.tick - measureData.ticks
     newEngineTimeSpent[name] += nowMilliseconds() - measureData.time
   }
@@ -174,7 +174,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
     } else {
       serverLoop = () => {
         const time = nowMilliseconds()
-        if (time - lastTime >= expectedDelta) {
+        if (time - lastTime! >= expectedDelta) {
           onFrame(time)
           lastTime = time
         }

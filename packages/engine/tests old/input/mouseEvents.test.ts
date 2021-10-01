@@ -154,7 +154,7 @@ xdescribe("buttons", () => {
     expect(input.data.has(BaseInput.PRIMARY)).toBeTruthy();
     const data1 = input.data.get(BaseInput.PRIMARY);
     expect(data1.value).toBe(BinaryValue.ON);
-    expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Started);
   });
 
   it ("triggered started behavior", () => {
@@ -172,7 +172,7 @@ xdescribe("buttons", () => {
     expect(input.data.has(BaseInput.PRIMARY)).toBeFalsy();
     // const data = input.data.get(BaseInput.PRIMARY);
     // expect(data.value).toBe(BinaryValue.OFF);
-    // expect(data.lifecycleState).toBe(LifecycleValue.ENDED);
+    // expect(data.lifecycleState).toBe(LifecycleValue.Ended);
   });
 
   it ("triggered ended behavior", () => {
@@ -189,7 +189,7 @@ xdescribe("buttons", () => {
     expect(input.data.has(BaseInput.SCREENXY_START)).toBeTruthy();
     const data1 = input.data.get(BaseInput.SCREENXY_START);
     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-    expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Started);
   });
 
   it ("MouseClickDownPosition: SCREENXY_START UNCHANGED", () => {
@@ -199,7 +199,7 @@ xdescribe("buttons", () => {
     execute(); // should not switch to CHANGED/ENDED/CONTINUED
     expect(input.data.has(BaseInput.SCREENXY_START)).toBeTruthy();
     const data1 = input.data.get(BaseInput.SCREENXY_START);
-    expect(data1.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Unchanged);
   });
 
   it ("MouseClickDownPosition: sets SCREENXY_START to ENDED on release", () => {
@@ -210,7 +210,7 @@ xdescribe("buttons", () => {
 
     expect(input.data.has(BaseInput.SCREENXY_START)).toBeTruthy();
     const data1 = input.data.get(BaseInput.SCREENXY_START);
-    expect(data1.lifecycleState).toBe(LifecycleValue.ENDED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Ended);
   });
 });
 
@@ -228,7 +228,7 @@ xdescribe("movement", () => {
     expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
     const data1 = input.data.get(BaseInput.SCREENXY);
     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-    expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+    expect(data1.lifecycleState).toBe(LifecycleValue.Started);
   });
 
   it ("triggered started behavior", () => {
@@ -246,7 +246,7 @@ xdescribe("movement", () => {
     expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
     const data2 = input.data.get(BaseInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+    expect(data2.lifecycleState).toBe(LifecycleValue.Changed);
   });
 
   it ("triggered changed behavior", () => {
@@ -265,7 +265,7 @@ xdescribe("movement", () => {
     expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
     const data2 = input.data.get(BaseInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+    expect(data2.lifecycleState).toBe(LifecycleValue.Unchanged);
   });
 
   it ("triggers input UNCHANGED from CHANGED", () => {
@@ -278,7 +278,7 @@ xdescribe("movement", () => {
     expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
     const data2 = input.data.get(BaseInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+    expect(data2.lifecycleState).toBe(LifecycleValue.Unchanged);
   });
 
   it ("triggered UNCHANGED behavior", () => {
@@ -312,7 +312,7 @@ xdescribe("button + movement", () => {
     expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
     const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ 20, 5 ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
+    expect(data2.lifecycleState).toBe(LifecycleValue.Started);
   });
 
   it ("triggers associated input CHANGED", () => {
@@ -326,7 +326,7 @@ xdescribe("button + movement", () => {
     expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
     const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ -20, -5 ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+    expect(data2.lifecycleState).toBe(LifecycleValue.Changed);
   });
 
   it ("triggers associated input UNCHANGED", () => {
@@ -341,7 +341,7 @@ xdescribe("button + movement", () => {
     expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
     const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ -20, -5 ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+    expect(data2.lifecycleState).toBe(LifecycleValue.Unchanged);
   });
 
   it ("not trigger CHANGED if button is released", () => {
@@ -357,7 +357,7 @@ xdescribe("button + movement", () => {
     expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
     const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ 20, 5 ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+    expect(data2.lifecycleState).toBe(LifecycleValue.Unchanged);
   });
 
 });

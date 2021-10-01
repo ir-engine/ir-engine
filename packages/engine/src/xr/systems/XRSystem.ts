@@ -41,6 +41,8 @@ export default async function XRSystem(world: World): Promise<System> {
       Engine.xrRenderer.setSession(session)
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
 
+      Engine.xrRenderer.getCamera().layers.enableAll()
+
       Engine.xrRenderer.addEventListener('sessionend', async () => {
         endXR()
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
@@ -62,23 +64,28 @@ export default async function XRSystem(world: World): Promise<System> {
             // TODO : support button.touched and button.value
             const prev = Engine.prevInputState.get(mapping.buttons[index])
             if (!prev && button.pressed == false) return
+            const continued = prev?.value && button.pressed
             Engine.inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
               value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-              lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+              lifecycleState: button.pressed
+                ? continued
+                  ? LifecycleValue.Continued
+                  : LifecycleValue.Started
+                : LifecycleValue.Ended
             })
           })
           if (source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[2], source.gamepad.axes[3]],
-              lifecycleState: LifecycleValue.STARTED
+              lifecycleState: LifecycleValue.Started
             })
           } else {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[0], source.gamepad.axes[1]],
-              lifecycleState: LifecycleValue.STARTED
+              lifecycleState: LifecycleValue.Started
             })
           }
         }

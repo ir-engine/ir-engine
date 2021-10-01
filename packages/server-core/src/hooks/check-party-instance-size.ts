@@ -4,6 +4,7 @@ import _ from 'lodash'
 import getLocalServerIp from '../util/get-local-server-ip'
 import logger from '../logger'
 import config from '../appconfig'
+import { Application } from '../../declarations'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -46,13 +47,13 @@ export default () => {
               ? await getLocalServerIp()
               : { ipAddress: status.address, port: status.portsList[0].port }
             if (config.kubernetes.enabled) {
-              const serverResult = await (context.app as any).k8AgonesClient.get('gameservers')
+              const serverResult = await (context.app as Application).k8AgonesClient.get('gameservers')
               const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
               const server = readyServers[Math.floor(Math.random() * readyServers.length)]
               status = server.status
               selfIpAddress = `${server.status.address as string}:${server.status.portsList[0].port as string}`
             } else {
-              const agonesSDK = (context.app as any).agonesSDK
+              const agonesSDK = (context.app as Application).agonesSDK
               const gsResult = await agonesSDK.getGameServer()
               status = gsResult.status
               selfIpAddress = `${emittedIp.ipAddress}:3031`
@@ -63,7 +64,7 @@ export default () => {
               ipAddress: selfIpAddress
             })
             if (!config.kubernetes.enabled) {
-              ;(context.app as any).instance.id = instance.id
+              ;(context.app as Application).instance.id = instance.id
             }
 
             await context.app.service('instance-provision').emit('created', {
@@ -82,7 +83,7 @@ export default () => {
             )
             const selectedInstance = instanceUserSort[0]
             if (!config.kubernetes.enabled) {
-              ;(context.app as any).instance.id = selectedInstance.id
+              ;(context.app as Application).instance.id = selectedInstance.id
             }
             logger.info('Putting party users on instance ' + selectedInstance.id)
             const addressSplit = selectedInstance.ipAddress.split(':')

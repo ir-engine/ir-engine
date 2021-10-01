@@ -13,12 +13,12 @@ import {
 } from './actions'
 import { client } from '../../../../feathers'
 import { loadedUsers } from './actions'
-import { dispatchAlertError } from '../../../../common/reducers/alert/service'
-import { useAuthState } from '../../../../user/reducers/auth/AuthState'
+import { AlertService } from '../../../../common/reducers/alert/AlertService'
+import { accessAuthState } from '../../../../user/reducers/auth/AuthState'
 
 export function fetchUsersAsAdmin(incDec?: 'increment' | 'decrement') {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const user = useAuthState().user
+    const user = accessAuthState().user
     const skip = getState().get('adminUser').get('users').get('skip')
     const limit = getState().get('adminUser').get('users').get('limit')
     try {
@@ -37,7 +37,7 @@ export function fetchUsersAsAdmin(incDec?: 'increment' | 'decrement') {
       }
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -50,7 +50,7 @@ export function createUser(user: any) {
       dispatch(userCreated(result))
     } catch (error) {
       console.error(error)
-      dispatchAlertError(dispatch, error.message)
+      AlertService.dispatchAlertError(dispatch, error.message)
     }
   }
 }
@@ -61,7 +61,7 @@ export function patchUser(id: string, user: any) {
       const result = await client.service('user').patch(id, user)
       dispatch(userPatched(result))
     } catch (error) {
-      dispatchAlertError(dispatch, error.message)
+      AlertService.dispatchAlertError(dispatch, error.message)
     }
   }
 }
@@ -79,7 +79,7 @@ export const fetchUserRole = () => {
       dispatch(userRoleRetrieved(userRole))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -97,7 +97,7 @@ export const updateUserRole = (id: string, role: string) => {
       dispatch(userRoleUpdated(userRole))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -120,7 +120,7 @@ export const searchUserAction = (data: any, offset: string) => {
       dispatch(searchedUser(result))
     } catch (err) {
       console.error(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -132,7 +132,7 @@ export const fetchSingleUserAdmin = (id: string) => {
       dispatch(fetchedSingleUser(result))
     } catch (error) {
       console.error(error)
-      dispatchAlertError(dispatch, error.message)
+      AlertService.dispatchAlertError(dispatch, error.message)
     }
   }
 }

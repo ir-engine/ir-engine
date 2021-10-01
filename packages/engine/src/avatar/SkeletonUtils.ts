@@ -197,7 +197,7 @@ class SkeletonUtils {
 
     const numFrames = Math.round(clip.duration * (options.fps / 1000) * 1000),
       delta = 1 / options.fps,
-      convertedTracks = [],
+      convertedTracks: (VectorKeyframeTrack | QuaternionKeyframeTrack)[] = [],
       mixer = new AnimationMixer(source),
       bones = this.getBones(target.skeleton),
       boneDatas = []
@@ -316,7 +316,7 @@ class SkeletonUtils {
       nameValues = Object.values(options.names),
       sourceBones = source.isObject3D ? source.skeleton.bones : this.getBones(source),
       bones = target.isObject3D ? target.skeleton.bones : this.getBones(target),
-      offsets = []
+      offsets: Matrix4[] = []
 
     let bone, boneTo, name, i
 
@@ -420,7 +420,7 @@ class SkeletonUtils {
   static getEqualsBonesNames(skeleton, targetSkeleton) {
     const sourceBones = this.getBones(skeleton),
       targetBones = this.getBones(targetSkeleton),
-      bones = []
+      bones: any = []
 
     search: for (let i = 0; i < sourceBones.length; i++) {
       const boneName = sourceBones[i].name
@@ -459,6 +459,14 @@ class SkeletonUtils {
       clonedMesh.bindMatrix.copy(sourceMesh.bindMatrix)
 
       clonedMesh.skeleton.bones = sourceBones.map((bone) => {
+        if (!cloneLookup.has(bone)) {
+          console.warn(
+            'Bone was not cloned',
+            bone,
+            '. Common reason is that bones parent is out of clone source',
+            source
+          )
+        }
         return cloneLookup.get(bone)
       })
 

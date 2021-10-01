@@ -46,7 +46,8 @@ export default (app: Application): any => {
       username: {
         type: DataTypes.STRING,
         defaultValue: (): string => '',
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       email: {
         type: DataTypes.STRING,

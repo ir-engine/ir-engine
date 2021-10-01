@@ -5,7 +5,8 @@ export type AfkCheckComponentType = {
   isAfk: boolean
   prevPosition: Vector3
   cStep: number
+  cStep2: number
   timer: number
 }
 
-export const AfkCheckComponent = createMappedComponent<AfkCheckComponentType>()
+export const AfkCheckComponent = createMappedComponent<AfkCheckComponentType>('AfkCheckComponent')

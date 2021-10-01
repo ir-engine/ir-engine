@@ -15,9 +15,8 @@ import {
 } from './actions'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
-import { User } from '@xrengine/common/src/interfaces/User'
 import Store from '../../../store'
-import { dispatchAlertError } from '../../../common/reducers/alert/service'
+import { AlertService } from '../../../common/reducers/alert/AlertService'
 
 import { Config } from '@xrengine/common/src/config'
 
@@ -38,7 +37,7 @@ export function getChannels(skip?: number, limit?: number) {
       dispatch(loadedChannels(channelResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -53,7 +52,7 @@ export function getInstanceChannel() {
       })
       dispatch(loadedChannel(channelResult.data[0], 'instance'))
     } catch (err) {
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -68,7 +67,7 @@ export function createMessage(values: any) {
       })
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -111,7 +110,7 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
       dispatch(loadedMessages(channelId, messageResult))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -122,7 +121,7 @@ export function removeMessage(messageId: string) {
       await client.service('message').remove(messageId)
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -135,7 +134,7 @@ export function patchMessage(messageId: string, text: string) {
       })
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      AlertService.dispatchAlertError(dispatch, err.message)
     }
   }
 }
@@ -152,6 +151,22 @@ export function updateChatTarget(targetObjectType: string, targetObject: any) {
     dispatch(
       setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : '')
     )
+  }
+}
+
+export function clearChatTargetIfCurrent(targetObjectType: string, targetObject: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    const chatState = store.getState().get('chat')
+    const chatStateTargetObjectType = chatState.get('targetObjectType')
+    const chatStateTargetObjectId = chatState.get('targetObject').id
+    if (
+      targetObjectType === chatStateTargetObjectType &&
+      (targetObject.id === chatStateTargetObjectId ||
+        targetObject.relatedUserId === chatStateTargetObjectId ||
+        targetObject.userId === chatStateTargetObjectId)
+    ) {
+      dispatch(setChatTarget('', {}, ''))
+    }
   }
 }
 

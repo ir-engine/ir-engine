@@ -67,13 +67,13 @@ export const handleLODs = (asset: Object3D): Object3D => {
       LODs.set(name, [])
     }
 
-    LODs.get(name).push({ object: child, level })
+    LODs.get(name)?.push({ object: child, level })
   })
 
   LODs.forEach((value, key) => {
     const lod = new LOD()
     lod.name = key
-    value[0].object.parent.add(lod)
+    value[0].object.parent?.add(lod)
 
     value.forEach(({ level, object }) => {
       lod.addLevel(object, AssetLoader.LOD_DISTANCES[level])
@@ -94,7 +94,7 @@ export const getAssetType = (assetFileName: string): AssetType => {
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
   else if (/\.(?:png)$/.test(assetFileName)) return AssetType.PNG
   else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) return AssetType.JPEG
-  else return null
+  return null!
 }
 
 /**
@@ -108,7 +108,7 @@ export const getAssetClass = (assetFileName: string): AssetClass => {
   } else if (/\.png|jpg|jpeg$/.test(assetFileName)) {
     return AssetClass.Image
   } else {
-    return null
+    return null!
   }
 }
 
@@ -140,9 +140,9 @@ type AssetLoaderParamType = {
 
 const load = (
   params: AssetLoaderParamType,
-  onLoad?: (response: any) => void,
-  onProgress?: (request: ProgressEvent) => void,
-  onError?: (event: ErrorEvent | Error) => void
+  onLoad = (response: any) => {},
+  onProgress = (request: ProgressEvent) => {},
+  onError = (event: ErrorEvent | Error) => {}
 ) => {
   if (!params.url) {
     onError(new Error('URL is empty'))
@@ -190,9 +190,9 @@ export class AssetLoader {
 
   static load(
     params: AssetLoaderParamType,
-    onLoad?: (response: any) => void,
-    onProgress?: (request: ProgressEvent) => void,
-    onError?: (event: ErrorEvent | Error) => void
+    onLoad = (response: any) => {},
+    onProgress = (request: ProgressEvent) => {},
+    onError = (event: ErrorEvent | Error) => {}
   ) {
     load(params, onLoad, onProgress, onError)
   }

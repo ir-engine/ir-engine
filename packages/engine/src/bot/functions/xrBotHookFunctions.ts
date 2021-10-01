@@ -5,7 +5,7 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../../networking/classes/Network'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
@@ -120,7 +120,7 @@ export function moveControllerStick(args) {
 
 // is in world space, so subtract player pos from it
 export function getXRInputPosition() {
-  const xrInputs = getComponent(Network.instance.localClientEntity, XRInputSourceComponent)
+  const xrInputs = getComponent(useWorld().localClientEntity, XRInputSourceComponent)
   const hmd = xrInputs.head.position.toArray().concat(xrInputs.head.quaternion.toArray())
   const left = xrInputs.controllerLeft.position.toArray().concat(xrInputs.controllerLeft.quaternion.toArray())
   const right = xrInputs.controllerRight.position.toArray().concat(xrInputs.controllerRight.quaternion.toArray())
@@ -161,7 +161,7 @@ export const getInputSourceRotation = (inputSource: InputSource) => {
   }
 }
 
-const tweens = []
+const tweens: any[] = []
 
 export const sendXRInputData = () => {
   tweens.forEach((call) => call())

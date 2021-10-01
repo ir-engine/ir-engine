@@ -1,3 +1,4 @@
+
 # Getting Started
 
 Getting up and running requires only a few steps. 
@@ -13,7 +14,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 ```
 cd path/to/xrengine
 npm install
-npm run msadev
+npm run dev
 ```
 This will automatically setup (if necessary) and run redis/mariadb docker containers, and XRengine client/server/game-server instances. That's it!
 
@@ -287,7 +288,7 @@ Create a user at `/login`
 
 Method 1: 
 
-1. Run `node scripts/make-user-admin.js --id=[USER ID]` 
+1. Run `npm run make-user-admin.js -- --id=[USER ID]` 
 2. TODO: Improve with email/phone ID support
 
 Method 2: 

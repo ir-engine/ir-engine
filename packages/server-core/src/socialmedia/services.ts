@@ -1,6 +1,7 @@
 import Creator from './creator/creator.service'
 import Feed from './feed/feed.service'
 import FeedFires from './feed-fires/feed-fires.service'
+import FeedLikes from './feed-likes/feed-likes.service'
 import FeedReport from './feed-report/feed-report.service'
 import FeedBookmark from './feed-bookmark/feed-bookmark.service'
 import Comments from './comments/comments.service'
@@ -16,6 +17,7 @@ export default [
   Creator,
   Feed,
   FeedFires,
+  FeedLikes,
   FeedBookmark,
   FeedReport,
   Comments,
