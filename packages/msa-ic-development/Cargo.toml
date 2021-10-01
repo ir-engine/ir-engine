@@ -1,8 +1,0 @@
-[workspace]
-members = [
-    "backend/user_profile",
-    "backend/wall",
-]
-
-[profile.release]
-opt-level = 'z'
