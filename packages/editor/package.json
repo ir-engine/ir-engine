@@ -120,7 +120,7 @@
     "@types/node": "14.17.20",
     "@types/react": "17.0.26",
     "@types/react-dom": "17.0.9",
-    "@types/three": "0.132.2",
+    "@types/three": "0.132.1",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "esbuild": "0.13.3",
