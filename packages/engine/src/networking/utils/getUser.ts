@@ -3,6 +3,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
+import { UserNameComponent } from '../../scene/components/UserNameComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
@@ -39,7 +40,14 @@ export function getPlayerName(eid): string {
 
   for (let [_, client] of Engine.defaultWorld.clients) {
     if (client.userId === uid) {
-      return client.name
+      if (client.name !== undefined) {
+        return client.name
+      } else {
+        const unc = getComponent(eid, UserNameComponent)
+        if (unc !== undefined) {
+          return unc.username
+        }
+      }
     }
   }
 

@@ -1,7 +1,6 @@
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
-import { getPlayerName } from '@xrengine/engine/src/networking/utils/getUser'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent, defineQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -58,7 +57,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
               _usersInRange.push(userEntity)
               if (!usersInRange.includes(userEntity)) {
-                sendProximityChatMessage(username + ' in range with ' + getPlayerName(eid))
+                sendProximityChatMessage(username + ' in range with ' + username)
                 console.log('proximity|inRange|' + username + '|' + distance)
               }
             }
@@ -70,7 +69,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
               _usersInIntimateRange.push(userEntity)
               if (!usersInIntimateRange.includes(userEntity)) {
-                sendProximityChatMessage(username + ' in intimate range with ' + getPlayerName(eid))
+                sendProximityChatMessage(username + ' in intimate range with ' + username)
                 console.log('proximity|intimate|' + username + '|' + distance)
               }
             }
@@ -82,7 +81,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
               _usersInHarassmentRange.push(userEntity)
               if (!usersInHarassmentRange.includes(userEntity)) {
-                sendProximityChatMessage(username + ' in harassment range with ' + getPlayerName(eid))
+                sendProximityChatMessage(username + ' in harassment range with ' + username)
                 console.log('proximity|harassment|' + username + '|' + distance)
               }
             }
@@ -95,7 +94,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
             if (!_usersLookingTowards.includes(userEntity)) {
               _usersLookingTowards.push(userEntity)
               if (!usersLookingTowards.includes(userEntity)) {
-                sendProximityChatMessage(username + ' looking at ' + getPlayerName(eid))
+                sendProximityChatMessage(username + ' looking at ' + username)
                 console.log('proximity|lookAt|' + username + '|' + dot)
               }
             }
@@ -103,25 +102,25 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
           for (let i = 0; i < usersInRange.length; i++) {
             if (!_usersInRange.includes(usersInRange[i]) && !_usersInIntimateRange.includes(usersInRange[i])) {
-              sendProximityChatMessage(username + ' not in range with ' + getPlayerName(eid))
+              sendProximityChatMessage(username + ' not in range with ' + username)
               console.log('proximity|inRange|' + username + '|left')
             }
           }
           for (let i = 0; i < usersInIntimateRange.length; i++) {
             if (!_usersInIntimateRange.includes(usersInIntimateRange[i])) {
-              sendProximityChatMessage(username + ' not in intimate range with ' + getPlayerName(eid))
+              sendProximityChatMessage(username + ' not in intimate range with ' + username)
               console.log('proximity|intimate|' + username + '|left')
             }
           }
           for (let i = 0; i < usersInHarassmentRange.length; i++) {
             if (!_usersInHarassmentRange.includes(usersInHarassmentRange[i])) {
-              sendProximityChatMessage(username + ' not in harassment range with ' + getPlayerName(eid))
+              sendProximityChatMessage(username + ' not in harassment range with ' + username)
               console.log('proximity|harassment|' + username + '|left')
             }
           }
           for (let i = 0; i < usersLookingTowards.length; i++) {
             if (!_usersLookingTowards.includes(usersLookingTowards[i])) {
-              sendProximityChatMessage(username + ' not looking at ' + getPlayerName(eid))
+              sendProximityChatMessage(username + ' not looking at ' + username)
               console.log('proximity|lookAt|' + username + '|left')
             }
           }
