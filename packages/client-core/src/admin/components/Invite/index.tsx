@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from '../../../social/reducers/invite/service'
+import { InviteService } from '../../../social/reducers/invite/InviteService'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { selectInviteState } from '../../../social/reducers/invite/selector'
+import { useInviteState } from '../../../social/reducers/invite/InviteState'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect, useDispatch } from 'react-redux'
 import AppBar from '@material-ui/core/AppBar'
@@ -60,34 +60,23 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }))
 
-interface Props {
-  receivedInvites?: any
-  retrieveReceivedInvites?: any
-  retrieveSentInvites?: any
-  sendInvite?: any
-  sentInvites?: any
-}
+interface Props {}
 
 const mapStateToProps = (state: any): any => {
-  return {
-    receivedInvites: selectInviteState(state),
-    sentInvites: selectInviteState(state)
-  }
+  return {}
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  sendInvite: bindActionCreators(sendInvite, dispatch),
-  retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch),
-  retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const InvitesConsole = (props: Props) => {
-  const { sentInvites, receivedInvites, retrieveSentInvites, retrieveReceivedInvites } = props
   const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
   const [inviteModelOpen, setInviteModelOpen] = React.useState(false)
-  const invites = sentInvites.get('sentInvites').get('invites')
+
+  const inviteState = useInviteState()
+
+  const invites = inviteState.sentInvites.invites
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users.users
   const user = useAuthState().user
@@ -121,16 +110,16 @@ const InvitesConsole = (props: Props) => {
   }, [useAuthState(), adminUserState.users.updateNeeded.value, refetch])
 
   useEffect(() => {
-    if (sentInvites.get('sentUpdateNeeded') === true) {
-      retrieveSentInvites()
+    if (inviteState.sentUpdateNeeded.value === true) {
+      dispatch(InviteService.retrieveSentInvites())
     }
-  }, [sentInvites])
+  }, [inviteState.sentUpdateNeeded.value])
 
   useEffect(() => {
-    if (receivedInvites.get('sentUpdateNeeded') === true) {
-      retrieveReceivedInvites()
+    if (inviteState.sentUpdateNeeded.value === true) {
+      dispatch(InviteService.retrieveReceivedInvites())
     }
-  }, [receivedInvites])
+  }, [inviteState.sentUpdateNeeded.value])
 
   return (
     <div>
@@ -161,7 +150,7 @@ const InvitesConsole = (props: Props) => {
             <ReceivedInvite invites={[]} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <SentInvite invites={invites} />
+            <SentInvite invites={invites.value} />
           </TabPanel>
         </div>
       </ConfirmProvider>

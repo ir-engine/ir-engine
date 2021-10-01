@@ -42,15 +42,9 @@ import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/Chat
 import { ChatAction } from '@xrengine/client-core/src/social/reducers/chat/ChatActions'
 import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
 import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
-import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
-import {
-  createGroup,
-  getGroups,
-  patchGroup,
-  removeGroup,
-  removeGroupUser
-} from '@xrengine/client-core/src/social/reducers/group/service'
-import { updateInviteTarget } from '@xrengine/client-core/src/social/reducers/invite/service'
+import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
+import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { banUserFromLocation } from '@xrengine/client-core/src/social/reducers/location/service'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
@@ -109,7 +103,6 @@ const engineRendererCanvasId = 'engine-renderer-canvas'
 const mapStateToProps = (state: any): any => {
   return {
     channelConnectionState: selectChannelConnectionState(state),
-    groupState: selectSocialGroupState(state),
     locationState: selectLocationState(state),
     partyState: selectPartyState(state),
     transportState: selectTransportState(state),
@@ -121,17 +114,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
   connectToChannelServer: bindActionCreators(connectToChannelServer, dispatch),
   resetChannelServer: bindActionCreators(resetChannelServer, dispatch),
-  getGroups: bindActionCreators(getGroups, dispatch),
-  createGroup: bindActionCreators(createGroup, dispatch),
-  patchGroup: bindActionCreators(patchGroup, dispatch),
-  removeGroup: bindActionCreators(removeGroup, dispatch),
-  removeGroupUser: bindActionCreators(removeGroupUser, dispatch),
   getParty: bindActionCreators(getParty, dispatch),
   createParty: bindActionCreators(createParty, dispatch),
   removeParty: bindActionCreators(removeParty, dispatch),
   removePartyUser: bindActionCreators(removePartyUser, dispatch),
   transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
-  updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
   banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch),
   changeChannelTypeState: bindActionCreators(changeChannelTypeState, dispatch)
 })
@@ -144,8 +131,6 @@ interface Props {
   connectToChannelServer?: typeof connectToChannelServer
   resetChannelServer?: typeof resetChannelServer
 
-  groupState?: any
-  getGroups?: any
   partyState?: any
   removeParty?: any
   removePartyUser?: any
@@ -183,8 +168,7 @@ const Harmony = (props: Props): any => {
     provisionChannelServer,
     connectToChannelServer,
     resetChannelServer,
-    groupState,
-    getGroups,
+
     partyState,
     setDetailsType,
     setGroupFormOpen,
@@ -258,8 +242,9 @@ const Harmony = (props: Props): any => {
   const friendState = useFriendState()
   const friendSubState = friendState.friends
   const friends = friendSubState.friends.value
-  const groupSubState = groupState.get('groups')
-  const groups = groupSubState.get('groups')
+  const groupState = useGroupState()
+  const groupSubState = groupState.groups
+  const groups = groupSubState.groups.value
   const party = partyState.get('party')
   const currentLocation = locationState.get('currentLocation').get('location')
 
@@ -441,7 +426,7 @@ const Harmony = (props: Props): any => {
           ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
         }
       }
-      if (channel?.updateNeeded === true) {
+      if (channel.updateNeeded != null && channel.updateNeeded === true) {
         dispatch(ChatService.getChannelMessages(channel.id))
       }
     })
@@ -792,7 +777,7 @@ const Harmony = (props: Props): any => {
   }
 
   const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
-    updateInviteTarget(targetObjectType, targetObjectId)
+    dispatch(InviteService.updateInviteTarget(targetObjectType, targetObjectId))
     setLeftDrawerOpen(false)
     setRightDrawerOpen(true)
   }
@@ -862,13 +847,13 @@ const Harmony = (props: Props): any => {
 
   const nextFriendsPage = (): void => {
     if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-      dispatch(FriendService.getFriends('', friendSubState.skip.value, friendSubState.limit.value))
+      dispatch(FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value))
     }
   }
 
   const nextGroupsPage = (): void => {
-    if (groupSubState.get('skip') + groupSubState.get('limit') < groupSubState.get('total')) {
-      getGroups(groupSubState.get('skip') + groupSubState.get('limit'))
+    if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
+      dispatch(GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value))
     }
   }
 
@@ -1076,7 +1061,7 @@ const Harmony = (props: Props): any => {
             <List onScroll={(e) => onListScroll(e)}>
               {groups &&
                 groups.length > 0 &&
-                groups
+                [...groups]
                   .sort((a, b) => a.name - b.name)
                   .map((group, index) => {
                     return (

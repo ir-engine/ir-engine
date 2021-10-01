@@ -19,7 +19,7 @@ export const friendReducer = (_, action: FriendActionType) => {
 }
 
 const friendReceptor = (action: FriendActionType): any => {
-  let newValues, selfUser, otherUser,otherUserId
+  let newValues, selfUser, otherUser, otherUserId
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_FRIENDS':
@@ -49,13 +49,13 @@ const friendReceptor = (action: FriendActionType): any => {
             ? patchedUserRelationship.relatedUser
             : patchedUserRelationship.user
 
-        const patchedFriendId = s.friends.friends.value.findIndex((friendItem) => {
+        const patchedFriendIndex = s.friends.friends.value.findIndex((friendItem) => {
           return friendItem != null && friendItem.id === otherUser.id
         })
-        if (patchedFriendId === -1) {
+        if (patchedFriendIndex === -1) {
           return s.friends.friends.merge([otherUser])
         } else {
-          return s.friends.friends[patchedFriendId].set(otherUser)
+          return s.friends.friends[patchedFriendIndex].set(otherUser)
         }
 
       case 'REMOVED_FRIEND':
