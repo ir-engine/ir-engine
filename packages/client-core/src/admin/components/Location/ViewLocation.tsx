@@ -18,7 +18,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { useSceneState } from '../../reducers/admin/scene/SceneState'
 import { connect, useDispatch } from 'react-redux'
 import { useLocationState } from '../../reducers/admin/location/LocationState'
 import { validateUserForm } from '../Users/validation'
@@ -32,15 +32,12 @@ interface Props {
   openView: any
   closeViewModel: any
   locationAdmin: any
-  adminSceneState?: any
 
   authState?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    adminSceneState: selectAdminSceneState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
@@ -50,7 +47,7 @@ const Alert = (props) => {
 }
 
 const ViewLocation = (props: Props) => {
-  const { openView, closeViewModel, adminSceneState, locationAdmin } = props
+  const { openView, closeViewModel, locationAdmin } = props
   const dispatch = useDispatch()
   const classex = useLocationStyle()
   const classes = useLocationStyles()
@@ -78,7 +75,7 @@ const ViewLocation = (props: Props) => {
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const { t } = useTranslation()
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
+  const adminScenes = useSceneState().scenes.scenes
   const locationTypes = useLocationState().locationTypes.locationTypes
   const user = useAuthState().user // user initialized by getting value from authState object.
   const scopes = user?.scopes?.value || []
@@ -281,7 +278,7 @@ const ViewLocation = (props: Props) => {
                     <MenuItem value="" disabled>
                       <em>Select scene</em>
                     </MenuItem>
-                    {adminScenes.map((el) => (
+                    {adminScenes.value.map((el) => (
                       <MenuItem value={el.sid} key={el.sid}>{`${el.name} (${el.sid})`}</MenuItem>
                     ))}
                   </Select>

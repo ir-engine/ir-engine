@@ -20,7 +20,7 @@ import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
 import { useTranslation } from 'react-i18next'
 import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { useSceneState } from '../../reducers/admin/scene/SceneState'
 import { LocationService } from '../../reducers/admin/location/LocationService'
 import { validateUserForm } from '../Users/validation'
 import { useAlertState } from '../../../common/reducers/alert/AlertState'
@@ -32,20 +32,17 @@ const Alert = (props) => {
 interface Props {
   open: boolean
   handleClose: any
-  adminSceneState?: any
   closeViewModel?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    adminSceneState: selectAdminSceneState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const CreateLocation = (props: Props) => {
-  const { open, handleClose, adminSceneState, closeViewModel } = props
+  const { open, handleClose, closeViewModel } = props
   const classesx = useLocationStyle()
   const classes = useLocationStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
@@ -75,7 +72,7 @@ const CreateLocation = (props: Props) => {
   const adminLocationState = useLocationState()
   const locationTypes = adminLocationState.locationTypes.locationTypes
   const location = adminLocationState.locations
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
+  const adminScenes = useSceneState().scenes.scenes
   const alertState = useAlertState()
   const errorType = alertState.type
   const errorMessage = alertState.message
@@ -230,7 +227,7 @@ const CreateLocation = (props: Props) => {
                 <MenuItem value="" disabled>
                   <em>Select scene</em>
                 </MenuItem>
-                {adminScenes.map((el) => (
+                {adminScenes.value.map((el) => (
                   <MenuItem value={el.sid} key={el.sid}>{`${el.name} (${el.sid})`}</MenuItem>
                 ))}
               </Select>
