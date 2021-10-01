@@ -884,10 +884,8 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const user = resolveUser(params.userRelationship)
 
     console.log('User patched', user)
-    if (Network.instance != null) {
-      await loadAvatarForUpdatedUser(user)
-      _updateUsername(user.id, user.name)
-    }
+    await loadAvatarForUpdatedUser(user)
+    _updateUsername(user.id, user.name)
 
     if (selfUser.id.value === user.id) {
       store.dispatch(UserAction.clearLayerUsers())

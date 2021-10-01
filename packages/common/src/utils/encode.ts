@@ -26,7 +26,7 @@ export function encodeQuaternion(q: Quaternion) {
     }
   }
 
-  const quantizedComponents = []
+  const quantizedComponents: any[] = []
   let siftedIndex = 0
 
   for (let i = 0; i < 4; i++) {

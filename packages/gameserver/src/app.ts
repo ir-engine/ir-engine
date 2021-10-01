@@ -101,7 +101,6 @@ export const createApp = (): Application => {
             }
           },
           (io) => {
-            Network.instance = new Network()
             Network.instance.transport = new SocketWebRTCServerTransport(app)
             Network.instance.transport.initialize()
             io.use((socket, next) => {

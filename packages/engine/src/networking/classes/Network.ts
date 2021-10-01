@@ -7,7 +7,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
-  static instance: Network = null!
+  static instance: Network = new Network()
 
   /** Indication of whether the network is initialized or not. */
   isInitialized: boolean

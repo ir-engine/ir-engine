@@ -57,7 +57,6 @@ import { setFog } from '../functions/setFog'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { loadRealityPack } from './loadRealityPack'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP

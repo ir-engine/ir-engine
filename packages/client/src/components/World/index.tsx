@@ -4,49 +4,42 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import DefaultLayoutView from './DefaultLayoutView'
 import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
 import Layout from '../Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { RealityPackReactProps } from './RealityPackReactProps'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const getDefaulEngineInitializeOptions = (): InitializeOptions => {
-  return {
-    publicPath: location.origin,
-    networking: {
-      schema: {
-        transport: SocketWebRTCClientTransport
-      } as NetworkSchema
+const defaultEngineInitializeOptions = {
+  publicPath: location.origin,
+  renderer: {
+    canvasId: engineRendererCanvasId
+  },
+  physics: {
+    simulationEnabled: false
+  },
+  systems: [
+    {
+      type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
     },
-    renderer: {
-      canvasId: engineRendererCanvasId
+    {
+      type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
     },
-    physics: {
-      simulationEnabled: false
-    },
-    systems: [
-      {
-        type: 'FIXED',
-        systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
-      },
-      {
-        type: 'FIXED',
-        systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
-      },
-      {
-        type: 'FIXED',
-        systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
-      }
-    ]
-  }
+    {
+      type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
+    }
+  ]
 }
 
 const canvasStyle = {
@@ -93,7 +86,7 @@ export const EnginePage = (props: Props) => {
   const [isTeleporting, setIsTeleporting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
-  const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
+  const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
   const [sceneId, setSceneId] = useState(null)
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
@@ -110,9 +103,9 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     addUIEvents()
-    if (!engineInitializeOptions.networking?.schema.transport) {
-      init(props.locationName)
-    }
+    // if (!Network.instance.transport) {
+    init(props.locationName)
+    // }
   }, [])
 
   useEffect(() => {

@@ -16,41 +16,8 @@ import url from 'url'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { retriveLocationByName } from './LocationLoadHelper'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
 import { provisionChannelServer } from '../../reducers/channelConnection/service'
-import { useTranslation } from 'react-i18next'
-
-const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const getDefaulEngineInitializeOptions = (): InitializeOptions => {
-  return {
-    publicPath: location.origin,
-    networking: {
-      schema: {
-        transport: SocketWebRTCClientTransport
-      } as NetworkSchema
-    },
-    renderer: {
-      canvasId: engineRendererCanvasId
-    },
-    physics: {
-      simulationEnabled: false
-    }
-  }
-}
-
-const canvasStyle = {
-  zIndex: 0,
-  width: '100%',
-  height: '100%',
-  position: 'absolute',
-  WebkitUserSelect: 'none',
-  userSelect: 'none'
-} as React.CSSProperties
-
-const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
   locationName: string
@@ -60,9 +27,9 @@ interface Props {
   engineInitializeOptions?: InitializeOptions
   instanceConnectionState?: any
   //doLoginAuto?: typeof doLoginAuto
-  provisionChannelServer?: typeof provisionChannelServer
-  provisionInstanceServer?: typeof provisionInstanceServer
-  resetInstanceServer?: typeof resetInstanceServer
+  provisionChannelServer: typeof provisionChannelServer
+  provisionInstanceServer: typeof provisionInstanceServer
+  resetInstanceServer: typeof resetInstanceServer
   showTouchpad?: boolean
   children?: any
   chatState?: any
@@ -96,8 +63,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   const authState = useAuthState()
   const selfUser = authState.user
-  const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
-
   const userState = useUserState()
   const dispatch = useDispatch()
 
@@ -109,19 +74,17 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    if (engineInitializeOptions.networking.schema.transport) {
-      dispatch(AuthService.doLoginAuto(true))
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
-        if (!ev.instance) return
+    dispatch(AuthService.doLoginAuto(true))
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
+      if (!ev.instance) return
 
-        await shutdownEngine()
-        props.resetInstanceServer()
+      await shutdownEngine()
+      props.resetInstanceServer()
 
-        if (!isUserBanned) {
-          retriveLocationByName(authState, props.locationName, history)
-        }
-      })
-    }
+      if (!isUserBanned) {
+        retriveLocationByName(authState, props.locationName, history)
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -138,7 +101,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
         if (search != null) {
           const parsed = url.parse(window.location.href)
-          const query = querystring.parse(parsed.query)
+          const query = querystring.parse(parsed.query!)
           instanceId = query.instanceId
         }
 
@@ -173,7 +136,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     if (props.chatState.get('instanceChannelFetched')) {
       const channels = props.chatState.get('channels').get('channels')
       const instanceChannel = [...channels.entries()].find((channel) => channel[1].channelType === 'instance')
-      props.provisionChannelServer(null, instanceChannel[0])
+      props.provisionChannelServer(null!, instanceChannel[0])
     }
   }, [props.chatState.get('instanceChannelFetched')])
 

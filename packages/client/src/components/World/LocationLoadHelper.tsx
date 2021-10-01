@@ -103,7 +103,7 @@ export const initEngine = async (
   engineCallbacks?: EngineCallbacks
 ): Promise<any> => {
   // 1.
-  const isOffline = typeof initOptions.networking?.schema.transport === 'undefined'
+  const isOffline = false // TODO
   const sceneData = await getSceneData(sceneId, isOffline)
 
   const packs = await getPacksFromSceneData(sceneData, true)
@@ -116,6 +116,8 @@ export const initEngine = async (
 
   // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
+    console.log('initEngine')
+    Network.instance.transport = new SocketWebRTCClientTransport()
     await initializeEngine(initOptions)
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
 
