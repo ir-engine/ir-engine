@@ -45,3 +45,13 @@ export function getPlayerName(eid): string {
 
   return ''
 }
+
+export function getEid(userId) {
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId == userId) {
+      return useWorld().getUserAvatarEntity(client.userId)
+    }
+  }
+
+  return undefined
+}
