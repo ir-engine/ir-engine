@@ -25,7 +25,7 @@ import { useSnackbar, SnackbarOrigin } from 'notistack'
 import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 import { createCreator } from '@xrengine/social/src/reducers/creator/service'
-import { Link } from 'react-router-dom'
+import { Link, useHistory, Redirect } from 'react-router-dom'
 import ChangedUserName from './ChangedUserName'
 
 const mapStateToProps = (state: any): any => {
@@ -45,11 +45,13 @@ const Registration = (props: any): any => {
     doLoginAuto
   } = props
 
+  const history = useHistory()
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const auth = useAuthState()
 
   const selfUser = auth.user
+  console.log(selfUser.userRole.value)
 
   // const [username, setUsername] = useState(selfUser?.name)
   const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator'))
@@ -57,6 +59,8 @@ const Registration = (props: any): any => {
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
   const [emailPhoneForm, setEmailPhoneForm] = useState(false)
+  const [continueAsGuest, setContinueAsGuest] = useState(false)
+  const [registrationServiceClick, setRegistrationServiceClick] = useState(false)
 
   let type = ''
 
@@ -120,6 +124,18 @@ const Registration = (props: any): any => {
     }
   }, [accessToken, crutch])
 
+  const checkRole = (role: string): boolean => {
+    return role === 'user' || role === 'admin'
+  }
+
+  useEffect(() => {
+    if (checkRole(selfUser.userRole.value) || (selfUser.id.value !== '' && continueAsGuest)) {
+      history.push('/')
+    } else if (registrationServiceClick && selfUser.userRole.value === 'guest') {
+      dispatch(AuthService.loginUserByOAuth(registrationServiceClick))
+    }
+  }, [selfUser.id.value, continueAsGuest, selfUser.userRole.value, registrationServiceClick])
+
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
       dispatch(createCreator())
@@ -153,7 +169,8 @@ const Registration = (props: any): any => {
   }
 
   const handleOAuthServiceClick = (e) => {
-    loginUserByOAuth(e.currentTarget.id)
+    setRegistrationServiceClick(e.currentTarget.id)
+    setCrutch(true)
   }
   const handleGoEmailClick = () => {
     setEmailPhoneForm(!emailPhoneForm)
@@ -171,7 +188,13 @@ const Registration = (props: any): any => {
     <div className={styles.menuPanel}>
       <section className={styles.profilePanel}>
         <div className={styles.logo}>
-          <span>{t('social:registration.LogInTo')}</span>
+          <span
+            style={{
+              fontSize: 'x-large'
+            }}
+          >
+            {t('social:registration.LogInTo')}
+          </span>
           <img src="/assets/LogoColored.png" alt="logo" crossOrigin="anonymous" className="logo" />
         </div>
         {emailPhoneForm && creatorsState.get('currentCreator')?.username && (
@@ -213,25 +236,20 @@ const Registration = (props: any): any => {
                   justifyContent: 'end'
                 }}
               >
-                <Link
-                  to="/"
+                <Typography
+                  variant="h3"
+                  className={styles.textBlock}
+                  onClick={() => {
+                    setContinueAsGuest(true)
+                    setCrutch(true)
+                  }}
                   style={{
-                    textDecoration: 'none',
-                    padding: '0',
-                    border: 'none'
+                    border: '1px solid rgba(0, 0, 0, 0.87)',
+                    padding: '15px'
                   }}
                 >
-                  <Typography
-                    variant="h3"
-                    className={styles.textBlock}
-                    style={{
-                      border: '1px solid rgba(0, 0, 0, 0.87)',
-                      padding: '15px'
-                    }}
-                  >
-                    {t('social:registration.continueAsGuest')}
-                  </Typography>
-                </Link>
+                  {t('social:registration.continueAsGuest')}
+                </Typography>
               </div>
               <div className={styles.socialWrap} onClick={handleGoEmailClick}>
                 <a href="#">
