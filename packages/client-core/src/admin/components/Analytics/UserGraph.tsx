@@ -72,8 +72,8 @@ const UserGraph = ({ data /* see data tab */ }) => {
     }
   })
   return (
-    <div id="chart-timeline">
-      <ReactApexChart options={state.options} series={state.series} type="line" height={380} width="100%" />
+    <div id="chart-timeline" style={{ height: '30rem' }}>
+      <ReactApexChart options={state.options} series={state.series} type="line" height="100%" width="100%" />
     </div>
   )
 }

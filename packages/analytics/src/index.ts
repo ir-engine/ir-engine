@@ -7,7 +7,7 @@ process.on('unhandledRejection', (error, promise) => {
 })
 ;(async (): Promise<void> => {
   console.log('Starting analytics server')
-  const port = config.analytics.port
+  const port = config.analytics.port || 5050
 
   await app.listen(port)
 

@@ -2,6 +2,7 @@ import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
 const ActivityGraph = ({ data /* see data tab */ }) => {
+  // console.log(data)
   const [state, setState] = React.useState({
     series: data,
     options: {
@@ -73,8 +74,8 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
     }
   })
   return (
-    <div id="chart-timeline">
-      <ReactApexChart options={state.options} series={state.series} type="line" height={380} width="100%" />
+    <div id="chart-timeline" style={{ height: '30rem' }}>
+      <ReactApexChart options={state.options} series={state.series} height="100%" type="line" width="100%" />
     </div>
   )
 }

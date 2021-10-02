@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
       textAlign: 'center',
       color: theme.palette.text.secondary,
-      minHeight: '50vh',
+      height: '35rem',
       width: '99.9%'
     },
     mtopp: {
@@ -52,6 +52,7 @@ const Analytics = (props: Props) => {
   const dispatch = useDispatch()
   const [refetch, setRefetch] = useState(false)
   const [graphSelector, setGraphSelector] = useState('activity')
+  let isDataAvailable = false
   const analyticsState = useAnalyticsState()
 
   const activeLocations = analyticsState.activeLocations.value
@@ -73,27 +74,27 @@ const Analytics = (props: Props) => {
   const activityGraphData = [
     {
       name: 'Active Parties',
-      data: dailyUsers
+      data: activeParties
     },
     {
       name: 'Active Locations',
-      data: dailyNewUsers
+      data: activeLocations
     },
     {
       name: 'Active Instances',
-      data: dailyUsers.slice(0, 10)
+      data: activeInstances
     },
     {
       name: 'Active Scenes',
-      data: dailyNewUsers.slice(0, 10)
+      data: activeScenes
     },
     {
       name: 'Instance Users',
-      data: dailyUsers.slice(10, 20)
+      data: instanceUsers
     },
     {
       name: 'Channel Users',
-      data: dailyNewUsers.slice(10, 20)
+      data: channelUsers
     }
   ]
 
@@ -107,6 +108,16 @@ const Analytics = (props: Props) => {
       data: dailyNewUsers
     }
   ]
+
+  if (
+    activityGraphData[0].data.length ||
+    activityGraphData[1].data.length ||
+    activityGraphData[2].data.length ||
+    activityGraphData[3].data.length ||
+    activityGraphData[4].data.length ||
+    activityGraphData[5].data.length
+  )
+    isDataAvailable = true
 
   useEffect(() => {
     if (refetch === true) {
@@ -135,19 +146,19 @@ const Analytics = (props: Props) => {
   const classes = useStyles()
   const data = [
     {
-      number: activeParties[activeParties.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeParties[activeParties.length - 1]?.y ?? 0,
       label: 'Active Parties'
     },
     {
-      number: activeLocations[activeLocations.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeLocations[activeLocations.length - 1]?.y ?? 0,
       label: 'Active Locations'
     },
     {
-      number: activeScenes[activeScenes.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeScenes[activeScenes.length - 1]?.y ?? 0,
       label: 'Active Scenes'
     },
     {
-      number: activeInstances[activeInstances.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeInstances[activeInstances.length - 1]?.y ?? 0,
       label: 'Active Instances'
     },
     {
@@ -159,7 +170,7 @@ const Analytics = (props: Props) => {
       label: 'New Users Today'
     }
   ]
-  const graphData = graphSelector === 'activity' ? activityGraphData : userGraphData
+
   return (
     <div>
       <Grid container spacing={3}>
@@ -181,8 +192,8 @@ const Analytics = (props: Props) => {
               Users
             </ToggleButton>
           </ToggleButtonGroup>
-          {graphSelector === 'users' && <UserGraph data={graphData} />}
-          {graphSelector === 'activity' && <ActivityGraph data={graphData} />}
+          {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
+          {graphSelector === 'users' && <UserGraph data={userGraphData} />}
         </Paper>
       </div>
       {/*<div className={classes.mtopp}>*/}
