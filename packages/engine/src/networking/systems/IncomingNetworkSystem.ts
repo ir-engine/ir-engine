@@ -103,7 +103,9 @@ const applyUnreliableQueue = (world: World) => {
       //     addSnapshot(newServerSnapshot)
       //   }
       // } else if (newWorldState) {
-      for (const pose of newWorldState.pose) {
+      for (let i = 0; i < newWorldState.pose.length; i++) {
+        const pose = newWorldState.pose[i]
+
         const networkObjectEntity = world.getNetworkObject(pose.networkId)
         if (!networkObjectEntity) {
           console.warn(`Rejecting update for non-existing network object ${pose.networkId}`)
@@ -145,7 +147,9 @@ const applyUnreliableQueue = (world: World) => {
       }
       // }
 
-      for (const ikPose of newWorldState.ikPose) {
+      for (let i = 0; i < newWorldState.ikPose.length; i++) {
+        const ikPose = newWorldState.ikPose[i]
+
         const entity = world.getNetworkObject(ikPose.networkId)
 
         if (isEntityLocalClient(entity) || !hasComponent(entity, XRInputSourceComponent)) continue

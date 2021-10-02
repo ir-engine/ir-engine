@@ -115,7 +115,10 @@ function ikPoseIsTheSame(netId, hp, hr, lp, lr, rp, rr): boolean {
 }
 
 const queueUnchangedPoses = (world) => (newWorldState) => {
-  for (const entity of networkTransformsQuery(world)) {
+  const ents = networkTransformsQuery(world)
+  for (let i = 0; i < ents.length; i++) {
+    const entity = ents[i]
+
     const transformComponent = getComponent(entity, TransformComponent)
     const networkObject = getComponent(entity, NetworkObjectComponent)
 
@@ -180,7 +183,10 @@ const queueUnchangedPosesForClient = (world) => (newWorldState) => {
 }
 
 const queueUnchangedIkPoses = (world) => (newWorldState) => {
-  for (const entity of ikTransformsQuery(world)) {
+  const ents = ikTransformsQuery(world)
+  for (let i = 0; i < ents.length; i++) {
+    const entity = ents[i]
+
     const { networkId } = getComponent(entity, NetworkObjectComponent)
 
     const xrInputs = getComponent(entity, XRInputSourceComponent)
