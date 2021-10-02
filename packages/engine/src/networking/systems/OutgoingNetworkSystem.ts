@@ -25,36 +25,6 @@ const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
   : defineQuery([XRInputSourceComponent])
 
-function sendActions() {
-  const incomingActions = Engine.defaultWorld.incomingActions
-  const outgoingActions = Engine.defaultWorld.outgoingActions
-
-  // if hosting, forward all non-local incoming actions
-  if (Engine.defaultWorld.isHosting) {
-    for (const incoming of incomingActions) {
-      if (incoming.$from !== Engine.userId) {
-        outgoingActions.add(incoming)
-      }
-    }
-  }
-
-  incomingActions.clear()
-
-  for (const out of outgoingActions) {
-    out.$from = out.$from ?? Engine.userId
-    if (out.$from === Engine.userId && out.$to === 'local') {
-      incomingActions.add(out as Required<Action>)
-      outgoingActions.delete(out)
-    }
-    if (Engine.defaultWorld.isHosting && out.$from === Engine.userId) {
-      incomingActions.add(out as Required<Action>)
-    }
-  }
-  Network.instance.transport?.sendActions(outgoingActions)
-
-  outgoingActions.clear()
-}
-
 let prevWorldState: WorldStateInterface = {
   tick: 0,
   time: 0,
@@ -233,6 +203,35 @@ const sendBuffer = (newWorldState) => {
   return newWorldState
 }
 
+function sendActions(world) {
+  const { incomingActions, outgoingActions } = world
+
+  // if hosting, forward all non-local incoming actions
+  if (world.isHosting) {
+    for (const incoming of incomingActions) {
+      if (incoming.$from !== Engine.userId) {
+        outgoingActions.add(incoming)
+      }
+    }
+  }
+
+  incomingActions.clear()
+
+  for (const out of outgoingActions) {
+    out.$from = out.$from ?? Engine.userId
+    if (out.$from === Engine.userId && out.$to === 'local') {
+      incomingActions.add(out as Required<Action>)
+      outgoingActions.delete(out)
+    }
+    if (world.isHosting && out.$from === Engine.userId) {
+      incomingActions.add(out as Required<Action>)
+    }
+  }
+  Network.instance.transport?.sendActions(outgoingActions)
+
+  outgoingActions.clear()
+}
+
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
   /**
    * For the client, we only want to send out objects we have authority over,
@@ -249,7 +248,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
   )
 
   return () => {
-    sendActions()
+    sendActions(world)
 
     if (Engine.offlineMode) return
 
