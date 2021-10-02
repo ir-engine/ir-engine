@@ -77,21 +77,16 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             path="/location/:locationName"
             component={React.lazy(() => import('../pages/location/[locationName]'))}
           />
-          <Route path="/mappa/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
-          <Route path="/map/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
 
-          <Route path="/golf/:locationName" component={React.lazy(() => import('../pages/golf/[locationName]'))} />
           <Route
             path="/offline/:locationName"
             component={React.lazy(() => import('../pages/offline/[locationName]'))}
           />
           <Route path="/offline" component={React.lazy(() => import('../pages/offline/[locationName]'))} />
-
-          {/* Starter Template */}
           <Route
-            path="/starter/:locationName"
-            component={React.lazy(() => import('../pages/starter/[locationName]'))}
+            path="/event/:locationName"
+            component={React.lazy(() => import('../pages/location/[locationName]'))}
           />
 
           {/* Harmony Routes */}

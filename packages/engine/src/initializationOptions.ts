@@ -19,7 +19,7 @@ export type InitializeOptions = {
   }
   networking?: {
     schema: NetworkSchema
-    app?: any
+    transport?: any
   }
   scene?: {
     disabled?: boolean
