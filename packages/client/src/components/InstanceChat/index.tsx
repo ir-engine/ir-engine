@@ -175,8 +175,13 @@ const InstanceChat = (props: Props): any => {
                   .map((message) => {
                     if (isClient && !isBot(window) && isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
-                    const chatMessage = system !== 'none' ? removeMessageSystem(message.text) : message.text
+                    let chatMessage = message.text
 
+                    if (system !== 'none') {
+                      if ((isClient && isBot(window)) || system === '[jl_system]')
+                        chatMessage = removeMessageSystem(message.text)
+                      else return undefined
+                    }
                     return (
                       <ListItem
                         className={classNames({

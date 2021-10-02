@@ -1,54 +1,44 @@
-import Button from '@material-ui/core/Button'
-import Snackbar from '@material-ui/core/Snackbar'
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import querystring from 'querystring'
-import React, { Suspense, useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import url from 'url'
-import NetworkDebug from '../../components/NetworkDebug'
-import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
-import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
-import GameServerWarnings from './GameServerWarnings'
-import { initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { provisionChannelServer } from '../../reducers/channelConnection/service'
+import React, { useEffect, useState } from 'react'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
+import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
+import DefaultLayoutView from './DefaultLayoutView'
+import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
+import Layout from '../Layout/Layout'
+import { useTranslation } from 'react-i18next'
+import { RealityPackReactProps } from './RealityPackReactProps'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const getDefaulEngineInitializeOptions = (): InitializeOptions => {
-  return {
-    publicPath: location.origin,
-    networking: {
-      schema: {
-        transport: SocketWebRTCClientTransport
-      } as NetworkSchema
+const defaultEngineInitializeOptions = {
+  publicPath: location.origin,
+  renderer: {
+    canvasId: engineRendererCanvasId
+  },
+  physics: {
+    simulationEnabled: false
+  },
+  systems: [
+    {
+      type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
     },
-    renderer: {
-      canvasId: engineRendererCanvasId
+    {
+      type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
     },
-    physics: {
-      simulationEnabled: false
+    {
+      type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
     }
-  }
+  ]
 }
-
-const goHome = () => (window.location.href = window.location.origin)
-
-const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 const canvasStyle = {
   zIndex: 0,
@@ -59,14 +49,7 @@ const canvasStyle = {
   userSelect: 'none'
 } as React.CSSProperties
 
-export type EngineCallbacks = {
-  onEngineInitialized?: Function
-  onConnectedToServer?: Function
-  onSceneLoaded?: Function
-  onSceneLoadProgress?: Function
-  onJoinedToNewWorld?: Function
-  onSuccess?: Function
-}
+const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
   locationName: string
@@ -76,71 +59,51 @@ interface Props {
   history?: any
   engineInitializeOptions?: InitializeOptions
   instanceConnectionState?: any
-  //doLoginAuto?: typeof doLoginAuto
-  provisionChannelServer?: typeof provisionChannelServer
-  provisionInstanceServer?: typeof provisionInstanceServer
-  resetInstanceServer?: typeof resetInstanceServer
   showTouchpad?: boolean
-  engineCallbacks?: EngineCallbacks
   children?: any
+  chatState?: any
+  // todo: remove these props in favour of reality packs
+  theme?: any
+  hideVideo?: boolean
+  hideFullscreen?: boolean
 }
 
 const mapStateToProps = (state: any) => {
   return {
-    // appState: selectAppState(state),
-
-    instanceConnectionState: selectInstanceConnectionState(state), //
-    locationState: selectLocationState(state),
-    partyState: selectPartyState(state)
+    locationState: selectLocationState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
-  provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch) => ({})
 
 export const EnginePage = (props: Props) => {
+  const { t } = useTranslation()
   const [isUserBanned, setUserBanned] = useState(true)
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
   const [isTeleporting, setIsTeleporting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
-  const selfUser = authState.user
-  const party = props.partyState.get('party')
-  const engineInitializeOptions = Object.assign({}, getDefaulEngineInitializeOptions(), props.engineInitializeOptions)
-  let sceneId = null
-  const chatState = useChatState()
-  const userState = useUserState()
-  const dispatch = useDispatch()
+  const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
+  const [sceneId, setSceneId] = useState(null)
+  const [loadingItemCount, setLoadingItemCount] = useState(99)
+  const [harmonyOpen, setHarmonyOpen] = useState(false)
+  const [realityPackComponents, setRealityPackComponents] = useState([] as any[])
 
-  useEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(true))
-    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(false))
-  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
+  const onSceneLoadProgress = (loadingItemCount: number): void => {
+    setLoadingItemCount(loadingItemCount || 0)
+  }
+
+  const engineCallbacks: EngineCallbacks = {
+    onSceneLoadProgress,
+    onSceneLoaded: () => setLoadingItemCount(0)
+  }
 
   useEffect(() => {
     addUIEvents()
-    if (!engineInitializeOptions.networking.schema.transport) {
-      init(props.locationName)
-    } else {
-      dispatch(AuthService.doLoginAuto(true))
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
-        if (!ev.instance) return
-
-        await shutdownEngine()
-        props.resetInstanceServer()
-
-        if (!isUserBanned) {
-          retriveLocationByName(authState, props.locationName, history)
-        }
-      })
-    }
+    // if (!Network.instance.transport) {
+    init(props.locationName)
+    // }
   }, [])
 
   useEffect(() => {
@@ -151,88 +114,10 @@ export const EnginePage = (props: Props) => {
   }, [authState.isLoggedIn.value, authState.user.id.value])
 
   useEffect(() => {
-    const currentLocation = props.locationState.get('currentLocation').get('location')
-
-    if (currentLocation.id) {
-      if (
-        !isUserBanned &&
-        !props.instanceConnectionState.get('instanceProvisioned') &&
-        !props.instanceConnectionState.get('instanceProvisioning')
-      ) {
-        const search = window.location.search
-        let instanceId
-
-        if (search != null) {
-          const parsed = url.parse(window.location.href)
-          const query = querystring.parse(parsed.query)
-          instanceId = query.instanceId
-        }
-
-        if (sceneId === null) sceneId = currentLocation.sceneId
-        props.provisionInstanceServer(currentLocation.id, instanceId || undefined, sceneId)
-      }
-
-      if (sceneId === null) sceneId = currentLocation.sceneId
-    } else {
-      if (
-        !props.locationState.get('currentLocationUpdateNeeded') &&
-        !props.locationState.get('fetchingCurrentLocation')
-      ) {
-        setIsValidLocation(false)
-        dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
-      }
-    }
-  }, [props.locationState])
-
-  useEffect(() => {
-    if (
-      props.instanceConnectionState.get('instanceProvisioned') &&
-      props.instanceConnectionState.get('updateNeeded') &&
-      !props.instanceConnectionState.get('instanceServerConnecting') &&
-      !props.instanceConnectionState.get('connected')
-    ) {
-      reinit()
-    }
-  }, [props.instanceConnectionState])
-
-  useEffect(() => {
-    if (chatState.instanceChannelFetched.value) {
-      const channels = chatState.channels.channels.value
-
-      const instanceChannel = Object.entries(channels).find((channel) => channel[1].channelType === 'instance')
-      props.provisionChannelServer(null, instanceChannel[0])
-    }
-  }, [chatState.instanceChannelFetched.value])
-
-  useEffect(() => {
     return (): void => {
       shutdownEngine()
     }
   }, [])
-
-  // TODO: Is this still is use
-  // useEffect(() => {
-  //   if (
-  //     appLoaded &&
-  //     !props.instanceConnectionState.get('instanceProvisioned') &&
-  //     !props.instanceConnectionState.get('instanceProvisioning')
-  //   ) {
-  //     if (!instanceId) return
-
-  //     client
-  //       .service('instance')
-  //       .get(instanceId)
-  //       .then((instance) => {
-  //         const currentLocation = props.locationState.get('currentLocation').get('location')
-  //         props.provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId)
-  //         if (sceneId === null) {
-  //           console.log('Set scene ID to', sceneId)
-  //           sceneId = currentLocation.sceneId
-  //         }
-  //       })
-  //       .catch((err) => console.log('instance get error', err))
-  //   }
-  // }, [appState])
 
   const checkForBan = (): void => {
     const selfUser = authState.user
@@ -245,14 +130,30 @@ export const EnginePage = (props: Props) => {
   const reinit = () => {
     const currentLocation = props.locationState.get('currentLocation').get('location')
     if (sceneId === null && currentLocation.sceneId !== null) {
-      sceneId = currentLocation.sceneId
+      setSceneId(currentLocation.sceneId)
     }
-    init(sceneId)
+    init(sceneId!)
   }
 
   const init = async (sceneId: string): Promise<any> => {
-    initEngine(sceneId, engineInitializeOptions, newSpawnPos, props.engineCallbacks)
     setIsTeleporting(false)
+
+    const componentFunctions = await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
+
+    const customProps: RealityPackReactProps = {
+      harmonyOpen,
+      setHarmonyOpen,
+      canvas
+    }
+
+    const components: any[] = []
+
+    let key = 0
+    componentFunctions.forEach((ComponentFunction) => {
+      components.push(...components, <ComponentFunction {...customProps} key={key++} />)
+    })
+
+    setRealityPackComponents(components)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
@@ -283,38 +184,38 @@ export const EnginePage = (props: Props) => {
 
   return (
     <>
-      {!isValidLocation && (
-        <Snackbar
-          open
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center'
-          }}
-        >
-          <>
-            <section>Location is invalid</section>
-            <Button onClick={goHome}>Return Home</Button>
-          </>
-        </Snackbar>
-      )}
-
-      {props.allowDebug && <NetworkDebug reinit={reinit} />}
-
-      {props.children}
-
-      <canvas id={engineInitializeOptions.renderer.canvasId} style={canvasStyle} />
-
-      {props.showTouchpad && isTouchAvailable ? (
-        <Suspense fallback={<></>}>
-          <TouchGamepad layout="default" />
-        </Suspense>
-      ) : null}
-
-      <GameServerWarnings
-        isTeleporting={isTeleporting}
+      <NetworkInstanceProvisioning
         locationName={props.locationName}
-        instanceId={selfUser?.instanceId.value ?? party?.instanceId}
+        sceneId={sceneId}
+        setSceneId={setSceneId}
+        reinit={reinit}
+        isUserBanned={isUserBanned}
+        setIsValidLocation={setIsValidLocation}
       />
+      {realityPackComponents.length ? (
+        realityPackComponents
+      ) : (
+        <Layout
+          pageTitle={t('location.locationName.pageTitle')}
+          harmonyOpen={harmonyOpen}
+          setHarmonyOpen={setHarmonyOpen}
+          theme={props.theme}
+          hideVideo={props.hideVideo}
+          hideFullscreen={props.hideFullscreen}
+        >
+          <DefaultLayoutView
+            canvasElement={canvas}
+            loadingItemCount={loadingItemCount}
+            isValidLocation={isValidLocation}
+            allowDebug={props.allowDebug}
+            reinit={reinit}
+            children={props.children}
+            showTouchpad={props.showTouchpad}
+            isTeleporting={isTeleporting}
+            locationName={props.locationName}
+          />
+        </Layout>
+      )}
     </>
   )
 }

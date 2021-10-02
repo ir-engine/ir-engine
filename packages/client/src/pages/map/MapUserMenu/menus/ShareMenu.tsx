@@ -32,9 +32,9 @@ const ShareMenu = (props: Props): any => {
   const dispatch = useDispatch()
 
   const copyLinkToClipboard = () => {
-    refLink.current.select()
+    refLink?.current?.select()
     document.execCommand('copy')
-    refLink.current.setSelectionRange(0, 0) // deselect
+    refLink?.current?.setSelectionRange(0, 0) // deselect
     props.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
 
