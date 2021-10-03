@@ -9,6 +9,7 @@ services:
       NAF_LISTEN_PORT: 8081
     ports:
       - '8081:8081'
+      - '9229:9229'
 
   server:
     build: 
