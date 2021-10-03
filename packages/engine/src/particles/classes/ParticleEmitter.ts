@@ -446,7 +446,7 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
 //   const mat4 = new Matrix4()
 //
 //   geometry.object3D.updateMatrixWorld()
-//   inverseObjectMatrix.getInverse(geometry.object3D.matrixWorld)
+//   inverseObjectMatrix.copy(geometry.object3D.matrixWorld).invert()
 //
 //   geometry.object3D.traverse(node => {
 //     if (!node.geometry || !node.geometry.getAttribute) {
