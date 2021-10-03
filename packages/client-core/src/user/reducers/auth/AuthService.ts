@@ -27,6 +27,7 @@ import { ProximityComponent } from '../../../proximity/components/ProximityCompo
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -814,7 +815,7 @@ const getAvatarResources = (user) => {
 const loadAvatarForUpdatedUser = async (user) => {
   if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
 
-  const world = Engine.defaultWorld
+  const world = useWorld()
 
   return new Promise(async (resolve) => {
     const networkUser = world.clients.get(user.id)
@@ -835,6 +836,7 @@ const loadAvatarForUpdatedUser = async (user) => {
 
     // Fetch Avatar Resources for updated user.
     const avatars = await getAvatarResources(user)
+
     if (avatars?.data && avatars.data.length === 2) {
       const avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url
       const thumbnailURL =
@@ -846,6 +848,8 @@ const loadAvatarForUpdatedUser = async (user) => {
       const world = Engine.defaultWorld
       const userEntity = world.getUserAvatarEntity(user.id)
       setAvatar(userEntity, user.avatarId, avatarURL)
+    } else {
+      await loadAvatarForUpdatedUser(user)
     }
     resolve(true)
   })
