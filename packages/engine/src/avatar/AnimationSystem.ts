@@ -4,7 +4,7 @@ import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationGraph } from './animations/AvatarAnimationGraph'
 import { AvatarStates } from './animations/Util'
 import { AnimationRenderer } from './animations/AnimationRenderer'
-import { loadAvatar } from './functions/avatarFunctions'
+import { loadAvatarForEntity } from './functions/avatarFunctions'
 import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
@@ -47,7 +47,7 @@ export default async function AnimationSystem(world: World): Promise<System> {
     }
 
     for (const entity of avatarAnimationQuery.enter(world)) {
-      loadAvatar(entity)
+      loadAvatarForEntity(entity)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       avatarAnimationComponent.animationGraph = new AvatarAnimationGraph()
       avatarAnimationComponent.currentState = avatarAnimationComponent.animationGraph.states[AvatarStates.IDLE]
