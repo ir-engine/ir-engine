@@ -51,7 +51,7 @@ export class World {
   isInPortal = false
 
   /** Connected clients */
-  clients = new Map() as Map<UserId, NetworkClient> & { [key: string]: never }
+  clients = new Map() as Map<UserId, NetworkClient>
 
   /** Incoming actions */
   incomingActions = new Set<Required<Action>>()

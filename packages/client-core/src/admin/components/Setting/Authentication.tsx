@@ -3,30 +3,15 @@ import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useStyles } from './styles'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAdminAuthSettingState } from '../../reducers/admin/Setting/authentication-setting/selector'
-import { fetchAuthSetting, pathAuthSetting } from '../../reducers/admin/Setting/authentication-setting/service'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useAdminAuthSettingState } from '../../reducers/admin/Setting/authentication-setting/AuthSettingState'
+import { AuthSettingService } from '../../reducers/admin/Setting/authentication-setting/AuthSettingService'
+import { Dispatch } from 'redux'
+import { connect, useDispatch } from 'react-redux'
 import Switch from '@material-ui/core/Switch'
 import IconButton from '@material-ui/core/IconButton'
 import { Icon } from '@iconify/react'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    authSettingState: selectAdminAuthSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAuthSetting: bindActionCreators(fetchAuthSetting, dispatch),
-  updateAuthSetting: bindActionCreators(pathAuthSetting, dispatch)
-})
-
-interface Props {
-  authSettingState?: any
-  fetchAuthSetting?: any
-  updateAuthSetting?: any
-}
+interface Props {}
 const initialState = {
   jwt: true,
   local: true,
@@ -38,10 +23,11 @@ const initialState = {
 }
 const Account = (props: Props) => {
   const classes = useStyles()
-  const { authSettingState, fetchAuthSetting, updateAuthSetting } = props
-  const [authSetting] = authSettingState?.get('authSettings').get('authSettings') || []
-  const id = authSetting?.id
 
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.authSettings?.value || []
+  const id = authSetting?.id
+  const dispatch = useDispatch()
   const [state, setState] = React.useState(initialState)
   const [holdAuth, setHoldAuth] = React.useState(initialState)
   const [showPassword, setShowPassword] = React.useState({
@@ -85,9 +71,9 @@ const Account = (props: Props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetchAuthSetting()
+      await dispatch(AuthSettingService.fetchAuthSetting())
     }
-    if (user?.id?.value != null && authSettingState.get('authSettings').get('updateNeeded')) {
+    if (user?.id?.value != null && authSettingState.authSettings.updateNeeded.value) {
       fetchData()
     }
   }, [authState])
@@ -107,7 +93,7 @@ const Account = (props: Props) => {
 
   const handleSubmit = () => {
     const auth = Object.keys(state).map((prop) => ({ [prop]: state[prop] }))
-    updateAuthSetting({ authStrategies: JSON.stringify(auth) }, id)
+    dispatch(AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth) }, id))
   }
   const handleCancel = () => {
     let temp = { ...state }
@@ -510,4 +496,4 @@ const Account = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Account)
+export default Account

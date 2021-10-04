@@ -16,7 +16,7 @@ import url from 'url'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { retriveLocationByName } from './LocationLoadHelper'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
+import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 import { provisionChannelServer } from '../../reducers/channelConnection/service'
 
 interface Props {
@@ -46,8 +46,7 @@ const mapStateToProps = (state: any) => {
 
     instanceConnectionState: selectInstanceConnectionState(state), //
     locationState: selectLocationState(state),
-    partyState: selectPartyState(state),
-    chatState: selectChatState(state)
+    partyState: selectPartyState(state)
   }
 }
 
@@ -65,7 +64,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const selfUser = authState.user
   const userState = useUserState()
   const dispatch = useDispatch()
-
+  const chatState = useChatState()
   useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
@@ -133,12 +132,12 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   }, [props.instanceConnectionState])
 
   useEffect(() => {
-    if (props.chatState.get('instanceChannelFetched')) {
-      const channels = props.chatState.get('channels').get('channels')
-      const instanceChannel = [...channels.entries()].find((channel) => channel[1].channelType === 'instance')
+    if (chatState.instanceChannelFetched.value) {
+      const channels = chatState.channels.channels.value
+      const instanceChannel = Object.entries(channels).find((channel) => channel[1].channelType === 'instance')
       props.provisionChannelServer(null!, instanceChannel[0])
     }
-  }, [props.chatState.get('instanceChannelFetched')])
+  }, [chatState.instanceChannelFetched.value])
 
   return <></>
 }

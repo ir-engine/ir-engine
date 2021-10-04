@@ -57,10 +57,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/auth/magiclink" component={React.lazy(() => import('./pages/auth/magiclink'))} />
 
         {/* Registration Routes */}
-        <Route
-          path="/registration/stepOne"
-          component={React.lazy(() => import('./pages/Registration/RegistrationStepOne'))}
-        />
         <Route path="/registration" component={React.lazy(() => import('./pages/Registration'))} />
 
         {/* Post Routes */}
@@ -82,6 +78,9 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         {/* Terms and Policy */}
         <Route path="/terms" component={React.lazy(() => import('./pages/TermsAndPolicy/terms'))} />
         <Route path="/policy" component={React.lazy(() => import('./pages/TermsAndPolicy/policy'))} />
+
+        {/* camera */}
+        <Route path="/camera" component={React.lazy(() => import('./components/WebXRPlugin'))} />
 
         <Route path="/:pid" component={React.lazy(() => import('./pages/[pid]'))} />
 

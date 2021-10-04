@@ -12,7 +12,7 @@ export function configureStore(reducers) {
     reducers,
     initialState,
     // if not production, enable redux dev tools.
-    process.env.NODE_ENV === 'production' ? middleware : composeWithDevTools(middleware)
+    process.env.APP_ENV === 'production' ? middleware : composeWithDevTools(middleware)
   )
   ;(window as any).store = Store.store // Exposing the store to window to make it intentionally available to bots and clients and whatnot
   // add a listener that will be invoked on any state change.

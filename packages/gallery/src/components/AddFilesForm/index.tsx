@@ -25,7 +25,7 @@ interface Props {
   createFeed?: typeof createFeed
 }
 
-const descriptionState = new Map()
+const descriptionState = {}
 
 const descriptionReducer = (state, action) => {
   const { name, value } = action.payload

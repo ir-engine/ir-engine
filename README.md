@@ -298,7 +298,7 @@ Create a user at `/login`
 
 Method 1: 
 
-1. Run `npm run make-user-admin.js -- --id=[USER ID]` 
+1. Run `npm run make-user-admin -- --id=[USER ID]` 
 2. TODO: Improve with email/phone ID support
 
 Method 2: 
@@ -359,7 +359,7 @@ docker stop server
 ### Docker image configurations
 
 Enviroment variables:
-- `NODE_ENV` controls the config/*.js file for feathers.js to load [default: production]
+- `APP_ENV` controls the config/*.js file for feathers.js to load [default: production]
 - `PORT` controls the listening port [default: 3030]
 - `MYSQL_URL` e.g. `mysql://<user>:<pass>@<host>:<port>/<db>` points to MariaDB server with a username and password
 

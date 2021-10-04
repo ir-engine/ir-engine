@@ -1,16 +1,10 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectContentPackState } from '../../reducers/contentPack/selector'
+import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
 import styles from './ContentPack.module.scss'
-import {
-  addAvatarsToContentPack,
-  addScenesToContentPack,
-  addRealityPacksToContentPack,
-  createContentPack,
-  fetchContentPacks
-} from '../../reducers/contentPack/service'
+import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
 import { Add, Edit } from '@material-ui/icons'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 import Backdrop from '@material-ui/core/Backdrop'
@@ -32,50 +26,19 @@ interface Props {
   scenes?: any
   avatars?: any
   realityPacks?: any
-  contentPackState?: any
-  addScenesToContentPack?: any
-  addAvatarsToContentPack?: any
-  addRealityPacksToContentPack?: any
-  createContentPack?: any
-  fetchContentPacks?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    contentPackState: selectContentPackState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  addScenesToContentPack: bindActionCreators(addScenesToContentPack, dispatch),
-  addAvatarsToContentPack: bindActionCreators(addAvatarsToContentPack, dispatch),
-  addRealityPacksToContentPack: bindActionCreators(addRealityPacksToContentPack, dispatch),
-  createContentPack: bindActionCreators(createContentPack, dispatch),
-  fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch)
-})
 
 const AddToContentPackModal = (props: Props): any => {
-  const {
-    addAvatarsToContentPack,
-    addScenesToContentPack,
-    addRealityPacksToContentPack,
-    createContentPack,
-    open,
-    handleClose,
-    avatars,
-    scenes,
-    realityPacks,
-    contentPackState,
-    fetchContentPacks
-  } = props
+  const { open, handleClose, avatars, scenes, realityPacks } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [contentPackName, setContentPackName] = useState('')
   const [newContentPackName, setNewContentPackName] = useState('')
-  const contentPacks = contentPackState.get('contentPacks')
-
+  const contentPackState = useContentPackState()
+  const contentPacks = contentPackState.contentPacks
+  const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -91,10 +54,12 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (contentPackName !== '') {
         setProcessing(true)
-        await addScenesToContentPack({
-          scenes: scenes,
-          contentPack: contentPackName
-        })
+        await dispatch(
+          ContentPackService.addScenesToContentPack({
+            scenes: scenes,
+            contentPack: contentPackName
+          })
+        )
         setProcessing(false)
         window.location.href = '/admin/content-packs'
         closeModal()
@@ -182,10 +147,10 @@ const AddToContentPackModal = (props: Props): any => {
   }
 
   useEffect(() => {
-    if (contentPackState.get('updateNeeded') === true) {
+    if (contentPackState.updateNeeded.value === true) {
       fetchContentPacks()
     }
-  }, [contentPackState])
+  }, [contentPackState.updateNeeded.value])
 
   return (
     <div>
@@ -255,7 +220,7 @@ const AddToContentPackModal = (props: Props): any => {
                     value={contentPackName}
                     onChange={(e) => setContentPackName(e.target.value as string)}
                   >
-                    {contentPacks.map((contentPack) => (
+                    {contentPacks.value.map((contentPack) => (
                       <MenuItem key={contentPack.name} value={contentPack.name}>
                         {contentPack.name}
                       </MenuItem>
@@ -313,4 +278,4 @@ const AddToContentPackModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddToContentPackModal)
+export default AddToContentPackModal

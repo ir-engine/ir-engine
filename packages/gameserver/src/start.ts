@@ -86,7 +86,7 @@ export const start = async (): Promise<Application> => {
   }
 
   process.on('unhandledRejection', (reason, p) => logger.error('Unhandled Rejection at: Promise ', p, reason))
-  // if (process.env.NODE_ENV === 'production' && fs.existsSync('/var/log')) {
+  // if (process.env.APP_ENV === 'production' && fs.existsSync('/var/log')) {
   //   try {
   //     console.log("Writing access log to ", '/var/log/api.access.log');
   //     const access = fs.createWriteStream('/var/log/api.access.log');

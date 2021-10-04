@@ -73,7 +73,7 @@ export default defineConfig((command) => {
       },
     },
   };
-  if(process.env.NODE_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
+  if(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.server.https = {
       key: fs.readFileSync('../../certs/key.pem'),
       cert: fs.readFileSync('../../certs/cert.pem')

@@ -34,8 +34,8 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
-    "dev": "cross-env NODE_ENV=development ts-eager src/index.ts",
+    "start": "cross-env APP_ENV=production ts-eager src/index.ts",
+    "dev": "cross-env APP_ENV=development ts-eager src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
@@ -56,7 +56,7 @@
     "feathers-hooks-common": "5.0.6",
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
     "http-server": "13.0.2",
-    "mime-types": "2.1.32",
+    "mime-types": "2.1.33",
     "node-fetch": "2.6.5",
     "sequelize": "6.6.5",
     "universal-analytics": "0.4.23",
@@ -73,7 +73,7 @@
     "@typescript-eslint/parser": "4.32.0",
     "cross-env": "7.0.3",
     "eslint": "7.32.0",
-    "typedoc": "0.22.4",
+    "typedoc": "0.22.5",
     "typescript": "4.4.3"
   }
 }

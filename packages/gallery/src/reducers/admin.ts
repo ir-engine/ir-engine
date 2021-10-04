@@ -1,14 +1,14 @@
-import adminReducer from '@xrengine/client-core/src/admin/reducers/admin/reducers'
-import adminUserReducer from '@xrengine/client-core/src/admin/reducers/admin/user/reducers'
-import contentPackReducer from '@xrengine/client-core/src/admin/reducers/contentPack/reducers'
+import { adminReducer } from '@xrengine/client-core/src/admin/reducers/admin/AdminState'
+import { adminUserReducer } from '@xrengine/client-core/src/admin/reducers/admin/user/UserState'
+import { contentPackReducer } from '@xrengine/client-core/src/admin/reducers/contentPack/ContentPackState'
 import { adminAvatarReducer } from '@xrengine/client-core/src/admin/reducers/admin/avatar/AvatarState'
-import adminInstanceReducer from '@xrengine/client-core/src/admin/reducers/admin/instance/reducers'
-import adminLocationReducer from '@xrengine/client-core/src/admin/reducers/admin/location/reducers'
-import adminPartyReducer from '@xrengine/client-core/src/admin/reducers/admin/party/reducers'
-import adminSceneReducer from '@xrengine/client-core/src/admin/reducers/admin/scene/reducers'
+import { adminInstanceReducer } from '@xrengine/client-core/src/admin/reducers/admin/instance/InstanceState'
+import { adminLocationReducer } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { adminPartyReducer } from '@xrengine/client-core/src/admin/reducers/admin/party/PartyState'
+import { adminSceneReducer } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
 import { adminBotsReducer } from '@xrengine/client-core/src/admin/reducers/admin/bots/BotsState'
 import { adminGroupReducer } from '@xrengine/client-core/src/admin/reducers/admin/group/GroupState'
-import scopeReducer from '@xrengine/client-core/src/admin/reducers/admin/scope/reducers'
+import { adminScopeReducer } from '@xrengine/client-core/src/admin/reducers/admin/scope/ScopeState'
 
 /**
  * TODO: I am moving admin reducer to different packages
@@ -27,5 +27,5 @@ export default {
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,
   group: adminGroupReducer,
-  scope: scopeReducer
+  scope: adminScopeReducer
 }

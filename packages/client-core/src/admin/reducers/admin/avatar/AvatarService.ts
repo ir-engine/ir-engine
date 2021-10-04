@@ -1,11 +1,12 @@
 import { AvatarAction } from './AvatarActions'
 import { client } from '../../../../feathers'
 import { Dispatch } from 'redux'
+import { accessAvatarState } from './AvatarState'
 
 export const AvatarService = {
   fetchAdminAvatars: (incDec?: 'increment' | 'decrement') => {
-    return async (dispatch: Dispatch, getState: any): Promise<any> => {
-      const adminAvatarState = getState().get('adminAvatar').avatars
+    return async (dispatch: Dispatch): Promise<any> => {
+      const adminAvatarState = accessAvatarState().avatars
       const limit = adminAvatarState.limit.value
       const skip = adminAvatarState.skip.value
       const avatars = await client.service('static-resource').find({

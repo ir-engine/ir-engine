@@ -17,7 +17,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
-import { deleteCreator, fetchCreatorAsAdmin } from '../../../reducers/creator/service'
+import { deleteCreator, fetchCreatorAsAdmin } from '@xrengine/gallery/src/reducers/creator/service'
 import { selectCreatorsState } from '../../../reducers/creator/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
