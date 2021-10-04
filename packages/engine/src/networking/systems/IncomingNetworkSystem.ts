@@ -16,7 +16,7 @@ import { decodeVector3, decodeQuaternion } from '@xrengine/common/src/utils/deco
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'
 
-const applyDelayedActions = (world: World) => {
+export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
 
   for (const action of delayedActions) {
@@ -32,7 +32,7 @@ const applyDelayedActions = (world: World) => {
   return world
 }
 
-const applyIncomingActions = (world: World) => {
+export const applyIncomingActions = (world: World) => {
   const { incomingActions, delayedActions } = world
 
   if (incomingActions.size) console.log(`Dispatching actions for simulation tick: ${world.fixedTick}`)
@@ -59,13 +59,12 @@ const applyIncomingActions = (world: World) => {
   return world
 }
 
-const applyUnreliableQueue = (world: World) => {
-  const unreliableQueue = Network.instance.incomingMessageQueueUnreliable
+export const applyUnreliableQueue = (networkInstance: Network) => (world: World) => {
+  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = networkInstance
 
-  while (unreliableQueue.getBufferLength() > 0) {
-    const buffer = unreliableQueue.pop()
-
-    const userId = Network.instance.incomingMessageQueueUnreliableIDs.pop() as UserId
+  while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
+    const buffer = incomingMessageQueueUnreliable.pop()
+    const userId = incomingMessageQueueUnreliableIDs.pop() as UserId
 
     try {
       const newWorldState = WorldStateModel.fromBuffer(buffer)
@@ -178,15 +177,14 @@ const applyUnreliableQueue = (world: World) => {
   return world
 }
 
+// prettier-ignore
+export const applyIncomingNetworkState = pipe(
+  applyDelayedActions, 
+  applyIncomingActions,
+  applyUnreliableQueue(Network.instance),
+)
+
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   world.receptors.add(incomingNetworkReceptor)
-
-  // prettier-ignore
-  const applyIncomingNetworkState = pipe(
-    applyDelayedActions, 
-    applyIncomingActions,
-    applyUnreliableQueue,
-  )
-
   return () => applyIncomingNetworkState(world)
 }

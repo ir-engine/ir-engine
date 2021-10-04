@@ -21,7 +21,7 @@ type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
 }
 
-const CreateWorld = Symbol('CreateWorld')
+export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
     bitecs.createWorld(this)
