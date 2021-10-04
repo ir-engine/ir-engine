@@ -11,8 +11,10 @@
 ## Popular features
 - The perfect solution for everything from spatial websites to metaverse meetups to blockchain gaming
 - Includes a self-deployable platform, UI, worlds, avatars, and games
-- Or create your own! Fully customizable for any kind of game, social experience, event or spatial web app
+- Fully customizable for any kind of game, social experience, event or spatial web app
 - User management, avatars and inventory with optional blockchain integration (see our Blockchain-in-a-Box repo)
+- Social features like chat, groups, friends, blocking and moderation
+- Complete world editing and administration
 - 2D, 3D and XR Avatars with full inverse kinematics and facial expressions
 - Fully networked physics using PhysX compiled to wasm
 - Voice and video over WebRTC
@@ -21,7 +23,6 @@
 - OAuth login with Facebook, Google, Steam, Github or instant login with email or phone
 - Free, open source, MIT and Apache 2.0-licensed -- do anything you want with the code, for any reason, forever
 - WebGL client deployable to iOS, Android and desktop
-- Built with love by a team spread all across the world
 
 # Getting Started
 
