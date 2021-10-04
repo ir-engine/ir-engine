@@ -62,7 +62,8 @@ export const getInstalledRealityPacks = (realityPackClass: RealityPack) => {
     return async (params: Params) => {
       const packs = (await realityPackClass.find()) as any
       const manifests = packs.data.map(async (data) => {
-        return await axios.get(data.storageProviderManifest, getAxiosConfig())
+        const manifestData = await axios.get(data.storageProviderManifest, getAxiosConfig())
+        return JSON.parse(manifestData.data.toString()) as RealityPackInterface
       })
       return {
         data: manifests
