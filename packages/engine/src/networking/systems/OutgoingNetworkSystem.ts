@@ -25,17 +25,10 @@ const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
   : defineQuery([XRInputSourceComponent])
 
-let prevWorldState: WorldStateInterface = {
-  tick: 0,
-  time: 0,
-  pose: [],
-  ikPose: []
-}
-
-function velocityIsTheSame(netId, vel): boolean {
-  for (let i = 0; i < prevWorldState.pose.length; i++) {
-    if (prevWorldState.pose[i].networkId === netId) {
-      if (arraysAreEqual(prevWorldState.pose[i].angularVelocity, vel)) {
+function velocityIsTheSame(previousNetworkState, netId, vel): boolean {
+  for (let i = 0; i < previousNetworkState.pose.length; i++) {
+    if (previousNetworkState.pose[i].networkId === netId) {
+      if (arraysAreEqual(previousNetworkState.pose[i].angularVelocity, vel)) {
         return true
       } else {
         return false
@@ -45,14 +38,14 @@ function velocityIsTheSame(netId, vel): boolean {
 
   return false
 }
-function transformIsTheSame(netId, pos, rot, vel): boolean {
+function transformIsTheSame(previousNetworkState, netId, pos, rot, vel): boolean {
   if (vel === undefined) vel = [0]
-  for (let i = 0; i < prevWorldState.pose.length; i++) {
-    if (prevWorldState.pose[i].networkId === netId) {
+  for (let i = 0; i < previousNetworkState.pose.length; i++) {
+    if (previousNetworkState.pose[i].networkId === netId) {
       if (
-        arraysAreEqual(prevWorldState.pose[i].position, pos) &&
-        arraysAreEqual(prevWorldState.pose[i].rotation, rot) &&
-        arraysAreEqual(prevWorldState.pose[i].linearVelocity, vel)
+        arraysAreEqual(previousNetworkState.pose[i].position, pos) &&
+        arraysAreEqual(previousNetworkState.pose[i].rotation, rot) &&
+        arraysAreEqual(previousNetworkState.pose[i].linearVelocity, vel)
       ) {
         return true
       } else {
@@ -63,16 +56,16 @@ function transformIsTheSame(netId, pos, rot, vel): boolean {
 
   return false
 }
-function ikPoseIsTheSame(netId, hp, hr, lp, lr, rp, rr): boolean {
-  for (let i = 0; i < prevWorldState.ikPose.length; i++) {
-    if (prevWorldState.ikPose[i].networkId === netId) {
+function ikPoseIsTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): boolean {
+  for (let i = 0; i < previousNetworkState.ikPose.length; i++) {
+    if (previousNetworkState.ikPose[i].networkId === netId) {
       if (
-        arraysAreEqual(prevWorldState.ikPose[i].headPosePosition, hp) &&
-        arraysAreEqual(prevWorldState.ikPose[i].headPoseRotation, hr) &&
-        arraysAreEqual(prevWorldState.ikPose[i].leftPosePosition, lp) &&
-        arraysAreEqual(prevWorldState.ikPose[i].leftPoseRotation, lr) &&
-        arraysAreEqual(prevWorldState.ikPose[i].rightPosePosition, rp) &&
-        arraysAreEqual(prevWorldState.ikPose[i].rightPoseRotation, rr)
+        arraysAreEqual(previousNetworkState.ikPose[i].headPosePosition, hp) &&
+        arraysAreEqual(previousNetworkState.ikPose[i].headPoseRotation, hr) &&
+        arraysAreEqual(previousNetworkState.ikPose[i].leftPosePosition, lp) &&
+        arraysAreEqual(previousNetworkState.ikPose[i].leftPoseRotation, lr) &&
+        arraysAreEqual(previousNetworkState.ikPose[i].rightPosePosition, rp) &&
+        arraysAreEqual(previousNetworkState.ikPose[i].rightPoseRotation, rr)
       ) {
         return true
       } else {
@@ -84,7 +77,9 @@ function ikPoseIsTheSame(netId, hp, hr, lp, lr, rp, rr): boolean {
   return false
 }
 
-const queueUnchangedPoses = (world) => (newWorldState) => {
+export const queueUnchangedPoses = (world) => {
+  const { currentNetworkState, previousNetworkState } = world
+
   const ents = networkTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
     const entity = ents[i]
@@ -96,7 +91,8 @@ const queueUnchangedPoses = (world) => (newWorldState) => {
     let angVel = undefined
     if (hasComponent(entity, VelocityComponent)) {
       const velC = getComponent(entity, VelocityComponent)
-      if (isZero(velC.velocity) || velocityIsTheSame(networkObject.networkId, velC.velocity)) vel = [0]
+      if (isZero(velC.velocity) || velocityIsTheSame(previousNetworkState, networkObject.networkId, velC.velocity))
+        vel = [0]
       else vel = encodeVector3(velC.velocity)
     }
     // const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
@@ -104,13 +100,14 @@ const queueUnchangedPoses = (world) => (newWorldState) => {
     // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
     if (
       !transformIsTheSame(
+        previousNetworkState,
         networkObject.networkId,
         encodeVector3(transformComponent.position),
         encodeQuaternion(transformComponent.rotation),
         vel
       )
     )
-      newWorldState.pose.push({
+      currentNetworkState.pose.push({
         networkId: networkObject.networkId,
         position: encodeVector3(transformComponent.position),
         rotation: encodeQuaternion(transformComponent.rotation),
@@ -118,10 +115,12 @@ const queueUnchangedPoses = (world) => (newWorldState) => {
         angularVelocity: angVel !== undefined ? angVel : [0]
       })
   }
-  return newWorldState
+  return world
 }
 
-const queueUnchangedPosesForClient = (world) => (newWorldState) => {
+export const queueUnchangedPosesForClient = (world) => {
+  const { currentNetworkState, previousNetworkState } = world
+
   const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
   if (isClient && networkComponent) {
     const transformComponent = getComponent(world.localClientEntity, TransformComponent)
@@ -129,19 +128,21 @@ const queueUnchangedPosesForClient = (world) => (newWorldState) => {
     let angVel = undefined
     if (hasComponent(world.localClientEntity, VelocityComponent)) {
       const velC = getComponent(world.localClientEntity, VelocityComponent)
-      if (isZero(velC.velocity) || velocityIsTheSame(world.localClientEntity, velC.velocity)) vel = [0]
+      if (isZero(velC.velocity) || velocityIsTheSame(previousNetworkState, world.localClientEntity, velC.velocity))
+        vel = [0]
       else vel = encodeVector3(velC.velocity)
     }
 
     if (
       !transformIsTheSame(
+        previousNetworkState,
         networkComponent.networkId,
         encodeVector3(transformComponent.position),
         encodeQuaternion(transformComponent.rotation),
         vel
       )
     )
-      newWorldState.pose.push({
+      currentNetworkState.pose.push({
         networkId: networkComponent.networkId,
         position: encodeVector3(transformComponent.position),
         rotation: encodeQuaternion(transformComponent.rotation),
@@ -149,10 +150,12 @@ const queueUnchangedPosesForClient = (world) => (newWorldState) => {
         angularVelocity: angVel !== undefined ? angVel : [0]
       })
   }
-  return newWorldState
+  return world
 }
 
-const queueUnchangedIkPoses = (world) => (newWorldState) => {
+export const queueUnchangedIkPoses = (world) => {
+  const { currentNetworkState, previousNetworkState } = world
+
   const ents = ikTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
     const entity = ents[i]
@@ -170,6 +173,7 @@ const queueUnchangedIkPoses = (world) => (newWorldState) => {
 
     if (
       !ikPoseIsTheSame(
+        previousNetworkState,
         networkId,
         headPosePosition,
         headPoseRotation,
@@ -179,7 +183,7 @@ const queueUnchangedIkPoses = (world) => (newWorldState) => {
         rightPoseRotation
       )
     )
-      newWorldState.ikPose.push({
+      currentNetworkState.ikPose.push({
         networkId,
         headPosePosition,
         headPoseRotation,
@@ -189,21 +193,10 @@ const queueUnchangedIkPoses = (world) => (newWorldState) => {
         rightPoseRotation
       })
   }
-  return newWorldState
+  return world
 }
 
-const sendBuffer = (newWorldState) => {
-  try {
-    const buffer = WorldStateModel.toBuffer(newWorldState)
-    Network.instance.transport.sendData(buffer)
-    prevWorldState = newWorldState
-  } catch (e) {
-    console.log('could not convert world state to a buffer, ' + e)
-  }
-  return newWorldState
-}
-
-function sendActions(world) {
+export const sendActions = (world) => {
   const { incomingActions, outgoingActions } = world
 
   // if hosting, forward all non-local incoming actions
@@ -232,33 +225,42 @@ function sendActions(world) {
   outgoingActions.clear()
 }
 
+export const queueAllOutgoingPoses = pipe(queueUnchangedPoses, queueUnchangedPosesForClient, queueUnchangedIkPoses)
+
+// prettier-ignore
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
   /**
    * For the client, we only want to send out objects we have authority over,
    *   which are the local avatar and any owned objects
    * For the server, we want to send all objects
    */
-
-  // prettier-ignore
-  const pipeline = pipe(
-    queueUnchangedPoses(world),
-    queueUnchangedPosesForClient(world),
-    queueUnchangedIkPoses(world),
-    sendBuffer
-  )
+  world.currentNetworkState = {
+    tick: world.fixedTick,
+    time: Date.now(),
+    pose: [],
+    ikPose: []
+  }
 
   return () => {
     sendActions(world)
 
     if (Engine.offlineMode) return
 
-    const newWorldState: WorldStateInterface = {
-      tick: world.fixedTick,
-      time: Date.now(),
-      pose: [],
-      ikPose: []
-    }
+    // reset old data
+    world.currentNetworkState.tick = world.fixedTick
+    world.currentNetworkState.time = Date.now()
+    world.currentNetworkState.pose = []
+    world.currentNetworkState.ikPose = []
 
-    pipeline(newWorldState)
+    queueAllOutgoingPoses(world)
+
+    try {
+      const buffer = WorldStateModel.toBuffer(world.currentNetworkState)
+      Network.instance.transport.sendData(buffer)
+      world.previousNetworkState = world.currentNetworkState
+    } catch (e) {
+      console.log('could not convert world state to a buffer, ' + e)
+    }
+    
   }
 }

@@ -14,6 +14,7 @@ import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { WorldStateInterface } from '../../networking/schema/networkSchema'
 
 type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
 
@@ -61,6 +62,9 @@ export class World {
 
   /** Outgoing actions */
   outgoingActions = new Set<Action>()
+
+  currentNetworkState: WorldStateInterface
+  previousNetworkState: WorldStateInterface
 
   /**
    * Check if this user is hosting the world.
