@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Scene } from './scene.class'
 import createModel from './scene.model'
@@ -6,7 +5,7 @@ import hooks from './scene.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    scene: Scene & ServiceAddons<any>
+    scene: Scene
   }
 }
 
@@ -22,7 +21,7 @@ export default (app: Application): void => {
    *
    * @author Vyacheslav Solovjov
    */
-  app.use('/scene', new Scene(options, app))
+  app.use('scene', new Scene(options, app))
 
   /**
    * Get our initialized service so that we can register hooks
@@ -31,5 +30,5 @@ export default (app: Application): void => {
    */
   const service = app.service('scene')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

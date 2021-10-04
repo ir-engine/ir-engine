@@ -2,7 +2,6 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 // Initializes the `thefeeds` service on path `/thefeeds`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { TheFeeds } from './feeds.class'
 import createModel from './feeds.model'
@@ -16,7 +15,7 @@ import thefeedsDocs from './feeds.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    thefeeds: TheFeeds & ServiceAddons<any>
+    thefeeds: TheFeeds
   }
 }
 
@@ -29,10 +28,10 @@ export default function (app: Application): void {
   // Initialize our service with any options it requires
   const thefeeds = new TheFeeds(options, app)
   thefeeds.docs = thefeedsDocs
-  app.use('/thefeeds', thefeeds)
+  app.use('thefeeds', thefeeds)
 
   // Get our initialized service so that we can register hooks
   const service = app.service('thefeeds')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import hooks from './authentication.hooks'
 import { Application } from '../../../declarations'
 import { Authentication } from './authentication.class'
@@ -6,7 +5,7 @@ import createModel from './authentication.model'
 
 declare module '../../../declarations' {
   interface SerViceTypes {
-    Authentication: Authentication & ServiceAddons<any>
+    Authentication: Authentication
   }
 }
 
@@ -18,9 +17,9 @@ export default (app: Application): void => {
   }
 
   const event = new Authentication(options, app)
-  app.use('/authentication-setting', event)
+  app.use('authentication-setting', event)
 
   const service = app.service('authentication-setting')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

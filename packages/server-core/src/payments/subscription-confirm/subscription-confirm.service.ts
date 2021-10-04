@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { SubscriptionConfirm } from './subscription-confirm.class'
 import hooks from './subscription-confirm.hooks'
@@ -8,7 +7,7 @@ import subscriptionConfirmDocs from './subscription-confirm.docs'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'subscription-confirm': SubscriptionConfirm & ServiceAddons<any>
+    'subscription-confirm': SubscriptionConfirm
   }
 }
 
@@ -25,7 +24,7 @@ export default (app: Application): any => {
   const event = new SubscriptionConfirm(options, app)
   event.docs = subscriptionConfirmDocs
 
-  app.use('/subscription-confirm', event, (req, res) => {
+  app.use('subscription-confirm', event, (req, res) => {
     res.redirect(config.client.url)
   })
 
@@ -36,5 +35,5 @@ export default (app: Application): any => {
    */
   const service = app.service('subscription-confirm')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

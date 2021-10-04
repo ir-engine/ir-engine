@@ -1,4 +1,3 @@
-import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import { ContentPackAction } from './ContentPackActions'

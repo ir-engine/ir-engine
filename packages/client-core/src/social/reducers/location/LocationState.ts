@@ -1,16 +1,18 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
+import { Location } from '@xrengine/common/src/interfaces/Location'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { LocationActionType } from './LocationActions'
 
 const state = createState({
   locations: {
-    locations: [],
+    locations: [] as Location[],
     total: 0,
     limit: 10,
     skip: 0
   },
   currentLocation: {
-    location: {},
-    bannedUsers: []
+    location: {} as Location | {},
+    bannedUsers: [] as UserId[]
   },
   updateNeeded: true,
   currentLocationUpdateNeeded: true,
@@ -49,7 +51,7 @@ const locationReceptor = (action: LocationActionType): any => {
         newValues = action.location
         newValues.locationSettings = newValues.location_setting
 
-        let bannedUsers = []
+        let bannedUsers = [] as UserId[]
         newValues.location_bans?.forEach((ban) => {
           bannedUsers.push(ban.userId)
         })

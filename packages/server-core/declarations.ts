@@ -4,7 +4,7 @@ import { Application as ExpressFeathers } from '@feathersjs/express'
 export interface ServiceTypes {}
 
 // The application instance type that will be used everywhere else
-export type Application = ExpressFeathers<any> & {
+export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
   k8AgonesClient: any
   k8DefaultClient: any

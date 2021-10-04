@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import hooks from './email-setting.hooks'
 import { Application } from '../../../declarations'
 import { EmailSetting } from './email-setting.class'
@@ -6,7 +5,7 @@ import createModel from './email-setting.model'
 
 declare module '../../../declarations' {
   interface SerViceTypes {
-    Email: EmailSetting & ServiceAddons<any>
+    Email: EmailSetting
   }
 }
 
@@ -18,9 +17,9 @@ export default (app: Application): void => {
   }
 
   const event = new EmailSetting(options, app)
-  app.use('/email-setting', event)
+  app.use('email-setting', event)
 
   const service = app.service('email-setting')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }
