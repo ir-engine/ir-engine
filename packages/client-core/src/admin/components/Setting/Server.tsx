@@ -11,25 +11,13 @@ import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import IconButton from '@material-ui/core/IconButton'
 import { Icon } from '@iconify/react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectServerSettingState } from '../../reducers/admin/Setting/server/selectors'
-import { fetchServerSettings } from '../../reducers/admin/Setting/server/service'
+import { connect, useDispatch } from 'react-redux'
+import { useServerSettingState } from '../../reducers/admin/Setting/server/ServerSettingState'
+import { ServerSettingService } from '../../reducers/admin/Setting/server/ServerSettingService'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    ServerSettingState: selectServerSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchServerSettings: bindActionCreators(fetchServerSettings, dispatch)
-})
 
 interface serverProps {
   fetchServerSettings?: any
-  ServerSettingState?: any
 }
 
 const Server = (props: serverProps) => {
@@ -37,9 +25,9 @@ const Server = (props: serverProps) => {
   const [open, setOpen] = React.useState(false)
   const [openPaginate, setOpenPginate] = React.useState(false)
   const [load, setLoad] = React.useState(false)
-
-  const { fetchServerSettings, ServerSettingState } = props
-  const serverSettings = ServerSettingState.get('Server').get('server')
+  const dispatch = useDispatch()
+  const serverSettingState = useServerSettingState()
+  const serverSettings = serverSettingState?.Server?.server?.value || []
 
   const [server, setServer] = React.useState({
     enabled: '',
@@ -106,8 +94,8 @@ const Server = (props: serverProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && ServerSettingState.get('Server').get('updateNeeded') === true) {
-      fetchServerSettings()
+    if (user?.id?.value != null && serverSettingState?.Server?.updateNeeded?.value === true) {
+      dispatch(ServerSettingService.fetchServerSettings())
     }
   }, [authState])
 
@@ -334,4 +322,4 @@ const Server = (props: serverProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Server)
+export default Server

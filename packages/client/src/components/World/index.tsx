@@ -13,8 +13,6 @@ import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
 import Layout from '../Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { RealityPackReactProps } from './RealityPackReactProps'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 

@@ -7,29 +7,17 @@ import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { fetchAdminInstances } from '../../reducers/admin/instance/service'
+import { InstanceService } from '../../reducers/admin/instance/InstanceService'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { instanceColumns, InstanceData } from './variables'
-import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
+import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
 import { useInstanceStyle, useInstanceStyles } from './styles'
-import { INSTNCE_PAGE_LIMIT } from '../../reducers/admin/instance/reducers'
+import { INSTNCE_PAGE_LIMIT } from '../../reducers/admin/instance/InstanceState'
 
 interface Props {
   fetchAdminState?: any
-  fetchAdminInstances?: any
-  adminInstanceState?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminInstanceState: selectAdminInstanceState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
-})
 
 /**
  * JSX used to display table of instance
@@ -39,7 +27,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
  * @author KIMENYI Kevin
  */
 const InstanceTable = (props: Props) => {
-  const { fetchAdminInstances, adminInstanceState } = props
+  const dispatch = useDispatch()
   const classes = useInstanceStyle()
   const classex = useInstanceStyles()
   const [page, setPage] = React.useState(0)
@@ -47,10 +35,11 @@ const InstanceTable = (props: Props) => {
   const [refetch, setRefetch] = React.useState(false)
 
   const user = useAuthState().user
-  const adminInstances = adminInstanceState.get('instances')
+  const adminInstanceState = useInstanceState()
+  const adminInstances = adminInstanceState.instances
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminInstances(incDec)
+    dispatch(InstanceService.fetchAdminInstances(incDec))
     setPage(newPage)
   }
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,9 +59,10 @@ const InstanceTable = (props: Props) => {
   }, [])
 
   React.useEffect(() => {
-    if ((user.id.value && adminInstances.get('updateNeeded')) || refetch === true) fetchAdminInstances()
+    if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true)
+      dispatch(InstanceService.fetchAdminInstances())
     setRefetch(false)
-  }, [user, adminInstanceState, refetch])
+  }, [user, adminInstanceState.instances.updateNeeded.value, refetch])
 
   const createData = (
     id: string,
@@ -98,9 +88,9 @@ const InstanceTable = (props: Props) => {
     }
   }
 
-  const rows = adminInstances
-    .get('instances')
-    .map((el: any) => createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || ''))
+  const rows = adminInstances.instances.value.map((el: any) =>
+    createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || '')
+  )
 
   return (
     <div className={classes.root}>
@@ -141,7 +131,7 @@ const InstanceTable = (props: Props) => {
       <TablePagination
         rowsPerPageOptions={[INSTNCE_PAGE_LIMIT]}
         component="div"
-        count={adminInstances.get('total')}
+        count={adminInstances.total.value}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}
@@ -152,4 +142,4 @@ const InstanceTable = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceTable)
+export default InstanceTable

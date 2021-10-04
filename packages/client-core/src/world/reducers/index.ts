@@ -1,4 +1,4 @@
-import sceneReducer from './scenes/reducers'
+import { sceneReducer } from './scenes/SceneState'
 
 export default {
   scenes: sceneReducer

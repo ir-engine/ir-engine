@@ -6,7 +6,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent, defineQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { ProximityComponent } from '../components/ProximityComponent'
-import { sendChatMessage } from '../../social/reducers/chat/service'
+import { ChatService } from '../../social/reducers/chat/ChatService'
 import { accessAuthState } from '../../user/reducers/auth/AuthState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
@@ -137,7 +137,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
 
 function sendProximityChatMessage(text) {
   const user = accessAuthState().user.value
-  sendChatMessage({
+  ChatService.sendChatMessage({
     targetObjectId: user.instanceId,
     targetObjectType: 'instance',
     text: '[proximity]' + text

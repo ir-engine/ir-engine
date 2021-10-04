@@ -15,15 +15,14 @@ import TablePagination from '@material-ui/core/TablePagination'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/reality-pack/reducers'
-import { fetchLocationTypes } from '../../reducers/admin/location/service'
-import { fetchAdminRealityPacks } from '../../reducers/admin/reality-pack/service'
+import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/reality-pack/RealityPackState'
+import { LocationService } from '../../reducers/admin/location/LocationService'
+import { fetchAdminRealityPacks } from '../../reducers/admin/reality-pack/RealityPackService'
 import styles from './RealityPack.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadRealityPackModel from '../ContentPack/UploadRealityPackModel'
-import { selectAdminRealityPackState } from '../../reducers/admin/reality-pack/selector'
-import { AuthService } from '../../../user/reducers/auth/AuthService'
-import { uploadRealityPack } from '../../reducers/contentPack/service'
+import { useRealityPackState } from '../../reducers/admin/reality-pack/RealityPackState'
+import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -32,30 +31,24 @@ if (!global.setImmediate) {
 interface Props {
   locationState?: any
   fetchAdminRealityPacks?: any
-  fetchLocationTypes?: any
-  adminRealityPackState?: any
-  uploadRealityPack?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    adminRealityPackState: selectAdminRealityPackState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminRealityPacks: bindActionCreators(fetchAdminRealityPacks, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
-  uploadRealityPack: bindActionCreators(uploadRealityPack, dispatch)
+  fetchAdminRealityPacks: bindActionCreators(fetchAdminRealityPacks, dispatch)
 })
 
 const RealityPack = (props: Props) => {
-  const { fetchAdminRealityPacks, adminRealityPackState, uploadRealityPack } = props
+  const { fetchAdminRealityPacks } = props
   const authState = useAuthState()
   const user = authState.user
-  const adminRealityPacks = adminRealityPackState.get('realityPacks').get('realityPacks')
-  const adminRealityPackCount = adminRealityPackState.get('realityPacks').get('total')
-  console.log(adminRealityPacks)
+  const adminRealityPackState = useRealityPackState()
+  const adminRealityPacks = adminRealityPackState.realityPacks.realityPacks
+  const adminRealityPackCount = adminRealityPackState.realityPacks.total
+
   const headCell = [
     { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
@@ -158,7 +151,7 @@ const RealityPack = (props: Props) => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminRealityPacks.map((n) => n.name)
+      const newSelecteds = adminRealityPacks.value.map((n) => n.name)
       setSelected(newSelecteds)
       return
     }
@@ -194,9 +187,9 @@ const RealityPack = (props: Props) => {
 
   const tryReuploadRealityPack = async (row) => {
     try {
-      const existingRealityPack = adminRealityPacks.find((realityPack) => realityPack.id === row.id)
-      await uploadRealityPack({
-        uploadURL: existingRealityPack.sourceManifest
+      const existingRealityPack = adminRealityPacks.find((realityPack) => realityPack.value.id === row.id)
+      await ContentPackService.uploadRealityPack({
+        uploadURL: existingRealityPack.value.sourceManifest
       })
     } catch (err) {
       console.log(err)
@@ -210,12 +203,12 @@ const RealityPack = (props: Props) => {
   useEffect(() => {
     if (
       user?.id.value != null &&
-      (adminRealityPackState.get('realityPacks').get('updateNeeded') === true || refetch === true)
+      (adminRealityPackState.realityPacks.updateNeeded.value === true || refetch === true)
     ) {
       fetchAdminRealityPacks()
     }
     setRefetch(false)
-  }, [authState, adminRealityPackState, refetch])
+  }, [authState, adminRealityPackState.realityPacks.updateNeeded.value, refetch])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -268,10 +261,10 @@ const RealityPack = (props: Props) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminRealityPackCount || 0}
+              rowCount={adminRealityPackCount?.value || 0}
             />
             <TableBody>
-              {stableSort(adminRealityPacks ?? [], getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(adminRealityPacks?.value ?? [], getComparator(order, orderBy)).map((row, index) => {
                 return (
                   <TableRow
                     hover
@@ -327,7 +320,7 @@ const RealityPack = (props: Props) => {
           <TablePagination
             rowsPerPageOptions={[REALITY_PACK_PAGE_LIMIT]}
             component="div"
-            count={adminRealityPackCount}
+            count={adminRealityPackCount?.value || 0}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handlePageChange}

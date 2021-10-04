@@ -5,20 +5,12 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { fetchUserRole, createUserRoleAction } from '../../reducers/admin/user/service'
 import { useUserStyles, useUserStyle } from './styles'
 interface Props {
   open: boolean
   handleClose: any
   createUserRoleAction?: any
 }
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-  createUserRoleAction: bindActionCreators(createUserRoleAction, dispatch)
-})
 
 const createUser = (props: Props) => {
   const { open, handleClose, createUserRoleAction } = props
@@ -67,4 +59,4 @@ const createUser = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(createUser)
+export default createUser

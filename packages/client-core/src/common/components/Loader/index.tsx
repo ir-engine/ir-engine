@@ -2,21 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { GeneralStateList } from '../../reducers/app/AppActions'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
+import { useSceneState } from '../../../world/reducers/scenes/SceneState'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 import LottieLoader from './LottieLoader'
 
 interface Props {
   objectsToLoad?: number
-  currentScene?: any
-  Loader?: any
-}
 
-const mapStateToProps = (state: any): any => {
-  return {
-    currentScene: selectCurrentScene(state)
-  }
+  Loader?: any
 }
 
 const LoadingScreen = (props: Props) => {
@@ -71,4 +65,4 @@ const LoadingScreen = (props: Props) => {
     </>
   )
 }
-export default connect(mapStateToProps)(LoadingScreen)
+export default LoadingScreen
