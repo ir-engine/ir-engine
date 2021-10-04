@@ -79,7 +79,7 @@ export default class WebXRPolyfill {
     }
 
     // Test environment does not have rendering contexts
-    if (process.env.NODE_ENV !== 'test') {
+    if (process.env.APP_ENV !== 'test') {
       // Attempts to polyfill WebGLRenderingContext's `makeXRCompatible`
       // if it does not exist.
       const polyfilledCtx = polyfillMakeXRCompatible(global.WebGLRenderingContext);

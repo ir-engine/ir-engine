@@ -24,7 +24,7 @@ import {
 } from '../utils';
 
 const PRIVATE = Symbol('@@webxr-polyfill/WebVRDevice');
-const TEST_ENV = process.env.NODE_ENV === 'test';
+const TEST_ENV = process.env.APP_ENV === 'test';
 
 const EXTRA_PRESENTATION_ATTRIBUTES = {
   // Non-standard attribute to enable running at the native device refresh rate
