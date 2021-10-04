@@ -1,5 +1,13 @@
 import { FileLoader, Loader, LoadingManager, ShapePath } from 'three'
 
+/**
+* Load a font.
+* @param url - URL of the font.
+* @param onLoad - Callback function that is called when the font is loaded.
+* @param onProgress - Callback function that is called when the font is loading.
+* @param onError - Callback function that is called when the font fails to load.
+* @internal
+*/
 export class FontLoader extends Loader {
   constructor(manager?: LoadingManager) {
     super(manager)
@@ -40,6 +48,15 @@ export class FontLoader extends Loader {
 
 //
 
+/**
+* Font.
+* @param {any} data - Data of the font.
+* @param {number} size - Font size.
+* @return {Array.<Shape>} - Shapes of the font.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export class Font {
   data: any
   readonly type = 'Font' as const
@@ -60,6 +77,17 @@ export class Font {
     return shapes
   }
 }
+
+/**
+* Create a path from a character.
+* @param char - Character to create a path from.
+* @param scale - Scale of the character.
+* @param offsetX - X offset of the character.
+* @param offsetY - Y offset of the character.
+* @param data - Data of the character.
+* @return {@link Path} - Path created from the character.
+* @internal
+*/
 
 function createPaths(text, size, data) {
   const chars = Array.from(text)
@@ -87,6 +115,14 @@ function createPaths(text, size, data) {
   return paths
 }
 
+/**
+ * Creates a path from a character.
+ * @param char - Character to create path from.
+ * @param scale - Scale of the font.
+ * @param offsetX - X offset of the character.
+ * @param offsetY - Y offset of the character.
+ * @param data - Font data.
+ * @return {@link ShapePath} - Path. */
 function createPath(char, scale, offsetX, offsetY, data) {
   const glyph = data.glyphs[char] || data.glyphs['?']
 

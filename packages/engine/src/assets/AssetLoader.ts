@@ -3,10 +3,26 @@ import { isAbsolutePath } from '../common/functions/isAbsolutePath'
 import { Engine } from '../ecs/Engine'
 import { AssetClass } from './AssetClass'
 import { AssetType } from './AssetType'
-import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from './LoaderConstants'
 import { FBXLoader } from './FBXLoader'
+import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from './LoaderConstants'
 import { getLoader as getGLTFLoader, loadExtentions } from './LoadGLTF'
 
+/**
+* Process a model asset.
+* Traverse the asset and its children
+* If the child is a Mesh, check if it has a material. If it does, check if it has a userData.gltfExtensions.KHR_materials_clearcoat.
+* If it does, create a new MeshPhysicalMaterial and set its values to the original material.
+* Set the clearcoat and clearcoatRoughness properties of the new material.
+* Set the defines property of the new material to { STANDARD: '', PHYSICAL: '' }.
+* Add the new material to the Map of replaced materials.
+* Replace the original material with the new material.
+* Repeat steps 1-7 for all children.
+ * @param asset - Model asset.
+ * @param params - Asset loader parameters.
+ * @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
   asset.traverse((child) => {
@@ -41,10 +57,22 @@ export const processModelAsset = (asset: any, params: AssetLoaderParamType): voi
 }
 
 /**
- * Handles Level of Detail for asset.
- * @param asset Asset on which LOD will apply.
- * @returns LOD handled asset.
- */
+* Process a model asset.
+* Traverse the asset and its children
+* If the child is a Mesh, check if it has a material. If it does, check if it has a userData.gltfExtensions.KHR_materials_clearcoat.
+* If it does, create a new MeshPhysicalMaterial and set its values to the original material.
+* Set the clearcoat and clearcoatRoughness properties of the new material.
+* Set the defines property of the new material to { STANDARD: '', PHYSICAL: '' }.
+* Add the new material to the Map of replaced materials.
+* Replace the original material with the new material.
+* Repeat steps 1-7 for all children.
+ * @param asset - Model asset.
+ * @param params - Asset loader parameters.
+ * @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
+
 export const handleLODs = (asset: Object3D): Object3D => {
   const haveAnyLODs = !!asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
   if (!haveAnyLODs) {
@@ -178,6 +206,13 @@ const load = (
   )
 }
 
+/**
+* Load a model asset.
+* @param params - Asset loader parameters.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export class AssetLoader {
   static Cache = new Map<string, any>()
   static loaders = new Map<number, any>()
@@ -187,6 +222,16 @@ export class AssetLoader {
   assetClass: AssetClass
   result: any
 
+/**
+* Load a model asset.
+* @param params - Asset loader parameters.
+* @param onLoad - Handler function for the load event.
+* @param onProgress - Handler function for the progress event.
+* @param onError - Handler function for the error event.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
   static load(
     params: AssetLoaderParamType,
     onLoad = (response: any) => {},
@@ -196,13 +241,27 @@ export class AssetLoader {
     load(params, onLoad, onProgress, onError)
   }
 
+/**
+* Loads a model asset.
+* @param params - Asset loader parameters.
+* @return {Promise}
+* @throws {MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
   static async loadAsync(params: AssetLoaderParamType) {
     return new Promise<any>((resolve, reject) => {
       load(params, resolve, () => {}, resolve)
     })
   }
 
-  // TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
+/**
+* Loads an asset from the cache.
+* @param url - The url of the asset to load.
+* @return {@link Asset} The loaded asset.
+* @internal
+*/
+
   static getFromCache(url: string) {
     return AssetLoader.Cache.get(isAbsolutePath(url) ? url : Engine.publicPath + url)
   }

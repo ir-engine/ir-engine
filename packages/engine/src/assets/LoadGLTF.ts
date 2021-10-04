@@ -6,6 +6,15 @@ import { NodeDRACOLoader } from './NodeDracoLoader'
 import { DRACOLoader } from './DRACOLoader'
 import { GLTFLoader } from './GLTFLoader'
 
+/**
+* Loads a GLTF file.
+* @param {string} filePath - Path to the GLTF file.
+* @param {object} [options] - Optional settings.
+* @param {boolean} [options.useCache] - If true, use the cache.
+* @param {boolean} [options.useCacheIfExists] - If true, use the cache if it exists.
+* @param {boolean} [options.useCacheIfNewer] - If true, use the cache if it is newer.
+* @param {boolean}
+*/
 export interface LoadGLTFResultInterface {
   animations: AnimationClip[]
   scene: Object3D | Group | Mesh
@@ -65,6 +74,13 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
   })
 }
 
+/**
+* Loads the lightmaps and lights from the glTF file.
+* @param gltf - The glTF file to load.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export const loadExtentions = (gltf) => {
   loadLightmaps(gltf.parser)
   loadLights(gltf)
@@ -95,6 +111,12 @@ const loadLightmaps = (parser) => {
 
 // this isn't the best solution. instead we should expose the plugin/extension register in GLTFLoader.js
 
+/**
+ * Loads the glTF model.
+ * @param {!gltf} gltf - The glTF model.
+ * @throws {@link MaxListenerExceededException}
+ * Thrown if the event is already assigned to another listener.
+ * @internal */
 const loadLights = (gltf) => {
   if (gltf.parser.json?.extensions?.MOZ_hubs_components?.MOZ_hubs_components?.version === 3) {
     const objsToRemove: any[] = []

@@ -2,6 +2,15 @@ import { BufferGeometry, Float32BufferAttribute } from 'three'
 import { ConvexHull } from './ConvexHull'
 
 /* From three.js */
+/**
+* Convex geometry.
+* Convex geometry is a geometry that contains only convex shapes.
+* A convex shape is a shape that does not have any holes in it.
+* @param points - Array of points.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 class ConvexGeometry extends BufferGeometry {
   constructor(points) {
     super()
