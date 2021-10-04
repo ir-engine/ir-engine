@@ -199,7 +199,6 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest
   )
 }
 
-
 /**
  *
  * @author Abhishek Pathak
@@ -207,7 +206,7 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest
  * @param {any} rest
  * @returns
  */
- export function FolderGridItem({ label, ...rest }) {
+export function FolderGridItem({ label, ...rest }) {
   return (
     <>
       <MediaGridItemContainer {...rest}>
@@ -223,7 +222,6 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest
     </>
   )
 }
-
 
 /**
  *

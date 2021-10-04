@@ -26,7 +26,7 @@ export class ProjectManager {
   ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
   currentOwnedFileIds: {}
   projectStructure: any[]
-  dir:{}
+  dir: {}
   static buildProjectManager(settings?: any) {
     this.instance = new ProjectManager(settings)
   }
@@ -42,53 +42,49 @@ export class ProjectManager {
 
     this.ownedFileIds = {}
     this.currentOwnedFileIds = {}
-    this.projectStructure=[]//{"/":{children:[],files:[]}}
-    const pro=[]
-    this.dir={}
-    const respo=fetch("https://127.0.0.1:8642/mymedia/").then((r)=>{
-
-      r.text().then(text=>{
-        const parser=new DOMParser()
-        const doc=parser.parseFromString(text,'text/html')
-        const lis=doc.querySelectorAll('.display-name')
+    this.projectStructure = [] //{"/":{children:[],files:[]}}
+    const pro = []
+    this.dir = {}
+    const respo = fetch('https://127.0.0.1:8642/mymedia/').then((r) => {
+      r.text().then((text) => {
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(text, 'text/html')
+        const lis = doc.querySelectorAll('.display-name')
         //const aa=element.querySelector('a')
-        
-        const fold="https://localhost:3000fsdfasdf/mymedia/therere/ThisisTheMedia.jpeg"
-        
-        const folderStructure=/(\/)([a-z A-Z 0-9]+)/g
-        const asnn=fold.match(folderStructure)
-        if(asnn.length<2) return
-        asnn.forEach((value)=>{
+
+        const fold = 'https://localhost:3000fsdfasdf/mymedia/therere/ThisisTheMedia.jpeg'
+
+        const folderStructure = /(\/)([a-z A-Z 0-9]+)/g
+        const asnn = fold.match(folderStructure)
+        if (asnn.length < 2) return
+        asnn.forEach((value) => {
           pro.push(value)
         })
-        console.log("PRoject Structure is:"+pro)
+        console.log('PRoject Structure is:' + pro)
+      })
+
+      this.setupProjectDir(pro)
     })
-
-
-    this.setupProjectDir(pro)
-  })
-}
-
-  setupProjectDir=(pro:any[])=>{
-    this.dir["root"]={
-      folders:[],
-      files:[],
-      name:"Root",
-    }
-
-    this.dir["root"].files.push({
-      url:"FileURl",
-      name:"FileName",
-    })
-
-    this.dir["root"].folders.push({
-      folders:[],
-      files:[],
-      name:"FolderName",
-    })
-
   }
 
+  setupProjectDir = (pro: any[]) => {
+    this.dir['root'] = {
+      folders: [],
+      files: [],
+      name: 'Root'
+    }
+
+    this.dir['root'].files.push({
+      url: 'FileURl',
+      name: 'FileName'
+    })
+
+    this.dir['root'].folders.push({
+      folders: [],
+      files: [],
+      name: 'FolderName'
+    })
+  }
 
   /**
    * A Function to Initialize the FeathersClient with the auth token
@@ -135,7 +131,6 @@ export class ProjectManager {
    */
   async loadProject(projectFile) {
     await ProjectManager.instance.init()
-
 
     CommandManager.instance.removeListener(
       EditorEvents.OBJECTS_CHANGED.toString(),

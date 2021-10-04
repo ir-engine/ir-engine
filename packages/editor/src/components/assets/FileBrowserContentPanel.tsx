@@ -18,7 +18,7 @@ import { ProjectManager } from '../../managers/ProjectManager'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { ContextMenuTrigger } from 'react-contextmenu'
 import i18next from 'i18next'
-import FileBrowserGrid   from './FileBrowserGrid'
+import FileBrowserGrid from './FileBrowserGrid'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -116,7 +116,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         label: element,
         nodeClass: nodeClass,
         url: url,
-        type: "Folder",
+        type: 'Folder',
         contentType: contentType,
         initialProps: { src: new URL(url) },
         iconComponent: nodeEditor.WrappedComponent
@@ -158,20 +158,18 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         <SelectInput options={projectSelectTypes} onChange={onChangeSelectedProject} value={selectedProjectIndex} />
       </InputGroup>
 
-        <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
-          <AssetPanelContentContainer>
-            <FileBrowserGrid
-              source={selectedSource}
-              items={selectedProjectFiles}
-              onLoadMore={loadMore}
-              hasMore={hasMore}
-              onSelect={onSelect}
-              isLoading={false}
-            />
-          </AssetPanelContentContainer>
-        </AssetsPanelContainer>
-
-
+      <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
+        <AssetPanelContentContainer>
+          <FileBrowserGrid
+            source={selectedSource}
+            items={selectedProjectFiles}
+            onLoadMore={loadMore}
+            hasMore={hasMore}
+            onSelect={onSelect}
+            isLoading={false}
+          />
+        </AssetPanelContentContainer>
+      </AssetsPanelContainer>
     </>
   )
 }

@@ -3,7 +3,13 @@ import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroller'
 import styled from 'styled-components'
 import { VerticalScrollContainer } from '../layout/Flex'
-import { MediaGrid, ImageMediaGridItem, VideoMediaGridItem, IconMediaGridItem, FolderGridItem } from '../layout/MediaGrid'
+import {
+  MediaGrid,
+  ImageMediaGridItem,
+  VideoMediaGridItem,
+  IconMediaGridItem,
+  FolderGridItem
+} from '../layout/MediaGrid'
 import { unique } from '../../functions/utils'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { useDrag } from 'react-dnd'
@@ -49,10 +55,12 @@ function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
   // declaring variable for grid item content
   let content
 
-  if(item.type==="Folder"){
-    content=<FolderGridItem onClick={onClickItem} label={item.label} {...rest} />
-  }else{
-    content=<IconMediaGridItem iconComponent={item.iconComponent} onClick={onClickItem} label={item.label} {...rest} />
+  if (item.type === 'Folder') {
+    content = <FolderGridItem onClick={onClickItem} label={item.label} {...rest} />
+  } else {
+    content = (
+      <IconMediaGridItem iconComponent={item.iconComponent} onClick={onClickItem} label={item.label} {...rest} />
+    )
   }
 
   const [_dragProps, drag, preview] = useDrag(() => ({
@@ -192,58 +200,54 @@ export function FileBrowserGrid({ isLoading, selectedItems, items, onSelect, onL
     [source]
   )
 
-  const Move=useCallback(()=>{
-    ()=>{
+  const Move = useCallback(() => {
+    ;() => {
       //Move the File in Editor.
       //Send File Service.
     }
-  },[])
+  }, [])
 
-  const Copy=useCallback(()=>{
-    ()=>{
+  const Copy = useCallback(() => {
+    ;() => {
       //Copy the File in Editor.
       //Send File Service
     }
-  },[])
-
-
+  }, [])
 
   //returning view of AssetGridItems
   return (
-
     <>
-    <ContextMenuTrigger id={'uniqueId.current'}>
-      <VerticalScrollContainer flex>
-        <InfiniteScroll pageStart={0} loadMore={onLoadMore} hasMore={hasMore} threshold={100} useWindow={false}>
-          <MediaGrid>
-            {unique(items, 'id').map((item) => (
-              <MemoFileGridItem
-                key={item.id}
-                contextMenuId={uniqueId.current}
-                item={item}
-                selected={selectedItems.indexOf(item) !== -1}
-                onClick={onSelect}
-              />
-            ))}
-            {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
-          </MediaGrid>
-        </InfiniteScroll>
-      </VerticalScrollContainer>
-      <ContextMenu id={uniqueId.current}>
-        <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
-        <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-        {!source.disableUrl && <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>}
-        {!source.disableUrl && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
-        {source.delete && <MenuItem onClick={onDelete}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>}
-      </ContextMenu>
+      <ContextMenuTrigger id={'uniqueId.current'}>
+        <VerticalScrollContainer flex>
+          <InfiniteScroll pageStart={0} loadMore={onLoadMore} hasMore={hasMore} threshold={100} useWindow={false}>
+            <MediaGrid>
+              {unique(items, 'id').map((item) => (
+                <MemoFileGridItem
+                  key={item.id}
+                  contextMenuId={uniqueId.current}
+                  item={item}
+                  selected={selectedItems.indexOf(item) !== -1}
+                  onClick={onSelect}
+                />
+              ))}
+              {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
+            </MediaGrid>
+          </InfiniteScroll>
+        </VerticalScrollContainer>
+        <ContextMenu id={uniqueId.current}>
+          <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
+          <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
+          {!source.disableUrl && <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>}
+          {!source.disableUrl && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
+          {source.delete && <MenuItem onClick={onDelete}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>}
+        </ContextMenu>
       </ContextMenuTrigger>
 
-
-    <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
-    <MenuItem onClick={() => console.log('Place new Folder')}>
-      {t('editor:layout.filebrowser.addnewfolder')}
-    </MenuItem>
-    </ContextMenu>
+      <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
+        <MenuItem onClick={() => console.log('Place new Folder')}>
+          {t('editor:layout.filebrowser.addnewfolder')}
+        </MenuItem>
+      </ContextMenu>
     </>
   )
 }
