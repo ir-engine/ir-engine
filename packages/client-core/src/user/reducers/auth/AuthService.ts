@@ -28,6 +28,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { accessPartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -966,12 +968,12 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const store = Store.store
     const state = store.getState() as any
     const selfUser = accessAuthState().user
-    const party = state.get('party')
+    const party = accessPartyState().party.value
     const selfPartyUser =
       party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id.value) : {}
-    const currentLocation = state.get('locations').get('currentLocation').get('location')
+    const currentLocation = accessLocationState().currentLocation.location
     const locationBan = params.locationBan
-    if (selfUser.id.value === locationBan.userId && currentLocation.id === locationBan.locationId) {
+    if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
       // TODO: Decouple and reenable me!
       // endVideoChat({ leftParty: true });
       // leave(true);

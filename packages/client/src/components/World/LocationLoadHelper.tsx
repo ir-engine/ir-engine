@@ -1,7 +1,7 @@
 import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Config } from '@xrengine/common/src/config'
-import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
+import { LocationService } from '@xrengine/client-core/src/social/reducers/location/LocationService'
 import Store from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { SceneAction } from '@xrengine/client-core/src/world/reducers/scenes/ScreenActions'
@@ -35,13 +35,13 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
     authState.user?.id?.value.length > 0
   ) {
     if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
-      getLobby()
+      LocationService.getLobby()
         .then((lobby) => {
           history.replace('/location/' + lobby.slugifiedName)
         })
         .catch((err) => console.log('getLobby error', err))
     } else {
-      Store.store.dispatch(getLocationByName(locationName))
+      Store.store.dispatch(LocationService.getLocationByName(locationName))
     }
   }
 }
@@ -204,6 +204,6 @@ export const teleportToLocation = async (
 
   await teleportToScene(portalComponent, async () => {
     onTeleport()
-    Store.store.dispatch(getLocationByName(portalComponent.location))
+    Store.store.dispatch(LocationService.getLocationByName(portalComponent.location))
   })
 }

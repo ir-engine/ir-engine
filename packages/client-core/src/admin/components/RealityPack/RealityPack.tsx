@@ -48,6 +48,7 @@ const RealityPack = (props: Props) => {
   const adminRealityPackState = useRealityPackState()
   const adminRealityPacks = adminRealityPackState.realityPacks.realityPacks
   const adminRealityPackCount = adminRealityPackState.realityPacks.total
+  const dispatch = useDispatch()
 
   const headCell = [
     { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
@@ -187,10 +188,12 @@ const RealityPack = (props: Props) => {
 
   const tryReuploadRealityPack = async (row) => {
     try {
-      const existingRealityPack = adminRealityPacks.find((realityPack) => realityPack.value.id === row.id)
-      await ContentPackService.uploadRealityPack({
-        uploadURL: existingRealityPack.value.sourceManifest
-      })
+      const existingRealityPack = adminRealityPacks.value.find((realityPack) => realityPack.id === row.id)
+      await dispatch(
+        ContentPackService.uploadRealityPack({
+          uploadURL: existingRealityPack.sourceManifest
+        })
+      )
     } catch (err) {
       console.log(err)
     }

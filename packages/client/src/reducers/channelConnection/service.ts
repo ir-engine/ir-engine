@@ -18,7 +18,7 @@ import {
 } from './actions'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { triggerUpdateConsumers } from '../mediastream/service'
-
+import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
 const store = Store.store
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
@@ -67,9 +67,9 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       const channelConnectionState = getState().get('channelConnection')
       const instance = channelConnectionState.get('instance')
       const locationId = channelConnectionState.get('locationId')
-      const locationState = getState().get('locations')
-      const currentLocation = locationState.get('currentLocation').get('location')
-      const sceneId = currentLocation.sceneId
+      const locationState = accessLocationState()
+      const currentLocation = locationState.currentLocation.location
+      const sceneId = currentLocation?.sceneId?.value
       const videoActive =
         MediaStreams !== null &&
         MediaStreams !== undefined &&
@@ -90,10 +90,11 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
           channelType: instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel',
           channelId: channelId,
           videoEnabled:
-            currentLocation?.locationSettings?.videoEnabled === true ||
+            currentLocation?.locationSettings?.videoEnabled?.value === true ||
             !(
-              currentLocation?.locationSettings?.locationType === 'showroom' &&
-              user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) == null
+              currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+              user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
+                null
             ),
           isHarmonyPage: isHarmonyPage
         })
