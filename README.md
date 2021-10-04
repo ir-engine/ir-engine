@@ -9,19 +9,19 @@
 ## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
 
 ## Popular features
-- Player rigs to support 2D, 3D and XR interaction
-- High-performance ECS engine
-- Fully networked player controller, physics, vehicles and particles
-- Fully data-oriented design
-- Chat, groups, parties and friends
+- The perfect solution for everything from spatial websites to metaverse meetups to blockchain gaming
+- Includes a self-deployable platform, UI, worlds, avatars, and games
+- Or create your own! Fully customizable for any kind of game, social experience, event or spatial web app
+- User management, avatars and inventory with optional blockchain integration (see our Blockchain-in-a-Box repo)
+- 2D, 3D and XR Avatars with full inverse kinematics and facial expressions
+- Fully networked physics using PhysX compiled to wasm
 - Voice and video over WebRTC
-- Instant login with phone number or email
-- OAuth login with Facebook, Google, Steam and Github
-- User management, avatars and inventory
-- Authorative realtime gameserver
-- Websockets and WebRTC data transport
-- Built end-to-end in Typescript
-- Free, open source, MIT-licensed
+- Instant login and location sharing with phone number or email
+- Modular- Use the engine, server, client, editor and scalable devops infrastructure as needed
+- OAuth login with Facebook, Google, Steam, Github or instant login with email or phone
+- Free, open source, MIT and Apache 2.0-licensed -- do anything you want with the code, for any reason, forever
+- WebGL client deployable to iOS, Android and desktop
+- Built with love by a team spread all across the world
 
 # Getting Started
 
