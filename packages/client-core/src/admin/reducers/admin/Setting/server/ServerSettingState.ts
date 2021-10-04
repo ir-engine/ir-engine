@@ -25,4 +25,4 @@ const serverSettingReceptor = (action: ServerSettingActionType): any => {
 }
 
 export const accessServerSettingState = () => state
-export const useServerSettingState = () => useState(state)
+export const useServerSettingState = () => useState(state) as any as typeof state

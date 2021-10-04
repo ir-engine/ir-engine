@@ -52,4 +52,4 @@ const sceneReceptor = (action: SceneActionType): any => {
 }
 
 export const accessSceneState = () => state
-export const useSceneState = () => useState(state)
+export const useSceneState = () => useState(state) as any as typeof state

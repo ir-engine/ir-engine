@@ -27,4 +27,4 @@ const gameServerSettingReceptor = (action: GameServerSettingActionType): any => 
 }
 
 export const accessGameServerSettingState = () => state
-export const useGameServerSettingState = () => useState(state)
+export const useGameServerSettingState = () => useState(state) as any as typeof state

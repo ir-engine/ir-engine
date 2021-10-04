@@ -58,4 +58,4 @@ const instanceReceptor = (action: InstanceActionType): any => {
 }
 
 export const accessInstanceState = () => state
-export const useInstanceState = () => useState(state)
+export const useInstanceState = () => useState(state) as any as typeof state

@@ -9,8 +9,8 @@ import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames'
 import styles from '../Admin.module.scss'
 import { InviteService } from '../../../social/reducers/invite/InviteService'
-import { retrieveInvites } from '../../../social/reducers/inviteType/service'
-import { selectInviteTypesState } from '../../../social/reducers/inviteType/selector'
+import { InviteTypeService } from '../../../social/reducers/inviteType/InviteTypeService'
+import { useInviteTypeState } from '../../../social/reducers/inviteType/InviteTypeState'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect, useDispatch } from 'react-redux'
 import { Dropdown } from 'semantic-ui-react'
@@ -32,20 +32,14 @@ import MenuItem from '@material-ui/core/MenuItem'
 interface Props {
   open: boolean
   handleClose: any
-  retrieveInvites?: any
-  inviteTypeData?: any
   users: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    inviteTypeData: selectInviteTypesState(state)
-  }
+  return {}
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  retrieveInvites: bindActionCreators(retrieveInvites, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -104,11 +98,12 @@ const useStyles = makeStyles((theme) => ({
 
 const InviteModel = (props: Props) => {
   const classes = useStyles()
-  const { open, handleClose, retrieveInvites, inviteTypeData, users } = props
+  const { open, handleClose, users } = props
   console.log(open)
   const router = useHistory()
   const [currency, setCurrency] = React.useState('friend')
-  const inviteType = inviteTypeData.get('inviteTypeData').get('inviteType')
+  const inviteTypeData = useInviteTypeState()
+  const inviteType = inviteTypeData.inviteTypeData.invitesType?.value
   const [targetUser, setTargetUser] = React.useState('')
   const [token, setToken] = React.useState('')
   const [passcode, setPasscode] = React.useState('')
@@ -200,7 +195,7 @@ const InviteModel = (props: Props) => {
     }
   }
 
-  if (inviteType) {
+  if (inviteType != null) {
     inviteType.forEach((el) => {
       currencies.push({
         value: el.type,
@@ -220,7 +215,7 @@ const InviteModel = (props: Props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await retrieveInvites()
+      await dispatch(InviteTypeService.retrieveInvites())
     }
     fetchData()
   }, [])

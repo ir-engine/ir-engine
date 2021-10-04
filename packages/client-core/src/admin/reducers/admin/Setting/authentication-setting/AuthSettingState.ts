@@ -39,4 +39,4 @@ const adminAuthSettingReceptor = (action: AuthSettingActionType): any => {
 }
 
 export const accessAdminAuthSettingState = () => state
-export const useAdminAuthSettingState = () => useState(state)
+export const useAdminAuthSettingState = () => useState(state) as any as typeof state

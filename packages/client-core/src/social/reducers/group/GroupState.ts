@@ -153,4 +153,4 @@ const groupReceptor = (action: GroupActionType): any => {
 }
 
 export const accessGroupState = () => state
-export const useGroupState = () => useState(state)
+export const useGroupState = () => useState(state) as any as typeof state

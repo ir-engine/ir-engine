@@ -29,4 +29,4 @@ const adminAwsSettingReceptor = (action: AwsSettingActionType): any => {
 }
 
 export const accessAdminAwsSettingState = () => state
-export const useAdminAwsSettingState = () => useState(state)
+export const useAdminAwsSettingState = () => useState(state) as any as typeof state

@@ -1,5 +1,4 @@
 import express from 'express'
-import { ServiceAddons } from '@feathersjs/feathers'
 import multer from 'multer'
 import StorageProvider from '../storageprovider/storageprovider'
 import blobService from 'feathers-blob'
@@ -13,7 +12,7 @@ const multipartMiddleware = multer()
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    upload: Upload & ServiceAddons<any>
+    upload: Upload
   }
 }
 
@@ -44,5 +43,5 @@ export default (app: Application): void => {
 
   const service = app.service('upload')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

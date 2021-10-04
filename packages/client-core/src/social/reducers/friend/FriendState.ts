@@ -79,4 +79,4 @@ const friendReceptor = (action: FriendActionType): any => {
 }
 
 export const accessFriendState = () => state
-export const useFriendState = () => useState(state)
+export const useFriendState = () => useState(state) as any as typeof state

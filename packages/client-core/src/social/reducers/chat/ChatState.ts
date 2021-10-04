@@ -227,4 +227,4 @@ const chatReceptor = (action: ChatActionType): any => {
 }
 
 export const accessChatState = () => state
-export const useChatState = () => useState(state)
+export const useChatState = () => useState(state) as any as typeof state

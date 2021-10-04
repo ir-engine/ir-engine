@@ -7,15 +7,10 @@ import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import styles from './DrawerControls.module.scss'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    locationState: selectLocationState(state),
-    partyState: selectPartyState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
@@ -26,21 +21,10 @@ interface Props {
   setTopDrawerOpen: any
   setRightDrawerOpen: any
   setBottomDrawerOpen: any
-  locationState?: any
-  partyState?: any
 }
 
 export const DrawerControls = (props: Props): JSX.Element => {
-  const {
-    disableBottom,
-    locationState,
-    partyState,
-    setLeftDrawerOpen,
-    setBottomDrawerOpen,
-    setRightDrawerOpen,
-    setTopDrawerOpen
-  } = props
-  //const party = partyState.get('party')
+  const { disableBottom, setLeftDrawerOpen, setBottomDrawerOpen, setRightDrawerOpen, setTopDrawerOpen } = props
   const dispatch = useDispatch()
   const selfUser = useAuthState().user
   //const currentLocation = locationState.get('currentLocation').get('location')

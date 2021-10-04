@@ -1,4 +1,4 @@
-import { Params, ServiceAddons } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers'
 import hooks from './reality-pack.hooks'
 import { Application } from '../../../declarations'
 import { RealityPack } from './reality-pack.class'
@@ -13,7 +13,7 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'reality-pack': RealityPack & ServiceAddons<any>
+    'reality-pack': RealityPack
   }
 }
 
@@ -83,15 +83,15 @@ export default (app: Application): void => {
   const realityPackClass = new RealityPack(options, app)
   realityPackClass.docs = realityPackDocs
 
-  app.use('/reality-pack', realityPackClass)
-  app.use('/upload-reality-pack', {
+  app.use('reality-pack', realityPackClass)
+  app.use('upload-reality-pack', {
     create: addRealityPack(app)
   })
-  app.use('/reality-pack-data', {
+  app.use('reality-pack-data', {
     find: getInstalledRealityPacks(realityPackClass)
   })
 
   const service = app.service('reality-pack')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

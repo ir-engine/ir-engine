@@ -30,4 +30,4 @@ export default function videoReceptor(action: VideoActionType): any {
 }
 
 export const accessVideoState = () => state
-export const useVideoState = () => useState(state)
+export const useVideoState = () => useState(state) as any as typeof state

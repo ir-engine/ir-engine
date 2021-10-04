@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import hooks from './analytics.hooks'
 import { Analytics } from './analytics.class'
@@ -6,7 +5,7 @@ import createModel from './analytics.model'
 
 declare module '../../../declarations' {
   interface SerViceTypes {
-    Analytics: Analytics & ServiceAddons<any>
+    Analytics: Analytics
   }
 }
 
@@ -18,7 +17,7 @@ export default (app: Application): void => {
   }
 
   const event = new Analytics(options, app)
-  app.use('/analytics-setting', event)
+  app.use('analytics-setting', event)
   const service = app.service('analytics-setting')
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }
