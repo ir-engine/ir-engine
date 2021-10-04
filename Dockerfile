@@ -36,7 +36,7 @@ COPY . .
 
 RUN npm run build-docker
 
-ENV NODE_ENV=production
+ENV APP_ENV=production
 ENV PORT=3030
 
 EXPOSE 3030

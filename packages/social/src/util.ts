@@ -9,7 +9,7 @@ export const initialize = (): Promise<void> => {
   return new Promise((resolve) => {
     // Set Runtime config to client core
     setRuntime(
-      process.env.NODE_ENV === 'development' ? process.env.publicRuntimeConfig : (window as any).env.publicRuntimeConfig
+      process.env.APP_ENV === 'development' ? process.env.publicRuntimeConfig : (window as any).env.publicRuntimeConfig
     )
     delete process.env.publicRuntimeConfig
 

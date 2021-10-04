@@ -28,7 +28,7 @@ IncidentLight directLight;
 
 		pointLight = pointLights[ i ];
 
-		getPointDirectLightIrradiance( pointLight, geometry, directLight );
+		getPointDirectLightIrradiance( pointLight, geometry.normal, directLight );
 
 		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_POINT_LIGHT_SHADOWS )
 		pointLightShadow = pointLightShadows[ i ];
@@ -54,7 +54,7 @@ IncidentLight directLight;
 
 		spotLight = spotLights[ i ];
 
-		getSpotDirectLightIrradiance( spotLight, geometry, directLight );
+		getSpotDirectLightIrradiance( spotLight, geometry.normal, directLight );
 
 		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_SPOT_LIGHT_SHADOWS )
 		spotLightShadow = spotLightShadows[ i ];
@@ -207,7 +207,7 @@ IncidentLight directLight;
 		#pragma unroll_loop_start
 		for ( int i = 0; i < NUM_HEMI_LIGHTS; i ++ ) {
 
-			irradiance += getHemisphereLightIrradiance( hemisphereLights[ i ], geometry );
+			irradiance += getHemisphereLightIrradiance( hemisphereLights[ i ], geometry.normal );
 
 		}
 		#pragma unroll_loop_end

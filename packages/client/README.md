@@ -74,7 +74,7 @@ docker stop client
 
 This image uses build-time arguments, they are not used during runtime yet
 
-- `NODE_ENV` controls the config/*.js file to load and build against [default: production]
+- `APP_ENV` controls the config/*.js file to load and build against [default: production]
 - `NEXT_PUBLIC_API_SERVER` points to an instance of the xrengine [default: https://127.0.0.1:3030]
 
 

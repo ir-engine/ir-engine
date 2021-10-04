@@ -145,7 +145,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
       })
-    } else if (process.env.NODE_ENV === 'development') {
+    } else if (process.env.APP_ENV === 'development') {
       socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       })

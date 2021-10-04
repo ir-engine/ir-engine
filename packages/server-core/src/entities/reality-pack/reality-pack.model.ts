@@ -22,6 +22,9 @@ export default (app: Application): any => {
       storageProviderManifest: {
         type: DataTypes.STRING
       },
+      sourceManifest: {
+        type: DataTypes.STRING
+      },
       localManifest: {
         type: DataTypes.STRING
       }
