@@ -98,7 +98,7 @@ export const addDefaultControllerModels = (entity: Entity) => {
 export const addDefaultHandModel = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-  xrInputSourceComponent.hands.forEach((controller: Group) => {
+  xrInputSourceComponent.hands.forEach((controller: any) => {
     controller.addEventListener('connected', (ev) => {
       const xrInputSource = ev.data
 
