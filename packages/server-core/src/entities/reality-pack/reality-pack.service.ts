@@ -9,6 +9,7 @@ import axios from 'axios'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 import fs from 'fs'
 import path from 'path'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -70,7 +71,7 @@ export default (app: Application): void => {
     create: addRealityPack(app)
   })
   app.use('/reality-pack-list', {
-    find: getDownloadedRealityPacks(app)
+    find: isDev ? getDownloadedRealityPacks(app) : event.find
   })
 
   const service = app.service('reality-pack')
