@@ -9,6 +9,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noPropertyAccessFromIndexSignature": true,
     "noEmit": false,
     "module": "esnext",
     "strict": false,
@@ -24,7 +25,7 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
-    "outDir": "./lib"
+    "outDir": "src/lib"
   },
   "exclude": [
     "**/node_modules/**",
