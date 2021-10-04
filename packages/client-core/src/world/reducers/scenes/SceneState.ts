@@ -1,9 +1,20 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
-import { PublicScenesState, SceneActionType } from './ScreenActions'
+import { SceneActionType } from './ScreenActions'
+export interface PublicScenesState {
+  scenes: PublicScene[]
+  currentScene: PublicScene
+  error: string
+}
+
+export interface PublicScene {
+  url: string
+  name: string
+  thumbnailUrl?: string
+}
 
 const state = createState({
-  scenes: [],
-  currentScene: null,
+  scenes: [] as PublicScene[],
+  currentScene: null! as PublicScene,
   error: ''
 })
 
