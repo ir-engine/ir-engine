@@ -1,10 +1,7 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import {
-  fetchAdminLocations,
-  fetchLocationTypes
-} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+import { LocationService } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationService'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
@@ -12,7 +9,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '../functions/projectFunctions'
@@ -40,9 +37,9 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
-import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
-import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
+import { useLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { useSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
+import { SceneService } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneService'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 import { CommandManager } from '../managers/CommandManager'
@@ -376,11 +373,6 @@ const DockContainer = (styled as any).div`
 `
 
 type EditorContainerProps = {
-  adminLocationState: any
-  adminSceneState: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
   t: any
   match: any
   location: any
@@ -453,14 +445,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
-      this.props.fetchAdminLocations()
+    const dispatch = useDispatch()
+    if (useLocationState().locations.updateNeeded.value === true) {
+      dispatch(LocationService.fetchAdminLocations())
     }
-    if (this.props.adminSceneState.get('scenes').get('updateNeeded') === true) {
-      this.props.fetchAdminScenes()
+    if (useSceneState().scenes.updateNeeded.value === true) {
+      dispatch(SceneService.fetchAdminScenes())
     }
-    if (this.props.adminLocationState.get('locationTypes').get('updateNeeded') === true) {
-      this.props.fetchLocationTypes()
+    if (useLocationState().locationTypes.updateNeeded.value === true) {
+      dispatch(LocationService.fetchLocationTypes())
     }
     const pathParams = this.state.pathParams
     const queryParams = this.state.queryParams
@@ -1102,7 +1095,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const { DialogComponent, dialogProps, settingsContext } = this.state
     const toolbarMenu = this.generateToolbarMenu()
     const isPublishedScene = !!this.getSceneId()
-    const locations = this.props.adminLocationState.get('locations').get('locations')
+    const locations = useLocationState().locations.locations.value
     let assigneeScene
     if (locations) {
       locations.forEach((element) => {
@@ -1215,17 +1208,4 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    adminLocationState: selectAdminLocationState(state),
-    adminSceneState: selectAdminSceneState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
-})
-
-export default withTranslation()(withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorContainer)))
+export default withTranslation()(withRouter(EditorContainer))

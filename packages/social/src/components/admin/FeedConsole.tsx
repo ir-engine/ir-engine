@@ -28,7 +28,7 @@ import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
 import FeedForm from '@xrengine/social/src/components/FeedForm'
 import { updateFeedAsAdmin } from '@xrengine/social/src/reducers/feed/service'
-import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/AdminState'
 import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/AdminHelpers'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 

@@ -3,31 +3,21 @@ import { Paper, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useStyles } from './styles'
 import Switch from '@material-ui/core/Switch'
-import { selectAdminRedisSettingState } from '../../reducers/admin/Setting/redis/selector'
-import { fetchRedisSetting } from '../../reducers/admin/Setting/redis/service'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useAdminRedisSettingState } from '../../reducers/admin/Setting/redis/AdminRedisSettingState'
+import { AdminRedisSettingService } from '../../reducers/admin/Setting/redis/AdminRedisSettingService'
+
+import { connect, useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    redisSettingState: selectAdminRedisSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchRedisSetting: bindActionCreators(fetchRedisSetting, dispatch)
-})
 interface Props {
   redisSettingState?: any
-  fetchRedisSetting?: any
 }
 
 const Redis = (props: Props) => {
   const classes = useStyles()
-  const { redisSettingState, fetchRedisSetting } = props
-  const [redisSetting] = redisSettingState?.get('redisSettings').get('redisSettings')
-
+  const redisSettingState = useAdminRedisSettingState()
+  const [redisSetting] = redisSettingState?.redisSettings?.redisSettings?.value || []
+  const dispatch = useDispatch()
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
     checkedB: true
@@ -35,8 +25,8 @@ const Redis = (props: Props) => {
   const authState = useAuthState()
   const user = authState.user
   useEffect(() => {
-    if (user?.id?.value != null && redisSettingState?.get('redisSettings').get('updateNeeded')) {
-      fetchRedisSetting()
+    if (user?.id?.value != null && redisSettingState?.redisSettings?.updateNeeded?.value) {
+      dispatch(AdminRedisSettingService.fetchRedisSetting())
     }
   }, [authState])
 
@@ -97,4 +87,4 @@ const Redis = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Redis)
+export default Redis

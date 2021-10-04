@@ -3,31 +3,19 @@ import { useStyles } from './styles'
 import Switch from '@material-ui/core/Switch'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { fetchedGameServerSettings } from '../../reducers/admin/Setting/game-server/services'
-import { selectGameServerSettingState } from '../../reducers/admin/Setting/game-server/selectors'
+import { GameServerSettingService } from '../../reducers/admin/Setting/game-server/GameServerSettingServices'
+import { useGameServerSettingState } from '../../reducers/admin/Setting/game-server/GameServerSettingState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    gameServerSettingState: selectGameServerSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchedGameServerSettings: bindActionCreators(fetchedGameServerSettings, dispatch)
-})
-interface gameServerProps {
-  gameServerSettingState?: any
-  fetchedGameServerSettings?: any
-}
+interface gameServerProps {}
 
 const GameServer = (props: gameServerProps) => {
   const classes = useStyles()
-  const { gameServerSettingState, fetchedGameServerSettings } = props
-  const gameServerSettings = gameServerSettingState.get('gameServer').get('gameserver')
-
+  const gameServerSettingState = useGameServerSettingState()
+  const gameServerSettings = gameServerSettingState?.gameServer?.gameserver?.value || []
+  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   const [enabled, setEnabled] = React.useState({
@@ -47,8 +35,8 @@ const GameServer = (props: gameServerProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && gameServerSettingState.get('gameServer').get('updateNeeded') === true) {
-      fetchedGameServerSettings()
+    if (user?.id?.value != null && gameServerSettingState?.gameServer?.updateNeeded?.value === true) {
+      dispatch(GameServerSettingService.fetchedGameServerSettings())
     }
   }, [authState])
 
@@ -184,4 +172,4 @@ const GameServer = (props: gameServerProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GameServer)
+export default GameServer

@@ -1,39 +1,24 @@
 import React, { useEffect } from 'react'
 import { Paper, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
-import { fetchChargeBee } from '../../reducers/admin/Setting/chargebee/services'
-import { selectAdminChargeBeeSettingState } from '../../reducers/admin/Setting/chargebee/selectors'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { ChargebeeSettingService } from '../../reducers/admin/Setting/chargebee/ChargebeeSettingServices'
+import { useChargebeeSettingState } from '../../reducers/admin/Setting/chargebee/ChargebeeSettingState'
+import { connect, useDispatch } from 'react-redux'
 import { useStyles } from './styles'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    chargeBeeSettingState: selectAdminChargeBeeSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchChargeBee: bindActionCreators(fetchChargeBee, dispatch)
-})
-
-interface Props {
-  chargeBeeSettingState?: any
-  fetchChargeBee?: any
-}
+interface Props {}
 
 const ChargeBee = (props: Props) => {
   const classes = useStyles()
-  const { chargeBeeSettingState, fetchChargeBee } = props
-  const [chargebee] = chargeBeeSettingState?.get('Chargebee').get('chargebee')
-
+  const chargeBeeSettingState = useChargebeeSettingState()
+  const [chargebee] = chargeBeeSettingState?.Chargebee?.chargebee.value || []
+  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
 
   useEffect(() => {
-    if (user?.id?.value != null && chargeBeeSettingState?.get('Chargebee').get('updateNeeded')) {
-      fetchChargeBee()
+    if (user?.id?.value != null && chargeBeeSettingState?.Chargebee?.updateNeeded?.value) {
+      dispatch(ChargebeeSettingService.fetchChargeBee())
     }
   }, [authState])
 
@@ -69,4 +54,4 @@ const ChargeBee = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChargeBee)
+export default ChargeBee

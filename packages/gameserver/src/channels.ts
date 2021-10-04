@@ -113,7 +113,7 @@ export default (app: Application): void => {
   app.on('connection', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -275,7 +275,7 @@ export default (app: Application): void => {
   app.on('disconnect', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -326,7 +326,7 @@ export default (app: Application): void => {
 
             if (instanceId != null && instance != null) {
               const activeUsers = Engine.defaultWorld.clients
-              const activeUsersCount = activeUsers.length || activeUsers.size
+              const activeUsersCount = activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
                   currentUsers: activeUsersCount
@@ -339,7 +339,7 @@ export default (app: Application): void => {
               const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
               if (
                 (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
-                process.env.NODE_ENV === 'development'
+                process.env.APP_ENV === 'development'
               )
                 await app
                   .service('user')

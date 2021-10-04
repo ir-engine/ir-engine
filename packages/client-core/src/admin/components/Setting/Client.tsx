@@ -3,30 +3,19 @@ import { useStyles } from './styles'
 import { Paper, Button, Typography } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import InputBase from '@material-ui/core/InputBase'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectClientSettingState } from '../../reducers/admin/Setting/client/selectors'
-import { fetchedClientSettings } from '../../reducers/admin/Setting/client/services'
+import { useClientSettingState } from '../../reducers/admin/Setting/client/ClientSettingState'
+import { ClientSettingService } from '../../reducers/admin/Setting/client/ClientSettingServices'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    clientSettingState: selectClientSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchedClientSettings: bindActionCreators(fetchedClientSettings, dispatch)
-})
-interface clientProps {
-  clientSettingState?: any
-  fetchedClientSettings?: any
-}
+interface clientProps {}
 
 const Client = (props: clientProps) => {
   const classes = useStyles()
-  const { clientSettingState, fetchedClientSettings } = props
-  const clientSettings = clientSettingState.get('Client').get('client')
+  const clientSettingState = useClientSettingState()
+  const dispatch = useDispatch()
+  const clientSettings = clientSettingState?.Client?.client?.value || []
 
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
@@ -44,8 +33,8 @@ const Client = (props: clientProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && clientSettingState.get('Client').get('updateNeeded') === true) {
-      fetchedClientSettings()
+    if (user?.id?.value != null && clientSettingState?.Client?.updateNeeded?.value === true) {
+      dispatch(ClientSettingService.fetchedClientSettings())
     }
   }, [authState])
 
@@ -104,4 +93,4 @@ const Client = (props: clientProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Client)
+export default Client

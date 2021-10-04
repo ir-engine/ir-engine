@@ -3,38 +3,24 @@ import { useStyles } from './styles'
 import { Grid, Paper, Typography } from '@material-ui/core'
 import { InputBase } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectSettingAnalyticsState } from '../../reducers/admin/Setting/analytics/selectors'
-import { fetchSettingsAnalytics } from '../../reducers/admin/Setting/analytics/service'
+import { useSettingAnalyticsState } from '../../reducers/admin/Setting/analytics/SettingAnalyticsState'
+import { SettingAnalyticsService } from '../../reducers/admin/Setting/analytics/SettingAnalyticsService'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    settingAnalyticsState: selectSettingAnalyticsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchedAnalytics: bindActionCreators(fetchSettingsAnalytics, dispatch)
-})
-
-interface AnalyticsProps {
-  settingAnalyticsState?: any
-  fetchedAnalytics?: any
-  authState?: any
-}
+interface AnalyticsProps {}
 
 const Analytics = (props: AnalyticsProps) => {
   const classes = useStyles()
-  const { settingAnalyticsState, fetchedAnalytics } = props
-  const settingAnalytics = settingAnalyticsState.get('Analytics').get('analytics')
+  const settingAnalyticsState = useSettingAnalyticsState()
+  const settingAnalytics = settingAnalyticsState.Analytics.analytics
 
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
     checkedB: true
   })
-
+  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   const handleEnable = (event) => {
@@ -42,15 +28,15 @@ const Analytics = (props: AnalyticsProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && settingAnalyticsState.get('Analytics').get('updateNeeded') === true) {
-      fetchedAnalytics()
+    if (user?.id?.value != null && settingAnalyticsState.Analytics.updateNeeded.value === true) {
+      dispatch(SettingAnalyticsService.fetchSettingsAnalytics())
     }
   }, [authState])
 
   const Data = {
-    id: settingAnalytics.map((el) => el.id),
-    port: settingAnalytics.map((el) => el.port),
-    processInterval: settingAnalytics.map((el) => el.processInterval)
+    id: settingAnalytics.value.map((el) => el.id),
+    port: settingAnalytics.value.map((el) => el.port),
+    processInterval: settingAnalytics.value.map((el) => el.processInterval)
   }
 
   return (
@@ -100,4 +86,4 @@ const Analytics = (props: AnalyticsProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Analytics)
+export default Analytics

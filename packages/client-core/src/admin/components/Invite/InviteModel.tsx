@@ -8,12 +8,11 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames'
 import styles from '../Admin.module.scss'
-import { sendInvite } from '../../../social/reducers/invite/service'
+import { InviteService } from '../../../social/reducers/invite/InviteService'
 import { retrieveInvites } from '../../../social/reducers/inviteType/service'
-import { selectInviteState } from '../../../social/reducers/invite/selector'
 import { selectInviteTypesState } from '../../../social/reducers/inviteType/selector'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { Dropdown } from 'semantic-ui-react'
 import Snackbar from '@material-ui/core/Snackbar'
 import _ from 'lodash'
@@ -33,7 +32,6 @@ import MenuItem from '@material-ui/core/MenuItem'
 interface Props {
   open: boolean
   handleClose: any
-  sendInvite?: any
   retrieveInvites?: any
   inviteTypeData?: any
   users: any
@@ -41,14 +39,11 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
   return {
-    receivedInvites: selectInviteState(state),
-    sentInvites: selectInviteState(state),
     inviteTypeData: selectInviteTypesState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  sendInvite: bindActionCreators(sendInvite, dispatch),
   retrieveInvites: bindActionCreators(retrieveInvites, dispatch)
 })
 
@@ -109,7 +104,7 @@ const useStyles = makeStyles((theme) => ({
 
 const InviteModel = (props: Props) => {
   const classes = useStyles()
-  const { open, handleClose, sendInvite, retrieveInvites, inviteTypeData, users } = props
+  const { open, handleClose, retrieveInvites, inviteTypeData, users } = props
   console.log(open)
   const router = useHistory()
   const [currency, setCurrency] = React.useState('friend')
@@ -123,7 +118,7 @@ const InviteModel = (props: Props) => {
   // const [openInvite ,setOpenInvite] = React.useState(false);
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
-
+  const dispatch = useDispatch()
   const handleCloseWarning = (event, reason) => {
     if (reason === 'clickaway') {
       return
@@ -196,7 +191,7 @@ const InviteModel = (props: Props) => {
       targetObjectId: targetUser[0]
     }
     if (token && currency && targetUser) {
-      await sendInvite(data)
+      await dispatch(InviteService.sendInvite(data))
       refreshData()
       handleClose()
     } else {

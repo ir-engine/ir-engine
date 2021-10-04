@@ -4,7 +4,7 @@ import { Config } from '@xrengine/common/src/config'
 import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
 import Store from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
+import { SceneAction } from '@xrengine/client-core/src/world/reducers/scenes/ScreenActions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -61,7 +61,7 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
   }
 
   const projectResult = await client.service('project').get(sceneId)
-  Store.store.dispatch(setCurrentScene(projectResult))
+  Store.store.dispatch(SceneAction.setCurrentScene(projectResult))
 
   const projectUrl = projectResult.project_url
   const regexResult = projectUrl.match(projectRegex)

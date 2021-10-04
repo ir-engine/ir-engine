@@ -19,7 +19,7 @@ import { AlertService } from '../../../common/reducers/alert/AlertService'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'
 import { accessAuthState } from '../../../user/reducers/auth/AuthState'
-import { clearChatTargetIfCurrent } from '../chat/service'
+import { ChatService } from '../chat/ChatService'
 
 const store = Store.store
 
@@ -180,7 +180,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     store.dispatch(removedPartyUser(deletedPartyUser))
     store.dispatch(UserAction.removedChannelLayerUser(deletedPartyUser.user))
     if (params.partyUser.userId === selfUser.id) {
-      store.dispatch(clearChatTargetIfCurrent('party', { id: params.partyUser.partyId }))
+      store.dispatch(ChatService.clearChatTargetIfCurrent('party', { id: params.partyUser.partyId }))
       // TODO: Reenable me!
       // endVideoChat({ leftParty: true });
     }
@@ -192,7 +192,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 
   client.service('party').on('patched', (params) => {
     store.dispatch(patchedParty(params.party))
-    store.dispatch(clearChatTargetIfCurrent('party', params.party))
+    store.dispatch(ChatService.clearChatTargetIfCurrent('party', params.party))
   })
 
   client.service('party').on('removed', (params) => {
