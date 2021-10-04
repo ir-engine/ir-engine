@@ -31,27 +31,42 @@ export const addRealityPack = (app: any): any => {
   }
 }
 
-export const getDownloadedRealityPacks = (app: any) => {
-  return async (params: Params) => {
-    const packs = fs
-      .readdirSync(path.resolve(__dirname, '../../../../realitypacks/packs/'), { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name)
-      .map((dir) => {
-        try {
-          const json: RealityPackInterface = JSON.parse(
-            fs.readFileSync(path.resolve(__dirname, '../../../../realitypacks/packs/' + dir + '/manifest.json'), 'utf8')
-          )
-          json.name = dir
-          return json
-        } catch (e) {
-          console.warn('[getRealityPacks]: Failed to read manifest.json for reality pack', dir, 'with error', e)
-          return
-        }
+export const getInstalledRealityPacks = (realityPackClass: RealityPack) => {
+  if (isDev) {
+    return async (params: Params) => {
+      const packs = fs
+        .readdirSync(path.resolve(__dirname, '../../../../realitypacks/packs/'), { withFileTypes: true })
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name)
+        .map((dir) => {
+          try {
+            const json: RealityPackInterface = JSON.parse(
+              fs.readFileSync(
+                path.resolve(__dirname, '../../../../realitypacks/packs/' + dir + '/manifest.json'),
+                'utf8'
+              )
+            )
+            json.name = dir
+            return json
+          } catch (e) {
+            console.warn('[getRealityPacks]: Failed to read manifest.json for reality pack', dir, 'with error', e)
+            return
+          }
+        })
+        .filter((val) => val !== undefined)
+      return {
+        data: packs
+      }
+    }
+  } else {
+    return async (params: Params) => {
+      const packs = (await realityPackClass.find()) as any
+      const manifests = packs.data.map(async (data) => {
+        return await axios.get(data.storageProviderManifest, getAxiosConfig())
       })
-      .filter((val) => val !== undefined)
-    return {
-      data: packs
+      return {
+        data: manifests
+      }
     }
   }
 }
@@ -63,15 +78,15 @@ export default (app: Application): void => {
     multi: true
   }
 
-  const event = new RealityPack(options, app)
-  event.docs = realityPackDocs
+  const realityPackClass = new RealityPack(options, app)
+  realityPackClass.docs = realityPackDocs
 
-  app.use('/reality-pack', event)
+  app.use('/reality-pack', realityPackClass)
   app.use('/upload-reality-pack', {
     create: addRealityPack(app)
   })
-  app.use('/reality-pack-list', {
-    find: isDev ? getDownloadedRealityPacks(app) : event.find
+  app.use('/reality-pack-data', {
+    find: getInstalledRealityPacks(realityPackClass)
   })
 
   const service = app.service('reality-pack')
