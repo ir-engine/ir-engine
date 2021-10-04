@@ -225,7 +225,12 @@ export const sendActions = (world) => {
   outgoingActions.clear()
 }
 
-export const queueAllOutgoingPoses = pipe(queueUnchangedPoses, queueUnchangedPosesForClient, queueUnchangedIkPoses)
+// prettier-ignore
+export const queueAllOutgoingPoses = pipe(
+  queueUnchangedPoses, 
+  queueUnchangedPosesForClient, 
+  queueUnchangedIkPoses
+)
 
 // prettier-ignore
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
