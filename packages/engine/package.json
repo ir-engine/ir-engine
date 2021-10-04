@@ -24,7 +24,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "vite",
-    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_ENV=production vite build --config vite.build.js",
+    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
     "test": "mocha",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",
