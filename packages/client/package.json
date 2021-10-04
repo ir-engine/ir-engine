@@ -13,15 +13,15 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "cross-env NODE_ENV=development vite",
+    "dev": "cross-env APP_ENV=development vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build",
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview",
     "start": "node server.js",
     "validate": "npm run test",
     "test": "exit 0",
     "local": "npm run localbuild && npm run localstart",
-    "localbuild": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run build",
-    "localstart": "cross-env NODE_ENV=production VITE_LOCAL_BUILD=true npm run start"
+    "localbuild": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run build",
+    "localstart": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run start"
   },
   "resolutions": {
     "socket.io": "4.2.0",

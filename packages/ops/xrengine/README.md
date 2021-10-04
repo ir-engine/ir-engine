@@ -135,7 +135,7 @@ This section lists configuration specific for server, client components.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | client.extraEnv.API_SERVER | string | `"http://xrengine.local"` |  |
-| client.extraEnv.NODE_ENV | string | `"development"` |  |
+| client.extraEnv.APP_ENV | string | `"development"` |  |
 | client.extraEnv.SITE_DESC | string | `"Connected Worlds for Everyone"` |  |
 | client.extraEnv.SITE_TITLE | string | `"MyXR"` |  |
 | rts.extraEnv.NAF_LISTEN_PORT | string | `"8081"` |  |
