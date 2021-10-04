@@ -2,7 +2,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Vector3, Quaternion } from 'three'
 import matches, { Validator } from 'ts-matches'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { useWorld } from '../../ecs/SystemHooks'
 
 export type Action = {
   type: string

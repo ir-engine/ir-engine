@@ -1,8 +1,8 @@
 import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/ComponentFunctions'
 import { applyTransform } from '../functions/particleHelpers'
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/World'
+import { System } from '../../ecs/System'
 
 export default async function ParticleSystem(world: World): Promise<System> {
   const emitterQuery = defineQuery([ParticleEmitterComponent])

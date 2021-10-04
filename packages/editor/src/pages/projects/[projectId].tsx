@@ -13,7 +13,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import { bindActionCreators, Dispatch } from 'redux'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 
 /**

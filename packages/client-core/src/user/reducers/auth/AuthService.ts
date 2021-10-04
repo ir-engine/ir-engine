@@ -20,14 +20,14 @@ import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'
-import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/ComponentFunctions'
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { useWorld } from '@xrengine/engine/src/ecs/SystemHooks'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {

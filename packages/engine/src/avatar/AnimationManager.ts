@@ -1,7 +1,7 @@
 import { AnimationClip, Group, Material, Mesh, Skeleton, Bone, SkinnedMesh, Vector3 } from 'three'
 import { getLoader } from '../assets/functions/LoadGLTF'
 import { isClient } from '../common/functions/isClient'
-import { Engine } from '../ecs/classes/Engine'
+import { Engine } from '../ecs/Engine'
 import { getDefaultSkeleton } from './functions/avatarFunctions'
 
 export class AnimationManager {

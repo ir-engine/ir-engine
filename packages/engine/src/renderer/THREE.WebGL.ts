@@ -1,4 +1,4 @@
-import { EngineEvents } from '../ecs/classes/EngineEvents'
+import { EngineEvents } from '../ecs/EngineEvents'
 
 export default class WEBGL {
   static EVENTS = {

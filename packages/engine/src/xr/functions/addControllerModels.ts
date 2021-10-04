@@ -12,8 +12,8 @@ import {
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { getComponent } from '../../ecs/ComponentFunctions'
 
 export const addDefaultControllerModels = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)

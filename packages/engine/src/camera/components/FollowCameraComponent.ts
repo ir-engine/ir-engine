@@ -1,5 +1,5 @@
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 import { CameraMode } from '../types/CameraMode'
 import { Raycaster } from 'three'
 

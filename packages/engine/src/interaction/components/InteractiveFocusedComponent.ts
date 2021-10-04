@@ -1,5 +1,5 @@
-import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type InteractiveFocusedComponentType = {
   interacts: Entity

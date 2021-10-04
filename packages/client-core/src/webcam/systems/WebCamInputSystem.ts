@@ -1,11 +1,11 @@
-import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { System } from '@xrengine/engine/src/ecs/System'
+import { World } from '@xrengine/engine/src/ecs/World'
 import {
   hasComponent,
   getComponent,
   addComponent,
   defineQuery
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@xrengine/engine/src/ecs/ComponentFunctions'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { sendChatMessage } from '../../social/reducers/chat/service'
 import { accessAuthState } from '../../user/reducers/auth/AuthState'

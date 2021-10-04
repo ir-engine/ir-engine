@@ -1,9 +1,9 @@
 import { initializeEngine } from "../src/initializeEngine";
 import { engineTestSetup } from "./util/setupEngine";
 import { Group, Mesh, Quaternion, Vector3 } from 'three'
-import { addComponent, createMappedComponent, defineQuery, getComponent } from '../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../src/ecs/functions/EntityFunctions'
-import { useWorld } from '../src/ecs/functions/SystemHooks'
+import { addComponent, createMappedComponent, defineQuery, getComponent } from '../src/ecs/ComponentFunctions'
+import { createEntity } from '../src/ecs/EntityFunctions'
+import { useWorld } from '../src/ecs/SystemHooks'
 import { ColliderComponent } from '../src/physics/components/ColliderComponent'
 import { NameComponent } from '../src/scene/components/NameComponent'
 import { Object3DComponent } from '../src/scene/components/Object3DComponent'

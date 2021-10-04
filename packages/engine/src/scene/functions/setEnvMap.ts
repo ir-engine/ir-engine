@@ -9,8 +9,8 @@ import {
   Vector3
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { Engine } from '../../ecs/Engine'
+import { EngineEvents } from '../../ecs/EngineEvents'
 import { convertEquiToCubemap } from '../classes/ImageUtils'
 import { CubemapBakeTypes } from '../../scene/types/CubemapBakeTypes'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'

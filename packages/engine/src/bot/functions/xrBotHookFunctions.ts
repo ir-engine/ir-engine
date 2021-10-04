@@ -2,10 +2,10 @@
 
 import { Quaternion, Vector3 } from 'three'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { Engine } from '../../ecs/Engine'
+import { EngineEvents } from '../../ecs/EngineEvents'
+import { getComponent } from '../../ecs/ComponentFunctions'
+import { useWorld } from '../../ecs/SystemHooks'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot

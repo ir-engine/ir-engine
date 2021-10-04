@@ -1,8 +1,8 @@
 import { createCollider, BodyOptions } from '../functions/createCollider'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity } from '../../ecs/EntityFunctions'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent } from '../../ecs/ComponentFunctions'
 import {
   BoxBufferGeometry,
   CylinderBufferGeometry,

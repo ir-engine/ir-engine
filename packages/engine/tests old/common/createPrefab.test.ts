@@ -1,17 +1,17 @@
-import { Component } from "../../src/ecs/classes/Component";
+import { Component } from "../../src/ecs/Component";
 import { Types } from "../../src/ecs/types/Types";
-import { System } from "../../src/ecs/classes/System";
+import { System } from "../../src/ecs/System";
 import {
   getComponent,
   hasComponent, removeEntity,
-} from "../../src/ecs/functions/ComponentFunctions";
-import { registerSystem, unregisterSystem } from "../../src/ecs/functions/SystemFunctions";
+} from "../../src/ecs/ComponentFunctions";
+import { registerSystem, unregisterSystem } from "../../src/ecs/SystemFunctions";
 import { createPrefab } from "../../src/common/functions/createPrefab";
-import { Entity } from "../../src/ecs/classes/Entity";
+import { Entity } from "../../src/ecs/Entity";
 import { Quaternion, Vector3, Scene } from "three";
 import { interactiveBox } from "../../src/templates/interactive/prefabs/interactiveBox";
 import { TransformComponent } from "../../src/transform/components/TransformComponent";
-import { Engine } from "../../src/ecs/classes/Engine";
+import { Engine } from "../../src/ecs/Engine";
 
 const onCreate = jest.fn((entity:Entity) => { return entity.componentTypes.length });
 const onAfterCreate = jest.fn((entity:Entity) => { return entity.componentTypes.length });

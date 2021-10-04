@@ -1,9 +1,9 @@
 import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isClient } from '../../common/functions/isClient'
 import { ParticleEmitterMesh } from './ParticleEmitterMesh'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 
 export const DEG2RAD = 0.0174533
 

@@ -1,5 +1,5 @@
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { Action, ActionRecipients } from '../interfaces/Action'
 
 type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : HostUserId

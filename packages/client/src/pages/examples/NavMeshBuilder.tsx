@@ -1,14 +1,14 @@
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
+import { System } from '@xrengine/engine/src/ecs/System'
 import {
   addComponent,
   createMappedComponent,
   getComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+} from '@xrengine/engine/src/ecs/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/EntityFunctions'
+import { registerSystem } from '@xrengine/engine/src/ecs/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/SystemUpdateType'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
 import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'

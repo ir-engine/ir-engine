@@ -1,6 +1,6 @@
 import { ColliderHitEvent } from '../../physics/types/PhysicsTypes'
-import { Entity } from '../../ecs/classes/Entity'
-import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/ComponentFunctions'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 

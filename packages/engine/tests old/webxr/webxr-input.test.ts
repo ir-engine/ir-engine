@@ -2,7 +2,7 @@ import "./webxr-input.mock"
 
 import { InputSystem } from "../../src/input/systems/ClientInputSystem"
 import { initializeEngine } from "../../src/initialize"
-import { registerSystem, getSystem } from "../../src/ecs/functions/SystemFunctions"
+import { registerSystem, getSystem } from "../../src/ecs/SystemFunctions"
 
 test("check navigator", () => {
   expect("xr" in navigator).toBeTruthy()

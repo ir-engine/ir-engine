@@ -8,17 +8,17 @@ import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
-import { Engine } from './ecs/classes/Engine'
-import { EngineEvents } from './ecs/classes/EngineEvents'
-import { reset } from './ecs/functions/EngineFunctions'
-import { registerInjectedSystems, registerSystem, registerSystemWithArgs } from './ecs/functions/SystemFunctions'
-import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
+import { Engine } from './ecs/Engine'
+import { EngineEvents } from './ecs/EngineEvents'
+import { reset } from './ecs/EngineFunctions'
+import { registerInjectedSystems, registerSystem, registerSystemWithArgs } from './ecs/SystemFunctions'
+import { SystemUpdateType } from './ecs/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { FontManager } from './xrui/classes/FontManager'
-import { createWorld } from './ecs/classes/World'
+import { createWorld } from './ecs/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 // @ts-ignore
@@ -124,7 +124,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
-  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/FixedPipelineSystem'), {
     updatesPerSecond: 60
   })
 
@@ -220,7 +220,7 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
-  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/FixedPipelineSystem'), {
     updatesPerSecond: 60
   })
   // Network Incoming Systems

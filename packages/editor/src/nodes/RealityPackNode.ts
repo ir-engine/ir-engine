@@ -1,4 +1,4 @@
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/SystemUpdateType'
 import { Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 

@@ -4,7 +4,7 @@ import PersonIcon from '@material-ui/icons/Person'
 import SettingsIcon from '@material-ui/icons/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 // import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'

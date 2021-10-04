@@ -1,5 +1,5 @@
 import { Audio } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type AudioComponentType = {
   value: Audio<GainNode>

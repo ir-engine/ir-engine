@@ -3,7 +3,7 @@ import { XMLHttpRequest } from 'xmlhttprequest'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import config from '@xrengine/server-core/src/appconfig'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/SystemFunctions'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 

@@ -1,8 +1,8 @@
-import { System } from '../../ecs/classes/System'
+import { System } from '../../ecs/System'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AfkCheckComponent } from '../component/AfkCheckComponent'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent } from '../../ecs/ComponentFunctions'
+import { World } from '../../ecs/World'
 
 const afkTime: number = 0.5
 const step: number = 50

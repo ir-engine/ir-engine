@@ -1,11 +1,11 @@
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineEvents } from '../../ecs/EngineEvents'
 import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
 import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
-import { Engine } from '../../ecs/classes/Engine'
+import { World } from '../../ecs/World'
+import { System } from '../../ecs/System'
+import { Engine } from '../../ecs/Engine'
 
 /** System class for media streaming. */
 export class MediaStreams {

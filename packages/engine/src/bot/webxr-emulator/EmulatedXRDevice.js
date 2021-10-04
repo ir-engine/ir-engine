@@ -8,7 +8,7 @@ import {
   quat,
   mat4
 } from 'gl-matrix';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { EngineEvents } from '../../ecs/EngineEvents';
 // import ARScene from './ARScene';
 
 const DEFAULT_MODES = ['inline'];

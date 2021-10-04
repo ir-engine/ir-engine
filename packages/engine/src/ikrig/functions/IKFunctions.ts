@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/ComponentFunctions'
 import { IKRigComponent, IKRigComponentType, PointData } from '../components/IKRigComponent'
 import { Bone, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import {
@@ -11,7 +11,7 @@ import {
 } from '../components/IKPoseComponent'
 import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '../../ikrig/constants/Vector3Constants'
 import { addChain, addPoint } from './RigFunctions'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { Chain } from '../classes/Chain'
 import { solveLimb, solveThreeBone } from './IKSolvers'

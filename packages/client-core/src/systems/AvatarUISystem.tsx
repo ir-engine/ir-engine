@@ -1,14 +1,14 @@
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { Entity } from '@xrengine/engine/src/ecs/Entity'
+import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/ComponentFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 import { Quaternion, Vector3 } from 'three'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { System } from '@xrengine/engine/src/ecs/System'
+import { World } from '@xrengine/engine/src/ecs/World'
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 

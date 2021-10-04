@@ -7,7 +7,7 @@ import {
   addComponent,
   removeComponent,
   defineQuery
-} from '../ecs/functions/ComponentFunctions'
+} from '../ecs/ComponentFunctions'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 
@@ -20,8 +20,8 @@ import { TweenComponent } from '../transform/components/TweenComponent'
 import { DissolveEffect } from './DissolveEffect'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import { System } from '../ecs/classes/System'
-import { World } from '../ecs/classes/World'
+import { System } from '../ecs/System'
+import { World } from '../ecs/World'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))

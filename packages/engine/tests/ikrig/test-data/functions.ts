@@ -1,5 +1,5 @@
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Entity } from '@xrengine/engine/src/ecs/Entity'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/ComponentFunctions'
 import {
   defaultIKPoseComponentValues,
   IKPoseComponent,

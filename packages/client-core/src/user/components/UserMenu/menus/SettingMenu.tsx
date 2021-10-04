@@ -6,7 +6,7 @@ import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
 import styles from '../UserMenu.module.scss'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { useTranslation } from 'react-i18next'
 
 const SettingMenu = (props: any): JSX.Element => {

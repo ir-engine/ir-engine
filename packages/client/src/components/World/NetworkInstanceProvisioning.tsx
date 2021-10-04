@@ -5,7 +5,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import querystring from 'querystring'

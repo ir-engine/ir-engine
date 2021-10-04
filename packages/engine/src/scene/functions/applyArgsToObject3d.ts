@@ -1,8 +1,8 @@
 import { ShadowComponent } from '../components/ShadowComponent'
 import { Object3D } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import { Color } from 'three'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/ComponentFunctions'
 
 export const applyArgsToObject3d = <T extends Object3D>(entity: Entity, object3d: T, objArgs?: any) => {
   /**

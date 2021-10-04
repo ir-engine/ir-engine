@@ -1,7 +1,7 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { Engine } from '../../ecs/Engine'
+import { getComponent } from '../../ecs/ComponentFunctions'
+import { useWorld } from '../../ecs/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BotHooks, XRBotHooks } from '../enums/BotHooks'
 import {

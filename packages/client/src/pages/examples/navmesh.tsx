@@ -1,13 +1,13 @@
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 import {
   addComponent,
   createMappedComponent,
   getComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+} from '@xrengine/engine/src/ecs/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/EntityFunctions'
+import { registerSystem } from '@xrengine/engine/src/ecs/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/SystemUpdateType'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
 import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
@@ -31,8 +31,8 @@ import {
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
 import { defineQuery } from 'bitecs'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { System } from '@xrengine/engine/src/ecs/System'
+import { World } from '@xrengine/engine/src/ecs/World'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner

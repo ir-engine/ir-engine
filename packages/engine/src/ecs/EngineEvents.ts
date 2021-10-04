@@ -57,6 +57,18 @@ export class EngineEvents {
       delete EngineEvents.instance._listeners[key]
     })
   }
+
+/**
+* Add an event listener for event {@link Events.InsertObj}.
+* First, it checks if the event has any listeners. If it does, it throws an error.
+* If there are no listeners, it adds the listener to the event.
+* If there are listeners, it throws an error.
+* This is a common pattern in Node.
+ * @param listener - Handler function for the event.
+ * @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+ * @internal
+*/
   once(eventName: string | number, listener: Function, ...args: any): void {
     const onEvent = (ev) => {
       EngineEvents.instance.removeEventListener(eventName, onEvent)
@@ -64,6 +76,20 @@ export class EngineEvents {
     }
     EngineEvents.instance.addEventListener(eventName, onEvent)
   }
+
+/**
+* Add an event listener for event {@link Events.InsertObj}.
+* First, it checks if the event has any listeners. If it does, it throws an error.
+* If there are no listeners, it adds the listener to the event.
+* If there are listeners, it throws an error.
+* This is a common pattern in Node.
+* @param eventName - Name of the event.
+* @param listener - Handler function for the event.
+* @param ...args - Arguments to pass to the handler function.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
   addEventListener(eventName: string | number, listener: Function, ...args: any): void {
     const listeners = EngineEvents.instance._listeners
     if (listeners[eventName] === undefined) {
@@ -74,12 +100,31 @@ export class EngineEvents {
       listeners[eventName].push(listener)
     }
   }
+  
+/**
+* Check if the event has any listeners.
+* @param eventName - Event name.
+* @param listener - Listener function.
+* @param ...args - Arguments to pass to the listener function.
+* @return {@link boolean}
+* @internal
+*/
   hasEventListener(eventName: string | number, listener: Function, ...args: any): boolean {
     return (
       EngineEvents.instance._listeners[eventName] !== undefined &&
       EngineEvents.instance._listeners[eventName].indexOf(listener) !== -1
     )
   }
+
+/**
+* Remove an event listener.
+* @param eventName - Event name.
+* @param listener - Listener function.
+* @param ...args - Arguments to pass to the listener function.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
   removeEventListener(eventName: string | number, listener: Function, ...args: any): void {
     const listenerArray = EngineEvents.instance._listeners[eventName]
     if (listenerArray !== undefined) {
@@ -89,6 +134,18 @@ export class EngineEvents {
       }
     }
   }
+
+/**
+* Remove all listeners for event {@link Events.InsertObj}.
+* If the event is deleted, it deletes the listeners.
+* If the event is not deleted, it sets the listeners to an empty array.
+* @param eventName - Name of the event.
+* @param deleteEvent - If true, it deletes the event.
+* @param ...args - Arguments to pass to the listeners.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
   removeAllListenersForEvent(eventName: string, deleteEvent?: boolean, ...args: any) {
     if (deleteEvent) {
       delete EngineEvents.instance._listeners[eventName]
@@ -96,6 +153,15 @@ export class EngineEvents {
       EngineEvents.instance._listeners[eventName] = []
     }
   }
+
+/**
+* Dispatch an event.
+* @param event - Event to dispatch.
+* @param ...args - Arguments to pass to listeners.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
   dispatchEvent(event: { type: string; [attachment: string]: any }, ...args: any): void {
     const listenerArray = EngineEvents.instance._listeners[event.type]
     if (listenerArray !== undefined) {

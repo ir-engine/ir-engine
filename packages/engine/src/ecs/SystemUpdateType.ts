@@ -1,8 +1,8 @@
-/** Types of System Update
- *
- * @author Josh Field, Gheric Speiginer
- */
-
+/**
+* System update type.
+* @see {@link SystemUpdateType}
+* @internal
+*/
 export const SystemUpdateType = {
   UPDATE: 'UPDATE' as const,
   FIXED_EARLY: 'FIXED_EARLY' as const,
@@ -12,4 +12,8 @@ export const SystemUpdateType = {
   POST_RENDER: 'POST_RENDER' as const
 }
 
+/**
+* System update type.
+* @internal
+*/
 export type SystemUpdateType = keyof typeof SystemUpdateType

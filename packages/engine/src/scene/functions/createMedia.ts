@@ -1,10 +1,10 @@
 import { Object3D, PositionalAudio } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/ComponentFunctions'
 import Video from '../classes/Video'
 import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'

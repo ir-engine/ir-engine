@@ -1,5 +1,5 @@
 import { NumericalType } from '../../common/types/NumericalTypes'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import { InputAlias } from '../types/InputAlias'
 import { InputValue } from './InputValue'
 

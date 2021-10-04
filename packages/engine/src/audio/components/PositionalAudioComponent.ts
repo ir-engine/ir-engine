@@ -1,5 +1,5 @@
 import { PositionalAudio } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type PositionalAudioComponentType = {
   value: PositionalAudio

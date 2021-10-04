@@ -1,5 +1,5 @@
-import { Entity } from '../../ecs/classes/Entity'
-import { removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { removeComponent } from '../../ecs/ComponentFunctions'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 
 export const stopAutopilot = (entity: Entity): void => {

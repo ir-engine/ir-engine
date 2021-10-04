@@ -18,7 +18,7 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 import {
@@ -26,7 +26,7 @@ import {
   hasSubscribedToChatSystem,
   removeMessageSystem
 } from '@xrengine/engine/src/networking/utils/chatSystem'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { useWorld } from '@xrengine/engine/src/ecs/SystemHooks'
 
 export interface LoadedChannelsAction {
   type: string

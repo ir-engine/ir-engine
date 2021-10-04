@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)

@@ -1,16 +1,16 @@
-import { System } from "../../src/ecs/classes/System";
-import { Component } from "../../src/ecs/classes/Component";
-import { registerSystem, unregisterSystem } from "../../src/ecs/functions/SystemFunctions";
+import { System } from "../../src/ecs/System";
+import { Component } from "../../src/ecs/Component";
+import { registerSystem, unregisterSystem } from "../../src/ecs/SystemFunctions";
 import {
   addComponent,
   createEntity,
   removeEntity,
   removeComponent,
   getMutableComponent, hasComponent, hasAllComponents, hasAnyComponents
-} from "../../src/ecs/functions/ComponentFunctions";
-import { execute } from "../../src/ecs/functions/EngineFunctions";
+} from "../../src/ecs/ComponentFunctions";
+import { execute } from "../../src/ecs/EngineFunctions";
 import { Types } from "../../src/ecs/types/Types";
-import { Not } from "../../src/ecs/functions/ComponentFunctions";
+import { Not } from "../../src/ecs/ComponentFunctions";
 
 class TestComponent extends Component<TestComponent> {}
 TestComponent._schema = {

@@ -26,8 +26,8 @@ import {
 } from '@xrengine/engine/src/input/functions/WebcamInput'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { selectChannelConnectionState } from '../../reducers/channelConnection/selector'
 
 const mapStateToProps = (state: any): any => {

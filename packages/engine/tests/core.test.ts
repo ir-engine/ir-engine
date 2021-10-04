@@ -2,7 +2,7 @@
  * tests
  */
 import { initializeEngine, shutdownEngine } from '../src/initializeEngine'
-import { Engine } from '../src/ecs/classes/Engine'
+import { Engine } from '../src/ecs/Engine'
 import { engineTestSetup } from './util/setupEngine'
 import assert from 'assert'
 

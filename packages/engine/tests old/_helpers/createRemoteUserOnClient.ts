@@ -5,10 +5,10 @@ export {}
 //   NetworkObjectCreateInterface,
 //   WorldStateInterface
 // } from "../../src/networking/interfaces/WorldState";
-// import { Engine } from "../../src/ecs/classes/Engine";
+// import { Engine } from "../../src/ecs/Engine";
 // import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
-// import { execute } from "../../src/ecs/functions/EngineFunctions";
-// import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
+// import { execute } from "../../src/ecs/EngineFunctions";
+// import { SystemUpdateType } from "../../src/ecs/SystemUpdateType";
 // import { NetworkObject } from "../../src/networking/components/NetworkObject";
 // import { PrefabType } from "../../src/networking/templates/PrefabType";
 

@@ -1,11 +1,11 @@
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { create, update } from '../../map'
 import { MapProps } from '../../map/MapProps'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/ComponentFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import { GeoLabelSetComponent } from '../../map/GeoLabelSetComponent'
 
 let currentEnt

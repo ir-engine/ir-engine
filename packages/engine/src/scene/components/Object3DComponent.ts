@@ -1,5 +1,5 @@
 import { Object3D, Group } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 /** Component Class for Object3D type from three.js.  */
 

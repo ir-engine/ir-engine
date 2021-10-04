@@ -1,9 +1,9 @@
-import { World } from '../../ecs/classes/World'
-import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { World } from '../../ecs/World'
+import { Engine } from '../../ecs/Engine'
+import { defineQuery, getComponent } from '../../ecs/ComponentFunctions'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
-import { System } from '../../ecs/classes/System'
+import { System } from '../../ecs/System'
 
 /**
  * @author Hamza Mushtaq <github.com/hamzzam>

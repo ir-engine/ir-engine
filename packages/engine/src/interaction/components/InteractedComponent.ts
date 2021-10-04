@@ -1,6 +1,6 @@
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type InteractedComponentType = {
   interactor: Entity

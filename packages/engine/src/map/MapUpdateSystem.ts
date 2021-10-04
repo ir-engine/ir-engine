@@ -1,15 +1,15 @@
 import { Vector3 } from 'three'
 import { getCoord, getScaleArg, getTile } from '.'
 import { PI } from '../common/constants/MathConstants'
-import { Engine } from '../ecs/classes/Engine'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { Engine } from '../ecs/Engine'
+import { defineQuery, getComponent } from '../ecs/ComponentFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { updateMap } from '../scene/functions/createMap'
 import { GeoLabelSetComponent } from './GeoLabelSetComponent'
-import { System } from '../ecs/classes/System'
-import { World } from '../ecs/classes/World'
+import { System } from '../ecs/System'
+import { World } from '../ecs/World'
 
 export default async function MapUpdateSystem(world: World): Promise<System> {
   const moveQuery = defineQuery([Object3DComponent, LocalInputTagComponent])

@@ -1,9 +1,9 @@
-import { addComponent, createEntity, hasComponent, removeComponent, removeEntity } from "../../src/ecs/functions/ComponentFunctions";
-import * as ComponentFunctions from "../../src/ecs/functions/ComponentFunctions";
-import * as ComponentFunctions from "../../src/ecs/functions/ComponentFunctions";
-import { Component } from "../../src/ecs/classes/Component";
-import { SystemStateComponent } from "../../src/ecs/classes/SystemStateComponent";
-import { Entity } from "../../src/ecs/classes/Entity";
+import { addComponent, createEntity, hasComponent, removeComponent, removeEntity } from "../../src/ecs/ComponentFunctions";
+import * as ComponentFunctions from "../../src/ecs/ComponentFunctions";
+import * as ComponentFunctions from "../../src/ecs/ComponentFunctions";
+import { Component } from "../../src/ecs/Component";
+import { SystemStateComponent } from "../../src/ecs/SystemStateComponent";
+import { Entity } from "../../src/ecs/Entity";
 import { Quaternion, Vector3 } from "three";
 import { Types } from "../../src/ecs/types/Types";
 import { TransformComponent } from "../../src/transform/components/TransformComponent";

@@ -1,5 +1,5 @@
-import { Entity } from '../../ecs/classes/Entity'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { Entity } from '../../ecs/Entity'
+import { useWorld } from '../../ecs/SystemHooks'
 
 export const isEntityLocalClient = (entity: Entity) => {
   const world = useWorld()

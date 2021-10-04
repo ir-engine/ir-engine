@@ -5,8 +5,8 @@
 
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Object3D } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { addComponent } from '../../ecs/ComponentFunctions'
 import { applyArgsToObject3d } from './applyArgsToObject3d'
 
 /**

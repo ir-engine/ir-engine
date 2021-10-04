@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/ComponentFunctions'
 import { Chain } from '../classes/Chain'
 import { IKObj } from '../components/IKObj'
 import { IKRigComponent, IKRigTargetComponent, IKRigComponentType } from '../components/IKRigComponent'
 import { ArmatureType } from '../enums/ArmatureType'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import Pose from '../classes/Pose'
 import { setupMixamoIKRig, setupTRexIKRig } from './IKFunctions'
 import { IKSolverFunction, solveLimb } from './IKSolvers'

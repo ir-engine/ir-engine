@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type DelegatedInputReceiverComponentType = {
   networkId: number

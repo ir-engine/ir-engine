@@ -1,5 +1,5 @@
 import { NumericalType } from '../../common/types/NumericalTypes'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 import { InputSchema } from '../interfaces/InputSchema'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'

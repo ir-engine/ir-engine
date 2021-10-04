@@ -43,7 +43,7 @@ import {
 } from './WebRTCFunctions'
 import { encode } from 'msgpackr'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { useWorld } from '@xrengine/engine/src/ecs/SystemHooks'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Application } from '@xrengine/server-core/declarations'
 

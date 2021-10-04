@@ -1,14 +1,14 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/ComponentFunctions'
 import { InputComponent } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { handleGamepads } from '../functions/GamepadInput'
-import { System } from '../../ecs/classes/System'
-import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/System'
+import { World } from '../../ecs/World'
 
 export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
   if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard

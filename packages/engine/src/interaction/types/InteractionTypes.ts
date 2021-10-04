@@ -1,4 +1,4 @@
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 
 export type InteractionCheckHandler = (
   clientEntity: Entity,

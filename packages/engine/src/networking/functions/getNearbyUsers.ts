@@ -1,5 +1,5 @@
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/ComponentFunctions'
+import { Engine } from '../../ecs/Engine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 

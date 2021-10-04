@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 import Pose from '../classes/Pose'
 import { Chain } from '../classes/Chain'
 import { IKPoseComponent } from './IKPoseComponent'

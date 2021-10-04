@@ -9,7 +9,7 @@ import {
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 

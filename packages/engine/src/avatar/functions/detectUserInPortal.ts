@@ -1,9 +1,9 @@
 import { isClient } from '../../common/functions/isClient'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineEvents } from '../../ecs/EngineEvents'
+import { Entity } from '../../ecs/Entity'
+import { getComponent } from '../../ecs/ComponentFunctions'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { getControllerCollisions } from '../../physics/functions/getControllerCollisions'
 

@@ -27,16 +27,16 @@ import {
 } from 'three'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System } from '../ecs/classes/System'
+import { Engine } from '../ecs/Engine'
+import { EngineEvents } from '../ecs/EngineEvents'
+import { System } from '../ecs/System'
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing'
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { World } from '../ecs/classes/World'
-import { useWorld } from '../ecs/functions/SystemHooks'
+import { World } from '../ecs/World'
+import { useWorld } from '../ecs/SystemHooks'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',

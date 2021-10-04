@@ -2,7 +2,7 @@ import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/c
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 

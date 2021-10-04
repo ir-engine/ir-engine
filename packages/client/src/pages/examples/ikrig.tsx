@@ -1,14 +1,14 @@
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 import {
   addComponent,
   getComponent,
   removeComponent,
   defineQuery
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+} from '@xrengine/engine/src/ecs/ComponentFunctions'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/EntityFunctions'
+import { registerSystem } from '@xrengine/engine/src/ecs/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/SystemUpdateType'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
 import { IKRigComponent, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRigComponent'
@@ -37,12 +37,12 @@ import {
 } from 'three'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import Debug from '../../components/Debug'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { World } from '@xrengine/engine/src/ecs/World'
+import { System } from '@xrengine/engine/src/ecs/System'
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { addRig, addTargetRig } from '@xrengine/engine/src/ikrig/functions/RigFunctions'
 import { ArmatureType } from '@xrengine/engine/src/ikrig/enums/ArmatureType'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@xrengine/engine/src/ecs/Entity'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { bonesData, bonesData2 } from '../../../../engine/src/avatar/DefaultSkeletonBones'
 import { SkeletonUtils } from '../../../../engine/src/avatar/SkeletonUtils'

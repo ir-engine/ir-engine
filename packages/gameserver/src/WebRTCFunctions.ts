@@ -21,7 +21,7 @@ import logger from '@xrengine/server-core/src/logger'
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
 import { getUserIdFromSocketId } from './NetworkFunctions'
 import config from '@xrengine/server-core/src/appconfig'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 
 const toArrayBuffer = (buf): any => {
   var ab = new ArrayBuffer(buf.length)

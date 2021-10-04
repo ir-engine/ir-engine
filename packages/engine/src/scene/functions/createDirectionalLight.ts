@@ -1,6 +1,6 @@
 import { DirectionalLight, Vector2 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import { ScenePropertyType } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from './addObject3DComponent'

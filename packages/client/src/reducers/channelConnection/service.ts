@@ -1,5 +1,5 @@
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { accessAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'

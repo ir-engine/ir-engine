@@ -1,6 +1,6 @@
 import { ExtrudeGeometry, Vector3 } from 'three'
 import { Font, FontLoader } from '../../assets/font/FontLoader'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 
 export class FontManager {
   static instance: FontManager = new FontManager()

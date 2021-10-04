@@ -4,13 +4,13 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import ScrollableElement from '../ScrollableElement'
 // @ts-ignore
 import defaultStyles from './EmoteMenu.module.scss'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent } from '@xrengine/engine/src/ecs/ComponentFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
 //import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { World } from '@xrengine/engine/src/ecs/World'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 
 type MenuItemType = {
   body: any

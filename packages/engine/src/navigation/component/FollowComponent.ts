@@ -1,12 +1,12 @@
 import { Vector3 } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import {
   createMappedComponent,
   hasComponent,
   addComponent,
   getComponent,
   removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+} from '../../ecs/ComponentFunctions'
 import { AutoPilotComponent } from './AutoPilotComponent'
 import { AutoPilotRequestComponent } from './AutoPilotRequestComponent'
 

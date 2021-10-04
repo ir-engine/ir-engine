@@ -1,6 +1,6 @@
-import { createEntity, removeAllEntities, removeEntity } from "../../src/ecs/functions/ComponentFunctions";
-import { Engine } from "../../src/ecs/classes/Engine";
-import { execute } from "../../src/ecs/functions/EngineFunctions";
+import { createEntity, removeAllEntities, removeEntity } from "../../src/ecs/ComponentFunctions";
+import { Engine } from "../../src/ecs/Engine";
+import { execute } from "../../src/ecs/EngineFunctions";
 
 test("create entity works", () => {
   const currentEntitiesCount = Engine.entities.length

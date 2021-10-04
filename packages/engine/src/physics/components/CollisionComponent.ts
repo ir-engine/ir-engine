@@ -1,4 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 import { ColliderHitEvent, ControllerHitEvent, ControllerObstacleHitEvent } from '../../physics/types/PhysicsTypes'
 
 export type CollisionComponentType = {

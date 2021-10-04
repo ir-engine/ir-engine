@@ -5,7 +5,7 @@ import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
 import { InputAlias } from '../types/InputAlias'
 import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 
 /**
  * @property {Boolean} gamepadConnected Connection a new gamepad

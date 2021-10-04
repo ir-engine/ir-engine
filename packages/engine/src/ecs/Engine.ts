@@ -6,15 +6,15 @@
  */
 
 import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { Entity } from './Entity'
-import { InputValue } from '../../input/interfaces/InputValue'
+import { InputValue } from '../input/interfaces/InputValue'
 import { EngineEvents } from './EngineEvents'
-import { InitializeOptions } from '../../initializationOptions'
-import { CSM } from '../../assets/csm/CSM'
-import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
+import { InitializeOptions } from '../initializationOptions'
+import { CSM } from '../assets/csm/CSM'
+import { EffectComposerWithSchema } from '../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
-import { World } from '../classes/World'
+import { World } from './World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getEntityComponents } from 'bitecs'
 
@@ -86,11 +86,13 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null!
+  
   static effectComposer: EffectComposerWithSchema = null!
   static xrRenderer = null! as any
   static xrSession: XRSession = null!
   static context = null!
   static csm: CSM = null!
+
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
@@ -153,6 +155,14 @@ export class Engine {
   static getEntityComponents = getEntityComponents
 }
 
+/**
+* Await the engine is loaded.
+* If the engine is already loaded, resolve the promise.
+* @return {Promise<void>}
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export const awaitEngineLoaded = (): Promise<void> => {
   return new Promise<void>((resolve) => {
     if (Engine.isInitialized) resolve()
@@ -160,6 +170,15 @@ export const awaitEngineLoaded = (): Promise<void> => {
   })
 }
 
+/**
+* Await the engaged state.
+* If the engine is already engaged, resolve the promise.
+* If the engine is not engaged, add a listener for the user engage event.
+* @return {Promise<void>}
+* @throws {MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export const awaitEngaged = (): Promise<void> => {
   return new Promise<void>((resolve) => {
     if (Engine.hasEngaged) resolve()

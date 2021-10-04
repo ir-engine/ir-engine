@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 import { ParityValue } from '../../common/enums/ParityValue'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { getComponent } from '../../ecs/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandPosition, isInXR } from '../../xr/functions/WebXRFunctions'
 

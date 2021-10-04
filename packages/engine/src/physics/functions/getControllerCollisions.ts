@@ -1,7 +1,7 @@
 import { ControllerHitEvent, ControllerObstacleHitEvent } from '../../physics/types/PhysicsTypes'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { ComponentConstructor, getComponent, hasComponent } from '../../ecs/ComponentFunctions'
 import { CollisionComponent } from '../components/CollisionComponent'
 
 type ControllerCollisionHit = {

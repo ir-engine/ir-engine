@@ -9,7 +9,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 import NodeEditor from './NodeEditor'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/SystemUpdateType'
 import StringInput from '../inputs/StringInput'
 
 /**

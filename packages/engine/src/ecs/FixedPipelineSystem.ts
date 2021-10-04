@@ -1,12 +1,16 @@
-import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { World } from '../classes/World'
-import { System } from '../classes/System'
+import { nowMilliseconds } from '../common/functions/nowMilliseconds'
+import { World } from './World'
+import { System } from './System'
 
 /**
- * System for running simulation logic with fixed time intervals
- * @author Josh Field <github.com/hexafield>
- * @author Gheric Speiginer <github.com/speigg>
- */
+* Fixed pipeline system.
+* It is a simple system that executes all systems in the fixed pipeline every fixed delta.
+* It uses a fixed timestep of 1/updatesPerSecond.
+* It executes the systems in the fixed pipeline every updatesLimit updates.
+* @param world - World.
+* @param args - Arguments.
+* @return {@link System} - Fixed pipeline system.
+*/
 export default async function FixedPipelineSystem(world: World, args: { updatesPerSecond: number }): Promise<System> {
   let accumulator = 0
 

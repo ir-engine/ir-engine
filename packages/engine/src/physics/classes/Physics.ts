@@ -15,7 +15,7 @@ import {
 import { putIntoPhysXHeap } from '../functions/physxHelpers'
 import { Quaternion, Vector3 } from 'three'
 import { RaycastComponent } from '../components/RaycastComponent'
-import { ComponentType } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType } from '../../ecs/ComponentFunctions'
 
 const defaultMask = 0
 

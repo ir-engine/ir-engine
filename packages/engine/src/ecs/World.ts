@@ -1,25 +1,27 @@
-import { isClient } from '../../common/functions/isClient'
-import { Action } from '../../networking/interfaces/Action'
-import { defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
-import { createEntity } from '../functions/EntityFunctions'
-import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
+import { isClient } from '../common/functions/isClient'
+import { Action } from '../networking/interfaces/Action'
+import { defineQuery, getComponent, hasComponent, MappedComponent } from './ComponentFunctions'
+import { createEntity } from './EntityFunctions'
+import { SystemFactoryType, SystemModuleType } from './SystemFunctions'
 import { Entity } from './Entity'
 import { System } from './System'
 import { Engine } from './Engine'
 import * as bitecs from 'bitecs'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Physics } from '../../physics/classes/Physics'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { Physics } from '../physics/classes/Physics'
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { NetworkClient } from '../../networking/interfaces/NetworkClient'
-import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { NetworkClient } from '../networking/interfaces/NetworkClient'
+import { SystemUpdateType } from './SystemUpdateType'
 
+/**
+* System instance type.
+* @param {string} name - Name of the system instance.
+* @param {SystemUpdateType} type - Type of the system instance.
+* @param {System} execute - Function that executes the system instance.
+*/
 type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
-
-type RemoveIndex<T> = {
-  [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
-}
 
 const CreateWorld = Symbol('CreateWorld')
 export class World {
@@ -201,7 +203,13 @@ export class World {
   }
 }
 
-export function createWorld() {
+/**
+* Creates a world.
+* @param {@link World} world - World to create.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/ export function createWorld() {
   console.log('Creating world')
   return World[CreateWorld]()
 }

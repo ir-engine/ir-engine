@@ -1,6 +1,6 @@
 import { client } from '@xrengine/client-core/src/feathers'
 import Store from '@xrengine/client-core/src/store'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Config } from '@xrengine/common/src/config'

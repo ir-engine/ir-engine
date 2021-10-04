@@ -2,7 +2,7 @@
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import { Group } from 'three'
 import { NavMesh } from 'yuka'
-import { Engine } from '../ecs/classes/Engine'
+import { Engine } from '../ecs/Engine'
 import { fetchRasterTiles, fetchVectorTiles, getCenterTile } from './MapBoxClient'
 import { MapProps } from './MapProps'
 import {

@@ -1,8 +1,8 @@
-// import { World } from '@xrengine/engine/src/ecs/classes/World'
+// import { World } from '@xrengine/engine/src/ecs/World'
 // import { Quaternion, Vector3 } from 'three'
-// import { createEntity } from '../../src/ecs/functions/EntityFunctions'
-// import { getComponent } from '../../src/ecs/functions/ComponentFunctions'
-// import { Entity } from '../../src/ecs/classes/Entity'
+// import { createEntity } from '../../src/ecs/EntityFunctions'
+// import { getComponent } from '../../src/ecs/ComponentFunctions'
+// import { Entity } from '../../src/ecs/Entity'
 // import {
 //   applyHip,
 //   applyIKPoseToIKRig,
@@ -43,8 +43,8 @@
 // import { FORWARD, UP } from '@xrengine/engine/src/ikrig/constants/Vector3Constants'
 // import { PoseBoneLocalState } from '../../src/ikrig/classes/Pose'
 // // import '../custom-matchers'
-// import { createWorld } from '../../src/ecs/functions/EngineFunctions'
-// import { Engine } from '../../src/ecs/classes/Engine'
+// import { createWorld } from '../../src/ecs/EngineFunctions'
+// import { Engine } from '../../src/ecs/Engine'
 
 // let sourceEntity: Entity, expectedIKPose
 // before(() => {

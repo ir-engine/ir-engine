@@ -1,5 +1,12 @@
-import { Engine } from '../classes/Engine'
+import { Engine } from './Engine'
 
+/**
+* Use the world.
+* @return {@link Engine.World}
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export function useWorld() {
   let currentWorld = Engine.currentWorld
   if (!currentWorld) {

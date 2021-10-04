@@ -3,9 +3,9 @@ import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLT
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {

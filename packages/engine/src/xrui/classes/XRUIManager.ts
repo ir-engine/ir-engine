@@ -1,4 +1,4 @@
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 
 export class XRUIManager {
   static instance: XRUIManager

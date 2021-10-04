@@ -4,28 +4,28 @@ import { NetworkTransport } from "../../src/networking/interfaces/NetworkTranspo
 import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../src/networking/templates/DefaultNetworkSchema";
 import { Network } from "../../src/networking//classes/Network";
-import { Engine } from "../../src/ecs/classes/Engine";
+import { Engine } from "../../src/ecs/Engine";
 import { Quaternion, Scene, Vector3 } from "three";
-import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
+import { registerSystem } from "../../src/ecs/SystemFunctions";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import {
   NetworkClientInputInterface,
   NetworkInputInterface,
   NetworkTransformsInterface, WorldStateInterface
 } from "../../src/networking/interfaces/WorldState";
-import { execute } from "../../src/ecs/functions/EngineFunctions";
-import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
-import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/ComponentFunctions";
+import { execute } from "../../src/ecs/EngineFunctions";
+import { SystemUpdateType } from "../../src/ecs/SystemUpdateType";
+import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/ComponentFunctions";
 import { CharacterComponent } from "../../src/avatar/components/CharacterComponent";
 import { ServerNetworkIncomingSystem } from "../../src/networking/systems/ServerNetworkIncomingSystem";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
-import { Entity } from "../../src/ecs/classes/Entity";
+import { Entity } from "../../src/ecs/Entity";
 import { Server } from "../../src/networking/components/Server";
 import * as handleInputOnServerModule from "../../src/networking/functions/handleInputOnServer";
 import * as setLocalMovementDirectionModule from "../../src/avatar/functions/setLocalMovementDirection";
-import { System } from "../../src/ecs/classes/System";
+import { System } from "../../src/ecs/System";
 import { now } from "../../src/common/functions/now";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import { RaycastResult } from "collision/RaycastResult";

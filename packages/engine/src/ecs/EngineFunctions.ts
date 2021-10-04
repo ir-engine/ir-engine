@@ -1,52 +1,41 @@
 /** Functions to provide engine level functionalities. */
 import { Color, Object3D } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
-import { isClient } from '../../common/functions/isClient'
-import { Network } from '../../networking/classes/Network'
-import disposeScene from '../../renderer/functions/disposeScene'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { WorldScene } from '../../scene/functions/SceneLoading'
-import { Engine } from '../classes/Engine'
-import { Entity } from '../classes/Entity'
+import { AssetLoader } from '../assets/classes/AssetLoader'
+import { disposeDracoLoaderWorkers } from '../assets/functions/LoadGLTF'
+import { isClient } from '../common/functions/isClient'
+import { Network } from '../networking/classes/Network'
+import disposeScene from '../renderer/functions/disposeScene'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { PersistTagComponent } from '../scene/components/PersistTagComponent'
+import { WorldScene } from '../scene/functions/SceneLoading'
+import { Engine } from './Engine'
+import { Entity } from './Entity'
 import { useWorld } from './SystemHooks'
 import { hasComponent, removeAllComponents } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
 
-/** Reset the engine and remove everything from memory. */
-export async function reset(): Promise<void> {
+/**
+* Reset the engine.
+* Stop all running workers.
+* Dispose Draco loader workers.
+* Delete all entities on the scene.
+* Delete the scene.
+* Reset the camera.
+* Reset the renderer.
+* Dispose the renderer.
+* Clear the network.
+* Clear the asset loader cache.
+* Reset the engine.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/ export async function reset(): Promise<void> {
   console.log('RESETTING ENGINE')
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())
   Engine.workers.length = 0
 
   disposeDracoLoaderWorkers()
-
-  // clear all entities components
-  // await new Promise<void>((resolve) => {
-  //   Engine.defaultWorld.entities.forEach((entity) => {
-  //     removeAllComponents(entity)
-  //   })
-  //   setTimeout(() => {
-  //     executeSystemBeforeReset() // for systems to handle components deletion
-  //     resolve()
-  //   }, 500)
-  // })
-
-  // await new Promise<void>((resolve) => {
-  //   // delete all entities
-  //   removeAllEntities()
-  //   setTimeout(() => {
-  //     executeSystemBeforeReset() // for systems to handle components deletion
-  //     resolve()
-  //   }, 500)
-  // })
-
-  // if (Engine.defaultWorld.entities.length) {
-  //   console.log('Engine.defaultWorld.entities.length', Engine.defaultWorld.entities.length)
-  //   throw new Error('Engine.defaultWorld.entities cleanup not complete')
-  // }
 
   Engine.tick = 0
 
@@ -77,6 +66,14 @@ export async function reset(): Promise<void> {
   Engine.prevInputState.clear()
 }
 
+/**
+* Process a location change.
+* Remove entities and scene objects that are no longer in the world.
+* @param {Promise} [callback] - Callback function.
+* @throws {@link MaxListenerExceededException}
+* Thrown if the event is already assigned to another listener.
+* @internal
+*/
 export const processLocationChange = async (): Promise<void> => {
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]

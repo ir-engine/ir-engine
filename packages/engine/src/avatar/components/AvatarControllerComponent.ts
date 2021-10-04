@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type AvatarControllerComponentType = {
   controller: PhysX.PxCapsuleController

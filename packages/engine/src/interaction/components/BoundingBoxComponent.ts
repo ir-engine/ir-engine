@@ -1,5 +1,5 @@
 import { Box3 } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 /**
  * @author HydraFire <github.com/HydraFire>

@@ -2,11 +2,11 @@
 import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/ComponentFunctions'
 import { IKObj } from '../components/IKObj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
 import { spin_bone_forward, align_chain, align_bone_forward, worldToModel } from '../functions/IKFunctions'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/Entity'
 import { transformAdd } from '../functions/IKSolvers'
 
 export type PoseBoneTransform = {

@@ -1,5 +1,5 @@
 import { Tween } from '@tweenjs/tween.js'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type TweenComponentType = {
   tween: Tween<any>

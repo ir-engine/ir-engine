@@ -1,7 +1,7 @@
-import { System } from "../../src/ecs/classes/System";
-import { Component } from "../../src/ecs/classes/Component";
-import { registerSystem, unregisterSystem } from "../../src/ecs/functions/SystemFunctions";
-import { Engine } from "../../src/ecs/classes/Engine";
+import { System } from "../../src/ecs/System";
+import { Component } from "../../src/ecs/Component";
+import { registerSystem, unregisterSystem } from "../../src/ecs/SystemFunctions";
+import { Engine } from "../../src/ecs/Engine";
 
 class TestComponent extends Component<TestComponent> {}
 

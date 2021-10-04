@@ -1,5 +1,5 @@
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, addComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { getComponent, addComponent, removeComponent } from '../../ecs/ComponentFunctions'
 import { TriggerVolumeComponent } from '../../scene/components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../../scene/components/TriggerDetectedComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'

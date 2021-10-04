@@ -1,5 +1,5 @@
 import { Vector3 } from '@etherealjs/core'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 import { RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 
 export type RaycastComponentType = {

@@ -12,7 +12,7 @@ import XRTransientInputHitTestResult from './api/XRTransientInputHitTestResult'
 import API from './webxr-polyfill/api/index'
 import EX_API from './api/index'
 import EmulatedXRDevice from './EmulatedXRDevice'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineEvents } from '../../ecs/EngineEvents'
 
 /**
  * Adapted from the mozilla webxr emulator

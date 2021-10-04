@@ -1,6 +1,6 @@
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'

@@ -1,9 +1,9 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/ComponentFunctions'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { DoubleSide, EquirectangularRefractionMapping, MeshLambertMaterial, TextureLoader } from 'three'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Entity } from '@xrengine/engine/src/ecs/Entity'
+import { World } from '@xrengine/engine/src/ecs/World'
 import { Config } from '@xrengine/common/src/config'
 
 export const getPortalDetails = async () => {

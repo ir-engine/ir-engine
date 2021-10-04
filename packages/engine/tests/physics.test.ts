@@ -1,6 +1,6 @@
 import { initializeEngine } from '../src/initializeEngine'
 import { engineTestSetup } from './util/setupEngine'
-import { useWorld } from "../src/ecs/functions/SystemHooks"
+import { useWorld } from "../src/ecs/SystemHooks"
 import { putIntoPhysXHeap, vectorToArray } from "../src/physics/functions/physxHelpers"
 import assert from 'assert'
 

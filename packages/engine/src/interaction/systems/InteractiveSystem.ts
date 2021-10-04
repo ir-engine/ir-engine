@@ -1,14 +1,14 @@
 import { Group, MathUtils, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineEvents } from '../../ecs/EngineEvents'
 import {
   addComponent,
   defineQuery,
   getComponent,
   hasComponent,
   removeComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+} from '../../ecs/ComponentFunctions'
+import { createEntity } from '../../ecs/EntityFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -24,12 +24,12 @@ import { hideInteractText, showInteractText } from '../functions/interactText'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { createBoxComponent } from '../functions/createBoxComponent'
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { System } from '../../ecs/classes/System'
-import { World } from '../../ecs/classes/World'
+import { System } from '../../ecs/System'
+import { World } from '../../ecs/World'
 
 const upVec = new Vector3(0, 1, 0)
 

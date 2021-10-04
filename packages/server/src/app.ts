@@ -20,13 +20,15 @@ import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { Application } from '@xrengine/server-core/declarations'
+import { initializeProxyServer } from "@xrengine/server-core/src/proxy"
 
 const emitter = new EventEmitter()
 
 const app = express(feathers()) as Application
 
-app.set('nextReadyEmitter', emitter)
+initializeProxyServer(app);
 
+app.set('nextReadyEmitter', emitter)
 if (config.server.enabled) {
   try {
     app.configure(

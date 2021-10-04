@@ -13,7 +13,7 @@ import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
 import styles from './Profile.module.scss'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/Engine'
 
 interface Props {}
 

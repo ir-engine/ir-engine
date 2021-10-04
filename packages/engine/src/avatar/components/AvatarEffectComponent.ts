@@ -1,5 +1,5 @@
 import { Material } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type MaterialMap = {
   id: string

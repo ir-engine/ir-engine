@@ -1,6 +1,6 @@
-import { System } from '../../ecs/classes/System'
-import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { System } from '../../ecs/System'
+import { World } from '../../ecs/World'
+import { defineQuery, getComponent } from '../../ecs/ComponentFunctions'
 import { NameComponent } from '../components/NameComponent'
 
 /**

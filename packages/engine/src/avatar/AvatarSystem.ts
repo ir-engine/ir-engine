@@ -5,7 +5,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent
-} from '../ecs/functions/ComponentFunctions'
+} from '../ecs/ComponentFunctions'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -14,10 +14,10 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
-import { World } from '../ecs/classes/World'
-import { System } from '../ecs/classes/System'
+import { World } from '../ecs/World'
+import { System } from '../ecs/System'
 import matches from 'ts-matches'
-import { useWorld } from '../ecs/functions/SystemHooks'
+import { useWorld } from '../ecs/SystemHooks'
 import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { detectUserInTrigger } from './functions/detectUserInTrigger'

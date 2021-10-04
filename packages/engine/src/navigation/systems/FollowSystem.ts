@@ -1,11 +1,11 @@
 import { Vector3 } from 'three'
 import { positionBehind } from '@xrengine/common/src/utils/mathUtils'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowComponent } from '../component/FollowComponent'
 import { goTo } from '../../common/functions/commandHandler'
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/World'
+import { System } from '../../ecs/System'
 
 const distanceToPlayer: number = 1
 const step: number = 10

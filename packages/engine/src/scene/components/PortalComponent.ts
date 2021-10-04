@@ -1,5 +1,5 @@
 import { Quaternion, Vector3, Euler, Mesh } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type PortalComponentType = {
   location: string

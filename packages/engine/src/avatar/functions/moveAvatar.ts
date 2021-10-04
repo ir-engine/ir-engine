@@ -1,14 +1,14 @@
 import { Vector3, Matrix4, Quaternion, Plane } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/Entity'
+import { getComponent, hasComponent } from '../../ecs/ComponentFunctions'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '../../ecs/Engine'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { useWorld } from '../../ecs/SystemHooks'
 
 /**
  * @author HydraFire <github.com/HydraFire>

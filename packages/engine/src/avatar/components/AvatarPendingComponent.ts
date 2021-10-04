@@ -1,5 +1,5 @@
 import { Mesh } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 
 export type AvatarPendingComponentType = {
   light: Mesh

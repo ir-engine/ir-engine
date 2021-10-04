@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '../../ecs/ComponentFunctions'
 import { Axis } from '../classes/Axis'
 import { IKRigComponent } from './IKRigComponent'
 

@@ -1,4 +1,4 @@
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/ComponentFunctions'
 import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
 import { IKPoseComponent } from '../components/IKPoseComponent'
 import {
@@ -10,8 +10,8 @@ import {
   visualizeSpine
 } from '../functions/IKFunctions'
 
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/World'
+import { System } from '../../ecs/System'
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { Quaternion, Vector3 } from 'three'
 // export class DebugComponent {

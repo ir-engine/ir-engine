@@ -10,7 +10,7 @@ import { Config } from '@xrengine/common/src/config'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineEvents } from '@xrengine/engine/src/ecs/EngineEvents'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
@@ -25,7 +25,7 @@ import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { useWorld } from '@xrengine/engine/src/ecs/SystemHooks'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
