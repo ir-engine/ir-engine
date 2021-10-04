@@ -3,7 +3,7 @@ import { ControlledStringInput } from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
-import { VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { VideoFileTypes } from '@xrengine/engine/src/assets/FileTypes'
 
 const uploadOptions = {
   multiple: false,

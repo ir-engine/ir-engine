@@ -3,7 +3,7 @@ import StringInput from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
-import { AudioFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { AudioFileTypes } from '@xrengine/engine/src/assets/FileTypes'
 
 /**
  * Initializing uploadOptions properties.

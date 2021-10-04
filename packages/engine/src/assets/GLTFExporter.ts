@@ -18,24 +18,13 @@ import {
   InterpolateLinear,
   LinearFilter,
   LinearMipMapLinearFilter,
-  LinearMipMapNearestFilter,
-  MathUtils as _Math,
+  LinearMipMapNearestFilter, Material, MathUtils as _Math,
   MirroredRepeatWrapping,
   NearestFilter,
   NearestMipMapLinearFilter,
-  NearestMipMapNearestFilter,
-  PropertyBinding,
-  RGBAFormat,
-  RepeatWrapping,
-  Scene,
-  TriangleFanDrawMode,
-  TriangleStripDrawMode,
-  Vector3,
-  Material,
-  Texture,
-  Object3D
+  NearestMipMapNearestFilter, Object3D, PropertyBinding, RepeatWrapping, RGBAFormat, Scene, Texture, Vector3
 } from 'three'
-import { LightmapExporterExtension } from './extensions/exporter/LightmapExporterExtension'
+import { GLTFLightmapExporterExtension } from './extensions/exporter/GLTFLightmapExporterExtension'
 //------------------------------------------------------------------------------
 // Constants
 //------------------------------------------------------------------------------
@@ -145,7 +134,7 @@ class GLTFExporter {
     this.uid = 0
     this.extensions = []
     this.hooks = []
-    this.registerExtension(LightmapExporterExtension)
+    this.registerExtension(GLTFLightmapExporterExtension)
   }
 
   registerExtension(Extension, options = {}) {

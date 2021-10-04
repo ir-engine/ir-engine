@@ -1,4 +1,4 @@
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { LoadGLTF } from '@xrengine/engine/src/assets/LoadGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/Engine'
 import {
   addComponent,

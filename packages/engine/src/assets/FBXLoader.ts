@@ -43,7 +43,7 @@ import {
   VectorKeyframeTrack,
   LoadingManager
 } from 'three'
-import { TGALoader } from '../tga/TGALoader'
+import { TGALoader } from './TGALoader'
 import { NURBSCurve } from './NURBSCurve'
 import * as Zlib from './inflate.module.min.js'
 

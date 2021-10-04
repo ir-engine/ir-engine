@@ -1,6 +1,6 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import { Object3D, PlaneBufferGeometry, MeshBasicMaterial, Mesh, DoubleSide } from 'three'
-import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
+import loadTexture from '@xrengine/engine/src/assets/loadTexture'
 let linkHelperTexture = null
 export default class LinkNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'link'

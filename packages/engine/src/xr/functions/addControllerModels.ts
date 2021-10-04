@@ -10,7 +10,7 @@ import {
   RingGeometry,
   Vector3
 } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetLoader } from '../../assets/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/Entity'
 import { getComponent } from '../../ecs/ComponentFunctions'

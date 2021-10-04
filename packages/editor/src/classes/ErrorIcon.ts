@@ -1,6 +1,6 @@
 import { Mesh, PlaneBufferGeometry, MeshBasicMaterial, DoubleSide } from 'three'
 import { RGBAFormat, NearestFilter } from 'three'
-import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
+import loadTexture from '@xrengine/engine/src/assets/loadTexture'
 let errorTexturePromise = null
 let errorTexture = null
 export default class ErrorIcon extends Mesh {

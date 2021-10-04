@@ -18,7 +18,7 @@ import {
   Group
 } from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import { getLoader } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { getLoader } from '@xrengine/engine/src/assets/LoadGLTF'
 import { FileDrop } from 'react-file-drop'
 import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
 

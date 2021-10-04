@@ -1,20 +1,20 @@
 import { sRGBEncoding, RGBFormat } from 'three'
-import { LoaderExtension } from './LoaderExtension'
+import { GLTFLoaderExtension } from './GLTFLoaderExtension'
 function getLightmap(materialDef) {
-  return materialDef.extensions && materialDef.extensions[LightmapLoaderExtension.extensionName]
+  return materialDef.extensions && materialDef.extensions[GLTFLightmapLoaderExtension.extensionName]
 }
 
 function shouldSetMaterialParams(_material, materialDef) {
   return getLightmap(materialDef)
 }
 
-export class LightmapLoaderExtension extends LoaderExtension {
+export class GLTFLightmapLoaderExtension extends GLTFLoaderExtension {
   static extensionName = 'MOZ_lightmap'
 
-  extensionNames = [LightmapLoaderExtension.extensionName]
+  extensionNames = [GLTFLightmapLoaderExtension.extensionName]
 
   onLoad() {
-    if (this.loader.usesExtension(LightmapLoaderExtension.extensionName)) {
+    if (this.loader.usesExtension(GLTFLightmapLoaderExtension.extensionName)) {
       this.loader.addHook('setMaterialParams', shouldSetMaterialParams, this.setMaterialParams)
     }
   }

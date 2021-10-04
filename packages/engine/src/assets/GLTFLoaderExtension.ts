@@ -1,4 +1,4 @@
-export class LoaderExtension {
+export class GLTFLoaderExtension {
   loader: any
   options: any
   extensionNames: any[]

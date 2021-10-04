@@ -1,4 +1,4 @@
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
+import { GLTFLoader } from '@xrengine/engine/src/assets/GLTFLoader'
 import {
   RingGeometry,
   HemisphereLight,

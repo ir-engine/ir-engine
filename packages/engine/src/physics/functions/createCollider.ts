@@ -1,6 +1,6 @@
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, Object3D } from 'three'
-import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
+import { ConvexGeometry } from '../../assets/ConvexGeometry'
 import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
 import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'

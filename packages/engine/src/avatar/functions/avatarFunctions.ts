@@ -12,7 +12,7 @@ import {
   SkinnedMesh,
   sRGBEncoding
 } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetLoader } from '../../assets/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { addComponent, getComponent } from '../../ecs/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'

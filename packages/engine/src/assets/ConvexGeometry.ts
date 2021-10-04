@@ -1,6 +1,7 @@
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 import { ConvexHull } from './ConvexHull'
 
+/* From three.js */
 class ConvexGeometry extends BufferGeometry {
   constructor(points) {
     super()

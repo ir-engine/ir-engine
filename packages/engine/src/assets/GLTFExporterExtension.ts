@@ -1,4 +1,4 @@
-export class ExporterExtension {
+export class GLTFExporterExtension {
   exporter: any
   options: any
   constructor(exporter, options) {

@@ -9,7 +9,7 @@ import {
   PlaneBufferGeometry,
   MeshStandardMaterial
 } from 'three'
-import loadTexture from '../../assets/functions/loadTexture'
+import loadTexture from '../../assets/loadTexture'
 export const ImageProjection = {
   Flat: 'flat',
   Equirectangular360: '360-equirectangular'

@@ -8,7 +8,7 @@ import {
   Texture,
   Vector2
 } from 'three'
-import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
+import { DDSLoader } from '../../assets/DDSLoader'
 
 const vertexShader = `
 attribute vec4 tangent;

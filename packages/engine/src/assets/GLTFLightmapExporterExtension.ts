@@ -1,5 +1,5 @@
-import { ExporterExtension } from './ExporterExtension'
-export class LightmapExporterExtension extends ExporterExtension {
+import { GLTFExporterExtension } from './GLTFExporterExtension'
+export class GLTFLightmapExporterExtension extends GLTFExporterExtension {
   onRegister() {
     this.exporter.addHook(
       'addMaterialProperties',

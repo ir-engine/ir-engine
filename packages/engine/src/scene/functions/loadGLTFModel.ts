@@ -1,5 +1,5 @@
 import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Vector3 } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetLoader } from '../../assets/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/Engine'
 import { EngineEvents } from '../../ecs/EngineEvents'

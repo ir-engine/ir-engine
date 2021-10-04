@@ -1,4 +1,4 @@
-import { Schema } from '../../assets/superbuffer'
+import { Schema } from '../buffer'
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { NetworkSchema } from '../interfaces/NetworkSchema'
 import { NetworkTransport } from '../interfaces/NetworkTransport'

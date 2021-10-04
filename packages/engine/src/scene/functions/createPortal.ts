@@ -11,7 +11,7 @@ import {
   Quaternion,
   Vector3
 } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetLoader } from '../../assets/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/Engine'

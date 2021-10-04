@@ -15,7 +15,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/LoadGLTF'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { Help } from '@material-ui/icons'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'

@@ -1,10 +1,10 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/Engine'
-import { GLTFRemoveMaterialsExtension } from '../classes/GLTFRemoveMaterialsExtension'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
-import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
-import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { isClient } from '../common/functions/isClient'
+import { Engine } from '../ecs/Engine'
+import { GLTFRemoveMaterialsExtension } from './GLTFRemoveMaterialsExtension'
+import { NodeDRACOLoader } from './NodeDracoLoader'
+import { DRACOLoader } from './DRACOLoader'
+import { GLTFLoader } from './GLTFLoader'
 
 export interface LoadGLTFResultInterface {
   animations: AnimationClip[]

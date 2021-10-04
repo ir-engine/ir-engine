@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
+import { GLTFLoader } from '@xrengine/engine/src/assets/GLTFLoader'
 import styled from 'styled-components'
 import { SceneManager } from '../../../managers/SceneManager'
 import { ControlManager } from '../../../managers/ControlManager'

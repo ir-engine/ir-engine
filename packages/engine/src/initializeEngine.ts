@@ -4,7 +4,7 @@ import { BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } fro
 import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
-import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
+import { loadDRACODecoder } from './assets/NodeDracoLoader'
 import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'

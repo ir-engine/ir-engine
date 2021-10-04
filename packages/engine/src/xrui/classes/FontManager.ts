@@ -1,5 +1,5 @@
 import { ExtrudeGeometry, Vector3 } from 'three'
-import { Font, FontLoader } from '../../assets/font/FontLoader'
+import { Font, FontLoader } from '../../assets/FontLoader'
 import { Engine } from '../../ecs/Engine'
 
 export class FontManager {

@@ -18,7 +18,7 @@ import {
   sRGBEncoding,
   TextureLoader
 } from 'three'
-import { TGALoader } from '../../assets/loaders/tga/TGALoader'
+import { TGALoader } from '../../assets/TGALoader'
 import { Updatable } from '../interfaces/Updatable'
 
 const vertexUniforms = `uniform float time;

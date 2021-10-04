@@ -1,5 +1,5 @@
 import { RGBAFormat, RGBFormat, ImageLoader, ImageBitmapLoader, Texture, Loader, LoadingManager } from 'three'
-import { isWebWorker } from '../../../common/functions/getEnvironment'
+import { isWebWorker } from '../common/functions/getEnvironment'
 
 export class TextureLoader extends Loader {
   constructor(manager?: LoadingManager) {

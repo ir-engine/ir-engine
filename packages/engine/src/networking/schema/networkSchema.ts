@@ -1,6 +1,6 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { string, float32, Schema, uint32, uint8, uint64, int8 } from '../../assets/superbuffer'
-import { Model } from '../../assets/superbuffer/model'
+import { string, float32, Schema, uint32, uint8, uint64, int8 } from '../buffer'
+import { Model } from '../buffer/model'
 
 /**
  * @author HydraFire <github.com/HydraFire>

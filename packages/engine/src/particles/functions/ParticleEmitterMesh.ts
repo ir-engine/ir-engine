@@ -18,7 +18,7 @@ import {
   DoubleSide
 } from 'three'
 import * as EasingFunctions from '../../common/functions/EasingFunctions'
-import loadTexture from '../../assets/functions/loadTexture'
+import loadTexture from '../../assets/loadTexture'
 import { lerp, clamp } from '../../common/functions/MathLerpFunctions'
 import { DEG2RAD, vertexShader, fragmentShader } from './particleHelpers'
 

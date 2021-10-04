@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { Line3, Plane, Triangle, Vector3 } from 'three'
-
+/* From three.js */
 /**
  * Ported from: https://github.com/maurizzzio/quickhull3d/ by Mauricio Poppe (https://github.com/maurizzzio)
  */
@@ -65,7 +64,7 @@ class ConvexHull {
   }
 
   setFromObject(object) {
-    const points = []
+    const points: Vector3[] = []
 
     object.updateMatrixWorld(true)
 
@@ -246,7 +245,7 @@ class ConvexHull {
 
   // Removes all the visible vertices that 'face' is able to see
 
-  deleteFaceVertices(face, absorbingFace = undefined) {
+  deleteFaceVertices(face, absorbingFace?) {
     const faceVertices = this.removeAllVerticesFromFace(face)
 
     if (faceVertices !== undefined) {
@@ -265,7 +264,7 @@ class ConvexHull {
 
           const nextVertex = vertex.next
 
-          const distance = absorbingFace.distanceToPoint(vertex.point)
+          const distance = (absorbingFace as any).distanceToPoint(vertex.point)
 
           // check if 'vertex' is able to see 'absorbingFace'
 
@@ -334,8 +333,8 @@ class ConvexHull {
     const min = new Vector3()
     const max = new Vector3()
 
-    const minVertices = []
-    const maxVertices = []
+    const minVertices: any [] = []
+    const maxVertices: any [] = []
 
     // initially assume that the first vertex is the min/max
 
@@ -452,7 +451,7 @@ class ConvexHull {
       }
     }
 
-    const faces = []
+    const faces: any[] = []
 
     if (_plane.distanceToPoint(v3.point) < 0) {
       // the face is not able to see the point so 'plane.normal' is pointing outside the tetrahedron
@@ -528,7 +527,7 @@ class ConvexHull {
   // Removes inactive faces
 
   reindexFaces() {
-    const activeFaces = []
+    const activeFaces: any = []
 
     for (let i = 0; i < this.faces.length; i++) {
       const face = this.faces[i]
@@ -664,7 +663,7 @@ class ConvexHull {
 
     // perform final join of new faces
 
-    firstSideEdge.next.setTwin(previousSideEdge)
+    (firstSideEdge as any).next.setTwin(previousSideEdge)
 
     return this
   }

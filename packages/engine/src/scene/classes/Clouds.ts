@@ -13,7 +13,7 @@ import {
   TextureLoader
 } from 'three'
 import SimplexNoise from 'simplex-noise'
-import { TGALoader } from '../../assets/loaders/tga/TGALoader'
+import { TGALoader } from '../../assets/TGALoader'
 
 const vertexShader = `
 precision highp float;

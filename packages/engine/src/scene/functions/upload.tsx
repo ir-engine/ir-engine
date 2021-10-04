@@ -1,6 +1,6 @@
 import { RethrownError } from '../../scene/functions/errors'
 import i18n from 'i18next'
-import { AudioFileTypes, CustomScriptFileTypes } from '../../assets/constants/fileTypes'
+import { AudioFileTypes, CustomScriptFileTypes } from '../../assets/FileTypes'
 import { getToken } from './getToken'
 import { Config } from '@xrengine/common/src/config'
 
@@ -154,12 +154,12 @@ export const uploadAsset = (editor, file, onProgress, signal): any => {
  *
  * @author Robert Long
  * @param  {Object} file      [object contains file data]
- * @param  {array} fileTypes [Array contains existing file types]
- * @return {boolean}           [true if file type found in existing fileTypes]
+ * @param  {array} FileTypes [Array contains existing file types]
+ * @return {boolean}           [true if file type found in existing FileTypes]
  */
 
-export function matchesFileTypes(file, fileTypes) {
-  for (const pattern of fileTypes) {
+export function matchesFileTypes(file, FileTypes) {
+  for (const pattern of FileTypes) {
     if (pattern.startsWith('.')) {
       if (file.name.toLowerCase().endsWith(pattern)) {
         return true

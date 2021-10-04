@@ -1,5 +1,5 @@
 import { DoubleSide, MeshBasicMaterial, sRGBEncoding, RGBFormat, RGBAFormat } from 'three'
-import { LoaderExtension } from './LoaderExtension'
+import { GLTFLoaderExtension } from './GLTFLoaderExtension'
 
 export const ALPHA_MODES = {
   OPAQUE: 'OPAQUE',
@@ -8,7 +8,7 @@ export const ALPHA_MODES = {
 }
 
 function getUnlitMaterial(materialDef) {
-  return materialDef.extensions && materialDef.extensions[MaterialsUnlitLoaderExtension.extensionName]
+  return materialDef.extensions && materialDef.extensions[GLTFMaterialsUnlitLoaderExtension.extensionName]
 }
 function shouldCreateMaterial(materialDef) {
   return getUnlitMaterial(materialDef)
@@ -16,11 +16,11 @@ function shouldCreateMaterial(materialDef) {
 function shouldSetMaterialParams(_material, materialDef) {
   return getUnlitMaterial(materialDef)
 }
-export class MaterialsUnlitLoaderExtension extends LoaderExtension {
+export class GLTFMaterialsUnlitLoaderExtension extends GLTFLoaderExtension {
   static extensionName = 'KHR_materials_unlit'
-  extensionNames = [MaterialsUnlitLoaderExtension.extensionName]
+  extensionNames = [GLTFMaterialsUnlitLoaderExtension.extensionName]
   onLoad() {
-    if (this.loader.usesExtension(MaterialsUnlitLoaderExtension.extensionName)) {
+    if (this.loader.usesExtension(GLTFMaterialsUnlitLoaderExtension.extensionName)) {
       this.loader.addHook('createMaterial', shouldCreateMaterial, this.createMaterial)
       this.loader.addHook('setMaterialParams', shouldSetMaterialParams, this.setMaterialParams)
     }

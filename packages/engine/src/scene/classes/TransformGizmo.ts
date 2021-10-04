@@ -1,5 +1,5 @@
 import { Color, Object3D, Raycaster, Vector3 } from 'three'
-import { LoadGLTF } from '../../assets/functions/LoadGLTF'
+import { LoadGLTF } from '../../assets/LoadGLTF'
 import { TransformAxis, TransformMode } from '../../scene/constants/transformConstants'
 import cloneObject3D from '../../scene/functions/cloneObject3D'
 let gizmoGltf: { scene: any; json: any; stats: any } = null!

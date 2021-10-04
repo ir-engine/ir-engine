@@ -1,12 +1,11 @@
-import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from 'three'
-import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLTF'
-import { FBXLoader } from '../loaders/fbx/FBXLoader'
-import { AssetType } from '../enum/AssetType'
-import { AssetClass } from '../enum/AssetClass'
-import { Entity } from '../../ecs/Entity'
-import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { Engine } from '../../ecs/Engine'
-import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
+import { FileLoader, LOD, MeshPhysicalMaterial, Object3D, TextureLoader } from 'three'
+import { isAbsolutePath } from '../common/functions/isAbsolutePath'
+import { Engine } from '../ecs/Engine'
+import { AssetClass } from './AssetClass'
+import { AssetType } from './AssetType'
+import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from './LoaderConstants'
+import { FBXLoader } from './FBXLoader'
+import { getLoader as getGLTFLoader, loadExtentions } from './LoadGLTF'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()

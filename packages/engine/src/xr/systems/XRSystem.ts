@@ -1,5 +1,5 @@
 import { sRGBEncoding } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetLoader } from '../../assets/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'

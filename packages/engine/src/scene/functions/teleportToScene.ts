@@ -1,5 +1,5 @@
 import { AmbientLight, PerspectiveCamera } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetLoader } from '../../assets/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/Engine'

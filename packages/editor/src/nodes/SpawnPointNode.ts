@@ -1,5 +1,5 @@
 import { BoxBufferGeometry, BoxHelper, Group, Mesh, Object3D, Quaternion, Vector3 } from 'three'
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { LoadGLTF } from '@xrengine/engine/src/assets/LoadGLTF'
 import EditorNodeMixin from './EditorNodeMixin'
 
 // TODO: add circle option

@@ -3,7 +3,7 @@ import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { DialogContext } from '../contexts/DialogContext'
 import { useTranslation } from 'react-i18next'
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { AllFileTypes } from '@xrengine/engine/src/assets/FileTypes'
 import { SourceManager } from '../../managers/SourceManager'
 
 /**

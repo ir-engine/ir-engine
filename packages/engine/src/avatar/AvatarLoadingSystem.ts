@@ -9,7 +9,7 @@ import {
   defineQuery
 } from '../ecs/ComponentFunctions'
 
-import { AssetLoader } from '../assets/classes/AssetLoader'
+import { AssetLoader } from '../assets/AssetLoader'
 
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { AvatarPendingComponent } from './components/AvatarPendingComponent'

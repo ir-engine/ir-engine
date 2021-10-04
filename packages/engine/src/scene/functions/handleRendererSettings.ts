@@ -8,10 +8,10 @@ import {
   Vector3
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { CSM } from '../../assets/csm/CSM'
+import { CSM } from '../../csm/CSM'
 import { Engine } from '../../ecs/Engine'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
+import { AssetLoader } from '../../assets/AssetLoader'
+import { DEFAULT_LOD_DISTANCES } from '../../assets/LoaderConstants'
 
 export type RenderSettingsProps = {
   LODs: Vector3
