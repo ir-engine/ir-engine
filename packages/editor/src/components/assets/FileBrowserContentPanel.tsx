@@ -18,6 +18,7 @@ import { ProjectManager } from '../../managers/ProjectManager'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { ContextMenuTrigger } from 'react-contextmenu'
 import i18next from 'i18next'
+import FileBrowserGrid   from './FileBrowserGrid'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -115,7 +116,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         label: element,
         nodeClass: nodeClass,
         url: url,
-        type: 'Element',
+        type: "Folder",
         contentType: contentType,
         initialProps: { src: new URL(url) },
         iconComponent: nodeEditor.WrappedComponent
@@ -157,10 +158,9 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         <SelectInput options={projectSelectTypes} onChange={onChangeSelectedProject} value={selectedProjectIndex} />
       </InputGroup>
 
-      <ContextMenuTrigger id={'uniqueId.current'}>
         <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
           <AssetPanelContentContainer>
-            <AssetGrid
+            <FileBrowserGrid
               source={selectedSource}
               items={selectedProjectFiles}
               onLoadMore={loadMore}
@@ -170,13 +170,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
             />
           </AssetPanelContentContainer>
         </AssetsPanelContainer>
-      </ContextMenuTrigger>
 
-      <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
-        <MenuItem onClick={() => console.log('Place new Folder')}>
-          {i18next.t('editor:layout.filebrowser.addnewfolder')}
-        </MenuItem>
-      </ContextMenu>
+
     </>
   )
 }

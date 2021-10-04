@@ -1,3 +1,4 @@
+import { Folder } from '@styled-icons/fa-solid'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -197,6 +198,32 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest
     </>
   )
 }
+
+
+/**
+ *
+ * @author Abhishek Pathak
+ * @param {any} label
+ * @param {any} rest
+ * @returns
+ */
+ export function FolderGridItem({ label, ...rest }) {
+  return (
+    <>
+      <MediaGridItemContainer {...rest}>
+        <MediaGridItemContent>
+          <MediaGridItemIconContainer>
+            <Folder size={48} />
+          </MediaGridItemIconContainer>
+        </MediaGridItemContent>
+      </MediaGridItemContainer>
+      <MediaGridItemLabelContainer>
+        <MediaGridItemLabel>{label}</MediaGridItemLabel>
+      </MediaGridItemLabelContainer>
+    </>
+  )
+}
+
 
 /**
  *
