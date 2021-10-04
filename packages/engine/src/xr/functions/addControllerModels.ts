@@ -2,14 +2,14 @@ import {
   AdditiveBlending,
   BufferGeometry,
   Float32BufferAttribute,
-  Group,
   Line,
   LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   MeshPhongMaterial,
   RingGeometry,
-  Vector3
+  Vector3,
+  XRInputSource
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
@@ -23,7 +23,7 @@ export const addDefaultControllerModels = (entity: Entity) => {
 
   controllers.forEach((controller: any) => {
     controller.addEventListener('connected', (ev) => {
-      const xrInputSource = ev.data
+      const xrInputSource = ev.data as XRInputSource
 
       if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
         return
@@ -63,7 +63,7 @@ export const addDefaultControllerModels = (entity: Entity) => {
 
   controllersGrip.forEach((controller: any) => {
     controller.addEventListener('connected', (ev) => {
-      const xrInputSource = ev.data
+      const xrInputSource = ev.data as XRInputSource
 
       if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) {
         return

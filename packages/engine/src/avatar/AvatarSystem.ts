@@ -29,22 +29,21 @@ function avatarActionReceptor(action) {
     .when(NetworkWorldAction.setXRMode.matchesFromAny, (a) => {
       if (a.$from !== world.hostId && a.$from !== a.userId) return
       const entity = world.getUserAvatarEntity(a.userId)
-      if (typeof entity !== 'undefined') {
-        if (a.enabled) {
-          if (!hasComponent(entity, XRInputSourceComponent))
-            addComponent(entity, XRInputSourceComponent, {
-              controllerLeft: new Group(),
-              controllerRight: new Group(),
-              controllerGripLeft: new Group(),
-              controllerGripRight: new Group(),
-              container: new Group(),
-              head: new Group(),
-              hands: []
-            })
-        } else {
-          if (hasComponent(entity, XRInputSourceComponent)) {
-            removeComponent(entity, XRInputSourceComponent)
-          }
+      if (!entity) return
+
+      if (a.enabled && !hasComponent(entity, XRInputSourceComponent)) {
+        addComponent(entity, XRInputSourceComponent, {
+          controllerLeft: new Group(),
+          controllerRight: new Group(),
+          controllerGripLeft: new Group(),
+          controllerGripRight: new Group(),
+          container: new Group(),
+          head: new Group(),
+          hands: [new Group(), new Group()]
+        })
+      } else {
+        if (hasComponent(entity, XRInputSourceComponent)) {
+          removeComponent(entity, XRInputSourceComponent)
         }
       }
     })

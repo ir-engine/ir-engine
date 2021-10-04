@@ -19,8 +19,8 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
  */
 
 export const startWebXR = (): void => {
-  const controllerLeft = Engine.xrRenderer.getController(1) as any
-  const controllerRight = Engine.xrRenderer.getController(0) as any
+  const controllerLeft = Engine.xrRenderer.getController(1)
+  const controllerRight = Engine.xrRenderer.getController(0)
   const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1)
   const controllerGripRight = Engine.xrRenderer.getControllerGrip(0)
   const container = new Group()
