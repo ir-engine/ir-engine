@@ -63,8 +63,9 @@ const AppFooter = ({
   updateFeedPageState,
   updateArMediaState,
   updateShareFormState,
-  setView
-}: Props) => {
+  setView,
+  onGoRegistration
+}: any) => {
   useEffect(() => getLoggedCreator(), [])
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
@@ -83,36 +84,36 @@ const AppFooter = ({
   }
 
   return (
-    <>
-      <nav className={styles.footerContainer}>
-        {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
-        <img src="/assets/tabBar.png" onClick={() => onGoHome()} className={styles.footerItem} />
-        {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
+    <nav className={styles.footerContainer}>
+      {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
+      <img src="/assets/tabBar.png" onClick={() => onGoHome()} className={styles.footerItem} />
+      {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
         </PopupLogin> */}
-        {/* <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
-        {/* <AddCircleIcon onClick={()=> {handleOpenNewFeedPage()}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
-        <ViewMode />
-        {/*hided for now*/}
-        {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
-        {/* {creator && ( 
+      {/* <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
+      {/* <AddCircleIcon onClick={()=> {handleOpenNewFeedPage()}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
+      <ViewMode onGoRegistration={onGoRegistration} />
+      {/*hided for now*/}
+      {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
+      {/* {creator && ( 
           <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
           alt={creator.username} src={creator.avatar} />
         )} */}
-        <Avatar
-          onClick={() => {
+      <Avatar
+        onClick={() => {
+          onGoRegistration(() => {
             handleOpenCreatorPage(creatorState?.get('currentCreator')?.id)
-          }}
-          alt={creatorState.get('currentCreator')?.username}
-          className={styles.footerAvatar}
-          src={
-            creatorState.get('currentCreator')?.avatar
-              ? creatorState.get('currentCreator')?.avatar
-              : '/assets/userpic.png'
-          }
-        />
-      </nav>
-    </>
+          })
+        }}
+        alt={creatorState.get('currentCreator')?.username}
+        className={styles.footerAvatar}
+        src={
+          creatorState.get('currentCreator')?.avatar
+            ? creatorState.get('currentCreator')?.avatar
+            : '/assets/userpic.png'
+        }
+      />
+    </nav>
   )
 }
 
