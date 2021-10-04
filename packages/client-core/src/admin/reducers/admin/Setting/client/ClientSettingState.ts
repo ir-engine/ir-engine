@@ -25,4 +25,4 @@ const clientSettingReceptor = (action: ClientSettingActionType): any => {
 }
 
 export const accessClientSettingState = () => state
-export const useClientSettingState = () => useState(state)
+export const useClientSettingState = () => useState(state) as any as typeof state

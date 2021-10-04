@@ -76,4 +76,4 @@ const appReceptor = (action: AppActionType): void => {
 }
 
 export const appState = () => state
-export const useAppState = () => useState(state) as any as typeof state
+export const useAppState = () => useState(state) as any as typeof state as any as typeof state

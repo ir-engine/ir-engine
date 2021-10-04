@@ -26,4 +26,4 @@ const chargebeeSettingReceptor = (action: ChargebeeSettingActionType): any => {
 }
 
 export const accessChargebeeSettingState = () => state
-export const useChargebeeSettingState = () => useState(state)
+export const useChargebeeSettingState = () => useState(state) as any as typeof state

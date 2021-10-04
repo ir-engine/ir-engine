@@ -69,4 +69,4 @@ export const botsReceptor = (action: BotsActionType): void => {
 }
 
 export const accessBotState = () => state
-export const useBotState = () => useState(state)
+export const useBotState = () => useState(state) as any as typeof state

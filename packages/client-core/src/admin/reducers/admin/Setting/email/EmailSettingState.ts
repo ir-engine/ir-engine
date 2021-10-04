@@ -25,4 +25,4 @@ const emailSettingReceptor = (action: EmailSettingActionType): any => {
 }
 
 export const accessEmailSettingState = () => state
-export const useEmailSettingState = () => useState(state)
+export const useEmailSettingState = () => useState(state) as any as typeof state

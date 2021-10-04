@@ -26,4 +26,4 @@ const contentPackReceptor = (action: ContentPackActionType): any => {
 }
 
 export const accessContentPackState = () => state
-export const useContentPackState = () => useState(state)
+export const useContentPackState = () => useState(state) as any as typeof state

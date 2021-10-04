@@ -25,4 +25,4 @@ const dialogReceptor = (action: DialogActionType): any => {
 }
 
 export const dialogState = () => state
-export const useDialogState = () => useState(state)
+export const useDialogState = () => useState(state) as any as typeof state

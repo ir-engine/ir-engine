@@ -83,4 +83,4 @@ const partyReceptor = (action: PartyActionType): any => {
 }
 
 export const accessPartyState = () => state
-export const usePartyState = () => useState(state)
+export const usePartyState = () => useState(state) as any as typeof state
