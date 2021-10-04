@@ -12,11 +12,10 @@ import { accessAuthState } from '../../../user/reducers/auth/AuthState'
 
 import { accessChatState } from './ChatState'
 
-
 const store = Store.store
 
 export const ChatService = {
-getChannels:(skip?: number, limit?: number)=>{
+  getChannels: (skip?: number, limit?: number) => {
     return async (dispatch: Dispatch, getState: any): Promise<any> => {
       try {
         await waitForClientAuthenticated()
@@ -35,7 +34,7 @@ getChannels:(skip?: number, limit?: number)=>{
       }
     }
   },
-  getInstanceChannel:()=>{
+  getInstanceChannel: () => {
     return async (dispatch: Dispatch, getState: any): Promise<any> => {
       try {
         const channelResult = await client.service('channel').find({
@@ -49,7 +48,7 @@ getChannels:(skip?: number, limit?: number)=>{
       }
     }
   },
-  createMessage:(values: any)=>{
+  createMessage: (values: any) => {
     return async (dispatch: Dispatch): Promise<any> => {
       try {
         await client.service('message').create({
@@ -63,7 +62,7 @@ getChannels:(skip?: number, limit?: number)=>{
       }
     }
   },
-  sendChatMessage:(values: any)=>{
+  sendChatMessage: (values: any) => {
     try {
       client.service('message').create({
         targetObjectId: values.targetObjectId,
@@ -74,7 +73,7 @@ getChannels:(skip?: number, limit?: number)=>{
       console.log(err)
     }
   },
-  sendMessage: (text: string)=>{
+  sendMessage: (text: string) => {
     const user = accessAuthState().user.value
     ChatService.sendChatMessage({
       targetObjectId: user.instanceId,
@@ -82,7 +81,7 @@ getChannels:(skip?: number, limit?: number)=>{
       text: text
     })
   },
-  getChannelMessages:(channelId: string, skip?: number, limit?: number)=>{
+  getChannelMessages: (channelId: string, skip?: number, limit?: number) => {
     return async (dispatch: Dispatch, getState: any): Promise<any> => {
       try {
         const chatState = accessChatState().value
@@ -103,7 +102,7 @@ getChannels:(skip?: number, limit?: number)=>{
       }
     }
   },
-removeMessage:(messageId: string)=>{
+  removeMessage: (messageId: string) => {
     return async (dispatch: Dispatch): Promise<any> => {
       try {
         await client.service('message').remove(messageId)
@@ -113,7 +112,7 @@ removeMessage:(messageId: string)=>{
       }
     }
   },
-  patchMessage:(messageId: string, text: string)=>{
+  patchMessage: (messageId: string, text: string) => {
     return async (dispatch: Dispatch): Promise<any> => {
       try {
         await client.service('message').patch(messageId, {
@@ -125,7 +124,7 @@ removeMessage:(messageId: string)=>{
       }
     }
   },
-  updateChatTarget:(targetObjectType: string, targetObject: any)=>{
+  updateChatTarget: (targetObjectType: string, targetObject: any) => {
     return async (dispatch: Dispatch): Promise<any> => {
       const targetChannelResult = await client.service('channel').find({
         query: {
@@ -135,11 +134,15 @@ removeMessage:(messageId: string)=>{
         }
       })
       dispatch(
-        ChatAction.setChatTarget(targetObjectType, targetObject, targetChannelResult.total > 0 ? targetChannelResult.data[0].id : '')
+        ChatAction.setChatTarget(
+          targetObjectType,
+          targetObject,
+          targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+        )
       )
     }
   },
-  clearChatTargetIfCurrent:(targetObjectType: string, targetObject: any)=>{
+  clearChatTargetIfCurrent: (targetObjectType: string, targetObject: any) => {
     return async (dispatch: Dispatch): Promise<any> => {
       const chatState = accessChatState().value
       const chatStateTargetObjectType = chatState.targetObjectType
@@ -154,13 +157,11 @@ removeMessage:(messageId: string)=>{
       }
     }
   },
-  updateMessageScrollInit:(value: boolean)=>{
+  updateMessageScrollInit: (value: boolean) => {
     return async (dispatch: Dispatch): Promise<any> => {
       dispatch(ChatAction.setMessageScrollInit(value))
     }
   }
-  
-
 }
 
 if (!Config.publicRuntimeConfig.offlineMode) {

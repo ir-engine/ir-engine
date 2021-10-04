@@ -31,7 +31,7 @@ interface Props {
   updateCreatorFormState?: typeof updateCreatorFormState
   setView: any
 }
-const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState, setView }: any) => {
+const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState, setView, onGoRegistration }: any) => {
   const { t } = useTranslation()
   useEffect(() => getLoggedCreator(), [])
   const creator =
@@ -49,7 +49,9 @@ const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState, set
           cursor: 'pointer'
         }}
         onClick={() => {
-          setView('featured')
+          onGoRegistration(() => {
+            setView('featured')
+          })
         }}
       />
       {creator &&
@@ -57,7 +59,11 @@ const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState, set
           /*!checkGuest*/
         } && (
           <Avatar
-            onClick={() => updateCreatorFormState(true)}
+            onClick={() => {
+              onGoRegistration(() => {
+                updateCreatorFormState(true)
+              })
+            }}
             alt={creator.username}
             src={creator.avatar ? creator.avatar : '/assets/userpic.png'}
           />

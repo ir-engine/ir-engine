@@ -326,7 +326,7 @@ export default (app: Application): void => {
 
             if (instanceId != null && instance != null) {
               const activeUsers = Engine.defaultWorld.clients
-              const activeUsersCount = activeUsers.length || activeUsers.size
+              const activeUsersCount = activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
                   currentUsers: activeUsersCount

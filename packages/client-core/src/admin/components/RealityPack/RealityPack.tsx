@@ -22,7 +22,6 @@ import styles from './RealityPack.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadRealityPackModel from '../ContentPack/UploadRealityPackModel'
 import { useRealityPackState } from '../../reducers/admin/reality-pack/RealityPackState'
-import { AuthService } from '../../../user/reducers/auth/AuthService'
 import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
 
 if (!global.setImmediate) {
@@ -32,7 +31,6 @@ if (!global.setImmediate) {
 interface Props {
   locationState?: any
   fetchAdminRealityPacks?: any
-  adminRealityPackState?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -44,9 +42,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const RealityPack = (props: Props) => {
-  const { fetchAdminRealityPacks, adminRealityPackState } = props
+  const { fetchAdminRealityPacks } = props
   const authState = useAuthState()
   const user = authState.user
+  const adminRealityPackState = useRealityPackState()
   const adminRealityPacks = adminRealityPackState.realityPacks.realityPacks
   const adminRealityPackCount = adminRealityPackState.realityPacks.total
   const dispatch = useDispatch()
@@ -189,7 +188,7 @@ const RealityPack = (props: Props) => {
 
   const tryReuploadRealityPack = async (row) => {
     try {
-      const existingRealityPack = adminRealityPacks.find((realityPack) => realityPack.id === row.id)
+      const existingRealityPack = adminRealityPacks.value.find((realityPack) => realityPack.id === row.id)
       await dispatch(
         ContentPackService.uploadRealityPack({
           uploadURL: existingRealityPack.sourceManifest

@@ -10,6 +10,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noPropertyAccessFromIndexSignature": true,
     "noEmit": false,
     "module": "CommonJS",
     "strict": false,

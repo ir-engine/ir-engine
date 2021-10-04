@@ -191,30 +191,27 @@ export const EnginePage = (props: Props) => {
         isUserBanned={isUserBanned}
         setIsValidLocation={setIsValidLocation}
       />
-      {realityPackComponents.length ? (
-        realityPackComponents
-      ) : (
-        <Layout
-          pageTitle={t('location.locationName.pageTitle')}
-          harmonyOpen={harmonyOpen}
-          setHarmonyOpen={setHarmonyOpen}
-          theme={props.theme}
-          hideVideo={props.hideVideo}
-          hideFullscreen={props.hideFullscreen}
-        >
-          <DefaultLayoutView
-            canvasElement={canvas}
-            loadingItemCount={loadingItemCount}
-            isValidLocation={isValidLocation}
-            allowDebug={props.allowDebug}
-            reinit={reinit}
-            children={props.children}
-            showTouchpad={props.showTouchpad}
-            isTeleporting={isTeleporting}
-            locationName={props.locationName}
-          />
-        </Layout>
-      )}
+      {realityPackComponents}
+      <Layout
+        pageTitle={t('location.locationName.pageTitle')}
+        harmonyOpen={harmonyOpen}
+        setHarmonyOpen={setHarmonyOpen}
+        theme={props.theme}
+        hideVideo={props.hideVideo}
+        hideFullscreen={props.hideFullscreen}
+      >
+        <DefaultLayoutView
+          canvasElement={canvas}
+          loadingItemCount={loadingItemCount}
+          isValidLocation={isValidLocation}
+          allowDebug={props.allowDebug}
+          reinit={reinit}
+          children={props.children}
+          showTouchpad={props.showTouchpad}
+          isTeleporting={isTeleporting}
+          locationName={props.locationName}
+        />
+      </Layout>
     </>
   )
 }

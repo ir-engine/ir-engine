@@ -9,6 +9,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noPropertyAccessFromIndexSignature": true,
     "noEmit": false,
     "module": "esnext",
     "strict": false,
