@@ -3,6 +3,7 @@ import Store from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
 import { Config } from '@xrengine/common/src/config'
 import { Dispatch } from 'redux'
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
@@ -63,9 +64,9 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
       const instanceConnectionState = getState().get('instanceConnection')
       const instance = instanceConnectionState.get('instance')
       const locationId = instanceConnectionState.get('locationId')
-      const locationState = getState().get('locations')
-      const currentLocation = locationState.get('currentLocation').get('location')
-      const sceneId = currentLocation.sceneId
+      const locationState = accessLocationState()
+      const currentLocation = locationState.currentLocation.location
+      const sceneId = currentLocation?.sceneId?.value
       const videoActive =
         MediaStreams !== null &&
         MediaStreams !== undefined &&
@@ -89,11 +90,12 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
             channelType: channelType,
             channelId: channelId,
             videoEnabled:
-              currentLocation?.locationSettings?.videoEnabled === true ||
+              currentLocation?.locationSettings?.videoEnabled?.value === true ||
               !(
-                currentLocation?.locationSettings?.locationType === 'showroom' &&
-                user.locationAdmins?.value?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) ==
-                  null
+                currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+                user.locationAdmins?.value?.find(
+                  (locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value
+                ) == null
               )
           }
         )

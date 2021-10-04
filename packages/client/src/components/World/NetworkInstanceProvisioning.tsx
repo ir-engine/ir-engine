@@ -1,6 +1,5 @@
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
@@ -21,8 +20,6 @@ import { provisionChannelServer } from '../../reducers/channelConnection/service
 
 interface Props {
   locationName: string
-  locationState?: any
-  partyState?: any
   history?: any
   engineInitializeOptions?: InitializeOptions
   instanceConnectionState?: any
@@ -44,9 +41,7 @@ const mapStateToProps = (state: any) => {
   return {
     // appState: selectAppState(state),
 
-    instanceConnectionState: selectInstanceConnectionState(state), //
-    locationState: selectLocationState(state),
-    partyState: selectPartyState(state)
+    instanceConnectionState: selectInstanceConnectionState(state) //
   }
 }
 
@@ -65,6 +60,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const userState = useUserState()
   const dispatch = useDispatch()
   const chatState = useChatState()
+  const locationState = useLocationState()
+
   useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
@@ -87,9 +84,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    const currentLocation = props.locationState.get('currentLocation').get('location')
+    const currentLocation = locationState.currentLocation.location
 
-    if (currentLocation.id) {
+    if (currentLocation.id?.value) {
       if (
         !isUserBanned &&
         !props.instanceConnectionState.get('instanceProvisioned') &&
@@ -104,21 +101,18 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = query.instanceId
         }
 
-        if (sceneId === null) setSceneId(currentLocation.sceneId)
-        props.provisionInstanceServer(currentLocation.id, instanceId || undefined, sceneId)
+        if (sceneId === null) setSceneId(currentLocation.sceneId.value)
+        props.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
       }
 
-      if (sceneId === null) setSceneId(currentLocation.sceneId)
+      if (sceneId === null) setSceneId(currentLocation.sceneId.value)
     } else {
-      if (
-        !props.locationState.get('currentLocationUpdateNeeded') &&
-        !props.locationState.get('fetchingCurrentLocation')
-      ) {
+      if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
         setIsValidLocation(false)
         dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
       }
     }
-  }, [props.locationState])
+  }, [locationState.currentLocation.location.value])
 
   useEffect(() => {
     if (

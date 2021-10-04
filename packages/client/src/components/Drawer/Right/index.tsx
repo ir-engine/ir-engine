@@ -32,8 +32,8 @@ import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/G
 import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
 import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
 import { useInviteState } from '@xrengine/client-core/src/social/reducers/invite/InviteState'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { getLocations } from '@xrengine/client-core/src/social/reducers/location/service'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { LocationService } from '@xrengine/client-core/src/social/reducers/location/LocationService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import _ from 'lodash'
@@ -41,27 +41,20 @@ import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { provisionInstanceServer } from '../../../reducers/instanceConnection/service'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
+import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 import styles from './Right.module.scss'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    partyState: selectPartyState(state),
-    locationState: selectLocationState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getLocations: bindActionCreators(getLocations, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 })
 
 interface Props {
   rightDrawerOpen?: any
   setRightDrawerOpen?: any
-  partyState?: any
-  locationState?: any
-  getLocations?: any
   provisionInstanceServer?: any
 }
 
@@ -70,8 +63,7 @@ identityProviderTabMap.set(0, 'email')
 identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
-  const { partyState, locationState, getLocations, provisionInstanceServer, rightDrawerOpen, setRightDrawerOpen } =
-    props
+  const { provisionInstanceServer, rightDrawerOpen, setRightDrawerOpen } = props
   const user = useAuthState().user
   const friendSubState = useFriendState().friends
   const friends = friendSubState.friends.value
@@ -85,10 +77,10 @@ const Invites = (props: Props): any => {
   const groupState = useGroupState()
   const invitableGroupState = groupState.invitableGroups
   const invitableGroups = invitableGroupState.groups
-  const party = partyState.get('party')
+  const party = usePartyState().party.value
   const selfPartyUser =
     party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id.value) : {}
-  const locations = locationState.get('locations').get('locations')
+
   const [tabIndex, setTabIndex] = useState(0)
   const [inviteTabIndex, setInviteTabIndex] = useState(0)
   const [inviteTypeIndex, setInviteTypeIndex] = useState(0)
@@ -96,7 +88,7 @@ const Invites = (props: Props): any => {
   const [deletePending, setDeletePending] = useState('')
   const [selectedAccordion, setSelectedAccordion] = useState('invite')
   const dispatch = useDispatch()
-
+  const locationState = useLocationState()
   useEffect(() => {
     if (groupState.invitableUpdateNeeded.value === true && groupState.getInvitableGroupsInProgress.value !== true) {
       dispatch(GroupService.getInvitableGroups(0))
@@ -104,10 +96,10 @@ const Invites = (props: Props): any => {
   }, [groupState.invitableUpdateNeeded.value, groupState.getInvitableGroupsInProgress.value])
 
   useEffect(() => {
-    if (locationState.get('updateNeeded') === true) {
-      getLocations()
+    if (locationState.updateNeeded.value === true) {
+      dispatch(LocationService.getLocations())
     }
-  }, [locationState])
+  }, [locationState.updateNeeded.value])
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault()

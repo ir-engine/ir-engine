@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
+import Cached from '@material-ui/icons/Cached'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableContainer from '@material-ui/core/TableContainer'
@@ -22,6 +23,7 @@ import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadRealityPackModel from '../ContentPack/UploadRealityPackModel'
 import { useRealityPackState } from '../../reducers/admin/reality-pack/RealityPackState'
 import { AuthService } from '../../../user/reducers/auth/AuthService'
+import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -30,6 +32,7 @@ if (!global.setImmediate) {
 interface Props {
   locationState?: any
   fetchAdminRealityPacks?: any
+  adminRealityPackState?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -41,17 +44,18 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const RealityPack = (props: Props) => {
-  const { fetchAdminRealityPacks } = props
+  const { fetchAdminRealityPacks, adminRealityPackState } = props
   const authState = useAuthState()
   const user = authState.user
-  const adminRealityPackState = useRealityPackState()
   const adminRealityPacks = adminRealityPackState.realityPacks.realityPacks
   const adminRealityPackCount = adminRealityPackState.realityPacks.total
+  const dispatch = useDispatch()
 
   const headCell = [
     { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' }
+    { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' },
+    { id: 'update', numeric: false, disablePadding: true, label: 'Update' }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -183,6 +187,19 @@ const RealityPack = (props: Props) => {
     }, 5000)
   }
 
+  const tryReuploadRealityPack = async (row) => {
+    try {
+      const existingRealityPack = adminRealityPacks.find((realityPack) => realityPack.id === row.id)
+      await dispatch(
+        ContentPackService.uploadRealityPack({
+          uploadURL: existingRealityPack.sourceManifest
+        })
+      )
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   // useEffect(() => {
   //   fetchTick()
   // }, [])
@@ -282,6 +299,18 @@ const RealityPack = (props: Props) => {
                           name="stereoscopic"
                           color="primary"
                         />
+                      )}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole.value === 'admin' && (
+                        <Button
+                          className={styles.checkbox}
+                          onClick={(e) => tryReuploadRealityPack(row)}
+                          name="stereoscopic"
+                          color="primary"
+                        >
+                          <Cached />
+                        </Button>
                       )}
                     </TableCell>
                   </TableRow>

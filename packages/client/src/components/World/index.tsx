@@ -1,4 +1,4 @@
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -54,7 +54,6 @@ const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 interface Props {
   locationName: string
   allowDebug?: boolean
-  locationState?: any
   partyState?: any
   history?: any
   engineInitializeOptions?: InitializeOptions
@@ -69,9 +68,7 @@ interface Props {
 }
 
 const mapStateToProps = (state: any) => {
-  return {
-    locationState: selectLocationState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({})
@@ -89,6 +86,7 @@ export const EnginePage = (props: Props) => {
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [realityPackComponents, setRealityPackComponents] = useState([] as any[])
+  const locationState = useLocationState()
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -108,7 +106,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     checkForBan()
-    if (!isUserBanned && !props.locationState.get('fetchingCurrentLocation')) {
+    if (!isUserBanned && !locationState.fetchingCurrentLocation.value) {
       retriveLocationByName(authState, props.locationName, history)
     }
   }, [authState.isLoggedIn.value, authState.user.id.value])
@@ -121,16 +119,17 @@ export const EnginePage = (props: Props) => {
 
   const checkForBan = (): void => {
     const selfUser = authState.user
-    const currentLocation = props.locationState.get('currentLocation').get('location')
+    const currentLocation = locationState.currentLocation.location
 
-    const isUserBanned = selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id) != null
+    const isUserBanned =
+      selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
     setUserBanned(isUserBanned)
   }
 
   const reinit = () => {
-    const currentLocation = props.locationState.get('currentLocation').get('location')
-    if (sceneId === null && currentLocation.sceneId !== null) {
-      setSceneId(currentLocation.sceneId)
+    const currentLocation = locationState.currentLocation.location
+    if (sceneId === null && currentLocation.sceneId.value !== null) {
+      setSceneId(currentLocation.sceneId.value)
     }
     init(sceneId!)
   }
@@ -157,7 +156,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
+    const slugifiedName = locationState.currentLocation.location.slugifiedName.value
 
     teleportToLocation(portalComponent, slugifiedName, () => {
       setIsTeleporting(true)

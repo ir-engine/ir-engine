@@ -38,12 +38,15 @@ export const getPacksFromSceneData = async (sceneData: SceneData, isClient: bool
 }
 
 export const importPack = async (data: RealityPackNodeArguments, isClient: boolean): Promise<RealityPackModules> => {
+  console.info(`Loading Reality Pack with data`, data)
   const modules = {
     systems: [],
     react: []
   }
   try {
     const realityPackManifest = (await import(`./packs/${data.packName}/manifest.json`)) as RealityPackInterface
+
+    console.info(`Got Reality Pack Manifest`, realityPackManifest)
 
     for (const { entryPoint, systemUpdateType, args } of data.entryPoints) {
       const entryPointSplit = entryPoint.split('.')
@@ -103,7 +106,7 @@ export const importPack = async (data: RealityPackNodeArguments, isClient: boole
       }
     }
   } catch (e) {
-    console.log(`[RealityPackLoader]: Failed to load reality pack manifest ${data.packName} with error ${e}`)
+    console.log(`[RealityPackLoader]: Failed to load reality pack manifest ${data} with error ${e}`)
   }
 
   return modules

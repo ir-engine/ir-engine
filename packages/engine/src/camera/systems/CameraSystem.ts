@@ -203,7 +203,8 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // TODO: Can move avatar update code outside this function
   if (followCamera.locked) {
     const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
-    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 2)
+    // avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
+    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 4)
   }
 }
 

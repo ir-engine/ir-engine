@@ -7,7 +7,6 @@ import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToa
 import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { Config } from '@xrengine/common/src/config'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -49,7 +48,6 @@ const initialGroupForm = {
 }
 
 interface Props {
-  locationState?: any
   login?: boolean
   pageTitle: string
   children?: any
@@ -60,16 +58,14 @@ interface Props {
   setHarmonyOpen?: any
 }
 const mapStateToProps = (state: any): any => {
-  return {
-    locationState: selectLocationState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Layout = (props: Props): any => {
   const path = useLocation().pathname
-  const { pageTitle, children, login, locationState } = props
+  const { pageTitle, children, login } = props
   const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)

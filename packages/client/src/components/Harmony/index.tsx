@@ -45,16 +45,8 @@ import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/
 import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
 import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
 import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { banUserFromLocation } from '@xrengine/client-core/src/social/reducers/location/service'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
-import {
-  createParty,
-  getParty,
-  removeParty,
-  removePartyUser,
-  transferPartyOwner
-} from '@xrengine/client-core/src/social/reducers/party/service'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
@@ -96,15 +88,13 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { Downgraded } from '@hookstate/core'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const mapStateToProps = (state: any): any => {
   return {
     channelConnectionState: selectChannelConnectionState(state),
-    locationState: selectLocationState(state),
-    partyState: selectPartyState(state),
+
     transportState: selectTransportState(state),
     mediastream: selectMediastreamState(state)
   }
@@ -114,12 +104,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
   connectToChannelServer: bindActionCreators(connectToChannelServer, dispatch),
   resetChannelServer: bindActionCreators(resetChannelServer, dispatch),
-  getParty: bindActionCreators(getParty, dispatch),
-  createParty: bindActionCreators(createParty, dispatch),
-  removeParty: bindActionCreators(removeParty, dispatch),
-  removePartyUser: bindActionCreators(removePartyUser, dispatch),
-  transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
-  banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch),
   changeChannelTypeState: bindActionCreators(changeChannelTypeState, dispatch)
 })
 
@@ -131,17 +115,12 @@ interface Props {
   connectToChannelServer?: typeof connectToChannelServer
   resetChannelServer?: typeof resetChannelServer
 
-  partyState?: any
-  removeParty?: any
-  removePartyUser?: any
-  transferPartyOwner?: any
   setDetailsType?: any
   setGroupFormMode?: any
   setGroupFormOpen?: any
   setGroupForm?: any
   setSelectedUser?: any
   setSelectedGroup?: any
-  locationState?: any
   transportState?: any
   changeChannelTypeState?: any
   mediastream?: any
@@ -168,15 +147,12 @@ const Harmony = (props: Props): any => {
     provisionChannelServer,
     connectToChannelServer,
     resetChannelServer,
-
-    partyState,
     setDetailsType,
     setGroupFormOpen,
     setGroupFormMode,
     setGroupForm,
     setSelectedUser,
     setSelectedGroup,
-    locationState,
     transportState,
     changeChannelTypeState,
     mediastream,
@@ -245,8 +221,8 @@ const Harmony = (props: Props): any => {
   const groupState = useGroupState()
   const groupSubState = groupState.groups
   const groups = groupSubState.groups.value
-  const party = partyState.get('party')
-  const currentLocation = locationState.get('currentLocation').get('location')
+  const party = usePartyState().party.value
+  const currentLocation = useLocationState().currentLocation.location
 
   const setProducerStarting = (value) => {
     producerStartingRef.current = value
@@ -285,8 +261,8 @@ const Harmony = (props: Props): any => {
   const videoEnabled =
     isHarmonyPage === true
       ? true
-      : currentLocation.locationSettings
-      ? currentLocation.locationSettings.videoEnabled
+      : currentLocation?.locationSettings?.value
+      ? currentLocation?.locationSettings?.videoEnabled?.value
       : false
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')

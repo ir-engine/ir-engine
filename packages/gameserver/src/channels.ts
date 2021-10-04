@@ -113,7 +113,7 @@ export default (app: Application): void => {
   app.on('connection', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -275,7 +275,7 @@ export default (app: Application): void => {
   app.on('disconnect', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -326,19 +326,20 @@ export default (app: Application): void => {
 
             if (instanceId != null && instance != null) {
               const activeUsers = Engine.defaultWorld.clients
+              const activeUsersCount = activeUsers.length || activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
-                  currentUsers: activeUsers.length
+                  currentUsers: activeUsersCount
                 })
               } catch (err) {
                 console.log('Failed to patch instance user count, likely because it was destroyed')
               }
 
               const user = await app.service('user').get(userId)
-              const instanceIdKey = app.isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
+              const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
               if (
                 (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
-                process.env.NODE_ENV === 'development'
+                process.env.APP_ENV === 'development'
               )
                 await app
                   .service('user')
@@ -375,7 +376,7 @@ export default (app: Application): void => {
 
               app.channel(`instanceIds/${instanceId as string}`).leave(connection)
 
-              if (activeUsers.length < 1) {
+              if (activeUsersCount < 1) {
                 console.log('Deleting instance ' + instanceId)
                 try {
                   await app.service('instance').patch(instanceId, {
