@@ -4,10 +4,10 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-// import { selectFeedsState } from '../../reducers/feed/selector';
-// import { getFeeds } from '../../reducers/feed/service';
-import { getTheFeedsNew } from '@xrengine/social/src/reducers/thefeeds/service'
-import { selectTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/selector'
+// import { selectFeedsState } from '@xrengine/client-core/src/social/reducers/feed/selector';
+// import { getFeeds } from '@xrengine/client-core/src/social/reducers/feed/service';
+import { getTheFeedsNew } from '@xrengine/client-core/src/social/reducers/thefeeds/service'
+import { selectTheFeedsState } from '@xrengine/client-core/src/social/reducers/thefeeds/selector'
 
 import TheFeedsCard from '../TheFeedsCard'
 

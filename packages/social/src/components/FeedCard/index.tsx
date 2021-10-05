@@ -31,23 +31,34 @@ import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { addViewToFeed, removeFeed } from '../../reducers/feed/service'
-// import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
-import { selectFeedFiresState } from '../../reducers/feedFires/selector'
-import { selectFeedLikesState } from '../../reducers/feedLikes/selector'
+import { addViewToFeed, removeFeed } from '@xrengine/client-core/src/social/reducers/feed/service'
+// import { addBookmarkToFeed, removeBookmarkToFeed } from '@xrengine/client-core/src/social/reducers/feedBookmark/service';
+import { selectFeedFiresState } from '@xrengine/client-core/src/social/reducers/feedFires/selector'
+import { selectFeedLikesState } from '@xrengine/client-core/src/social/reducers/feedLikes/selector'
 
-// import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
-import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service'
-import { getFeedLikes, addLikeToFeed, removeLikeToFeed } from '../../reducers/feedLikes/service'
+// import { getFeedFires, addFireToFeed, removeFireToFeed } from '@xrengine/client-core/src/social/reducers/feedFires/service';
+import {
+  getFeedFires,
+  addFireToFeed,
+  removeFireToFeed
+} from '@xrengine/client-core/src/social/reducers/feedFires/service'
+import {
+  getFeedLikes,
+  addLikeToFeed,
+  removeLikeToFeed
+} from '@xrengine/client-core/src/social/reducers/feedLikes/service'
 import PopupLogin from '../PopupLogin/PopupLogin'
 // import { IndexPage } from '@xrengine/social/pages/login';
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { getLoggedCreator } from '@xrengine/client-core/src/social/reducers/creator/service'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
-import { updateCreatorPageState, updateFeedPageState } from '../../reducers/popupsState/service'
+import {
+  updateCreatorPageState,
+  updateFeedPageState
+} from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import { Share } from '@capacitor/share'
-import { addReportToFeed } from '../../reducers/feedReport/service'
+import { addReportToFeed } from '@xrengine/client-core/src/social/reducers/feedReport/service'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import CommentList from '../CommentList'

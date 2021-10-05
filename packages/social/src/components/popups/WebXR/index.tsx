@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectPopupsState } from '../../../reducers/popupsState/selector'
-import { updateWebXRState } from '../../../reducers/popupsState/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
+import { updateWebXRState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import WebXRPlugin from '../../WebXRPlugin'
 
 const mapStateToProps = (state: any): any => {

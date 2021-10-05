@@ -13,8 +13,8 @@ import BackupIcon from '@material-ui/icons/Backup'
 
 import styles from './ArMediaForm.module.scss'
 
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { createArMedia } from '../../reducers/arMedia/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { createArMedia } from '@xrengine/client-core/src/social/reducers/arMedia/service'
 
 const mapStateToProps = (state: any): any => {
   return {

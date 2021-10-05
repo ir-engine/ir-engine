@@ -5,14 +5,14 @@ import Button from '@material-ui/core/Button'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
 import {
   followCreator,
   getCreator,
   getFollowersList,
   getFollowingList,
   unFollowCreator
-} from '../../reducers/creator/service'
+} from '@xrengine/client-core/src/social/reducers/creator/service'
 import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'

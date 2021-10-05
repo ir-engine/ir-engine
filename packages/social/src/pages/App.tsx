@@ -6,14 +6,14 @@ import { SnackbarProvider } from 'notistack'
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
+import { selectWebXrNativeState } from '@xrengine/client-core/src/social/reducers/webxr_native/selector'
 
 import { User } from '@xrengine/common/src/interfaces/User'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
-import { getWebXrNative, changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { createCreator } from '@xrengine/client-core/src/social/reducers/creator/service'
+import { getWebXrNative, changeWebXrNative } from '@xrengine/client-core/src/social/reducers/webxr_native/service'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'

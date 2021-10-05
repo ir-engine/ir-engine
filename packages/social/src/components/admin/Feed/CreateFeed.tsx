@@ -12,7 +12,7 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { validateFeedForm } from './validation'
-import { createFeed } from '../../../reducers/feed/service'
+import { createFeed } from '@xrengine/client-core/src/social/reducers/feed/service'
 
 interface Props {
   open: boolean

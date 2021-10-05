@@ -8,9 +8,9 @@ import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
-import { updateCreatorFormState } from '../../reducers/popupsState/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { getLoggedCreator } from '@xrengine/client-core/src/social/reducers/creator/service'
+import { updateCreatorFormState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {

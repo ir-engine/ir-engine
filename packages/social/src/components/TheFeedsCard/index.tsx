@@ -14,9 +14,13 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { selectTheFeedsFiresState } from '../../reducers/thefeedsFires/selector'
-import { addFireToTheFeeds, getTheFeedsFires, removeFireToTheFeeds } from '../../reducers/thefeedsFires/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { selectTheFeedsFiresState } from '@xrengine/client-core/src/social/reducers/thefeedsFires/selector'
+import {
+  addFireToTheFeeds,
+  getTheFeedsFires,
+  removeFireToTheFeeds
+} from '@xrengine/client-core/src/social/reducers/thefeedsFires/service'
 import CreatorAsTitle from '../CreatorAsTitle'
 import styles from './TheFeedsCard.module.scss'
 

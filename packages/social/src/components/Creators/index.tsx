@@ -7,12 +7,12 @@ import PersonPinIcon from '@material-ui/icons/PersonPin'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getBlockedList, getCreators } from '../../reducers/creator/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { getBlockedList, getCreators } from '@xrengine/client-core/src/social/reducers/creator/service'
 // @ts-ignore
 import styles from './Creators.module.scss'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { updateCreatorPageState } from '../../reducers/popupsState/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
+import { updateCreatorPageState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
 
 const mapStateToProps = (state: any): any => {
   return {

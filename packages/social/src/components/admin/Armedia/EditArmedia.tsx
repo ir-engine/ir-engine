@@ -21,7 +21,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
 import Card from '@material-ui/core/Card'
-import { updateArMedia } from '../../../reducers/arMedia/service'
+import { updateArMedia } from '@xrengine/client-core/src/social/reducers/arMedia/service'
 
 interface Props {
   mediaAdmin: any

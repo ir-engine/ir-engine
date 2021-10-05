@@ -10,10 +10,10 @@ import {
   getTheFeedsNew,
   removeTheFeeds,
   updateTheFeedsAsAdmin
-} from '@xrengine/social/src/reducers/thefeeds/service'
+} from '@xrengine/client-core/src/social/reducers/thefeeds/service'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import TheFeedsConsole from '@xrengine/social/src/components/admin/Feeds'
-import { selectTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/selector'
+import { selectTheFeedsState } from '@xrengine/client-core/src/social/reducers/thefeeds/selector'
 
 // const thefeeds = '';
 // conts Feeds = '';

@@ -15,8 +15,12 @@ import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import SimpleModal from '../SimpleModal'
-import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service'
-import { selectFeedCommentsState } from '../../reducers/feedComment/selector'
+import {
+  addFireToFeedComment,
+  getCommentFires,
+  removeFireToFeedComment
+} from '@xrengine/client-core/src/social/reducers/feedComment/service'
+import { selectFeedCommentsState } from '@xrengine/client-core/src/social/reducers/feedComment/selector'
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useTranslation } from 'react-i18next'

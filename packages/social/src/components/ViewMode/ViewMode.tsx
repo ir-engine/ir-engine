@@ -9,10 +9,10 @@ import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
 import AddCircleIcon from '@material-ui/icons/AddCircle'
 import { bindActionCreators, Dispatch } from 'redux'
-import { updateArMediaState } from '../../reducers/popupsState/service'
+import { updateArMediaState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import { connect } from 'react-redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'
 import StepWizard from 'react-step-wizard'
@@ -20,7 +20,7 @@ import StepWizard from 'react-step-wizard'
 //
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
-import { updateCreator } from '../../reducers/creator/service'
+import { updateCreator } from '@xrengine/client-core/src/social/reducers/creator/service'
 
 // @ts-ignore
 import classes from './ViewMode.module.scss'

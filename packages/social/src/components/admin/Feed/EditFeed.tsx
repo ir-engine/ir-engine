@@ -16,7 +16,7 @@ import { validateFeedForm } from './validation'
 import { Save } from '@material-ui/icons'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { updateFeedAsAdmin } from '../../../reducers/feed/service'
+import { updateFeedAsAdmin } from '@xrengine/client-core/src/social/reducers/feed/service'
 
 interface Props {
   adminFeed: any

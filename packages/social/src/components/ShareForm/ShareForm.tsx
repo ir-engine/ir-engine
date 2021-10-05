@@ -4,11 +4,14 @@ import Card from '@material-ui/core/Card'
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { updateShareFormState, updateNewFeedPageState } from '../../reducers/popupsState/service'
+import {
+  updateShareFormState,
+  updateNewFeedPageState
+} from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
 import { Share } from '@capacitor/share'
 
 const mapStateToProps = (state: any): any => {

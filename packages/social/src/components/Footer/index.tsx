@@ -12,8 +12,8 @@ import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { useEffect } from 'react'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { getLoggedCreator } from '@xrengine/client-core/src/social/reducers/creator/service'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
 import {
@@ -23,8 +23,8 @@ import {
   updateFeedPageState,
   updateNewFeedPageState,
   updateShareFormState
-} from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+} from '@xrengine/client-core/src/social/reducers/popupsState/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
 import ViewMode from '../ViewMode/ViewMode'
 
 const mapStateToProps = (state: any): any => {

@@ -19,7 +19,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { selectCreatorsState } from '../../reducers/creator/selector'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
 import {
   blockCreator,
   followCreator,
@@ -29,10 +29,13 @@ import {
   getFollowingList,
   unFollowCreator,
   updateCreator
-} from '../../reducers/creator/service'
-import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { clearCreatorFeatured } from '../../reducers/feed/service'
+} from '@xrengine/client-core/src/social/reducers/creator/service'
+import {
+  updateCreatorPageState,
+  updateCreatorFormState
+} from '@xrengine/client-core/src/social/reducers/popupsState/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
+import { clearCreatorFeatured } from '@xrengine/client-core/src/social/reducers/feed/service'
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
 import SimpleModal from '../SimpleModal'
 

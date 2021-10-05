@@ -25,14 +25,14 @@ import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker'
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss'
 import { connect } from 'react-redux'
-import { updateNewFeedPageState, updateWebXRState } from '../../reducers/popupsState/service'
+import { updateNewFeedPageState, updateWebXRState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { selectArMediaState } from '../../reducers/arMedia/selector'
-import { getArMediaItem } from '../../reducers/arMedia/service'
-import HintOne from '../WebXrHints/HintOne'
-import HintTwo from '../WebXrHints/HintTwo'
-import { setLastFeedVideoUrl } from '../../reducers/feed/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
+import { selectArMediaState } from '@xrengine/client-core/src/social/reducers/arMedia/selector'
+import { getArMediaItem } from '@xrengine/client-core/src/social/reducers/arMedia/service'
+// import HintOne from '../WebXrHints/HintOne'
+// import HintTwo from '../WebXrHints/HintTwo'
+import { setLastFeedVideoUrl } from '@xrengine/client-core/src/social/reducers/feed/service'
 import ZoomGestureHandler from './ZoomGestureHandler'
 
 const mapStateToProps = (state: any): any => {
@@ -683,8 +683,8 @@ export const WebXRPlugin = ({
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
-      {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
-      {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''}
+      {/* {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''} */}
+      {/* {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''} */}
       <div className="plugintestControls">
         <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
           <section className={styles.waterMarkWrapper}>

@@ -22,9 +22,9 @@ import SubjectIcon from '@material-ui/icons/Subject'
 
 import TextField from '@material-ui/core/TextField'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { updateCreator } from '../../reducers/creator/service'
-import { updateCreatorFormState } from '../../reducers/popupsState/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { updateCreator } from '@xrengine/client-core/src/social/reducers/creator/service'
+import { updateCreatorFormState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {

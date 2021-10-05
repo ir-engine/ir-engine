@@ -5,8 +5,8 @@ import React, { useEffect } from 'react'
 import CreatorConsole from '@xrengine/social/src/components/admin/CreatorConsole'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
-import { getCreators } from '@xrengine/social/src/reducers/creator/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { getCreators } from '@xrengine/client-core/src/social/reducers/creator/service'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 
 const mapStateToProps = (state: any): any => {

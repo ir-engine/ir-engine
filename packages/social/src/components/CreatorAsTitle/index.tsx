@@ -9,9 +9,9 @@ import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import { updateCreatorPageState } from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { unBlockCreator } from '../../reducers/creator/service'
+import { updateCreatorPageState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
+import { unBlockCreator } from '@xrengine/client-core/src/social/reducers/creator/service'
 
 const mapStateToProps = (state: any): any => {
   return {

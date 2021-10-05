@@ -14,11 +14,11 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { selectFeedsState } from '../../reducers/feed/selector'
-import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { updateFeedPageState } from '../../reducers/popupsState/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { selectFeedsState } from '@xrengine/client-core/src/social/reducers/feed/selector'
+import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '@xrengine/client-core/src/social/reducers/feed/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
+import { updateFeedPageState } from '@xrengine/client-core/src/social/reducers/popupsState/service'
 import styles from './Featured.module.scss'
 
 const mapStateToProps = (state: any): any => {

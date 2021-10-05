@@ -19,20 +19,17 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
-import {
-  createFeed,
-  updateFeedAsAdmin
-} from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feed/service'
+import { createFeed, updateFeedAsAdmin } from '@xrengine/client-core/src/social/reducers/feed/service'
 import {
   updateNewFeedPageState,
   updateShareFormState,
   updateArMediaState
-} from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/popupsState/service'
-import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/popupsState/selector'
-import { selectWebXrNativeState } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/webxr_native/selector'
-import { changeWebXrNative } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/webxr_native/service'
+} from '@xrengine/client-core/src/social/reducers/popupsState/service'
+import { selectPopupsState } from '@xrengine/client-core/src/social/reducers/popupsState/selector'
+import { selectWebXrNativeState } from '@xrengine/client-core/src/social/reducers/webxr_native/selector'
+import { changeWebXrNative } from '@xrengine/client-core/src/social/reducers/webxr_native/service'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { selectFeedsState } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feed/selector'
+import { selectFeedsState } from '@xrengine/client-core/src/social/reducers/feed/selector'
 
 const mapStateToProps = (state: any): any => {
   return {

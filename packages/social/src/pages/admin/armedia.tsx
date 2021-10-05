@@ -8,8 +8,8 @@ import ArMediaDashboard from '@xrengine/social/src/components/admin/Armedia'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
-import { selectArMediaState } from '@xrengine/social/src/reducers/arMedia/selector'
-import { getArMediaService } from '@xrengine/social/src/reducers/arMedia/service'
+import { selectArMediaState } from '@xrengine/client-core/src/social/reducers/arMedia/selector'
+import { getArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/service'
 
 const mapStateToProps = (state: any): any => {
   return {
