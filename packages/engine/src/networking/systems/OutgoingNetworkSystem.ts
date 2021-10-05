@@ -118,6 +118,7 @@ export const queueUnchangedPoses = (world) => {
   return world
 }
 
+// todo: move to client-specific system
 export const queueUnchangedPosesForClient = (world) => {
   const { currentNetworkState, previousNetworkState } = world
 
