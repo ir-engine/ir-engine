@@ -10,10 +10,8 @@ const state = createState({
     limit: 10,
     skip: 0
   },
-  currentLocation: {
-    location: {} as Location | {},
-    bannedUsers: [] as UserId[]
-  },
+  currentLocation: null! as Location,
+  bannedUsers: [] as UserId[],
   updateNeeded: true,
   currentLocationUpdateNeeded: true,
   fetchingCurrentLocation: false,
@@ -49,7 +47,7 @@ const locationReceptor = (action: LocationActionType): any => {
 
       case 'LOCATION_RETRIEVED':
         newValues = action.location
-        newValues.locationSettings = newValues.location_setting
+        newValues.location_setting = newValues.location_setting
 
         let bannedUsers = [] as UserId[]
         newValues.location_bans?.forEach((ban) => {
@@ -57,15 +55,16 @@ const locationReceptor = (action: LocationActionType): any => {
         })
         bannedUsers = [...new Set(bannedUsers)]
 
-        s.currentLocation.location.set(newValues)
-        s.currentLocation.bannedUsers.set(bannedUsers)
+        s.currentLocation.set(newValues.location)
+        s.bannedUsers.set(bannedUsers)
         s.currentLocationUpdateNeeded.set(false)
         return s.fetchingCurrentLocation.set(false)
 
       case 'LOCATION_NOT_FOUND':
         updateMap = new Map()
         updateMap.set()
-        s.currentLocation.merge({ location: {}, bannedUsers: [] })
+        s.currentLocation.set(null)
+        s.bannedUsers.set([])
         s.currentLocationUpdateNeeded.set(false)
         s.fetchingCurrentLocation.set(false)
         return s.invalidLocation.set(true)

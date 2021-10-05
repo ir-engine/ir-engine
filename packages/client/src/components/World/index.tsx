@@ -119,7 +119,7 @@ export const EnginePage = (props: Props) => {
 
   const checkForBan = (): void => {
     const selfUser = authState.user
-    const currentLocation = locationState.currentLocation.location
+    const currentLocation = locationState.currentLocation
 
     const isUserBanned =
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
@@ -127,7 +127,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const reinit = () => {
-    const currentLocation = locationState.currentLocation.location
+    const currentLocation = locationState.currentLocation
     if (sceneId === null && currentLocation.sceneId.value !== null) {
       setSceneId(currentLocation.sceneId.value)
     }
@@ -156,7 +156,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    const slugifiedName = locationState.currentLocation.location.slugifiedName.value
+    const slugifiedName = locationState.currentLocation.slugifiedName.value
 
     teleportToLocation(portalComponent, slugifiedName, () => {
       setIsTeleporting(true)

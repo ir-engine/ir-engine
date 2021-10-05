@@ -56,7 +56,7 @@ export default (app: Application): any => {
     ;(location as any).hasMany(models.location_admin)
     // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
     ;(location as any).belongsToMany(models.user, { through: 'location_admin' })
-    ;(location as any).hasOne(models.location_settings, { onDelete: 'cascade' })
+    ;(location as any).hasOne(models.location_setting, { onDelete: 'cascade' })
     ;(location as any).hasMany(models.location_ban)
     ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
   }

@@ -971,7 +971,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const party = accessPartyState().party.value
     const selfPartyUser =
       party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id.value) : {}
-    const currentLocation = accessLocationState().currentLocation.location
+    const currentLocation = accessLocationState().currentLocation
     const locationBan = params.locationBan
     if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
       // TODO: Decouple and reenable me!

@@ -7,7 +7,7 @@ import { HookReturn } from 'sequelize/types/lib/hooks'
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const LocationSettings = sequelizeClient.define(
-    'location_settings',
+    'location_setting',
     {
       id: {
         type: DataTypes.UUID,

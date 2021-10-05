@@ -6,7 +6,8 @@ export interface Location {
   slugifiedName: string
   maxUsersPerInstance: number
   sceneId: string
-  locationSettingsId: string
-  location_settings: LocationSettings
+  locationSettingId: string
+  location_setting: LocationSettings
   isLobby: boolean
+  isFeatured: boolean
 }

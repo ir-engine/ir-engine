@@ -159,7 +159,7 @@ const AdminConsole = (props: Props) => {
     name: '',
     maxUsersPerInstance: 10,
     sceneId: null,
-    locationSettingsId: null,
+    locationSettingId: null,
     location_setting: {
       instanceMediaChatEnabled: false,
       videoEnabled: false,

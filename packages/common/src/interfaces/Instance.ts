@@ -1,13 +1,9 @@
 export interface Instance {
-  id: number
+  id: string
   currentUsers: number
   ipAddress: string
   locationId: string
-}
-
-export const InstanceSeed: Instance = {
-  id: 0,
-  ipAddress: '',
-  currentUsers: 0,
-  locationId: ''
+  channelId: string
+  ended: boolean
+  gameserver_subdomain_provision?: any
 }

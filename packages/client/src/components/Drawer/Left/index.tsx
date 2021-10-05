@@ -123,7 +123,7 @@ const LeftDrawer = (props: Props): any => {
       party && party?.partyUsers?.value
         ? party?.partyUsers?.value.find((partyUser) => partyUser.userId === user.id.value)
         : {}
-    const currentLocation = useLocationState().currentLocation.location.value
+    const currentLocation = useLocationState().currentLocation.value
 
     useEffect(() => {
       if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {

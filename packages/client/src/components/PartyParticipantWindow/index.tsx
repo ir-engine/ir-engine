@@ -81,9 +81,9 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   const userHasInteracted = useAppState().userHasInteracted
   const selfUser = useAuthState().user.value
-  const currentLocation = useLocationState().currentLocation.location
+  const currentLocation = useLocationState().currentLocation
   const enableGlobalMute =
-    currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+    currentLocation?.location_setting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
   const user = userState.layerUsers.find((user) => user.id.value === peerId)?.attach(Downgraded).value
 

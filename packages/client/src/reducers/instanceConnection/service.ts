@@ -65,7 +65,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
       const instance = instanceConnectionState.get('instance')
       const locationId = instanceConnectionState.get('locationId')
       const locationState = accessLocationState()
-      const currentLocation = locationState.currentLocation.location
+      const currentLocation = locationState.currentLocation
       const sceneId = currentLocation?.sceneId?.value
       const videoActive =
         MediaStreams !== null &&
@@ -90,9 +90,9 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
             channelType: channelType,
             channelId: channelId,
             videoEnabled:
-              currentLocation?.locationSettings?.videoEnabled?.value === true ||
+              currentLocation?.location_setting?.videoEnabled?.value === true ||
               !(
-                currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+                currentLocation?.location_setting?.locationType?.value === 'showroom' &&
                 user.locationAdmins?.value?.find(
                   (locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value
                 ) == null

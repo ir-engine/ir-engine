@@ -1,5 +1,4 @@
-import config from '../../appconfig'
-import { locationSettingsSeed } from '../location-settings/location-settings.seed'
+import { locationSettingSeed } from '../location-settings/location-settings.seed'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
 export const locationSeed = {
@@ -12,7 +11,7 @@ export const locationSeed = {
       slugifiedName: 'test',
       maxUsersPerInstance: 30,
       sceneId: 'j9o2NLiD',
-      location_settings: locationSettingsSeed.templates.find(
+      location_setting: locationSettingSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'
       ),
       isLobby: false

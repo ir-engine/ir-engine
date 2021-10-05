@@ -24,6 +24,8 @@ import { useSceneState } from '../../reducers/admin/scene/SceneState'
 import { LocationService } from '../../reducers/admin/location/LocationService'
 import { validateUserForm } from '../Users/validation'
 import { useAlertState } from '../../../common/reducers/alert/AlertState'
+import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationSettings } from '@xrengine/common/src/interfaces/LocationSettings'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -148,10 +150,10 @@ const CreateLocation = (props: Props) => {
         screenSharingEnabled: state.screenSharingEnabled,
         faceStreamingEnabled: state.faceStreamingEnabled,
         videoEnabled: state.videoEnabled
-      },
+      } as Partial<LocationSettings>,
       isLobby: state.isLobby,
       isFeatured: state.isFeatured
-    }
+    } as Partial<Location>
     const temp = state.formErrors
     if (!state.name) {
       temp.name = "Name can't be empty"

@@ -89,7 +89,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.NO_GAME_SERVER_PROVISIONED:
-        const currentLocation = locationState.currentLocation.location.value
+        const currentLocation = locationState.currentLocation.value
         setModalValues({
           open: true,
           title: 'No Available Servers',

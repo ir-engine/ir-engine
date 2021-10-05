@@ -21,6 +21,8 @@ import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { useSceneState } from '../reducers/admin/scene/SceneState'
 import { useLocationState } from '../reducers/admin/location/LocationState'
+import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationSettings } from '@xrengine/common/src/interfaces/LocationSettings'
 
 interface Props {
   open: boolean
@@ -56,10 +58,10 @@ const LocationModal = (props: Props): any => {
         locationType: locationType,
         instanceMediaChatEnabled: instanceMediaChatEnabled,
         videoEnabled: videoEnabled
-      },
+      } as Partial<LocationSettings>,
       isLobby: state.lobby,
       isFeatured: state.feature
-    }
+    } as Partial<Location>
 
     if (editing === true) {
       dispatch(LocationService.patchLocation(location.id, submission))
