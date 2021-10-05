@@ -1,16 +1,4 @@
-import { SCENES_FETCHED_SUCCESS, SCENES_FETCHED_ERROR, SET_CURRENT_SCENE } from '../actions'
-
-export interface PublicScenesState {
-  scenes: PublicScene[]
-  currentScene: PublicScene
-  error: string
-}
-
-export interface PublicScene {
-  url: string
-  name: string
-  thumbnailUrl?: string
-}
+import { PublicScene } from './SceneState'
 
 export const SceneAction = {
   scenesFetchedSuccess: (scenes: PublicScene[]) => {
