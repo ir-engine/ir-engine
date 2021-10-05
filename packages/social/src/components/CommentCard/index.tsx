@@ -67,16 +67,18 @@ const CommentCard = ({
       <Card className={styles.commentItem} square={false} elevation={0} key={id}>
         <Avatar className={styles.authorAvatar} src={creator.avatar} />
         <CardContent className={styles.commentCard}>
-          <Typography variant="h2">
+          <Typography variant="h6">
             {creator.username}
             {creator.verified && (
               <VerifiedUserIcon htmlColor="#007AFF" style={{ fontSize: '13px', margin: '0 0 0 5px' }} />
             )}
           </Typography>
-          <Typography variant="h2">{text}</Typography>
+          <Typography variant="body1" paragraph={true}>
+            {text}
+          </Typography>
           {fires && fires > 0 ? (
             <Typography
-              variant="h2"
+              variant="subtitle1"
               onClick={() => (checkGuest ? setButtonPopup(true) : handleGetCommentFiredUsers(id))}
             >
               <span className={styles.flamesCount}>{fires}</span>
