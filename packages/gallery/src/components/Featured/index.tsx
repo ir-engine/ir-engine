@@ -14,15 +14,12 @@ import AudiotrackIcon from '@material-ui/icons/Audiotrack'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/creator/selector'
-import { selectFeedsState } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feed/selector'
-import { getFeeds, removeFeed } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feed/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/creator/selector'
+import { selectFeedsState } from '@xrengine/client-core/src/social/reducers/feed/selector'
+import { getFeeds, removeFeed } from '@xrengine/client-core/src/social/reducers/feed/service'
 import styles from './Featured.module.scss'
 import { useHistory } from 'react-router'
-import {
-  addFireToFeed,
-  removeFireToFeed
-} from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feedFires/service'
+import { addFireToFeed, removeFireToFeed } from '@xrengine/client-core/src/social/reducers/feedFires/service'
 import { getComponentTypeForMedia } from '../Feed'
 
 const mapStateToProps = (state: any): any => {
