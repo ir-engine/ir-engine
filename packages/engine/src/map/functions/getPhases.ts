@@ -29,6 +29,7 @@ const phasesNoNavigation = Object.freeze([
   FetchTilesPhase,
   ExtractTileFeaturesPhase,
   UnifyFeaturesPhase,
+  TransformFeaturePhase,
   CreateGeometryPhase,
   CreateFallbackLanduseMeshPhase,
   CreateCompleteObjectPhase,

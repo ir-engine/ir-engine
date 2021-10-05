@@ -1,4 +1,3 @@
-import { defineQuery } from 'bitecs'
 import { System } from '../ecs/classes/System'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -7,13 +6,13 @@ import { addChildFast, multiplyArray, setPosition, vector3ToArray2 } from './uti
 import { Object3D, Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, defineQuery } from '../ecs/functions/ComponentFunctions'
 import { World } from '../ecs/classes/World'
 import actuateLazy from './functions/actuateLazy'
 import getPhases from './functions/getPhases'
 import isIntersectCircleCircle from './functions/isIntersectCircleCircle'
 import { MAX_CACHED_FEATURES } from './functions/createStore'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 
 const $vector3 = new Vector3()
 
@@ -22,7 +21,7 @@ const $previousViewerPosition = new Vector3()
 
 export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
-  const viewerQuery = defineQuery([FollowCameraComponent])
+  const viewerQuery = defineQuery([AvatarComponent])
   let previousViewerEntity: Entity
   let shouldUpdateChildren = true
 
@@ -33,10 +32,10 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     // Sanity checks
     if (!mapEntity || !viewerEntity) return
     if (mapEntities.length > 1) console.warn('Not supported: More than one map!')
-    const mapComponent = getComponent(mapEntity, MapComponent, false, world)
-    const mapScale = getComponent(mapEntity, TransformComponent, false, world).scale.x
-    const object3dComponent = getComponent(mapEntity, Object3DComponent, false, world)
-    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
+    const mapComponent = getComponent(mapEntity, MapComponent)
+    const mapScale = getComponent(mapEntity, TransformComponent).scale.x
+    const object3dComponent = getComponent(mapEntity, Object3DComponent)
+    const viewerTransform = getComponent(viewerEntity, TransformComponent)
     const viewerPosition = vector3ToArray2(viewerTransform.position)
     const viewerPositionScaled = multiplyArray(viewerPosition, 1 / mapScale)
 
@@ -54,7 +53,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     if (viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius) {
       mapComponent.center = fromMetersFromCenter(viewerPositionDeltaNormalScale, mapComponent.center)
       mapComponent.viewerPosition = viewerPosition
-      actuateLazy(mapComponent, getPhases())
+      actuateLazy(mapComponent, getPhases({ exclude: ['navigation'] }))
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0
@@ -65,23 +64,21 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
       const subSceneChildren = []
       for (const key of mapComponent.completeObjects.keys()) {
-        if (key[0] !== 'landuse_fallback') {
-          const object = mapComponent.completeObjects.get(key)
-          // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
-          if (object.mesh) {
-            if (
-              isIntersectCircleCircle(
-                viewerPositionScaled,
-                mapComponent.minimumSceneRadius,
-                object.centerPoint,
-                object.boundingCircleRadius
-              )
-            ) {
-              setPosition(object.mesh, object.centerPoint)
-              addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
-            } else {
-              object.mesh.parent = null
-            }
+        const object = mapComponent.completeObjects.get(key)
+        // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
+        if (object.mesh) {
+          if (
+            isIntersectCircleCircle(
+              viewerPositionScaled,
+              mapComponent.minimumSceneRadius,
+              object.centerPoint,
+              object.boundingCircleRadius
+            )
+          ) {
+            setPosition(object.mesh, object.centerPoint)
+            addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+          } else {
+            object.mesh.parent = null
           }
         }
       }
@@ -106,7 +103,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
         if (helpers.tileNavMesh) {
           addChildFast(object3dComponent.value, helpers.tileNavMesh, subSceneChildren)
         } else {
-          helpers.tileNavMesh.parent = null
+          // helpers.tileNavMesh.parent = null
         }
       }
 
