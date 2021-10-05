@@ -141,8 +141,8 @@ export const EnginePage = (props: Props) => {
 
     const customProps: RealityPackReactProps = {
       harmonyOpen,
-      setHarmonyOpen,
-      canvas
+      setHarmonyOpen
+      // canvas
     }
 
     const components: any[] = []
@@ -191,6 +191,7 @@ export const EnginePage = (props: Props) => {
         isUserBanned={isUserBanned}
         setIsValidLocation={setIsValidLocation}
       />
+      {canvas}
       {realityPackComponents.length ? (
         realityPackComponents
       ) : (
@@ -203,7 +204,6 @@ export const EnginePage = (props: Props) => {
           hideFullscreen={props.hideFullscreen}
         >
           <DefaultLayoutView
-            canvasElement={canvas}
             loadingItemCount={loadingItemCount}
             isValidLocation={isValidLocation}
             allowDebug={props.allowDebug}
