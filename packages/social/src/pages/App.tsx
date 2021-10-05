@@ -131,12 +131,12 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
               (!!!currentCreator.terms || !!!currentCreator.policy) &&
               auth.user.userRole.value === 'user' && <TermsAndPolicy view={view} setView={setView} />}
             <ArMediaPopup />
-            {/* <WebXRStart
-          feedHintsOnborded={feedHintsOnborded}
-          webxrRecorderActivity={webxrRecorderActivity}
-          setContentHidden={changeWebXrNative}
-          setFeedHintsOnborded={setFeedHintsOnborded}
-        /> */}
+            <WebXRStart
+              feedHintsOnborded={feedHintsOnborded}
+              webxrRecorderActivity={webxrRecorderActivity}
+              setContentHidden={changeWebXrNative}
+              setFeedHintsOnborded={setFeedHintsOnborded}
+            />
             <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
             <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
             <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
