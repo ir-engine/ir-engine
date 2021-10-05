@@ -222,7 +222,7 @@ const Harmony = (props: Props): any => {
   const groupSubState = groupState.groups
   const groups = groupSubState.groups.value
   const party = usePartyState().party.value
-  const currentLocation = useLocationState().currentLocation
+  const currentLocation = useLocationState().currentLocation.location
 
   const setProducerStarting = (value) => {
     producerStartingRef.current = value
@@ -261,8 +261,8 @@ const Harmony = (props: Props): any => {
   const videoEnabled =
     isHarmonyPage === true
       ? true
-      : currentLocation?.location_setting?.value
-      ? currentLocation?.location_setting?.videoEnabled?.value
+      : currentLocation?.locationSettings?.value
+      ? currentLocation?.locationSettings?.videoEnabled?.value
       : false
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')

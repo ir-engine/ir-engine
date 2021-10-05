@@ -68,7 +68,7 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       const instance = channelConnectionState.get('instance')
       const locationId = channelConnectionState.get('locationId')
       const locationState = accessLocationState()
-      const currentLocation = locationState.currentLocation
+      const currentLocation = locationState.currentLocation.location
       const sceneId = currentLocation?.sceneId?.value
       const videoActive =
         MediaStreams !== null &&
@@ -90,9 +90,9 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
           channelType: instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel',
           channelId: channelId,
           videoEnabled:
-            currentLocation?.location_setting?.videoEnabled?.value === true ||
+            currentLocation?.locationSettings?.videoEnabled?.value === true ||
             !(
-              currentLocation?.location_setting?.locationType?.value === 'showroom' &&
+              currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
               user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
                 null
             ),

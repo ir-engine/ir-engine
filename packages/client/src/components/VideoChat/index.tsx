@@ -20,12 +20,12 @@ const VideoChat = (props: Props) => {
   const mediaStreamSystem = new MediaStreams()
 
   const user = useAuthState().user
-  const currentLocation = useLocationState().currentLocation
+  const currentLocation = useLocationState().currentLocation.location
   const gsProvision = async () => {
     if (mediaStreamSystem.videoStream == null) {
       await configureMediaTransports(
         ['video', 'audio'],
-        currentLocation?.location_setting?.instanceMediaChatEnabled?.value === true ? 'instance' : user.partyId.value
+        currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true ? 'instance' : user.partyId.value
       )
       console.log('Send camera streams called from gsProvision')
     } else {

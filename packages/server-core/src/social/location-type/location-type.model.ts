@@ -31,7 +31,7 @@ export default (app: Application): any => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ;(locationType as any).associate = (models: any): void => {
-    ;(locationType as any).hasMany(models.location_setting, { foreignKey: 'locationType' })
+    ;(locationType as any).hasMany(models.location_settings, { foreignKey: 'locationType' })
   }
 
   return locationType

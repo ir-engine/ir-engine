@@ -1,7 +1,7 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
+import { ADMIN_LOCATION_TYPES_RETRIEVED } from '../../actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { Location } from '@xrengine/common/src/interfaces/Location'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LocationActionType } from './LocationActions'
 
@@ -15,7 +15,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   locations: {
-    locations: [] as Location[],
+    locations: [],
     skip: 0,
     limit: LOCATION_PAGE_LIMIT,
     total: 0,

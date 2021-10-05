@@ -15,7 +15,7 @@ export default {
         sceneId: {
           type: 'string'
         },
-        locationSettingId: {
+        locationSettingsId: {
           type: 'string'
         },
         slugifiedName: {

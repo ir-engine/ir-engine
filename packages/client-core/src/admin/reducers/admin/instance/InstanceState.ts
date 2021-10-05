@@ -3,7 +3,6 @@ import { InstanceActionType } from './InstanceActions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 export const INSTNCE_PAGE_LIMIT = 100
 
@@ -15,7 +14,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   instances: {
-    instances: [] as Instance[],
+    instances: [],
     skip: 0,
     limit: INSTNCE_PAGE_LIMIT,
     total: 0,

@@ -84,7 +84,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    const currentLocation = locationState.currentLocation
+    const currentLocation = locationState.currentLocation.location
 
     if (currentLocation.id?.value) {
       if (
@@ -112,7 +112,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
       }
     }
-  }, [locationState.currentLocation.value])
+  }, [locationState.currentLocation.location.value])
 
   useEffect(() => {
     if (
