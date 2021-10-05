@@ -35,7 +35,7 @@ const staticStyle = {
     alignItems: 'center',
     paddingTop: '1px'
   }),
-  menu: (base) => ({
+  menu: (base, { isDisabled }) => ({
     ...base,
     borderRadius: '4px',
     border: '1px solid black',
@@ -43,6 +43,7 @@ const staticStyle = {
     outline: 'none',
     padding: '0',
     position: 'absolute',
+    color: isDisabled ? 'grey' : 'white',
     top: '20px'
   }),
   menuList: (base) => ({

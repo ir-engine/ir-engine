@@ -141,7 +141,7 @@ const CreateLocation = (props: Props) => {
       name: state.name,
       sceneId: state.scene,
       maxUsersPerInstance: state.maxUsers,
-      location_setting: {
+      location_settings: {
         locationType: state.type,
         instanceMediaChatEnabled: state.globalMediaEnabled,
         audioEnabled: state.audioEnabled,

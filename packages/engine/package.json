@@ -45,7 +45,7 @@
     "@xrengine/bot": "^0.4.8",
     "@xrengine/common": "^0.4.8",
     "@xrengine/realitypacks": "^0.4.8",
-    "bitecs": "^0.3.21-2",
+    "bitecs": "^0.3.21-12",
     "browserfs": "^1.4.3",
     "comlink": "4.3.1",
     "cross-env": "^7.0.3",

@@ -27,7 +27,6 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: Dispatch) => ({})
 
 interface Props {
-  canvasElement: JSX.Element
   loadingItemCount
   isValidLocation
   allowDebug
@@ -83,7 +82,6 @@ const DefaultLayoutView = (props: Props) => {
         locationName={props.locationName}
         instanceId={selfUser?.instanceId.value ?? party?.instanceId}
       />
-      {props.canvasElement}
       <InteractableModal />
       {/* <RecordingApp /> */}
       <MediaIconsBox />
