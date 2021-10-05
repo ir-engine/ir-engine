@@ -36,6 +36,7 @@ import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { World } from '../ecs/classes/World'
+import { useWorld } from '../ecs/functions/SystemHooks'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -107,14 +108,14 @@ export class EngineRenderer {
   /** Postprocessing schema. */
   postProcessingSchema: PostProcessingSchema
 
-  /** Maximum Quality level of the rendered. **Default** value is 4. */
+  /** Maximum Quality level of the rendered. **Default** value is 5. */
   maxQualityLevel = 5
   /** Current quality level. */
   qualityLevel: number = this.maxQualityLevel
   /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
   /** point at which we downgrade quality level (large delta) */
-  maxRenderDelta = 1000 / 20 // 20 fps = 50 ms
+  maxRenderDelta = 1000 / 40 // 40 fps = 25 ms
   /** point at which we upgrade quality level (small delta) */
   minRenderDelta = 1000 / 60 // 60 fps = 16 ms
 
@@ -133,8 +134,8 @@ export class EngineRenderer {
   rendereringEnabled = true
   canvas: HTMLCanvasElement
 
-  averageFrameTime = 17
-  timeSamples = [17, 17, 17, 17, 17, 17, 17, 17, 17, 17]
+  averageFrameTime = 1000 / 60
+  timeSamples = new Array(60 * 1).fill(1000 / 60) // 3 seconds @ 60fps
   index = 0
 
   /** Constructs WebGL Renderer System. */
@@ -158,7 +159,7 @@ export class EngineRenderer {
       })
     }
 
-    this.renderContext = context
+    this.renderContext = context!
     const options: any = {
       canvas,
       context,
@@ -214,7 +215,7 @@ export class EngineRenderer {
     console.log('resetPostProcessing')
     Engine.effectComposer.dispose()
     Engine.effectComposer = new EffectComposer(Engine.renderer)
-    this.postProcessingSchema = undefined
+    this.postProcessingSchema = undefined!
     console.log('resetPostProcessing done')
   }
 
@@ -349,13 +350,15 @@ export class EngineRenderer {
 
     const averageDelta = this.calculateMovingAverage(delta)
 
-    this.qualityLevel = MathUtils.mapLinear(
-      averageDelta,
-      this.minRenderDelta,
-      this.maxRenderDelta,
-      this.maxQualityLevel,
-      1
-    )
+    // dont downgrade when scene is still loading in
+    if (useWorld().elapsedTime > 5) {
+      if (averageDelta > this.minRenderDelta) {
+        this.qualityLevel--
+      }
+      if (averageDelta < this.maxRenderDelta) {
+        this.qualityLevel++
+      }
+    }
     this.qualityLevel = Math.round(MathUtils.clamp(this.qualityLevel, 1, this.maxQualityLevel))
 
     // set resolution scale

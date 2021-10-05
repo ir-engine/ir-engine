@@ -1,5 +1,5 @@
 export function GetBytes(int) {
-  var b = []
+  var b: any = []
   b[0] = int
   b[1] = int >> 8
   b[2] = int >> 16

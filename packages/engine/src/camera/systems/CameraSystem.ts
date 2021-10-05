@@ -203,7 +203,8 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // TODO: Can move avatar update code outside this function
   if (followCamera.locked) {
     const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
-    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 2)
+    // avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
+    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 4)
   }
 }
 
@@ -228,7 +229,6 @@ export default async function CameraSystem(world: World): Promise<System> {
 
     for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycaster = new Raycaster()
       cameraFollow.raycaster.layers.set(CameraLayers.Scene) // Ignore avatars
       ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
       cameraFollow.raycaster.far = cameraFollow.maxDistance

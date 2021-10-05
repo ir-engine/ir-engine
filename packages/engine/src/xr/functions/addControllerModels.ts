@@ -8,32 +8,44 @@ import {
   MeshBasicMaterial,
   MeshPhongMaterial,
   RingGeometry,
-  Vector3
+  Vector3,
+  XRInputSource
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 
 export const addDefaultControllerModels = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
 
-  ;[xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight].forEach((controller: any) => {
-    /*
-        controller.addEventListener('select', (ev) => {})
-        controller.addEventListener('selectstart', (ev) => {})
-        controller.addEventListener('selectend', (ev) => {})
-        controller.addEventListener('squeeze', (ev) => {})
-        controller.addEventListener('squeezestart', (ev) => {})
-        controller.addEventListener('squeezeend', (ev) => {})
-    */
+  controllers.forEach((controller: any) => {
     controller.addEventListener('connected', (ev) => {
+      const xrInputSource = ev.data as XRInputSource
+
+      if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
+        return
+      }
+
       if (controller.targetRay) {
         controller.targetRay.visible = true
       } else {
         const targetRay = createController(ev.data)
         controller.add(targetRay)
         controller.targetRay = targetRay
+        controller.userData.xrInputSource = xrInputSource
+
+        // Swap controllers if neccessary
+        if (
+          (controller === xrInputSourceComponent.controllerLeft && xrInputSource.handedness === 'right') ||
+          (controller === xrInputSourceComponent.controllerRight && xrInputSource.handedness === 'left')
+        ) {
+          const tempController = xrInputSourceComponent.controllerLeft
+          xrInputSourceComponent.controllerLeft = xrInputSourceComponent.controllerRight
+          xrInputSourceComponent.controllerRight = tempController
+        }
       }
     })
 
@@ -47,19 +59,59 @@ export const addDefaultControllerModels = (entity: Entity) => {
   const controller3DModel = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
     .scene.children[2]
 
-  const controllerMeshRight = controller3DModel.clone()
-  const controllerMeshLeft = controller3DModel.clone()
+  const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
-  controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1))
+  controllersGrip.forEach((controller: any) => {
+    controller.addEventListener('connected', (ev) => {
+      const xrInputSource = ev.data as XRInputSource
 
-  controllerMeshRight.position.z = -0.12
-  controllerMeshLeft.position.z = -0.12
+      if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) {
+        return
+      }
 
-  controllerMeshRight.material = new MeshPhongMaterial()
-  controllerMeshLeft.material = new MeshPhongMaterial()
+      if (!controller.userData.xrInputSource) {
+        const controllerMesh = controller3DModel.clone()
 
-  xrInputSourceComponent.controllerGripRight.add(controllerMeshRight)
-  xrInputSourceComponent.controllerGripLeft.add(controllerMeshLeft)
+        if (xrInputSource.handedness === 'left') {
+          controllerMesh.scale.multiply(new Vector3(-1, 1, 1))
+        }
+
+        controllerMesh.position.z = -0.12
+        controllerMesh.material = new MeshPhongMaterial()
+        controller.add(controllerMesh)
+        controller.userData.xrInputSource = xrInputSource
+
+        // Swap controllers if neccessary
+        if (
+          (controller === xrInputSourceComponent.controllerGripLeft && xrInputSource.handedness === 'right') ||
+          (controller === xrInputSourceComponent.controllerGripRight && xrInputSource.handedness === 'left')
+        ) {
+          const tempController = xrInputSourceComponent.controllerGripLeft
+          xrInputSourceComponent.controllerGripLeft = xrInputSourceComponent.controllerGripRight
+          xrInputSourceComponent.controllerGripRight = tempController
+        }
+      }
+    })
+  })
+}
+
+export const addDefaultHandModel = (entity: Entity) => {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+
+  xrInputSourceComponent.hands.forEach((controller: any) => {
+    controller.addEventListener('connected', (ev) => {
+      const xrInputSource = ev.data
+
+      if (!xrInputSource.hand || controller.userData.mesh) {
+        return
+      }
+
+      const handMesh = AssetLoader.getFromCache(`/models/webxr/controllers/hands/${xrInputSource.handedness}.glb`).scene
+        .children[0]
+      controller.userData.mesh = new XRHandMeshModel(controller, handMesh, xrInputSource)
+      controller.add(controller.userData.mesh)
+    })
+  })
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html

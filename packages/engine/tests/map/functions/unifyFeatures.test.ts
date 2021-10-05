@@ -77,7 +77,7 @@ describe('unifyFeatures', () => {
 
     const output = unifyFeatures(input)
 
-    assert.equal(output.properties.height, 42)
+    assert.equal(output.properties!['height'], 42)
   })
 
   it('handles multipolygons', () => {

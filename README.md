@@ -9,19 +9,20 @@
 ## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
 
 ## Popular features
-- Player rigs to support 2D, 3D and XR interaction
-- High-performance ECS engine
-- Fully networked player controller, physics, vehicles and particles
-- Fully data-oriented design
-- Chat, groups, parties and friends
+- The perfect solution for everything from spatial websites to metaverse meetups to blockchain gaming
+- Includes a self-deployable platform, UI, worlds, avatars, and games
+- Fully customizable for any kind of game, social experience, event or spatial web app
+- User management, avatars and inventory with optional blockchain integration (see our Blockchain-in-a-Box repo)
+- Social features like chat, groups, friends, blocking and moderation
+- Complete world editing and administration
+- 2D, 3D and XR Avatars with full inverse kinematics and facial expressions
+- Fully networked physics using PhysX compiled to wasm
 - Voice and video over WebRTC
-- Instant login with phone number or email
-- OAuth login with Facebook, Google, Steam and Github
-- User management, avatars and inventory
-- Authorative realtime gameserver
-- Websockets and WebRTC data transport
-- Built end-to-end in Typescript
-- Free, open source, MIT-licensed
+- Instant login and location sharing with phone number or email
+- Modular- Use the engine, server, client, editor and scalable devops infrastructure as needed
+- OAuth login with Facebook, Google, Steam, Github or instant login with email or phone
+- Free, open source, MIT and Apache 2.0-licensed -- do anything you want with the code, for any reason, forever
+- WebGL client deployable to iOS, Android and desktop
 
 # Getting Started
 
@@ -298,7 +299,7 @@ Create a user at `/login`
 
 Method 1: 
 
-1. Run `node scripts/make-user-admin.js --id=[USER ID]` 
+1. Run `npm run make-user-admin -- --id=[USER ID]` 
 2. TODO: Improve with email/phone ID support
 
 Method 2: 
@@ -359,7 +360,7 @@ docker stop server
 ### Docker image configurations
 
 Enviroment variables:
-- `NODE_ENV` controls the config/*.js file for feathers.js to load [default: production]
+- `APP_ENV` controls the config/*.js file for feathers.js to load [default: production]
 - `PORT` controls the listening port [default: 3030]
 - `MYSQL_URL` e.g. `mysql://<user>:<pass>@<host>:<port>/<db>` points to MariaDB server with a username and password
 

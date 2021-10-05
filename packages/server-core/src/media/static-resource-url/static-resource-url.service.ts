@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { StaticResourceURL } from './static-resource-url.class'
 import createModel from './static-resource-url.model'
@@ -6,7 +5,7 @@ import hooks from './static-resource-url.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'static-resource-url': StaticResourceURL & ServiceAddons<any>
+    'static-resource-url': StaticResourceURL
   }
 }
 
@@ -23,7 +22,7 @@ export default (app: Application): any => {
    * @author Abhishek Pathak
    */
   const event = new StaticResourceURL(options, app)
-  app.use('/static-resource-url', event)
+  app.use('static-resource-url', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -32,5 +31,5 @@ export default (app: Application): any => {
    */
   const service = app.service('static-resource-url')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

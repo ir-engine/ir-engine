@@ -13,7 +13,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
-import { addDefaultControllerModels } from '../functions/addControllerModels'
+import { addDefaultControllerModels, addDefaultHandModel } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
 /**
@@ -29,10 +29,13 @@ export default async function XRSystem(world: World): Promise<System> {
   // TEMPORARY - precache controller model
   // TODO: remove this when IK system is in
   await AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
+  // Cache hand models
+  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/hands/left.glb' })
+  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/hands/right.glb' })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     Engine.renderer.outputEncoding = sRGBEncoding
-    const sessionInit = { optionalFeatures: [referenceSpaceType] }
+    const sessionInit = { optionalFeatures: [referenceSpaceType, 'hand-tracking'] }
     try {
       const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
 
@@ -70,22 +73,22 @@ export default async function XRSystem(world: World): Promise<System> {
               value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
               lifecycleState: button.pressed
                 ? continued
-                  ? LifecycleValue.CONTINUED
-                  : LifecycleValue.STARTED
-                : LifecycleValue.ENDED
+                  ? LifecycleValue.Continued
+                  : LifecycleValue.Started
+                : LifecycleValue.Ended
             })
           })
           if (source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[2], source.gamepad.axes[3]],
-              lifecycleState: LifecycleValue.STARTED
+              lifecycleState: LifecycleValue.Started
             })
           } else {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[0], source.gamepad.axes[1]],
-              lifecycleState: LifecycleValue.STARTED
+              lifecycleState: LifecycleValue.Started
             })
           }
         }
@@ -95,6 +98,7 @@ export default async function XRSystem(world: World): Promise<System> {
     if (Engine.xrControllerModel) {
       for (const entity of localXRControllerQuery.enter()) {
         addDefaultControllerModels(entity)
+        addDefaultHandModel(entity)
       }
     }
   }

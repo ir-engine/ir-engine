@@ -59,10 +59,10 @@ export class CapsuleBufferGeometry extends BufferGeometry {
     this.radiusBottom = radiusBottom !== undefined ? radiusBottom : 0.25
     this.height = height !== undefined ? height : 1
 
-    this.radialSegments = Math.floor(radialSegments) || 8
-    this.heightSegments = Math.floor(heightSegments) || 1
-    this.capsTopSegments = Math.floor(capsTopSegments) || 2
-    this.capsBottomSegments = Math.floor(capsBottomSegments) || 2
+    this.radialSegments = Math.floor(radialSegments ?? 8)
+    this.heightSegments = Math.floor(heightSegments ?? 1)
+    this.capsTopSegments = Math.floor(capsTopSegments ?? 2)
+    this.capsBottomSegments = Math.floor(capsBottomSegments ?? 2)
 
     this.thetaStart = thetaStart !== undefined ? thetaStart : 0.0
     this.thetaLength = thetaLength !== undefined ? thetaLength : 2.0 * Math.PI
@@ -127,7 +127,7 @@ export class CapsuleBufferGeometry extends BufferGeometry {
 
     let v = 0
     for (y = 0; y <= this.capsTopSegments; y++) {
-      const indexRow = []
+      const indexRow: number[] = []
 
       const a = Math.PI / 2 - this.alpha * (y / this.capsTopSegments)
 
@@ -174,7 +174,7 @@ export class CapsuleBufferGeometry extends BufferGeometry {
     const cone_height = this.height + cosAlpha * this.radiusTop - cosAlpha * this.radiusBottom
     const slope = (sinAlpha * (this.radiusBottom - this.radiusTop)) / cone_height
     for (y = 1; y <= this.heightSegments; y++) {
-      const indexRow = []
+      const indexRow: number[] = []
 
       v += cone_length / this.heightSegments
 
@@ -214,7 +214,7 @@ export class CapsuleBufferGeometry extends BufferGeometry {
     }
 
     for (y = 1; y <= this.capsBottomSegments; y++) {
-      const indexRow = []
+      const indexRow: number[] = []
 
       const a = Math.PI / 2 - this.alpha - (Math.PI - this.alpha) * (y / this.capsBottomSegments)
 

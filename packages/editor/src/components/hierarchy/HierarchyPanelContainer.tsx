@@ -723,6 +723,8 @@ const MemoTreeNode = memo(TreeNode, areEqual)
 function* treeWalker(collapsedNodes) {
   const stack = []
 
+  if (!SceneManager.instance.scene) return
+
   stack.push({
     depth: 0,
     object: SceneManager.instance.scene,

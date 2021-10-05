@@ -7,7 +7,6 @@ import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToa
 import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
 import { Config } from '@xrengine/common/src/config'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -16,13 +15,16 @@ import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { connect, useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { bindActionCreators, Dispatch } from 'redux'
+import { Dispatch } from 'redux'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
 import Harmony from '../Harmony'
 import Me from '../Me'
 import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
+import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -46,32 +48,30 @@ const initialGroupForm = {
 }
 
 interface Props {
-  locationState?: any
   login?: boolean
   pageTitle: string
   children?: any
   hideVideo?: boolean
   hideFullscreen?: boolean
   theme?: any
+  harmonyOpen?: any
+  setHarmonyOpen?: any
 }
 const mapStateToProps = (state: any): any => {
-  return {
-    locationState: selectLocationState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Layout = (props: Props): any => {
   const path = useLocation().pathname
-  const { pageTitle, children, login, locationState } = props
+  const { pageTitle, children, login } = props
   const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(true)
-  const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const [expanded, setExpanded] = useState(true)
   const [detailsType, setDetailsType] = useState('')
@@ -82,7 +82,9 @@ const Layout = (props: Props): any => {
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
   const handle = useFullScreenHandle()
+
   const dispatch = useDispatch()
+
   const initialClickListener = () => {
     dispatch(AppAction.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
@@ -102,12 +104,6 @@ const Layout = (props: Props): any => {
     setRightDrawerOpen(true)
   }
 
-  const childrenWithProps = React.Children.map(children, (child) => {
-    if (React.isValidElement(child)) {
-      return React.cloneElement(child as any, { harmonyOpen: harmonyOpen })
-    }
-    return child
-  })
   const reportChange = useCallback((state) => {
     if (state) {
       setFullScreenActive(state)
@@ -147,7 +143,7 @@ const Layout = (props: Props): any => {
   const openHarmony = (): void => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement
     if (canvas?.style != null) canvas.style.width = '0px'
-    setHarmonyOpen(true)
+    props.setHarmonyOpen(true)
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO })
   }
 
@@ -160,8 +156,14 @@ const Layout = (props: Props): any => {
       (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
     )
   }
+
+  const respawnCallback = (): void => {
+    respawnAvatar(useWorld().localClientEntity)
+  }
+
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
+
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>
@@ -174,7 +176,7 @@ const Layout = (props: Props): any => {
             </Helmet>
             <header>
               {path === '/login' && <NavMenu login={login} />}
-              {!props.hideVideo && harmonyOpen !== true && (
+              {!props.hideVideo && props.harmonyOpen !== true && (
                 <>
                   {expanded ? (
                     <section className={styles.locationUserMenu}>
@@ -196,7 +198,7 @@ const Layout = (props: Props): any => {
 
             {!iOS() && (
               <>
-                {props.hideFullscreen ? null : fullScreenActive && harmonyOpen !== true ? (
+                {props.hideFullscreen ? null : fullScreenActive && props.harmonyOpen !== true ? (
                   <button type="button" className={styles.fullScreen} onClick={handle.exit}>
                     <FullscreenExit />
                   </button>
@@ -208,8 +210,12 @@ const Layout = (props: Props): any => {
               </>
             )}
 
+            <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
+              <img src="/static/restart.svg" />
+            </button>
+
             <Harmony
-              setHarmonyOpen={setHarmonyOpen}
+              setHarmonyOpen={props.setHarmonyOpen}
               setDetailsType={setDetailsType}
               setGroupFormOpen={setGroupFormOpen}
               setGroupFormMode={setGroupFormMode}
@@ -218,12 +224,12 @@ const Layout = (props: Props): any => {
               setSelectedGroup={setSelectedGroup}
               setLeftDrawerOpen={setLeftDrawerOpen}
               setRightDrawerOpen={setRightDrawerOpen}
-              harmonyHidden={harmonyOpen === false}
+              harmonyHidden={props.harmonyOpen === false}
             />
             <Fragment>
               <UIDialog />
               <Alerts />
-              {childrenWithProps}
+              {children}
             </Fragment>
             {authUser?.accessToken?.value != null &&
               authUser.accessToken.value.length > 0 &&
@@ -266,7 +272,7 @@ const Layout = (props: Props): any => {
             {/*  </Fragment>*/}
             {/*}*/}
             <footer>
-              {user?.userRole.value !== 'guest' && harmonyOpen === false && (
+              {user?.userRole.value !== 'guest' && props.harmonyOpen === false && (
                 <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
                   <Forum />
                 </div>

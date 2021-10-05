@@ -37,21 +37,19 @@ const avatarReceptor = (action: AvatarActionType): any => {
       case 'AVATARS_RETRIEVED':
         result = action.avatars
 
-        s.merge({
-          avatars: {
-            avatars: result.data,
-            skip: result.skip,
-            limit: result.limit,
-            total: result.total,
-            retrieving: false,
-            fetched: true,
-            updateNeeded: false,
-            lastFetched: new Date()
-          }
+        s.avatars.merge({
+          avatars: result.data,
+          skip: result.skip,
+          limit: result.limit,
+          total: result.total,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: new Date()
         })
     }
   }, action.type)
 }
 
 export const accessAvatarState = () => state
-export const useAvatarState = () => useState(state)
+export const useAvatarState = () => useState(state) as any as typeof state

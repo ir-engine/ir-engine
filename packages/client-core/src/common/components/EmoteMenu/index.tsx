@@ -38,7 +38,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   menuItemWidth: number
   menuItemRadius: number
   effectiveRadius: number
-  menuPadding: number = 20
+  menuPadding: number = 50
   menuThickness: number = 100
   styles: any
   constructor(props) {
@@ -108,24 +108,6 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           }
         }*/
         {
-          body: <img src="/static/dance_new1.svg" alt="Dance 1" />,
-          containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
-          }
-        },
-        {
-          body: <img src="/static/clap1.svg" alt="Dance 2" />,
-          containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
-          }
-        },
-        {
-          body: <img src="/static/victory.svg" alt="Dance 3" />,
-          containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
-          }
-        },
-        {
           body: <img src="/static/grinning.svg" alt="Dance 4" />,
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
@@ -138,35 +120,43 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           }
         },
         {
+          body: <img src="/static/Kiss.svg" alt="Kiss" />,
+          containerProps: {
+            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
+          }
+        },
+
+        {
           body: <img src="/static/Cry.svg" alt="Cry" />,
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
           }
         },
         {
-          body: <img src="/static/kiss1.svg" alt="kiss" />,
+          body: <img src="/static/dance_new1.svg" alt="Dance 1" />,
           containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
           }
         },
         {
-          body: <img src="/static/laughing.svg" alt="Defeat" />,
+          body: <img src="/static/clap1.svg" alt="Dance 2" />,
           containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
           }
         },
+
         {
-          body: <img src="/static/Kiss.svg" alt="Kiss" />,
+          body: <img src="/static/victory.svg" alt="Dance 3" />,
           containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
-          }
-        },
-        {
-          body: <img src="/static/Wave.svg" alt="Wave" />,
-          containerProps: {
-            onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
           }
         }
+        // {
+        //   body: <img src="/static/restart.svg" />,
+        //   containerProps: {
+        //     onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE})
+        //   }
+        // }
       ] as any
     } as EmoteMenuStateType
 
@@ -211,6 +201,14 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
     this.closeEmoteMenu()
   }
 
+  spawnAnimation = (animationName: string, params: WeightsParameterType) => {
+    const entity = Engine.defaultWorld.entities.find((e) => hasComponent(e, LocalInputTagComponent))
+
+    console.log(entity, animationName, params)
+
+    AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
+  }
+
   render() {
     const angle = 360 / this.state.items.length
     return (
@@ -234,8 +232,8 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
               >
                 {this.state.items.map((item, index) => {
                   const itemAngle = angle * index + 270
-                  const x = this.effectiveRadius * Math.cos((itemAngle * Math.PI) / 180)
-                  const y = this.effectiveRadius * Math.sin((itemAngle * Math.PI) / 180)
+                  const x = this.effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
+                  const y = this.effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
                   return (
                     <Button
                       className={this.styles.menuItem}

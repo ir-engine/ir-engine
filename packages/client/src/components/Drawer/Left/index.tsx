@@ -8,29 +8,16 @@ import ListItemText from '@material-ui/core/ListItemText'
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
 import TextField from '@material-ui/core/TextField'
 import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@material-ui/icons'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
-import { updateChatTarget, updateMessageScrollInit } from '@xrengine/client-core/src/social/reducers/chat/service'
-import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
-import { getFriends, unfriend } from '@xrengine/client-core/src/social/reducers/friend/service'
-import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
-import {
-  createGroup,
-  getGroups,
-  patchGroup,
-  removeGroup,
-  removeGroupUser
-} from '@xrengine/client-core/src/social/reducers/group/service'
-import { updateInviteTarget } from '@xrengine/client-core/src/social/reducers/invite/service'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { banUserFromLocation } from '@xrengine/client-core/src/social/reducers/location/service'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
-import {
-  createParty,
-  getParty,
-  removeParty,
-  removePartyUser,
-  transferPartyOwner
-} from '@xrengine/client-core/src/social/reducers/party/service'
+import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
+import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
+import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { LocationService } from '@xrengine/client-core/src/social/reducers/location/LocationService'
+import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { PartyService } from '@xrengine/client-core/src/social/reducers/party/PartyService'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Downgraded } from '@hookstate/core'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
@@ -43,35 +30,7 @@ import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Left.module.scss'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    chatState: selectChatState(state),
-    friendState: selectFriendState(state),
-    groupState: selectSocialGroupState(state),
-    locationState: selectLocationState(state),
-    partyState: selectPartyState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFriends: bindActionCreators(getFriends, dispatch),
-  unfriend: bindActionCreators(unfriend, dispatch),
-  getGroups: bindActionCreators(getGroups, dispatch),
-  createGroup: bindActionCreators(createGroup, dispatch),
-  patchGroup: bindActionCreators(patchGroup, dispatch),
-  removeGroup: bindActionCreators(removeGroup, dispatch),
-  removeGroupUser: bindActionCreators(removeGroupUser, dispatch),
-  getParty: bindActionCreators(getParty, dispatch),
-  createParty: bindActionCreators(createParty, dispatch),
-  removeParty: bindActionCreators(removeParty, dispatch),
-  removePartyUser: bindActionCreators(removePartyUser, dispatch),
-  transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
-  updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
-  updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
-  updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
-  banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch)
-})
+import { GroupAction } from '@xrengine/client-core/src/social/reducers/group/GroupActions'
 
 interface Props {
   harmony?: boolean
@@ -81,27 +40,7 @@ interface Props {
   setLeftDrawerOpen: any
   setRightDrawerOpen: any
   authState?: any
-  friendState?: any
-  getFriends?: any
-  unfriend?: any
-  groupState?: any
-  getGroups?: any
-  createGroup?: any
-  patchGroup?: any
-  removeGroup?: any
-  removeGroupUser?: any
-  locationState?: any
-  partyState?: any
-  getParty?: any
-  createParty?: any
-  removeParty?: any
-  removePartyUser?: any
-  transferPartyOwner?: any
   setBottomDrawerOpen: any
-  updateInviteTarget?: any
-  updateChatTarget?: any
-  updateMessageScrollInit?: any
-  banUserFromLocation?: any
   detailsType?: string
   setDetailsType?: any
   groupFormMode?: string
@@ -136,32 +75,12 @@ const initialGroupForm = {
 const LeftDrawer = (props: Props): any => {
   try {
     const {
-      friendState,
-      locationState,
-      getFriends,
-      unfriend,
-      groupState,
-      getGroups,
-      createGroup,
       harmony,
       setHarmonyOpen,
-      patchGroup,
-      removeGroup,
-      removeGroupUser,
-      partyState,
-      getParty,
-      createParty,
-      removeParty,
-      removePartyUser,
-      transferPartyOwner,
       setLeftDrawerOpen,
       leftDrawerOpen,
       setRightDrawerOpen,
       setBottomDrawerOpen,
-      updateInviteTarget,
-      updateChatTarget,
-      updateMessageScrollInit,
-      banUserFromLocation,
       detailsType,
       setDetailsType,
       groupFormMode,
@@ -179,11 +98,13 @@ const LeftDrawer = (props: Props): any => {
     const dispatch = useDispatch()
     const userState = useUserState()
     const user = useAuthState().user
-    const friendSubState = friendState.get('friends')
-    const friends = friendSubState.get('friends')
-    const groupSubState = groupState.get('groups')
-    const groups = groupSubState.get('groups')
-    const party = partyState.get('party')
+    const friendState = useFriendState()
+    const friendSubState = friendState.friends
+
+    const groupState = useGroupState()
+    const groupSubState = groupState.groups
+    const partyState = usePartyState()
+    const party = partyState.party
     const [tabIndex, setTabIndex] = useState(0)
     const [friendDeletePending, setFriendDeletePending] = useState('')
     const [groupDeletePending, setGroupDeletePending] = useState('')
@@ -197,36 +118,38 @@ const LeftDrawer = (props: Props): any => {
       selectedGroup.id && selectedGroup.id.length > 0
         ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id.value)
         : {}
-    const partyUsers = party && party.partyUsers ? party.partyUsers : []
+    const partyUsers = party && party?.partyUsers?.value ? party.partyUsers.value : []
     const selfPartyUser =
-      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id.value) : {}
-    const currentLocation = locationState.get('currentLocation').get('location')
+      party && party?.partyUsers?.value
+        ? party?.partyUsers?.value.find((partyUser) => partyUser.userId === user.id.value)
+        : {}
+    const currentLocation = useLocationState().currentLocation.location.value
 
     useEffect(() => {
-      if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
-        getFriends(0)
+      if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
+        dispatch(FriendService.getFriends('', 0))
       }
-      if (friendState.get('closeDetails') === selectedUser.id) {
+      /* if (selectedUser.id?.length > 0 && friendState.get('closeDetails') === selectedUser.id) {
         closeDetails()
         friendState.set('closeDetails', '')
-      }
-    }, [friendState])
+      }*/
+    }, [friendState.updateNeeded.value, friendState.getFriendsInProgress.value])
 
     useEffect(() => {
-      if (groupState.get('updateNeeded') === true && groupState.get('getGroupsInProgress') !== true) {
-        getGroups(0)
+      if (groupState.updateNeeded.value === true && groupState.getGroupsInProgress.value !== true) {
+        dispatch(GroupService.getGroups(0))
       }
-      if (groupState.get('closeDetails') === selectedGroup.id) {
+      if (selectedGroup?.id.length > 0 && groupState.closeDetails.value === selectedGroup.id) {
         closeDetails()
-        groupState.set('closeDetails', '')
+        dispatch(GroupAction.removeCloseGroupDetail())
       }
-    }, [groupState])
+    }, [groupState.updateNeeded.value, groupState.getGroupsInProgress.value])
 
     useEffect(() => {
-      if (partyState.get('updateNeeded') === true) {
-        getParty()
+      if (partyState.updateNeeded.value === true) {
+        dispatch(PartyService.getParty())
       }
-    }, [partyState])
+    }, [partyState.updateNeeded.value])
 
     useEffect(() => {
       if (user.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
@@ -248,14 +171,14 @@ const LeftDrawer = (props: Props): any => {
     const confirmFriendDelete = (e, friendId) => {
       e.preventDefault()
       setFriendDeletePending('')
-      unfriend(friendId)
+      dispatch(FriendService.unfriend(friendId))
       closeDetails()
       setLeftDrawerOpen(false)
     }
 
     const nextFriendsPage = (): void => {
-      if (friendSubState.get('skip') + friendSubState.get('limit') < friendSubState.get('total')) {
-        getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+      if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
+        dispatch(FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value))
       }
     }
 
@@ -272,7 +195,7 @@ const LeftDrawer = (props: Props): any => {
     const confirmGroupDelete = (e, groupId) => {
       e.preventDefault()
       setGroupDeletePending('')
-      removeGroup(groupId)
+      dispatch(GroupService.removeGroup(groupId))
       setSelectedGroup(initialGroupForm)
       setDetailsType('')
       setLeftDrawerOpen(false)
@@ -292,12 +215,12 @@ const LeftDrawer = (props: Props): any => {
       e.preventDefault()
       console.log('Confirming location ban')
       setLocationBanPending('')
-      banUserFromLocation(userId, currentLocation.id)
+      dispatch(LocationService.banUserFromLocation(userId, currentLocation.id))
     }
 
     const nextGroupsPage = (): void => {
-      if (groupSubState.get('skip') + groupSubState.get('limit') < groupSubState.get('total')) {
-        getGroups(groupSubState.get('skip') + groupSubState.get('limit'))
+      if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
+        dispatch(GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value))
       }
     }
 
@@ -315,7 +238,7 @@ const LeftDrawer = (props: Props): any => {
       e.preventDefault()
       const groupUser = _.find(selectedGroup.groupUsers, (groupUser) => groupUser.id === groupUserId)
       setGroupUserDeletePending('')
-      removeGroupUser(groupUserId)
+      dispatch(GroupService.removeGroupUser(groupUserId))
       if (groupUser.userId === user.id.value) {
         setSelectedGroup(initialGroupForm)
         setDetailsType('')
@@ -336,7 +259,7 @@ const LeftDrawer = (props: Props): any => {
     const confirmPartyDelete = (e, partyId) => {
       e.preventDefault()
       setPartyDeletePending(false)
-      removeParty(partyId)
+      dispatch(PartyService.removeParty(partyId))
       setLeftDrawerOpen(false)
     }
 
@@ -354,7 +277,7 @@ const LeftDrawer = (props: Props): any => {
       e.preventDefault()
       const partyUser = _.find(partyUsers, (pUser) => pUser.id === partyUserId)
       setPartyUserDeletePending('')
-      removePartyUser(partyUserId)
+      dispatch(PartyService.removePartyUser(partyUserId))
       if (partyUser.userId === user.id.value) setLeftDrawerOpen(false)
     }
 
@@ -371,7 +294,7 @@ const LeftDrawer = (props: Props): any => {
     const confirmTransferPartyOwner = (e, partyUserId) => {
       e.preventDefault()
       setPartyTransferOwnerPending('')
-      transferPartyOwner(partyUserId)
+      dispatch(PartyService.transferPartyOwner(partyUserId))
     }
 
     const handleChange = (event: any, newValue: number): void => {
@@ -432,9 +355,9 @@ const LeftDrawer = (props: Props): any => {
 
       if (groupFormMode === 'create') {
         delete form.id
-        createGroup(form)
+        dispatch(GroupService.createGroup(form))
       } else {
-        patchGroup(form)
+        dispatch(GroupService.patchGroup(form))
       }
       setLeftDrawerOpen(false)
       setGroupFormOpen(false)
@@ -442,7 +365,7 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const createNewParty = (): void => {
-      createParty()
+      dispatch(PartyService.createParty())
     }
 
     const onListScroll = (e): void => {
@@ -456,7 +379,7 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
-      updateInviteTarget(targetObjectType, targetObjectId)
+      dispatch(InviteService.updateInviteTarget(targetObjectType, targetObjectId))
       setLeftDrawerOpen(false)
       setRightDrawerOpen(true)
     }
@@ -466,8 +389,8 @@ const LeftDrawer = (props: Props): any => {
       if (harmony !== true) setBottomDrawerOpen(true)
       // else if (harmony === true) setHarmonyOpen(true);
       setTimeout(() => {
-        updateChatTarget(targetObjectType, targetObject)
-        updateMessageScrollInit(true)
+        dispatch(ChatService.updateChatTarget(targetObjectType, targetObject))
+        dispatch(ChatService.updateMessageScrollInit(true))
       }, 100)
     }
 
@@ -588,7 +511,7 @@ const LeftDrawer = (props: Props): any => {
                 </Button>
                 <Divider />
               </div>
-              {party == null && (
+              {party?.value == null && (
                 <div>
                   <div className={styles.title}>You are not currently in a party</div>
                   <div className={styles['flex-center']}>
@@ -598,7 +521,7 @@ const LeftDrawer = (props: Props): any => {
                   </div>
                 </div>
               )}
-              {party != null && (
+              {party?.value != null && (
                 <div className={styles['list-container']}>
                   <div className={styles.title}>Current Party</div>
                   <div
@@ -607,7 +530,7 @@ const LeftDrawer = (props: Props): any => {
                       [styles['flex-center']]: true
                     })}
                   >
-                    <div>ID: {party.id}</div>
+                    <div>ID: {party?.id?.value}</div>
                   </div>
                   <div
                     className={classNames({
@@ -620,7 +543,7 @@ const LeftDrawer = (props: Props): any => {
                       variant="contained"
                       color="primary"
                       startIcon={<Forum />}
-                      onClick={() => openChat('party', party)}
+                      onClick={() => openChat('party', party?.value)}
                     >
                       Chat
                     </Button>
@@ -629,7 +552,7 @@ const LeftDrawer = (props: Props): any => {
                         variant="contained"
                         color="secondary"
                         startIcon={<GroupAdd />}
-                        onClick={() => openInvite('party', party.id)}
+                        onClick={() => openInvite('party', party?.id?.value)}
                       >
                         Invite
                       </Button>
@@ -650,7 +573,7 @@ const LeftDrawer = (props: Props): any => {
                           variant="contained"
                           startIcon={<Delete />}
                           className={styles['background-red']}
-                          onClick={(e) => confirmPartyDelete(e, party.id)}
+                          onClick={(e) => confirmPartyDelete(e, party?.id?.value)}
                         >
                           Delete
                         </Button>
@@ -1032,4 +955,4 @@ const LeftDrawer = (props: Props): any => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LeftDrawer)
+export default LeftDrawer

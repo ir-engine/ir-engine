@@ -11,7 +11,7 @@ export default function unifyFeatures(features: Feature[]): Feature {
     let maxHeight = 0
 
     features.forEach((f) => {
-      maxHeight = f.properties.height ? Math.max(f.properties.height) : maxHeight
+      maxHeight = f.properties?.['height'] ? Math.max(f.properties?.['height']) : maxHeight
     })
     const unifiedProperties = {
       ...features[0].properties,

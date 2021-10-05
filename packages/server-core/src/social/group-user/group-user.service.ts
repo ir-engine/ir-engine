@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { GroupUser } from './group-user.class'
 import createModel from './group-user.model'
@@ -8,7 +7,7 @@ import groupUserDocs from './group-user.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'group-user': GroupUser & ServiceAddons<any>
+    'group-user': GroupUser
   }
 }
 
@@ -26,11 +25,11 @@ export default (app: Application): any => {
    */
   const event = new GroupUser(options, app)
   event.docs = groupUserDocs
-  app.use('/group-user', event)
+  app.use('group-user', event)
 
   const service = app.service('group-user')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 
   /**
    * A method which is used to create group user

@@ -1,4 +1,4 @@
-import { MathUtils, Matrix4 } from 'three'
+import { MathUtils, Matrix4, Mesh } from 'three'
 import { createPseudoRandom } from '../../common/functions/MathRandomFunctions'
 import { ParticleEmitter, ParticleEmitterInterface } from '../interfaces'
 import {
@@ -26,7 +26,7 @@ const error = console.error
 const FRAME_STYLES = ['sequence', 'randomsequence', 'random']
 const DEG2RAD = MathUtils.DEG2RAD
 
-const emitterRegistry = new Set()
+const emitterRegistry = new Set<any>()
 // let emitterRegistry = []
 
 /**
@@ -76,11 +76,11 @@ export function createParticleEmitter(
     velocityScale: 0,
     velocityScaleMin: 0.1,
     velocityScaleMax: 1
-  }
+  } as any
 
   Object.defineProperties(config, Object.getOwnPropertyDescriptors(options)) // preserves getters
 
-  const mesh = config.particleMesh
+  const mesh = config.particleMesh as Mesh
   const geometry = mesh.geometry
   const id = emitterRegistry.size == 0 ? 0 : Array.from(emitterRegistry)[emitterRegistry.size - 1]['id'] + 1
   const startTime = time
@@ -126,11 +126,11 @@ export function createParticleEmitter(
     startTime,
     startIndex,
     endIndex,
-    mesh
+    mesh: mesh as any
   }
 
   emitterRegistry.add(emitter)
-  return emitter
+  return emitter as ParticleEmitter
 }
 
 //needsUpdate
@@ -154,7 +154,7 @@ export function deleteParticleEmitter(emitter: ParticleEmitter): void {
   }
   // console.log(geometry.attributes);
   emitter.mesh.userData.nextIndex -= shiftAmount
-  const arrayEmitter = Array.from(emitterRegistry)
+  const arrayEmitter: any[] = Array.from(emitterRegistry)
   for (let i = 0; i < emitterRegistry.size; i++) {
     if (
       i == 0 ? arrayEmitter[i]['startIndex'] != 0 : arrayEmitter[i - 1]['endIndex'] != arrayEmitter[i]['startIndex']
@@ -446,7 +446,7 @@ function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeat
 //   const mat4 = new Matrix4()
 //
 //   geometry.object3D.updateMatrixWorld()
-//   inverseObjectMatrix.getInverse(geometry.object3D.matrixWorld)
+//   inverseObjectMatrix.copy(geometry.object3D.matrixWorld).invert()
 //
 //   geometry.object3D.traverse(node => {
 //     if (!node.geometry || !node.geometry.getAttribute) {

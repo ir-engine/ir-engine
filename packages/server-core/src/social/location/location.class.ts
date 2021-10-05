@@ -1,3 +1,4 @@
+import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
@@ -226,12 +227,12 @@ export class Location extends Service {
    * @returns new location object
    * @author Vyacheslav Solovjov
    */
-  async create(data: any, params: Params): Promise<any> {
+  async create(data: LocationType, params: Params): Promise<any> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
       // eslint-disable-next-line prefer-const
-      let { location_setting, ...locationData } = data
+      let { location_settings, ...locationData } = data
       const loggedInUser = extractLoggedInUserFromParams(params)
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
@@ -240,13 +241,13 @@ export class Location extends Service {
       const location = await this.Model.create(locationData, { transaction: t })
       await (this.app.service('location-settings') as any).Model.create(
         {
-          videoEnabled: !!location_setting.videoEnabled,
-          audioEnabled: !!location_setting.audioEnabled,
-          faceStreamingEnabled: !!location_setting.faceStreamingEnabled,
-          screenSharingEnabled: !!location_setting.screenSharingEnabled,
-          instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
-          maxUsersPerInstance: location_setting.maxUsersPerInstance || 10,
-          locationType: location_setting.locationType || 'private',
+          videoEnabled: !!location_settings.videoEnabled,
+          audioEnabled: !!location_settings.audioEnabled,
+          faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
+          screenSharingEnabled: !!location_settings.screenSharingEnabled,
+          instanceMediaChatEnabled: !!location_settings.instanceMediaChatEnabled,
+          maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
+          locationType: location_settings.locationType || 'private',
           locationId: location.id
         },
         { transaction: t }
@@ -283,12 +284,12 @@ export class Location extends Service {
    * @returns updated location
    * @author Vyacheslav Solovjov
    */
-  async patch(id: string, data: any, params: Params): Promise<any> {
+  async patch(id: string, data: LocationType, params: Params): Promise<any> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
       // eslint-disable-next-line prefer-const
-      let { location_setting, ...locationData } = data
+      let { location_settings, ...locationData } = data
 
       const old = await this.Model.findOne({
         where: { id },
@@ -302,15 +303,15 @@ export class Location extends Service {
 
       await (this.app.service('location-settings') as any).Model.update(
         {
-          videoEnabled: !!location_setting.videoEnabled,
-          audioEnabled: !!location_setting.audioEnabled,
-          faceStreamingEnabled: !!location_setting.faceStreamingEnabled,
-          screenSharingEnabled: !!location_setting.screenSharingEnabled,
-          instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
-          maxUsersPerInstance: location_setting.maxUsersPerInstance || 10,
-          locationType: location_setting.locationType || 'private'
+          videoEnabled: !!location_settings.videoEnabled,
+          audioEnabled: !!location_settings.audioEnabled,
+          faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
+          screenSharingEnabled: !!location_settings.screenSharingEnabled,
+          instanceMediaChatEnabled: !!location_settings.instanceMediaChatEnabled,
+          maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
+          locationType: location_settings.locationType || 'private'
         },
-        { where: { id: old.location_setting.id }, transaction: t }
+        { where: { id: old.location_settings.id }, transaction: t }
       )
 
       await t.commit()

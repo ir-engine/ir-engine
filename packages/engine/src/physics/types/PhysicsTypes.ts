@@ -100,10 +100,10 @@ export interface BoxControllerConfig extends ControllerConfig {
 }
 
 export interface ObstacleConfig {
-  isCapsule?: boolean
-  halfExtents?: Vec3
-  halfHeight?: number
-  radius?: number
+  isCapsule: boolean
+  halfExtents: Vec3
+  halfHeight: number
+  radius: number
 }
 
 export interface ObstacleType {

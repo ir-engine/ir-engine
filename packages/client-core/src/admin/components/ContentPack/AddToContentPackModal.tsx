@@ -1,15 +1,10 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectContentPackState } from '../../reducers/contentPack/selector'
+import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
 import styles from './ContentPack.module.scss'
-import {
-  addAvatarsToContentPack,
-  addScenesToContentPack,
-  createContentPack,
-  fetchContentPacks
-} from '../../reducers/contentPack/service'
+import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
 import { Add, Edit } from '@material-ui/icons'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 import Backdrop from '@material-ui/core/Backdrop'
@@ -30,46 +25,20 @@ interface Props {
   handleClose: any
   scenes?: any
   avatars?: any
-  contentPackState?: any
-  addScenesToContentPack?: any
-  addAvatarsToContentPack?: any
-  createContentPack?: any
-  fetchContentPacks?: any
+  realityPacks?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    contentPackState: selectContentPackState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  addScenesToContentPack: bindActionCreators(addScenesToContentPack, dispatch),
-  addAvatarsToContentPack: bindActionCreators(addAvatarsToContentPack, dispatch),
-  createContentPack: bindActionCreators(createContentPack, dispatch),
-  fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch)
-})
 
 const AddToContentPackModal = (props: Props): any => {
-  const {
-    addAvatarsToContentPack,
-    addScenesToContentPack,
-    createContentPack,
-    open,
-    handleClose,
-    avatars,
-    scenes,
-    contentPackState,
-    fetchContentPacks
-  } = props
+  const { open, handleClose, avatars, scenes, realityPacks } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [contentPackName, setContentPackName] = useState('')
   const [newContentPackName, setNewContentPackName] = useState('')
-  const contentPacks = contentPackState.get('contentPacks')
-
+  const contentPackState = useContentPackState()
+  const contentPacks = contentPackState.contentPacks
+  const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -85,10 +54,12 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (contentPackName !== '') {
         setProcessing(true)
-        await addScenesToContentPack({
-          scenes: scenes,
-          contentPack: contentPackName
-        })
+        await dispatch(
+          ContentPackService.addScenesToContentPack({
+            scenes: scenes,
+            contentPack: contentPackName
+          })
+        )
         setProcessing(false)
         window.location.href = '/admin/content-packs'
         closeModal()
@@ -122,6 +93,24 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
+  const addCurrentRealityPacksToContentPack = async () => {
+    try {
+      setProcessing(true)
+      if (contentPackName !== '') {
+        await addRealityPacksToContentPack({
+          realityPacks: realityPacks,
+          contentPack: contentPackName
+        })
+        setProcessing(false)
+        window.location.href = '/admin/content-packs'
+        closeModal()
+      } else throw new Error('Existing content pack must be selected')
+    } catch (err) {
+      setProcessing(false)
+      showError(err.message)
+    }
+  }
+
   const createNewContentPack = async () => {
     try {
       setProcessing(true)
@@ -134,6 +123,11 @@ const AddToContentPackModal = (props: Props): any => {
         else if (avatars != null)
           await createContentPack({
             avatars: avatars,
+            contentPack: newContentPackName
+          })
+        else if (realityPacks != null)
+          await createContentPack({
+            realityPacks: realityPacks,
             contentPack: newContentPackName
           })
         setProcessing(false)
@@ -153,10 +147,10 @@ const AddToContentPackModal = (props: Props): any => {
   }
 
   useEffect(() => {
-    if (contentPackState.get('updateNeeded') === true) {
+    if (contentPackState.updateNeeded.value === true) {
       fetchContentPacks()
     }
-  }, [contentPackState])
+  }, [contentPackState.updateNeeded.value])
 
   return (
     <div>
@@ -191,6 +185,11 @@ const AddToContentPackModal = (props: Props): any => {
                   Adding {avatars.length} {avatars.length === 1 ? 'Avatar' : 'Avatars'}
                 </div>
               )}
+              {realityPacks && (
+                <div className={styles['title']}>
+                  Adding {realityPacks.length} {realityPacks.length === 1 ? 'Reality Pack' : 'Reality Packs'}
+                </div>
+              )}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -221,7 +220,7 @@ const AddToContentPackModal = (props: Props): any => {
                     value={contentPackName}
                     onChange={(e) => setContentPackName(e.target.value as string)}
                   >
-                    {contentPacks.map((contentPack) => (
+                    {contentPacks.value.map((contentPack) => (
                       <MenuItem key={contentPack.name} value={contentPack.name}>
                         {contentPack.name}
                       </MenuItem>
@@ -231,7 +230,13 @@ const AddToContentPackModal = (props: Props): any => {
                     type="submit"
                     variant="contained"
                     color="primary"
-                    onClick={scenes != null ? addCurrentScenesToContentPack : addCurrentAvatarsToContentPack}
+                    onClick={
+                      scenes != null
+                        ? addCurrentScenesToContentPack
+                        : realityPacks != null
+                        ? addCurrentRealityPacksToContentPack
+                        : addCurrentAvatarsToContentPack
+                    }
                   >
                     Update Content Pack
                   </Button>
@@ -273,4 +278,4 @@ const AddToContentPackModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddToContentPackModal)
+export default AddToContentPackModal

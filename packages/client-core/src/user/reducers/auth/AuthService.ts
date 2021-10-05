@@ -20,10 +20,16 @@ import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { accessAuthState } from './AuthState'
-import { hasComponent, addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { ProximityComponent } from '../../../proximity/components/ProximityComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
+import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { accessPartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -811,8 +817,10 @@ const getAvatarResources = (user) => {
 const loadAvatarForUpdatedUser = async (user) => {
   if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
 
+  const world = useWorld()
+
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = world.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -830,6 +838,7 @@ const loadAvatarForUpdatedUser = async (user) => {
 
     // Fetch Avatar Resources for updated user.
     const avatars = await getAvatarResources(user)
+
     if (avatars?.data && avatars.data.length === 2) {
       const avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url
       const thumbnailURL =
@@ -838,13 +847,11 @@ const loadAvatarForUpdatedUser = async (user) => {
       networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
-      for (let key of Object.keys(Network.instance.networkObjects)) {
-        const obj = Network.instance.networkObjects[key]
-        if (obj?.uniqueId === user.id) {
-          setAvatar(obj.entity, user.avatarId, avatarURL)
-          break
-        }
-      }
+      const world = Engine.defaultWorld
+      const userEntity = world.getUserAvatarEntity(user.id)
+      setAvatar(userEntity, user.avatarId, avatarURL)
+    } else {
+      await loadAvatarForUpdatedUser(user)
     }
     resolve(true)
   })
@@ -854,7 +861,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
   if (!user || !user.id) Promise.resolve(true)
 
   return new Promise(async (resolve) => {
-    const networkUser = Network.instance?.clients[user.id]
+    const networkUser = Engine.defaultWorld.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -871,13 +878,9 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
-    for (let key of Object.keys(Network.instance.networkObjects)) {
-      const obj = Network.instance.networkObjects[key]
-      if (obj?.uniqueId === user.id) {
-        setAvatar(obj.entity, user.avatarId, avatarURL)
-        break
-      }
-    }
+    const world = Engine.defaultWorld
+    const userEntity = world.getUserAvatarEntity(user.id)
+    setAvatar(userEntity, user.avatarId, avatarURL)
     resolve(true)
   })
 }
@@ -889,9 +892,17 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const user = resolveUser(params.userRelationship)
 
     console.log('User patched', user)
-    if (Network.instance != null) {
-      await loadAvatarForUpdatedUser(user)
-      _updateUsername(user.id, user.name)
+    await loadAvatarForUpdatedUser(user)
+    _updateUsername(user.id, user.name)
+
+    const eid = getEid(user.id)
+    console.log('adding username component to user: ' + user.name + ' eid: ' + eid)
+    if (eid !== undefined) {
+      if (!hasComponent(eid, UserNameComponent)) {
+        addComponent(eid, UserNameComponent, { username: user.name })
+      } else {
+        getComponent(eid, UserNameComponent).username = user.name
+      }
     }
 
     if (selfUser.id.value === user.id) {
@@ -911,20 +922,30 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
-
-      if (typeof Network.instance?.localClientEntity !== 'undefined') {
-        if (!hasComponent(Network.instance.localClientEntity, ProximityComponent) && isBot(window)) {
-          addComponent(Network.instance.localClientEntity, ProximityComponent, {
-            usersInRange: [],
-            usersInIntimateRange: [],
-            usersInHarassmentRange: [],
-            usersLookingTowards: []
-          })
+      const world = Engine.defaultWorld
+      if (typeof world.localClientEntity !== 'undefined') {
+        if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
+          addComponent(
+            world.localClientEntity,
+            ProximityComponent,
+            {
+              usersInRange: [],
+              usersInIntimateRange: [],
+              usersInHarassmentRange: [],
+              usersLookingTowards: []
+            },
+            world
+          )
         }
-        if (!hasComponent(Network.instance.localClientEntity, WebCamInputComponent)) {
-          addComponent(Network.instance.localClientEntity, WebCamInputComponent, {
-            emotions: []
-          })
+        if (!hasComponent(world.localClientEntity, WebCamInputComponent, world)) {
+          addComponent(
+            world.localClientEntity,
+            WebCamInputComponent,
+            {
+              emotions: []
+            },
+            world
+          )
         }
         console.log('added web cam input component to local client')
       }
@@ -947,12 +968,12 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const store = Store.store
     const state = store.getState() as any
     const selfUser = accessAuthState().user
-    const party = state.get('party')
+    const party = accessPartyState().party.value
     const selfPartyUser =
       party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id.value) : {}
-    const currentLocation = state.get('locations').get('currentLocation').get('location')
+    const currentLocation = accessLocationState().currentLocation.location
     const locationBan = params.locationBan
-    if (selfUser.id.value === locationBan.userId && currentLocation.id === locationBan.locationId) {
+    if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
       // TODO: Decouple and reenable me!
       // endVideoChat({ leftParty: true });
       // leave(true);

@@ -8,10 +8,10 @@ import { NavigateNext, NavigateBefore } from '@material-ui/icons'
 import Fab from '@material-ui/core/Fab'
 import { useTranslation } from 'react-i18next'
 import styles from './UserProfile.module.scss'
-import { selectCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/selector'
+import { useSceneState } from '@xrengine/client-core/src/world/reducers/scenes/SceneState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { getAvatarURLFromNetwork, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { getAvatarURLForUser, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SearchIcon } from '../icons/Search'
 import { Close } from '../icons/Close'
@@ -19,20 +19,17 @@ import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage
 // import MapView from '../MapLocationSelection'
 
 interface Props {
-  currentScene?: any
   showUserProfile?: any
   isUserProfileShowing?: any
   showHideProfile?: Function
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    currentScene: selectCurrentScene(state)
-  }
+  return {}
 }
 
 const UserProfileScreen = (props: Props) => {
-  const { currentScene, isUserProfileShowing, showHideProfile } = props
+  const { isUserProfileShowing, showHideProfile } = props
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const authState = useAuthState()
@@ -130,11 +127,11 @@ const UserProfileScreen = (props: Props) => {
   }
 
   const handleCloseProfile = (): void => {
-    showHideProfile(false)
+    showHideProfile?.(false)
   }
 
   const renderAvatarList = () => {
-    const avatarListData = []
+    const avatarListData = [] as JSX.Element[]
     if (avatarList != undefined) {
       const startIndex = page * imgPerPage
       const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
@@ -145,9 +142,9 @@ const UserProfileScreen = (props: Props) => {
           avatarListData.push(
             <Card key={`avatar_${i}`} className={styles.profileImage} onClick={() => selectAvatar(characterAvatar)}>
               <LazyImage
-                key={characterAvatar.avatar.id}
+                key={characterAvatar?.avatar?.id}
                 src={characterAvatar['user-thumbnail'].url}
-                alt={characterAvatar.avatar.name}
+                alt={characterAvatar?.avatar?.name}
               />
             </Card>
           )
@@ -183,7 +180,7 @@ const UserProfileScreen = (props: Props) => {
     <div>
       <section className={`${styles.blockbg} ${isUserProfileShowing === false ? styles.hideProfile : ''}`}>
         <div className={styles.avatarBlock}>
-          <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id.value)} />
+          <img src={getAvatarURLForUser(selfUser?.id.value)} />
           <div
             className={`${styles.avatarBtn} ${
               !isEditProfile ? styles.editBtn : isProfileEdited ? styles.enableBtn : styles.disableBtn

@@ -10,7 +10,7 @@ import UserServices from './user/services'
 import WorldServices from './world/services'
 import BotService from './bot/services'
 import ScopeService from './scope/service'
-import serverService from './setting/service'
+import SettingService from './setting/service'
 
 export default (app: Application): void => {
   ;[
@@ -25,7 +25,7 @@ export default (app: Application): void => {
     ...SocialMediaServices,
     ...BotService,
     ...ScopeService,
-    ...serverService
+    ...SettingService
   ].forEach((service) => {
     app.configure(service)
   })

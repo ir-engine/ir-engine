@@ -30,10 +30,12 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { selectArMediaState } from '../../reducers/arMedia/selector'
 import { getArMediaItem } from '../../reducers/arMedia/service'
-import HintOne from '../WebXrHints/HintOne'
-import HintTwo from '../WebXrHints/HintTwo'
+// import HintOne from '../WebXrHints/HintOne'
+// import HintTwo from '../WebXrHints/HintTwo'
 import { setLastFeedVideoUrl } from '../../reducers/feed/service'
 import ZoomGestureHandler from './ZoomGestureHandler'
+import { App } from '@capacitor/app'
+import { useHistory } from 'react-router-dom'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -136,6 +138,16 @@ export const WebXRPlugin = ({
     xy: null,
     zy: null
   }
+
+  const history = useHistory()
+  const [active, setActive] = useState(true)
+
+  App.addListener('appStateChange', ({ isActive }) => {
+    setActive(isActive)
+    if (!isActive) {
+      history.push('/')
+    }
+  })
 
   const showContent = () => {
     if (!webxrRecorderActivity) {
@@ -297,7 +309,7 @@ export const WebXRPlugin = ({
       }
       const anchor = anchorRef.current
       // TODO: return it to false
-      anchor.visible = true
+      anchor.visible = false
 
       //             anchor.add(new AxesHelper(0.3));
       //             const anchorC = new Mesh(geometry, materialC);
@@ -474,6 +486,16 @@ export const WebXRPlugin = ({
 
           if (!anchor.visible) {
             console.log('SET ANCHOR VISIBLE!')
+
+            // autosize anchor
+            const volumetricHeight = 2 // assuming this as highest height
+            const k = camera.position.distanceTo(anchor.position)
+            const a = (camera.fov * Math.PI) / 180 / 2
+
+            const halfScreenHeightAtPoint = k * Math.tan(a)
+            const newScale = (halfScreenHeightAtPoint / volumetricHeight) * 0.75
+            anchor.scale.setScalar(newScale)
+
             // console.log('player = ', playerRef.current);
             anchor.visible = true
 
@@ -673,8 +695,8 @@ export const WebXRPlugin = ({
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
-      {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
-      {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''}
+      {/* {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
+      {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''} */}
       <div className="plugintestControls">
         <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
           <section className={styles.waterMarkWrapper}>

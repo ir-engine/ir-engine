@@ -1,4 +1,5 @@
 import { Vector3 } from 'three'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   createMappedComponent,
   hasComponent,
@@ -10,12 +11,12 @@ import { AutoPilotComponent } from './AutoPilotComponent'
 import { AutoPilotRequestComponent } from './AutoPilotRequestComponent'
 
 export type FollowComponentType = {
-  targetEid: number
+  targetEid: Entity
   cStep: number
   prevTarget: Vector3
 }
 
-export const createFollowComponent = (eid: number, targetEid: number) => {
+export const createFollowComponent = (eid: Entity, targetEid: Entity) => {
   //check if has component, if so update earlier (after the bitecs bug)
   return addComponent(eid, FollowComponent, {
     targetEid: targetEid,
@@ -23,7 +24,7 @@ export const createFollowComponent = (eid: number, targetEid: number) => {
     prevTarget: new Vector3(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
   })
 }
-export const removeFollowComponent = (eid: number): void => {
+export const removeFollowComponent = (eid: Entity): void => {
   if (hasComponent(eid, FollowComponent)) {
     removeComponent(eid, FollowComponent)
     removeComponent(eid, AutoPilotRequestComponent)

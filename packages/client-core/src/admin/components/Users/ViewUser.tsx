@@ -18,53 +18,34 @@ import Button from '@material-ui/core/Button'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { bindActionCreators, Dispatch } from 'redux'
-import { fetchUserRole } from '../../reducers/admin/user/service'
+import { UserService } from '../../reducers/admin/user/UserService'
 import { connect, useDispatch } from 'react-redux'
 import InputBase from '@material-ui/core/InputBase'
-import { updateUserRole, patchUser, fetchSingleUserAdmin, fetchStaticResource } from '../../reducers/admin/user/service'
+
 import { useUserStyles, useUserStyle } from './styles'
-import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import { useUserState } from '../../reducers/admin/user/UserState'
 import { validateUserForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
-import { selectScopeState } from '../../reducers/admin/scope/selector'
-import { getScopeTypeService } from '../../reducers/admin/scope/service'
+import { useScopeState } from '../../reducers/admin/scope/ScopeState'
+import { ScopeService } from '../../reducers/admin/scope/ScopeService'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 
 interface Props {
   openView: boolean
   userAdmin: any
-  fetchUserRole?: any
-  patchUser?: any
   closeViewModel?: any
-  updateUserRole?: any
-  fetchSingleUserAdmin?: any
-  adminUserState?: any
-  fetchStaticResource?: any
-  adminScopeState?: any
-  getScopeTypeService?: any
   //doLoginAuto?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    adminUserState: selectAdminUserState(state),
-    adminScopeState: selectScopeState(state)
-  }
+  return {}
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-  patchUser: bindActionCreators(patchUser, dispatch),
-  updateUserRole: bindActionCreators(updateUserRole, dispatch),
-  fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -78,15 +59,7 @@ const ViewUser = (props: Props) => {
   const {
     openView,
     closeViewModel,
-    fetchUserRole,
-    userAdmin,
-    patchUser,
-    updateUserRole,
-    fetchSingleUserAdmin,
-    adminUserState,
-    fetchStaticResource,
-    adminScopeState,
-    getScopeTypeService
+    userAdmin
     //doLoginAuto
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
@@ -107,13 +80,15 @@ const ViewUser = (props: Props) => {
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const user = useAuthState().user
-  const userRole = adminUserState.get('userRole')
-  const userRoleData = userRole ? userRole.get('userRole') : []
-  const singleUser = adminUserState.get('singleUser')
-  const singleUserData = adminUserState.get('singleUser').get('singleUser')
-  const staticResource = adminUserState.get('staticResource')
-  const staticResourceData = staticResource.get('staticResource')
-  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
+  const adminUserState = useUserState()
+  const userRole = adminUserState.userRole
+  const userRoleData = userRole ? userRole.userRole.value : []
+  const singleUser = adminUserState.singleUser
+  const singleUserData = adminUserState.singleUser.singleUser
+  const staticResource = adminUserState.staticResource
+  const staticResourceData = staticResource.staticResource
+  const adminScopeState = useScopeState()
+  const adminScopes = adminScopeState.scopeType.scopeType
 
   const handleClick = () => {
     setOpenDialog(true)
@@ -125,20 +100,26 @@ const ViewUser = (props: Props) => {
   React.useEffect(() => {
     const fetchData = async () => {
       dispatch(AuthService.doLoginAuto(false))
-      await fetchUserRole()
+      await dispatch(UserService.fetchUserRole())
     }
-    if (adminUserState.get('users').get('updateNeeded') === true && user.id.value) fetchData()
-    if ((user.id.value && singleUser.get('updateNeeded') == true) || refetch) {
-      fetchSingleUserAdmin(userAdmin.id)
+    if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
+    if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
+      dispatch(UserService.fetchSingleUserAdmin(userAdmin.id))
       setRefetch(false)
     }
-    if (user.id.value && staticResource.get('updateNeeded')) {
-      fetchStaticResource()
+    if (user.id.value && staticResource.updateNeeded.value) {
+      dispatch(UserService.fetchStaticResource())
     }
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
-      getScopeTypeService()
+    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
+      dispatch(ScopeService.getScopeTypeService())
     }
-  }, [adminUserState, user, refetch, singleUser])
+  }, [
+    adminUserState.users.updateNeeded.value,
+    adminUserState.staticResource.updateNeeded.value,
+    user,
+    refetch,
+    singleUser.updateNeeded.value
+  ])
 
   React.useEffect(() => {
     if (!refetch) {
@@ -162,7 +143,7 @@ const ViewUser = (props: Props) => {
   }
 
   const patchUserRole = async (user: any, role: string) => {
-    await updateUserRole(user, role)
+    await dispatch(UserService.updateUserRole(user, role))
     handleCloseDialog()
     setRefetch(true)
   }
@@ -205,7 +186,7 @@ const ViewUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      patchUser(userAdmin.id, data)
+      dispatch(UserService.patchUser(userAdmin.id, data))
       setState({
         ...state,
         name: '',
@@ -265,7 +246,7 @@ const ViewUser = (props: Props) => {
                     </Typography>
                     <br />
                     {userAdmin.userRole ? (
-                      <Chip label={singleUserData?.userRole} onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label={singleUserData?.userRole?.value} onDelete={handleClick} deleteIcon={<Edit />} />
                     ) : (
                       <Chip label="None" onDelete={handleClick} deleteIcon={<Edit />} />
                     )}
@@ -357,7 +338,7 @@ const ViewUser = (props: Props) => {
                     <MenuItem value="" disabled>
                       <em>Select avatar</em>
                     </MenuItem>
-                    {staticResourceData.map((el) => (
+                    {staticResourceData.value.map((el) => (
                       <MenuItem value={el.name} key={el.id}>
                         {el.name}
                       </MenuItem>
@@ -380,7 +361,7 @@ const ViewUser = (props: Props) => {
                   className={classes.selector}
                   classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                   id="tags-standard"
-                  options={adminScopes}
+                  options={adminScopes.value}
                   disableCloseOnSelect
                   filterOptions={(options) =>
                     options.filter(
@@ -429,7 +410,7 @@ const ViewUser = (props: Props) => {
                 User scope
               </Typography>
               <div className={classes.scopeContainer}>
-                {singleUserData.scopes?.map((el, index) => {
+                {singleUserData.scopes?.value.map((el, index) => {
                   const [label, type] = el.type.split(':')
                   return (
                     <Grid container spacing={3} style={{ paddingLeft: '10px', width: '100%' }} key={el.id}>

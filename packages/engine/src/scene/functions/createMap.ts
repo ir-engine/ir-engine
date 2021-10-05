@@ -17,7 +17,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
   const center = await getStartCoords(args)
 
-  const store = createStore(center, [0, 0], 40, 800, args.scale.x, args)
+  const store = createStore(center, [0, 0], 40, 800, args.scale?.x || 1, args)
   addComponent(entity, MapComponent, store)
 
   const mapObject3D = new Group()

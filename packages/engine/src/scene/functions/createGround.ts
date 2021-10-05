@@ -61,6 +61,13 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
 //     .map((feature) => {
 //       return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
 //     })
+// const generateNavMesh = function (tiles: TileFeaturesByLayer[], center: Position, scale: number): NavMesh {
+//   const builder = new NavMeshBuilder()
+//   const gBuildings = tiles
+//     .reduce((acc, tiles) => acc.concat(tiles.building as any), [])
+//     .map((feature: any) => {
+//       return scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center, scale)
+//     })
 
 //   const gGround = computeBoundingBox(gBuildings)
 //   let gBuildingNegativeSpace = [gGround.coordinates]

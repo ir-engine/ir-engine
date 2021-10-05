@@ -6,40 +6,35 @@ import Button from '@material-ui/core/Button'
 import { Send, FileCopy } from '@material-ui/icons'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../MapUserMenu.module.scss'
-import { sendInvite } from '@xrengine/client-core/src/social/reducers/invite/service'
+import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { selectInviteState } from '@xrengine/client-core/src/social/reducers/invite/selector'
+import { useInviteState } from '@xrengine/client-core/src/social/reducers/invite/InviteState'
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  sendInvite: bindActionCreators(sendInvite, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const mapStateToProps = (state: any): any => {
-  return {
-    inviteState: selectInviteState(state)
-  }
+  return {}
 }
 
 interface Props {
-  sendInvite?: typeof sendInvite
   alertSuccess?: any
-  inviteState?: any
 }
 
 const ShareMenu = (props: Props): any => {
-  const { sendInvite, inviteState } = props
+  const inviteState = useInviteState()
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
   const refLink = useRef(null)
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
+  const dispatch = useDispatch()
 
   const copyLinkToClipboard = () => {
-    refLink.current.select()
+    refLink?.current?.select()
     document.execCommand('copy')
-    refLink.current.setSelectionRange(0, 0) // deselect
+    refLink?.current?.setSelectionRange(0, 0) // deselect
     props.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
 
@@ -64,10 +59,10 @@ const ShareMenu = (props: Props): any => {
       token: email,
       inviteCode: null,
       identityProviderType: 'email',
-      targetObjectId: inviteState.get('targetObjectId'),
+      targetObjectId: inviteState.targetObjectId.value,
       invitee: null
     }
-    sendInvite(sendData)
+    dispatch(InviteService.sendInvite(sendData))
     setEmail('')
   }
 

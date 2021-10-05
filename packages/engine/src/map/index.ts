@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import { NavMesh } from 'yuka'
 import { MapProps } from './MapProps'

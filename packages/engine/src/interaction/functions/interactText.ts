@@ -20,7 +20,7 @@ export const showInteractText = (interactTextEntity: Entity, focusEntity: Entity
     const obj3d = getComponent(focusEntity, Object3DComponent).value as Mesh
     transform.position.copy(obj3d.position)
     if (obj3d.geometry) {
-      yTarget = obj3d.geometry.boundingBox.max.y
+      yTarget = obj3d.geometry.boundingBox?.max.y ?? 0
     }
   }
 

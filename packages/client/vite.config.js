@@ -1,4 +1,4 @@
-import fs from 'fs';
+  import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import config from "config";
 import inject from '@rollup/plugin-inject'
@@ -39,6 +39,9 @@ export default defineConfig((command) => {
   };
 
   const returned = {
+    optimizeDeps: {
+      include: ['@xrengine/realitypacks']
+    },
     plugins: [],
     server: {
       host: true,
@@ -48,12 +51,16 @@ export default defineConfig((command) => {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
+        "ts-matches":"@xrengine/common/src/libs/ts-matches/matches.ts"
       }
     },
     build: {
       target: 'esnext',
       sourcemap: 'inline',
       minify: 'esbuild',
+      dynamicImportVarsOptions: {
+        warnOnError: true,
+      },
       rollupOptions: {
         output: {
           dir: 'dist',
@@ -66,7 +73,7 @@ export default defineConfig((command) => {
       },
     },
   };
-  if(process.env.NODE_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
+  if(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.server.https = {
       key: fs.readFileSync('../../certs/key.pem'),
       cert: fs.readFileSync('../../certs/cert.pem')

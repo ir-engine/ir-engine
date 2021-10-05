@@ -33,7 +33,7 @@ function forEachSurroundingTile(llPosition: Position, callback: (tileX: number, 
  * @returns promise resolving to array of raster tiles
  */
 export function fetchRasterTiles(llCenter: Position): Promise<ImageBitmap[]> {
-  const promises = []
+  const promises: Promise<ImageBitmap>[] = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchRasterTile(tileX, tileY)))
   return Promise.all(promises)
 }

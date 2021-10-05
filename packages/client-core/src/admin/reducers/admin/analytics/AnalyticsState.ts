@@ -100,4 +100,4 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
 }
 
 export const accessAnalyticsState = () => state
-export const useAnalyticsState = () => useState(state)
+export const useAnalyticsState = () => useState(state) as any as typeof state

@@ -12,16 +12,15 @@ import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/AvatarState'
-import { fetchLocationTypes } from '../../reducers/admin/location/service'
-import { AvatarService } from '../../reducers/admin/avatar/AvatarService'
+import { LocationService } from '../../reducers/admin/location/LocationService'
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { useAvatarState } from '../../reducers/admin/avatar/AvatarState'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { AuthService } from '../../../user/reducers/auth/AuthService'
+import { AvatarService } from '../../reducers/admin/avatar/AvatarService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -29,16 +28,7 @@ if (!global.setImmediate) {
 
 interface Props {
   locationState?: any
-  fetchLocationTypes?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
-})
 
 const Avatars = (props: Props) => {
   const adminAvatarState = useAvatarState()
@@ -328,4 +318,4 @@ const Avatars = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Avatars)
+export default Avatars

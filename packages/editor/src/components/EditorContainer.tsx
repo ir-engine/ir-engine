@@ -1,10 +1,7 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import {
-  fetchAdminLocations,
-  fetchLocationTypes
-} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+import { LocationService } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationService'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
@@ -12,7 +9,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '../functions/projectFunctions'
@@ -40,9 +37,9 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
-import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
-import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
+import { useLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { useSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
+import { SceneService } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneService'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 import { CommandManager } from '../managers/CommandManager'
@@ -376,11 +373,6 @@ const DockContainer = (styled as any).div`
 `
 
 type EditorContainerProps = {
-  adminLocationState: any
-  adminSceneState: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
   t: any
   match: any
   location: any
@@ -425,10 +417,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     registerPredefinedNodes()
     registerPredefinedSources()
 
-    ProjectManager.instance.init()
     ProjectManager.instance.initializeFeathersClient(getToken())
 
-    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
+    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)
+    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
+    CommandManager.instance.addListener(EditorEvents.ERROR.toString(), this.onEditorError)
+    CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
 
     this.state = {
       // error: null,
@@ -451,14 +445,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
-      this.props.fetchAdminLocations()
+    const dispatch = useDispatch()
+    if (useLocationState().locations.updateNeeded.value === true) {
+      dispatch(LocationService.fetchAdminLocations())
     }
-    if (this.props.adminSceneState.get('scenes').get('updateNeeded') === true) {
-      this.props.fetchAdminScenes()
+    if (useSceneState().scenes.updateNeeded.value === true) {
+      dispatch(SceneService.fetchAdminScenes())
     }
-    if (this.props.adminLocationState.get('locationTypes').get('updateNeeded') === true) {
-      this.props.fetchLocationTypes()
+    if (useLocationState().locationTypes.updateNeeded.value === true) {
+      dispatch(LocationService.fetchLocationTypes())
     }
     const pathParams = this.state.pathParams
     const queryParams = this.state.queryParams
@@ -506,9 +501,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentWillUnmount() {
-    CommandManager.instance.removeListener(EditorEvents.SCENE_MODIFIED.toString(), this.onSceneModified)
     CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
-    CommandManager.instance.removeListener(EditorEvents.INITIALIZED.toString(), this.onEditorInitialized)
     CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), this.onEditorError)
     CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
     ProjectManager.instance.dispose()
@@ -529,8 +522,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
 
     try {
-      await ProjectManager.instance.init()
-
       if (templateFile.metadata) {
         delete templateFile.metadata.sceneUrl
         delete templateFile.metadata.sceneId
@@ -567,8 +558,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.warn('loadScene:scene', scene)
       const projectFile = scene.data
 
-      await ProjectManager.instance.init()
-
       await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()
@@ -598,8 +587,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
 
     try {
-      await ProjectManager.instance.init()
-
       await ProjectManager.instance.loadProject(projectFile)
 
       SceneManager.instance.sceneModified = true
@@ -648,7 +635,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         }
       })
 
-      await ProjectManager.instance.init()
       await ProjectManager.instance.loadProject(projectFile)
 
       this.hideDialog()
@@ -713,8 +699,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     ]
   }
 
-  onEditorInitialized = () => {
-    const gl = SceneManager.instance.renderer.renderer.getContext()
+  setDebuginfo = () => {
+    const gl = SceneManager.instance.renderer.webglRenderer.getContext()
 
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
 
@@ -726,10 +712,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
     }
 
-    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
-    CommandManager.instance.addListener(EditorEvents.ERROR.toString(), this.onEditorError)
-    CommandManager.instance.addListener(EditorEvents.SCENE_MODIFIED.toString(), this.onSceneModified)
-    CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), this.onSaveProject)
+    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)
   }
 
   /**
@@ -772,10 +755,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: error.message || this.t('editor:errorMsg'),
       error
     })
-  }
-
-  onSceneModified = () => {
-    this.updateModifiedState()
   }
 
   onProjectLoaded = () => {
@@ -1097,7 +1076,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const { project } = this.state as any
     return (
       (project && project.scene && project.scene.scene_id) ||
-      (SceneManager.instance.scene.metadata && SceneManager.instance.scene.metadata.sceneId)
+      (SceneManager.instance.scene &&
+        SceneManager.instance.scene.metadata &&
+        SceneManager.instance.scene.metadata.sceneId)
     )
   }
 
@@ -1111,10 +1092,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   render() {
-    const { DialogComponent, dialogProps, modified, settingsContext } = this.state
+    const { DialogComponent, dialogProps, settingsContext } = this.state
     const toolbarMenu = this.generateToolbarMenu()
     const isPublishedScene = !!this.getSceneId()
-    const locations = this.props.adminLocationState.get('locations').get('locations')
+    const locations = useLocationState().locations.locations.value
     let assigneeScene
     if (locations) {
       locations.forEach((element) => {
@@ -1197,21 +1178,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
           <DialogContextProvider value={this.dialogContext}>
             <DndProvider backend={HTML5Backend}>
               <DragLayer />
-              {toolbarMenu && (
-                <ToolBar
-                  menu={toolbarMenu}
-                  onPublish={this.onPublishProject}
-                  isPublishedScene={isPublishedScene}
-                  onOpenScene={this.onOpenScene}
-                  queryParams={assigneeScene}
-                />
-              )}
+              {toolbarMenu && <ToolBar menu={toolbarMenu} />}
               <WorkspaceContainer>
                 <ViewportPanelContainer />
                 <DockContainer>
                   <DockLayout
                     defaultLayout={defaultLayout}
-                    style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+                    style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
                   />
                 </DockContainer>
               </WorkspaceContainer>
@@ -1235,17 +1208,4 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    adminLocationState: selectAdminLocationState(state),
-    adminSceneState: selectAdminSceneState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
-})
-
-export default withTranslation()(withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorContainer)))
+export default withTranslation()(withRouter(EditorContainer))

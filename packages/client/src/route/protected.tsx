@@ -18,23 +18,13 @@ const scenes = React.lazy(() => import('../pages/admin/scenes'))
 const users = React.lazy(() => import('../pages/admin/users'))
 const party = React.lazy(() => import('../pages/admin/party'))
 const botSetting = React.lazy(() => import('../pages/admin/bot'))
+const realityPacks = React.lazy(() => import('../pages/admin/reality-packs'))
 // const arMedia = React.lazy(() => import('../pages/admin/social/armedia'))
 // const feeds = React.lazy(() => import('../pages/admin/social/feeds'))
 // const creator = React.lazy(() => import('../pages/admin/social/creator'))
 const setting = React.lazy(() => import('../pages/admin/Setting'))
 
-interface Props {
-  authState?: any
-  doLoginAuto?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
+interface Props {}
 
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
@@ -132,6 +122,12 @@ const ProtectedRoutes = (props: Props) => {
           {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} />
           <PrivateRoute exact path="/admin/feeds" component={feeds} />
           <PrivateRoute exact path="/admin/creator" component={creator} /> */}
+          <PrivateRoute exact path="/admin/reality-packs" component={realityPacks} />
+          <PrivateRoute exact path="/admin/settings" component={setting} />
+          {/* <PrivateRoute exact path="/admin/settings" component={setting} />
+          <PrivateRoute exact path="/admin/armedia" component={arMedia} />
+          <PrivateRoute exact path="/admin/feeds" component={feeds} />
+          <PrivateRoute exact path="/admin/creator" component={creator} /> */}
           <PrivateRoute exact path="/admin/settings" component={setting} />
           <PrivateRoute exact Path="/admin/users" component={users} />
         </Switch>
@@ -140,4 +136,4 @@ const ProtectedRoutes = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProtectedRoutes)
+export default ProtectedRoutes

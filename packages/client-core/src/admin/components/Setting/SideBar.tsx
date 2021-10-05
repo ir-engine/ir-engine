@@ -21,6 +21,7 @@ const settings = ({
   handleClient,
   handleGameServer,
   handleServer,
+  handleAnalytics,
   serverFocused,
   awsFocused,
   emailFocused,
@@ -28,7 +29,8 @@ const settings = ({
   clientFocused,
   authFocused,
   chargebeeFocused,
-  redisFocused
+  redisFocused,
+  analyticsFocused
 }) => {
   const classes = useStyles()
 
@@ -38,8 +40,20 @@ const settings = ({
         <Divider variant="inset" component="li" />
         <ListItem
           button
+          onClick={handleAnalytics}
+          className={analyticsFocused ? `${classes.autoFocused}` : `${classes.notFocused}`}
+        >
+          <ListItemAvatar>
+            <Avatar style={{ background: '#1f252d', color: 'orange' }}>
+              <Icon icon="carbon:analytics" color="orange" />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Analytics" />
+        </ListItem>
+        <ListItem
+          button
           onClick={handleServer}
-          className={serverFocused ? `${classes.autoFocused}` : `${classes.notFocused}`}
+          className={serverFocused ? `${classes.focused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#1f252d', color: 'orange' }}>

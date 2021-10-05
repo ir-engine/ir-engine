@@ -27,7 +27,7 @@ export const initialize = (): Promise<void> => {
       })
     } else {
       setRuntime(
-        process.env.NODE_ENV === 'development'
+        process.env.APP_ENV === 'development'
           ? process.env.publicRuntimeConfig
           : (window as any).env.publicRuntimeConfig
       )

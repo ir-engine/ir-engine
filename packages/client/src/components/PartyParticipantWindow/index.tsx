@@ -15,8 +15,8 @@ import {
   VolumeUp
 } from '@material-ui/icons'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
@@ -49,13 +49,11 @@ interface Props {
   harmony?: boolean
   containerProportions?: ContainerProportions
   peerId?: string
-  locationState?: any
   mediastream?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    locationState: selectLocationState(state),
     mediastream: selectMediastreamState(state)
   }
 }
@@ -74,7 +72,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [audioTrackClones, setAudioTrackClones] = useState([])
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, locationState, mediastream } = props
+  const { harmony, peerId, mediastream } = props
   const userState = useUserState()
   const videoRef = React.useRef<HTMLVideoElement>()
   const audioRef = React.useRef<HTMLAudioElement>()
@@ -83,10 +81,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   const userHasInteracted = useAppState().userHasInteracted
   const selfUser = useAuthState().user.value
-  const currentLocation = locationState.get('currentLocation').get('location')
+  const currentLocation = useLocationState().currentLocation.location
   const enableGlobalMute =
-    currentLocation?.locationSettings?.locationType === 'showroom' &&
-    selfUser?.locationAdmins?.find((locationAdmin) => currentLocation.id === locationAdmin.locationId) != null
+    currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+    selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
   const user = userState.layerUsers.find((user) => user.id.value === peerId)?.attach(Downgraded).value
 
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
@@ -438,10 +436,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             videoStreamPaused == true ||
             videoProducerPaused == true ||
             videoProducerGlobalMute == true) && (
-            <img
-              src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id : user?.id)}
-              draggable={false}
-            />
+            <img src={getAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
           )}
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>

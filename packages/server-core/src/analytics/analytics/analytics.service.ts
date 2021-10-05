@@ -1,5 +1,4 @@
 // Initializes the `instance-provision` service on path `/instance-provision`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Analytics } from './analytics.class'
 import createModel from './analytics.model'
@@ -9,7 +8,7 @@ import hooks from './analytics.hooks'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    analytics: Analytics & ServiceAddons<any>
+    analytics: Analytics
   }
 }
 
@@ -27,12 +26,12 @@ export default (app: Application): any => {
    */
   const event = new Analytics(options, app)
   event.docs = instanceProvisionDocs
-  app.use('/analytics', event)
+  app.use('analytics', event)
 
   /**
    * Get our initialized service so that we can register hooks
    */
   const service = app.service('analytics')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

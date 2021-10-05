@@ -94,4 +94,4 @@ export const authReceptor = (action: AuthActionType): void => {
 }
 
 export const accessAuthState = () => state
-export const useAuthState = () => useState(state)
+export const useAuthState = () => useState(state) as any as typeof state as typeof state

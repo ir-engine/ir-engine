@@ -16,6 +16,7 @@ export class NavMeshBuilder {
           new Array<YUKA.Polygon>()
         )
     }
+    return null!
   }
 
   /** @param polygon a GeoJSON polygon with no holes */

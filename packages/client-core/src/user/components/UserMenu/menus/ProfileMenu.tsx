@@ -13,7 +13,7 @@ import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
-import { getAvatarURLFromNetwork, Views } from '../util'
+import { getAvatarURLForUser, Views } from '../util'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
@@ -144,7 +144,7 @@ const ProfileMenu = (props: Props): any => {
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id?.value)} />
+            <img src={getAvatarURLForUser(selfUser?.id?.value)} />
             {changeActiveMenu != null && (
               <Button
                 className={styles.avatarBtn}

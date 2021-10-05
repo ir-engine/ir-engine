@@ -91,7 +91,6 @@ export default class EditorInfiniteGridHelper extends Mesh {
     super(geometry, material)
     this.visible = true
     this.name = 'EditorInfiniteGridHelper'
-    this.layers.set(1)
     addIsHelperFlag(this)
     this.frustumCulled = false
     this.plane = new Plane(this.up)
@@ -102,10 +101,12 @@ export default class EditorInfiniteGridHelper extends Mesh {
       object: this
     }
   }
+
   setSize(size) {
     ;(this.material as any).uniforms.uSize1.value = size
     ;(this.material as any).uniforms.uSize2.value = size * 10
   }
+
   raycast(raycaster, intersects) {
     const point = new Vector3()
     const intersection = raycaster.ray.intersectPlane(this.plane, point)

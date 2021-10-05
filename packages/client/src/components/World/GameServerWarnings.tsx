@@ -5,12 +5,13 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
 import { provisionInstanceServer } from '../../reducers/instanceConnection/service'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 type GameServerWarningsProps = {
   isTeleporting: boolean
   instanceId: string
-  locationState: any
   locationName: string
   provisionInstanceServer: typeof provisionInstanceServer
 }
@@ -31,9 +32,7 @@ enum WarningModalTypes {
 }
 
 const mapStateToProps = (state: any) => {
-  return {
-    locationState: selectLocationState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
@@ -41,9 +40,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 })
 
 const GameServerWarnings = (props: GameServerWarningsProps) => {
-  const { locationState } = props
+  const locationState = useLocationState()
   const [modalValues, setModalValues] = useState(initialModalValues)
-  const invalidLocationState = locationState.get('invalidLocation')
+  const invalidLocationState = locationState.invalidLocation
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
@@ -71,12 +70,12 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   }, [])
 
   useEffect(() => {
-    if (invalidLocationState) {
+    if (invalidLocationState.value) {
       updateWarningModal(WarningModalTypes.INVALID_LOCATION)
     } else {
       reset()
     }
-  }, [invalidLocationState])
+  }, [invalidLocationState.value])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
     switch (type) {
@@ -90,7 +89,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.NO_GAME_SERVER_PROVISIONED:
-        const currentLocation = props.locationState.get('currentLocation').get('location')
+        const currentLocation = locationState.currentLocation.location.value
         setModalValues({
           open: true,
           title: 'No Available Servers',
@@ -102,7 +101,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
-        if (!Network.instance.userId) return
+        if (!Engine.userId) return
         if ((Network.instance.transport as SocketWebRTCClientTransport).left || props.isTeleporting) return
 
         setModalValues({

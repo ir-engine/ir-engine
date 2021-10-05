@@ -18,7 +18,7 @@ import {
 } from 'gl-matrix';
 import XRDevice from './XRDevice';
 
-const TEST_ENV = process.env.NODE_ENV === 'test';
+const TEST_ENV = process.env.APP_ENV === 'test';
 
 /**
  * A Session helper class to mirror an XRSession and correlate

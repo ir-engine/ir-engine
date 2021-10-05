@@ -3,7 +3,6 @@ import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
 import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { theme } from '@xrengine/client-core/src/theme'
@@ -37,16 +36,13 @@ const initialGroupForm = {
 
 interface Props {
   authState?: any
-  locationState?: any
   login?: boolean
   pageTitle: string
   children?: any
 }
 
 const mapStateToProps = (state: any): any => {
-  return {
-    locationState: selectLocationState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
@@ -119,30 +115,33 @@ const Layout = (props: Props): any => {
           <Alerts />
           {childrenWithProps}
         </Fragment>
-        {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && user?.id?.value != null && (
-          <Fragment>
-            <LeftDrawer
-              harmony={true}
-              detailsType={detailsType}
-              setDetailsType={setDetailsType}
-              groupFormOpen={groupFormOpen}
-              setGroupFormOpen={setGroupFormOpen}
-              groupFormMode={groupFormMode}
-              setGroupFormMode={setGroupFormMode}
-              groupForm={groupForm}
-              setGroupForm={setGroupForm}
-              selectedUser={selectedUser}
-              setSelectedUser={setSelectedUser}
-              selectedGroup={selectedGroup}
-              setSelectedGroup={setSelectedGroup}
-              openBottomDrawer={bottomDrawerOpen}
-              leftDrawerOpen={leftDrawerOpen}
-              setLeftDrawerOpen={setLeftDrawerOpen}
-              setRightDrawerOpen={setRightDrawerOpen}
-              setBottomDrawerOpen={setBottomDrawerOpen}
-            />
-          </Fragment>
-        )}
+        {authUser?.accessToken?.value != null &&
+          authUser.accessToken.value.length > 0 &&
+          user?.id?.value != null &&
+          user.id.value.length > 0 && (
+            <Fragment>
+              <LeftDrawer
+                harmony={true}
+                detailsType={detailsType}
+                setDetailsType={setDetailsType}
+                groupFormOpen={groupFormOpen}
+                setGroupFormOpen={setGroupFormOpen}
+                groupFormMode={groupFormMode}
+                setGroupFormMode={setGroupFormMode}
+                groupForm={groupForm}
+                setGroupForm={setGroupForm}
+                selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+                selectedGroup={selectedGroup}
+                setSelectedGroup={setSelectedGroup}
+                openBottomDrawer={bottomDrawerOpen}
+                leftDrawerOpen={leftDrawerOpen}
+                setLeftDrawerOpen={setLeftDrawerOpen}
+                setRightDrawerOpen={setRightDrawerOpen}
+                setBottomDrawerOpen={setBottomDrawerOpen}
+              />
+            </Fragment>
+          )}
         {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
           <Fragment>
             <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />

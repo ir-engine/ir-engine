@@ -64,8 +64,9 @@ export function copy(self: Polygon): Polygon {
 }
 
 export function addTileIndex(featuresFromTile: Feature[]) {
-  featuresFromTile.forEach(({ properties }, index) => {
-    properties.tileIndex = `${index}`
+  featuresFromTile.forEach((feature, index) => {
+    const properties = (feature.properties ||= {})
+    properties['tileIndex'] = `${index}`
   })
 }
 

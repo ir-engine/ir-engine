@@ -5,7 +5,6 @@ export interface PartyProps {
   authState?: any
   fetchAdminInstances?: any
   createAdminParty?: any
-  adminInstanceState?: any
   adminLocationState?: any
 }
 
