@@ -14,6 +14,7 @@ import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { WorldStateInterface } from '../../networking/schema/networkSchema'
 
 type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
 
@@ -21,7 +22,7 @@ type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
 }
 
-const CreateWorld = Symbol('CreateWorld')
+export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
     bitecs.createWorld(this)
@@ -56,8 +57,14 @@ export class World {
   /** Incoming actions */
   incomingActions = new Set<Required<Action>>()
 
+  /** Delayed actions */
+  delayedActions = new Set<Required<Action>>()
+
   /** Outgoing actions */
   outgoingActions = new Set<Action>()
+
+  currentNetworkState: WorldStateInterface
+  previousNetworkState: WorldStateInterface
 
   /**
    * Check if this user is hosting the world.
