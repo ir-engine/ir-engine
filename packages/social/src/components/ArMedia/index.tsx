@@ -13,7 +13,6 @@ import { selectArMediaState } from '../../reducers/arMedia/selector'
 import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { useHistory } from 'react-router-dom'
 
 // @ts-ignore
 import styles from './ArMedia.module.scss'
@@ -54,7 +53,6 @@ const ArMedia = ({ getArMedia, arMediaState, updateArMediaState, updateWebXRStat
     getArMedia()
   }, [])
   const { t } = useTranslation()
-  const history = useHistory()
 
   useEffect(() => {
     if (arMediaState.get('fetching') === false) {
@@ -62,7 +60,6 @@ const ArMedia = ({ getArMedia, arMediaState, updateArMediaState, updateWebXRStat
     }
   }, [arMediaState.get('fetching'), type])
 
-  console.log(list)
   return (
     <section className={styles.arMediaContainer}>
       {preloading && <Preloader text={'Loading...'} />}
@@ -98,22 +95,17 @@ const ArMedia = ({ getArMedia, arMediaState, updateArMediaState, updateWebXRStat
       {!selectedItem ? null : (
         <Button
           className={styles.startRecirding}
-          // onClick={async () => {
-          // setPreloading(true)
-          // if (XRPlugin.uploadFiles !== undefined) {
-          //   await XRPlugin.uploadFiles({
-          //     audioPath: selectedItem.audioUrl,
-          //     audioId: selectedItem.audioId
-          //   })
-          // }
-          // setPreloading(false)
-          // updateArMediaState(false)
-          // updateWebXRState(true, selectedItem.id)
-          // }}
-          onClick={() => {
+          onClick={async () => {
+            setPreloading(true)
+            if (XRPlugin.uploadFiles !== undefined) {
+              await XRPlugin.uploadFiles({
+                audioPath: selectedItem.audioUrl,
+                audioId: selectedItem.audioId
+              })
+            }
+            setPreloading(false)
             updateArMediaState(false)
             updateWebXRState(true, selectedItem.id)
-            history.push('/camera')
           }}
           variant="contained"
         >

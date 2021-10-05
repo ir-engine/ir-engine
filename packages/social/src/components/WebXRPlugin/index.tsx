@@ -30,12 +30,10 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { selectArMediaState } from '../../reducers/arMedia/selector'
 import { getArMediaItem } from '../../reducers/arMedia/service'
-// import HintOne from '../WebXrHints/HintOne'
-// import HintTwo from '../WebXrHints/HintTwo'
+import HintOne from '../WebXrHints/HintOne'
+import HintTwo from '../WebXrHints/HintTwo'
 import { setLastFeedVideoUrl } from '../../reducers/feed/service'
 import ZoomGestureHandler from './ZoomGestureHandler'
-import { App } from '@capacitor/app'
-import { useHistory } from 'react-router-dom'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -138,16 +136,6 @@ export const WebXRPlugin = ({
     xy: null,
     zy: null
   }
-
-  const history = useHistory()
-  const [active, setActive] = useState(true)
-
-  App.addListener('appStateChange', ({ isActive }) => {
-    setActive(isActive)
-    if (!isActive) {
-      history.push('/')
-    }
-  })
 
   const showContent = () => {
     if (!webxrRecorderActivity) {
@@ -695,8 +683,8 @@ export const WebXRPlugin = ({
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
-      {/* {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
-      {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''} */}
+      {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
+      {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''}
       <div className="plugintestControls">
         <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
           <section className={styles.waterMarkWrapper}>
