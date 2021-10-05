@@ -1,8 +1,6 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { InstanceConnectionActionType } from './InstanceConnectionActions'
 
-import { SocketCreatedAction } from '../common/SocketCreatedAction'
-
 const state = createState({
   instance: {
     ipAddress: '',
@@ -28,7 +26,7 @@ export const instanceConnectionReducer = (_, action: InstanceConnectionActionTyp
 }
 
 const instanceConnectionReceptor = (action: InstanceConnectionActionType): any => {
-  let newValues, newInstance, newClient
+  let newValues, newInstance
   state.batch((s) => {
     switch (action.type) {
       case 'INSTANCE_SERVER_PROVISIONING':
@@ -75,7 +73,7 @@ const instanceConnectionReceptor = (action: InstanceConnectionActionType): any =
         })
       case 'SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        connectionSocket = (action as SocketCreatedAction).socket
+        connectionSocket = action.socket
         return state
     }
   }, action.type)

@@ -42,7 +42,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
 
     for (const userEntity of userQuery.exit()) {
       if (userEntity === world.localClientEntity) continue
-      removeEntity(AvatarUI.get(userEntity)?.entity)
+      removeEntity(AvatarUI.get(userEntity)!.entity)
       AvatarUI.delete(userEntity)
     }
 

@@ -1,7 +1,6 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 
 import { ChannelConnectionActionType } from './ChannelConnectionActions'
-import { SocketCreatedAction } from '../common/SocketCreatedAction'
 
 const state = createState({
   instance: {

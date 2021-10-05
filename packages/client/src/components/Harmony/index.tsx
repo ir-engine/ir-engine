@@ -69,8 +69,8 @@ import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
 import { MediaStreamService } from '../../reducers/mediastream/MediaStreamService'
-import { selectTransportState } from '../../reducers/transport/selector'
-import { changeChannelTypeState, updateChannelTypeState } from '../../reducers/transport/service'
+import { useTransportStreamState } from '../../reducers/transport/TransportState'
+import { TransportService } from '../../reducers/transport/TransportService'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -88,14 +88,10 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    transportState: selectTransportState(state)
-  }
+  return {}
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  changeChannelTypeState: bindActionCreators(changeChannelTypeState, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
   setLeftDrawerOpen: any
@@ -106,8 +102,6 @@ interface Props {
   setGroupForm?: any
   setSelectedUser?: any
   setSelectedGroup?: any
-  transportState?: any
-  changeChannelTypeState?: any
   setHarmonyOpen?: any
   isHarmonyPage?: boolean
   harmonyHidden?: boolean
@@ -133,8 +127,6 @@ const Harmony = (props: Props): any => {
     setGroupForm,
     setSelectedUser,
     setSelectedGroup,
-    transportState,
-    changeChannelTypeState,
     setHarmonyOpen,
     isHarmonyPage,
     harmonyHidden
@@ -228,6 +220,7 @@ const Harmony = (props: Props): any => {
     _setLastConnectToWorldId(value)
   }
 
+  const transportState = useTransportStreamState()
   const producerStartingRef = useRef(producerStarting)
   const activeAVChannelIdRef = useRef(activeAVChannelId)
   const instanceChannelRef = useRef(null)
@@ -314,7 +307,7 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     if (selfUser?.instanceId != null && MediaStreams.instance.channelType === 'instance') {
       MediaStreams.instance.channelId = instanceChannel[0]
-      updateChannelTypeState()
+      dispatch(TransportService.updateChannelTypeState())
     }
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
@@ -323,7 +316,7 @@ const Harmony = (props: Props): any => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    setActiveAVChannelId(transportState.get('channelId'))
+    setActiveAVChannelId(transportState.channelId.value)
 
     if (targetChannelId == null || targetChannelId === '') {
       const matchingChannel = channelEntries.find((entry) => entry[0] === activeAVChannelIdRef.current)
@@ -501,7 +494,7 @@ const Harmony = (props: Props): any => {
         await toggleAudio(isInstanceChannel ? 'instance' : 'channel', activeAVChannelIdRef.current)
         await toggleVideo(isInstanceChannel ? 'instance' : 'channel', activeAVChannelIdRef.current)
       }
-      updateChannelTypeState()
+      dispatch(TransportService.updateChannelTypeState())
       dispatch(MediaStreamService.updateCamVideoState())
       dispatch(MediaStreamService.updateCamAudioState())
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
@@ -521,7 +514,7 @@ const Harmony = (props: Props): any => {
       MediaStreams.instance.channelId = ''
       MediaStreams.instance.channelType = ''
       if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
-      updateChannelTypeState()
+      dispatch(TransportService.updateChannelTypeState())
       dispatch(MediaStreamService.updateCamVideoState())
       dispatch(MediaStreamService.updateCamAudioState())
     })
@@ -673,7 +666,7 @@ const Harmony = (props: Props): any => {
     setCallStartedFromButton(true)
     const channel = channels[targetChannelId]
     const channelType = channel.instanceId != null ? 'instance' : 'channel'
-    changeChannelTypeState(channelType, targetChannelId)
+    dispatch(TransportService.changeChannelTypeState(channelType, targetChannelId))
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId(targetChannelId)
@@ -681,7 +674,7 @@ const Harmony = (props: Props): any => {
   }
 
   const endCall = async () => {
-    changeChannelTypeState('', '')
+    dispatch(TransportService.changeChannelTypeState('', ''))
     setCallStartedFromButton(false)
     await endVideoChat({})
     await leave(false)

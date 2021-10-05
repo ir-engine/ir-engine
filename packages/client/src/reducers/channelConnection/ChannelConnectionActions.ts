@@ -8,8 +8,6 @@ export const ChannelConnectionAction = {
     }
   },
   channelServerProvisioned: (provisionResult: InstanceServerProvisionResult, channelId: string | null) => {
-    console.log('Channel server provisioned')
-    console.log(provisionResult)
     return {
       type: 'CHANNEL_SERVER_PROVISIONED' as const,
       ipAddress: provisionResult.ipAddress,
