@@ -21,6 +21,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
+import { Folder } from '@styled-icons/fa-solid/Folder'
 
 /**
  * collectMenuProps returns menu items.
@@ -56,7 +57,7 @@ function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
   let content
 
   if (item.type === 'Folder') {
-    content = <FolderGridItem onClick={onClickItem} label={item.label} {...rest} />
+    content = <IconMediaGridItem iconComponent={Folder} onDoubleClick={onClickItem} label={item.label} {...rest} />
   } else {
     content = (
       <IconMediaGridItem iconComponent={item.iconComponent} onClick={onClickItem} label={item.label} {...rest} />
@@ -142,7 +143,7 @@ const MemoFileGridItem = memo(FileBrowserItem)
  * @constructor
  */
 export function FileBrowserGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, source }) {
-  const uniqueId = useRef(`AssetGrid${lastId}`)
+  const uniqueId = useRef(`FileGrid${lastId}`)
   const { t } = useTranslation()
 
   // incrementig lastId

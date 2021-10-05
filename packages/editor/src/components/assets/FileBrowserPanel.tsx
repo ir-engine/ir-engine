@@ -44,6 +44,7 @@ export default function FileBrowserPanel() {
 
   return (
     <>
+      {console.log('Rendering File Browser Panel PARENT')}
       <DockLayout
         defaultLayout={defaultLayout}
         style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}

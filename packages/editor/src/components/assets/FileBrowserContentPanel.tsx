@@ -69,7 +69,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   })
 
   const onSelect = (props) => {
-    onSelectionChanged({ resourceUrl: props.description, name: props.id, contentType: props.contentType })
+    if (props.type === 'Folder') console.log('You have just created the folder')
+    else onSelectionChanged({ resourceUrl: props.description, name: props.id, contentType: props.contentType })
   }
 
   const createProject = (projects) => {
@@ -84,6 +85,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
     return selectType
   }
+
   const projectSelectTypes = createProject(projects)
 
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0)
@@ -101,30 +103,57 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     const ownedFileIdsString = projects[index]?.ownedFileIds
     const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
     const returningObjects = []
-    for (let element of Object.keys(ownedFileIds)) {
-      const fileId = ownedFileIds[element]
-      const { url } = await getUrlFromId(fileId)
-      if (!url) continue
-      const contentType = await getContentType(new URL(url))
-      const nodeClass = UploadFileType[contentType]
-      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
-      const returningObject = {
-        description: url,
-        fileId: fileId,
-        projectId: projects[index].sid,
-        id: element,
-        label: element,
-        nodeClass: nodeClass,
-        url: url,
-        type: 'Folder',
-        contentType: contentType,
-        initialProps: { src: new URL(url) },
-        iconComponent: nodeEditor.WrappedComponent
-          ? nodeEditor.WrappedComponent.iconComponent
-          : nodeEditor.iconComponent
+
+    const response = await fetch('https://127.0.0.1:8642/ThisisTheMedia/')
+    const text = await response.text()
+
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(text, 'text/html')
+    const lis = doc.querySelectorAll('.display-name')
+
+    for (let i = 0; i < lis.length; i++) {
+      const value = lis[i]
+      const va = value.querySelector('a')
+      const linkis = va.href
+      const name = va.innerText
+
+      if (name.includes('/')) {
+        if (name === '../') continue
+        const returningObject = {
+          description: 'url',
+          fileId: 'fileId',
+          projectId: projects[index].sid,
+          id: name,
+          label: name,
+          type: 'Folder'
+        }
+        returningObjects.push(returningObject)
+      } else {
+        const url = linkis
+        if (!url) continue
+        const contentType = await getContentType(new URL(url))
+        const nodeClass = UploadFileType[contentType]
+        const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
+
+        const returningObject = {
+          description: url,
+          fileId: 'fileId',
+          projectId: projects[index].sid,
+          id: 'element' + i,
+          label: 'element' + i,
+          nodeClass: nodeClass,
+          url: url,
+          type: 'File',
+          contentType: contentType,
+          initialProps: { src: new URL(url) },
+          iconComponent: nodeEditor.WrappedComponent
+            ? nodeEditor.WrappedComponent.iconComponent
+            : nodeEditor.iconComponent
+        }
+        returningObjects.push(returningObject)
       }
-      returningObjects.push(returningObject)
     }
+
     setSelectedProjectFiles(returningObjects)
   }
 
@@ -152,6 +181,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   return (
     <>
+      {console.log('Rendering File Browser Panel CHILD')}
       {/* @ts-ignore */}
       <InputGroup name="Project Name" label="Project Name">
         {/* @ts-ignore */}
