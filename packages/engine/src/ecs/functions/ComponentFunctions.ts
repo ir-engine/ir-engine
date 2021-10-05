@@ -109,8 +109,8 @@ export const addComponent = <T, S extends bitECS.ISchema>(
     throw new Error('[addComponent]: entity is undefined')
   }
   bitECS.addComponent(world, component, entity)
-  if (component._schema) {
-    for (const [key] of Object.entries(component._schema as any)) {
+  if ((component as any)._schema) {
+    for (const [key] of Object.entries((component as any)._schema as any)) {
       component[key][entity] = args[key]
     }
   }
