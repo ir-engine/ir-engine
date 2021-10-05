@@ -53,7 +53,7 @@ export const loadAvatarForEntity = (entity: Entity) => {
       },
       (gltf: any) => {
         console.log(gltf.scene)
-        setupAvatar(entity, gltf.scene, avatarURL)
+        setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarURL)
       }
     )
   } else {
