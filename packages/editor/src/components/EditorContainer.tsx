@@ -9,8 +9,6 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '../functions/projectFunctions'
 import { getScene } from '../functions/getScene'
@@ -37,10 +35,7 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import {
-  accessLocationState,
-  useLocationState
-} from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { accessLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
 import { accessSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
 import { SceneService } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneService'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
@@ -54,6 +49,7 @@ import { NodeManager, registerPredefinedNodes } from '../managers/NodeManager'
 import { registerPredefinedSources, SourceManager } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
+import Store from '@xrengine/client-core/src/store'
 
 const maxUploadSize = 25
 
@@ -448,7 +444,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    const dispatch = useDispatch()
+    const dispatch = Store.store.dispatch
     if (accessLocationState().locations.updateNeeded.value === true) {
       dispatch(LocationService.fetchAdminLocations())
     }
@@ -1097,16 +1093,16 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   render() {
     const { DialogComponent, dialogProps, settingsContext } = this.state
     const toolbarMenu = this.generateToolbarMenu()
-    const isPublishedScene = !!this.getSceneId()
-    const locations = useLocationState().locations.locations.value
-    let assigneeScene
-    if (locations) {
-      locations.forEach((element) => {
-        if (element.sceneId === this.state.queryParams.get('projectId')) {
-          assigneeScene = element
-        }
-      })
-    }
+    // const isPublishedScene = !!this.getSceneId()
+    // const locations = useLocationState().locations.locations.value
+    // let assigneeScene
+    // if (locations) {
+    //   locations.forEach((element) => {
+    //     if (element.sceneId === this.state.queryParams.get('projectId')) {
+    //       assigneeScene = element
+    //     }
+    //   })
+    // }
 
     let defaultLayout = {
       dockbox: {
