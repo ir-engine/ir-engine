@@ -11,8 +11,8 @@ export default function getCachedMaterial(Material: any, params: MeshLambertMate
 
   if (!material) {
     material = new Material(params)
-    cache.set(key, material)
+    cache.set(key, material!)
   }
 
-  return material
+  return material!
 }

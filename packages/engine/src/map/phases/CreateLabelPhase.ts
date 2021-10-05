@@ -33,7 +33,7 @@ export function setTaskStatus(store: Store, key: FeatureKey, status: TaskStatus)
 
 const createLabelUsingCache = createUsingCache((store: Store, ...key: FeatureKey) => {
   const feature = store.featureCache.get(key)
-  const label = createFeatureLabel(feature as Feature<LineString>, store.originalCenter)
+  const label = createFeatureLabel(feature.properties.name, feature as Feature<LineString>, store.originalCenter)
   label.mesh.update()
   return label
 })

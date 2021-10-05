@@ -14,7 +14,7 @@ export default async function createGeometry(
   const style = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
   const {
     geometry: { json, transfer }
-  } = await geometryWorker.postTask(taskId, feature, style)
+  } = await geometryWorker!.postTask(taskId, feature, style)
 
   const geometry = geometryLoader.parse(json)
   for (const attributeName in transfer.attributes) {

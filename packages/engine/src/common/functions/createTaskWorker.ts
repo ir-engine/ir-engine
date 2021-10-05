@@ -60,7 +60,7 @@ export function createWorkerBody<TaskId, TaskArgs extends any[], TaskResult>(
       processingQueue = true
       while (messageQueue.length > 0) {
         const msg = messageQueue.shift()
-        const { id, args } = msg.data
+        const { id, args } = msg!.data
         taskHandler.apply(getTaskContext(id), args)
       }
       processingQueue = false
@@ -105,7 +105,7 @@ export default function createTaskWorker<TaskId, TaskArgs extends any[], TaskRes
 ) {
   if (isClient) {
     const getTaskContext = (id: TaskId) => ({
-      postResult(result: TaskResult, transfer?: Transferable[]) {
+      postResult(result: TaskResult, transfer: Transferable[] = []) {
         ;(postMessage as DedicatedWorkerGlobalScope['postMessage'])({ id, result }, transfer)
       }
     })

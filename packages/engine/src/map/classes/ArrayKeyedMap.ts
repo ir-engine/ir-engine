@@ -14,7 +14,9 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
     for (const [key, value] of iterable) {
       this.set(key, value)
     }
-    this.defaultValue = options.defaultValue
+    if (typeof options.defaultValue !== 'undefined') {
+      this.defaultValue = options.defaultValue
+    }
   }
 
   getKey(source: KeySource) {
@@ -23,7 +25,7 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
     return key
   }
 
-  getKeySource(key: string) {
+  getKeySource(key: string): KeySource | undefined {
     return this.keySources.get(key)
   }
 
@@ -52,7 +54,7 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
 
   *keys(): Generator<KeySource> {
     for (const key of this.map.keys()) {
-      yield this.getKeySource(key)
+      yield this.getKeySource(key)!
     }
   }
 

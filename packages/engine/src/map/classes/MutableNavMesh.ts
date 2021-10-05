@@ -22,8 +22,8 @@ export default class MutableNavMesh extends NavMesh {
       do {
         // check for a portal edge
 
-        if (edge.twin !== null) {
-          const nodeIndex = this.getNodeIndex(edge.twin.polygon)
+        if (edge!.twin !== null) {
+          const nodeIndex = this.getNodeIndex(edge!.twin.polygon!)
 
           if (nodeIndex !== -1) {
             nodeIndices.push(nodeIndex) // the node index of the adjacent region
@@ -31,14 +31,14 @@ export default class MutableNavMesh extends NavMesh {
 
           // add node for this region to the graph if necessary
 
-          if (graph.hasNode(this.getNodeIndex(edge.polygon)) === false) {
-            const node = new NavNode(this.getNodeIndex(edge.polygon), edge.polygon.centroid)
+          if (graph.hasNode(this.getNodeIndex(edge!.polygon!)) === false) {
+            const node = new NavNode(this.getNodeIndex(edge!.polygon!), edge!.polygon!.centroid)
 
             graph.addNode(node)
           }
         }
 
-        edge = edge.next
+        edge = edge!.next
       } while (edge !== region.edge)
     }
 

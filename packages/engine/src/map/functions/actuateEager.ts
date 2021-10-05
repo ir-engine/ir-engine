@@ -4,7 +4,7 @@ import checkKey from './checkKey'
 import { Store } from './createStore'
 
 export default async function actuateEager(store: Store, phases: readonly IPhase<any, any>[]) {
-  const results = []
+  const results = [] as any[]
   let result: any
   for (const phase of phases) {
     // console.log('starting %s', phase.constructor.name)
@@ -15,7 +15,7 @@ export default async function actuateEager(store: Store, phases: readonly IPhase
       }
     }
     if (phase.isCachingPhase || phase.isAsyncPhase) {
-      const promises = []
+      const promises = [] as Promise<any>[]
       let promise: Promise<any>
       for (const key of keys) {
         if (process.env.NODE_ENV === 'development') {

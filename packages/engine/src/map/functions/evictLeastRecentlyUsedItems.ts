@@ -5,7 +5,7 @@ export default function* evictLeastRecentlyUsedItems<K, V>(cache: Map<K, V>, max
       const value = cache.get(key)
       cachedItemCount--
       cache.delete(key)
-      yield [key, value]
+      yield [key, value!]
     } else {
       break
     }

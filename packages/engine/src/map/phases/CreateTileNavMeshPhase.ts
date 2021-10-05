@@ -22,13 +22,13 @@ function createScaleTransform(scale: number) {
   }
 }
 
-export default function getPCPolygons(features: Feature<Polygon | MultiPolygon>[]) {
-  const result = []
+export default function getPCPolygons(features: Feature<Polygon | MultiPolygon>[]): PC.MultiPolygon {
+  const result: PC.MultiPolygon = []
   for (const feature of features) {
     if (feature.geometry.type === 'MultiPolygon') {
-      result.push(...feature.geometry.coordinates)
+      result.push(...(feature.geometry.coordinates as any))
     } else {
-      result.push(feature.geometry.coordinates)
+      result.push(feature.geometry.coordinates as any)
     }
   }
   return result
@@ -70,14 +70,14 @@ const createNavMeshUsingCache = createUsingCache((store: Store, ...key: TileKey)
   const pcPolygons: PC.MultiPolygon = getPCPolygons(transformedFeatures)
   const clippedPCPolygons = computePolygonDifference(bboxPolygon.geometry.coordinates as PC.Polygon, ...pcPolygons)
 
-  const nonOverlappingConvexPolygons = []
+  const nonOverlappingConvexPolygons: PC.MultiPolygon = [] as any
   clippedPCPolygons.forEach((polygon) => {
     polygon.length > 1
       ? nonOverlappingConvexPolygons.push(...tesselatePolygon(polygon))
       : nonOverlappingConvexPolygons.push(polygon)
   })
 
-  return nonOverlappingConvexPolygons
+  return nonOverlappingConvexPolygons as PC.MultiPolygon
 })
 
 export function getTaskKeys(store: Store) {

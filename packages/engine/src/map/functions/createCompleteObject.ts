@@ -1,15 +1,14 @@
-import { Feature } from 'geojson'
 import { Mesh, MeshLambertMaterial } from 'three'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from '../styles'
-import { ILayerName, MapDerivedFeatureComplete, MapDerivedFeatureGeometry } from '../types'
+import { ILayerName, MapDerivedFeatureComplete, MapDerivedFeatureGeometry, SupportedFeature } from '../types'
 import getCachedMaterial from './getCachedMaterial'
 
 export default function createCompleteObject(
   layerName: ILayerName,
   geometryPhaseResult: MapDerivedFeatureGeometry,
-  feature: Feature
+  feature: SupportedFeature
 ): MapDerivedFeatureComplete {
-  const { color, extrude, zIndex } = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
+  const { color, extrude, zIndex = 0 } = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
 
   const materialParams = {
     ...(color?.constant ? { color: color?.constant } : {}),

@@ -38,6 +38,8 @@ export default function transformFeature<FeatureType extends SupportedFeature>(
   const centerPoint = toMetersFromCenter(centerPointLongLat, center) as [number, number]
   let transformedFeature = feature
 
+  feature.properties ||= {}
+
   if (!feature.properties.transformed) {
     if (!transformToMetersFromCenter || transformToMetersFromCenter.key !== center) {
       transformToMetersFromCenter = createMetersFromCenterTransform(center)

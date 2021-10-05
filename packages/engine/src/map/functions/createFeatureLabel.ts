@@ -60,7 +60,11 @@ function createUpdateClosure(mesh: Text3D, middleSlice: Position[]) {
   }
 }
 
-export default function createFeatureLabel(lineString: Feature<LineString>, mapCenterPoint: LongLat): MapFeatureLabel {
+export default function createFeatureLabel(
+  labelText: string,
+  lineString: Feature<LineString>,
+  mapCenterPoint: LongLat
+): MapFeatureLabel {
   const lineLen = turf.length(lineString)
   const middleSlice = turf.lineSliceAlong(lineString, lineLen * 0.48, lineLen * 0.52).geometry.coordinates
 
@@ -68,7 +72,7 @@ export default function createFeatureLabel(lineString: Feature<LineString>, mapC
 
   const [x1, y1] = toMetersFromCenter(middlePoint, mapCenterPoint)
 
-  const mesh = createText(lineString.properties.name)
+  const mesh = createText(labelText)
   const centerPoint = [x1, -y1] as [number, number]
 
   mesh.update = createUpdateClosure(mesh, middleSlice)

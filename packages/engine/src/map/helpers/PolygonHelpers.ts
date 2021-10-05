@@ -49,8 +49,8 @@ export function createConvexMultiPolygonHelper(polygons: Polygon[]): Mesh {
 
   const mesh = new Mesh(geometry, material)
 
-  const positions = []
-  const colors = []
+  const positions = [] as number[]
+  const colors = [] as number[]
 
   const color = new Color()
 

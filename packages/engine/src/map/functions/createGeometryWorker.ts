@@ -50,7 +50,7 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color,
 
   geometry.computeVertexNormals()
   geometry.computeBoundingBox()
-  geometry.boundingBox.getSize($vector3)
+  geometry.boundingBox!.getSize($vector3)
   const alpha = 1 - Math.min(1, $vector3.y / 200)
   const lerpedTopColor = topColor.lerp(bottomColor, alpha)
 
@@ -155,7 +155,7 @@ export function createTaskHandler() {
 
     const bufferGeometry = new BufferGeometry().copy(geometry)
 
-    const arrayBuffers = []
+    const arrayBuffers: ArrayBufferLike[] = []
     const attributes = {}
     for (let attributeName of Object.keys(bufferGeometry.attributes)) {
       const attribute = bufferGeometry.getAttribute(attributeName)

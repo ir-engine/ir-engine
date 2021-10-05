@@ -9,7 +9,7 @@ export function vector3ToArray2(vector: Vector3): [number, number] {
 export function multiplyArray<ArrayType extends number[]>(
   array: ArrayType,
   scalar: number,
-  target = [] as ArrayType
+  target: ArrayType = [] as any
 ): ArrayType {
   array.forEach((n, index) => {
     target[index] = n * scalar

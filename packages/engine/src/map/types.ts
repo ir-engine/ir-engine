@@ -43,7 +43,11 @@ export interface Text3D extends Mesh {
   dispose(): void
 }
 
-export type SupportedFeature = Feature<LineString | MultiLineString | Polygon | MultiPolygon>
+export interface SupportedFeature extends Feature<LineString | MultiLineString | Polygon | MultiPolygon> {
+  properties: {
+    [key: string]: any
+  }
+}
 
 export interface MapTransformedFeature {
   feature: SupportedFeature

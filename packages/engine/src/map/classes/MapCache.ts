@@ -44,7 +44,7 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
   *evictLeastRecentlyUsedItems(): Generator<[Key, Value]> {
     for (const [key, value] of evictLeastRecentlyUsedItems(this.map.map, this.maxSize)) {
       const keySource = this.map.getKeySource(key)
-      yield [keySource, value]
+      yield [keySource!, value]
     }
   }
 
