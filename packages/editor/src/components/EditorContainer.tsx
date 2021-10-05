@@ -37,8 +37,11 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { useLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
-import { useSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
+import {
+  accessLocationState,
+  useLocationState
+} from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { accessSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
 import { SceneService } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneService'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
@@ -446,13 +449,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
   componentDidMount() {
     const dispatch = useDispatch()
-    if (useLocationState().locations.updateNeeded.value === true) {
+    if (accessLocationState().locations.updateNeeded.value === true) {
       dispatch(LocationService.fetchAdminLocations())
     }
-    if (useSceneState().scenes.updateNeeded.value === true) {
+    if (accessSceneState().scenes.updateNeeded.value === true) {
       dispatch(SceneService.fetchAdminScenes())
     }
-    if (useLocationState().locationTypes.updateNeeded.value === true) {
+    if (accessLocationState().locationTypes.updateNeeded.value === true) {
       dispatch(LocationService.fetchLocationTypes())
     }
     const pathParams = this.state.pathParams
