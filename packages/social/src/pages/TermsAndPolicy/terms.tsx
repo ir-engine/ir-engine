@@ -9,7 +9,7 @@ import Heading from './components/Heading'
 import SubHeading from './components/SubHeading'
 import Paragraph from './components/Paragraph'
 
-const Terms = () => {
+const Terms = ({ setView }) => {
   const { t } = useTranslation()
   const history = useHistory()
   return (
@@ -22,7 +22,8 @@ const Terms = () => {
         variant="text"
         className="backButton"
         onClick={() => {
-          history.goBack()
+          // history.goBack()
+          setView('featured')
         }}
       >
         <ArrowBackIosIcon />
