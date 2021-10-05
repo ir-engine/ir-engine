@@ -79,9 +79,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/terms" component={React.lazy(() => import('./pages/TermsAndPolicy/terms'))} />
         <Route path="/policy" component={React.lazy(() => import('./pages/TermsAndPolicy/policy'))} />
 
-        {/* camera */}
-        <Route path="/camera" component={React.lazy(() => import('./components/WebXRPlugin'))} />
-
         <Route path="/:pid" component={React.lazy(() => import('./pages/[pid]'))} />
 
         <Route path="*" component={React.lazy(() => import('./pages/404'))} />
