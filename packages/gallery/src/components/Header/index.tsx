@@ -15,8 +15,8 @@ import {
   TextField
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
-import { createFeed } from '../../reducers/post/service'
-import { selectCreatorsState } from '../../reducers/creator/selector'
+import { createFeed } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feed/service'
+import { selectCreatorsState } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/creator/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Filesystem } from '@capacitor/filesystem'
 

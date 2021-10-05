@@ -6,8 +6,8 @@ import React, { useEffect } from 'react'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { selectFeedsState } from '@xrengine/social/src/reducers/feed/selector'
-import { getFeeds } from '@xrengine/social/src/reducers/feed/service'
+import { selectFeedsState } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feed/selector'
+import { getFeeds } from '@xrengine/client-core/src/social/reducers/socialmedia/reducers/feed/service'
 
 const mapStateToProps = (state: any): any => {
   return {
