@@ -70,6 +70,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       const newWorldState = WorldStateModel.fromBuffer(buffer)
       // if (newWorldState.pose.length) console.log('new world state: ' + JSON.stringify(newWorldState))
 
+      // todo: move to client-specific system
       if (isClient) {
         world.fixedTick = Math.max(newWorldState.tick, world.fixedTick)
       }
