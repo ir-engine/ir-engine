@@ -5,11 +5,10 @@ import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { MapComponent } from '../../map/MapComponent'
-import { Group, Vector3 } from 'three'
+import { Group } from 'three'
 import getPhases from '../../map/functions/getPhases'
 import actuateEager from '../../map/functions/actuateEager'
 import createStore from '../../map/functions/createStore'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { setPosition } from '../../map/util'
 
@@ -32,7 +31,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     addComponent(entity, DebugNavMeshComponent, { object3d: new Group() })
   }
 
-  await actuateEager(store, getPhases())
+  await actuateEager(store, getPhases({ exclude: ['navigation'] }))
 
   for (const key of store.completeObjects.keys()) {
     const layerName = key[0]
@@ -48,8 +47,11 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   navigationRaycastTarget.scale.setScalar(store.scale)
   Engine.scene.add(navigationRaycastTarget)
 
+  /*
+  * [Mappa#2](https://github.com/lagunalabsio/mappa/issues/2)
   addComponent(entity, NavMeshComponent, {
     yukaNavMesh: store.navMesh,
     navTarget: navigationRaycastTarget
   })
+  */
 }

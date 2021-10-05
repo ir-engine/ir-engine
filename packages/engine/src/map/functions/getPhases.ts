@@ -11,7 +11,7 @@ import * as CreateLabelPhase from '../phases/CreateLabelPhase'
 import * as CreateHelpersPhase from '../phases/CreateHelpersPhase'
 import { IPhase } from '../types'
 
-const phases = Object.freeze([
+const defaultPhases = Object.freeze([
   FetchTilesPhase,
   ExtractTileFeaturesPhase,
   UnifyFeaturesPhase,
@@ -25,7 +25,7 @@ const phases = Object.freeze([
   CreateHelpersPhase
 ])
 
-const phasesWithoutNavigation = Object.freeze([
+const phasesNoNavigation = Object.freeze([
   FetchTilesPhase,
   ExtractTileFeaturesPhase,
   UnifyFeaturesPhase,
@@ -39,5 +39,5 @@ type FeatureId = 'navigation'
 
 export default function getPhases(options: { exclude?: FeatureId[] } = {}): readonly IPhase<any, any>[] {
   const exclude = options.exclude || []
-  return exclude.includes('navigation') ? phasesWithoutNavigation : phases
+  return exclude.includes('navigation') ? phasesNoNavigation : defaultPhases
 }

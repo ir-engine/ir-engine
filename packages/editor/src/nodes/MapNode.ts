@@ -58,7 +58,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     const store = createStore(center, [0, 0], Infinity, 1200, args.scale.x, args)
     const subSceneChildren = []
     const subScene = this as unknown as Object3D
-    await actuateEager(store, getPhases())
+    await actuateEager(store, getPhases({ exclude: ['navigation'] }))
     for (const object of store.completeObjects.values()) {
       if (object.mesh) {
         setPosition(object.mesh, object.centerPoint)
