@@ -9,6 +9,7 @@ services:
       NAF_LISTEN_PORT: 8081
     ports:
       - '8081:8081'
+      - '9229:9229'
 
   server:
     build: 
@@ -32,7 +33,7 @@ services:
         API_SERVER: https://127.0.0.1:3030
         SITE_TITLE: XREngine
         SITE_DESC: Connected Worlds for Everyone
-        NODE_ENV: dev
+        APP_ENV: dev
     restart: always
     ports:
       - '3000:3000'

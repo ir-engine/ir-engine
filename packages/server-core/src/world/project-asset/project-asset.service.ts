@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import createAssetModel from './asset.model'
 import { ProjectAsset } from './project-asset.class'
@@ -7,7 +6,7 @@ import createModel from './project-asset.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'project-asset': ProjectAsset & ServiceAddons<any>
+    'project-asset': ProjectAsset
   }
 }
 
@@ -25,9 +24,9 @@ export default (app: Application): any => {
    *
    * @author Vyacheslav Solovjov
    */
-  app.use('/project-asset', new ProjectAsset(options, app))
+  app.use('project-asset', new ProjectAsset(options, app))
 
   const service = app.service('project-asset')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

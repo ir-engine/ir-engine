@@ -27,6 +27,9 @@ import { ProximityComponent } from '../../../proximity/components/ProximityCompo
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { accessPartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -814,7 +817,7 @@ const getAvatarResources = (user) => {
 const loadAvatarForUpdatedUser = async (user) => {
   if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
 
-  const world = Engine.defaultWorld
+  const world = useWorld()
 
   return new Promise(async (resolve) => {
     const networkUser = world.clients.get(user.id)
@@ -835,6 +838,7 @@ const loadAvatarForUpdatedUser = async (user) => {
 
     // Fetch Avatar Resources for updated user.
     const avatars = await getAvatarResources(user)
+
     if (avatars?.data && avatars.data.length === 2) {
       const avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url
       const thumbnailURL =
@@ -846,6 +850,8 @@ const loadAvatarForUpdatedUser = async (user) => {
       const world = Engine.defaultWorld
       const userEntity = world.getUserAvatarEntity(user.id)
       setAvatar(userEntity, user.avatarId, avatarURL)
+    } else {
+      await loadAvatarForUpdatedUser(user)
     }
     resolve(true)
   })
@@ -962,12 +968,12 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const store = Store.store
     const state = store.getState() as any
     const selfUser = accessAuthState().user
-    const party = state.get('party')
+    const party = accessPartyState().party.value
     const selfPartyUser =
       party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id.value) : {}
-    const currentLocation = state.get('locations').get('currentLocation').get('location')
+    const currentLocation = accessLocationState().currentLocation.location
     const locationBan = params.locationBan
-    if (selfUser.id.value === locationBan.userId && currentLocation.id === locationBan.locationId) {
+    if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
       // TODO: Decouple and reenable me!
       // endVideoChat({ leftParty: true });
       // leave(true);

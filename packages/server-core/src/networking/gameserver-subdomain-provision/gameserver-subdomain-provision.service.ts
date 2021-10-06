@@ -1,5 +1,4 @@
 // Initializes the `gameserver-subdomain-provision` service on path `/gameserver-subdomain-provision`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { GameserverSubdomainProvision } from './gameserver-subdomain-provision.class'
 import createModel from './gameserver-subdomain-provision.model'
@@ -9,7 +8,7 @@ import gameServerSubdomainProvisionDocs from './gameServer-subdomain-provision.d
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'gameserver-subdomain-provision': GameserverSubdomainProvision & ServiceAddons<any>
+    'gameserver-subdomain-provision': GameserverSubdomainProvision
   }
 }
 
@@ -27,7 +26,7 @@ export default (app: Application): any => {
    */
   const event = new GameserverSubdomainProvision(options, app)
   event.docs = gameServerSubdomainProvisionDocs
-  app.use('/gameserver-subdomain-provision', event)
+  app.use('gameserver-subdomain-provision', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -36,5 +35,5 @@ export default (app: Application): any => {
    */
   const service = app.service('gameserver-subdomain-provision')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

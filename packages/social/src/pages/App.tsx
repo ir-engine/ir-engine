@@ -34,6 +34,8 @@ import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
 import WebXRStart from '../components/popups/WebXR'
+import { useHistory } from 'react-router-dom'
+import TemporarySolution from './TemporarySolution'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -49,6 +51,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, changeWebXrNative, getWebXrNative }) => {
+  const history = useHistory()
   const dispatch = useDispatch()
   const auth = useAuthState()
   /*hided for now*/
@@ -92,6 +95,14 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
     return <Splash />
   }
 
+  const onGoRegistration = (callBack?) => {
+    if (auth.user.userRole.value === 'guest') {
+      history.push('/registration')
+    } else if (callBack) {
+      callBack()
+    }
+  }
+
   if (currentCreator.isBlocked == true) {
     return (
       <div>
@@ -104,33 +115,37 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
   return (
-    <div className={platformClass + ' ' + hideContentOnRecord}>
-      {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
-      <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-        <AppHeader setView={setView} />
-        {/* <Stories stories={stories} /> */}
-        <FeedMenu view={view} setView={setView} />
-        <AppFooter setView={setView} />
-        {currentCreator && (
-          // Made at the time of the test Aleks951
-          // (!!!currentCreator.terms || !!!currentCreator.policy) &&
-          // auth.user.userRole.value === 'user' &&
-          <TermsAndPolicy />
-        )}
-        <ArMediaPopup />
-        <WebXRStart
-          feedHintsOnborded={feedHintsOnborded}
-          webxrRecorderActivity={webxrRecorderActivity}
-          setContentHidden={changeWebXrNative}
-          setFeedHintsOnborded={setFeedHintsOnborded}
-        />
-        <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedFormPopup setView={setView} />
-        <SharedFormPopup setView={setView} />
-      </div>
-    </div>
+    <>
+      {view === 'terms' || view === 'policy' ? (
+        <TemporarySolution view={view} setView={setView} />
+      ) : (
+        <div className={platformClass + ' ' + hideContentOnRecord}>
+          {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
+          <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
+            <AppHeader setView={setView} onGoRegistration={onGoRegistration} />
+            {/* <Stories stories={stories} /> */}
+            <FeedMenu view={view} setView={setView} />
+            <AppFooter setView={setView} onGoRegistration={onGoRegistration} />
+            {currentCreator &&
+              // Made at the time of the test Aleks951
+              (!!!currentCreator.terms || !!!currentCreator.policy) &&
+              auth.user.userRole.value === 'user' && <TermsAndPolicy view={view} setView={setView} />}
+            <ArMediaPopup />
+            <WebXRStart
+              feedHintsOnborded={feedHintsOnborded}
+              webxrRecorderActivity={webxrRecorderActivity}
+              setContentHidden={changeWebXrNative}
+              setFeedHintsOnborded={setFeedHintsOnborded}
+            />
+            <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+            <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+            <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
+            <FeedFormPopup setView={setView} />
+            <SharedFormPopup setView={setView} />
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

@@ -14,22 +14,19 @@ import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { useTranslation } from 'react-i18next'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
+import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 
 const goHome = () => (window.location.href = window.location.origin)
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 const mapStateToProps = (state: any) => {
-  return {
-    partyState: selectPartyState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({})
 
 interface Props {
-  canvasElement: JSX.Element
   loadingItemCount
   isValidLocation
   allowDebug
@@ -38,7 +35,7 @@ interface Props {
   showTouchpad
   isTeleporting
   locationName
-  partyState
+
   // todo: remove these props in favour of reality packs
   customComponents?: any
   theme?: any
@@ -49,7 +46,7 @@ interface Props {
 const DefaultLayoutView = (props: Props) => {
   const authState = useAuthState()
   const selfUser = authState.user
-  const party = props.partyState?.get('party')
+  const party = usePartyState().party.value
 
   return (
     <>
@@ -85,7 +82,6 @@ const DefaultLayoutView = (props: Props) => {
         locationName={props.locationName}
         instanceId={selfUser?.instanceId.value ?? party?.instanceId}
       />
-      {props.canvasElement}
       <InteractableModal />
       {/* <RecordingApp /> */}
       <MediaIconsBox />

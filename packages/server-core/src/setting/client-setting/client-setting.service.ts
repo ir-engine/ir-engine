@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import hooks from './client-setting.hooks'
 import { Application } from '../../../declarations'
 import { ClientSetting } from './client-setting.class'
@@ -6,7 +5,7 @@ import createModel from './client-setting.model'
 
 declare module '../../../declarations' {
   interface SerViceTypes {
-    client: ClientSetting & ServiceAddons<any>
+    client: ClientSetting
   }
 }
 
@@ -18,8 +17,8 @@ export default (app: Application): void => {
   }
 
   const event = new ClientSetting(options, app)
-  app.use('/client-setting', event)
+  app.use('client-setting', event)
 
   const service = app.service('client-setting')
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

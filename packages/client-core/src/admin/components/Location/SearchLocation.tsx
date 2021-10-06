@@ -8,18 +8,14 @@ import { useLocationStyles } from './styles'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
-interface Props {
-  searchUserAction?: any
-}
+interface Props {}
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const SearchLocation = (props: Props) => {
-  const { searchUserAction } = props
   const classes = useLocationStyles()
   const [search, setSearch] = React.useState('')
   //    const handleChange = (e: any) => {
-  //      searchUserAction(search);
   //      setSearch(e.target.value);
   //    };
 

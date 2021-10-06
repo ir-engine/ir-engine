@@ -1,10 +1,8 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectContentPackState } from '../../reducers/contentPack/selector'
+import { connect, useDispatch } from 'react-redux'
 import styles from './ContentPack.module.scss'
-import { uploadRealityPack } from '../../reducers/contentPack/service'
+import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
 import Backdrop from '@material-ui/core/Backdrop'
 import Button from '@material-ui/core/Button'
 import Fade from '@material-ui/core/Fade'
@@ -20,27 +18,16 @@ interface Props {
   scenes?: any
   avatars?: any
   realityPacks?: any
-  uploadRealityPack?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    contentPackState: selectContentPackState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  uploadRealityPack: bindActionCreators(uploadRealityPack, dispatch)
-})
 
 const AddToContentPackModal = (props: Props): any => {
-  const { open, handleClose, scenes, uploadRealityPack } = props
+  const { open, handleClose, scenes } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [realityPackURL, setRealityPackURL] = useState('')
-
+  const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -52,9 +39,11 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (realityPackURL !== '') {
         setProcessing(true)
-        await uploadRealityPack({
-          uploadURL: realityPackURL
-        })
+        await dispatch(
+          ContentPackService.uploadRealityPack({
+            uploadURL: realityPackURL
+          })
+        )
         setProcessing(false)
         closeModal()
       }
@@ -120,4 +109,4 @@ const AddToContentPackModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddToContentPackModal)
+export default AddToContentPackModal

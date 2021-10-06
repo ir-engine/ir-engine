@@ -7,7 +7,7 @@ import {
   defineQuery
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { sendChatMessage } from '../../social/reducers/chat/service'
+import { ChatService } from '../../social/reducers/chat/ChatService'
 import { accessAuthState } from '../../user/reducers/auth/AuthState'
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 
@@ -33,7 +33,7 @@ export default async function WebCamInputSystem(world: World): Promise<System> {
 
 function sendProximityChatMessage(text) {
   const user = accessAuthState().user.value
-  sendChatMessage({
+  ChatService.sendChatMessage({
     targetObjectId: user.instanceId,
     targetObjectType: 'instance',
     text: '[emotions]' + text

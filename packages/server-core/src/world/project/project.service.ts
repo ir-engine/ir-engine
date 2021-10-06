@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Project } from './project.class'
 import projectDocs from './project.docs'
@@ -7,7 +6,7 @@ import hooks from './project.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    project: Project & ServiceAddons<any>
+    project: Project
   }
 }
 
@@ -26,7 +25,7 @@ export default (app: Application): any => {
   const event = new Project(options, app)
   event.docs = projectDocs
 
-  app.use('/project', event)
+  app.use('project', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -35,5 +34,5 @@ export default (app: Application): any => {
    */
   const service = app.service('project')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

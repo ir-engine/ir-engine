@@ -26,74 +26,35 @@ import {
   SupervisedUserCircle
 } from '@material-ui/icons'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector'
-import { getFriends } from '@xrengine/client-core/src/social/reducers/friend/service'
-import { selectSocialGroupState } from '@xrengine/client-core/src/social/reducers/group/selector'
-import { getInvitableGroups } from '@xrengine/client-core/src/social/reducers/group/service'
-import { selectInviteState } from '@xrengine/client-core/src/social/reducers/invite/selector'
-import {
-  acceptInvite,
-  declineInvite,
-  removeInvite,
-  retrieveReceivedInvites,
-  retrieveSentInvites,
-  sendInvite,
-  updateInviteTarget
-} from '@xrengine/client-core/src/social/reducers/invite/service'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { getLocations } from '@xrengine/client-core/src/social/reducers/location/service'
+import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
+import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
+import { useInviteState } from '@xrengine/client-core/src/social/reducers/invite/InviteState'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+import { LocationService } from '@xrengine/client-core/src/social/reducers/location/LocationService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { provisionInstanceServer } from '../../../reducers/instanceConnection/service'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
+import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 import styles from './Right.module.scss'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    friendState: selectFriendState(state),
-    inviteState: selectInviteState(state),
-    groupState: selectSocialGroupState(state),
-    partyState: selectPartyState(state),
-    locationState: selectLocationState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFriends: bindActionCreators(getFriends, dispatch),
-  retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
-  retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch),
-  sendInvite: bindActionCreators(sendInvite, dispatch),
-  removeInvite: bindActionCreators(removeInvite, dispatch),
-  acceptInvite: bindActionCreators(acceptInvite, dispatch),
-  declineInvite: bindActionCreators(declineInvite, dispatch),
-  updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
-  getInvitableGroups: bindActionCreators(getInvitableGroups, dispatch),
-  getLocations: bindActionCreators(getLocations, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 })
 
 interface Props {
-  friendState?: any
-  inviteState?: any
-  retrieveReceivedInvites?: typeof retrieveReceivedInvites
-  retrieveSentInvites?: typeof retrieveSentInvites
-  sendInvite?: typeof sendInvite
-  getFriends?: typeof getFriends
-  removeInvite?: typeof removeInvite
-  acceptInvite?: typeof acceptInvite
-  declineInvite?: typeof declineInvite
   rightDrawerOpen?: any
   setRightDrawerOpen?: any
-  groupState?: any
-  updateInviteTarget?: any
-  partyState?: any
-  getInvitableGroups?: any
-  locationState?: any
-  getLocations?: any
   provisionInstanceServer?: any
 }
 
@@ -102,59 +63,43 @@ identityProviderTabMap.set(0, 'email')
 identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
-  const {
-    friendState,
-    inviteState,
-    sendInvite,
-    retrieveReceivedInvites,
-    retrieveSentInvites,
-    getFriends,
-    removeInvite,
-    acceptInvite,
-    declineInvite,
-    groupState,
-    updateInviteTarget,
-    partyState,
-    getInvitableGroups,
-    locationState,
-    getLocations,
-    provisionInstanceServer,
-    rightDrawerOpen,
-    setRightDrawerOpen
-  } = props
+  const { provisionInstanceServer, rightDrawerOpen, setRightDrawerOpen } = props
   const user = useAuthState().user
-  const friendSubState = friendState.get('friends')
-  const friends = friendSubState.get('friends')
-  const receivedInviteState = inviteState.get('receivedInvites')
-  const receivedInvites = receivedInviteState.get('invites')
-  const sentInviteState = inviteState.get('sentInvites')
-  const sentInvites = sentInviteState.get('invites')
-  const targetObjectType = inviteState.get('targetObjectType')
-  const targetObjectId = inviteState.get('targetObjectId')
-  const invitableGroupState = groupState.get('invitableGroups')
-  const invitableGroups = invitableGroupState.get('groups')
-  const party = partyState.get('party')
+  const friendSubState = useFriendState().friends
+  const friends = friendSubState.friends.value
+  const inviteState = useInviteState()
+  const receivedInviteState = inviteState.receivedInvites
+  const receivedInvites = receivedInviteState.invites
+  const sentInviteState = inviteState.sentInvites
+  const sentInvites = sentInviteState.invites
+  const targetObjectType = inviteState.targetObjectType
+  const targetObjectId = inviteState.targetObjectId
+  const groupState = useGroupState()
+  const invitableGroupState = groupState.invitableGroups
+  const invitableGroups = invitableGroupState.groups
+  const party = usePartyState().party.value
   const selfPartyUser =
     party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id.value) : {}
-  const locations = locationState.get('locations').get('locations')
+
   const [tabIndex, setTabIndex] = useState(0)
   const [inviteTabIndex, setInviteTabIndex] = useState(0)
   const [inviteTypeIndex, setInviteTypeIndex] = useState(0)
   const [userToken, setUserToken] = useState('')
   const [deletePending, setDeletePending] = useState('')
   const [selectedAccordion, setSelectedAccordion] = useState('invite')
+  const dispatch = useDispatch()
+  const locationState = useLocationState()
+  useEffect(() => {
+    if (groupState.invitableUpdateNeeded.value === true && groupState.getInvitableGroupsInProgress.value !== true) {
+      dispatch(GroupService.getInvitableGroups(0))
+    }
+  }, [groupState.invitableUpdateNeeded.value, groupState.getInvitableGroupsInProgress.value])
 
   useEffect(() => {
-    if (groupState.get('invitableUpdateNeeded') === true && groupState.get('getInvitableGroupsInProgress') !== true) {
-      getInvitableGroups(0)
+    if (locationState.updateNeeded.value === true) {
+      dispatch(LocationService.getLocations())
     }
-  }, [groupState])
-
-  useEffect(() => {
-    if (locationState.get('updateNeeded') === true) {
-      getLocations()
-    }
-  }, [locationState])
+  }, [locationState.updateNeeded.value])
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault()
@@ -171,12 +116,12 @@ const Invites = (props: Props): any => {
   }
 
   const updateInviteTargetType = (targetObjectType: string, targetObjectId: string) => {
-    updateInviteTarget(targetObjectType, targetObjectId)
+    dispatch(InviteService.updateInviteTarget(targetObjectType, targetObjectId))
     setUserToken('')
   }
 
-  const handleInviteGroupChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
-    updateInviteTarget('group', event.target.value)
+  const handleInviteGroupChange = (event: React.ChangeEvent<{ value: string }>): void => {
+    dispatch(InviteService.updateInviteTarget('group', event.target.value))
   }
 
   const handleInviteChange = (event: any, newValue: number): void => {
@@ -191,15 +136,15 @@ const Invites = (props: Props): any => {
   const packageInvite = async (event: any): Promise<void> => {
     const mappedIDProvider = identityProviderTabMap.get(tabIndex)
     const sendData = {
-      type: inviteState.get('targetObjectType') === 'user' ? 'friend' : inviteState.get('targetObjectType'),
+      type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
       token: mappedIDProvider ? userToken : null,
       inviteCode: tabIndex === 2 ? userToken : null,
       identityProviderType: mappedIDProvider ? mappedIDProvider : null,
-      targetObjectId: inviteState.get('targetObjectId'),
+      targetObjectId: inviteState.targetObjectId.value,
       invitee: tabIndex === 3 ? userToken : null
     }
 
-    sendInvite(sendData)
+    dispatch(InviteService.sendInvite(sendData))
     setUserToken('')
   }
 
@@ -213,46 +158,53 @@ const Invites = (props: Props): any => {
 
   const confirmDelete = (inviteId) => {
     setDeletePending('')
-    removeInvite(inviteId)
+    dispatch(InviteService.removeInvite(inviteId))
   }
 
   const previousInvitePage = () => {
     if (inviteTabIndex === 0) {
-      retrieveReceivedInvites('decrement')
+      dispatch(InviteService.retrieveReceivedInvites('decrement'))
     } else {
-      retrieveSentInvites('decrement')
+      dispatch(InviteService.retrieveSentInvites('decrement'))
     }
   }
 
   const nextInvitePage = () => {
     if (inviteTabIndex === 0) {
-      if (receivedInviteState.get('skip') + receivedInviteState.get('limit') < receivedInviteState.get('total')) {
-        retrieveReceivedInvites(receivedInviteState.get('skip') + receivedInviteState.get('limit'))
+      if (receivedInviteState.skip.value + receivedInviteState.limit.value < receivedInviteState.total.value) {
+        dispatch(InviteService.retrieveReceivedInvites('increment'))
       }
     } else {
-      if (sentInviteState.get('skip') + sentInviteState.get('limit') < sentInviteState.get('total')) {
-        retrieveSentInvites(sentInviteState.get('skip') + sentInviteState.get('limit'))
+      if (sentInviteState.skip.value + sentInviteState.limit.value < sentInviteState.total.value) {
+        dispatch(InviteService.retrieveSentInvites('increment'))
       }
     }
   }
 
   const acceptRequest = (invite) => {
-    acceptInvite(invite.id, invite.passcode)
+    dispatch(InviteService.acceptInvite(invite.id, invite.passcode))
   }
 
   const declineRequest = (invite) => {
-    declineInvite(invite)
+    dispatch(InviteService.declineInvite(invite))
   }
 
   useEffect(() => {
-    if (inviteState.get('sentUpdateNeeded') === true && inviteState.get('getSentInvitesInProgress') !== true)
-      retrieveSentInvites()
-    if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true)
-      retrieveReceivedInvites()
-    setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0)
-    if (targetObjectType == null || targetObjectType.length === 0) updateInviteTarget('user', null)
-    if (targetObjectType != null && targetObjectId != null) setSelectedAccordion('invite')
-  }, [inviteState])
+    if (inviteState.sentUpdateNeeded.value === true && inviteState.getSentInvitesInProgress.value !== true)
+      dispatch(InviteService.retrieveSentInvites())
+    if (inviteState.receivedUpdateNeeded.value === true && inviteState.getReceivedInvitesInProgress.value !== true)
+      dispatch(InviteService.retrieveReceivedInvites())
+    setInviteTypeIndex(targetObjectType?.value === 'party' ? 2 : targetObjectType?.value === 'group' ? 1 : 0)
+    if (targetObjectType?.value == null || targetObjectType?.value?.length === 0)
+      dispatch(InviteService.updateInviteTarget('user', null))
+    if (targetObjectType?.value != null && targetObjectId?.value != null) setSelectedAccordion('invite')
+  }, [
+    inviteState.sentUpdateNeeded.value,
+    inviteState.receivedInvites.value,
+    inviteState.receivedUpdateNeeded.value,
+    inviteState.getReceivedInvitesInProgress.value,
+    inviteState.targetObjectType.value
+  ])
 
   const capitalize = (word) => word[0].toUpperCase() + word.slice(1)
 
@@ -275,14 +227,14 @@ const Invites = (props: Props): any => {
   }
 
   const nextInvitableGroupsPage = () => {
-    if (invitableGroupState.get('skip') + invitableGroupState.get('limit') < invitableGroupState.get('total')) {
-      getInvitableGroups(invitableGroupState.get('skip') + invitableGroupState.get('limit'))
+    if (invitableGroupState.skip.value + invitableGroupState.limit.value < invitableGroupState.total.value) {
+      dispatch(GroupService.getInvitableGroups(invitableGroupState.skip.value + invitableGroupState.limit.value))
     }
   }
 
   const nextFriendsPage = (): void => {
-    if (friendSubState.get('skip') + friendSubState.get('limit') < friendSubState.get('total')) {
-      getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+    if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
+      dispatch(FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value))
     }
   }
 
@@ -310,7 +262,7 @@ const Invites = (props: Props): any => {
         open={rightDrawerOpen === true}
         onClose={() => {
           setRightDrawerOpen(false)
-          updateInviteTarget('user', null)
+          dispatch(InviteService.updateInviteTarget('user', null))
           setTabIndex(0)
         }}
         onOpen={() => {
@@ -352,7 +304,7 @@ const Invites = (props: Props): any => {
           {(inviteTabIndex === 2 || inviteTabIndex === 1) && (
             <List onScroll={(e) => onListScroll(e)}>
               {inviteTabIndex === 1 &&
-                receivedInvites
+                [...receivedInvites.value]
                   .sort((a, b) => {
                     return a.created - b.created
                   })
@@ -383,12 +335,12 @@ const Invites = (props: Props): any => {
                             Decline
                           </Button>
                         </ListItem>
-                        {index < receivedInvites.length - 1 && <Divider />}
+                        {index < receivedInvites.value.length - 1 && <Divider />}
                       </div>
                     )
                   })}
               {inviteTabIndex === 2 &&
-                sentInvites
+                [...sentInvites.value]
                   .sort((a, b) => {
                     return a.created - b.created
                   })
@@ -429,7 +381,7 @@ const Invites = (props: Props): any => {
                             </div>
                           )}
                         </ListItem>
-                        {index < sentInvites.length - 1 && <Divider />}
+                        {index < sentInvites.value.length - 1 && <Divider />}
                       </div>
                     )
                   })}
@@ -470,17 +422,17 @@ const Invites = (props: Props): any => {
               </Tabs>
               {inviteTypeIndex === 1 && (
                 <div className={styles['flex-justify-center']}>
-                  {invitableGroupState.get('total') > 0 && (
+                  {invitableGroupState.total.value > 0 && (
                     <FormControl className={styles['group-select']}>
                       <InputLabel id="invite-group-select-label">Group</InputLabel>
                       <Select
                         labelId="invite-group-select-label"
                         id="invite-group-select"
-                        value={inviteState.get('targetObjectId')}
+                        value={inviteState.targetObjectId.value}
                         onChange={handleInviteGroupChange}
                         onScroll={onSelectScroll}
                       >
-                        {invitableGroups.map((group) => {
+                        {invitableGroups.value.map((group) => {
                           return (
                             <MenuItem
                               className={classNames({
@@ -497,7 +449,7 @@ const Invites = (props: Props): any => {
                       </Select>
                     </FormControl>
                   )}
-                  {invitableGroupState.get('total') === 0 && <div>You cannot invite people to any groups</div>}
+                  {invitableGroupState.total.value === 0 && <div>You cannot invite people to any groups</div>}
                 </div>
               )}
               {inviteTypeIndex === 2 && party == null && (
@@ -510,11 +462,11 @@ const Invites = (props: Props): any => {
                   <div className={styles['flex-justify-center']}>You are not the owner of your current party</div>
                 )}
               {!(
-                (inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) ||
+                (inviteTypeIndex === 1 && invitableGroupState.total.value === 0) ||
                 (inviteTypeIndex === 1 &&
                   _.find(
-                    invitableGroupState.get('groups'),
-                    (invitableGroup) => invitableGroup.id === inviteState.get('targetObjectId')
+                    invitableGroupState.groups.value,
+                    (invitableGroup) => invitableGroup.id === inviteState.targetObjectId.value
                   ) == null) ||
                 (inviteTypeIndex === 2 && party == null) ||
                 (inviteTypeIndex === 2 &&

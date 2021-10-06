@@ -1,9 +1,10 @@
-import { dispatchAlertError } from '@xrengine/client-core/src/common/reducers/alert/service'
+import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { bindActionCreators, Dispatch } from 'redux'
-import { addConnectionByEmail } from '../../../../client-core/src/user/reducers/auth/service'
+import { useDispatch } from 'react-redux'
+import { AuthService } from '../../../../client-core/src/user/reducers/auth/AuthService'
 
 import {} from './actions'
 
@@ -16,9 +17,9 @@ export function middlewareFromAddConnectionByEmail(emailPhone: string, id: strin
       //   .service('creator')
       //   .create({ name: 'User', username: 'user_' })
       console.log(id)
-
+      const dispatch = useDispatch()
       const promise = new Promise((resolve, reject) => {
-        bindActionCreators(addConnectionByEmail, dispatch)(emailPhone, id)
+        bindActionCreators(AuthService.addConnectionByEmail, dispatch)(emailPhone, id)
         resolve(true)
       })
 
@@ -29,7 +30,7 @@ export function middlewareFromAddConnectionByEmail(emailPhone: string, id: strin
       // dispatch(creatorLoggedRetrieved(creator))
     } catch (err) {
       console.log(err)
-      dispatchAlertError(dispatch, err.message)
+      dispatch(AlertService.dispatchAlertError(dispatch, err.message))
     }
   }
 }

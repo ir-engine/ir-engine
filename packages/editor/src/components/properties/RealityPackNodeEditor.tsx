@@ -10,7 +10,6 @@ import { ProjectManager } from '../../managers/ProjectManager'
 import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 import NodeEditor from './NodeEditor'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import StringInput from '../inputs/StringInput'
 
 /**
  * Define properties for RealityPack component.
@@ -82,7 +81,7 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
   getRealityPacks = async () => {
     let realityPacks: RealityPackInterface[] = []
     try {
-      realityPacks = (await ProjectManager.instance.feathersClient.service('reality-pack').find()).data
+      realityPacks = (await ProjectManager.instance.feathersClient.service('reality-pack-data').find()).data
       console.log(realityPacks)
     } catch (e) {
       console.log(e)

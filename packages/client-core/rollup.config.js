@@ -11,7 +11,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
 import css from 'rollup-plugin-css-only'
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env.APP_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
 
 const libraryName = 'client-core'
@@ -43,7 +43,7 @@ export default {
       rollupCommonJSResolveHack: false
     }),
     replace({
-      'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
+      'process.env.APP_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     }),
     resolve({
       extensions,

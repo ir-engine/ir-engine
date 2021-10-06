@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { PartyUser } from './party-user.class'
 import createModel from './party-user.model'
@@ -8,7 +7,7 @@ import partyUserDocs from './party-user.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'party-user': PartyUser & ServiceAddons<any>
+    'party-user': PartyUser
   }
 }
 
@@ -27,11 +26,11 @@ export default (app: Application): void => {
   const event = new PartyUser(options, app)
   event.docs = partyUserDocs
 
-  app.use('/party-user', event)
+  app.use('party-user', event)
 
   const service = app.service('party-user')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 
   /**
    * A function which is used to create new party user

@@ -1,4 +1,4 @@
-// process.env.NODE_ENV = 'test'
+// process.env.APP_ENV = 'test'
 const dotenv = require("dotenv")
 dotenv.config({
   path: './.env.local'

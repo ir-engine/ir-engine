@@ -1,6 +1,5 @@
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
@@ -16,13 +15,11 @@ import url from 'url'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import { retriveLocationByName } from './LocationLoadHelper'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
+import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 import { provisionChannelServer } from '../../reducers/channelConnection/service'
 
 interface Props {
   locationName: string
-  locationState?: any
-  partyState?: any
   history?: any
   engineInitializeOptions?: InitializeOptions
   instanceConnectionState?: any
@@ -44,10 +41,7 @@ const mapStateToProps = (state: any) => {
   return {
     // appState: selectAppState(state),
 
-    instanceConnectionState: selectInstanceConnectionState(state), //
-    locationState: selectLocationState(state),
-    partyState: selectPartyState(state),
-    chatState: selectChatState(state)
+    instanceConnectionState: selectInstanceConnectionState(state) //
   }
 }
 
@@ -65,6 +59,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const selfUser = authState.user
   const userState = useUserState()
   const dispatch = useDispatch()
+  const chatState = useChatState()
+  const locationState = useLocationState()
 
   useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
@@ -88,9 +84,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    const currentLocation = props.locationState.get('currentLocation').get('location')
+    const currentLocation = locationState.currentLocation.location
 
-    if (currentLocation.id) {
+    if (currentLocation.id?.value) {
       if (
         !isUserBanned &&
         !props.instanceConnectionState.get('instanceProvisioned') &&
@@ -105,21 +101,18 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = query.instanceId
         }
 
-        if (sceneId === null) setSceneId(currentLocation.sceneId)
-        props.provisionInstanceServer(currentLocation.id, instanceId || undefined, sceneId)
+        if (sceneId === null) setSceneId(currentLocation.sceneId.value)
+        props.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
       }
 
-      if (sceneId === null) setSceneId(currentLocation.sceneId)
+      if (sceneId === null) setSceneId(currentLocation.sceneId.value)
     } else {
-      if (
-        !props.locationState.get('currentLocationUpdateNeeded') &&
-        !props.locationState.get('fetchingCurrentLocation')
-      ) {
+      if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
         setIsValidLocation(false)
         dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
       }
     }
-  }, [props.locationState])
+  }, [locationState.currentLocation.location.value])
 
   useEffect(() => {
     if (
@@ -133,12 +126,12 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   }, [props.instanceConnectionState])
 
   useEffect(() => {
-    if (props.chatState.get('instanceChannelFetched')) {
-      const channels = props.chatState.get('channels').get('channels')
-      const instanceChannel = [...channels.entries()].find((channel) => channel[1].channelType === 'instance')
+    if (chatState.instanceChannelFetched.value) {
+      const channels = chatState.channels.channels.value
+      const instanceChannel = Object.entries(channels).find((channel) => channel[1].channelType === 'instance')
       props.provisionChannelServer(null!, instanceChannel[0])
     }
-  }, [props.chatState.get('instanceChannelFetched')])
+  }, [chatState.instanceChannelFetched.value])
 
   return <></>
 }

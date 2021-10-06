@@ -297,7 +297,7 @@ export const WebXRPlugin = ({
       }
       const anchor = anchorRef.current
       // TODO: return it to false
-      anchor.visible = true
+      anchor.visible = false
 
       //             anchor.add(new AxesHelper(0.3));
       //             const anchorC = new Mesh(geometry, materialC);

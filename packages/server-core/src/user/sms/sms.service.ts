@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Sms } from './sms.class'
 import smsDocs from './sms.docs'
@@ -6,7 +5,7 @@ import hooks from './sms.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    sms: Sms & ServiceAddons<any>
+    sms: Sms
   }
 }
 
@@ -24,7 +23,7 @@ export default (app: Application): void => {
   const event = new Sms(options, app)
   event.docs = smsDocs
 
-  app.use('/sms', event)
+  app.use('sms', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -33,5 +32,5 @@ export default (app: Application): void => {
    */
   const service = app.service('sms')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }
