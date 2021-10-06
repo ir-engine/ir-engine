@@ -1,5 +1,5 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { string, float32, Schema, uint32, uint8, uint64, int8 } from '../../assets/superbuffer'
+import { string, float32, Schema, uint32, uint8, uint64, int8, boolean } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
 
 /**
@@ -13,6 +13,22 @@ const poseSchema = new Schema({
   rotation: [float32],
   linearVelocity: [float32],
   angularVelocity: [float32]
+})
+
+const jointTransformSchema = new Schema({
+  key: string,
+  position: [float32],
+  rotation: [float32]
+})
+
+const handPoseSchema = new Schema({
+  handedness: uint8,
+  joints: [jointTransformSchema]
+})
+
+const handsPoseSchema = new Schema({
+  networkId: uint32,
+  hands: [handPoseSchema]
 })
 
 const ikPoseSchema = new Schema({
@@ -29,7 +45,8 @@ const networkSchema = new Schema({
   tick: uint32,
   time: uint64,
   pose: [poseSchema],
-  ikPose: [ikPoseSchema]
+  ikPose: [ikPoseSchema],
+  handsPose: [handsPoseSchema]
 })
 
 /** Interface for world state. */
@@ -55,6 +72,19 @@ export interface WorldStateInterface {
     leftPoseRotation: number[]
     rightPosePosition: number[]
     rightPoseRotation: number[]
+  }[]
+  handsPose: {
+    networkId: NetworkId
+    hands: {
+      handedness: number
+      joints: [
+        {
+          key: string
+          position: number[]
+          rotation: number[]
+        }
+      ]
+    }[]
   }[]
 }
 

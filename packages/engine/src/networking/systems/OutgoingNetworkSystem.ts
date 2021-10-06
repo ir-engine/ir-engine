@@ -15,6 +15,7 @@ import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/enco
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
 import { pipe } from 'bitecs'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 
 const networkTransformsQuery =
   // isClient
@@ -24,6 +25,10 @@ const networkTransformsQuery =
 const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
   : defineQuery([XRInputSourceComponent])
+
+const xrHandsQuery = isClient
+  ? defineQuery([AvatarControllerComponent, XRHandsInputComponent])
+  : defineQuery([XRHandsInputComponent])
 
 function velocityIsTheSame(previousNetworkState, netId, vel): boolean {
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
@@ -197,6 +202,46 @@ export const queueUnchangedIkPoses = (world) => {
   return world
 }
 
+export const queueXRHandPoses = (world) => {
+  const { currentNetworkState, previousNetworkState } = world
+
+  for (const entity of xrHandsQuery(world)) {
+    const { networkId } = getComponent(entity, NetworkObjectComponent)
+    const xrHands = getComponent(entity, XRHandsInputComponent)
+    const hands: any = []
+
+    for (let xrHand of xrHands.hands) {
+      const joints = (xrHand as any).joints
+      if (!joints) continue
+
+      const hand = {
+        handedness: [xrHand.userData.handedness == 'left' ? 0 : 1],
+        joints: [] as any
+      }
+
+      hands.push(hand)
+
+      for (const [key, value] of Object.entries(joints)) {
+        const position = encodeVector3((value as any).position)
+        const rotation = encodeQuaternion((value as any).quaternion)
+
+        hand.joints.push({
+          key,
+          position,
+          rotation
+        })
+      }
+    }
+
+    currentNetworkState.handsPose.push({
+      networkId,
+      hands
+    })
+  }
+
+  return world
+}
+
 export const sendActions = (world) => {
   const { incomingActions, outgoingActions } = world
 
@@ -230,7 +275,8 @@ export const sendActions = (world) => {
 export const queueAllOutgoingPoses = pipe(
   queueUnchangedPoses, 
   queueUnchangedPosesForClient, 
-  queueUnchangedIkPoses
+  queueUnchangedIkPoses,
+  queueXRHandPoses
 )
 
 // prettier-ignore
@@ -244,7 +290,8 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     tick: world.fixedTick,
     time: Date.now(),
     pose: [],
-    ikPose: []
+    ikPose: [],
+    handsPose: []
   }
 
   return () => {
@@ -257,6 +304,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     world.currentNetworkState.time = Date.now()
     world.currentNetworkState.pose = []
     world.currentNetworkState.ikPose = []
+    world.currentNetworkState.handsPose = []
 
     queueAllOutgoingPoses(world)
 
