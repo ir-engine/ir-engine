@@ -10,4 +10,5 @@ export interface StorageProviderInterface {
   putObject(object: any): Promise<any>
   deleteResources(keys: string[]): Promise<any>
   createInvalidation(params: any): Promise<any>
+  listFolderContent(folderName: string): Promise<any>
 }

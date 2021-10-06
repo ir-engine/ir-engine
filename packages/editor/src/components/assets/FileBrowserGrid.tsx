@@ -142,7 +142,16 @@ const MemoFileGridItem = memo(FileBrowserItem)
  * @param       {any}  source
  * @constructor
  */
-export function FileBrowserGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, source }) {
+export function FileBrowserGrid({
+  isLoading,
+  selectedItems,
+  addNewFolder,
+  items,
+  onSelect,
+  onLoadMore,
+  hasMore,
+  source
+}) {
   const uniqueId = useRef(`FileGrid${lastId}`)
   const { t } = useTranslation()
 
@@ -218,6 +227,7 @@ export function FileBrowserGrid({ isLoading, selectedItems, items, onSelect, onL
   //returning view of AssetGridItems
   return (
     <>
+      {console.log('Rendering File Browser GRID')}
       <ContextMenuTrigger id={'uniqueId.current'}>
         <VerticalScrollContainer flex>
           <InfiniteScroll pageStart={0} loadMore={onLoadMore} hasMore={hasMore} threshold={100} useWindow={false}>
@@ -245,9 +255,7 @@ export function FileBrowserGrid({ isLoading, selectedItems, items, onSelect, onL
       </ContextMenuTrigger>
 
       <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
-        <MenuItem onClick={() => console.log('Place new Folder')}>
-          {t('editor:layout.filebrowser.addnewfolder')}
-        </MenuItem>
+        <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addnewfolder')}</MenuItem>
       </ContextMenu>
     </>
   )
@@ -259,6 +267,7 @@ FileBrowserGrid.propTypes = {
   tooltip: PropTypes.func,
   isLoading: PropTypes.bool,
   onSelect: PropTypes.func,
+  addNewFolder: PropTypes.func,
   onLoadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool,
   selectedItems: PropTypes.arrayOf(
@@ -280,6 +289,7 @@ FileBrowserGrid.propTypes = {
 // creating default properties for AssetGrid
 FileBrowserGrid.defaultProps = {
   onSelect: () => {},
+  addNewFolder: () => {},
   items: [],
   selectedItems: [],
   tooltip: AssetTooltip

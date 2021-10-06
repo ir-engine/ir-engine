@@ -73,7 +73,10 @@ export class S3Provider implements StorageProviderInterface {
       )
     )
   }
-
+  listFolderContent = async (folderName: string): Promise<any> => {
+    ////////////////
+    return {}
+  }
   listObjects = async (prefix: string): Promise<any> => {
     return new Promise((resolve, reject) =>
       this.provider.listObjectsV2(

@@ -8,8 +8,8 @@ export default {
   before: {
     all: [],
     find: [],
-    get: [],
-    create: [disallow('external')],
+    get: [disallow('external')],
+    create: [],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow('external')]

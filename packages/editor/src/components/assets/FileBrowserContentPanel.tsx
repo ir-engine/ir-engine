@@ -179,6 +179,11 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     }
   }, [])
 
+  const addNewFolder = () => {
+    console.log('Adding New Folder')
+    ProjectManager.instance.feathersClient.service(`file-browser`).create({ fileName: 'FileName' })
+  }
+
   return (
     <>
       {console.log('Rendering File Browser Panel CHILD')}
@@ -197,6 +202,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
             hasMore={hasMore}
             onSelect={onSelect}
             isLoading={false}
+            addNewFolder={addNewFolder}
           />
         </AssetPanelContentContainer>
       </AssetsPanelContainer>

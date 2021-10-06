@@ -29,6 +29,34 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
+  listFolderContent = async (folderName: string): Promise<any> => {
+    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, folderName)
+    const files = glob.sync(path.join(filePath, '*.*')).map((result) => {
+      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
+      const fileInfo = key.replace(`/${folderName}/`, '')
+      const regexx = /(?<name>[0-9 a-z A-Z]*).((?<extension>[0-9 a-z A-Z]*))/g
+      const query = regexx.exec(fileInfo)
+      return {
+        key,
+        name: query.groups.name,
+        type: query.groups.extension
+      }
+    })
+    const folder = glob.sync(path.join(filePath, '*/')).map((result) => {
+      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
+      const name = key.replace(`/${folderName}/`, '').split('/')[0]
+      return {
+        key,
+        name,
+        type: 'folder'
+      }
+    })
+    files.push(...folder)
+    return files
+  }
+
+  copyContent = async (to, from) => {}
+
   putObject = async (params: any): Promise<any> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key)
     const pathWithoutFileExec = keyPathRegex.exec(filePath)
