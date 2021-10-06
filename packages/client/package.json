@@ -69,7 +69,7 @@
     "immutable": "4.0.0-rc.15",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
-    "mediasoup-client": "3.6.42",
+    "mediasoup-client": "3.6.43",
     "moment": "2.29.1",
     "rc-dock": "3.2.0",
     "rc-slider": "9.7.2",
