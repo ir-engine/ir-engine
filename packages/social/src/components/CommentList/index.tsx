@@ -3,11 +3,9 @@
  */
 import React from 'react'
 import { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectFeedCommentsState } from '../../reducers/feedComment/selector'
-import { getFeedComments } from '../../reducers/feedComment/service'
-import { addCommentToFeed } from '../../reducers/feedComment/service'
+import { useDispatch } from 'react-redux'
+import { useFeedCommentsState } from '../../reducers/feedComment/FeedCommentState'
+import { FeedCommentService } from '../../reducers/feedComment/FeedCommentService'
 import TextField from '@material-ui/core/TextField'
 import SendIcon from '@material-ui/icons/Send'
 import Grid from '@material-ui/core/Grid'
@@ -16,30 +14,18 @@ import CommentCard from '../CommentCard'
 
 import styles from './CommentList.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    feedCommentsState: selectFeedCommentsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFeedComments: bindActionCreators(getFeedComments, dispatch),
-  addCommentToFeed: bindActionCreators(addCommentToFeed, dispatch)
-})
-
 interface Props {
   feedId: string
-  feedCommentsState?: any
-  getFeedComments?: typeof getFeedComments
-  addCommentToFeed?: typeof addCommentToFeed
 }
-const CommentList = ({ feedId, getFeedComments, feedCommentsState, addCommentToFeed }: Props) => {
+const CommentList = ({ feedId }: Props) => {
+  const dispatch = useDispatch()
   useEffect(() => {
-    getFeedComments(feedId)
+    dispatch(FeedCommentService.getFeedComments(feedId))
   }, [])
   const [commentText, setCommentText] = useState('')
+  const feedCommentsState = useFeedCommentsState()
   const addComment = (feedId, text) => {
-    addCommentToFeed(feedId, text)
+    dispatch(FeedCommentService.addCommentToFeed(feedId, text))
     setCommentText('')
   }
   return (
@@ -59,13 +45,12 @@ const CommentList = ({ feedId, getFeedComments, feedCommentsState, addCommentToF
         </Grid>
       </Grid>
       <>
-        {feedCommentsState &&
-          feedCommentsState.get('feedComments') &&
-          feedCommentsState.get('fetching') === false &&
-          feedCommentsState.get('feedComments').map((item, key) => <CommentCard key={key} comment={item} />)}
+        {feedCommentsState.feeds.feedComments.value &&
+          feedCommentsState.feeds.fetching.value === false &&
+          feedCommentsState.feeds.feedComments.value.map((item, key) => <CommentCard key={key} comment={item} />)}
       </>
     </section>
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CommentList)
+export default CommentList
