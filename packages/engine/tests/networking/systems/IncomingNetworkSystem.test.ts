@@ -8,12 +8,12 @@ import { Network } from '../../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
 import IncomingNetworkSystem, { applyDelayedActions } from '../../../src/networking/systems/IncomingNetworkSystem'
-import { createAvatar } from '../../../src/avatar/functions/createAvatar'
 import { NetworkWorldAction } from '../../../src/networking/functions/NetworkWorldAction'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
-import { Action } from '../../../src/networking/interfaces/Action'
+import { Action, ActionRecipients } from '../../../src/networking/interfaces/Action'
 import matches from 'ts-matches'
+import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
 	it('should apply delayed actions', () => {
@@ -30,18 +30,17 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			networkId: Network.getNetworkId(),
 			prefab: '',
 			parameters: {},
+			$tick: 0,
+			$from: world.hostId,
+			$to: '0' as ActionRecipients,
 		}
 		const action = NetworkWorldAction.spawnObject(obj)
 		
-		console.log('match?',NetworkWorldAction.spawnObject.matches.test(obj)) // => false
-
-		// console.log(action)
 		world.delayedActions.add(action)
 
 		const recepted: typeof action[] = []
 		world.receptors.add(
-			(a) => matches(a)
-				.when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+			(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
 		)
 
 		/* run */
@@ -70,7 +69,21 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 				rotation: new Quaternion(),
 			},
 		})
-		const avatarEntity = createAvatar(action)
+		const entity = createEntity(world)
+		const transform = addComponent(entity, TransformComponent, {
+			position: new Vector3(),
+			rotation: new Quaternion(),
+			scale: new Vector3(),
+		})
+		const velocity = addComponent(entity, VelocityComponent, {
+			velocity: new Vector3()
+		})
+		const networkObject = addComponent(entity, NetworkObjectComponent, {
+			userId: '0' as UserId,
+			networkId: 0 as NetworkId,
+			prefab: '',
+			parameters: {},
+		})
 
 		// mock incoming data that would be coming from the server
 		const newPosition = new Vector3(1,2,3)
@@ -82,15 +95,15 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 			pose: [
 				{
 					networkId: 0 as NetworkId,
-					position: [...newPosition.toArray()],
-					rotation: [...newRotation.toArray()],
+					position: newPosition.toArray(),
+					rotation: newRotation.toArray(),
 					linearVelocity: [],
 					angularVelocity: [],
 				}
 			],
 			ikPose: []
 		}
-		
+
 		const buffer = WorldStateModel.toBuffer(newWorldState)
 		
 		// todo: Network should ideally be passed into the system as a parameter dependency,
@@ -99,11 +112,11 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		Network.instance.incomingMessageQueueUnreliableIDs.add("0")
 		
 		/* run */
-
-		await IncomingNetworkSystem(world)
+		const incomingNetworkSystem = await IncomingNetworkSystem(world)
+		
+		incomingNetworkSystem()
 		
 		/* assert */
-		const transform = getComponent(avatarEntity, TransformComponent)
 		assert(transform.position.equals(newPosition))
 	})
 })
