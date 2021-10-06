@@ -44,6 +44,7 @@ const Registration = (props: any): any => {
     creatorsState,
     doLoginAuto
   } = props
+  const anchorOrigin: SnackbarOrigin = { horizontal: 'right', vertical: 'top' }
 
   const history = useHistory()
   const dispatch = useDispatch()
@@ -61,6 +62,7 @@ const Registration = (props: any): any => {
   const [emailPhoneForm, setEmailPhoneForm] = useState(false)
   const [continueAsGuest, setContinueAsGuest] = useState(false)
   const [registrationServiceClick, setRegistrationServiceClick] = useState(false)
+  const [disabledButtonLogIn, setDisabledButtonLogIn] = useState(false)
 
   let type = ''
 
@@ -99,7 +101,6 @@ const Registration = (props: any): any => {
   }
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const callBacksFromUpdateUsername = (str: string) => {
-    const anchorOrigin: SnackbarOrigin = { horizontal: 'right', vertical: 'top' }
     switch (str) {
       case 'succes': {
         enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
@@ -148,10 +149,14 @@ const Registration = (props: any): any => {
   const handleInputChange = (e) => setEmailPhone(e.target.value)
 
   const validate = () => {
-    if (emailPhone === '') return false
+    if (emailPhone === '') {
+      enqueueSnackbar('Please enter your phone or email', { variant: 'error', anchorOrigin })
+      return false
+    }
     if (validateEmail(emailPhone.trim())) type = 'email'
     else if (validatePhoneNumber(emailPhone.trim())) type = 'sms'
     else {
+      enqueueSnackbar('Data entered incorrectly', { variant: 'error', anchorOrigin })
       setError(true)
       return false
     }
@@ -163,8 +168,14 @@ const Registration = (props: any): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, authData.user.id))
-    if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, authData.user.id))
+    if (type === 'email') {
+      dispatch(AuthService.addConnectionByEmail(emailPhone, authData.user.id))
+    }
+    if (type === 'sms') {
+      dispatch(AuthService.addConnectionBySms(emailPhone, authData.user.id))
+    }
+    setDisabledButtonLogIn(true)
+    enqueueSnackbar('Please check your mail', { variant: 'success', anchorOrigin })
     return
   }
 
@@ -220,7 +231,12 @@ const Registration = (props: any): any => {
                 error={error}
                 helperText={error ? t('social:registration.ph-phoneEmail') : null}
               />
-              <Button className={styles.logIn} variant="contained" onClick={handleSubmit}>
+              <Button
+                disabled={disabledButtonLogIn}
+                className={styles.logIn}
+                variant="contained"
+                onClick={handleSubmit}
+              >
                 {t('social:registration.logIn')}
               </Button>
             </form>
