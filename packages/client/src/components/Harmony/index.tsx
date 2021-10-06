@@ -389,6 +389,7 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     channelRef.current = channels
     channelEntries.forEach(([key, channel]) => {
+      if (!channel) return
       if (chatState.updateMessageScroll.value === true) {
         dispatch(ChatAction.setUpdateMessageScroll(false))
         if (
@@ -536,8 +537,8 @@ const Harmony = (props: Props): any => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
       resetChannelServer()
       setLastConnectToWorldId('')
-      MediaStreams.instance.channelId = ''
-      MediaStreams.instance.channelType = ''
+      MediaStreams.instance.channelId = null!
+      MediaStreams.instance.channelType = null!
       if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
       updateChannelTypeState()
       updateCamVideoState()
@@ -704,8 +705,8 @@ const Harmony = (props: Props): any => {
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId('')
-    MediaStreams.instance.channelType = ''
-    MediaStreams.instance.channelId = ''
+    MediaStreams.instance.channelType = null!
+    MediaStreams.instance.channelId = null!
     updateCamVideoState()
     updateCamAudioState()
   }
