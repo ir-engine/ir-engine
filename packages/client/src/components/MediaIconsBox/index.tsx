@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
+import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -16,7 +16,7 @@ import {
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
+import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
 import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from '../../reducers/mediastream/service'
 import {
   startFaceTracking,
@@ -32,9 +32,7 @@ import { selectChannelConnectionState } from '../../reducers/channelConnection/s
 
 const mapStateToProps = (state: any): any => {
   return {
-    locationState: selectLocationState(state),
     mediastream: state.get('mediastream'),
-    chatState: selectChatState(state),
     channelConnectionState: selectChannelConnectionState(state)
   }
 }
@@ -44,21 +42,24 @@ const mapDispatchToProps = (dispatch): any => ({
 })
 
 const MediaIconsBox = (props) => {
-  const { locationState, mediastream, chatState, changeFaceTrackingState, channelConnectionState } = props
+  const { mediastream, changeFaceTrackingState, channelConnectionState } = props
   const [xrSupported, setXRSupported] = useState(false)
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const user = useAuthState().user
-  const channelState = chatState.get('channels')
-  const channels = channelState.get('channels')
-  const channelEntries = [...channels.entries()]
+  const chatState = useChatState()
+  const channelState = chatState.channels
+  const channels = channelState.channels.value
+  const channelEntries = Object.entries(channels)
   const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
-  const currentLocation = locationState.get('currentLocation').get('location')
+  const currentLocation = useLocationState().currentLocation.location
 
-  const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false
-  const instanceMediaChatEnabled = currentLocation.locationSettings
-    ? currentLocation.locationSettings.instanceMediaChatEnabled
+  const videoEnabled = currentLocation?.locationSettings?.value
+    ? currentLocation?.locationSettings?.videoEnabled?.value
+    : false
+  const instanceMediaChatEnabled = currentLocation?.locationSettings?.value
+    ? currentLocation?.locationSettings?.instanceMediaChatEnabled?.value
     : false
 
   const isFaceTrackingEnabled = mediastream.get('isFaceTrackingEnabled')
@@ -85,7 +86,7 @@ const MediaIconsBox = (props) => {
 
   const handleFaceClick = async () => {
     const partyId =
-      currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId.value
+      currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true ? 'instance' : user.partyId.value
     if (isFaceTrackingEnabled) {
       stopFaceTracking()
       stopLipsyncTracking()

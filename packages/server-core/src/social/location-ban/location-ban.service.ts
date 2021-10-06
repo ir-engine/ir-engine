@@ -1,5 +1,4 @@
 // Initializes the `location-ban` service on dpath `/location-ban`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { LocationBan } from './location-ban.class'
 import createModel from './location-ban.model'
@@ -10,7 +9,7 @@ import locationBanDocs from './location-ban.docs'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'location-ban': LocationBan & ServiceAddons<any>
+    'location-ban': LocationBan
   }
 }
 
@@ -27,7 +26,7 @@ export default function (app: Application): void {
    */
   const event = new LocationBan(options, app)
   event.docs = locationBanDocs
-  app.use('/location-ban', event)
+  app.use('location-ban', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -36,7 +35,7 @@ export default function (app: Application): void {
    */
   const service = app.service('location-ban')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 
   service.publish('created', async (data, params): Promise<any> => {
     try {

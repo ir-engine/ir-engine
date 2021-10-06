@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { StaticResource } from './static-resource.class'
 import createModel from './static-resource.model'
@@ -8,7 +7,7 @@ import staticResourceDocs from './static-resource.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'static-resource': StaticResource & ServiceAddons<any>
+    'static-resource': StaticResource
   }
 }
 
@@ -29,7 +28,7 @@ export default (app: Application): any => {
   const event = new StaticResource(options, app)
   event.docs = staticResourceDocs
 
-  app.use('/static-resource', event)
+  app.use('static-resource', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -38,5 +37,5 @@ export default (app: Application): any => {
    */
   const service = app.service('static-resource')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

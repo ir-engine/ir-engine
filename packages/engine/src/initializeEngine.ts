@@ -65,15 +65,6 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     addClientInputListeners(canvas)
   }
 
-  Network.instance = new Network()
-
-  const { schema } = options.networking
-
-  if (schema) {
-    Network.instance.schema = schema
-    if (schema.transport) Network.instance.transport = new schema.transport()
-  }
-
   await FontManager.instance.getDefaultFont()
 
   globalThis.botHooks = BotHookFunctions
@@ -96,20 +87,8 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
-  Network.instance = new Network()
 
-  const { schema, app } = options.networking
-  Network.instance.schema = schema
-  Network.instance.transport = new schema.transport(app)
-
-  if (
-    process.env.SERVER_MODE !== undefined &&
-    (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')
-  ) {
-    Network.instance.transport.initialize()
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT })
-    Network.instance.isInitialized = true
-  }
+  Network.instance.isInitialized = true
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     console.log('joined world')
@@ -273,7 +252,6 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 }
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
-  console.log('\n\n\n\n\n\n\n\n============================register media server systems')
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
 }
 
@@ -283,11 +261,11 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.currentWorld = sceneWorld
 
   Engine.initOptions = options
-  Engine.offlineMode = typeof options.networking.schema.transport === 'undefined'
+  Engine.offlineMode = false // TODO
   Engine.publicPath = options.publicPath
 
   // Browser state set
-  if (options.type !== EngineSystemPresets.SERVER && navigator && window) {
+  if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()
     const os = detectOS(navigator.userAgent)
 

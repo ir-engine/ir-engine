@@ -352,7 +352,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     )
 
     setInterval(() => validateNetworkObjects(), 5000)
-
     console.log('Server transport initialized')
   }
 }

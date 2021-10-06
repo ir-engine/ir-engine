@@ -31,10 +31,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateCreator: bindActionCreators(updateCreator, dispatch)
 })
 
-export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
+export const TermsAndPolicy = ({ creatorsState, updateCreator, setView }: any) => {
   const currentCreator = creatorsState.get('currentCreator')
 
+  // Made at the time of the test Aleks951
   const [openTerms, setOpenTerms] = useState(!!!currentCreator.terms)
+  // const [openTerms, setOpenTerms] = useState(true)
   const [openPolicy, setOpenPolicy] = useState(!!!currentCreator.terms ? false : !!!currentCreator.policy)
   const { t } = useTranslation()
   const [agree, setAgree] = useState(false)
@@ -93,9 +95,33 @@ export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
           <DialogContentText>
             <Typography align="center" variant="subtitle1">
               {'By tapping "I agree to Terms of Service and Policy of Service", you agree to our '}
-              <Link to="/terms">Terms of Service</Link>
+              {/* <Link className={styles.styleLink} to="/terms">
+                Terms of Service
+              </Link> */}
+              <Button
+                style={{
+                  padding: '0'
+                }}
+                onClick={() => {
+                  setView('terms')
+                }}
+              >
+                <b>Terms of Service</b>
+              </Button>
               {' and acknowledge that you have our '}
-              <Link to="/policy">Privacy Policy</Link>
+              {/* <Link className={styles.styleLink} to="/policy">
+                Privacy Policy
+              </Link> */}
+              <Button
+                style={{
+                  padding: '0'
+                }}
+                onClick={() => {
+                  setView('policy')
+                }}
+              >
+                <b>Privacy Policy</b>
+              </Button>
               {' to learn how we collect, use, and share your data.'}
             </Typography>
           </DialogContentText>
@@ -104,7 +130,7 @@ export const TermsAndPolicy = ({ creatorsState, updateCreator }: any) => {
           <div>
             {/* Don't miss the exclamation mark* */}
             <Button variant="contained" onClick={handleAccept}>
-              I agree to Terms and Policy of Service
+              Agree and continue
             </Button>
           </div>
         </div>

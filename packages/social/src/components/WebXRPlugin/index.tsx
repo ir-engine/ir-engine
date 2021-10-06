@@ -297,7 +297,7 @@ export const WebXRPlugin = ({
       }
       const anchor = anchorRef.current
       // TODO: return it to false
-      anchor.visible = true
+      anchor.visible = false
 
       //             anchor.add(new AxesHelper(0.3));
       //             const anchorC = new Mesh(geometry, materialC);
@@ -474,6 +474,16 @@ export const WebXRPlugin = ({
 
           if (!anchor.visible) {
             console.log('SET ANCHOR VISIBLE!')
+
+            // autosize anchor
+            const volumetricHeight = 2 // assuming this as highest height
+            const k = camera.position.distanceTo(anchor.position)
+            const a = (camera.fov * Math.PI) / 180 / 2
+
+            const halfScreenHeightAtPoint = k * Math.tan(a)
+            const newScale = (halfScreenHeightAtPoint / volumetricHeight) * 0.75
+            anchor.scale.setScalar(newScale)
+
             // console.log('player = ', playerRef.current);
             anchor.visible = true
 

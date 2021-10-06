@@ -38,7 +38,7 @@ function writeFileSyncRecursive(filename, content, charset = undefined) {
 }
 
 function deleteFolderRecursive(path) {
-  var files = []
+  var files: any[] = []
   if (fs.existsSync(path)) {
     files = fs.readdirSync(path)
     files.forEach(function (file, index) {

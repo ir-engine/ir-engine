@@ -1,10 +1,7 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import {
-  fetchAdminLocations,
-  fetchLocationTypes
-} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
+import { LocationService } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationService'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
@@ -12,8 +9,6 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import styled from 'styled-components'
 import { createProject, getProject, saveProject } from '../functions/projectFunctions'
 import { getScene } from '../functions/getScene'
@@ -40,9 +35,9 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
-import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
-import { fetchAdminScenes } from '@xrengine/client-core/src/admin/reducers/admin/scene/service'
+import { accessLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { accessSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
+import { SceneService } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneService'
 import { upload } from '@xrengine/engine/src/scene/functions/upload'
 import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
 import { CommandManager } from '../managers/CommandManager'
@@ -54,6 +49,7 @@ import { NodeManager, registerPredefinedNodes } from '../managers/NodeManager'
 import { registerPredefinedSources, SourceManager } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
+import Store from '@xrengine/client-core/src/store'
 
 const maxUploadSize = 25
 
@@ -376,11 +372,6 @@ const DockContainer = (styled as any).div`
 `
 
 type EditorContainerProps = {
-  adminLocationState: any
-  adminSceneState: any
-  fetchAdminLocations?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
   t: any
   match: any
   location: any
@@ -453,14 +444,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    if (this.props.adminLocationState.get('locations').get('updateNeeded') === true) {
-      this.props.fetchAdminLocations()
+    const dispatch = Store.store.dispatch
+    if (accessLocationState().locations.updateNeeded.value === true) {
+      dispatch(LocationService.fetchAdminLocations())
     }
-    if (this.props.adminSceneState.get('scenes').get('updateNeeded') === true) {
-      this.props.fetchAdminScenes()
+    if (accessSceneState().scenes.updateNeeded.value === true) {
+      dispatch(SceneService.fetchAdminScenes())
     }
-    if (this.props.adminLocationState.get('locationTypes').get('updateNeeded') === true) {
-      this.props.fetchLocationTypes()
+    if (accessLocationState().locationTypes.updateNeeded.value === true) {
+      dispatch(LocationService.fetchLocationTypes())
     }
     const pathParams = this.state.pathParams
     const queryParams = this.state.queryParams
@@ -1101,16 +1093,16 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   render() {
     const { DialogComponent, dialogProps, settingsContext } = this.state
     const toolbarMenu = this.generateToolbarMenu()
-    const isPublishedScene = !!this.getSceneId()
-    const locations = this.props.adminLocationState.get('locations').get('locations')
-    let assigneeScene
-    if (locations) {
-      locations.forEach((element) => {
-        if (element.sceneId === this.state.queryParams.get('projectId')) {
-          assigneeScene = element
-        }
-      })
-    }
+    // const isPublishedScene = !!this.getSceneId()
+    // const locations = useLocationState().locations.locations.value
+    // let assigneeScene
+    // if (locations) {
+    //   locations.forEach((element) => {
+    //     if (element.sceneId === this.state.queryParams.get('projectId')) {
+    //       assigneeScene = element
+    //     }
+    //   })
+    // }
 
     let defaultLayout = {
       dockbox: {
@@ -1215,17 +1207,4 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    adminLocationState: selectAdminLocationState(state),
-    adminSceneState: selectAdminSceneState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
-})
-
-export default withTranslation()(withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorContainer)))
+export default withTranslation()(withRouter(EditorContainer))

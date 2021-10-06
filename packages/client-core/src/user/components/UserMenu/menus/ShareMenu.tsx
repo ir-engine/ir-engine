@@ -6,36 +6,23 @@ import Button from '@material-ui/core/Button'
 import { Send, FileCopy } from '@material-ui/icons'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../UserMenu.module.scss'
-import { sendInvite } from '../../../../social/reducers/invite/service'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { InviteService } from '../../../../social/reducers/invite/InviteService'
+import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { selectInviteState } from '../../../../social/reducers/invite/selector'
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  sendInvite: bindActionCreators(sendInvite, dispatch)
-})
-
-const mapStateToProps = (state: any): any => {
-  return {
-    inviteState: selectInviteState(state)
-  }
-}
+import { useInviteState } from '../../../../social/reducers/invite/InviteState'
 
 interface Props {
-  sendInvite?: typeof sendInvite
   alertSuccess?: any
-  inviteState?: any
 }
 
 const ShareMenu = (props: Props): any => {
-  const { sendInvite, inviteState } = props
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
   const refLink = useRef(null)
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
-
+  const dispatch = useDispatch()
+  const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
     refLink.current.select()
     document.execCommand('copy')
@@ -64,10 +51,10 @@ const ShareMenu = (props: Props): any => {
       token: email,
       inviteCode: null,
       identityProviderType: 'email',
-      targetObjectId: inviteState.get('targetObjectId'),
+      targetObjectId: inviteState.targetObjectId.value,
       invitee: null
     }
-    sendInvite(sendData)
+    dispatch(InviteService.sendInvite(sendData))
     setEmail('')
   }
 
@@ -117,4 +104,4 @@ const ShareMenu = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShareMenu)
+export default ShareMenu

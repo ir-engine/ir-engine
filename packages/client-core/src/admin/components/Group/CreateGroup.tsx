@@ -13,34 +13,29 @@ import { connect, useDispatch } from 'react-redux'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { GroupService } from '../../reducers/admin/group/GroupService'
 import TextField from '@material-ui/core/TextField'
-import { selectScopeState } from '../../reducers/admin/scope/selector'
+import { useScopeState } from '../../reducers/admin/scope/ScopeState'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { getScopeTypeService } from '../../reducers/admin/scope/service'
+import { ScopeService } from '../../reducers/admin/scope/ScopeService'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   adminGroupState?: any
-  adminScopeState?: any
-  getScopeTypeService?: any
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const mapStateToProps = (state: any): any => {
-  return {
-    adminScopeState: selectScopeState(state)
-  }
+  return {}
 }
 
 const CreateGroup = (props: Props) => {
-  const { open, handleClose, getScopeTypeService, adminScopeState } = props
+  const { open, handleClose } = props
   const classes = useGroupStyles()
   const classx = useGroupStyle()
   const user = useAuthState().user
-  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
+  const adminScopeState = useScopeState()
+  const adminScopes = adminScopeState.scopeType.scopeType
   const dispatch = useDispatch()
 
   const [state, setState] = React.useState({
@@ -55,10 +50,10 @@ const CreateGroup = (props: Props) => {
   })
 
   React.useEffect(() => {
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
-      getScopeTypeService()
+    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
+      dispatch(ScopeService.getScopeTypeService())
     }
-  }, [adminScopeState, user])
+  }, [adminScopeState.scopeType.updateNeeded.value, user])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -148,7 +143,7 @@ const CreateGroup = (props: Props) => {
                 className={classes.selector}
                 classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                 id="tags-standard"
-                options={adminScopes}
+                options={adminScopes.value}
                 disableCloseOnSelect
                 filterOptions={(options: any) =>
                   options.filter(

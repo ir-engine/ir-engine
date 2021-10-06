@@ -1,7 +1,7 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { DialogActionType } from './DialogActions'
 
-export const state = createState({
+const state = createState({
   isOpened: false,
   content: undefined
 })
@@ -25,4 +25,4 @@ const dialogReceptor = (action: DialogActionType): any => {
 }
 
 export const dialogState = () => state
-export const useDialogState = () => useState(state)
+export const useDialogState = () => useState(state) as any as typeof state

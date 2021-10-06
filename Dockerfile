@@ -25,6 +25,7 @@ COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
 COPY packages/gallery/package.json ./packages/gallery/
 COPY packages/bot/package.json ./packages/bot/
+COPY packages/realitypacks/package.json ./packages/realitypacks/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
@@ -35,7 +36,7 @@ COPY . .
 
 RUN npm run build-docker
 
-ENV NODE_ENV=production
+ENV APP_ENV=production
 ENV PORT=3030
 
 EXPOSE 3030

@@ -1,7 +1,7 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { AlertActionType } from './AlertActions'
 
-export const state = createState({
+const state = createState({
   type: 'none',
   message: ''
 })
@@ -25,4 +25,4 @@ const alertReceptor = (action: AlertActionType): any => {
 }
 
 export const alertState = () => state
-export const useAlertState = () => useState(state)
+export const useAlertState = () => useState(state) as any as typeof state

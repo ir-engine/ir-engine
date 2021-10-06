@@ -7,12 +7,14 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import path from 'path'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
+import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
+import { initializeServerEngine } from './initializeServerEngine'
 
 const loadScene = async (app: Application, sceneId: string) => {
   let service, serviceId
@@ -25,7 +27,11 @@ const loadScene = async (app: Application, sceneId: string) => {
     service = regexResult[1]
     serviceId = regexResult[2]
   }
-  const result = await app.service(service).get(serviceId)
+  const sceneData = (await app.service(service).get(serviceId)) as SceneData
+  const packs = await getPacksFromSceneData(sceneData, false)
+
+  await initializeServerEngine(packs.systems, app.isChannelInstance)
+  console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
   let lastEntitiesLeft = -1
@@ -38,7 +44,7 @@ const loadScene = async (app: Application, sceneId: string) => {
 
   console.log('Loading scene...')
 
-  await WorldScene.load(result, (left) => {
+  await WorldScene.load(sceneData, (left) => {
     entitiesLeft = left
   })
 
@@ -107,7 +113,7 @@ export default (app: Application): void => {
   app.on('connection', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -269,7 +275,7 @@ export default (app: Application): void => {
   app.on('disconnect', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -320,19 +326,20 @@ export default (app: Application): void => {
 
             if (instanceId != null && instance != null) {
               const activeUsers = Engine.defaultWorld.clients
+              const activeUsersCount = activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
-                  currentUsers: activeUsers.length
+                  currentUsers: activeUsersCount
                 })
               } catch (err) {
                 console.log('Failed to patch instance user count, likely because it was destroyed')
               }
 
               const user = await app.service('user').get(userId)
-              const instanceIdKey = app.isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
+              const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
               if (
                 (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
-                process.env.NODE_ENV === 'development'
+                process.env.APP_ENV === 'development'
               )
                 await app
                   .service('user')
@@ -369,7 +376,7 @@ export default (app: Application): void => {
 
               app.channel(`instanceIds/${instanceId as string}`).leave(connection)
 
-              if (activeUsers.length < 1) {
+              if (activeUsersCount < 1) {
                 console.log('Deleting instance ' + instanceId)
                 try {
                   await app.service('instance').patch(instanceId, {

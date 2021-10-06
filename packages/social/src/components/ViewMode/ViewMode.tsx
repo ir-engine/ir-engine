@@ -49,7 +49,7 @@ interface Props {
   updateArMediaState?: typeof updateArMediaState
 }
 
-export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: any) => {
+export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator, onGoRegistration }: any) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
   const currentCreator = creatorsState.get('currentCreator')
@@ -174,7 +174,12 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
   }
 
   return (
-    <div className={classes.mainBlock}>
+    <div
+      onClick={() => {
+        onGoRegistration()
+      }}
+      className={classes.mainBlock}
+    >
       {/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}
       <img src="/assets/tabBar(1).svg" onClick={handleClickOpen} />
       <Dialog

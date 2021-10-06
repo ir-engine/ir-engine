@@ -13,10 +13,11 @@ import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import collectAnalytics from './collect-analytics'
+import { Application } from '@xrengine/server-core/declarations'
 
 const emitter = new EventEmitter()
 
-const app = express(feathers())
+const app = express(feathers()) as Application
 
 app.set('nextReadyEmitter', emitter)
 
@@ -78,7 +79,7 @@ if (config.analytics.enabled) {
     app.configure(feathersLogger(winston))
     app.configure(services)
 
-    app.use('/healthcheck', (req, res) => {
+    app.use('healthcheck', (req, res) => {
       res.sendStatus(200)
     })
     collectAnalytics()

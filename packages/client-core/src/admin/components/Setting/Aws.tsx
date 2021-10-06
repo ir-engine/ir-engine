@@ -1,37 +1,25 @@
 import React, { useEffect } from 'react'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
-import { selectAdminAwsSettingState } from '../../reducers/admin/Setting/aws/selector'
-import { fetchAwsSetting } from '../../reducers/admin/Setting/aws/services'
+import { useAdminAwsSettingState } from '../../reducers/admin/Setting/aws/AwsSettingState'
+import { AwsSettingService } from '../../reducers/admin/Setting/aws/AwsSettingServices'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useStyles } from './styles'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    awsSettingState: selectAdminAwsSettingState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAwsSetting: bindActionCreators(fetchAwsSetting, dispatch)
-})
-interface Props {
-  awsSettingState?: any
-  fetchAwsSetting?: any
-}
+interface Props {}
 
 const Aws = (props: Props) => {
   const classes = useStyles()
-  const { awsSettingState, fetchAwsSetting } = props
-  const [awsSetting] = awsSettingState?.get('awsSettings').get('awsSettings')
-
+  const awsSettingState = useAdminAwsSettingState()
+  const [awsSetting] = awsSettingState?.awsSettings?.awsSettings?.value
+  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   useEffect(() => {
-    if (user?.id?.value != null && awsSettingState?.get('awsSettings').get('updateNeeded')) {
-      fetchAwsSetting()
+    if (user?.id?.value != null && awsSettingState?.awsSettings?.updateNeeded?.value) {
+      dispatch(AwsSettingService.fetchAwsSetting())
     }
   }, [authState])
 
@@ -249,4 +237,4 @@ const Aws = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Aws)
+export default Aws

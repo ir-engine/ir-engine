@@ -28,7 +28,11 @@ type RealityPackEditorStates = {
   realityPacks: RealityPackInterface[]
 }
 
-const InjectionPoints = [
+const systemUpdateTypes = [
+  {
+    label: 'None',
+    value: 'None'
+  },
   {
     label: 'Update',
     value: SystemUpdateType.UPDATE
@@ -77,7 +81,7 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
   getRealityPacks = async () => {
     let realityPacks: RealityPackInterface[] = []
     try {
-      realityPacks = (await ProjectManager.instance.feathersClient.service('reality-pack').find()).data
+      realityPacks = (await ProjectManager.instance.feathersClient.service('reality-pack-data').find()).data
       console.log(realityPacks)
     } catch (e) {
       console.log(e)
@@ -86,12 +90,19 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
     this.setState({ realityPacks })
   }
 
-  onChangeScript = (val) => {
+  onChangeRealityPack = (val) => {
     CommandManager.instance.setPropertyOnSelection('packName', val)
+    CommandManager.instance.setPropertyOnSelection('entryPoints', [])
   }
 
-  onChangeInjectionPoint = (val) => {
-    CommandManager.instance.setPropertyOnSelection('injectionPoint', val)
+  onChangeSystemUpdateType = (entryPoint, systemUpdateType) => {
+    const entryPoints = [...this.props.node.entryPoints]
+    console.log(entryPoints)
+    const currentEntry = entryPoints.find((ep) => ep.entryPoint === entryPoint)
+    if (currentEntry) currentEntry.systemUpdateType = systemUpdateType
+    else entryPoints.push({ entryPoint, systemUpdateType })
+    CommandManager.instance.setPropertyOnSelection('entryPoints', entryPoints)
+    console.log(entryPoints)
   }
 
   componentDidMount() {
@@ -99,7 +110,8 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
   }
 
   render() {
-    const node = this.props.node
+    const node = this.props.node as RealityPackNode
+    const currentPack = this.state.realityPacks.find((pack) => pack.name === node.packName)
     RealityPackNodeEditor.description = i18n.t('editor:properties.realitypacknode.description')
     return (
       <NodeEditor description={RealityPackNodeEditor.description} {...this.props}>
@@ -108,13 +120,25 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
             options={this.state.realityPacks.map((r) => {
               return { label: r.name, value: r.name }
             })}
-            onChange={this.onChangeScript}
+            onChange={this.onChangeRealityPack}
             value={node.packName}
           />
         </InputGroup>
-        <InputGroup name="InjectionPoint" label="Injection Point">
-          <SelectInput options={InjectionPoints} onChange={this.onChangeInjectionPoint} value={node.injectionPoint} />
-        </InputGroup>
+
+        {currentPack?.moduleEntryPoints?.map((entryPoint) => {
+          let entryPointSplit = entryPoint.split('.')
+          entryPointSplit.pop()
+          const entryPointFilename = entryPointSplit.join('.')
+          return (
+            <InputGroup key={entryPointFilename} name={entryPointFilename} label={entryPointFilename}>
+              <SelectInput
+                options={systemUpdateTypes}
+                onChange={(val) => this.onChangeSystemUpdateType(entryPoint, val)}
+                value={node.entryPoints.find((ep) => ep.entryPoint === entryPoint)?.systemUpdateType ?? 'None'}
+              />
+            </InputGroup>
+          )
+        })}
       </NodeEditor>
     )
   }

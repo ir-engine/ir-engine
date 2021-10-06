@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { UploadMedia } from './upload-media.class'
 import hooks from './upload-media.hooks'
@@ -13,7 +12,7 @@ const multipartMiddleware = multer()
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    media: UploadMedia & ServiceAddons<any>
+    media: UploadMedia
   }
 }
 
