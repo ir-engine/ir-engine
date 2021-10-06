@@ -21,7 +21,6 @@ export class UploadMedia implements ServiceMethods<Data> {
   }
 
   async setup() {}
-
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }

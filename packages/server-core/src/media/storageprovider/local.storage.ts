@@ -53,6 +53,9 @@ export class LocalStorage implements StorageProviderInterface {
     })
   }
 
+  move = () => {
+    console.log('Moving the Project Files')
+  }
   getSignedUrl = (key: string, expiresAfter: number, conditions): any => {
     return {
       fields: {
