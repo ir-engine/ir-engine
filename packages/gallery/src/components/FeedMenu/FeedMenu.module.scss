@@ -13,14 +13,13 @@
         border-color: #E4E4E4;
         border-width: 1px;
         border-style: solid;
-        width: 20%;
+        width: fit-content;
         .switchButton{
             margin: 0;
             color: #C4C4C4;
-            //padding: 7pt;
             font-size: 17pt;
-            text-transform: capitalize;
-            width: 50%;
+            text-transform: uppercase;
+            padding: 0 10px;
             border-radius: 35px;
             box-shadow: none;
             &.active{
@@ -30,15 +29,15 @@
     }
 
     @media (min-width:768px) {
-       .switcher {
-           width: 40%;
-       } 
+    //    .switcher {
+    //        width: 40%;
+    //    } 
     }
 
     @media (min-width:425px) {
-       .switcher {
-           width: 50%;
-       } 
+    //    .switcher {
+    //        width: 50%;
+    //    } 
     }
 
     .viewSwitcher{
