@@ -61,9 +61,9 @@ describe('findSplitFeatures', () => {
     const keys = new Set(keyArray)
     const features = new Set(featureArray)
 
-    const output = []
+    const output = [] as [FeatureKey, Feature][]
     for (const group of findSplitFeatures(keys.values(), features.values())) {
-      output.push(group)
+      output.push(group as any)
     }
 
     assert.deepEqual(output, [

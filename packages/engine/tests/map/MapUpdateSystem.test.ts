@@ -1,7 +1,7 @@
 import assert from 'assert'
 import sinon, { SinonSpy } from 'sinon'
 import mock from 'mock-require'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { createWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
 import { addComponent, getComponent } from '../../src/ecs/functions/ComponentFunctions'
@@ -9,11 +9,10 @@ import { TransformComponent } from '../../src/transform/components/TransformComp
 import { MapComponent } from '../../src/map/MapComponent'
 import { Entity } from '../../src/ecs/classes/Entity'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
-import { FollowCameraComponent } from '../../src/camera/components/FollowCameraComponent'
-import { createWorld } from '../../src/ecs/functions/EngineFunctions'
 import createStore from '../../src/map/functions/createStore'
 import { lineString } from '@turf/helpers'
 import { System } from '../../src/ecs/classes/System'
+import {AvatarComponent} from '../../src/avatar/components/AvatarComponent'
 
 describe('MapUpdateSystem', () => {
   const triggerRefreshRadius = 20 // meters
@@ -71,7 +70,7 @@ describe('MapUpdateSystem', () => {
       },
       world
     )
-    addComponent(viewerEntity, FollowCameraComponent, null, world)
+    addComponent(viewerEntity, AvatarComponent, {} as any, world)
 
     addComponent(mapEntity, MapComponent, store, world)
     addComponent(mapEntity, Object3DComponent, { value: subScene }, world)
@@ -93,7 +92,7 @@ describe('MapUpdateSystem', () => {
   })
 
   it('does nothing while player moves within refresh boundary', () => {
-    const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
+    const viewerTransform = getComponent(viewerEntity, TransformComponent)
 
     execute()
     viewerTransform.position.set((triggerRefreshRadius / 2) * mapScale, 0, 0)
@@ -135,11 +134,11 @@ describe('MapUpdateSystem', () => {
       [2, 1],
       [4, 2]
     ])
-    feature.properties.name = "don't panic"
-    const label = createFeatureLabel(feature, [0, 0])
+    const label = createFeatureLabel("123 sesame st", feature, [0, 0])
 
     store.labelCache.set(['road', 0, 0, '0'], label)
 
+    world.fixedDelta = .16
     world.fixedElapsedTime = world.fixedDelta * 20
     execute()
 

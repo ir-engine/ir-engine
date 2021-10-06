@@ -4,8 +4,8 @@ import evictLeastRecentlyUsedItems from '../../../src/map/functions/evictLeastRe
 describe('evictLeastRecentlyUsedItems', () => {
   it('works', () => {
     const cache = new Map<number, number>()
-    const keysEvicted = []
-    const keysRemaining = []
+    const keysEvicted = [] as number[]
+    const keysRemaining = [] as number[]
     for (let i = 0; i < 3; i++) {
       cache.set(i, i)
     }

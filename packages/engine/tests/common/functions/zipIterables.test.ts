@@ -19,7 +19,7 @@ describe('zipIterators', () => {
       yield Object
     }
 
-    const resultArray = []
+    const resultArray: any[] = []
 
     for (const item of zipIterators(itNum(), itAlpha(), itClass())) {
       resultArray.push(item)

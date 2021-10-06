@@ -33,7 +33,7 @@ const testCaseSanFrancisco = {
 
 describe('createSurroundingTileIterator', () => {
   it('returns the tile coordinates within `minimumSceneRadius` from `center` at the given `zoomLevel`  ', () => {
-    const results = []
+    const results = [] as [number,number][]
 
     for (const coord of createSurroundingTileIterator(
       testCaseSanFrancisco.center,
