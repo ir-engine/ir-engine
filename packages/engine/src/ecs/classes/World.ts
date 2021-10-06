@@ -14,6 +14,7 @@ import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
+import EntityTree from './EntityTree'
 
 type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
 
@@ -47,6 +48,7 @@ export class World {
 
   physics = new Physics()
   entities = [] as Entity[]
+  entityTree: EntityTree
   portalEntities = [] as Entity[]
   isInPortal = false
 

@@ -48,6 +48,15 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       const object3DComponent = getComponent(entity, Object3DComponent)
       const shadowComponent = getComponent(entity, ShadowComponent)
 
+      // TODO: If the value does not exist which means the object3d component is acting as tag component
+      if (!object3DComponent.value) {
+        const comp = getComponent(entity, object3DComponent.comp)
+        if (!Engine.scene.children.includes(comp.obj3d)) {
+          Engine.scene.add(comp.obj3d)
+        }
+        continue
+      }
+
       ;(object3DComponent.value as any).entity = entity
 
       // Add to scene
@@ -120,6 +129,12 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
     for (const entity of visibleQuery.enter()) {
       const obj = getComponent(entity, Object3DComponent)
       const visibleComponent = getComponent(entity, VisibleComponent)
+
+      if (!obj.value) {
+        getComponent(entity, obj.comp).obj3d.visible = visibleComponent.value
+        continue
+      }
+
       obj.value.visible = visibleComponent.value
     }
 

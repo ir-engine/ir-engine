@@ -2,8 +2,6 @@ import {
   AmbientLight,
   DirectionalLight,
   Euler,
-  HemisphereLight,
-  Mesh,
   Object3D,
   PointLight,
   Quaternion,
@@ -14,8 +12,10 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
+import EntityTree from '../../ecs/classes/EntityTree'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -30,16 +30,16 @@ import { Interior } from '../classes/Interior'
 import { Ocean } from '../classes/Ocean'
 import { Water } from '../classes/Water'
 import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
+import { HemisphereLightComponent, HemisphereLightComponentClass } from '../components/HemisphereLightComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
-import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCameraComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { WalkableTagComponent } from '../components/Walkable'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { createDirectionalLight } from '../functions/createDirectionalLight'
 import { createGround } from '../functions/createGround'
@@ -75,7 +75,7 @@ export class WorldScene {
 
   constructor(private onProgress?: Function) {}
 
-  loadScene = (scene: SceneData): Promise<void> => {
+  loadScene = (scene: SceneData, isEditor?: boolean): Promise<void> => {
     WorldScene.callbacks = {}
     WorldScene.isLoading = true
 
@@ -88,9 +88,13 @@ export class WorldScene {
       isCSMEnabled: true
     }
 
+    const ents = {}
+
     Object.keys(scene.entities).forEach((key) => {
       const sceneEntity = scene.entities[key]
       const entity = createEntity()
+
+      ents[sceneEntity.entityId] = entity
 
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
@@ -99,6 +103,20 @@ export class WorldScene {
         this.loadComponent(entity, component, sceneProperty)
       })
     })
+
+    if (isEditor) {
+      const world = useWorld()
+
+      if (!world.entityTree) world.entityTree = new EntityTree()
+
+      const tree = world.entityTree
+      Object.keys(scene.entities).forEach((key) => {
+        const sceneEntity = scene.entities[key]
+        tree.addEntity(ents[sceneEntity.entityId], ents[sceneEntity.parent])
+      })
+
+      console.debug(tree.rootNode)
+    }
 
     return Promise.all(this.loaders)
       .then(() => {
@@ -172,7 +190,8 @@ export class WorldScene {
         break
 
       case 'hemisphere-light':
-        addObject3DComponent(entity, new HemisphereLight(), component.data)
+        addComponent(entity, Object3DComponent, { comp: HemisphereLightComponent })
+        addComponent(entity, HemisphereLightComponent, new HemisphereLightComponentClass(component.data) as any)
         break
 
       case 'point-light':
@@ -272,7 +291,7 @@ export class WorldScene {
         break
 
       case 'spawn-point':
-        addComponent(entity, SpawnPointComponent, {})
+        addComponent(entity, SpawnPointComponent, {} as any)
         break
 
       case 'scene-preview-camera':

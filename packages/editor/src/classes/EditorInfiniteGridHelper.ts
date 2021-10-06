@@ -8,19 +8,18 @@ import EditorEvents from '../constants/EditorEvents'
  */
 const vertexShader = `
 varying vec3 worldPosition;
-      
+
 uniform float uDistance;
 
 void main() {
+  vec3 pos = position.xzy * uDistance;
+  pos.xz += cameraPosition.xz;
 
-      vec3 pos = position.xzy * uDistance;
-      pos.xz += cameraPosition.xz;
+  worldPosition = pos;
 
-      worldPosition = pos;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-
-      gl_Position.z -= 0.01;
+  gl_Position.z -= 0.01;
 }
 `
 const fragmentShader = `
@@ -32,10 +31,10 @@ uniform vec3 uColor;
 uniform float uDistance;
 
 float getGrid(float size) {
-    vec2 r = worldPosition.xz / size;
-    vec2 grid = abs(fract(r - 0.5) - 0.5) / fwidth(r);
-    float line = min(grid.x, grid.y);
-    return 1.0 - min(line, 1.0);
+  vec2 r = worldPosition.xz / size;
+  vec2 grid = abs(fract(r - 0.5) - 0.5) / fwidth(r);
+  float line = min(grid.x, grid.y);
+  return 1.0 - min(line, 1.0);
 }
 
 void main() {

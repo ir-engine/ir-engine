@@ -1,8 +1,7 @@
 import i18n from 'i18next'
-import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding, Clock } from 'three'
+import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import SceneNode from '../nodes/SceneNode'
-import Renderer from '../renderer/Renderer'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
 import { generateImageFileThumbnail, generateVideoFileThumbnail } from '../functions/thumbnails'
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
@@ -19,6 +18,7 @@ import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExpor
 import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
+import { Renderer } from '../renderer/Renderer'
 
 export class SceneManager {
   static instance: SceneManager
@@ -39,7 +39,6 @@ export class SceneManager {
   centerScreenSpace: Vector2
   thumbnailRenderer: ThumbnailRenderer
   disableUpdate: boolean
-  clock: Clock
   rafId: number
   transformGizmo: TransformGizmo
   postProcessingNode: PostProcessingNode
@@ -53,16 +52,7 @@ export class SceneManager {
     this.sceneModified = false
     this.raycaster = new Raycaster()
 
-    this.camera = Engine.camera as PerspectiveCamera
-    this.helperScene = Engine.scene
-
-    this.audioListener = new AudioListener()
-    this.camera.add(this.audioListener)
-    this.camera.layers.enable(1)
-    this.camera.name = 'Camera'
-
     this.centerScreenSpace = new Vector2()
-    this.clock = new Clock()
     this.disableUpdate = true
   }
 
@@ -75,22 +65,21 @@ export class SceneManager {
     }
 
     // getting scene data
+    console.debug(projectFile)
     const [scene, error] = await SceneNode.loadProject(projectFile)
-    if (scene === null) throw new Error('Scene data is null, please create a new scene.')
+    // if (scene === null) throw new Error('Scene data is null, please create a new scene.')
 
     this.scene = scene
-    this.camera.position.set(0, 5, 10)
-    this.camera.lookAt(new Vector3())
 
     this.grid = new EditorInfiniteGridHelper()
     this.transformGizmo = new TransformGizmo()
 
-    this.scene.add(this.camera)
-    this.scene.add(this.grid)
-    this.scene.add(this.transformGizmo)
+    // this.helperScene.add(this.grid)
+    // this.helperScene.add(this.transformGizmo)
 
     this.sceneModified = false
 
+    console.debug(Engine)
     if (error) return error
   }
 
@@ -111,22 +100,39 @@ export class SceneManager {
    */
   initializeRenderer(canvas: HTMLCanvasElement): void {
     try {
+      this.camera = Engine.camera as PerspectiveCamera
+      this.helperScene = Engine.scene
+
+      this.helperScene.add(this.grid)
+      this.helperScene.add(this.transformGizmo)
+
+
+      this.audioListener = new AudioListener()
+      this.camera.add(this.audioListener)
+      this.camera.layers.enable(1)
+      this.camera.name = 'Camera'
+
+      this.camera.position.set(0, 5, 10)
+      this.camera.lookAt(new Vector3())
+
+      this.helperScene.add(this.camera)
+
       this.renderer = new Renderer(canvas)
 
       this.thumbnailRenderer = new ThumbnailRenderer()
       window.addEventListener('resize', this.onResize)
 
-      requestAnimationFrame(this.update)
+      // requestAnimationFrame(this.update)
 
-      this.scene.traverse((node) => {
-        if (node.isNode) {
-          if (node.name === 'Post Processing') {
-            this.postProcessingNode = node
-          }
+      // this.scene.traverse((node) => {
+      //   if (node.isNode) {
+      //     if (node.name === 'Post Processing') {
+      //       this.postProcessingNode = node
+      //     }
 
-          node.onChange()
-        }
-      })
+      //     node.onChange()
+      //   }
+      // })
 
       ControlManager.instance.initControls()
       this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
@@ -363,21 +369,19 @@ export class SceneManager {
    *
    * @author Robert Long
    */
-  update = () => {
+  update = (delta: number, time: number) => {
     if (!this.disableUpdate) {
-      const delta = this.clock.getDelta()
-      const time = this.clock.getElapsedTime()
-      this.scene.updateMatrixWorld()
+      this.helperScene.updateMatrixWorld()
       ControlManager.instance.inputManager.update(delta, time)
 
-      this.scene.traverse((node) => {
+      this.helperScene.traverse((node) => {
         if (this.renderer.isShadowMapEnabled && node.isDirectionalLight) {
-          resizeShadowCameraFrustum(node, this.scene)
+          resizeShadowCameraFrustum(node, this.helperScene)
         }
 
-        if (node.isNode) {
-          node.onUpdate(delta, time)
-        }
+        // if (node.isNode) {
+        //   node.onUpdate?(delta, time)
+        // }
       })
 
       ControlManager.instance.flyControls.update(delta)
@@ -386,7 +390,5 @@ export class SceneManager {
       this.renderer.update(delta, time)
       ControlManager.instance.inputManager.reset()
     }
-
-    this.rafId = requestAnimationFrame(this.update)
   }
 }

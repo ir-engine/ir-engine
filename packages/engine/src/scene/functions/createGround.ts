@@ -1,10 +1,7 @@
-import { CircleBufferGeometry, Color, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
+import { Mesh, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createCollider } from '../../physics/functions/createCollider'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { addObject3DComponent } from './addObject3DComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { NavMeshBuilder } from '../../map/NavMeshBuilder'
 import { computeBoundingBox, scaleAndTranslate } from '../../map/GeoJSONFns'
@@ -15,6 +12,8 @@ import { fetchVectorTiles } from '../../map/MapBoxClient'
 import { METERS_PER_DEGREE_LL } from '../../map/constants'
 import { TileFeaturesByLayer } from '../../map/types'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { GroundPlaneComponent, GroundPlaneComponentClass } from '../components/GroundPlaneComponent'
 
 type GroundProps = {
   color: string
@@ -22,24 +21,12 @@ type GroundProps = {
 
 const halfTurnX = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
 
-export const createGround = async function (entity: Entity, args: GroundProps, isClient: boolean): Promise<Mesh> {
-  const mesh = new Mesh(
-    new CircleBufferGeometry(1000, 32),
-    new MeshStandardMaterial({
-      color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
-      roughness: 0
-    })
-  )
-
+export const createGround = async function (entity: Entity, args: any, isClient: boolean): Promise<Mesh> {
+  addComponent(entity, Object3DComponent, { comp: GroundPlaneComponent })
+  addComponent(entity, GroundPlaneComponent, new GroundPlaneComponentClass(args) as any)
   getComponent(entity, TransformComponent).rotation.multiply(halfTurnX)
 
-  addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
-
-  mesh.userData = {
-    type: 'ground',
-    collisionLayer: CollisionGroups.Ground,
-    collisionMask: CollisionGroups.Default
-  }
+  const mesh = getComponent(entity, GroundPlaneComponent).obj3d
 
   createCollider(entity, mesh)
 

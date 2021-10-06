@@ -5,7 +5,7 @@ import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import { Matrix4 } from 'yuka'
+import { Matrix4 } from 'three'
 import { SceneManager } from '../managers/SceneManager'
 import { TransformSpace } from '../constants/TransformSpace'
 
@@ -154,7 +154,7 @@ export default class ReparentCommand extends Command {
         newParent.updateMatrixWorld()
 
         const tempMatrix1 = new Matrix4()
-        tempMatrix1.getInverse(newParent.matrixWorld)
+        tempMatrix1.copy(newParent.matrixWorld).invert()
 
         object.parent.updateMatrixWorld()
         tempMatrix1.multiply(object.parent.matrixWorld)

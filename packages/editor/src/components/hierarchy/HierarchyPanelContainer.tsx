@@ -22,6 +22,7 @@ import { NodeManager } from '../../managers/NodeManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -686,11 +687,11 @@ function TreeNode({
                   </TreeNodeRenameInputContainer>
                 ) : (
                   <TreeNodeLabel canDrop={canDropOn} isOver={isOverOn}>
-                    {object.name}
+                    {object.eid}
                   </TreeNodeLabel>
                 )}
               </TreeNodeLabelContainer>
-              {node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />}
+              {/* {node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />} */}
             </TreeNodeSelectTarget>
           </TreeNodeContent>
 
@@ -720,14 +721,14 @@ const MemoTreeNode = memo(TreeNode, areEqual)
  * @author Robert Long
  * @param  {object}    collapsedNodes
  */
-function* treeWalker(collapsedNodes) {
+function* treeWalker(collapsedNodes, treeObject) {
   const stack = []
 
-  if (!SceneManager.instance.scene) return
+  if (!treeObject) return
 
   stack.push({
     depth: 0,
-    object: SceneManager.instance.scene,
+    object: treeObject,
     childIndex: 0,
     lastChild: true
   })
@@ -735,20 +736,20 @@ function* treeWalker(collapsedNodes) {
   while (stack.length !== 0) {
     const { depth, object, childIndex, lastChild } = stack.pop()
 
-    const NodeEditor = NodeManager.instance.getEditorFromNode(object) || DefaultNodeEditor
-    const iconComponent = NodeEditor.WrappedComponent
-      ? NodeEditor.WrappedComponent.iconComponent
-      : NodeEditor.iconComponent
+    // const NodeEditor = NodeManager.instance.getEditorFromNode(object) || DefaultNodeEditor
+    // const iconComponent = NodeEditor.WrappedComponent
+    //   ? NodeEditor.WrappedComponent.iconComponent
+    //   : NodeEditor.iconComponent
 
     const isCollapsed = collapsedNodes[object.id]
 
     yield {
       id: object.id,
-      isLeaf: object.children.filter((c) => c.isNode).length === 0,
+      isLeaf: !object.children || object.children.length === 0,
       isCollapsed,
       depth,
       object,
-      iconComponent,
+      iconComponent: null,
       selected: CommandManager.instance.selected.indexOf(object) !== -1,
       active:
         CommandManager.instance.selected.length > 0 &&
@@ -757,18 +758,18 @@ function* treeWalker(collapsedNodes) {
       lastChild
     }
 
-    if (object.children.length !== 0 && !isCollapsed) {
+    if (object.children && object.children.length !== 0 && !isCollapsed) {
       for (let i = object.children.length - 1; i >= 0; i--) {
         const child = object.children[i]
 
-        if (child.isNode) {
+        // if (child.isNode) {
           stack.push({
             depth: depth + 1,
             object: child,
             childIndex: i,
             lastChild: i === 0
           })
-        }
+        // }
       }
     }
   }
@@ -786,7 +787,12 @@ export default function HierarchyPanel() {
   const [collapsedNodes, setCollapsedNodes] = useState({})
   const [nodes, setNodes] = useState([])
   const updateNodeHierarchy = useCallback(() => {
-    const nodes = Array.from(treeWalker(collapsedNodes))
+    const world = useWorld()
+
+    if (!world.entityTree) return
+
+    // Heirarchy tree will be generated from the entities of the world rather than from scene node.
+    let nodes = Array.from(treeWalker(collapsedNodes, world.entityTree.rootNode))
     setNodes(nodes)
   }, [collapsedNodes])
   const { t } = useTranslation()
@@ -1171,7 +1177,7 @@ export default function HierarchyPanel() {
   return (
     <Fragment>
       <PanelContainer>
-        {SceneManager.instance.scene && (
+        {(SceneManager.instance.helperScene) && (
           <AutoSizer>
             {({ height, width }) => (
               <FixedSizeList
@@ -1190,7 +1196,7 @@ export default function HierarchyPanel() {
                   onToggle,
                   onUpload
                 }}
-                itemKey={getNodeKey}
+                // itemKey={getNodeKey}
                 outerRef={treeContainerDropTarget}
                 innerElementType="ul"
               >

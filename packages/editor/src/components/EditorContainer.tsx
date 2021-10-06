@@ -376,16 +376,17 @@ const DockContainer = (styled as any).div`
 `
 
 type EditorContainerProps = {
-  adminLocationState: any
-  adminSceneState: any
+  adminLocationState?: any
+  adminSceneState?: any
   fetchAdminLocations?: any
   fetchAdminScenes?: any
   fetchLocationTypes?: any
-  t: any
-  match: any
-  location: any
-  history: any
+  t?: any
+  match?: any
+  location?: any
+  history?: any
 }
+
 type EditorContainerState = {
   project: any
   parentSceneId: null

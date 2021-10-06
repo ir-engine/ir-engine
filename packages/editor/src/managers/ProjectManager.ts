@@ -11,6 +11,9 @@ import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
 import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { InitializeOptions, EngineSystemPresets } from '@xrengine/engine/src/initializationOptions'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 
 export class ProjectManager {
   static instance: ProjectManager
@@ -40,6 +43,21 @@ export class ProjectManager {
 
     this.ownedFileIds = {}
     this.currentOwnedFileIds = {}
+
+    const initializationOptions: InitializeOptions = {
+      type: EngineSystemPresets.EDITOR,
+      publicPath: location.origin,
+      systems: [
+        {
+          systemModulePromise: import('../renderer/Renderer'),
+          type: SystemUpdateType.PRE_RENDER,
+          args: { enabled: true }
+        }
+      ]
+    }
+
+    // Engine will be initialized
+    initializeEngine(initializationOptions).then(() => {})
   }
 
   /**
@@ -100,7 +118,8 @@ export class ProjectManager {
 
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, SceneManager.instance.scene)
+    // TODO: Change Commands to be competible with ECS change
+    // CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, SceneManager.instance.scene)
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 

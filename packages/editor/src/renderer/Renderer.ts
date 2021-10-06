@@ -31,8 +31,10 @@ import {
 } from 'postprocessing'
 import { effectType } from '@xrengine/engine/src/scene/classes/PostProcessing'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { System } from '@xrengine/engine/src/ecs/classes/System'
 
-export default class Renderer {
+export class Renderer {
   canvas: HTMLCanvasElement
   webglRenderer: WebGLRenderer
   renderMode: RenderModesType
@@ -102,15 +104,15 @@ export default class Renderer {
       return
     }
 
-    const { scene, camera, postProcessingNode } = SceneManager.instance
+    const { scene, camera, postProcessingNode, helperScene } = SceneManager.instance
 
     if (!this.effectComposer) this.effectComposer = new EffectComposer(this.webglRenderer)
     else this.effectComposer.removeAllPasses()
 
-    this.renderPass = new RenderPass(scene, camera)
+    this.renderPass = new RenderPass(helperScene, camera)
     this.effectComposer.addPass(this.renderPass)
 
-    const normalPass = new NormalPass(scene, camera, {
+    const normalPass = new NormalPass(helperScene, camera, {
       renderTarget: new WebGLRenderTarget(1, 1, {
         minFilter: NearestFilter,
         magFilter: NearestFilter,
@@ -138,7 +140,7 @@ export default class Renderer {
             passes.push(new effect(camera, normalPass.texture, { ...pass, normalDepthBuffer }))
           } else if (effect === DepthOfFieldEffect) passes.push(new effect(camera, pass))
           else if (effect === OutlineEffect) {
-            const eff = new effect(scene, camera, pass)
+            const eff = new effect(helperScene, camera, pass)
             passes.push(eff)
             this.outlineEffect = eff
           } else passes.push(new effect(pass))
@@ -267,5 +269,23 @@ export default class Renderer {
     this.webglRenderer.dispose()
     this.screenshotRenderer.dispose()
     this.effectComposer?.dispose()
+  }
+}
+
+type EngineRendererProps = {
+  canvas: HTMLCanvasElement
+  enabled: boolean
+}
+
+
+// TODO: Probably moved to engine package or will be replaced by already available WebGLRenderSystem
+export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
+  // new EngineRenderer(props)
+
+  // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+  // EngineRenderer.instance.dispatchSettingsChangeEvent()
+
+  return () => {
+    if (props.enabled) SceneManager.instance.update(world.delta, world.elapsedTime)
   }
 }

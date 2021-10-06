@@ -205,8 +205,13 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 }
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
+    updatesPerSecond: 60
+  })
+
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
   registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
@@ -215,6 +220,8 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
+
+  registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
@@ -331,6 +338,9 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.MEDIA) {
     Engine.userId = 'mediaserver' as UserId
+    Engine.engineTimer.start()
+  } else if (options.type === EngineSystemPresets.EDITOR) {
+    Engine.userId = 'editor' as UserId
     Engine.engineTimer.start()
   }
 
