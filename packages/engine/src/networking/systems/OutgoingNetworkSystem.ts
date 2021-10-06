@@ -215,7 +215,7 @@ export const queueXRHandPoses = (world) => {
       if (!joints) continue
 
       const hand = {
-        handedness: [xrHand.userData.handedness == 'left' ? 0 : 1],
+        handedness: xrHand.userData.handedness == 'left' ? 0 : 1,
         joints: [] as any
       }
 

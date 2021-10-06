@@ -180,7 +180,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
         const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
 
         netHands.hands.forEach((data) => {
-          const hand = xrHandsComponent.hands[data.handedness[0]] as any
+          const hand = xrHandsComponent.hands[data.handedness] as any
 
           // console.log(data.handedness[0])
 
