@@ -103,57 +103,19 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     const ownedFileIdsString = projects[index]?.ownedFileIds
     const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
     const returningObjects = []
-
-    const response = await fetch('https://127.0.0.1:8642/ThisisTheMedia/')
-    const text = await response.text()
-
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(text, 'text/html')
-    const lis = doc.querySelectorAll('.display-name')
-
-    for (let i = 0; i < lis.length; i++) {
-      const value = lis[i]
-      const va = value.querySelector('a')
-      const linkis = va.href
-      const name = va.innerText
-
-      if (name.includes('/')) {
-        if (name === '../') continue
-        const returningObject = {
-          description: 'url',
-          fileId: 'fileId',
-          projectId: projects[index].sid,
-          id: name,
-          label: name,
-          type: 'Folder'
-        }
-        returningObjects.push(returningObject)
-      } else {
-        const url = linkis
-        if (!url) continue
-        const contentType = await getContentType(new URL(url))
-        const nodeClass = UploadFileType[contentType]
-        const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
-
-        const returningObject = {
-          description: url,
-          fileId: 'fileId',
-          projectId: projects[index].sid,
-          id: 'element' + i,
-          label: 'element' + i,
-          nodeClass: nodeClass,
-          url: url,
-          type: 'File',
-          contentType: contentType,
-          initialProps: { src: new URL(url) },
-          iconComponent: nodeEditor.WrappedComponent
-            ? nodeEditor.WrappedComponent.iconComponent
-            : nodeEditor.iconComponent
-        }
-        returningObjects.push(returningObject)
-      }
+    const returningObject = {
+      description: url,
+      fileId: 'fileId',
+      projectId: projects[index].sid,
+      id: 'element' + i,
+      label: 'element' + i,
+      nodeClass: nodeClass,
+      url: url,
+      type: 'File',
+      contentType: contentType,
+      initialProps: { src: new URL(url) },
+      iconComponent: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.iconComponent : nodeEditor.iconComponent
     }
-
     setSelectedProjectFiles(returningObjects)
   }
 
