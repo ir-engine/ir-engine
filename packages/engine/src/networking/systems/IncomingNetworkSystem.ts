@@ -17,6 +17,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { Group } from 'three'
+import { throttle } from '../../common/functions/FunctionHelpers'
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
@@ -60,6 +61,14 @@ export const applyIncomingActions = (world: World) => {
 
   return world
 }
+
+const logHandBuffer = throttle(
+  (buffer) => {
+    console.log(buffer)
+  },
+  1000,
+  {}
+)
 
 export const applyUnreliableQueue = (networkInstance: Network) => (world: World) => {
   const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = networkInstance
@@ -179,10 +188,10 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
 
         const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
 
-        netHands.hands.forEach((data) => {
-          const hand = xrHandsComponent.hands[data.handedness] as any
-
-          // console.log(data.handedness[0])
+        netHands.hands.forEach((data, i) => {
+          // TODO: data.handedness is always 1 on the clients for some reason
+          // const hand = xrHandsComponent.hands[data.handedness] as any
+          const hand = xrHandsComponent.hands[i] as any
 
           if (!hand.joints) {
             hand.joints = {}
