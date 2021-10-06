@@ -11,10 +11,10 @@ import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
-import { encodeVector3, encodeQuaternion } from '@xrengine/common/src/utils/encode'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
 import { pipe } from 'bitecs'
+import { NetworkTransport } from '../interfaces/NetworkTransport'
 
 const networkTransformsQuery =
   // isClient
@@ -77,6 +77,37 @@ function ikPoseIsTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): b
   return false
 }
 
+export const sendActionsOnTransport = (transport: NetworkTransport) => (world) => {
+  const { incomingActions, outgoingActions } = world
+
+  // if hosting, forward all non-local incoming actions
+  if (world.isHosting) {
+    for (const incoming of incomingActions) {
+      if (incoming.$from !== Engine.userId) {
+        outgoingActions.add(incoming)
+      }
+    }
+  }
+
+  incomingActions.clear()
+
+  for (const out of outgoingActions) {
+    out.$from = out.$from ?? Engine.userId
+    if (out.$from === Engine.userId && out.$to === 'local') {
+      incomingActions.add(out as Required<Action>)
+      outgoingActions.delete(out)
+    }
+    if (world.isHosting && out.$from === Engine.userId) {
+      incomingActions.add(out as Required<Action>)
+    }
+  }
+  transport.sendActions(outgoingActions)
+
+  outgoingActions.clear()
+}
+
+const sendActions = sendActionsOnTransport(Network.instance.transport)
+
 export const queueUnchangedPoses = (world) => {
   const { currentNetworkState, previousNetworkState } = world
 
@@ -93,7 +124,7 @@ export const queueUnchangedPoses = (world) => {
       const velC = getComponent(entity, VelocityComponent)
       if (isZero(velC.velocity) || velocityIsTheSame(previousNetworkState, networkObject.networkId, velC.velocity))
         vel = [0]
-      else vel = encodeVector3(velC.velocity)
+      else vel = velC.velocity.toArray()
     }
     // const networkObjectOwnerComponent = getComponent(entity, NetworkObjectOwnerComponent)
     // networkObjectOwnerComponent && console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position)
@@ -102,15 +133,15 @@ export const queueUnchangedPoses = (world) => {
       !transformIsTheSame(
         previousNetworkState,
         networkObject.networkId,
-        encodeVector3(transformComponent.position),
-        encodeQuaternion(transformComponent.rotation),
+        transformComponent.position.toArray(),
+        transformComponent.rotation.toArray(),
         vel
       )
     )
       currentNetworkState.pose.push({
         networkId: networkObject.networkId,
-        position: encodeVector3(transformComponent.position),
-        rotation: encodeQuaternion(transformComponent.rotation),
+        position: transformComponent.position.toArray(),
+        rotation: transformComponent.rotation.toArray(),
         linearVelocity: vel !== undefined ? vel : [0],
         angularVelocity: angVel !== undefined ? angVel : [0]
       })
@@ -131,22 +162,22 @@ export const queueUnchangedPosesForClient = (world) => {
       const velC = getComponent(world.localClientEntity, VelocityComponent)
       if (isZero(velC.velocity) || velocityIsTheSame(previousNetworkState, world.localClientEntity, velC.velocity))
         vel = [0]
-      else vel = encodeVector3(velC.velocity)
+      else vel = velC.velocity.toArray()
     }
 
     if (
       !transformIsTheSame(
         previousNetworkState,
         networkComponent.networkId,
-        encodeVector3(transformComponent.position),
-        encodeQuaternion(transformComponent.rotation),
+        transformComponent.position.toArray(),
+        transformComponent.rotation.toArray(),
         vel
       )
     )
       currentNetworkState.pose.push({
         networkId: networkComponent.networkId,
-        position: encodeVector3(transformComponent.position),
-        rotation: encodeQuaternion(transformComponent.rotation),
+        position: transformComponent.position.toArray(),
+        rotation: transformComponent.rotation.toArray(),
         linearVelocity: vel !== undefined ? vel : [0],
         angularVelocity: angVel !== undefined ? angVel : [0]
       })
@@ -165,12 +196,12 @@ export const queueUnchangedIkPoses = (world) => {
 
     const xrInputs = getComponent(entity, XRInputSourceComponent)
 
-    const headPosePosition = encodeVector3(xrInputs.head.position)
-    const headPoseRotation = encodeQuaternion(xrInputs.head.quaternion)
-    const leftPosePosition = encodeVector3(xrInputs.controllerLeft.position)
-    const leftPoseRotation = encodeQuaternion(xrInputs.controllerLeft.quaternion)
-    const rightPosePosition = encodeVector3(xrInputs.controllerRight.position)
-    const rightPoseRotation = encodeQuaternion(xrInputs.controllerRight.quaternion)
+    const headPosePosition = xrInputs.head.position.toArray()
+    const headPoseRotation = xrInputs.head.quaternion.toArray()
+    const leftPosePosition = xrInputs.controllerLeft.position.toArray()
+    const leftPoseRotation = xrInputs.controllerLeft.quaternion.toArray()
+    const rightPosePosition = xrInputs.controllerRight.position.toArray()
+    const rightPoseRotation = xrInputs.controllerRight.quaternion.toArray()
 
     if (
       !ikPoseIsTheSame(
@@ -197,43 +228,33 @@ export const queueUnchangedIkPoses = (world) => {
   return world
 }
 
-export const sendActions = (world) => {
-  const { incomingActions, outgoingActions } = world
-
-  // if hosting, forward all non-local incoming actions
-  if (world.isHosting) {
-    for (const incoming of incomingActions) {
-      if (incoming.$from !== Engine.userId) {
-        outgoingActions.add(incoming)
-      }
-    }
-  }
-
-  incomingActions.clear()
-
-  for (const out of outgoingActions) {
-    out.$from = out.$from ?? Engine.userId
-    if (out.$from === Engine.userId && out.$to === 'local') {
-      incomingActions.add(out as Required<Action>)
-      outgoingActions.delete(out)
-    }
-    if (world.isHosting && out.$from === Engine.userId) {
-      incomingActions.add(out as Required<Action>)
-    }
-  }
-  Network.instance.transport?.sendActions(outgoingActions)
-
-  outgoingActions.clear()
+const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
+  transport.sendData(data)
 }
+
+const sendData = sendDataOnTransport(Network.instance.transport)
+
+const setPreviousStateToCurrent = (world) => {
+  world.previousNetworkState = world.currentNetworkState
+  return world
+}
+
+const serializeCurrentNetworkState = (world) => WorldStateModel.toBuffer(world.currentNetworkState)
 
 // prettier-ignore
 export const queueAllOutgoingPoses = pipe(
   queueUnchangedPoses, 
   queueUnchangedPosesForClient, 
-  queueUnchangedIkPoses
+  queueUnchangedIkPoses,
 )
 
 // prettier-ignore
+export const serializeNetworkState = pipe(
+  queueAllOutgoingPoses,
+  setPreviousStateToCurrent,
+  serializeCurrentNetworkState,
+)
+
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
   /**
    * For the client, we only want to send out objects we have authority over,
@@ -258,15 +279,12 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     world.currentNetworkState.pose = []
     world.currentNetworkState.ikPose = []
 
-    queueAllOutgoingPoses(world)
+    const data = serializeNetworkState(world)
 
     try {
-      const buffer = WorldStateModel.toBuffer(world.currentNetworkState)
-      Network.instance.transport.sendData(buffer)
-      world.previousNetworkState = world.currentNetworkState
+      sendData(data)
     } catch (e) {
-      console.log('could not convert world state to a buffer, ' + e)
+      console.error(e)
     }
-    
   }
 }
