@@ -50,7 +50,7 @@ export default async function PhysicsSystem(
   world: World,
   attributes: { simulationEnabled?: boolean }
 ): Promise<System> {
-  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const colliderQuery = defineQuery([ColliderComponent])
   const raycastQuery = defineQuery([RaycastComponent])
   const collisionComponent = defineQuery([CollisionComponent])
   const networkColliderQuery = defineQuery([NetworkObjectComponent, ColliderComponent])

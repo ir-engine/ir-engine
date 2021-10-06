@@ -33,6 +33,11 @@ export default async function FixedPipelineSystem(world: World, args: { updatesP
 
       for (const s of world.fixedSystems) s.execute()
 
+      for (const [entity, components] of world._removedComponentsFixed) {
+        for (const c of components) c.delete(entity)
+      }
+      world._removedComponentsFixed.clear()
+
       accumulator -= timestep
       ++updatesCount
 

@@ -114,7 +114,8 @@ export const addComponent = <T, S extends bitECS.ISchema>(
       component[key][entity] = args[key]
     }
   }
-  world._removedComponents.get(entity)?.delete(component)
+  world._removedComponentsFixed.get(entity)?.delete(component)
+  world._removedComponentsFree.get(entity)?.delete(component)
   component.set(entity, args as T & SoAProxy<S>)
   return component.get(entity)
 }
@@ -141,8 +142,10 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
     return
   }
   const componentRef = component.get(entity)
-  const removed = world._removedComponents.get(entity) ?? new Set()
-  world._removedComponents.set(entity, removed.add(component))
+  const removedFixed = world._removedComponentsFixed.get(entity) ?? new Set()
+  world._removedComponentsFixed.set(entity, removedFixed.add(component))
+  const removedFree = world._removedComponentsFree.get(entity) ?? new Set()
+  world._removedComponentsFree.set(entity, removedFree.add(component))
   bitECS.removeComponent(world, component, entity)
   return componentRef
 }
