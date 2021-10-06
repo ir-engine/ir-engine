@@ -249,6 +249,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
   registerInjectedSystems(SystemUpdateType.POST_RENDER, options.systems)
+  registerSystem(SystemUpdateType.FIXED, import('../../client/src/pages/game/logic/TournamentSystem'))
 }
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
