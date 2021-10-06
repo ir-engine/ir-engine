@@ -87,6 +87,21 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
       }
     })
   }
+  const filesTargetStringify = JSON.stringify(filesTarget)
+  useEffect(() => {
+    filesTarget?.forEach((file) => {
+      if (!descriptions.has(file)) {
+        dispatch({
+          type: 'CHANGE_TEXT',
+          payload: {
+            name: file,
+            value: file.name.substring(0, file.name.lastIndexOf('.'))
+          }
+        })
+      }
+    })
+  }, [filesTargetStringify])
+
   const handleAddPosts = () => {
     ;[...filesTarget].forEach((file, index) => {
       const { title, description } = getTitleAndDescription(descriptions.get(file) || titleFile)
@@ -150,9 +165,12 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
                               style: {
                                 fontSize: '17pt',
                                 fontFamily: 'Jost, sans-serif',
-                                color: '#9b9b9b'
+                                fontStyle: 'italic',
+                                color: '#9b9b9b',
+                                backgroundColor: '#fff'
                               }
                             }}
+                            style={{ backgroundColor: '#fff' }}
                             margin="dense"
                             id={`description-${itemIndex}`}
                             label="Add description"
