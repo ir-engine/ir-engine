@@ -8,10 +8,6 @@ import { useTranslation } from 'react-i18next'
 
 interface Props {}
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
 export const IndexPage = (props: Props): any => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
@@ -38,4 +34,4 @@ export const IndexPage = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps)(IndexPage)
+export default IndexPage

@@ -25,12 +25,6 @@ import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/
 
 import defaultStyles from './InstanceChat.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
   styles?: any
   MessageButton?: any
@@ -272,4 +266,4 @@ const InstanceChat = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat)
+export default InstanceChat

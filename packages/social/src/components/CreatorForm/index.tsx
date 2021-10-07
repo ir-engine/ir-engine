@@ -24,22 +24,14 @@ import TextField from '@material-ui/core/TextField'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { CreatorService } from '../../reducers/creator/CreatorService'
-import { updateCreatorFormState } from '../../reducers/popupsState/service'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
-})
 interface Props {
   creatorData?: any
-  updateCreatorFormState?: typeof updateCreatorFormState
 }
 
-const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
+const CreatorForm = ({ creatorData }: Props) => {
   const history = useHistory()
   const avatarRef = React.useRef<HTMLInputElement>()
   const dispatch = useDispatch()
@@ -87,7 +79,13 @@ const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
         <form className={styles.form} noValidate onSubmit={(e) => handleUpdateUser(e)}>
           <nav className={styles.headerContainer}>
             {!creatorData && (
-              <Button variant="text" className={styles.backButton} onClick={() => updateCreatorFormState(false)}>
+              <Button
+                variant="text"
+                className={styles.backButton}
+                onClick={() => {
+                  dispatch(PopupsStateService.updateCreatorFormState(false))
+                }}
+              >
                 <ArrowBackIosIcon />
                 {t('social:creatorForm.back')}
               </Button>
@@ -220,4 +218,4 @@ const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorForm)
+export default CreatorForm

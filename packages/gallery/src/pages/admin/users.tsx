@@ -6,10 +6,14 @@ import CreatorConsole from '@xrengine/social/src/components/admin/CreatorConsole
 import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
 import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
+import { connect, useDispatch } from 'react-redux'
 
 const UsersPage = () => {
   const creatorsState = useCreatorState()
-  useEffect(() => CreatorService.getCreators(), [creatorsState.creators.currentCreator])
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(CreatorService.getCreators())
+  }, [creatorsState.creators.currentCreator])
   const creators =
     creatorsState && creatorsState.creators.fetching.value === false && creatorsState.creators.value
       ? creatorsState.creators

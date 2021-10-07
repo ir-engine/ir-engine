@@ -57,11 +57,6 @@ interface Props {
   harmonyOpen?: any
   setHarmonyOpen?: any
 }
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Layout = (props: Props): any => {
   const path = useLocation().pathname
@@ -284,4 +279,4 @@ const Layout = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout)
+export default Layout

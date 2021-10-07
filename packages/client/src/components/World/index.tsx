@@ -67,12 +67,6 @@ interface Props {
   hideFullscreen?: boolean
 }
 
-const mapStateToProps = (state: any) => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({})
-
 export const EnginePage = (props: Props) => {
   const { t } = useTranslation()
   const [isUserBanned, setUserBanned] = useState(true)
@@ -219,6 +213,6 @@ export const EnginePage = (props: Props) => {
   )
 }
 
-const connector = connect(mapStateToProps, mapDispatchToProps)(EnginePage)
+const connector = EnginePage
 
 export default connector

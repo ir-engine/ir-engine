@@ -20,46 +20,17 @@ import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
 import { FeedService } from '../../reducers/feed/FeedService'
-import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
-import { changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
+import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
 import { useFeedState } from '../../reducers/feed/FeedState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state),
-
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
-  updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
-
 interface Props {
   feed?: any
-  popupsState?: any
-  updateNewFeedPageState?: typeof updateNewFeedPageState
-  updateShareFormState?: typeof updateShareFormState
-  updateArMediaState?: typeof updateArMediaState
-  changeWebXrNative?: any
-  webxrnativeState?: any
 }
-const FeedForm = ({
-  feed,
-  updateNewFeedPageState,
-  updateShareFormState,
-  updateArMediaState,
-  popupsState,
-  webxrnativeState,
-  changeWebXrNative
-}: Props) => {
+const FeedForm = ({ feed }: Props) => {
   const [isSended, setIsSended] = useState(false)
   const [isRecordVideo, setRecordVideo] = useState(false)
   const [isVideo, setIsVideo] = useState(false)
@@ -76,14 +47,16 @@ const FeedForm = ({
   const textRef = React.useRef<HTMLInputElement>()
   const videoRef = React.useRef<HTMLInputElement>()
   const { t } = useTranslation()
-  const videoPath = popupsState?.get('videoPath')
-  const videoDir = popupsState?.get('fPath')
-  const nameId = popupsState?.get('nameId')
+  const popupsState = usePopupsStateState()
+  const videoPath = popupsState?.popups?.videoPath?.value
+  const videoDir = popupsState?.popups?.fPath?.value
+  const nameId = popupsState?.popups?.nameId?.value
   const { XRPlugin } = Plugins
   const dispatch = useDispatch()
   const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value)
   const handleComposingTextChange = (event: any): void => setComposingText(event.target.value)
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrnativeState = useWebxrNativeState()
+  const webxrRecorderActivity = webxrnativeState.webxrnative.value
   const feedsState = useFeedState()
   const lastFeedVideoUrl = feedsState.feeds.lastFeedVideoUrl?.value
 
@@ -126,10 +99,10 @@ const FeedForm = ({
     // }, 2000);
 
     if (webxrRecorderActivity) {
-      changeWebXrNative()
+      dispatch(WebxrNativeService.changeWebXrNative())
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
-    updateNewFeedPageState(false, null, null, null)
+    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
   }
 
   const dataURItoBlob = (dataURI) => {
@@ -277,9 +250,9 @@ const FeedForm = ({
   }, [])
 
   const closePopUp = () => {
-    updateNewFeedPageState(false, null, null, null)
+    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
     if (webxrRecorderActivity) {
-      changeWebXrNative()
+      dispatch(WebxrNativeService.changeWebXrNative())
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
   }
@@ -434,4 +407,4 @@ const FeedForm = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedForm)
+export default FeedForm

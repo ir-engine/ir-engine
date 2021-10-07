@@ -21,14 +21,16 @@ import { Dispatch } from 'redux'
 //   }
 // }
 
-export function addReportToFeed(feedId: string) {
-  return async (dispatch: Dispatch): Promise<any> => {
-    try {
-      await client.service('feed-report').create({ feedId })
-      // dispatch(addFeedReport(feedId))
-    } catch (err) {
-      console.log(err)
-      AlertService.dispatchAlertError(dispatch, err.message)
+export const FeedReportsService = {
+  addReportToFeed: (feedId: string) => {
+    return async (dispatch: Dispatch): Promise<any> => {
+      try {
+        await client.service('feed-report').create({ feedId })
+        // dispatch(addFeedReport(feedId))
+      } catch (err) {
+        console.log(err)
+        AlertService.dispatchAlertError(dispatch, err.message)
+      }
     }
   }
 }

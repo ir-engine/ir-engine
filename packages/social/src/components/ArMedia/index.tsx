@@ -9,7 +9,7 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
 import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
 import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
-import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
 
@@ -20,22 +20,12 @@ import styles from './ArMedia.module.scss'
 import { XRPlugin } from 'webxr-native'
 import { useHistory } from 'react-router-dom'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  updateWebXRState: bindActionCreators(updateWebXRState, dispatch)
-})
 interface Props {
   projects?: any[]
   view?: any
-  updateArMediaState?: typeof updateArMediaState
-  updateWebXRState?: typeof updateWebXRState
 }
 
-const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
+const ArMedia = (props: Props) => {
   const [type, setType] = useState('clip')
   const [list, setList] = useState(null)
   const [preloading, setPreloading] = useState(false)
@@ -56,7 +46,13 @@ const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
   return (
     <section className={styles.arMediaContainer}>
       {preloading && <Preloader text={'Loading...'} />}
-      <Button variant="text" className={styles.backButton} onClick={() => updateArMediaState(false)}>
+      <Button
+        variant="text"
+        className={styles.backButton}
+        onClick={() => {
+          dispatch(PopupsStateService.updateArMediaState(false))
+        }}
+      >
         <ArrowBackIosIcon />
         {t('social:arMedia.back')}
       </Button>
@@ -97,8 +93,8 @@ const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
               })
             }
             setPreloading(false)
-            updateArMediaState(false)
-            updateWebXRState(true, selectedItem.id)
+            dispatch(PopupsStateService.updateArMediaState(false))
+            dispatch(PopupsStateService.updateWebXRState(true, selectedItem.id))
           }}
           variant="contained"
         >
@@ -109,4 +105,4 @@ const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ArMedia)
+export default ArMedia

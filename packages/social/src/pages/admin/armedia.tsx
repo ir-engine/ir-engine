@@ -13,7 +13,9 @@ import { ArMediaService } from '@xrengine/social/src/reducers/arMedia/ArMediaSer
 
 const ArMediaPage = () => {
   const arMediaState = useArMediaState()
-  useEffect(() => ArMediaService.getArMedia('admin'), [])
+  useEffect(() => {
+    ArMediaService.getArMedia('admin')
+  }, [])
   const arMediaList =
     arMediaState.fetching.value === false && arMediaState.adminList ? arMediaState.adminList.value : null
   return (

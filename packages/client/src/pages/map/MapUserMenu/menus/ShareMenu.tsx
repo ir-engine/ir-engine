@@ -12,12 +12,6 @@ import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { useInviteState } from '@xrengine/client-core/src/social/reducers/invite/InviteState'
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
 interface Props {
   alertSuccess?: any
 }
@@ -112,4 +106,4 @@ const ShareMenu = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShareMenu)
+export default ShareMenu

@@ -10,8 +10,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 
 interface Props {}
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const SearchLocation = (props: Props) => {
   const classes = useLocationStyles()
   const [search, setSearch] = React.useState('')
@@ -34,4 +32,4 @@ const SearchLocation = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(SearchLocation)
+export default SearchLocation

@@ -7,6 +7,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { CreatorService } from '../../reducers/creator/CreatorService'
+import { WebxrNativeService } from '../../reducers/webxr_native/WebxrNativeService'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -23,13 +24,9 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
 
 import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
-import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+
 import { Link, useHistory, Redirect } from 'react-router-dom'
 import ChangedUserName from './ChangedUserName'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
 
 const Registration = (props: any): any => {
   const {
@@ -59,7 +56,7 @@ const Registration = (props: any): any => {
   const [errorUsername, setErrorUsername] = useState(false)
   const [emailPhoneForm, setEmailPhoneForm] = useState(false)
   const [continueAsGuest, setContinueAsGuest] = useState(false)
-  const [registrationServiceClick, setRegistrationServiceClick] = useState(false)
+  const [registrationServiceClick, setRegistrationServiceClick] = useState('')
   const [disabledButtonLogIn, setDisabledButtonLogIn] = useState(false)
 
   let type = ''
@@ -119,7 +116,7 @@ const Registration = (props: any): any => {
   useEffect(() => {
     if (accessToken || crutch) {
       dispatch(AuthService.doLoginAuto(true))
-      dispatch(getWebXrNative())
+      dispatch(WebxrNativeService.getWebXrNative())
     }
   }, [accessToken, crutch])
 
@@ -344,4 +341,4 @@ const Registration = (props: any): any => {
   )
 }
 
-export default connect(mapStateToProps)(Registration)
+export default Registration
