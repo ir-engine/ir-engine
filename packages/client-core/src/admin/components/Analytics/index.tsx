@@ -146,27 +146,27 @@ const Analytics = (props: Props) => {
   const classes = useStyles()
   const data = [
     {
-      number: activeParties[activeParties.length - 1]?.y ?? 0,
+      number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
       label: 'Active Parties'
     },
     {
-      number: activeLocations[activeLocations.length - 1]?.y ?? 0,
+      number: activeLocations[activeLocations.length - 1] ? activeLocations[activeLocations.length - 1][1] : 0,
       label: 'Active Locations'
     },
     {
-      number: activeScenes[activeScenes.length - 1]?.y ?? 0,
+      number: activeScenes[activeScenes.length - 1] ? activeScenes[activeScenes.length - 1][1] : 0,
       label: 'Active Scenes'
     },
     {
-      number: activeInstances[activeInstances.length - 1]?.y ?? 0,
+      number: activeInstances[activeInstances.length - 1] ? activeInstances[activeInstances.length - 1][1] : 0,
       label: 'Active Instances'
     },
     {
-      number: dailyUsers[dailyUsers.length - 1]?.y ?? 0,
+      number: dailyUsers[dailyUsers.length - 1] ? dailyUsers[dailyUsers.length - 1][1] : 0,
       label: 'Users Today'
     },
     {
-      number: dailyNewUsers[dailyNewUsers.length - 1]?.y ?? 0,
+      number: dailyNewUsers[dailyNewUsers.length - 1] ? dailyNewUsers[dailyNewUsers.length - 1][1] : 0,
       label: 'New Users Today'
     }
   ]
