@@ -120,7 +120,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
           }
         },
         {
-          body: <img src="/static/Kiss.svg" alt="Kiss" />,
+          body: <img src="/static/kiss1.svg" alt="Kiss" />,
           containerProps: {
             onClick: () => this.runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
           }
@@ -156,7 +156,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
         //   containerProps: {
         //     onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE})
         //   }
-        // }
+        // }openEmoteMenu
       ] as any
     } as EmoteMenuStateType
 
@@ -210,7 +210,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   render() {
-    const angle = 360 / this.state.items.length
+    const angle = 420 / this.state.items.length
     return (
       <>
         <section className={this.styles.emoteMenu + ' ' + (!this.state.isOpen ? this.styles.hideMenu : '')}>
@@ -231,9 +231,9 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                 }}
               >
                 {this.state.items.map((item, index) => {
-                  const itemAngle = angle * index + 270
-                  const x = this.effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
-                  const y = this.effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
+                  const itemAngle = angle * index + 260
+                  const x = 145 * Math.cos((itemAngle * Math.PI) / 290)
+                  const y = 145 * Math.sin((itemAngle * Math.PI) / 290)
                   return (
                     <Button
                       className={this.styles.menuItem}
@@ -241,7 +241,8 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                       style={{
                         width: this.menuItemWidth,
                         height: this.menuItemWidth,
-                        transform: 'translate(' + x + 'px, ' + y + 'px)'
+                        transform: 'translate(' + x + 'px, ' + y + 'px)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.04)'
                       }}
                       {...item.containerProps}
                     >

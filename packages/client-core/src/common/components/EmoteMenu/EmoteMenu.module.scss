@@ -29,6 +29,7 @@
         margin: 5px;
         height: 50px;
         width: 50px;
+        border: 1px solid red;
         cursor: pointer;
         position: relative;
         border: none;
@@ -67,7 +68,7 @@
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        border: solid 100px rgba(0, 0, 0, 0.8);
+        border: solid 100px rgba(122, 100, 165, 0.75);
         border-bottom-color: transparent;
         opacity:0.9;
         position:relative;
@@ -112,9 +113,9 @@
     width: 33px;
     height: 70px;
     position: absolute;
-    left: 2.9px;
-    top: 190px;
-    background-color: rgba(0, 0, 0, 0.8);
+    left: 1.9px;
+    top: 192px;
+    background-color: rgba(122, 100, 165, 0.75);
     transform: rotate(45deg);
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
@@ -125,9 +126,9 @@
     width: 33px;
     height: 70px;
     position: absolute;
-    right: 2.9px;
-    top: 190px;
-    background-color: rgba(0, 0, 0, 0.8);
+    right: 1.9px;
+    top: 192px;
+    background-color: rgba(122, 100, 165, 0.75);
     transform: rotate(135deg);
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
