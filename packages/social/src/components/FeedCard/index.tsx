@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import { useHistory } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 
 import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
@@ -31,8 +31,8 @@ import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { addViewToFeed, removeFeed } from '../../reducers/feed/service'
-// import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
+import { FeedService } from '../../reducers/feed/FeedService'
+
 import { selectFeedFiresState } from '../../reducers/feedFires/selector'
 import { selectFeedLikesState } from '../../reducers/feedLikes/selector'
 
@@ -41,8 +41,8 @@ import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/fe
 import { getFeedLikes, addLikeToFeed, removeLikeToFeed } from '../../reducers/feedLikes/service'
 import PopupLogin from '../PopupLogin/PopupLogin'
 // import { IndexPage } from '@xrengine/social/pages/login';
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import { updateCreatorPageState, updateFeedPageState } from '../../reducers/popupsState/service'
@@ -56,24 +56,17 @@ import Grid from '@material-ui/core/Grid'
 const mapStateToProps = (state: any): any => {
   return {
     feedFiresState: selectFeedFiresState(state),
-    feedLikesState: selectFeedLikesState(state),
-    authState: selectCreatorsState(state)
+    feedLikesState: selectFeedLikesState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //     getFeedFires: bindActionCreators(getFeedFires, dispatch),
-  //     addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
-  //     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
   getFeedFires: bindActionCreators(getFeedFires, dispatch),
   addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
   addReportToFeed: bindActionCreators(addReportToFeed, dispatch),
   removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
-  // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
-  // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
-  addViewToFeed: bindActionCreators(addViewToFeed, dispatch),
   getFeedLikes: bindActionCreators(getFeedLikes, dispatch),
   addLikeToFeed: bindActionCreators(addLikeToFeed, dispatch),
   removeLikeToFeed: bindActionCreators(removeLikeToFeed, dispatch)
@@ -82,10 +75,6 @@ interface Props {
   feed: Feed
   feedFiresState?: any
   feedLikesState?: any
-  authState?: any
-  //     getFeedFires?: typeof getFeedFires;
-  //     addFireToFeed? : typeof addFireToFeed;
-  //     removeFireToFeed?: typeof removeFireToFeed;
   getFeedFires?: any
   addFireToFeed?: any
   removeFireToFeed?: any
@@ -96,21 +85,20 @@ interface Props {
   updateFeedPageState?: any
   // addBookmarkToFeed?: typeof addBookmarkToFeed;
   // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
-  addViewToFeed?: typeof addViewToFeed
+
   addReportToFeed?: typeof addReportToFeed
-  removeFeed?: typeof removeFeed
 }
 const FeedCard = (props: Props): any => {
   const [liked, setLiked] = useState(false)
   const [buttonPopup, setButtonPopup] = useState(false)
   const [fired, setFired] = useState(false)
   const [reported, setReported] = useState(false)
+  const dispatch = useDispatch()
   //     const [isVideo, setIsVideo] = useState(false);
   //     const [openFiredModal, setOpenFiredModal] = useState(false);
   //     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
   const {
     feed,
-    authState,
     getFeedFires,
     feedFiresState,
     addFireToFeed,
@@ -119,11 +107,10 @@ const FeedCard = (props: Props): any => {
     feedLikesState,
     addLikeToFeed,
     removeLikeToFeed,
-    addViewToFeed,
+
     addReportToFeed,
     updateCreatorPageState,
-    updateFeedPageState,
-    removeFeed
+    updateFeedPageState
   } = props
   const [firedCount, setFiredCount] = useState(feed.fires)
   const [likedCount, setLikedCount] = useState(feed.likes)
@@ -202,7 +189,7 @@ const FeedCard = (props: Props): any => {
 
   //     const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
-  const creatorId = authState.get('currentCreator').id
+  //const creatorId = authState.get('currentCreator').id
 
   useEffect(() => {
     setVideoDisplay(true)
@@ -212,7 +199,7 @@ const FeedCard = (props: Props): any => {
 
   const previewImageClick = () => {
     setVideoDisplay(true)
-    addViewToFeed(feed.id)
+    dispatch(FeedService.addViewToFeed(feed.id))
   }
 
   useEffect(() => {

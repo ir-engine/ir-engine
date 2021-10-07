@@ -14,7 +14,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { selectTheFeedsFiresState } from '../../reducers/thefeedsFires/selector'
 import { addFireToTheFeeds, getTheFeedsFires, removeFireToTheFeeds } from '../../reducers/thefeedsFires/service'
 import CreatorAsTitle from '../CreatorAsTitle'
@@ -24,8 +24,7 @@ const { Share } = Plugins
 
 const mapStateToProps = (state: any): any => {
   return {
-    thefeedsFiresState: selectTheFeedsFiresState(state),
-    authState: selectCreatorsState(state)
+    thefeedsFiresState: selectTheFeedsFiresState(state)
   }
 }
 
@@ -37,7 +36,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   feed: Feed
   thefeedsFiresState?: any
-  authState?: any
+
   getTheFeedsFires?: any
   addFireToTheFeeds?: any
   removeFireToTheFeeds?: any
@@ -45,7 +44,7 @@ interface Props {
 const TheFeedsCard = (props: Props): any => {
   const [buttonPopup, setButtonPopup] = useState(false)
   const [fired, setFired] = useState(false)
-  const { feed, authState, getTheFeedsFires, thefeedsFiresState, addFireToTheFeeds, removeFireToTheFeeds } = props
+  const { feed, getTheFeedsFires, thefeedsFiresState, addFireToTheFeeds, removeFireToTheFeeds } = props
   const [firedCount, setFiredCount] = useState(feed.fires)
 
   const [thefeedsFiresCreators, setThefeedsFiresCreators] = useState(null)
@@ -76,7 +75,8 @@ const TheFeedsCard = (props: Props): any => {
   }
 
   const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires')
-  const creatorId = authState.get('currentCreator').id
+
+  const creatorId = useCreatorState().creators.currentCreator?.id?.value
 
   useEffect(() => {
     setFired(!!thefeedsFiresCreators?.data.find((i) => i.id === creatorId))

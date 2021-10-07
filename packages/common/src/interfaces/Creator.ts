@@ -6,6 +6,13 @@ export interface CreatorShort {
   name: string
   username: string
   verified?: boolean
+  steps?: boolean
+  terms?: boolean
+  policy?: boolean
+  blocked?: boolean
+  followed?: boolean
+  isBlocked?: boolean
+  createdAt?: string
 }
 
 export interface Creator extends CreatorShort {

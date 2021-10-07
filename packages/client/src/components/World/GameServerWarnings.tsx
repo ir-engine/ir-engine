@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { provisionInstanceServer } from '../../reducers/instanceConnection/service'
+import { InstanceConnectionService } from '../../reducers/instanceConnection/InstanceConnectionService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type GameServerWarningsProps = {
   isTeleporting: boolean
   instanceId: string
   locationName: string
-  provisionInstanceServer: typeof provisionInstanceServer
 }
 
 const initialModalValues: WarningRetryModalProps = {
@@ -31,19 +30,11 @@ enum WarningModalTypes {
   INSTANCE_WEBGL_DISCONNECTED
 }
 
-const mapStateToProps = (state: any) => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
-})
-
 const GameServerWarnings = (props: GameServerWarningsProps) => {
   const locationState = useLocationState()
   const [modalValues, setModalValues] = useState(initialModalValues)
   const invalidLocationState = locationState.invalidLocation
-
+  const dispatch = useDispatch()
   useEffect(() => {
     EngineEvents.instance.addEventListener(
       SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
@@ -94,7 +85,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           open: true,
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-          action: async () => provisionInstanceServer(),
+          action: async () => dispatch(InstanceConnectionService.provisionInstanceServer()),
           parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId],
           noCountdown: false
         })
@@ -155,4 +146,4 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   return <WarningRefreshModal {...modalValues} open={modalValues.open && !props.isTeleporting} handleClose={reset} />
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GameServerWarnings)
+export default GameServerWarnings

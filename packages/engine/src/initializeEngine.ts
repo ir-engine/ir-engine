@@ -232,7 +232,6 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
-  registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/MediaStreamSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED_EARLY, options.systems)
 
