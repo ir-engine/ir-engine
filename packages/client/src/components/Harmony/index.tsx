@@ -319,10 +319,10 @@ const Harmony = (props: Props): any => {
     setActiveAVChannelId(transportState.channelId.value)
 
     if (targetChannelId == null || targetChannelId === '') {
-      const matchingChannel = channelEntries.find((entry) => entry.id === activeAVChannelIdRef.current)
+      const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
       if (matchingChannel)
-        setActiveChat(matchingChannel[1].channelType, {
-          id: matchingChannel[1].instanceId
+        setActiveChat(matchingChannel.channelType, {
+          id: matchingChannel.instanceId
         })
     }
   }, [transportState])
