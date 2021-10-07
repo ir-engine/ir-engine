@@ -70,8 +70,10 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
   const dispatch = useDispatch()
   const removeIdsStringify = JSON.stringify([...removedIds])
   const feedsState = useFeedState()
+
   useEffect(() => {
-    if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
+    if (auth.user.id.value) {
+      if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       dispatch(FeedService.getFeeds(type, creatorId))
     } else {
       const getFeaturedFeeds = async () => {
@@ -88,14 +90,15 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
     if (type !== 'fired') {
       setRemovedIds(new Set())
     }
-  }, [type, creatorId, feedsState.feeds.feedsFetching.value, removeIdsStringify])
+    }
+  }, [type, creatorId, auth.user.id.value, feedsState.feeds.feedsFetching.value, removeIdsStringify])
 
   useEffect(
     () =>
       (type === 'featured' || !type) &&
       feedsState.feeds.feedsFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFetching.value, feedsState.feeds.feedsFeatured.value]
+    [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
   )
 
   useEffect(
@@ -103,7 +106,7 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       (type === 'featured' || !type) &&
       feedsState.feeds.feedsFeaturedFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFeaturedFetching.value, feedsState.feeds.feedsFeatured.value]
+    [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
   )
 
   useEffect(
@@ -111,7 +114,7 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       type === 'creator' &&
       feedsState.feeds.feedsCreatorFetching.value === false &&
       setFeedList(feedsState.feeds.feedsCreator.value),
-    [feedsState.feeds.feedsCreatorFetching.value, feedsState.feeds.feedsCreator.value]
+    [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value)]
   )
 
   useEffect(
@@ -119,7 +122,7 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       type === 'fired' &&
       feedsState.feeds.feedsFiredFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFired.value),
-    [feedsState.feeds.feedsFiredFetching.value, feedsState.feeds.feedsFired.value]
+    [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
   )
   const feedsFiredStringify = JSON.stringify(feedsState.feeds.feedsFired.value)
   useEffect(() => {
