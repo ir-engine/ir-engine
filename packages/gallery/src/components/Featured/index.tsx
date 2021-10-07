@@ -98,41 +98,34 @@ const Featured = ({ feedsState, type, creatorId, viewType, isFeatured, setIsFeat
     if (type !== 'fired') {
       setRemovedIds(new Set())
     }
-  }, [type, creatorId, feedsState.get('feedsFetching'), removeIdsStringify])
+  }, [type, creatorId, feedsState.feedsFetching, removeIdsStringify])
 
   useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.get('feedsFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]
+    () => (type === 'featured' || !type) && feedsState.feedsFetching === false && setFeedList(feedsState.feedsFeatured),
+    [feedsState.feedsFetching, feedsState.feedsFeatured]
   )
 
   useEffect(
     () =>
       (type === 'featured' || !type) &&
-      feedsState.get('feedsFeaturedFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]
+      feedsState.feedsFeaturedFetching === false &&
+      setFeedList(feedsState.feedsFeatured),
+    [feedsState.feedsFeaturedFetching, feedsState.feedsFeatured]
   )
 
   useEffect(
-    () =>
-      type === 'creator' &&
-      feedsState.get('feedsCreatorFetching') === false &&
-      setFeedList(feedsState.get('feedsCreator')),
-    [feedsState.get('feedsCreatorFetching'), feedsState.get('feedsCreator')]
+    () => type === 'creator' && feedsState.feedsCreatorFetching === false && setFeedList(feedsState.feedsCreator),
+    [feedsState.feedsCreatorFetching, feedsState.feedsCreator]
   )
 
   useEffect(
-    () =>
-      type === 'fired' && feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired')),
-    [feedsState.get('feedsFiredFetching'), feedsState.get('feedsFired')]
+    () => type === 'fired' && feedsState.feedsFiredFetching === false && setFeedList(feedsState.feedsFired),
+    [feedsState.feedsFiredFetching, feedsState.feedsFired]
   )
-  const feedsFiredStringify = JSON.stringify(feedsState.get('feedsFired'))
+  const feedsFiredStringify = JSON.stringify(feedsState.feedsFired)
   useEffect(() => {
-    typeof setIsFeatured === 'function' && setIsFeatured(!!feedsState.get('feedsFired')?.length)
-  }, [feedsState.get('feedsFetching'), feedsFiredStringify])
+    typeof setIsFeatured === 'function' && setIsFeatured(!!feedsState.feedsFired?.length)
+  }, [feedsState.feedsFetching, feedsFiredStringify])
 
   const handleAddToFeatured = (item) => {
     if (!feedIds.has(item)) {

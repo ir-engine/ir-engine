@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
@@ -85,6 +85,7 @@ const CreatorConsole = (props: Props) => {
     { id: 'createdAt', numeric: false, disablePadding: false, label: 'Created' },
     { id: 'action', numeric: false, disablePadding: false, label: '' }
   ]
+  const dispatch = useDispatch()
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
       return -1
@@ -155,7 +156,7 @@ const CreatorConsole = (props: Props) => {
   }
 
   const handleUpdateCreator = (creator) => {
-    CreatorService.updateCreator(creator)
+    dispatch(CreatorService.updateCreator(creator))
   }
   return (
     <div>
