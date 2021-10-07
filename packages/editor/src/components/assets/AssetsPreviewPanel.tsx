@@ -43,6 +43,8 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
     switch (props.contentType) {
       case 'model/gltf':
       case 'model/gltf-binary':
+      case 'gltf':
+      case 'gltf-binary':
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
@@ -51,6 +53,8 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
         break
       case 'image/png':
       case 'image/jpeg':
+      case 'png':
+      case 'jpeg':
         const imagePreviewPanel = {
           PreviewSource: ImagePreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
@@ -59,6 +63,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
         break
 
       case 'video/mp4':
+      case 'mp4':
         const vedioPreviewPanel = {
           PreviewSource: VedioPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
@@ -66,6 +71,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
         usePreviewPanel(vedioPreviewPanel)
         break
       case 'audio/mpeg':
+      case 'mpeg':
         const audioPreviewPanel = {
           PreviewSource: AudioPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
@@ -85,6 +91,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
 
   return (
     <>
+      {console.log('Rendering Assets Preview Panel')}
       <div>
         <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
       </div>

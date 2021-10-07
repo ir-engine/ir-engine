@@ -5,7 +5,7 @@ import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path'
 import { StorageProviderInterface } from './storageprovider.interface'
-
+import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
 export class LocalStorage implements StorageProviderInterface {
@@ -33,23 +33,24 @@ export class LocalStorage implements StorageProviderInterface {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, folderName)
     const files = glob.sync(path.join(filePath, '*.*')).map((result) => {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const fileInfo = key.replace(`/${folderName}/`, '')
-      const regexx = /(?<name>[0-9 a-z A-Z]*).((?<extension>[0-9 a-z A-Z]*))/g
-      const query = regexx.exec(fileInfo)
-      return {
+      const regexx = /(?<name>[0-9 a-z A-Z]*)\.((?<extension>[0-9 a-z A-Z]*))/g
+      const query = regexx.exec(key)
+      const res: FileBrowserContentType = {
         key,
         name: query.groups.name,
         type: query.groups.extension
       }
+      return res
     })
     const folder = glob.sync(path.join(filePath, '*/')).map((result) => {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const name = key.replace(`/${folderName}/`, '').split('/')[0]
-      return {
+      const name = key.replace(`/${folderName}`, '').split('/')[0]
+      const res: FileBrowserContentType = {
         key,
         name,
         type: 'folder'
       }
+      return res
     })
     files.push(...folder)
     return files

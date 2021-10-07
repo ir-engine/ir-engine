@@ -19,8 +19,14 @@ import EditorEvents from '../../../constants/EditorEvents'
  */
 
 export const UploadFileType = {
-  'model/gltf': ModelNode,
+  gltf: ModelNode,
+  'gltf-binary': ModelNode,
+  png: ImageNode,
+  jpeg: ImageNode,
+  mp4: VideoNode,
+  mpeg: AudioNode,
   'model/gltf-binary': ModelNode,
+  'model/gltf': ModelNode,
   'image/png': ImageNode,
   'image/jpeg': ImageNode,
   'application/pdf': null,

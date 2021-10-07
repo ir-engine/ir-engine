@@ -4,21 +4,18 @@ import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { useAssetSearch } from './useAssetSearch'
 import { AssetPanelContentContainer } from './AssetsPanel'
-import AssetGrid from './AssetGrid'
 import SelectInput from '../inputs/SelectInput'
 import InputGroup from '../inputs/InputGroup'
 import { UploadFileType } from './sources/MyAssetsSource'
-import { getUrlFromId } from '../../functions/getUrlFromId'
-import { getContentType } from '@xrengine/engine/src/scene/functions/getContentType'
+import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
 import { NodeManager } from '../../managers/NodeManager'
 import EditorEvents from '../../constants/EditorEvents'
 import { SourceManager } from '../../managers/SourceManager'
 import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
-import { ContextMenu, MenuItem } from '../layout/ContextMenu'
-import { ContextMenuTrigger } from 'react-contextmenu'
-import i18next from 'i18next'
 import FileBrowserGrid from './FileBrowserGrid'
+import { Folder } from '@styled-icons/fa-solid'
+import { Config } from '@xrengine/common/src/config'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -56,83 +53,51 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   const { loadMore, hasMore, results } = useAssetSearch(selectedSource)
 
-  const currentProject = {
-    name: 'Current',
-    sid: '',
-    ownedFileIds: {}
-  }
-
-  const projects = []
-  projects.push(currentProject)
-  results.forEach((element) => {
-    projects.push(element.project)
-  })
-
   const onSelect = (props) => {
-    if (props.type === 'Folder') console.log('You have just created the folder')
-    else onSelectionChanged({ resourceUrl: props.description, name: props.id, contentType: props.contentType })
+    if (props.type !== 'folder')
+      onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
+    else setSelectedDirectory(props.label)
   }
 
-  const createProject = (projects) => {
-    const selectType = []
-    projects.forEach((element, index) => {
-      if (element.sid !== globalThis.currentProjectID)
-        selectType.push({
-          label: element.name,
-          value: index
-        })
-    })
-
-    return selectType
-  }
-
-  const projectSelectTypes = createProject(projects)
-
-  const [selectedProjectIndex, setSelectedProjectIndex] = useState(0)
+  const [selectedDirectory, setSelectedDirectory] = useState('')
 
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
 
-  const projectIDRef = useRef(selectedProjectIndex)
-
-  const renderProjectFiles = async (index) => {
-    const ownedIds = {}
-    Object.assign(ownedIds, ProjectManager.instance.ownedFileIds)
-    Object.assign(ownedIds, ProjectManager.instance.currentOwnedFileIds)
-    projects[0].ownedFileIds = JSON.stringify(ownedIds)
-    projects[0].sid = globalThis.currentProjectID
-    const ownedFileIdsString = projects[index]?.ownedFileIds
-    const ownedFileIds = !!ownedFileIdsString ? JSON.parse(ownedFileIdsString) : {}
+  const renderProjectFiles = async (projectSid, subDir = '') => {
     const returningObjects = []
-    const returningObject = {
-      description: url,
-      fileId: 'fileId',
-      projectId: projects[index].sid,
-      id: 'element' + i,
-      label: 'element' + i,
-      nodeClass: nodeClass,
-      url: url,
-      type: 'File',
-      contentType: contentType,
-      initialProps: { src: new URL(url) },
-      iconComponent: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.iconComponent : nodeEditor.iconComponent
+    const resultFromThis = (await ProjectManager.instance.feathersClient
+      .service(`file-browser`)
+      .get(`ThisisTheMedia/${subDir}`)) as any[]
+    for (let i = 0; i < resultFromThis.length; i++) {
+      const content = resultFromThis[i] as FileBrowserContentType
+      const nodeClass = UploadFileType[content.type]
+      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
+      const iconComponent = nodeEditor
+        ? nodeEditor.WrappedComponent
+          ? nodeEditor.WrappedComponent.iconComponent
+          : nodeEditor.iconComponent
+        : null
+      const url = Config.publicRuntimeConfig.fileserver + content.key
+      const returningObject = {
+        description: url,
+        id: content.name + i,
+        label: content.name,
+        nodeClass: nodeClass,
+        url: url,
+        type: content.type,
+        initialProps: { src: new URL(url) },
+        iconComponent
+      }
+      returningObjects.push(returningObject)
     }
     setSelectedProjectFiles(returningObjects)
   }
 
-  const onChangeSelectedProject = (index) => {
-    projectIDRef.current = index
-    setSelectedProjectIndex(index)
-  }
-
   useEffect(() => {
-    renderProjectFiles(selectedProjectIndex)
-  }, [selectedProjectIndex])
+    renderProjectFiles('selectedProjectIndex', selectedDirectory)
+  }, [selectedDirectory])
 
-  const onFileUploaded = (index) => {
-    if (projectIDRef.current === 0) {
-      renderProjectFiles(selectedProjectIndex)
-    }
-  }
+  const onFileUploaded = (index) => {}
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.FILE_UPLOADED.toString(), onFileUploaded)
@@ -150,10 +115,10 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     <>
       {console.log('Rendering File Browser Panel CHILD')}
       {/* @ts-ignore */}
-      <InputGroup name="Project Name" label="Project Name">
-        {/* @ts-ignore */}
-        <SelectInput options={projectSelectTypes} onChange={onChangeSelectedProject} value={selectedProjectIndex} />
-      </InputGroup>
+      {/* <InputGroup name="Project Name" label="Project Name"> */}
+      {/* @ts-ignore */}
+      {/* <SelectInput options={projectSelectTypes} onChange={onChangeSelectedProject} value={selectedProjectIndex} /> */}
+      {/* </InputGroup> */}
 
       <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
         <AssetPanelContentContainer>

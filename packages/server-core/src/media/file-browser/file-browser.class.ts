@@ -1,5 +1,4 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { StorageProvider } from '../..'
 import { Application } from '../../../declarations'
 
@@ -12,9 +11,10 @@ export class FileBrowserService implements ServiceMethods<any> {
   store = new StorageProvider()
 
   async find(params?: Params) {}
+
   async get(id: Id, params?: Params): Promise<any> {
-    const result = await this.store.listFolderContent('ThisisTheMedia/assets')
-    console.log('RESULT IS:' + JSON.stringify(result))
+    const result = await this.store.listFolderContent(`${id}`)
+    return result
   }
   async create(data, params?: Params) {
     console.log('Data is:' + JSON.stringify(data))

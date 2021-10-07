@@ -56,7 +56,7 @@ function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
   // declaring variable for grid item content
   let content
 
-  if (item.type === 'Folder') {
+  if (item.type === 'folder') {
     content = <IconMediaGridItem iconComponent={Folder} onDoubleClick={onClickItem} label={item.label} {...rest} />
   } else {
     content = (
