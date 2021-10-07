@@ -31,7 +31,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const viewerEntity = viewerQuery(world)[0]
     const mapEntities = mapsQuery(world)
     const mapEntity = mapEntities[0]
-    const navPlaneEntity = navMeshQuery()[0]
+    const navPlaneEntity = navMeshQuery(world)[0]
     // Sanity checks
     if (!mapEntity || !viewerEntity) return
     if (mapEntities.length > 1) console.warn('Not supported: More than one map!')

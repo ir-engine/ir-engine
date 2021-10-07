@@ -2,7 +2,7 @@ import assert from 'assert'
 import sinon, { SinonSpy } from 'sinon'
 import mock from 'mock-require'
 import { createWorld, World } from '@xrengine/engine/src/ecs/classes/World'
-import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { Group, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
 import { addComponent, getComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
@@ -13,6 +13,7 @@ import createStore from '../../src/map/functions/createStore'
 import { lineString } from '@turf/helpers'
 import { System } from '../../src/ecs/classes/System'
 import {AvatarComponent} from '../../src/avatar/components/AvatarComponent'
+import {NavMeshComponent} from '../../src/navigation/component/NavMeshComponent'
 
 describe('MapUpdateSystem', () => {
   const triggerRefreshRadius = 20 // meters
@@ -84,6 +85,14 @@ describe('MapUpdateSystem', () => {
       },
       world
     )
+    addComponent(
+      mapEntity,
+      NavMeshComponent,
+      {
+        navTarget: new Group()
+      },
+      world
+    )
   })
 
   afterEach(() => {
@@ -146,5 +155,17 @@ describe('MapUpdateSystem', () => {
     assert(label.mesh.parent === subScene)
     assert.deepEqual(label.mesh.position.toArray(), [label.centerPoint[0], 0, label.centerPoint[1]])
     assert(label.mesh.update.calledOnce)
+  })
+
+  it('adds meshes to the navigation plane as they become available', () => {
+    const mesh = new Mesh()
+    const navTarget = getComponent(mapEntity, NavMeshComponent).navTarget
+    store.completeObjects.set(['landuse_fallback', 0, 0, '0'], {mesh, centerPoint: [0, 0], boundingCircleRadius: 1})
+
+    world.fixedDelta = .16
+    world.fixedElapsedTime = world.fixedDelta * 20
+    execute()
+
+    assert(navTarget.children.includes(mesh))
   })
 })
