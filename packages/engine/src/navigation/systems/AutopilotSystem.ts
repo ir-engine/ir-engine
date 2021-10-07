@@ -95,7 +95,6 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           point: clickResult.point,
           navEntity: clickResult.entity
         })
-        // console.log('clickResult: ' + JSON.stringify(clickResult))
       }
 
       removeComponent(entity, AutoPilotClickRequestComponent)
@@ -105,7 +104,6 @@ export default async function AutopilotSystem(world: World): Promise<System> {
     // requests
     // generate path from target.graph and create new AutoPilotComponent (or reuse existing)
     for (const entity of requestsQuery.enter()) {
-      // TODO what is the difference between `entity` and `request.navEntity`?
       const request = getComponent(entity, AutoPilotRequestComponent)
       const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
       const { position } = getComponent(entity, TransformComponent)
@@ -120,13 +118,6 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           navEntity: request.navEntity
         })
       } else {
-        let autopilotComponent
-        //if (hasComponent(entity, AutoPilotComponent)) {
-        // reuse component
-        //   autopilotComponent = getComponent(entity, AutoPilotComponent)
-        // } else {
-        // }
-
         const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
 
         autopilotComponent = addComponent(entity, AutoPilotComponent, {
@@ -151,7 +142,6 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       const MAX_SPEED = 2
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
-        const controller = getComponent(entity, AvatarControllerComponent)
         if (!autopilot.path.current()) {
           console.error('autopilot.path is invalid or empty')
           removeComponent(entity, AutoPilotComponent)
