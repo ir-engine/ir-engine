@@ -111,30 +111,30 @@ describe('MapUpdateSystem', () => {
   })
 
   // I don't know why this test fails when run with the rest of this suite but passes when run by itself.
-  // it('lazily starts working when player crosses boundary', () => {
-  //   const viewerTransform = getComponent(viewerEntity, TransformComponent, false, world)
+  it.skip('lazily starts working when player crosses boundary', () => {
+    const viewerTransform = getComponent(viewerEntity, TransformComponent)
 
-  //   execute()
-  //   viewerTransform.position.set(triggerRefreshRadius * mapScale, 0, 0)
-  //   console.log('position updated')
-  //   execute()
+    execute()
+    viewerTransform.position.set(triggerRefreshRadius * mapScale, 0, 0)
+    console.log('position updated')
+    execute()
 
-  //   console.log('callCount', getPhases.callCount)
-  //   assert(getPhases.calledOnce)
-  //   assert(actuateLazy.calledOnce)
+    console.log('callCount', getPhases.callCount)
+    assert(getPhases.calledOnce)
+    assert(actuateLazy.calledOnce)
 
-  //   viewerTransform.position.set(triggerRefreshRadius * 1.5 * mapScale, 0, 0)
-  //   execute()
+    viewerTransform.position.set(triggerRefreshRadius * 1.5 * mapScale, 0, 0)
+    execute()
 
-  //   assert(getPhases.calledOnce)
-  //   assert(actuateLazy.calledOnce)
+    assert(getPhases.calledOnce)
+    assert(actuateLazy.calledOnce)
 
-  //   viewerTransform.position.set(triggerRefreshRadius * 2 * mapScale, 0, 0)
-  //   execute()
+    viewerTransform.position.set(triggerRefreshRadius * 2 * mapScale, 0, 0)
+    execute()
 
-  //   assert(getPhases.calledTwice)
-  //   assert(actuateLazy.calledTwice)
-  // })
+    assert(getPhases.calledTwice)
+    assert(actuateLazy.calledTwice)
+  })
 
   it('adds and positions labels in the scene (if close enough)', () => {
     const feature = lineString([
