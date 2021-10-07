@@ -98,27 +98,35 @@ export default async function AutopilotSystem(world: World): Promise<System> {
     // requests
     // generate path from target.graph and create new AutoPilotComponent (or reuse existing)
     for (const entity of requestsQuery.enter()) {
+      // TODO what is the difference between `entity` and `request.navEntity`?
       const request = getComponent(entity, AutoPilotRequestComponent)
       const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
-      if (!navMeshComponent) {
-        console.error('AutopilotSystem unable to process request - navigation entity does not have NavMeshComponent')
-        continue
-      }
       const { position } = getComponent(entity, TransformComponent)
+      if (!navMeshComponent.yukaNavMesh) {
+        const start = new YukaVector3(...position.toArray())
+        const end = new YukaVector3(...request.point.toArray())
+        const path = new Path()
+        path.add(start)
+        path.add(end)
+        addComponent(entity, AutoPilotComponent, {
+          path,
+          navEntity: request.navEntity
+        })
+      } else {
+        let autopilotComponent
+        //if (hasComponent(entity, AutoPilotComponent)) {
+        // reuse component
+        //   autopilotComponent = getComponent(entity, AutoPilotComponent)
+        // } else {
+        // }
 
-      let autopilotComponent
-      //if (hasComponent(entity, AutoPilotComponent)) {
-      // reuse component
-      //   autopilotComponent = getComponent(entity, AutoPilotComponent)
-      // } else {
-      // }
+        const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
 
-      const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
-
-      autopilotComponent = addComponent(entity, AutoPilotComponent, {
-        path: findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate),
-        navEntity: request.navEntity
-      })
+        autopilotComponent = addComponent(entity, AutoPilotComponent, {
+          path: findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate),
+          navEntity: request.navEntity
+        })
+      }
 
       // TODO: "mount" player? disable movement, etc.
 

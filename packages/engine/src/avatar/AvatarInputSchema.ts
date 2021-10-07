@@ -409,14 +409,11 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
   if (inputValue.lifecycleState !== LifecycleValue.Ended) {
     return
   }
-  /*
-  * [Mappa#2](https://github.com/lagunalabsio/mappa/issues/2)
   const input = getComponent(entity, InputComponent)
   const coords = input.data.get(BaseInput.SCREENXY)?.value
   if (coords) {
     addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
   }
-  */
 }
 
 export const createAvatarInput = () => {

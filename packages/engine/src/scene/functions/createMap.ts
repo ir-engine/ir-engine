@@ -10,7 +10,7 @@ import getPhases from '../../map/functions/getPhases'
 import actuateEager from '../../map/functions/actuateEager'
 import createStore from '../../map/functions/createStore'
 import { Engine } from '../../ecs/classes/Engine'
-import { setPosition } from '../../map/util'
+import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
@@ -33,25 +33,14 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
 
   await actuateEager(store, getPhases({ exclude: ['navigation'] }))
 
-  for (const key of store.completeObjects.keys()) {
-    const layerName = key[0]
-    if (layerName === 'landuse_fallback') {
-      const { mesh, centerPoint } = store.completeObjects.get(key)
-      setPosition(mesh, centerPoint)
-
-      Engine.scene.add(mesh)
-      navigationRaycastTarget.add(mesh)
-    }
-  }
-
   navigationRaycastTarget.scale.setScalar(store.scale)
   Engine.scene.add(navigationRaycastTarget)
 
-  /*
-  * [Mappa#2](https://github.com/lagunalabsio/mappa/issues/2)
   addComponent(entity, NavMeshComponent, {
+    /*
+  * [Mappa#2](https://github.com/lagunalabsio/mappa/issues/2)
     yukaNavMesh: store.navMesh,
+  */
     navTarget: navigationRaycastTarget
   })
-  */
 }

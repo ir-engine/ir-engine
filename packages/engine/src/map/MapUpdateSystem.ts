@@ -13,6 +13,7 @@ import getPhases from './functions/getPhases'
 import isIntersectCircleCircle from './functions/isIntersectCircleCircle'
 import { MAX_CACHED_FEATURES } from './functions/createStore'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { NavMeshComponent } from '../navigation/component/NavMeshComponent'
 
 const $vector3 = new Vector3()
 
@@ -22,6 +23,7 @@ const $previousViewerPosition = new Vector3()
 export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
   const viewerQuery = defineQuery([AvatarComponent])
+  const navMeshQuery = defineQuery([NavMeshComponent])
   let previousViewerEntity: Entity
   let shouldUpdateChildren = true
 
@@ -29,6 +31,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const viewerEntity = viewerQuery(world)[0]
     const mapEntities = mapsQuery(world)
     const mapEntity = mapEntities[0]
+    const navPlaneEntity = navMeshQuery()[0]
     // Sanity checks
     if (!mapEntity || !viewerEntity) return
     if (mapEntities.length > 1) console.warn('Not supported: More than one map!')
@@ -38,6 +41,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const viewerTransform = getComponent(viewerEntity, TransformComponent)
     const viewerPosition = vector3ToArray2(viewerTransform.position)
     const viewerPositionScaled = multiplyArray(viewerPosition, 1 / mapScale)
+    const navigationRaycastTarget = getComponent(navPlaneEntity, NavMeshComponent).navTarget
 
     // Initialize on first pass or whenever the viewer changes
     if (viewerEntity !== previousViewerEntity) {
@@ -73,7 +77,8 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
               mapComponent.minimumSceneRadius,
               object.centerPoint,
               object.boundingCircleRadius
-            )
+            ) &&
+            key[0] !== 'landuse_fallback'
           ) {
             setPosition(object.mesh, object.centerPoint)
             addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
@@ -99,13 +104,23 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           }
         }
       }
-      for (const helpers of mapComponent.helpersCache.values()) {
-        if (helpers.tileNavMesh) {
-          addChildFast(object3dComponent.value, helpers.tileNavMesh, subSceneChildren)
-        } else {
-          // helpers.tileNavMesh.parent = null
+      navigationRaycastTarget.children.length = 0
+      for (const key of mapComponent.completeObjects.keys()) {
+        const layerName = key[0]
+        if (layerName === 'landuse_fallback') {
+          const { mesh, centerPoint } = mapComponent.completeObjects.get(key)
+          setPosition(mesh, centerPoint)
+
+          addChildFast(navigationRaycastTarget, mesh)
         }
       }
+      // for (const helpers of mapComponent.helpersCache.values()) {
+      //   if (helpers.tileNavMesh) {
+      //     addChildFast(object3dComponent.value, helpers.tileNavMesh, subSceneChildren)
+      //   } else {
+      //     helpers.tileNavMesh.parent = null
+      //   }
+      // }
 
       // Update (sub)scene
       object3dComponent.value.children = subSceneChildren
