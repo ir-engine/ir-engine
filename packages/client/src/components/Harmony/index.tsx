@@ -319,11 +319,12 @@ const Harmony = (props: Props): any => {
     setActiveAVChannelId(transportState.channelId.value)
 
     if (targetChannelId == null || targetChannelId === '') {
-      const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
-      if (matchingChannel)
-        setActiveChat(matchingChannel.channelType, {
-          id: matchingChannel.instanceId
-        })
+      // TODO: fix this - it causes crashes for some reason
+      // const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
+      // if (matchingChannel)
+      //   setActiveChat(matchingChannel.channelType, {
+      //     id: matchingChannel.instanceId
+      //   })
     }
   }, [transportState])
 
@@ -365,6 +366,7 @@ const Harmony = (props: Props): any => {
     channelRef.current = channels
     channelEntries.forEach((channel) => {
       if (!channel) return
+      console.log(channel)
       if (chatState.updateMessageScroll.value === true) {
         dispatch(ChatAction.setUpdateMessageScroll(false))
         if (

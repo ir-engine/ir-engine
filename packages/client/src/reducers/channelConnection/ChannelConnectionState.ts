@@ -27,13 +27,11 @@ export const channelConnectionReducer = (_, action: ChannelConnectionActionType)
 }
 
 const channelConnectionReceptor = (action: ChannelConnectionActionType): any => {
-  let newValues, newInstance, newClient
   state.batch((s) => {
     switch (action.type) {
       case 'CHANNEL_SERVER_PROVISIONING':
-        newInstance = new Map(Object.entries(s.instance.value))
         return s.merge({
-          instance: newInstance,
+          instance: s.instance.value,
           socket: {},
           connected: false,
           instanceProvisioned: false,
@@ -41,10 +39,9 @@ const channelConnectionReceptor = (action: ChannelConnectionActionType): any => 
           instanceProvisioning: true
         })
       case 'CHANNEL_SERVER_PROVISIONED':
-        newValues = action
-        s.instance.ipAddress.set(newValues.ipAddress)
-        s.instance.port.set(newValues.port)
-        s.channelId.set(newValues.channelId)
+        s.instance.ipAddress.set(action.ipAddress)
+        s.instance.port.set(action.port)
+        s.channelId.set(action.channelId!)
         s.instanceProvisioning.set(false)
         s.instanceProvisioned.set(true)
         s.readyToConnect.set(true)
@@ -56,9 +53,8 @@ const channelConnectionReceptor = (action: ChannelConnectionActionType): any => 
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'CHANNEL_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        newInstance = new Map(Object.entries(s.instance.value))
         return s.merge({
-          instance: newInstance,
+          instance: s.instance.value,
           socket: s.socket.value,
           locationId: s.locationId.value,
           sceneId: s.sceneId.value,
