@@ -10,10 +10,10 @@ import HomeIcon from '@material-ui/icons/Home'
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
 import {
@@ -29,13 +29,11 @@ import ViewMode from '../ViewMode/ViewMode'
 
 const mapStateToProps = (state: any): any => {
   return {
-    creatorState: selectCreatorsState(state),
     popupsState: selectPopupsState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getLoggedCreator: bindActionCreators(getLoggedCreator, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
   updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
@@ -43,8 +41,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
 })
 interface Props {
-  creatorState?: any
-  getLoggedCreator?: any
   updateCreatorPageState?: typeof updateCreatorPageState
   updateNewFeedPageState?: typeof updateNewFeedPageState
   popupsState?: any
@@ -55,8 +51,6 @@ interface Props {
   setView?: any
 }
 const AppFooter = ({
-  creatorState,
-  getLoggedCreator,
   updateCreatorPageState,
   popupsState,
   updateCreatorFormState,
@@ -66,7 +60,11 @@ const AppFooter = ({
   setView,
   onGoRegistration
 }: any) => {
-  useEffect(() => getLoggedCreator(), [])
+  const dispatch = useDispatch()
+  const creatorState = useCreatorState()
+  useEffect(() => {
+    dispatch(CreatorService.getLoggedCreator())
+  }, [])
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   const handleOpenCreatorPage = (id) => {
@@ -102,14 +100,14 @@ const AppFooter = ({
       <Avatar
         onClick={() => {
           onGoRegistration(() => {
-            handleOpenCreatorPage(creatorState?.get('currentCreator')?.id)
+            handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
           })
         }}
-        alt={creatorState.get('currentCreator')?.username}
+        alt={creatorState.creators.currentCreator?.username?.value}
         className={styles.footerAvatar}
         src={
-          creatorState.get('currentCreator')?.avatar
-            ? creatorState.get('currentCreator')?.avatar
+          creatorState.creators.currentCreator?.avatar?.value
+            ? creatorState.creators.currentCreator?.avatar?.value
             : '/assets/userpic.png'
         }
       />

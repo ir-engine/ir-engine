@@ -1,9 +1,7 @@
 import Analytics from '@xrengine/client-core/src/admin/components/Analytics/index'
-import Dashboard from '@xrengine/client-core/src/user/components/Dashboard/Dashboard'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from 'react-redux'
 
 interface Props {}
 

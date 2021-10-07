@@ -2,14 +2,13 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { Button, CardMedia, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { createArMedia, getArMedia } from '../../reducers/arMedia/service'
-import { selectArMediaState } from '../../reducers/arMedia/selector'
+import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
+import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
 import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
@@ -19,46 +18,40 @@ import styles from './ArMedia.module.scss'
 
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
+import { useHistory } from 'react-router-dom'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state),
-    arMediaState: selectArMediaState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createArMedia: bindActionCreators(createArMedia, dispatch),
-  getArMedia: bindActionCreators(getArMedia, dispatch),
   updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
   updateWebXRState: bindActionCreators(updateWebXRState, dispatch)
 })
 interface Props {
   projects?: any[]
   view?: any
-  creatorsState?: any
-  arMediaState?: any
-  createArMedia?: typeof createArMedia
-  getArMedia?: typeof getArMedia
   updateArMediaState?: typeof updateArMediaState
   updateWebXRState?: typeof updateWebXRState
 }
 
-const ArMedia = ({ getArMedia, arMediaState, updateArMediaState, updateWebXRState }: Props) => {
+const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
   const [type, setType] = useState('clip')
   const [list, setList] = useState(null)
   const [preloading, setPreloading] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
+  const arMediaState = useArMediaState()
   useEffect(() => {
-    getArMedia()
+    dispatch(ArMediaService.getArMedia())
   }, [])
   const { t } = useTranslation()
-
+  const history = useHistory()
+  const dispatch = useDispatch()
   useEffect(() => {
-    if (arMediaState.get('fetching') === false) {
-      setList(arMediaState?.get('list').filter((item) => item.type === type))
+    if (arMediaState.fetching.value === false) {
+      setList(arMediaState?.list?.value?.filter((item) => item.type === type))
     }
-  }, [arMediaState.get('fetching'), type])
+  }, [arMediaState.fetching.value, type])
 
   return (
     <section className={styles.arMediaContainer}>

@@ -1,39 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import styles from './PartyVideoWindows.module.scss'
-import { ChevronRight } from '@material-ui/icons'
 import PartyParticipantWindow from '../PartyParticipantWindow'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectMediastreamState } from '../../reducers/mediastream/selector'
+import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import { connect, useDispatch } from 'react-redux'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AnyNsRecord } from 'dns'
 import { State, Downgraded } from '@hookstate/core'
 import { User } from '@xrengine/common/src/interfaces/User'
 
-interface Props {
-  mediaStreamState?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    mediaStreamState: selectMediastreamState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
+interface Props {}
 
 const PartyVideoWindows = (props: Props): JSX.Element => {
-  const { mediaStreamState } = props
-
+  const mediaStreamState = useMediaStreamState()
   const dispatch = useDispatch()
   const userState = useUserState().attach(Downgraded).value
 
   const [displayedUsers, setDisplayedUsers] = useState([] as User[])
   const selfUser = useAuthState().user
-  const nearbyLayerUsers = mediaStreamState.get('nearbyLayerUsers') ?? []
+  const nearbyLayerUsers = mediaStreamState.nearbyLayerUsers.value
   const layerUsers = userState.layerUsers
   const channelLayerUsers = userState.channelLayerUsers
 
@@ -45,10 +31,12 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   }, [selfUser, userState.layerUsersUpdateNeeded, userState.channelLayerUsersUpdateNeeded])
 
   useEffect(() => {
-    if ((Network.instance?.transport as any)?.channelType === 'channel')
+    if ((Network.instance?.transport as any)?.channelType === 'channel') {
       setDisplayedUsers(channelLayerUsers.filter((user) => user.id !== selfUser.id.value))
-    else setDisplayedUsers(layerUsers.filter((user) => nearbyLayerUsers.includes(user.id)))
-  }, [layerUsers, channelLayerUsers, nearbyLayerUsers])
+    } else {
+      setDisplayedUsers(layerUsers.filter((user) => nearbyLayerUsers.includes(user.id)))
+    }
+  }, [layerUsers, channelLayerUsers])
 
   const [expanded, setExpanded] = useState(true)
 
@@ -75,4 +63,4 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PartyVideoWindows)
+export default PartyVideoWindows

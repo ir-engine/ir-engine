@@ -6,36 +6,35 @@ import React, { useEffect } from 'react'
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 import { updateCreatorFormState } from '../../reducers/popupsState/service'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    creatorState: selectCreatorsState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getLoggedCreator: bindActionCreators(getLoggedCreator, dispatch),
   updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
 })
 
 interface Props {
-  creatorState?: any
-  getLoggedCreator?: any
   logo?: string
   updateCreatorFormState?: typeof updateCreatorFormState
   setView: any
 }
-const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState, setView, onGoRegistration }: any) => {
+const AppHeader = ({ updateCreatorFormState, setView, onGoRegistration }: any) => {
   const { t } = useTranslation()
-  useEffect(() => getLoggedCreator(), [])
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(CreatorService.getLoggedCreator())
+  }, [])
+  const creatorState = useCreatorState()
   const creator =
-    creatorState && creatorState.get('fetchingCurrentCreator') === false && creatorState.get('currentCreator')
+    creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
   /* Hided for now */
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
@@ -64,8 +63,8 @@ const AppHeader = ({ creatorState, getLoggedCreator, updateCreatorFormState, set
                 updateCreatorFormState(true)
               })
             }}
-            alt={creator.username}
-            src={creator.avatar ? creator.avatar : '/assets/userpic.png'}
+            alt={creator?.username}
+            src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
           />
         )}
     </nav>

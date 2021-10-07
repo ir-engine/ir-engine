@@ -5,24 +5,23 @@ import { Typography, Paper, Button } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { DialogActions } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { validateCreatorForm } from './validation'
-import { updateCreator } from '../../../reducers/creator/service'
+import { CreatorService } from '../../../reducers/creator/CreatorService'
 
 interface Props {
   adminCreator: any
   closeEditModal: any
-  updateCreator?: typeof updateCreator
 }
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreator: bindActionCreators(updateCreator, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const EditCreator = (props: Props) => {
   const classesx = useCreatorStyle()
   const classes = useCreatorStyles()
-  const { adminCreator, closeEditModal, updateCreator } = props
+  const { adminCreator, closeEditModal } = props
   const id = adminCreator.id
+  const dispatch = useDispatch()
+
   const [state, setState] = React.useState({
     name: adminCreator.name,
     username: adminCreator.username,
@@ -92,7 +91,7 @@ const EditCreator = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (validateCreatorForm(state, state.formErrors)) {
-      updateCreator({ id, name, username, email, twitter, bio })
+      dispatch(CreatorService.updateCreator({ id, name, username, email, twitter, bio }))
       setState({
         ...state,
         name: '',

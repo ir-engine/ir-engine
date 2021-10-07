@@ -17,7 +17,7 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
+import { useInstanceConnectionState } from '../../reducers/instanceConnection/InstanceConnectionState'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
@@ -26,15 +26,12 @@ import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/
 import defaultStyles from './InstanceChat.module.scss'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    instanceConnectionState: selectInstanceConnectionState(state)
-  }
+  return {}
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
-  instanceConnectionState?: any
   styles?: any
   MessageButton?: any
   CloseButton?: any
@@ -45,7 +42,6 @@ interface Props {
 
 const InstanceChat = (props: Props): any => {
   const {
-    instanceConnectionState,
     styles = defaultStyles,
     MessageButton = MessageIcon,
     CloseButton = MessageIcon,
@@ -63,7 +59,7 @@ const InstanceChat = (props: Props): any => {
   const [composingMessage, setComposingMessage] = useState('')
   const [unreadMessages, setUnreadMessages] = useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-
+  const instanceConnectionState = useInstanceConnectionState()
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
@@ -71,7 +67,7 @@ const InstanceChat = (props: Props): any => {
   useEffect(() => {
     if (
       user?.instanceId?.value != null &&
-      instanceConnectionState.get('connected') === true &&
+      instanceConnectionState.connected.value === true &&
       channelState.fetchingInstanceChannel.value !== true
     ) {
       dispatch(ChatService.getInstanceChannel())

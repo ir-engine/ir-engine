@@ -52,12 +52,8 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import PartyParticipantWindow from '../../components/PartyParticipantWindow'
-import { selectChannelConnectionState } from '../../reducers/channelConnection/selector'
-import {
-  connectToChannelServer,
-  provisionChannelServer,
-  resetChannelServer
-} from '../../reducers/channelConnection/service'
+import { useChannelConnectionState } from '../../reducers/channelConnection/ChannelConnectionState'
+import { ChannelConnectionService } from '../../reducers/channelConnection/ChannelConnectionService'
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { User } from '@xrengine/common/src/interfaces/User'
@@ -71,10 +67,10 @@ import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectMediastreamState } from '../../reducers/mediastream/selector'
-import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
-import { selectTransportState } from '../../reducers/transport/selector'
-import { changeChannelTypeState, updateChannelTypeState } from '../../reducers/transport/service'
+import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
+import { MediaStreamService } from '../../reducers/mediastream/MediaStreamService'
+import { useTransportStreamState } from '../../reducers/transport/TransportState'
+import { TransportService } from '../../reducers/transport/TransportService'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -92,38 +88,20 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    channelConnectionState: selectChannelConnectionState(state),
-
-    transportState: selectTransportState(state),
-    mediastream: selectMediastreamState(state)
-  }
+  return {}
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
-  connectToChannelServer: bindActionCreators(connectToChannelServer, dispatch),
-  resetChannelServer: bindActionCreators(resetChannelServer, dispatch),
-  changeChannelTypeState: bindActionCreators(changeChannelTypeState, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
   setLeftDrawerOpen: any
   setRightDrawerOpen: any
-  channelConnectionState?: any
-  provisionChannelServer?: typeof provisionChannelServer
-  connectToChannelServer?: typeof connectToChannelServer
-  resetChannelServer?: typeof resetChannelServer
-
   setDetailsType?: any
   setGroupFormMode?: any
   setGroupFormOpen?: any
   setGroupForm?: any
   setSelectedUser?: any
   setSelectedGroup?: any
-  transportState?: any
-  changeChannelTypeState?: any
-  mediastream?: any
   setHarmonyOpen?: any
   isHarmonyPage?: boolean
   harmonyHidden?: boolean
@@ -141,21 +119,14 @@ const initialRefreshModalValues = {
 
 const Harmony = (props: Props): any => {
   const {
-    channelConnectionState,
     setLeftDrawerOpen,
     setRightDrawerOpen,
-    provisionChannelServer,
-    connectToChannelServer,
-    resetChannelServer,
     setDetailsType,
     setGroupFormOpen,
     setGroupFormMode,
     setGroupForm,
     setSelectedUser,
     setSelectedGroup,
-    transportState,
-    changeChannelTypeState,
-    mediastream,
     setHarmonyOpen,
     isHarmonyPage,
     harmonyHidden
@@ -170,7 +141,7 @@ const Harmony = (props: Props): any => {
   const chatState = useChatState()
   const channelState = chatState.channels
   const channels = channelState.channels.value
-
+  const channelConnectionState = useChannelConnectionState()
   const channelEntries = Object.entries(channels)
   const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
   const targetObject = chatState.targetObject
@@ -249,6 +220,7 @@ const Harmony = (props: Props): any => {
     _setLastConnectToWorldId(value)
   }
 
+  const transportState = useTransportStreamState()
   const producerStartingRef = useRef(producerStarting)
   const activeAVChannelIdRef = useRef(activeAVChannelId)
   const instanceChannelRef = useRef(null)
@@ -258,14 +230,17 @@ const Harmony = (props: Props): any => {
   const channelAwaitingProvisionRef = useRef(channelAwaitingProvision)
   const lastConnectToWorldIdRef = useRef(lastConnectToWorldId)
   const chatStateRef = useRef(chatState)
+
+  const mediastream = useMediaStreamState()
+
   const videoEnabled =
     isHarmonyPage === true
       ? true
       : currentLocation?.locationSettings?.value
       ? currentLocation?.locationSettings?.videoEnabled?.value
       : false
-  const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
-  const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
+  const isCamVideoEnabled = mediastream.isCamVideoEnabled
+  const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   useEffect(() => {
     navigator.mediaDevices
@@ -307,7 +282,7 @@ const Harmony = (props: Props): any => {
       await shutdownEngine()
       setWarningRefreshModalValues(initialRefreshModalValues)
       await init()
-      resetChannelServer()
+      dispatch(ChannelConnectionService.resetChannelServer())
     })
 
     return () => {
@@ -316,11 +291,11 @@ const Harmony = (props: Props): any => {
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler)
 
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
-          if (e.instance === true) resetChannelServer()
+          if (e.instance === true) dispatch(ChannelConnectionService.resetChannelServer())
         })
 
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
-          resetChannelServer()
+          dispatch(ChannelConnectionService.resetChannelServer())
           if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
         })
       }
@@ -332,7 +307,7 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     if (selfUser?.instanceId != null && MediaStreams.instance.channelType === 'instance') {
       MediaStreams.instance.channelId = instanceChannel[0]
-      updateChannelTypeState()
+      dispatch(TransportService.updateChannelTypeState())
     }
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
@@ -341,7 +316,7 @@ const Harmony = (props: Props): any => {
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    setActiveAVChannelId(transportState.get('channelId'))
+    setActiveAVChannelId(transportState.channelId.value)
 
     if (targetChannelId == null || targetChannelId === '') {
       const matchingChannel = channelEntries.find((entry) => entry[0] === activeAVChannelIdRef.current)
@@ -353,8 +328,8 @@ const Harmony = (props: Props): any => {
   }, [transportState])
 
   useEffect(() => {
-    if (channelConnectionState.get('connected') === false && channelAwaitingProvision?.id?.length > 0) {
-      provisionChannelServer(null, channelAwaitingProvision.id)
+    if (channelConnectionState.connected.value === false && channelAwaitingProvision?.id?.length > 0) {
+      dispatch(ChannelConnectionService.provisionChannelServer(null, channelAwaitingProvision.id))
       if (channelAwaitingProvision?.audio === true) setProducerStarting('audio')
       if (channelAwaitingProvision?.video === true) setProducerStarting('video')
       setChannelAwaitingProvision({
@@ -363,7 +338,7 @@ const Harmony = (props: Props): any => {
         video: false
       })
     }
-  }, [channelConnectionState])
+  }, [channelConnectionState.connected.value])
 
   useEffect(() => {
     chatStateRef.current = chatState
@@ -415,11 +390,11 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     setVideoPaused(!isCamVideoEnabled)
-  }, [isCamVideoEnabled])
+  }, [isCamVideoEnabled.value])
 
   useEffect(() => {
     setAudioPaused(!isCamAudioEnabled)
-  }, [isCamAudioEnabled])
+  }, [isCamAudioEnabled.value])
 
   useEffect(() => {
     if (noGameserverProvision === true) {
@@ -429,7 +404,7 @@ const Harmony = (props: Props): any => {
         title: 'No Available Servers',
         body: "There aren't any servers available to handle this request. Attempting to re-connect in",
         action: async () => {
-          provisionChannelServer()
+          dispatch(ChannelConnectionService.provisionChannelServer())
         },
         parameters: [null, targetChannelId],
         timeout: 10000,
@@ -520,9 +495,9 @@ const Harmony = (props: Props): any => {
         await toggleAudio(isInstanceChannel ? 'instance' : 'channel', activeAVChannelIdRef.current)
         await toggleVideo(isInstanceChannel ? 'instance' : 'channel', activeAVChannelIdRef.current)
       }
-      updateChannelTypeState()
-      updateCamVideoState()
-      updateCamAudioState()
+      dispatch(TransportService.updateChannelTypeState())
+      dispatch(MediaStreamService.updateCamVideoState())
+      dispatch(MediaStreamService.updateCamAudioState())
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
     }
   }
@@ -531,18 +506,18 @@ const Harmony = (props: Props): any => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler)
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
-      if (e.instance === true) resetChannelServer()
+      if (e.instance === true) dispatch(ChannelConnectionService.resetChannelServer())
     })
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
-      resetChannelServer()
+      dispatch(ChannelConnectionService.resetChannelServer())
       setLastConnectToWorldId('')
       MediaStreams.instance.channelId = null!
       MediaStreams.instance.channelType = null!
       if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
-      updateChannelTypeState()
-      updateCamVideoState()
-      updateCamAudioState()
+      dispatch(TransportService.updateChannelTypeState())
+      dispatch(MediaStreamService.updateCamVideoState())
+      dispatch(MediaStreamService.updateCamAudioState())
     })
   }
 
@@ -662,7 +637,7 @@ const Harmony = (props: Props): any => {
       if (msAudioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
       else await resumeProducer(MediaStreams.instance?.camAudioProducer)
     }
-    updateCamAudioState()
+    dispatch(MediaStreamService.updateCamAudioState())
   }
 
   const handleCamClick = async (e: any) => {
@@ -684,7 +659,7 @@ const Harmony = (props: Props): any => {
       if (msVideoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
       else await resumeProducer(MediaStreams.instance?.camVideoProducer)
     }
-    updateCamVideoState()
+    dispatch(MediaStreamService.updateCamVideoState())
   }
 
   const handleStartCall = async (e?: any) => {
@@ -692,24 +667,25 @@ const Harmony = (props: Props): any => {
     setCallStartedFromButton(true)
     const channel = channels[targetChannelId]
     const channelType = channel.instanceId != null ? 'instance' : 'channel'
-    changeChannelTypeState(channelType, targetChannelId)
+    dispatch(TransportService.changeChannelTypeState(channelType, targetChannelId))
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId(targetChannelId)
-    provisionChannelServer(null, targetChannelId)
+    dispatch(ChannelConnectionService.provisionChannelServer(null, targetChannelId))
   }
 
   const endCall = async () => {
-    changeChannelTypeState('', '')
+    dispatch(TransportService.changeChannelTypeState('', ''))
     setCallStartedFromButton(false)
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId('')
     MediaStreams.instance.channelType = null!
     MediaStreams.instance.channelId = null!
-    updateCamVideoState()
-    updateCamAudioState()
+    dispatch(MediaStreamService.updateCamVideoState())
+    dispatch(MediaStreamService.updateCamAudioState())
   }
+
   const handleEndCall = async (e: any) => {
     e.stopPropagation()
     await endCall()
@@ -879,11 +855,11 @@ const Harmony = (props: Props): any => {
         setActiveAVChannelId(instanceChannel[0])
       }
       if (
-        channelConnectionState.get('instanceProvisioned') === false &&
-        channelConnectionState.get('instanceServerConnecting') === false &&
-        channelConnectionState.get('connected') === false
+        channelConnectionState.instanceProvisioned.value === false &&
+        channelConnectionState.instanceServerConnecting.value === false &&
+        channelConnectionState.connected.value === false
       ) {
-        provisionChannelServer(null, instanceChannel[0])
+        dispatch(ChannelConnectionService.provisionChannelServer(null, instanceChannel[0]))
       }
     }
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS })
@@ -895,18 +871,23 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     if (
-      channelConnectionState.get('instanceProvisioned') === true &&
-      channelConnectionState.get('updateNeeded') === true &&
-      channelConnectionState.get('instanceServerConnecting') === false &&
-      channelConnectionState.get('connected') === false
+      channelConnectionState.instanceProvisioned.value === true &&
+      channelConnectionState.updateNeeded.value === true &&
+      channelConnectionState.instanceServerConnecting.value === false &&
+      channelConnectionState.connected.value === false
     ) {
       init().then(() => {
-        connectToChannelServer(channelConnectionState.get('channelId'), isHarmonyPage)
-        updateCamVideoState()
-        updateCamAudioState()
+        dispatch(ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value, isHarmonyPage))
+        dispatch(MediaStreamService.updateCamVideoState())
+        dispatch(MediaStreamService.updateCamAudioState())
       })
     }
-  }, [channelConnectionState])
+  }, [
+    channelConnectionState.instanceProvisioned.value,
+    channelConnectionState.updateNeeded.value,
+    channelConnectionState.instanceServerConnecting.value,
+    channelConnectionState.connected.value
+  ])
 
   const chatSelectors = (
     <div

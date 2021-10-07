@@ -8,21 +8,12 @@ import CloseIcon from '@material-ui/icons/Close'
 import AddIcon from '@material-ui/icons/Add'
 import AppHeader from '../Header'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createFeed } from '../../reducers/post/service'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createFeed: bindActionCreators(createFeed, dispatch)
-})
+import { FeedService } from '../../reducers/post/FeedService'
 
 interface Props {
   filesTarget?: any
   setFilesTarget?: any
   setAddFilesView?: any
-  createFeed?: typeof createFeed
 }
 
 const descriptionState = new Map()
@@ -69,7 +60,7 @@ const getTitleAndDescription = (str) => {
   return result
 }
 
-const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget }: Props) => {
+const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) => {
   const [descrText, setDescrText] = useState('')
   const [descriptions, dispatch] = useReducer(descriptionReducer, descriptionState)
   const [titleFile, setTitleFile] = useState('')
@@ -113,7 +104,7 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
         preview: file,
         video: file
       } as any
-      createFeed(newPost)
+      dispatch(FeedService.createFeed(newPost))
     })
     setAddFilesView(false)
   }
@@ -199,4 +190,4 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddFilesForm)
+export default AddFilesForm

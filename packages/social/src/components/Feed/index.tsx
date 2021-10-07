@@ -3,14 +3,14 @@
  */
 import React, { useEffect } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
-import { selectFeedsState } from '../../reducers/feed/selector'
-import { getFeed, removeFeed } from '../../reducers/feed/service'
+import { useFeedState } from '../../reducers/feed/FeedState'
+import { FeedService } from '../../reducers/feed/FeedService'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { updateFeedPageState } from '../../reducers/popupsState/service'
 
@@ -25,30 +25,30 @@ import styles from './Feed.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    feedsState: selectFeedsState(state),
     popupsState: selectPopupsState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFeed: bindActionCreators(getFeed, dispatch),
-  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
-  removeFeed: bindActionCreators(removeFeed, dispatch)
+  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch)
 })
 
 interface Props {
-  feedsState?: any
-  getFeed?: any
   feedId?: string
   popupsState?: any
   updateFeedPageState?: typeof updateFeedPageState
-  removeFeed?: any
 }
-const Feed = ({ feedsState, getFeed, popupsState, updateFeedPageState, removeFeed }: Props) => {
+const Feed = ({ popupsState, updateFeedPageState }: Props) => {
   let feed = null as any
   const { t } = useTranslation()
-  useEffect(() => getFeed(popupsState.get('feedId')), [popupsState.get('feedId')])
-  feed = feedsState && feedsState.get('fetching') === false && feedsState.get('feed')
+  const dispatch = useDispatch()
+
+  const feedsState = useFeedState()
+
+  useEffect(() => {
+    dispatch(FeedService.getFeed(popupsState.get('feedId')))
+  }, [popupsState.get('feedId')])
+  feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -62,7 +62,7 @@ const Feed = ({ feedsState, getFeed, popupsState, updateFeedPageState, removeFee
   const id = open ? 'simple-popover' : undefined
 
   const deleteAction = (feedId, previewUrl, videoUrl) => {
-    removeFeed(feedId, previewUrl, videoUrl)
+    dispatch(FeedService.removeFeed(feedId, previewUrl, videoUrl))
     updateFeedPageState(false)
   }
 

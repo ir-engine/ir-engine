@@ -3,69 +3,35 @@
  */
 import Button from '@material-ui/core/Button'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import {
-  followCreator,
-  getCreator,
-  getFollowersList,
-  getFollowingList,
-  unFollowCreator
-} from '../../reducers/creator/service'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
 import styles from './Creator.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getCreator: bindActionCreators(getCreator, dispatch),
-  followCreator: bindActionCreators(followCreator, dispatch),
-  unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
-  getFollowersList: bindActionCreators(getFollowersList, dispatch),
-  getFollowingList: bindActionCreators(getFollowingList, dispatch)
-})
-
 interface Props {
   creatorId: string
-  creatorState?: any
-  getCreator?: typeof getCreator
-  followCreator?: typeof followCreator
-  unFollowCreator?: typeof unFollowCreator
-  getFollowersList?: typeof getFollowersList
-  getFollowingList?: typeof getFollowingList
   creatorData?: any
 }
 
-const Creator = ({
-  creatorId,
-  creatorState,
-  getCreator,
-  followCreator,
-  unFollowCreator,
-  getFollowersList,
-  getFollowingList,
-  creatorData
-}: Props) => {
+const Creator = ({ creatorId, creatorData }: Props) => {
   const [isMe, setIsMe] = useState(false)
+  const dispatch = useDispatch()
+  const creatorState = useCreatorState()
   useEffect(() => {
     if (
-      creatorState &&
-      creatorState.get('fetchingCurrentCreator') === false &&
-      creatorState.get('currentCreator') &&
-      creatorId === creatorState.get('currentCreator').id
+      creatorState.creators.fetchingCurrentCreator.value === false &&
+      creatorState.creators.currentCreator.value &&
+      creatorId === creatorState.creators.currentCreator?.id?.value
     ) {
       setIsMe(true)
     } else {
       if (!creatorData) {
-        getCreator(creatorId)
+        dispatch(CreatorService.getCreator(creatorId))
       }
     }
   }, [])
@@ -77,10 +43,10 @@ const Creator = ({
         <CreatorCard
           creator={
             isMe === true
-              ? creatorState?.get('currentCreator')
+              ? creatorState?.creators.currentCreator?.id?.value
               : creatorData
               ? creatorData
-              : creatorState?.get('creator')
+              : creatorState?.creators?.creator?.value
           }
         />
         {isMe && (
@@ -105,10 +71,10 @@ const Creator = ({
           <Featured
             creatorId={
               isMe === true
-                ? creatorState?.get('currentCreator').id
+                ? creatorState?.creators?.currentCreator?.id?.value
                 : creatorData
                 ? creatorData.id
-                : creatorState?.get('creator')?.id
+                : creatorState?.creators?.creator?.id?.value
             }
             type={videoType}
           />
@@ -118,4 +84,4 @@ const Creator = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Creator)
+export default Creator

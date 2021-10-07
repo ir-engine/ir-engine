@@ -4,29 +4,13 @@
 import React, { useEffect } from 'react'
 
 import Dashboard from '@xrengine/social/src/components/Dashboard'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { selectFeedsState } from '@xrengine/social/src/reducers/feed/selector'
-import { getFeeds } from '@xrengine/social/src/reducers/feed/service'
+import { useFeedState } from '@xrengine/social/src/reducers/feed/FeedState'
+import { FeedService } from '@xrengine/social/src/reducers/feed/FeedService'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    feedsState: selectFeedsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFeeds: bindActionCreators(getFeeds, dispatch)
-})
-interface Props {
-  feedsState?: any
-  getFeeds?: any
-}
-
-const FeedsPage = ({ feedsState, getFeeds }: Props) => {
-  useEffect(() => getFeeds('admin'), [])
-  const feedsList =
-    feedsState.get('fetching') === false && feedsState?.get('feedsAdmin') ? feedsState.get('feedsAdmin') : null
+const FeedsPage = () => {
+  useEffect(() => FeedService.getFeeds('admin'), [])
+  const feedState = useFeedState()
+  const feedsList = feedState && feedState.feeds.fetching.value === false ? feedState.feeds.feedsAdmin : null
   return (
     <>
       <div>
@@ -39,4 +23,4 @@ const FeedsPage = ({ feedsState, getFeeds }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedsPage)
+export default FeedsPage

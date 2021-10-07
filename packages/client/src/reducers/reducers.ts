@@ -1,11 +1,11 @@
-import channelConnectionoReducer from './channelConnection/reducers'
-import instanceConnectionoReducer from './instanceConnection/reducers'
-import mediastreamReducer from './mediastream/reducers'
-import transportReducer from './transport/reducers'
+import { channelConnectionReducer } from './channelConnection/ChannelConnectionState'
+import { instanceConnectionReducer } from './instanceConnection/InstanceConnectionState'
+import { mediaStreamReducer } from './mediastream/MediaStreamState'
+import { transportReducer } from './transport/TransportState'
 
 export default {
-  mediastream: mediastreamReducer,
-  channelConnection: channelConnectionoReducer,
-  instanceConnection: instanceConnectionoReducer,
+  mediastream: mediaStreamReducer,
+  channelConnection: channelConnectionReducer,
+  instanceConnection: instanceConnectionReducer,
   transport: transportReducer
 }
