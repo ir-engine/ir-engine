@@ -44,7 +44,7 @@ const quat = new Quaternion()
 const forward = new Vector3(0, 0, 1)
 
 export default async function AutopilotSystem(world: World): Promise<System> {
-  const stick = GamepadAxis.Left
+  const GAMEPAD_STICK = GamepadAxis.Left
   const raycaster = new Raycaster()
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
@@ -158,7 +158,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
         if (targetFlatDistance < ARRIVED_DISTANCE) {
           if (autopilot.path.finished()) {
             // Path is finished!
-            Engine.inputState.set(stick, {
+            Engine.inputState.set(GAMEPAD_STICK, {
               type: InputType.TWODIM,
               value: [0, 0, 0],
               lifecycleState: LifecycleValue.Changed
@@ -186,26 +186,11 @@ export default async function AutopilotSystem(world: World): Promise<System> {
 
         const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
         // If position not set, set it with lifecycle started
-        if (!Engine.inputState.has(stick)) {
-          Engine.inputState.set(stick, {
-            type: InputType.TWODIM,
-            value: stickPosition,
-            lifecycleState: LifecycleValue.Started
-          })
-        } else {
-          // If position set, check it's value
-          const oldStickPosition = Engine.inputState.get(stick)
-          // If it's not the same, set it and update the lifecycle value to changed
-          if (JSON.stringify(oldStickPosition) !== JSON.stringify(stickPosition)) {
-            // console.log('---changed');
-            // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-            Engine.inputState.set(stick, {
-              type: InputType.TWODIM,
-              value: stickPosition,
-              lifecycleState: LifecycleValue.Changed
-            })
-          }
-        }
+        Engine.inputState.set(GAMEPAD_STICK, {
+          type: InputType.TWODIM,
+          value: stickPosition,
+          lifecycleState: Engine.inputState.has(GAMEPAD_STICK) ? LifecycleValue.Started : LifecycleValue.Changed
+        })
 
         avatarRotation.copy(quat.setFromUnitVectors(forward, direction))
       }
@@ -213,7 +198,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
 
     if (ongoingQuery.exit(world).length) {
       // send one relaxed gamepad state to stop movement
-      Engine.inputState.set(stick, {
+      Engine.inputState.set(GAMEPAD_STICK, {
         type: InputType.TWODIM,
         value: [0, 0],
         lifecycleState: LifecycleValue.Changed
