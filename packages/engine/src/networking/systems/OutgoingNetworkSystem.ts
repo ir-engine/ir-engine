@@ -16,6 +16,10 @@ import { Action } from '../interfaces/Action'
 import { pipe } from 'bitecs'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 
+/***********
+ * QUERIES *
+ **********/
+
 const networkTransformsQuery =
   // isClient
   //   ? defineQuery([NetworkObjectOwnerComponent, NetworkObjectComponent, TransformComponent]) :
@@ -24,6 +28,10 @@ const networkTransformsQuery =
 const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
   : defineQuery([XRInputSourceComponent])
+
+/*************
+ * UTILITIES *
+ ************/
 
 function velocityIsTheSame(previousNetworkState, netId, vel): boolean {
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
@@ -77,38 +85,81 @@ function ikPoseIsTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): b
   return false
 }
 
-export const sendActionsOnTransport = (transport: NetworkTransport) => (world) => {
-  const { incomingActions, outgoingActions } = world
+/************************
+ * ACTION PREPROCESSING *
+ ***********************/
 
-  // if hosting, forward all non-local incoming actions
+export const forwardIncomingActionsFromOthersIfHost = (world: World) => {
   if (world.isHosting) {
+    const { incomingActions, outgoingActions } = world
+
     for (const incoming of incomingActions) {
+      console.log(incoming.$from, Engine.userId)
+      // if incoming action is not from this client
       if (incoming.$from !== Engine.userId) {
+        // forward it out
         outgoingActions.add(incoming)
       }
     }
+
+    incomingActions.clear()
   }
 
-  incomingActions.clear()
+  return world
+}
+
+export const rerouteOutgoingActionsBoundForSelf = (world: World) => {
+  const { incomingActions, outgoingActions } = world
 
   for (const out of outgoingActions) {
+    // if it's a forwarded action, use existing $from id
+    // if not, use this client's userId
     out.$from = out.$from ?? Engine.userId
+    // if action is from this client and going to this client
     if (out.$from === Engine.userId && out.$to === 'local') {
+      // add action to incoming action and remove from outgoing actions
+      // this prevents the action from leaving this client and applying itself to other connected clients' state
       incomingActions.add(out as Required<Action>)
       outgoingActions.delete(out)
     }
+    // if client is hosting and action is from this client
     if (world.isHosting && out.$from === Engine.userId) {
+      // add outgoing action to incoming action, but do not remove from outgoing actions
+      // this applies the action to both this host and other connected clients' state
       incomingActions.add(out as Required<Action>)
     }
   }
+
+  return world
+}
+
+// prettier-ignore
+export const rerouteActions = pipe(
+  forwardIncomingActionsFromOthersIfHost,
+  rerouteOutgoingActionsBoundForSelf,
+)
+
+/******************
+ * ACTION SENDING *
+ *****************/
+
+export const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
+  const { outgoingActions } = world
+
   transport.sendActions(outgoingActions)
 
   outgoingActions.clear()
+
+  return world
 }
 
-const sendActions = sendActionsOnTransport(Network.instance.transport)
+export const sendActions = sendActionsOnTransport(Network.instance.transport)
 
-export const queueUnchangedPoses = (world) => {
+/***************
+ * DATA QUEING *
+ **************/
+
+export const queueUnchangedPoses = (world: World) => {
   const { currentNetworkState, previousNetworkState } = world
 
   const ents = networkTransformsQuery(world)
@@ -149,8 +200,8 @@ export const queueUnchangedPoses = (world) => {
   return world
 }
 
-// todo: move to client-specific system
-export const queueUnchangedPosesForClient = (world) => {
+// todo: move to client-specific system?
+export const queueUnchangedPosesForClient = (world: World) => {
   const { currentNetworkState, previousNetworkState } = world
 
   const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
@@ -185,7 +236,7 @@ export const queueUnchangedPosesForClient = (world) => {
   return world
 }
 
-export const queueUnchangedIkPoses = (world) => {
+export const queueUnchangedIkPoses = (world: World) => {
   const { currentNetworkState, previousNetworkState } = world
 
   const ents = ikTransformsQuery(world)
@@ -228,19 +279,6 @@ export const queueUnchangedIkPoses = (world) => {
   return world
 }
 
-const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
-  transport.sendData(data)
-}
-
-const sendData = sendDataOnTransport(Network.instance.transport)
-
-const setPreviousStateToCurrent = (world) => {
-  world.previousNetworkState = world.currentNetworkState
-  return world
-}
-
-const serializeCurrentNetworkState = (world) => WorldStateModel.toBuffer(world.currentNetworkState)
-
 // prettier-ignore
 export const queueAllOutgoingPoses = pipe(
   queueUnchangedPoses, 
@@ -248,12 +286,26 @@ export const queueAllOutgoingPoses = pipe(
   queueUnchangedIkPoses,
 )
 
-// prettier-ignore
-export const serializeNetworkState = pipe(
-  queueAllOutgoingPoses,
-  setPreviousStateToCurrent,
-  serializeCurrentNetworkState,
-)
+/****************
+ * DATA SENDING *
+ ***************/
+
+export const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
+  transport.sendData(data)
+}
+
+export const sendData = sendDataOnTransport(Network.instance.transport)
+
+export const resetNetworkState = (world: World) => {
+  world.previousNetworkState = world.currentNetworkState
+  world.currentNetworkState = {
+    tick: world.fixedTick,
+    time: Date.now(),
+    pose: [],
+    ikPose: []
+  }
+  return world
+}
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
   /**
@@ -261,27 +313,26 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
    *   which are the local avatar and any owned objects
    * For the server, we want to send all objects
    */
-  world.currentNetworkState = {
-    tick: world.fixedTick,
-    time: Date.now(),
-    pose: [],
-    ikPose: []
-  }
 
   return () => {
-    sendActions(world)
+    resetNetworkState(world)
+
+    rerouteActions(world)
+
+    // side effect - network IO
+    try {
+      sendActions(world)
+    } catch (e) {
+      console.error(e)
+    }
 
     if (Engine.offlineMode) return
 
-    // reset old data
-    world.currentNetworkState.tick = world.fixedTick
-    world.currentNetworkState.time = Date.now()
-    world.currentNetworkState.pose = []
-    world.currentNetworkState.ikPose = []
+    queueAllOutgoingPoses(world)
 
-    const data = serializeNetworkState(world)
-
+    // side effect - network IO
     try {
+      const data = WorldStateModel.toBuffer(world.currentNetworkState)
       sendData(data)
     } catch (e) {
       console.error(e)
