@@ -88,6 +88,8 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
 
+  // Had to add this to make mocha tests pass
+  Network.instance ||= new Network()
   Network.instance.isInitialized = true
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
