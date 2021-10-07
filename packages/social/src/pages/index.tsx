@@ -20,8 +20,8 @@ import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
+import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
 import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
 import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 
@@ -41,14 +41,12 @@ import { Redirect } from 'react-router-dom'
 
 const mapStateToProps = (state: any): any => {
   return {
-    creatorsState: selectCreatorsState(state),
     webxrnativeState: selectWebXrNativeState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
-  createCreator: bindActionCreators(createCreator, dispatch),
   getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
   changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
 })
@@ -57,9 +55,7 @@ import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 import App from './App'
 
 const Home = ({
-  createCreator,
   //doLoginAuto,
-  creatorsState,
   webxrnativeState,
   changeWebXrNative,
   getWebXrNative
@@ -81,7 +77,7 @@ const Home = ({
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
-      createCreator()
+      CreatorService.createCreator()
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
@@ -92,7 +88,9 @@ const Home = ({
   const [registrationForm, setRegistrationForm] = useState(true)
   const [view, setView] = useState('featured')
 
-  const currentCreator = creatorsState.get('currentCreator')
+  const creatorsState = useCreatorState()
+
+  const currentCreator = creatorsState.creators.currentCreator.value
   const currentTime = new Date(Date.now()).toISOString()
 
   useEffect(() => {

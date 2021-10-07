@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import Card from '@material-ui/core/Card'
@@ -14,40 +14,28 @@ import AudiotrackIcon from '@material-ui/icons/Audiotrack'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { selectFeedsState } from '../../reducers/post/selector'
-import { getFeeds, removeFeed } from '../../reducers/post/service'
+import { selectFeedsState } from '../../reducers/post/FeedSelector'
+import { FeedService } from '../../reducers/post/FeedService'
 import styles from './Featured.module.scss'
 import { useHistory } from 'react-router'
-import { addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service'
+import { FeedFiresService } from '../../reducers/feedFires/FeedFiresService'
 import { getComponentTypeForMedia } from '../Feed'
 
 const mapStateToProps = (state: any): any => {
   return {
-    feedsState: selectFeedsState(state),
-    creatorState: selectCreatorsState(state)
+    feedsState: selectFeedsState(state)
     //authState: selectAuthState(state)
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFeeds: bindActionCreators(getFeeds, dispatch),
-  removeFeed: bindActionCreators(removeFeed, dispatch),
-  addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
-  removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
   feedsState?: any
   //authState?: any
-  getFeeds?: any
   type?: string
   creatorId?: string
-  creatorState?: any
-  removeFeed?: any
   viewType?: string
-  addFireToFeed?: typeof addFireToFeed
-  removeFireToFeed?: typeof removeFireToFeed
   isFeatured?: boolean
   setIsFeatured?: Function
 }
@@ -82,39 +70,31 @@ const getMediaPreviewIcon = (mime, props = {}) => {
   }
 }
 
-const Featured = ({
-  feedsState,
-  getFeeds,
-  type,
-  creatorId,
-  removeFeed,
-  viewType,
-  addFireToFeed,
-  removeFireToFeed,
-  isFeatured,
-  setIsFeatured
-}: Props) => {
+const Featured = ({ feedsState, type, creatorId, viewType, isFeatured, setIsFeatured }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const [removedIds, setRemovedIds] = useState(new Set())
   const [feedIds, setFeedIds] = useState(new Set())
   const { t } = useTranslation()
   const history = useHistory()
   const auth = useAuthState()
-
+  const dispatch = useDispatch()
   const removeIdsStringify = JSON.stringify([...removedIds])
+
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-      getFeeds(type, creatorId)
+      dispatch(FeedService.getFeeds(type, creatorId))
     } else {
+      const getFeaturedFeeds = async () => {
+        await dispatch(FeedService.getFeeds('featured'))
+        if (type !== 'fired') {
+          dispatch(FeedService.getFeeds('fired', creatorId))
+        }
+      }
+
       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-      userIdentityType !== 'guest'
-        ? getFeeds('featured').then(() => {
-            if (type !== 'fired') {
-              getFeeds('fired', creatorId)
-            }
-          })
-        : getFeeds('featuredGuest')
+      userIdentityType !== 'guest' ? getFeaturedFeeds() : dispatch(FeedService.getFeeds('featuredGuest'))
     }
+
     if (type !== 'fired') {
       setRemovedIds(new Set())
     }
@@ -159,13 +139,13 @@ const Featured = ({
       setFeedIds(new Set([...feedIds, item]))
       removedIds.delete(item)
       setRemovedIds(new Set([...removedIds]))
-      addFireToFeed(item)
+      dispatch(FeedFiresService.addFireToFeed(item))
       setIsFeatured(true)
     }
   }
 
   const handleRemoveFromFeatured = (item) => {
-    removeFireToFeed(item)
+    dispatch(FeedFiresService.removeFireToFeed(item))
     let ids = new Set([...removedIds, item])
     setRemovedIds(ids)
     feedIds.delete(item)

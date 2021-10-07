@@ -18,26 +18,24 @@ import { useTranslation } from 'react-i18next'
 import { Save } from '@material-ui/icons'
 import { validateARMediaForm } from './validation'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
 import Card from '@material-ui/core/Card'
-import { updateArMedia } from '../../../reducers/arMedia/service'
+import { ArMediaService } from '../../../reducers/arMedia/ArMediaService'
 
 interface Props {
   mediaAdmin: any
   onCloseEdit: () => void
-  updateArMedia?: typeof updateArMedia
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateArMedia: bindActionCreators(updateArMedia, dispatch)
-})
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const EditArMedia = (props: Props) => {
   const classex = useARMediaStyle()
   const classes = useARMediaStyles()
-  const { mediaAdmin, onCloseEdit, updateArMedia } = props
+  const { mediaAdmin, onCloseEdit } = props
   const { t } = useTranslation()
+  const dispatch = useDispatch()
   const [state, setState] = useState({
     title: mediaAdmin.title,
     type: mediaAdmin.type,
@@ -106,7 +104,7 @@ const EditArMedia = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateARMediaForm(state, state.formErrors)) {
-      updateArMedia({ type, title }, { manifest, audio, dracosis, preview }, mediaAdmin.id)
+      dispatch(ArMediaService.updateArMedia({ type, title }, { manifest, audio, dracosis, preview }, mediaAdmin.id))
       //   closeViewModel(false)
       //   setState({
       //     ...state,

@@ -19,15 +19,15 @@ import { useLocationState } from '@xrengine/client-core/src/social/reducers/loca
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
+import { MediaStreamService } from '../../reducers/mediastream/MediaStreamService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { Dispatch } from 'redux'
-import { selectMediastreamState } from '../../reducers/mediastream/selector'
+import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
 import {
   globalMuteProducer,
   globalUnmuteProducer,
@@ -49,16 +49,7 @@ interface Props {
   harmony?: boolean
   containerProportions?: ContainerProportions
   peerId?: string
-  mediastream?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    mediastream: selectMediastreamState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [videoStream, _setVideoStream] = useState(null)
@@ -72,12 +63,13 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [audioTrackClones, setAudioTrackClones] = useState([])
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, mediastream } = props
+  const { harmony, peerId } = props
   const userState = useUserState()
   const videoRef = React.useRef<HTMLVideoElement>()
   const audioRef = React.useRef<HTMLAudioElement>()
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
+  const mediastream = useMediaStreamState()
 
   const userHasInteracted = useAppState().userHasInteracted
   const selfUser = useAuthState().user.value
@@ -87,9 +79,9 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
   const user = userState.layerUsers.find((user) => user.id.value === peerId)?.attach(Downgraded).value
 
-  const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
-  const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
-  const consumers = mediastream.get('consumers')
+  const isCamVideoEnabled = mediastream.isCamVideoEnabled
+  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+  const consumers = mediastream.consumers
 
   const setVideoStream = (value) => {
     videoStreamRef.current = value
@@ -142,14 +134,14 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       setVideoStream(MediaStreams.instance?.camVideoProducer)
       setVideoStreamPaused(MediaStreams.instance?.videoPaused)
     } else if (peerId === 'me_screen') setVideoStream(MediaStreams.instance?.screenVideoProducer)
-  }, [isCamVideoEnabled])
+  }, [isCamVideoEnabled.value])
 
   useEffect(() => {
     if (peerId === 'me_cam') {
       setAudioStream(MediaStreams.instance?.camAudioProducer)
       setAudioStreamPaused(MediaStreams.instance?.audioPaused)
     } else if (peerId === 'me_screen') setAudioStream(MediaStreams.instance?.screenAudioProducer)
-  }, [isCamAudioEnabled])
+  }, [isCamAudioEnabled.value])
 
   useEffect(() => {
     if (peerId !== 'me_cam' && peerId !== 'me_screen') {
@@ -164,7 +156,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         )
       )
     }
-  }, [consumers])
+  }, [consumers.value])
 
   useEffect(() => {
     if (userHasInteracted.value === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
@@ -356,7 +348,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       const videoPaused = MediaStreams.instance.toggleVideoPaused()
       if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
       else await resumeProducer(MediaStreams.instance?.camVideoProducer)
-      updateCamVideoState()
+      MediaStreamService.updateCamVideoState()
     } else if (peerId === 'me_screen') {
       const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
       if (videoPaused === true) await pauseProducer(MediaStreams.instance.screenVideoProducer)
@@ -375,7 +367,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       const audioPaused = MediaStreams.instance.toggleAudioPaused()
       if (audioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
       else await resumeProducer(MediaStreams.instance?.camAudioProducer)
-      updateCamAudioState()
+      MediaStreamService.updateCamAudioState()
     } else if (peerId === 'me_screen') {
       const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
       if (audioPaused === true) await pauseProducer(MediaStreams.instance.screenAudioProducer)
@@ -520,4 +512,4 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PartyParticipantWindow)
+export default PartyParticipantWindow

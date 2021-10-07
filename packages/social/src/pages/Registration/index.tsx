@@ -5,8 +5,8 @@ import Typography from '@material-ui/core/Typography'
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { updateCreator } from '../../reducers/creator/service'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -24,14 +24,11 @@ import { useSnackbar, SnackbarOrigin } from 'notistack'
 
 import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
 import { Link, useHistory, Redirect } from 'react-router-dom'
 import ChangedUserName from './ChangedUserName'
 
 const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
+  return {}
 }
 
 const Registration = (props: any): any => {
@@ -41,9 +38,10 @@ const Registration = (props: any): any => {
     logoutUser,
     changeActiveMenu,
     setRegistrationOpen,
-    creatorsState,
+
     doLoginAuto
   } = props
+  const anchorOrigin: SnackbarOrigin = { horizontal: 'right', vertical: 'top' }
 
   const history = useHistory()
   const dispatch = useDispatch()
@@ -54,13 +52,15 @@ const Registration = (props: any): any => {
   console.log(selfUser.userRole.value)
 
   // const [username, setUsername] = useState(selfUser?.name)
-  const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator'))
+  const creatorsState = useCreatorState()
+  const [creator, setCreator] = useState({ ...creatorsState.creators.currentCreator.value })
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
   const [emailPhoneForm, setEmailPhoneForm] = useState(false)
   const [continueAsGuest, setContinueAsGuest] = useState(false)
   const [registrationServiceClick, setRegistrationServiceClick] = useState(false)
+  const [disabledButtonLogIn, setDisabledButtonLogIn] = useState(false)
 
   let type = ''
 
@@ -86,9 +86,9 @@ const Registration = (props: any): any => {
   // }, [selfUser.name])
 
   const updateUserName = (username) => {
-    const creator = creatorsState.get('currentCreator')
+    const creator = creatorsState.creators.currentCreator.value
     dispatch(
-      updateCreator(
+      CreatorService.updateCreator(
         {
           ...creator,
           username
@@ -99,7 +99,6 @@ const Registration = (props: any): any => {
   }
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const callBacksFromUpdateUsername = (str: string) => {
-    const anchorOrigin: SnackbarOrigin = { horizontal: 'right', vertical: 'top' }
     switch (str) {
       case 'succes': {
         enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
@@ -131,27 +130,31 @@ const Registration = (props: any): any => {
   useEffect(() => {
     if (checkRole(selfUser.userRole.value) || (selfUser.id.value !== '' && continueAsGuest)) {
       history.push('/')
-    } else if (registrationServiceClick && selfUser.userRole.value === 'guest') {
+    } else if (registrationServiceClick?.length > 0 && selfUser.userRole.value === 'guest') {
       dispatch(AuthService.loginUserByOAuth(registrationServiceClick))
     }
   }, [selfUser.id.value, continueAsGuest, selfUser.userRole.value, registrationServiceClick])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
-      dispatch(createCreator())
+      dispatch(CreatorService.createCreator())
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
   const handleUpdateUsername = () => {
-    dispatch(updateCreator(creator, callBacksFromUpdateUsername))
+    dispatch(CreatorService.updateCreator(creator, callBacksFromUpdateUsername))
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
 
   const validate = () => {
-    if (emailPhone === '') return false
+    if (emailPhone === '') {
+      enqueueSnackbar('Please enter your phone or email', { variant: 'error', anchorOrigin })
+      return false
+    }
     if (validateEmail(emailPhone.trim())) type = 'email'
     else if (validatePhoneNumber(emailPhone.trim())) type = 'sms'
     else {
+      enqueueSnackbar('Data entered incorrectly', { variant: 'error', anchorOrigin })
       setError(true)
       return false
     }
@@ -163,8 +166,14 @@ const Registration = (props: any): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, authData.user.id))
-    if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, authData.user.id))
+    if (type === 'email') {
+      dispatch(AuthService.addConnectionByEmail(emailPhone, authData.user.id))
+    }
+    if (type === 'sms') {
+      dispatch(AuthService.addConnectionBySms(emailPhone, authData.user.id))
+    }
+    setDisabledButtonLogIn(true)
+    enqueueSnackbar('Please check your mail', { variant: 'success', anchorOrigin })
     return
   }
 
@@ -197,7 +206,7 @@ const Registration = (props: any): any => {
           </span>
           <img src="/assets/LogoColored.png" alt="logo" crossOrigin="anonymous" className="logo" />
         </div>
-        {emailPhoneForm && creatorsState.get('currentCreator')?.username && (
+        {emailPhoneForm && creatorsState.creators.currentCreator?.username?.value && (
           <div className={styles.emailPhoneSection}>
             <div className={styles.socialBack} onClick={handleGoEmailClick}>
               <ArrowBackIosIcon />
@@ -207,7 +216,7 @@ const Registration = (props: any): any => {
             </Typography>
             <form onSubmit={handleSubmit}>
               <ChangedUserName
-                defaultValue={creatorsState.get('currentCreator')?.username}
+                defaultValue={creatorsState?.creators.currentCreator?.username?.value}
                 updateUserName={updateUserName}
               />
               <TextField
@@ -220,7 +229,12 @@ const Registration = (props: any): any => {
                 error={error}
                 helperText={error ? t('social:registration.ph-phoneEmail') : null}
               />
-              <Button className={styles.logIn} variant="contained" onClick={handleSubmit}>
+              <Button
+                disabled={disabledButtonLogIn}
+                className={styles.logIn}
+                variant="contained"
+                onClick={handleSubmit}
+              >
                 {t('social:registration.logIn')}
               </Button>
             </form>

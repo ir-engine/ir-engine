@@ -163,7 +163,6 @@ const Layout = (props: Props): any => {
 
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
-
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>

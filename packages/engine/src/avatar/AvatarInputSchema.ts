@@ -1,4 +1,4 @@
-import { Mesh, Quaternion, Vector2, Vector3 } from 'three'
+import { Mesh, Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -229,9 +229,13 @@ const setAvatarExpression: InputBehaviorType = (
   delta: number
 ): void => {
   const object = getComponent(entity, Object3DComponent)
-  const body = object.value?.getObjectByName('Body') as Mesh
+  let body
+  object.value.traverse((obj: SkinnedMesh) => {
+    if (!body && obj.morphTargetDictionary) body = obj
+  })
 
   if (!body?.isMesh || !body?.morphTargetDictionary) {
+    console.warn('[Avatar Emotions]: This avatar does not support expressive visemes.')
     return
   }
 
@@ -239,10 +243,11 @@ const setAvatarExpression: InputBehaviorType = (
   const morphName = morphNameByInput[inputKey]
   const morphIndex = body.morphTargetDictionary[morphName]
   if (typeof morphIndex !== 'number') {
+    console.warn('[Avatar Emotions]: This avatar does not support the', morphName, ' expression.')
     return
   }
 
-  // console.warn(args.input + ": " + morphName + ":" + morphIndex + " = " + morphValue)
+  // console.warn(inputKey + ": " + morphName + ":" + morphIndex + " = " + morphValue)
   if (morphName && morphValue !== null) {
     if (typeof morphValue === 'number') {
       body.morphTargetInfluences![morphIndex] = morphValue // 0.0 - 1.0
