@@ -22,6 +22,7 @@ import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -48,7 +49,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
-  const ongoingQuery = defineQuery([AutoPilotComponent])
+  const ongoingQuery = defineQuery([AutoPilotComponent, AvatarControllerComponent])
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
 
   return () => {
@@ -138,21 +139,22 @@ export default async function AutopilotSystem(world: World): Promise<System> {
     // ongoing
     if (allOngoing.length) {
       // update our entity transform from vehicle
-      const ROTATION_SPEED = 0.1 // angle per step in radians
       const ARRIVING_DISTANCE = 1
       const ARRIVED_DISTANCE = 0.1
       const MIN_SPEED = 0.2
+      const MAX_SPEED = 2
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
+        const controller = getComponent(entity, AvatarControllerComponent)
         if (!autopilot.path.current()) {
           console.error('autopilot.path is invalid or empty')
           removeComponent(entity, AutoPilotComponent)
           continue
         }
 
-        const { position: actorPosition } = getComponent(entity, TransformComponent)
+        const { position: avatarPosition, rotation: avatarRotation } = getComponent(entity, TransformComponent)
         const targetFlatPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
-        const targetFlatDistance = targetFlatPosition.distanceTo(actorPosition.clone().setY(0))
+        const targetFlatDistance = targetFlatPosition.distanceTo(avatarPosition.clone().setY(0))
         if (targetFlatDistance < ARRIVED_DISTANCE) {
           if (autopilot.path.finished()) {
             // Path is finished!
@@ -171,16 +173,14 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           continue
         }
 
-        const transform = getComponent(entity, TransformComponent)
         const speedModifier = Math.min(
-          1,
-          Math.max(MIN_SPEED, targetFlatDistance < ARRIVING_DISTANCE ? targetFlatDistance / ARRIVING_DISTANCE : 1)
+          MAX_SPEED,
+          Math.max(
+            MIN_SPEED,
+            targetFlatDistance < ARRIVING_DISTANCE ? (targetFlatDistance * MAX_SPEED) / ARRIVING_DISTANCE : MAX_SPEED
+          )
         )
-        const direction = targetFlatPosition
-          .clone()
-          .sub(actorPosition.clone().setY(0))
-          .applyQuaternion(transform.rotation)
-          .normalize()
+        const direction = targetFlatPosition.clone().sub(avatarPosition.clone().setY(0)).normalize()
         const targetAngle = Math.atan2(direction.x, direction.z)
         const stickValue = direction.clone().multiplyScalar(speedModifier) // speed
 
@@ -208,7 +208,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
         }
 
         // rotation
-        const targetDirection = targetFlatPosition.clone().sub(actorPosition).setY(0).normalize()
+        const targetDirection = targetFlatPosition.clone().sub(avatarPosition).setY(0).normalize()
         // {
         //   // way 1
         //   const transform = getComponent(entity, TransformComponent)
@@ -221,7 +221,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
         // }
         {
           // way 2
-          transform.rotation.copy(quat.setFromUnitVectors(forward, targetDirection))
+          avatarRotation.copy(quat.setFromUnitVectors(forward, targetDirection))
         }
       }
     }
