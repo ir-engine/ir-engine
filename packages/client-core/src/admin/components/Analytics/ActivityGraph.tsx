@@ -1,8 +1,23 @@
+import { max } from 'lodash'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
 const ActivityGraph = ({ data /* see data tab */ }) => {
-  // console.log(data)
+  let maxY = 0
+  if (data) {
+    for (let analytic of data) {
+      if (analytic) {
+        for (let item of analytic.data) {
+          if (maxY < item[1]) {
+            maxY = item[1]
+          }
+        }
+      }
+    }
+  }
+
+  const roundPower = Math.pow(10, Math.floor(Math.log10(maxY)))
+  maxY = Math.ceil(maxY / roundPower) * roundPower
   const [state, setState] = React.useState({
     series: data,
     options: {
@@ -33,8 +48,8 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
       },
       xaxis: {
         type: 'datetime',
-        min: data[0].data[0] ? data[0].data[0][0] : new Date().setMonth(new Date().getMonth() - 1),
-        max: new Date().getTime(),
+        min: data[0].data[0] ? data[0].data[0][0] : new Date().setTime(new Date().getTime() - 60000),
+        max: data[0].data[0] ? data[0].data[data[0].data.length - 1][0] : new Date().getTime(),
         tickAmount: 6
       },
       yaxis: {
@@ -46,7 +61,7 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
           }
         },
         min: 0,
-        max: 10
+        max: maxY
       },
       tooltip: {
         x: {

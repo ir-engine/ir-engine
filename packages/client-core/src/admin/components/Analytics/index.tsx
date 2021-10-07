@@ -110,11 +110,11 @@ const Analytics = (props: Props) => {
   ]
 
   if (
-    activityGraphData[0].data.length ||
-    activityGraphData[1].data.length ||
-    activityGraphData[2].data.length ||
-    activityGraphData[3].data.length ||
-    activityGraphData[4].data.length ||
+    activityGraphData[0].data.length &&
+    activityGraphData[1].data.length &&
+    activityGraphData[2].data.length &&
+    activityGraphData[3].data.length &&
+    activityGraphData[4].data.length &&
     activityGraphData[5].data.length
   )
     isDataAvailable = true
