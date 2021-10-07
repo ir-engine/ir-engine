@@ -4,33 +4,24 @@
 import Typography from '@material-ui/core/Typography'
 import React from 'react'
 import { useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getCreatorNotificationList } from '../../reducers/creator/service'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 import NotificationCard from '../NotificationCard'
 import { useTranslation } from 'react-i18next'
 
 import styles from './NotificationList.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getCreatorNotificationList: bindActionCreators(getCreatorNotificationList, dispatch)
-})
-
 interface Props {
   creatorsState?: any
-  getCreatorNotificationList?: any
 }
-const NotificationList = ({ creatorsState, getCreatorNotificationList }: Props) => {
+const NotificationList = ({ creatorsState }: Props) => {
   const { t } = useTranslation()
+  const dispatch = useDispatch()
+
   useEffect(() => {
-    getCreatorNotificationList()
+    dispatch(CreatorService.getCreatorNotificationList())
   }, [])
   const notificationList =
     creatorsState && creatorsState.get('creators') ? creatorsState.get('currentCreatorNotifications') : null
@@ -42,4 +33,4 @@ const NotificationList = ({ creatorsState, getCreatorNotificationList }: Props) 
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NotificationList)
+export default NotificationList

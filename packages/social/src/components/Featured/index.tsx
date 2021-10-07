@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import { Typography } from '@material-ui/core'
@@ -14,107 +14,92 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { selectFeedsState } from '../../reducers/feed/selector'
-import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service'
+import { useFeedState } from '../../reducers/feed/FeedState'
+import { FeedService } from '../../reducers/feed/FeedService'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { updateFeedPageState } from '../../reducers/popupsState/service'
 import styles from './Featured.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    feedsState: selectFeedsState(state),
-    creatorState: selectCreatorsState(state),
     popupsState: selectPopupsState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getFeeds: bindActionCreators(getFeeds, dispatch),
-  setFeedAsFeatured: bindActionCreators(setFeedAsFeatured, dispatch),
-  setFeedNotFeatured: bindActionCreators(setFeedNotFeatured, dispatch),
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch)
 })
 interface Props {
-  feedsState?: any
   popupsState?: any
-  getFeeds?: any
   type?: string
   creatorId?: string
-  creatorState?: any
-  setFeedAsFeatured?: typeof setFeedAsFeatured
-  setFeedNotFeatured?: typeof setFeedNotFeatured
+
   updateFeedPageState?: typeof updateFeedPageState
 }
 
-const Featured = ({
-  feedsState,
-  getFeeds,
-  type,
-  creatorId,
-  popupsState,
-  creatorState,
-  setFeedAsFeatured,
-  setFeedNotFeatured,
-  updateFeedPageState
-}: Props) => {
+const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
   const auth = useAuthState()
-
+  const dispatch = useDispatch()
+  const feedsState = useFeedState()
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-      getFeeds(type, creatorId)
+      dispatch(FeedService.getFeeds(type, creatorId))
     } else {
       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-      userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest')
+      userIdentityType !== 'guest'
+        ? dispatch(FeedService.getFeeds('featured'))
+        : dispatch(FeedService.getFeeds('featuredGuest'))
     }
   }, [type, creatorId])
 
   useEffect(
     () =>
       (type === 'featured' || !type) &&
-      feedsState.get('feedsFeaturedFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]
+      feedsState.feeds.feedsFeaturedFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsFeatured.value),
+    [feedsState.feeds.feedsFeaturedFetching.value, feedsState.feeds.feedsFeatured.value]
   )
 
   useEffect(
     () =>
       (type === 'featured' || !type) &&
-      feedsState.get('feedsFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]
+      feedsState.feeds.feedsFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsFeatured.value),
+    [feedsState.feeds.feedsFetching.value, feedsState.feeds.feedsFeatured.value]
   )
 
   useEffect(
     () =>
       type === 'creator' &&
-      feedsState.get('feedsCreatorFetching') === false &&
-      setFeedList(feedsState.get('feedsCreator')),
-    [feedsState.get('feedsCreatorFetching'), feedsState.get('feedsCreator')]
+      feedsState.feeds.feedsCreatorFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsCreator.value),
+    [feedsState.feeds.feedsCreatorFetching.value, feedsState.feeds.feedsCreator.value]
   )
 
   useEffect(
     () =>
       type === 'bookmark' &&
-      feedsState.get('feedsBookmarkFetching') === false &&
-      setFeedList(feedsState.get('feedsBookmark')),
-    [feedsState.get('feedsBookmarkFetching'), feedsState.get('feedsBookmark')]
+      feedsState.feeds.feedsBookmarkFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsBookmark.value),
+    [feedsState.feeds.feedsBookmarkFetching.value, feedsState.feeds.feedsBookmark.value]
   )
 
   useEffect(
     () =>
       type === 'myFeatured' &&
-      feedsState.get('myFeaturedFetching') === false &&
-      setFeedList(feedsState.get('myFeatured')),
-    [feedsState.get('myFeaturedFetching'), feedsState.get('myFeatured')]
+      feedsState.feeds.myFeaturedFetching.value === false &&
+      setFeedList(feedsState.feeds.myFeatured.value),
+    [feedsState.feeds.myFeaturedFetching.value, feedsState.feeds.myFeatured.value]
   )
 
   useEffect(
     () =>
-      type === 'fired' && feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired')),
-    [feedsState.get('feedsFiredFetching'), feedsState.get('feedsFired')]
+      type === 'fired' &&
+      feedsState.feeds.feedsFiredFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsFired.value),
+    [feedsState.feeds.feedsFiredFetching.value, feedsState.feeds.feedsFired.value]
   )
 
   // if(type === 'creator'){

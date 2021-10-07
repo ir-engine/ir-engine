@@ -10,8 +10,8 @@ import { TransitionProps } from '@material-ui/core/transitions'
 import AddCircleIcon from '@material-ui/icons/AddCircle'
 import { bindActionCreators, Dispatch } from 'redux'
 import { updateArMediaState } from '../../reducers/popupsState/service'
-import { connect } from 'react-redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
+import { connect, useDispatch } from 'react-redux'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'
@@ -20,21 +20,19 @@ import StepWizard from 'react-step-wizard'
 //
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
-import { updateCreator } from '../../reducers/creator/service'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 
 // @ts-ignore
 import classes from './ViewMode.module.scss'
 
 const mapStateToProps = (state: any): any => {
   return {
-    popupsState: selectPopupsState(state),
-    creatorsState: selectCreatorsState(state)
+    popupsState: selectPopupsState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  updateCreator: bindActionCreators(updateCreator, dispatch)
+  updateArMediaState: bindActionCreators(updateArMediaState, dispatch)
 })
 
 const useStyles = makeStyles({})
@@ -49,11 +47,12 @@ interface Props {
   updateArMediaState?: typeof updateArMediaState
 }
 
-export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator, onGoRegistration }: any) => {
+export const ViewMode = ({ updateArMediaState, onGoRegistration }: any) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
-  const currentCreator = creatorsState.get('currentCreator')
-
+  const creatorsState = useCreatorState()
+  const currentCreator = creatorsState.creators.currentCreator.value
+  const dispatch = useDispatch()
   const handleClickOpen = () => {
     if (XRPlugin.accessPermission !== undefined) {
       // @ts-ignore
@@ -164,7 +163,14 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator, onG
   })
 
   const handleSteps = () => {
-    updateCreator({ id: creatorsState.get('currentCreator').id, steps: true })
+    dispatch(
+      CreatorService.updateCreator({
+        id: creatorsState.creators.currentCreator?.id?.value,
+        steps: true,
+        name: creatorsState.creators.currentCreator?.name?.value,
+        username: creatorsState.creators.currentCreator?.username?.value
+      })
+    )
     handleOpenNewFeedPage()
   }
 

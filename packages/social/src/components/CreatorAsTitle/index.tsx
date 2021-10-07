@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
@@ -11,7 +11,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 
 import { updateCreatorPageState } from '../../reducers/popupsState/service'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { unBlockCreator } from '../../reducers/creator/service'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -20,8 +20,7 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
-  unBlockCreator: bindActionCreators(unBlockCreator, dispatch)
+  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch)
 })
 
 interface Props {
@@ -29,9 +28,10 @@ interface Props {
   popupsState?: any
   updateCreatorPageState?: typeof updateCreatorPageState
 }
-const CreatorAsTitle = ({ creator, updateCreatorPageState, unBlockCreator, popupsState }: any) => {
+const CreatorAsTitle = ({ creator, updateCreatorPageState, popupsState }: any) => {
+  const dispatch = useDispatch()
   const removeBlockedUser = (blokedCreatorId) => {
-    unBlockCreator(blokedCreatorId)
+    dispatch(CreatorService.unBlockCreator(blokedCreatorId))
   }
 
   return creator ? (

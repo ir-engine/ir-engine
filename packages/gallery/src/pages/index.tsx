@@ -2,8 +2,8 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import FeedMenu from '../components/FeedMenu'
-import { selectCreatorsState } from '@xrengine/gallery/src/reducers/creator/selector'
-import { createCreator } from '@xrengine/gallery/src/reducers/creator/service'
+import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -14,17 +14,7 @@ import AppHeader from '../components/Header'
 import styles from './index.module.scss'
 import AddFilesForm from '../components/AddFilesForm'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createCreator: bindActionCreators(createCreator, dispatch)
-})
-
-const Home = ({ createCreator, creatorsState }) => {
+const Home = () => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
@@ -35,7 +25,7 @@ const Home = ({ createCreator, creatorsState }) => {
     const user = auth.user
     const userId = user ? user.id.value : null
     if (userId) {
-      createCreator()
+      CreatorService.createCreator()
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
@@ -43,7 +33,8 @@ const Home = ({ createCreator, creatorsState }) => {
     dispatch(AuthService.doLoginAuto(true))
   }, [])
 
-  const currentCreator = creatorsState.get('currentCreator')
+  const creatorsState = useCreatorState()
+  const currentCreator = creatorsState.creators.currentCreator.value
 
   return (
     <div className={styles.viewport}>
@@ -58,4 +49,4 @@ const Home = ({ createCreator, creatorsState }) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default Home

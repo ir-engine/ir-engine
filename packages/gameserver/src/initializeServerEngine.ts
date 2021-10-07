@@ -7,9 +7,9 @@ import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunct
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
 
-export const initializeServerEngine = (systems: SystemModuleType<any>[]) => {
+export const initializeServerEngine = (systems: SystemModuleType<any>[], isMediaChannelInstance = false) => {
   const options: InitializeOptions = {
-    type: EngineSystemPresets.SERVER,
+    type: isMediaChannelInstance ? EngineSystemPresets.MEDIA : EngineSystemPresets.SERVER,
     publicPath: config.client.url,
     systems
   }

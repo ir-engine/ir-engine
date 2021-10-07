@@ -74,7 +74,7 @@ export const sendNewProducer =
     const selfClient = world.clients.get(userId)!
     if (selfClient?.socketId != null) {
       for (const [userId, client] of world.clients) {
-        logger.info(`Sending media for ${name}`)
+        logger.info(`Sending media for ${userId}`)
         Object.entries(client.media!).map(([subName, subValue]) => {
           if (
             channelType === 'instance'

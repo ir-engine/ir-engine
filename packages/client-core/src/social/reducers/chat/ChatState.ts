@@ -3,10 +3,65 @@ import { ChatActionType } from './ChatActions'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import _ from 'lodash'
 import moment from 'moment'
+import { string } from 'yup/lib/locale'
+
+// TODO: find existing interfaces for these or move these to @xrengine/common/src/interfaces
+
+// TODO - add proper types to this
+type MessageType = {
+  // channelId: "8f655c10-2734-11ec-85d8-434c13ffcb4a"
+  // createdAt: "2021-10-07T06:05:23.000Z"
+  // id: "8f65d140-2734-11ec-85d8-434c13ffcb4a"
+  // isNotification: null
+  // sender:
+  // avatarId: "Jamie"
+  // channelInstanceId: "5e27b4f0-265c-11ec-a37a-95f327da77ae"
+  // createdAt: "2021-09-18T22:39:39.000Z"
+  // id: "4ee2f150-18d1-11ec-a725-f113d4ffe18d"
+  // instanceId: "8f4db560-2734-11ec-85d8-434c13ffcb4a"
+  // inviteCode: "b3701fba"
+  // name: "Guest #409"
+  // partyId: null
+  // updatedAt: "2021-10-07T06:05:23.000Z"
+  // userRole: "admin"
+  // senderId: "4ee2f150-18d1-11ec-a725-f113d4ffe18d"
+  // text: "[jl_system]Guest #409 joined the layer"
+  // updatedAt: "2021-10-07T06:05:23.000Z"
+}
+
+type ChannelType = {
+  channelType: string
+  createdAt: string
+  group?: any
+  groupId?: string
+  id: string
+  instance: {
+    id: string
+    ipAddress: string
+    channelId: string
+    currentUsers: number
+    ended: boolean
+  }
+  instanceId: string
+  limit: number
+  messages: any // MessageType
+  party: any
+  partyId: string
+  skip: number
+  total: number
+  updateNeeded: boolean
+  updatedAt: string
+  user1: any
+  user2: any
+  userId1: any
+  userId2: any
+}
+
+type ChannelsType = { [id: string]: ChannelType }
 
 const state = createState({
   channels: {
-    channels: {},
+    channels: {} as ChannelsType,
     limit: 5,
     skip: 0,
     total: 0,
@@ -31,9 +86,9 @@ export const chatReducer = (_, action: ChatActionType) => {
 }
 
 const chatReceptor = (action: ChatActionType): any => {
-  let updateMap, localAction, updateMapChannels, updateMapChannelsChild, returned
+  let updateMap, localAction, updateMapChannels: ChannelsType, updateMapChannelsChild, returned
   state.batch((s) => {
-    switch (action.type) {
+    switch (action!.type) {
       case 'LOADED_CHANNELS':
         localAction = action
         updateMap = state.channels.value
@@ -60,11 +115,11 @@ const chatReceptor = (action: ChatActionType): any => {
         updateMap = state.channels.value
         updateMapChannels = updateMap.channels
         if (channelType === 'instance') {
-          const tempUpdateMapChannels = new Map()
+          const tempUpdateMapChannels = {}
           Object.entries(updateMapChannels).forEach(([key, value]) => {
             if (value.channelType !== 'instance') tempUpdateMapChannels[key] = value
           })
-          updateMapChannels = new Map(tempUpdateMapChannels)
+          updateMapChannels = tempUpdateMapChannels
         }
         if (newChannel?.id != null && updateMapChannels[newChannel.id] == null) {
           newChannel.updateNeeded = true

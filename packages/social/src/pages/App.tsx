@@ -6,13 +6,13 @@ import { SnackbarProvider } from 'notistack'
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
 
 import { User } from '@xrengine/common/src/interfaces/User'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
+import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
 import { getWebXrNative, changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
@@ -37,20 +37,20 @@ import WebXRStart from '../components/popups/WebXR'
 import { useHistory } from 'react-router-dom'
 import TemporarySolution from './TemporarySolution'
 
+import { CreatorAction } from '../reducers/creator/CreatorActions'
+
 const mapStateToProps = (state: any): any => {
   return {
-    creatorsState: selectCreatorsState(state),
     webxrnativeState: selectWebXrNativeState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createCreator: bindActionCreators(createCreator, dispatch),
   getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
   changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
 })
 
-const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, changeWebXrNative, getWebXrNative }) => {
+const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const auth = useAuthState()
@@ -60,13 +60,13 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
   const [registrationForm, setRegistrationForm] = useState(true)
   const [view, setView] = useState('featured')
-
-  const currentCreator = creatorsState.get('currentCreator')
+  const creatorsState = useCreatorState()
+  const currentCreator = creatorsState.creators.currentCreator
   const currentTime = new Date(Date.now()).toISOString()
 
   useEffect(() => {
-    if (!!currentCreator && !!currentCreator.createdAt) {
-      currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnborded(false)
+    if (!!currentCreator?.value && !!currentCreator?.createdAt?.value) {
+      currentTime.slice(0, -5) === currentCreator?.createdAt?.value?.slice(0, -5) && setOnborded(false)
     }
   }, [currentCreator])
 
@@ -78,18 +78,17 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
     setFeedHintsOnborded(false)
   }
   const platformClass = isIOS ? styles.isIos : ''
-  const splashTimeout = creatorsState.get('splashTimeout')
+  const splashTimeout = creatorsState.creators.splashTimeout.value
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
-  if (!currentCreator || currentCreator === null || (splashTimeout && currentCreator.isBlocked == false)) {
+  if (
+    !currentCreator?.value ||
+    currentCreator?.value === null ||
+    (splashTimeout && currentCreator?.isBlocked?.value == false)
+  ) {
     //add additional duration Splash after initialized user
     const splash = setTimeout(() => {
-      dispatch({
-        type: 'SET_STATE_CREATORS',
-        payload: {
-          splashTimeout: false
-        }
-      })
+      dispatch(CreatorAction.setStateCreators(false))
       clearTimeout(splash)
     }, 5000)
     return <Splash />
@@ -103,7 +102,7 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
     }
   }
 
-  if (currentCreator.isBlocked == true) {
+  if (currentCreator?.isBlocked?.value == true) {
     return (
       <div>
         <Splash />
@@ -126,7 +125,7 @@ const Home = ({ createCreator, doLoginAuto, creatorsState, webxrnativeState, cha
             {/* <Stories stories={stories} /> */}
             <FeedMenu view={view} setView={setView} />
             <AppFooter setView={setView} onGoRegistration={onGoRegistration} />
-            {currentCreator &&
+            {currentCreator?.value &&
               // Made at the time of the test Aleks951
               (!!!currentCreator.terms || !!!currentCreator.policy) &&
               auth.user.userRole.value === 'user' && <TermsAndPolicy view={view} setView={setView} />}

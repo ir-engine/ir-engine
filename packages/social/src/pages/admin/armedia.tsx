@@ -8,27 +8,14 @@ import ArMediaDashboard from '@xrengine/social/src/components/admin/Armedia'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
-import { selectArMediaState } from '@xrengine/social/src/reducers/arMedia/selector'
-import { getArMediaService } from '@xrengine/social/src/reducers/arMedia/service'
+import { useArMediaState } from '@xrengine/social/src/reducers/arMedia/ArMediaState'
+import { ArMediaService } from '@xrengine/social/src/reducers/arMedia/ArMediaService'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    arMediaState: selectArMediaState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getArMedia: bindActionCreators(getArMediaService, dispatch)
-})
-interface Props {
-  arMediaState?: any
-  getArMedia?: any
-}
-
-const ArMediaPage = ({ arMediaState, getArMedia }: Props) => {
-  useEffect(() => getArMedia('admin'), [])
+const ArMediaPage = () => {
+  const arMediaState = useArMediaState()
+  useEffect(() => ArMediaService.getArMedia('admin'), [])
   const arMediaList =
-    arMediaState.get('fetching') === false && arMediaState?.get('adminList') ? arMediaState.get('adminList') : null
+    arMediaState.fetching.value === false && arMediaState.adminList ? arMediaState.adminList.value : null
   return (
     <>
       <div>
@@ -41,4 +28,4 @@ const ArMediaPage = ({ arMediaState, getArMedia }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ArMediaPage)
+export default ArMediaPage
