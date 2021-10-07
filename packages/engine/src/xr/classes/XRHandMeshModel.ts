@@ -71,7 +71,7 @@ export class XRHandMeshModel extends Object3D {
       if (bone) {
         const XRJoint = XRJoints[bone.jointName] as Group
 
-        if (XRJoint.visible) {
+        if (XRJoint?.visible) {
           const position = XRJoint.position
 
           if (bone) {

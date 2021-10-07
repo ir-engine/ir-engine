@@ -203,23 +203,25 @@ export const queueUnchangedIkPoses = (world) => {
 }
 
 export const queueXRHandPoses = (world) => {
-  const { currentNetworkState, previousNetworkState } = world
+  const { currentNetworkState } = world
 
   for (const entity of xrHandsQuery(world)) {
     const { networkId } = getComponent(entity, NetworkObjectComponent)
     const xrHands = getComponent(entity, XRHandsInputComponent)
-    const hands: any = []
+    const hands: any = [
+      {
+        joints: [] as any
+      },
+      {
+        joints: [] as any
+      }
+    ]
 
     for (let xrHand of xrHands.hands) {
       const joints = (xrHand as any).joints
       if (!joints) continue
 
-      const hand = {
-        handedness: xrHand.userData.handedness == 'left' ? 0 : 1,
-        joints: [] as any
-      }
-
-      hands.push(hand)
+      const hand = hands[xrHand.userData.handedness == 'left' ? 0 : 1]
 
       for (const [key, value] of Object.entries(joints)) {
         const position = encodeVector3((value as any).position)

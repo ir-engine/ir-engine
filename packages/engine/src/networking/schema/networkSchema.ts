@@ -22,7 +22,6 @@ const jointTransformSchema = new Schema({
 })
 
 const handPoseSchema = new Schema({
-  handedness: uint8,
   joints: [jointTransformSchema]
 })
 
@@ -76,7 +75,6 @@ export interface WorldStateInterface {
   handsPose: {
     networkId: NetworkId
     hands: {
-      handedness: number
       joints: [
         {
           key: string

@@ -189,8 +189,6 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
         const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
 
         netHands.hands.forEach((data, i) => {
-          // TODO: data.handedness is always 1 on the clients for some reason
-          // const hand = xrHandsComponent.hands[data.handedness] as any
           const hand = xrHandsComponent.hands[i] as any
 
           if (!hand.joints) {
