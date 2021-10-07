@@ -40,12 +40,18 @@ export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vec
   return path
 }
 
-const quat = new Quaternion()
-const forward = new Vector3(0, 0, 1)
-
 export default async function AutopilotSystem(world: World): Promise<System> {
   const GAMEPAD_STICK = GamepadAxis.Left
   const raycaster = new Raycaster()
+  const quat = new Quaternion()
+  const forward = new Vector3(0, 0, 1)
+  const targetFlatPosition = new Vector3()
+  const avatarPositionFlat = new Vector3()
+  const direction = new Vector3()
+  const stickValue = new Vector3()
+  const startPoint = new YukaVector3()
+  const endPoint = new YukaVector3()
+  const path = new Path()
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
@@ -104,11 +110,11 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
       const { position } = getComponent(entity, TransformComponent)
       if (!navMeshComponent.yukaNavMesh) {
-        const start = new YukaVector3(...position.toArray())
-        const end = new YukaVector3(...request.point.toArray())
-        const path = new Path()
-        path.add(start)
-        path.add(end)
+        startPoint.copy(position as any)
+        endPoint.copy(request.point as any)
+        path.clear()
+        path.add(startPoint)
+        path.add(endPoint)
         addComponent(entity, AutoPilotComponent, {
           path,
           navEntity: request.navEntity
@@ -153,8 +159,9 @@ export default async function AutopilotSystem(world: World): Promise<System> {
         }
 
         const { position: avatarPosition, rotation: avatarRotation } = getComponent(entity, TransformComponent)
-        const targetFlatPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
-        const targetFlatDistance = targetFlatPosition.distanceTo(avatarPosition.clone().setY(0))
+        targetFlatPosition.set(autopilot.path.current().x, 0, autopilot.path.current().z)
+        avatarPositionFlat.copy(avatarPosition).setY(0)
+        const targetFlatDistance = targetFlatPosition.distanceTo(avatarPositionFlat)
         if (targetFlatDistance < ARRIVED_DISTANCE) {
           if (autopilot.path.finished()) {
             // Path is finished!
@@ -180,9 +187,9 @@ export default async function AutopilotSystem(world: World): Promise<System> {
             targetFlatDistance < ARRIVING_DISTANCE ? (targetFlatDistance * MAX_SPEED) / ARRIVING_DISTANCE : MAX_SPEED
           )
         )
-        const direction = targetFlatPosition.clone().sub(avatarPosition).setY(0).normalize()
+        direction.copy(targetFlatPosition).sub(avatarPositionFlat).normalize()
         const targetAngle = Math.atan2(direction.x, direction.z)
-        const stickValue = direction.clone().multiplyScalar(speedModifier) // speed
+        stickValue.copy(direction).multiplyScalar(speedModifier) // speed
 
         const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
         // If position not set, set it with lifecycle started
