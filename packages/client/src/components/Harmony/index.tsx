@@ -366,7 +366,6 @@ const Harmony = (props: Props): any => {
     channelRef.current = channels
     channelEntries.forEach((channel) => {
       if (!channel) return
-      console.log(channel)
       if (chatState.updateMessageScroll.value === true) {
         dispatch(ChatAction.setUpdateMessageScroll(false))
         if (
