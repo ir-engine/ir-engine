@@ -24,17 +24,14 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 
 		world.fixedTick = tick
 
-		world.delayedActions = new Set<Required<Action>>()
-		const obj = {
+		const action = NetworkWorldAction.spawnObject({
 			userId: '0' as UserId,
-			networkId: Network.getNetworkId(),
 			prefab: '',
 			parameters: {},
-			$tick: 0,
+			$tick: tick,
 			$from: world.hostId,
 			$to: '0' as ActionRecipients,
-		}
-		const action = NetworkWorldAction.spawnObject(obj)
+		})
 		
 		world.delayedActions.add(action)
 
@@ -108,6 +105,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		
 		// todo: Network should ideally be passed into the system as a parameter dependency,
 		// instead of an import dependency, but this works for now
+		console.log(Network.instance)
 		Network.instance.incomingMessageQueueUnreliable.add(buffer)
 		Network.instance.incomingMessageQueueUnreliableIDs.add("0")
 		
