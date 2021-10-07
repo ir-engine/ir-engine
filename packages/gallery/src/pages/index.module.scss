@@ -17,10 +17,11 @@ body{
 }
 .viewport {
   position: fixed;
-  width: 100vw;
+  width: auto;
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-y: overlay;
 }
 .isIos{
 	padding-top: 2rem;
