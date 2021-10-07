@@ -32,4 +32,4 @@ const inviteTypeReceptor = (action: InviteTypeActionType): any => {
 }
 
 export const accessInviteTypeState = () => state
-export const useInviteTypeState = () => useState(state)
+export const useInviteTypeState = () => useState(state) as any as typeof state

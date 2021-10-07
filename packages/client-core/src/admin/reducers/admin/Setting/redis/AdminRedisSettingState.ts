@@ -28,4 +28,4 @@ const adminRedisSettingReceptor = (action: AdminRedisSettingActionType): any => 
 }
 
 export const accessAdminRedisSettingState = () => state
-export const useAdminRedisSettingState = () => useState(state)
+export const useAdminRedisSettingState = () => useState(state) as any as typeof state

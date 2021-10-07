@@ -111,7 +111,7 @@ const Invites = (props: Props): any => {
     setUserToken('')
   }
 
-  const handleInviteGroupChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
+  const handleInviteGroupChange = (event: React.ChangeEvent<{ value: string }>): void => {
     dispatch(InviteService.updateInviteTarget('group', event.target.value))
   }
 

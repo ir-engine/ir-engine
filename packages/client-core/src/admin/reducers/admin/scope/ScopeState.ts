@@ -73,4 +73,4 @@ const scopeReceptor = (action: ScopeActionType): any => {
 }
 
 export const accessScopeState = () => state
-export const useScopeState = () => useState(state)
+export const useScopeState = () => useState(state) as any as typeof state

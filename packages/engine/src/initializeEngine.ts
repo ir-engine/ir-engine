@@ -225,7 +225,6 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
-  registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/MediaStreamSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED_EARLY, options.systems)
 
@@ -252,7 +251,6 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 }
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
-  console.log('\n\n\n\n\n\n\n\n============================register media server systems')
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
 }
 
@@ -266,7 +264,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.publicPath = options.publicPath
 
   // Browser state set
-  if (options.type !== EngineSystemPresets.SERVER && navigator && window) {
+  if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()
     const os = detectOS(navigator.userAgent)
 

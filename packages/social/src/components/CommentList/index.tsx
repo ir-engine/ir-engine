@@ -30,8 +30,8 @@ const CommentList = ({ feedId }: Props) => {
   }
   return (
     <section className={styles.commentsContainer}>
-      <Grid container spacing={1} xs={6} alignItems="flex-end" style={{ margin: '20px 0px' }}>
-        <Grid item xs>
+      <Grid container spacing={1} alignItems="flex-end" style={{ margin: '20px 0px' }}>
+        <Grid item xs={10} sm={10} md={4} lg={3}>
           <TextField
             value={commentText}
             multiline={true}
@@ -40,7 +40,7 @@ const CommentList = ({ feedId }: Props) => {
             onChange={(e) => setCommentText(e.target.value)}
           />
         </Grid>
-        <Grid item xs>
+        <Grid item xs={2}>
           <SendIcon style={{ fontSize: 28 }} onClick={() => addComment(feedId, commentText)} />
         </Grid>
       </Grid>

@@ -29,21 +29,21 @@ function avatarActionReceptor(action) {
     .when(NetworkWorldAction.setXRMode.matchesFromAny, (a) => {
       if (a.$from !== world.hostId && a.$from !== a.userId) return
       const entity = world.getUserAvatarEntity(a.userId)
-      if (typeof entity !== 'undefined') {
-        if (a.enabled) {
-          if (!hasComponent(entity, XRInputSourceComponent))
-            addComponent(entity, XRInputSourceComponent, {
-              controllerLeft: new Group(),
-              controllerRight: new Group(),
-              controllerGripLeft: new Group(),
-              controllerGripRight: new Group(),
-              container: new Group(),
-              head: new Group()
-            })
-        } else {
-          if (hasComponent(entity, XRInputSourceComponent)) {
-            removeComponent(entity, XRInputSourceComponent)
-          }
+      if (!entity) return
+
+      if (a.enabled && !hasComponent(entity, XRInputSourceComponent)) {
+        addComponent(entity, XRInputSourceComponent, {
+          controllerLeft: new Group(),
+          controllerRight: new Group(),
+          controllerGripLeft: new Group(),
+          controllerGripRight: new Group(),
+          container: new Group(),
+          head: new Group(),
+          hands: [new Group(), new Group()]
+        })
+      } else {
+        if (hasComponent(entity, XRInputSourceComponent)) {
+          removeComponent(entity, XRInputSourceComponent)
         }
       }
     })
@@ -74,7 +74,6 @@ export default async function AvatarSystem(world: World): Promise<System> {
 
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
-  const avatarQuery = defineQuery([AvatarComponent, ColliderComponent])
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
 
@@ -87,7 +86,8 @@ export default async function AvatarSystem(world: World): Promise<System> {
         xrInputSourceComponent.controllerLeft,
         xrInputSourceComponent.controllerGripLeft,
         xrInputSourceComponent.controllerRight,
-        xrInputSourceComponent.controllerGripRight
+        xrInputSourceComponent.controllerGripRight,
+        ...xrInputSourceComponent.hands
       )
 
       xrInputSourceComponent.container.applyQuaternion(rotate180onY)

@@ -30,4 +30,4 @@ const errorReceptor = (action: ErrorActionType): any => {
 }
 
 export const errorState = () => state
-export const useErrorState = () => useState(state)
+export const useErrorState = () => useState(state) as any as typeof state

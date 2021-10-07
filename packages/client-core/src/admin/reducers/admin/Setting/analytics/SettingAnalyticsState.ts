@@ -25,4 +25,4 @@ const settingAnalyticsReceptor = (action: SettingAnalyticsActionType): any => {
 }
 
 export const accessSettingAnalyticsState = () => state
-export const useSettingAnalyticsState = () => useState(state)
+export const useSettingAnalyticsState = () => useState(state) as any as typeof state

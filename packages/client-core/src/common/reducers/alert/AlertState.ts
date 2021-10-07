@@ -25,4 +25,4 @@ const alertReceptor = (action: AlertActionType): any => {
 }
 
 export const alertState = () => state
-export const useAlertState = () => useState(state)
+export const useAlertState = () => useState(state) as any as typeof state

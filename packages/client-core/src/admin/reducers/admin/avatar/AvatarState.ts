@@ -52,4 +52,4 @@ const avatarReceptor = (action: AvatarActionType): any => {
 }
 
 export const accessAvatarState = () => state
-export const useAvatarState = () => useState(state)
+export const useAvatarState = () => useState(state) as any as typeof state

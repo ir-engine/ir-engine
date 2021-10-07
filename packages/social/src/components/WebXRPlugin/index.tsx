@@ -33,9 +33,9 @@ import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
 // import HintOne from '../WebXrHints/HintOne'
 // import HintTwo from '../WebXrHints/HintTwo'
 import { FeedService } from '../../reducers/feed/FeedService'
+import HintOne from '../WebXrHints/HintOne'
+import HintTwo from '../WebXrHints/HintTwo'
 import ZoomGestureHandler from './ZoomGestureHandler'
-import { App } from '@capacitor/app'
-import { useHistory } from 'react-router-dom'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -130,16 +130,6 @@ export const WebXRPlugin = ({
     xy: null,
     zy: null
   }
-
-  const history = useHistory()
-  const [active, setActive] = useState(true)
-
-  App.addListener('appStateChange', ({ isActive }) => {
-    setActive(isActive)
-    if (!isActive) {
-      history.push('/')
-    }
-  })
 
   const showContent = () => {
     if (!webxrRecorderActivity) {
@@ -683,8 +673,8 @@ export const WebXRPlugin = ({
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
-      {/* {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
-      {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''} */}
+      {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
+      {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''}
       <div className="plugintestControls">
         <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
           <section className={styles.waterMarkWrapper}>

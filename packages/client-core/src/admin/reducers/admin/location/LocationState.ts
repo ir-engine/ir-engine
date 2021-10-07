@@ -77,4 +77,4 @@ const locationReceptor = (action: LocationActionType): any => {
 }
 
 export const accessLocationState = () => state
-export const useLocationState = () => useState(state)
+export const useLocationState = () => useState(state) as any as typeof state

@@ -19,11 +19,12 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
  */
 
 export const startWebXR = (): void => {
-  const controllerLeft = Engine.xrRenderer.getController(1) as any
-  const controllerRight = Engine.xrRenderer.getController(0) as any
+  const controllerLeft = Engine.xrRenderer.getController(1)
+  const controllerRight = Engine.xrRenderer.getController(0)
   const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1)
   const controllerGripRight = Engine.xrRenderer.getControllerGrip(0)
   const container = new Group()
+  const hands = [Engine.xrRenderer.getHand(0), Engine.xrRenderer.getHand(1)]
 
   Engine.scene.remove(Engine.camera)
   container.add(Engine.camera)
@@ -39,7 +40,8 @@ export const startWebXR = (): void => {
     controllerLeft,
     controllerRight,
     controllerGripLeft,
-    controllerGripRight
+    controllerGripRight,
+    hands
   })
 
   dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: true }))
@@ -74,7 +76,6 @@ const vec3 = new Vector3()
 const v3 = new Vector3()
 const uniformScale = new Vector3(1, 1, 1)
 const quat = new Quaternion()
-const forward = new Vector3(0, 0, -1)
 
 /**
  * Gets the hand position in world space

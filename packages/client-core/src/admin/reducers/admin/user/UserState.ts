@@ -118,4 +118,4 @@ const userReceptor = (action: UserActionType): any => {
 }
 
 export const accessUserState = () => state
-export const useUserState = () => useState(state)
+export const useUserState = () => useState(state) as any as typeof state

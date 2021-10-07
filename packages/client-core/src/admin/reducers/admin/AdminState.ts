@@ -22,4 +22,4 @@ const adminReceptor = (action: AdminActionType): any => {
 }
 
 export const accessAdminState = () => state
-export const useAdminState = () => useState(state)
+export const useAdminState = () => useState(state) as any as typeof state

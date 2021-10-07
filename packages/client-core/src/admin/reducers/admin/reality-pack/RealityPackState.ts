@@ -52,4 +52,4 @@ const realityPackReceptor = (action: RealityPackActionType): any => {
 }
 
 export const accessRealityPackState = () => state
-export const useRealityPackState = () => useState(state)
+export const useRealityPackState = () => useState(state) as any as typeof state

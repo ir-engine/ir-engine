@@ -86,4 +86,4 @@ export const userReceptor = (action: UserActionType): void => {
 }
 
 export const accessUserState = () => state
-export const useUserState = () => useState(state) as unknown as typeof state
+export const useUserState = () => useState(state) as any as typeof state as unknown as typeof state
