@@ -180,7 +180,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
             targetFlatDistance < ARRIVING_DISTANCE ? (targetFlatDistance * MAX_SPEED) / ARRIVING_DISTANCE : MAX_SPEED
           )
         )
-        const direction = targetFlatPosition.clone().sub(avatarPosition.clone().setY(0)).normalize()
+        const direction = targetFlatPosition.clone().sub(avatarPosition).setY(0).normalize()
         const targetAngle = Math.atan2(direction.x, direction.z)
         const stickValue = direction.clone().multiplyScalar(speedModifier) // speed
 
@@ -207,22 +207,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           }
         }
 
-        // rotation
-        const targetDirection = targetFlatPosition.clone().sub(avatarPosition).setY(0).normalize()
-        // {
-        //   // way 1
-        //   const transform = getComponent(entity, TransformComponent)
-        //   const forwardVector = new Vector3(0, 0, 1)
-        //   applyVectorMatrixXZ(targetDirection, forwardVector)
-        //   const targetQuaternion = new Quaternion().setFromUnitVectors(forwardVector, targetDirection)
-        //   transform.rotation.rotateTowards(targetQuaternion, ROTATION_SPEED)
-        //   // actor.viewVector.copy(targetDirection)
-        //   actor.viewVector.copy(forwardVector).applyQuaternion(transform.rotation)
-        // }
-        {
-          // way 2
-          avatarRotation.copy(quat.setFromUnitVectors(forward, targetDirection))
-        }
+        avatarRotation.copy(quat.setFromUnitVectors(forward, direction))
       }
     }
 
