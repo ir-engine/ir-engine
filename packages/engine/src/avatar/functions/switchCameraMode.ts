@@ -8,7 +8,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 
 const setVisible = (entity: Entity, visible: boolean): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
-
   object3DComponent.value.traverse((obj) => {
     const mat = (obj as SkinnedMesh).material
     if (mat) {

@@ -1,9 +1,9 @@
 import { OrthographicCamera, PerspectiveCamera } from 'three'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { ProjectionType } from '../../camera/types/ProjectionType'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent, addComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
@@ -25,9 +25,7 @@ type Props = {
 }
 
 export const setCameraProperties = (entity: Entity, data: Props): void => {
-  const cameraFollow = hasComponent(entity, FollowCameraComponent)
-    ? getComponent(entity, FollowCameraComponent)
-    : addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
   console.log('data')
 
   console.log(data)
