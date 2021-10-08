@@ -22,7 +22,6 @@ import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -55,7 +54,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
-  const ongoingQuery = defineQuery([AutoPilotComponent, AvatarControllerComponent])
+  const ongoingQuery = defineQuery([AutoPilotComponent])
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
 
   return () => {
@@ -120,7 +119,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       } else {
         const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
 
-        autopilotComponent = addComponent(entity, AutoPilotComponent, {
+        addComponent(entity, AutoPilotComponent, {
           path: findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate),
           navEntity: request.navEntity
         })
