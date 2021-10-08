@@ -58,6 +58,12 @@ export const switchCameraMode = (
         setVisible(entity, true)
       }
       break
+    default:
+    case CameraMode.ThirdPerson:
+      {
+        setVisible(entity, true)
+      }
+      break
 
     case CameraMode.TopDown:
       {
