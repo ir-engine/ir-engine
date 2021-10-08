@@ -16,6 +16,8 @@ import { ProjectManager } from '../../managers/ProjectManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { Folder } from '@styled-icons/fa-solid'
 import { Config } from '@xrengine/common/src/config'
+import path from 'path'
+import { Button } from '../inputs/Button'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -56,18 +58,22 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const onSelect = (props) => {
     if (props.type !== 'folder')
       onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
-    else setSelectedDirectory(props.label)
+    else {
+      const newPath = `${selectedDirectory}${props.label}/`
+      setSelectedDirectory(newPath)
+    }
   }
 
-  const [selectedDirectory, setSelectedDirectory] = useState('')
+  const [selectedDirectory, setSelectedDirectory] = useState('/ThisisTheMedia/')
 
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
 
-  const renderProjectFiles = async (projectSid, subDir = '') => {
+  const renderProjectFiles = async (directory) => {
     const returningObjects = []
-    const resultFromThis = (await ProjectManager.instance.feathersClient
-      .service(`file-browser`)
-      .get(`ThisisTheMedia/${subDir}`)) as any[]
+    const resultFromThis = directory
+      ? ((await ProjectManager.instance.feathersClient.service(`file-browser`).get(directory)) as any[])
+      : []
+
     for (let i = 0; i < resultFromThis.length; i++) {
       const content = resultFromThis[i] as FileBrowserContentType
       const nodeClass = UploadFileType[content.type]
@@ -94,7 +100,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }
 
   useEffect(() => {
-    renderProjectFiles('selectedProjectIndex', selectedDirectory)
+    renderProjectFiles(selectedDirectory)
   }, [selectedDirectory])
 
   const onFileUploaded = (index) => {}
@@ -107,19 +113,26 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }, [])
 
   const addNewFolder = () => {
-    console.log('Adding New Folder')
     ProjectManager.instance.feathersClient.service(`file-browser`).create({ fileName: 'FileName' })
+  }
+
+  const onBackDirectory = () => {
+    const pattern = /([a-z 0-9]+)/gi
+    console.log('Selected Directory is:' + selectedDirectory)
+    const result = selectedDirectory.match(pattern)
+    let newPath = '/'
+    for (let i = 0; i < result.length - 1; i++) {
+      newPath += result[i] + '/'
+    }
+
+    console.log('Back Path is:' + newPath)
+    setSelectedDirectory(newPath)
   }
 
   return (
     <>
       {console.log('Rendering File Browser Panel CHILD')}
-      {/* @ts-ignore */}
-      {/* <InputGroup name="Project Name" label="Project Name"> */}
-      {/* @ts-ignore */}
-      {/* <SelectInput options={projectSelectTypes} onChange={onChangeSelectedProject} value={selectedProjectIndex} /> */}
-      {/* </InputGroup> */}
-
+      <Button onClick={onBackDirectory}>Back</Button>
       <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
         <AssetPanelContentContainer>
           <FileBrowserGrid

@@ -44,7 +44,7 @@ export class LocalStorage implements StorageProviderInterface {
     })
     const folder = glob.sync(path.join(filePath, '*/')).map((result) => {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const name = key.replace(`/${folderName}`, '').split('/')[0]
+      const name = key.replace(`${folderName}`, '').split('/')[0]
       const res: FileBrowserContentType = {
         key,
         name,
