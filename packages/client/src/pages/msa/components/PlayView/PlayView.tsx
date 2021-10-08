@@ -1,6 +1,8 @@
 import React from 'react'
 import styles from './PlayView.module.scss'
-import { Card, CardMedia, Grid, Typography } from '@mui/material'
+import { Card, CardMedia, Grid } from '@mui/material'
+import { Link } from 'react-router-dom'
+import FooterNews from '../Common/FooterNews'
 
 const PlayView = (): any => {
   return (
@@ -24,10 +26,10 @@ const PlayView = (): any => {
                 </div>
                 <img src="/static/msa/la-lakers-logo.png" alt="LA-Lakers" style={{ height: 'auto' }} />
                 <Grid item style={{ marginLeft: '20px', marginRight: '50px' }}>
-                  <div>SwipeStealBall</div>
+                  <span style={{ fontSize: '16px', lineHeight: '19px' }}>SwipeStealBall</span>
                   <Grid container justifyContent={'center'} sx={{ marginTop: '5%' }}>
                     <img src="/static/msa/img-dollar.png" alt="Dollar sign" />
-                    <span style={{ marginLeft: '5%' }}>100,000</span>
+                    <span style={{ fontSize: '16px', lineHeight: '19px', marginLeft: '5%' }}>100,000</span>
                   </Grid>
                 </Grid>
               </Grid>
@@ -37,66 +39,72 @@ const PlayView = (): any => {
 
         <Grid container justifyContent="center" alignContent="center" spacing={3}>
           <Grid item>
-            <div
-              style={{ position: 'relative' }}
-              className={styles.cardBackgroundBig + ' ' + styles.cardBackgroundGreenTop}
-            >
-              <CardMedia component="img" image="/static/msa/image 349.png" />
+            <Link to={'/msa/manage-team-staked'}>
+              <div
+                style={{ position: 'relative' }}
+                className={styles.cardBackgroundBig + ' ' + styles.cardBackgroundGreenTop}
+              >
+                <CardMedia component="img" image="/static/msa/image 349.png" />
 
-              <div className={styles.cardBackgroundGreenBottom + ' ' + styles.overlay}>
-                <p>
-                  <span className={styles.cardTitleText}>
-                    PLAY <span style={{ fontWeight: 'bold' }}>STAKED</span>
-                  </span>
-                  <br />
-                  <span className={styles.cardSubtitleText}>
-                    Put your team in, pick from a staked or unstaked, and start playing.
-                  </span>
-                </p>
+                <div className={styles.cardBackgroundGreenBottom + ' ' + styles.overlay}>
+                  <p>
+                    <span className={styles.cardTitleText}>
+                      PLAY <span style={{ fontWeight: 'bold' }}>STAKED</span>
+                    </span>
+                    <br />
+                    <span className={styles.cardSubtitleText}>
+                      Put your team in, pick from a staked or unstaked, and start playing.
+                    </span>
+                  </p>
+                </div>
               </div>
-            </div>
+            </Link>
           </Grid>
 
           <Grid item>
-            <div
-              style={{ position: 'relative' }}
-              className={styles.cardBackgroundBig + ' ' + styles.cardBackgroundBlueTop}
-            >
-              <CardMedia component="img" image="/static/msa/Mask Group.png" />
+            <Link to={'/msa/manage-team-unstaked'}>
+              <div
+                style={{ position: 'relative' }}
+                className={styles.cardBackgroundBig + ' ' + styles.cardBackgroundBlueTop}
+              >
+                <CardMedia component="img" image="/static/msa/Mask Group.png" />
 
-              <div className={styles.cardBackgroundBlueBottom + ' ' + styles.overlay}>
-                <p>
-                  <span className={styles.cardTitleText}>
-                    PLAY <span style={{ fontWeight: 'bold' }}>UNSTAKED</span>
-                  </span>
-                  <br />
-                  <span className={styles.cardSubtitleText}>
-                    Manage your squad, set starters & bench, and toggle play time.
-                  </span>
-                </p>
+                <div className={styles.cardBackgroundBlueBottom + ' ' + styles.overlay}>
+                  <p>
+                    <span className={styles.cardTitleText}>
+                      PLAY <span style={{ fontWeight: 'bold' }}>UNSTAKED</span>
+                    </span>
+                    <br />
+                    <span className={styles.cardSubtitleText}>
+                      Manage your squad, set starters & bench, and toggle play time.
+                    </span>
+                  </p>
+                </div>
               </div>
-            </div>
+            </Link>
           </Grid>
 
           <Grid item>
-            <div
-              style={{ position: 'relative' }}
-              className={styles.cardBackgroundBig + ' ' + styles.cardBackgroundBlueTop}
-            >
-              <CardMedia component="img" image="/static/msa/Mask Group.png" />
+            <Link to={'/msa/manage-team-tournament'}>
+              <div
+                style={{ position: 'relative' }}
+                className={styles.cardBackgroundBig + ' ' + styles.cardBackgroundBlueTop}
+              >
+                <CardMedia component="img" image="/static/msa/Mask Group.png" />
 
-              <div className={styles.cardBackgroundBlueBottom + ' ' + styles.overlay}>
-                <p>
-                  <span className={styles.cardTitleText}>
-                    PLAY <span style={{ fontWeight: 'bold' }}>TOURNAMENT</span>
-                  </span>
-                  <br />
-                  <span className={styles.cardSubtitleText}>
-                    Manage your squad, set starters & bench, and toggle play time.
-                  </span>
-                </p>
+                <div className={styles.cardBackgroundBlueBottom + ' ' + styles.overlay}>
+                  <p>
+                    <span className={styles.cardTitleText}>
+                      PLAY <span style={{ fontWeight: 'bold' }}>TOURNAMENT</span>
+                    </span>
+                    <br />
+                    <span className={styles.cardSubtitleText}>
+                      Manage your squad, set starters & bench, and toggle play time.
+                    </span>
+                  </p>
+                </div>
               </div>
-            </div>
+            </Link>
           </Grid>
 
           <Grid item xs={3}>
@@ -107,57 +115,54 @@ const PlayView = (): any => {
               style={{ height: '100%', width: '85%' }}
             >
               <Grid item style={{ height: '47%' }}>
-                <div
-                  style={{ position: 'relative', height: '100%', width: '100%' }}
-                  className={styles.cardBackgroundSmall + ' ' + styles.cardBackgroundPurpleTop}
-                >
-                  <div style={{ marginTop: '10%' }}>
-                    <img className="m-1" src="/static/msa/pngegg.png" alt="box" />
-                    <img className="m-1" src="/static/msa/pngegg.png" alt="box" />
-                    <img className="m-1" src="/static/msa/pngegg.png" alt="box" />
+                <Link to={'#'}>
+                  <div
+                    style={{ position: 'relative', height: '100%', width: '100%' }}
+                    className={styles.cardBackgroundSmall + ' ' + styles.cardBackgroundPurpleTop}
+                  >
+                    <div style={{ marginTop: '10%' }}>
+                      <img className="m-1" src="/static/msa/pngegg.png" alt="box" />
+                      <img className="m-1" src="/static/msa/pngegg.png" alt="box" />
+                      <img className="m-1" src="/static/msa/pngegg.png" alt="box" />
+                    </div>
+                    <div className={styles.overlay}>
+                      <p>
+                        <span className={styles.cardTitleText} style={{ fontWeight: 'bold' }}>
+                          PRIVATE GAME
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <div className={styles.overlay}>
-                    <p>
-                      <span className={styles.cardTitleText} style={{ fontWeight: 'bold' }}>
-                        PRIVATE GAME
-                      </span>
-                    </p>
-                  </div>
-                </div>
+                </Link>
               </Grid>
 
               <Grid item style={{ height: '47%' }}>
-                <div
-                  style={{ position: 'relative', height: '100%', width: '100%' }}
-                  className={styles.cardBackgroundSmall + ' ' + styles.cardBackgroundOrangeTop}
-                >
-                  <img
-                    src="/static/msa/ic-settings.png"
-                    style={{ alignSelf: 'center', padding: '10%' }}
-                    alt="Settings"
-                  />
+                <Link to={'#'}>
+                  <div
+                    style={{ position: 'relative', height: '100%', width: '100%' }}
+                    className={styles.cardBackgroundSmall + ' ' + styles.cardBackgroundOrangeTop}
+                  >
+                    <img
+                      src="/static/msa/ic-settings.png"
+                      style={{ alignSelf: 'center', padding: '10%' }}
+                      alt="Settings"
+                    />
 
-                  <div className={styles.cardBackgroundOrangeBottom + ' ' + styles.overlay}>
-                    <p>
-                      <span className={styles.cardTitleText} style={{ fontWeight: 'bold' }}>
-                        TUTORIAL
-                      </span>
-                    </p>
+                    <div className={styles.cardBackgroundOrangeBottom + ' ' + styles.overlay}>
+                      <p>
+                        <span className={styles.cardTitleText} style={{ fontWeight: 'bold' }}>
+                          TUTORIAL
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </Grid>
             </Grid>
           </Grid>
         </Grid>
 
-        <Grid container direction={'row'} alignItems="end">
-          <Grid item md={2} textAlign={'end'} style={{ backgroundColor: '#EB5858', padding: '0.5%' }}>
-            <Typography variant={'body1'}>MSA TODAY</Typography>
-          </Grid>
-          <Grid item md={10} textAlign={'start'} style={{ backgroundColor: '#343434', padding: '0.5%' }}>
-            <Typography variant={'body1'}>MetaSports Association News Here</Typography>
-          </Grid>
-        </Grid>
+        <FooterNews news="MetaSports Association News Here" />
       </Grid>
     </>
   )
