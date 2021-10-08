@@ -74,22 +74,22 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
   useEffect(() => {
     if (auth.user.id.value) {
       if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-      dispatch(FeedService.getFeeds(type, creatorId))
-    } else {
-      const getFeaturedFeeds = async () => {
-        await dispatch(FeedService.getFeeds('featured'))
-        if (type !== 'fired') {
-          dispatch(FeedService.getFeeds('fired', creatorId))
+        dispatch(FeedService.getFeeds(type, creatorId))
+      } else {
+        const getFeaturedFeeds = async () => {
+          await dispatch(FeedService.getFeeds('featured'))
+          if (type !== 'fired') {
+            dispatch(FeedService.getFeeds('fired', creatorId))
+          }
         }
+
+        const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
+        userIdentityType !== 'guest' ? getFeaturedFeeds() : dispatch(FeedService.getFeeds('featuredGuest'))
       }
 
-      const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-      userIdentityType !== 'guest' ? getFeaturedFeeds() : dispatch(FeedService.getFeeds('featuredGuest'))
-    }
-
-    if (type !== 'fired') {
-      setRemovedIds(new Set())
-    }
+      if (type !== 'fired') {
+        setRemovedIds(new Set())
+      }
     }
   }, [type, creatorId, auth.user.id.value, feedsState.feeds.feedsFetching.value, removeIdsStringify])
 
