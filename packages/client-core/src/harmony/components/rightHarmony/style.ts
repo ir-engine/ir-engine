@@ -32,6 +32,21 @@ export const useStyles = makeStyles((theme: Theme) =>
     listText: {
       flexGrow: 1,
       backgroundColor: 'transparent'
+    },
+    messageContainer: {
+      padding: '10px 0',
+      overflowY: 'auto',
+      height: '85vh'
+    },
+    whiteIcon: {
+      color: '#f1f1f1'
+    },
+    listBtn: {
+      backgroundColor: '#1f252d',
+      color: '#fff',
+      '&:hover': {
+        background: 'rgba(0,0,0,0.9)'
+      }
     }
   })
 )

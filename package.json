@@ -149,7 +149,6 @@
     "yuka": "0.7.6"
   },
   "dependencies": {
-    "@iconify/react": "3.0.1",
-    "react-chat-elements": "^10.16.0"
+    "@iconify/react": "3.0.1"
   }
 }

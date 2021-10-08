@@ -20,28 +20,11 @@ export default function LeftHarmony() {
   const [value, setValue] = React.useState(0)
   const [age, setAge] = React.useState('')
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
-  }
   const handleChangeAge = (event) => {
     setAge(event.target.value)
   }
   return (
     <div>
-      <div style={{ paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '1rem' }}>
-        <Paper square className={classes.paperRoot}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            // indicatorColor="secondary"
-            // textColor="secondary"
-            aria-label="icon label tabs example"
-          >
-            <Tab label="PARTY" />
-            <Tab label="HERE" />
-          </Tabs>
-        </Paper>
-      </div>
       <div style={{ paddingLeft: '1rem', paddingRight: '1rem', paddingTop: '0.8rem' }}>
         <SearchUser />
       </div>
@@ -51,7 +34,7 @@ export default function LeftHarmony() {
             <Select
               labelId="demo-controlled-open-select-label"
               id="demo-controlled-open-select"
-              value={'Freinds'}
+              value={'Party'}
               fullWidth
               // displayEmpty
               onChange={handleChangeAge}
@@ -59,11 +42,8 @@ export default function LeftHarmony() {
               name="instance"
               MenuProps={{ classes: { paper: classx.selectPaper } }}
             >
-              <MenuItem value="" disabled>
-                <em>Select instance</em>
-              </MenuItem>
-              {['Freinds', 'Group', 'three'].map((el) => (
-                <MenuItem value={el} key={el}>
+              {['Party', 'Freinds', 'Group', 'Layer'].map((el) => (
+                <MenuItem value={el} key={el} style={{ background: '#343b41', color: '#f1f1f1' }}>
                   {el}
                 </MenuItem>
               ))}

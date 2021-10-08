@@ -2,13 +2,18 @@ import React from 'react'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Avatar from '@material-ui/core/Avatar'
-import './main.css'
-import { MessageBox } from 'react-chat-elements'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import IconButton from '@material-ui/core/IconButton'
 import Send from '@material-ui/icons/Send'
+import Call from '@material-ui/icons/Call'
+import MoreHoriz from '@material-ui/icons/MoreHoriz'
 import { useStyle, useStyles } from './style'
+
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import Person from '@material-ui/icons/Person'
+import Face from '@material-ui/icons/Face'
 
 export default function RightHarmony() {
   const classex = useStyle()
@@ -17,46 +22,65 @@ export default function RightHarmony() {
     <div className={classes.rightRoot}>
       <div className={classes.title}>
         <ListItemAvatar>
-          <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+          <Person />
         </ListItemAvatar>
         <ListItemText
           className={classes.listText}
           primary="Kimenyi kevin"
-          secondary={<React.Fragment>{'Online'}</React.Fragment>}
+          secondary={<React.Fragment>{'online'}</React.Fragment>}
         />
+        <div style={{ marginRight: '1.5rem' }}>
+          <IconButton>
+            <Call className={classes.whiteIcon} />
+          </IconButton>
+          <IconButton>
+            <MoreHoriz className={classes.whiteIcon} />
+          </IconButton>
+        </div>
       </div>
-      <div style={{ padding: '10px 0', overflowY: 'auto', height: '85vh' }}>
-        {[
-          'left',
-          'right',
-          'left',
-          'right',
-          'left',
-          'right',
-          'left',
-          'left',
-          'right',
-          'left',
-          'right',
-          'left',
-          'right'
-        ].map((el) => (
-          <MessageBox
-            position={el}
-            type={'text'}
-            text={`
-            Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud
-            Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud
-            Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud
-            Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud Aliqua amet incididunt id nostrud`}
-            data={{
-              status: {
-                click: false,
-                loading: 0
-              }
-            }}
-          />
-        ))}
+      <div className={classes.messageContainer}>
+        <List style={{ backgroundColor: '#1f252d' }}>
+          {[
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />,
+            <Person />,
+            <Face />
+          ].map((el, i) => {
+            return (
+              <ListItem button className={classes.listBtn}>
+                <ListItemAvatar>
+                  <Avatar>{el}</Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={i % 2 === 0 ? 'Kimenyi' : 'Sam'}
+                  secondary={i % 2 === 0 ? 'How are thing going on your side Sam' : 'Going great'}
+                />
+              </ListItem>
+            )
+          })}
+        </List>
       </div>
       <div style={{ position: 'fixed', bottom: '0' }}>
         <Paper component="form" className={classes.root}>
