@@ -20,7 +20,7 @@ describe('Scene Loader', () => {
     setTimeout(() => process.exit(0), 1000)
   })
 
-  it.skip('Can load gltf metadata', async () => {
+  it('Can load gltf metadata', async () => {
 
     const mockComponentData = { data: { src: '' } } as any
     const CustomComponent = createMappedComponent<{ value: number}>('CustomComponent')
