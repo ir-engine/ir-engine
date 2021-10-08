@@ -1,18 +1,11 @@
 import React, { forwardRef, useState } from 'react'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import AddCircleIcon from '@material-ui/icons/AddCircle'
-import { bindActionCreators, Dispatch } from 'redux'
-import { updateArMediaState } from '../../reducers/popupsState/service'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import { connect, useDispatch } from 'react-redux'
 import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'
 import StepWizard from 'react-step-wizard'
@@ -25,16 +18,6 @@ import { CreatorService } from '../../reducers/creator/CreatorService'
 // @ts-ignore
 import classes from './ViewMode.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch)
-})
-
 const useStyles = makeStyles({})
 
 const Transition = React.forwardRef(
@@ -43,11 +26,9 @@ const Transition = React.forwardRef(
   }
 )
 
-interface Props {
-  updateArMediaState?: typeof updateArMediaState
-}
+interface Props {}
 
-export const ViewMode = ({ updateArMediaState, onGoRegistration }: any) => {
+export const ViewMode = ({ onGoRegistration }: any) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
   const creatorsState = useCreatorState()
@@ -176,7 +157,7 @@ export const ViewMode = ({ updateArMediaState, onGoRegistration }: any) => {
 
   const handleOpenNewFeedPage = () => {
     setOpen(false)
-    updateArMediaState(true)
+    dispatch(PopupsStateService.updateArMediaState(true))
   }
 
   return (
@@ -236,4 +217,4 @@ export const ViewMode = ({ updateArMediaState, onGoRegistration }: any) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewMode)
+export default ViewMode

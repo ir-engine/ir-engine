@@ -23,8 +23,6 @@ interface Props {
   closeEdit: () => void
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const EditFeed = (props: Props) => {
   const { closeEdit, adminFeed } = props
   const [state, setState] = React.useState({
@@ -233,4 +231,4 @@ const EditFeed = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(EditFeed)
+export default EditFeed

@@ -32,12 +32,6 @@ interface Props {
   editing: boolean
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const LocationModal = (props: Props): any => {
   const { open, handleClose, location, editing } = props
 
@@ -317,4 +311,4 @@ const LocationModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationModal)
+export default LocationModal

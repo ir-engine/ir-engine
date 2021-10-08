@@ -18,7 +18,7 @@ import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportTo
 import { InstanceConnectionService } from '../../reducers/instanceConnection/InstanceConnectionService'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
-import { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
+import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'

@@ -10,12 +10,6 @@ import { Dispatch } from 'redux'
 
 interface Props {}
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const VideoChat = (props: Props) => {
   const mediaStreamSystem = new MediaStreams()
 
@@ -40,4 +34,4 @@ const VideoChat = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoChat)
+export default VideoChat

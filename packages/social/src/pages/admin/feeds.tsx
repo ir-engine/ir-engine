@@ -4,13 +4,15 @@
 import React, { useEffect } from 'react'
 
 import Dashboard from '@xrengine/social/src/components/Dashboard'
-import { useFeedState } from '@xrengine/social/src/reducers/feed/FeedState'
+//import { useFeedState } from '@xrengine/social/src/reducers/feed/FeedState'
 import { FeedService } from '@xrengine/social/src/reducers/feed/FeedService'
 
 const FeedsPage = () => {
-  useEffect(() => FeedService.getFeeds('admin'), [])
-  const feedState = useFeedState()
-  const feedsList = feedState && feedState.feeds.fetching.value === false ? feedState.feeds.feedsAdmin : null
+  useEffect(() => {
+    FeedService.getFeeds('admin')
+  }, [])
+  //const feedState = useFeedState()
+  //const feedsList = feedState && feedState.feeds.fetching.value === false ? feedState.feeds.feedsAdmin : null
   return (
     <>
       <div>

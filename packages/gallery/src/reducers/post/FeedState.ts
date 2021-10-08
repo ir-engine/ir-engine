@@ -19,7 +19,7 @@ const state = createState({
     feedsFiredFetching: false,
     myFeatured: [] as Array<FeedShort>,
     myFeaturedFetching: false,
-    feed: {},
+    feed: {} as Feed,
     fetching: false,
     feedsAdmin: {
       feeds: [] as Array<Feed>,

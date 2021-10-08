@@ -14,12 +14,6 @@ interface Props {
   classes: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (): any => ({})
-
 const ProfileConnections = (props: Props): any => {
   const { classes } = props
   const { t } = useTranslation()
@@ -60,4 +54,4 @@ const ProfileConnections = (props: Props): any => {
 
 const ProfileConnectionsWrapper = (props: any): any => <ProfileConnections {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileConnectionsWrapper)
+export default ProfileConnectionsWrapper

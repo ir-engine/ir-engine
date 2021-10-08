@@ -1,13 +1,5 @@
 import { Config } from '@xrengine/common/src/config'
 
-import { RESTORE } from './user/reducers/actions'
-
-export function restoreState(): any {
-  return {
-    type: RESTORE
-  }
-}
-
 export function getStoredAuthState() {
   if (!window) {
     return undefined

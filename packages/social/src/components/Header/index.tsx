@@ -5,28 +5,18 @@ import React, { useEffect } from 'react'
 // @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { CreatorService } from '../../reducers/creator/CreatorService'
-import { updateCreatorFormState } from '../../reducers/popupsState/service'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import { useTranslation } from 'react-i18next'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
-})
 
 interface Props {
   logo?: string
-  updateCreatorFormState?: typeof updateCreatorFormState
   setView: any
 }
-const AppHeader = ({ updateCreatorFormState, setView, onGoRegistration }: any) => {
+const AppHeader = ({ setView, onGoRegistration }: any) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   useEffect(() => {
@@ -60,7 +50,7 @@ const AppHeader = ({ updateCreatorFormState, setView, onGoRegistration }: any) =
           <Avatar
             onClick={() => {
               onGoRegistration(() => {
-                updateCreatorFormState(true)
+                dispatch(PopupsStateService.updateCreatorFormState(true))
               })
             }}
             alt={creator?.username}
@@ -71,4 +61,4 @@ const AppHeader = ({ updateCreatorFormState, setView, onGoRegistration }: any) =
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppHeader)
+export default AppHeader

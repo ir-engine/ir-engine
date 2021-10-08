@@ -14,24 +14,14 @@ import AudiotrackIcon from '@material-ui/icons/Audiotrack'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectFeedsState } from '../../reducers/post/FeedSelector'
+import { useFeedState } from '../../reducers/post/FeedState'
 import { FeedService } from '../../reducers/post/FeedService'
 import styles from './Featured.module.scss'
 import { useHistory } from 'react-router'
 import { FeedFiresService } from '../../reducers/feedFires/FeedFiresService'
 import { getComponentTypeForMedia } from '../Feed'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    feedsState: selectFeedsState(state)
-    //authState: selectAuthState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
-  feedsState?: any
   //authState?: any
   type?: string
   creatorId?: string
@@ -70,7 +60,7 @@ const getMediaPreviewIcon = (mime, props = {}) => {
   }
 }
 
-const Featured = ({ feedsState, type, creatorId, viewType, isFeatured, setIsFeatured }: Props) => {
+const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const [removedIds, setRemovedIds] = useState(new Set())
   const [feedIds, setFeedIds] = useState(new Set())
@@ -79,7 +69,7 @@ const Featured = ({ feedsState, type, creatorId, viewType, isFeatured, setIsFeat
   const auth = useAuthState()
   const dispatch = useDispatch()
   const removeIdsStringify = JSON.stringify([...removedIds])
-
+  const feedsState = useFeedState()
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       dispatch(FeedService.getFeeds(type, creatorId))
@@ -98,41 +88,43 @@ const Featured = ({ feedsState, type, creatorId, viewType, isFeatured, setIsFeat
     if (type !== 'fired') {
       setRemovedIds(new Set())
     }
-  }, [type, creatorId, feedsState.get('feedsFetching'), removeIdsStringify])
+  }, [type, creatorId, feedsState.feeds.feedsFetching.value, removeIdsStringify])
 
   useEffect(
     () =>
       (type === 'featured' || !type) &&
-      feedsState.get('feedsFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]
+      feedsState.feeds.feedsFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsFeatured.value),
+    [feedsState.feeds.feedsFetching.value, feedsState.feeds.feedsFeatured.value]
   )
 
   useEffect(
     () =>
       (type === 'featured' || !type) &&
-      feedsState.get('feedsFeaturedFetching') === false &&
-      setFeedList(feedsState.get('feedsFeatured')),
-    [feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]
+      feedsState.feeds.feedsFeaturedFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsFeatured.value),
+    [feedsState.feeds.feedsFeaturedFetching.value, feedsState.feeds.feedsFeatured.value]
   )
 
   useEffect(
     () =>
       type === 'creator' &&
-      feedsState.get('feedsCreatorFetching') === false &&
-      setFeedList(feedsState.get('feedsCreator')),
-    [feedsState.get('feedsCreatorFetching'), feedsState.get('feedsCreator')]
+      feedsState.feeds.feedsCreatorFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsCreator.value),
+    [feedsState.feeds.feedsCreatorFetching.value, feedsState.feeds.feedsCreator.value]
   )
 
   useEffect(
     () =>
-      type === 'fired' && feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired')),
-    [feedsState.get('feedsFiredFetching'), feedsState.get('feedsFired')]
+      type === 'fired' &&
+      feedsState.feeds.feedsFiredFetching.value === false &&
+      setFeedList(feedsState.feeds.feedsFired.value),
+    [feedsState.feeds.feedsFiredFetching.value, feedsState.feeds.feedsFired.value]
   )
-  const feedsFiredStringify = JSON.stringify(feedsState.get('feedsFired'))
+  const feedsFiredStringify = JSON.stringify(feedsState.feeds.feedsFired.value)
   useEffect(() => {
-    typeof setIsFeatured === 'function' && setIsFeatured(!!feedsState.get('feedsFired')?.length)
-  }, [feedsState.get('feedsFetching'), feedsFiredStringify])
+    typeof setIsFeatured === 'function' && setIsFeatured(!!feedsState.feeds.feedsFired.value?.length)
+  }, [feedsState.feeds.feedsFetching.value, feedsFiredStringify])
 
   const handleAddToFeatured = (item) => {
     if (!feedIds.has(item)) {
@@ -207,4 +199,4 @@ const Featured = ({ feedsState, type, creatorId, viewType, isFeatured, setIsFeat
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Featured)
+export default Featured

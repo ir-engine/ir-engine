@@ -13,7 +13,6 @@ interface Props {
   adminCreator: any
   closeEditModal: any
 }
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const EditCreator = (props: Props) => {
   const classesx = useCreatorStyle()
@@ -212,4 +211,4 @@ const EditCreator = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(EditCreator)
+export default EditCreator

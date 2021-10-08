@@ -1,11 +1,12 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { GroupActionType } from './GroupActions'
+import { Group } from '@xrengine/common/src/interfaces/Group'
 
 export const GROUP_PAGE_LIMIT = 10
 
 export const state = createState({
   group: {
-    group: [],
+    group: [] as Array<Group>,
     skip: 0,
     limit: GROUP_PAGE_LIMIT,
     total: 0,

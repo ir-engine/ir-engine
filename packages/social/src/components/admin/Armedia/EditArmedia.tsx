@@ -28,8 +28,6 @@ interface Props {
   onCloseEdit: () => void
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const EditArMedia = (props: Props) => {
   const classex = useARMediaStyle()
   const classes = useARMediaStyles()
@@ -367,4 +365,4 @@ const EditArMedia = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(EditArMedia)
+export default EditArMedia
