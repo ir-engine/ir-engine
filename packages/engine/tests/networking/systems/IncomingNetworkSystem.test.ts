@@ -59,13 +59,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		
 		// mock avatar entity to apply incoming unreliable updates to
 		const world = World[CreateWorld]()
-		const action = NetworkWorldAction.spawnAvatar({
-			userId: '0' as UserId,
-			parameters: {
-				position: new Vector3(),
-				rotation: new Quaternion(),
-			},
-		})
+		
 		const entity = createEntity(world)
 		const transform = addComponent(entity, TransformComponent, {
 			position: new Vector3(),
@@ -105,7 +99,6 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		
 		// todo: Network should ideally be passed into the system as a parameter dependency,
 		// instead of an import dependency, but this works for now
-		console.log(Network.instance)
 		Network.instance.incomingMessageQueueUnreliable.add(buffer)
 		Network.instance.incomingMessageQueueUnreliableIDs.add("0")
 		
