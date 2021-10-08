@@ -15,6 +15,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
+import { Entity } from '../../ecs/classes/Entity'
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
@@ -141,6 +142,9 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
           )
         }
 
+        // console.log(`newWorldState.pose[${i}]`, newWorldState.pose[i])
+        // console.log(`hasComponent(${networkObjectEntity}, TransformComponent)`, hasComponent(networkObjectEntity, TransformComponent))
+        // console.log(`hasComponent(${networkObjectEntity-1}, ${TransformComponent})`, hasComponent(networkObjectEntity-1 as Entity, TransformComponent))
         if (hasComponent(networkObjectEntity, TransformComponent)) {
           const transformComponent = getComponent(networkObjectEntity, TransformComponent)
           transformComponent.position.fromArray(pose.position)
@@ -181,14 +185,15 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
   return world
 }
 
-// prettier-ignore
-export const applyIncomingNetworkState = pipe(
-  applyDelayedActions, 
-  applyIncomingActions,
-  applyUnreliableQueue(Network.instance),
-)
-
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
+  // prettier-ignore
+  const applyIncomingNetworkState = pipe(
+    applyDelayedActions, 
+    applyIncomingActions,
+    applyUnreliableQueue(Network.instance),
+  )
+
   world.receptors.add(incomingNetworkReceptor)
+
   return () => applyIncomingNetworkState(world)
 }

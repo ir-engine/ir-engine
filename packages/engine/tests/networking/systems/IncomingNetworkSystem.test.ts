@@ -1,8 +1,8 @@
 import assert, { strictEqual } from 'assert'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { World, CreateWorld } from '../../../src/ecs/classes/World'
-import { addComponent, getComponent } from '../../../src/ecs/functions/ComponentFunctions'
+import { World, CreateWorld, createWorld } from '../../../src/ecs/classes/World'
+import { addComponent, getComponent, hasComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { Network } from '../../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
@@ -14,6 +14,9 @@ import { TransformComponent } from '../../../src/transform/components/TransformC
 import { Action, ActionRecipients } from '../../../src/networking/interfaces/Action'
 import matches from 'ts-matches'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
+import { TestNetworkTransport } from '../TestNetworkTransport'
+import { TestNetwork } from '../TestNetwork'
+import { Engine } from '../../../src/ecs/classes/Engine'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
 	it('should apply delayed actions', () => {
@@ -53,14 +56,24 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 })
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
+	
+	let world
+
+	beforeEach(() => {
+    /* hoist */
+		Network.instance = new TestNetwork()
+		world = createWorld()
+		Engine.currentWorld = world
+	})
+
 	it('should apply pose state to an avatar from World.incomingMessageQueueUnreliable', async () => {
-		
 		/* mock */
+
+		// make this engine user the host (world.isHosting === true)
+    Engine.userId = world.hostId
 		
-		// mock avatar entity to apply incoming unreliable updates to
-		const world = World[CreateWorld]()
-		
-		const entity = createEntity(world)
+		// mock entity to apply incoming unreliable updates to
+		const entity = createEntity()
 		const transform = addComponent(entity, TransformComponent, {
 			position: new Vector3(),
 			rotation: new Quaternion(),
@@ -76,7 +89,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 			parameters: {},
 		})
 
-		// mock incoming data that would be coming from the server
+		// mock incoming server data
 		const newPosition = new Vector3(1,2,3)
 		const newRotation = new Quaternion(1,2,3,4)
 		
@@ -97,10 +110,10 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 
 		const buffer = WorldStateModel.toBuffer(newWorldState)
 		
-		// todo: Network should ideally be passed into the system as a parameter dependency,
-		// instead of an import dependency, but this works for now
+		// todo: Network.instance should ideally be passed into the system as a parameter dependency,
+		// instead of an import dependency , but this works for now
 		Network.instance.incomingMessageQueueUnreliable.add(buffer)
-		Network.instance.incomingMessageQueueUnreliableIDs.add("0")
+		Network.instance.incomingMessageQueueUnreliableIDs.add(Engine.userId)
 		
 		/* run */
 		const incomingNetworkSystem = await IncomingNetworkSystem(world)

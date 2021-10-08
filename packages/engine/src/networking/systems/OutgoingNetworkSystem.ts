@@ -94,7 +94,6 @@ export const forwardIncomingActionsFromOthersIfHost = (world: World) => {
     const { incomingActions, outgoingActions } = world
 
     for (const incoming of incomingActions) {
-      console.log(incoming.$from, Engine.userId)
       // if incoming action is not from this client
       if (incoming.$from !== Engine.userId) {
         // forward it out

@@ -4,7 +4,7 @@ import { engineTestSetup } from '../../util/setupEngine'
 import assert, { strictEqual } from 'assert'
 import { Network } from '../../../src/networking/classes/Network'
 import OutgoingNetworkSystem, { forwardIncomingActionsFromOthersIfHost, queueAllOutgoingPoses, rerouteActions } from '../../../src/networking/systems/OutgoingNetworkSystem'
-import { CreateWorld, World } from '../../../src/ecs/classes/World'
+import { createWorld, World } from '../../../src/ecs/classes/World'
 import { Action, ActionRecipients } from '../../../src/networking/interfaces/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkWorldAction } from '../../../src/networking/functions/NetworkWorldAction'
@@ -18,11 +18,12 @@ import { Quaternion, Vector3 } from 'three'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { TestNetwork } from '../TestNetwork'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
   it('should forwardIncomingActionsFromOthersIfHost', () => {
 		/* mock */
-		const world = World[CreateWorld]()
+		const world = createWorld()
 
     // make this engine user the host
     // world.isHosting === true
@@ -55,19 +56,22 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 })
 
 describe('OutgoingNetworkSystem Integration Tests', async () => {
-  it('should serialize and send poses', async () => {
+	
+  let world
+
+	beforeEach(() => {
     /* hoist */
-    const transport: TestNetworkTransport = new TestNetworkTransport()
-    Network.instance.transport = transport
+		Network.instance = new TestNetwork()
+		world = createWorld()
+		Engine.currentWorld = world
+	})
 
+  it('should serialize and send poses', async () => {
     /* mock */
-		const world = World[CreateWorld]()
-
-    // make this engine user the host
-    // world.isHosting === true
+    // make this engine user the host (world.isHosting === true)
     Engine.userId = world.hostId
 
-		const entity = createEntity(world)
+		const entity = createEntity()
 		const transform = addComponent(entity, TransformComponent, {
 			position: new Vector3(1,2,3),
 			rotation: new Quaternion(),
@@ -82,12 +86,14 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
 		})
 
     /* run */
+    // todo: passing world into the constructor makes the system stateful
+    // ideally we want stateless systems
     const outgoingNetworkSystem = await OutgoingNetworkSystem(world)
 
     outgoingNetworkSystem()
 
     /* assert */
-    const datum = transport.getSentData()
+    const datum = (Network.instance as TestNetwork).transport.getSentData()
     strictEqual(datum.length, 1)
 
     const data0 = WorldStateModel.fromBuffer(datum[0])
