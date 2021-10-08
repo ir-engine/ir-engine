@@ -1,16 +1,13 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React from 'react'
-
-import HomeIcon from '@material-ui/icons/Home'
+import React, { useEffect } from 'react'
 // import WhatshotIcon from '@material-ui/icons/Whatshot';
 
 // @ts-ignore
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { useDispatch } from 'react-redux'
-import { useEffect } from 'react'
 import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { CreatorService } from '../../reducers/creator/CreatorService'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";

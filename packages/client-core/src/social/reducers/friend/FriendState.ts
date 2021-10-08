@@ -1,10 +1,11 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { FriendActionType } from './FriendActions'
+import { User } from '@xrengine/common/src/interfaces/User'
 import _ from 'lodash'
 
 const state = createState({
   friends: {
-    friends: [],
+    friends: [] as Array<User>,
     total: 0,
     limit: 5,
     skip: 0
@@ -24,11 +25,10 @@ const friendReceptor = (action: FriendActionType): any => {
     switch (action.type) {
       case 'LOADED_FRIENDS':
         newValues = action
-
         if (s.updateNeeded.value === true) {
           s.friends.friends.set(newValues.friends)
         } else {
-          s.friends.friends.merge(newValues.friends)
+          s.friends.friends.set([s.friends.friends.value, newValues.friends])
         }
         s.friends.skip.set(newValues.skip)
         s.friends.limit.set(newValues.limit)
@@ -39,7 +39,7 @@ const friendReceptor = (action: FriendActionType): any => {
       case 'CREATED_FRIEND':
         newValues = action
         const createdUserRelationship = newValues.userRelationship
-        s.friends.friends.merge([createdUserRelationship])
+        s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
       case 'PATCHED_FRIEND':
         newValues = action
         const patchedUserRelationship = newValues.userRelationship
@@ -53,7 +53,7 @@ const friendReceptor = (action: FriendActionType): any => {
           return friendItem != null && friendItem.id === otherUser.id
         })
         if (patchedFriendIndex === -1) {
-          return s.friends.friends.merge([otherUser])
+          return s.friends.friends.set([...s.friends.friends.value, otherUser])
         } else {
           return s.friends.friends[patchedFriendIndex].set(otherUser)
         }
@@ -68,7 +68,7 @@ const friendReceptor = (action: FriendActionType): any => {
             : removedUserRelationship.userId
 
         const friendId = s.friends.friends.value.findIndex((friendItem) => {
-          return friendItem != null && friendItem.id === otherUser.id
+          return friendItem != null && friendItem.id === otherUserId
         })
 
         return s.friends.friends[friendId].set(none)

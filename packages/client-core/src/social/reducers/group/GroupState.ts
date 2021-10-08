@@ -2,16 +2,17 @@ import { createState, useState, none, Downgraded } from '@hookstate/core'
 import _ from 'lodash'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupActionType } from './GroupActions'
+import { Group } from '@xrengine/common/src/interfaces/Group'
 
 const state = createState({
   groups: {
-    groups: [],
+    groups: [] as Array<Group>,
     total: 0,
     limit: 5,
     skip: 0
   },
   invitableGroups: {
-    groups: [],
+    groups: [] as Array<Group>,
     total: 0,
     limit: 5,
     skip: 0
@@ -44,7 +45,7 @@ const groupReceptor = (action: GroupActionType): any => {
         if (s.updateNeeded.value === true) {
           s.groups.groups.set(newValues.groups)
         } else {
-          s.groups.groups.merge(newValues.groups)
+          s.groups.groups.set([...s.groups.groups.value, ...newValues.groups])
         }
         s.groups.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
         s.updateNeeded.set(false)
@@ -56,7 +57,7 @@ const groupReceptor = (action: GroupActionType): any => {
         if (s.updateNeeded.value === true) {
           s.invitableGroups.groups.set(newValues.groups)
         } else {
-          s.invitableGroups.groups.merge(newValues.groups)
+          s.invitableGroups.groups.set([...s.invitableGroups.groups.value, ...newValues.groups])
         }
         s.invitableGroups.skip.set(newValues.skip)
         s.invitableGroups.limit.set(newValues.limit)
@@ -76,12 +77,12 @@ const groupReceptor = (action: GroupActionType): any => {
         if (groupIndex !== -1) {
           return s.groups.groups[groupIndex].set(updateGroup)
         }
-        return state
+        return s
       case 'REMOVED_GROUP':
         s.updateNeeded.set(true)
         return s.invitableUpdateNeeded.set(true)
       case 'INVITED_GROUP_USER':
-        return state
+        return s
       // .set('updateNeeded', true)
       case 'LEFT_GROUP':
         return s.updateNeeded.set(true)

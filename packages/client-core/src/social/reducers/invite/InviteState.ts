@@ -1,16 +1,17 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { InviteActionType } from './InviteActions'
+import { Invite } from '@xrengine/common/src/interfaces/Invite'
 export const INVITE_PAGE_LIMIT = 10
 
 const state = createState({
   receivedInvites: {
-    invites: [],
+    invites: [] as Array<Invite>,
     skip: 0,
     limit: 5,
     total: 0
   },
   sentInvites: {
-    invites: [],
+    invites: [] as Array<Invite>,
     skip: 0,
     limit: 5,
     total: 0
@@ -47,10 +48,10 @@ const inviteReceptor = (action: InviteActionType): any => {
         newValues = action
         const receivedInvites = s.receivedInvites.invites.value
 
-        if (receivedInvites.size != null || s.receivedUpdateNeeded.value === true) {
+        if (receivedInvites === null || s.receivedUpdateNeeded.value === true) {
           s.receivedInvites.invites.set(newValues.invites)
         } else {
-          s.receivedInvites.invites.merge(newValues.invites)
+          s.receivedInvites.invites.merge([...s.receivedInvites.invites.value, ...newValues.invites])
         }
         s.receivedInvites.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
         return s.merge({ receivedUpdateNeeded: false, getReceivedInvitesInProgress: false })

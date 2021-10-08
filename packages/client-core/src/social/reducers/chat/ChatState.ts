@@ -112,7 +112,7 @@ const chatReceptor = (action: ChatActionType): any => {
         localAction = action
         const newChannel = localAction.channel
         const channelType = localAction.channelType
-        updateMap = state.channels.value
+        updateMap = s.channels.value
         updateMapChannels = updateMap.channels
         if (channelType === 'instance') {
           const tempUpdateMapChannels = {}
@@ -131,7 +131,7 @@ const chatReceptor = (action: ChatActionType): any => {
         updateMap.channels = updateMapChannels
         returned = s.merge({ channels: updateMap })
         if (channelType === 'instance') {
-          const channels = state.channels.value
+          const channels = s.channels.value
           channels.fetchingInstanceChannel = false
           returned = s.merge({ instanceChannelFetched: true, channels: channels })
         }
@@ -140,7 +140,7 @@ const chatReceptor = (action: ChatActionType): any => {
         localAction = action
         const channelId = localAction.message.channelId
         const selfUser = localAction.selfUser
-        updateMap = state.channels.value
+        updateMap = s.channels.value
         updateMapChannels = updateMap.channels
         updateMapChannelsChild = updateMapChannels[channelId]
         if (updateMapChannelsChild == null) {
@@ -149,7 +149,7 @@ const chatReceptor = (action: ChatActionType): any => {
           updateMapChannelsChild.messages =
             updateMapChannelsChild.messages == null ||
             updateMapChannelsChild.messages.size != null ||
-            updateMapChannels.updateNeeded === true
+            updateMapChannelsChild.updateNeeded === true
               ? [localAction.message]
               : _.unionBy(updateMapChannelsChild.messages, [localAction.message], 'id')
           updateMapChannelsChild.skip = updateMapChannelsChild.skip + 1
@@ -159,7 +159,7 @@ const chatReceptor = (action: ChatActionType): any => {
         }
         returned = s.merge({ channels: updateMap, updateMessageScroll: true })
 
-        if (state.targetChannelId.value.length === 0 && updateMapChannelsChild != null) {
+        if (s.targetChannelId.value.length === 0 && updateMapChannelsChild != null) {
           const channelType = updateMapChannelsChild.channelType
           const targetObject =
             channelType === 'user'
@@ -176,13 +176,13 @@ const chatReceptor = (action: ChatActionType): any => {
         return returned
       case 'LOADED_MESSAGES':
         localAction = action
-        updateMap = state.channels.value
+        updateMap = s.channels.value
         updateMapChannels = updateMap.channels
         updateMapChannelsChild = updateMapChannels[localAction.channelId]
         updateMapChannelsChild.messages =
           updateMapChannelsChild.messages == null ||
           updateMapChannelsChild.messages.size != null ||
-          updateMapChannels.updateNeeded === true
+          updateMapChannelsChild.updateNeeded === true
             ? localAction.messages
             : _.unionBy(updateMapChannelsChild.messages, localAction.messages, 'id')
         updateMapChannelsChild.limit = localAction.limit
@@ -194,7 +194,7 @@ const chatReceptor = (action: ChatActionType): any => {
         return s.channels.merge({ channels: updateMapChannels })
       case 'REMOVED_MESSAGE':
         localAction = action
-        updateMap = state.channels.value
+        updateMap = s.channels.value
 
         updateMapChannels = updateMap.channels
         updateMapChannelsChild = updateMapChannels[localAction.message.channelId]
@@ -207,7 +207,7 @@ const chatReceptor = (action: ChatActionType): any => {
         return s.merge({ channels: updateMap })
       case 'PATCHED_MESSAGE':
         localAction = action
-        updateMap = state.channels.value
+        updateMap = s.channels.value
 
         updateMapChannels = updateMap.channels
         updateMapChannelsChild = updateMapChannels[localAction.message.channelId]
@@ -219,11 +219,11 @@ const chatReceptor = (action: ChatActionType): any => {
           updateMapChannels[localAction.message.channelId] = updateMapChannelsChild
           updateMap.channels = updateMapChannels
         }
-        return state.merge({ channels: updateMap })
+        return s.merge({ channels: updateMap })
       case 'CREATED_CHANNEL':
         localAction = action
         const createdChannel = localAction.channel
-        updateMap = state.channels.value
+        updateMap = s.channels.value
         updateMapChannels = updateMap.channels
 
         createdChannel.updateNeeded = true
@@ -236,7 +236,7 @@ const chatReceptor = (action: ChatActionType): any => {
       case 'PATCHED_CHANNEL':
         localAction = action
         const updateChannel = localAction.channel
-        updateMap = state.channels.value
+        updateMap = s.channels.value
 
         updateMapChannels = updateMap.channels
         updateMapChannelsChild = updateMapChannels[localAction.channel.id]
@@ -253,11 +253,7 @@ const chatReceptor = (action: ChatActionType): any => {
         return s.merge({ channels: updateMap })
       case 'REMOVED_CHANNEL':
         localAction = action
-        updateMap = state.channels.value
-        updateMapChannels = updateMap.channels
-        updateMapChannels.delete(localAction.channel.id)
-        updateMap.channels = updateMapChannels
-        return s.merge({ channels: updateMap })
+        return s.channels.channels[localAction.channel.id].set(none)
 
       case 'CHAT_TARGET_SET':
         const { targetObjectType, targetObject, targetChannelId } = action

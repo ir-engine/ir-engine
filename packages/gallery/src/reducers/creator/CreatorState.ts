@@ -63,7 +63,6 @@ const creatorReceptor = (action: CreatorActionType): any => {
         return s.creators.followers.set(action.creators)
       case 'CREATOR_FOLLOWING_RETRIEVED':
         return s.creators.following.set(action.creators)
-
       case 'CREATOR_REMOVED':
         creators = s.creators.creators?.value?.filter((creator) => creator.id !== action.id)
         s.creators.currentCreator.set(none)
