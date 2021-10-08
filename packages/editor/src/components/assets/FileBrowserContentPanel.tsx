@@ -4,8 +4,6 @@ import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { useAssetSearch } from './useAssetSearch'
 import { AssetPanelContentContainer } from './AssetsPanel'
-import SelectInput from '../inputs/SelectInput'
-import InputGroup from '../inputs/InputGroup'
 import { UploadFileType } from './sources/MyAssetsSource'
 import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
 import { NodeManager } from '../../managers/NodeManager'
@@ -14,9 +12,7 @@ import { SourceManager } from '../../managers/SourceManager'
 import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import FileBrowserGrid from './FileBrowserGrid'
-import { Folder } from '@styled-icons/fa-solid'
 import { Config } from '@xrengine/common/src/config'
-import path from 'path'
 import { Button } from '../inputs/Button'
 
 /**
@@ -113,19 +109,24 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }, [])
 
   const addNewFolder = () => {
-    ProjectManager.instance.feathersClient.service(`file-browser`).create({ fileName: 'FileName' })
+    ProjectManager.instance.feathersClient
+      .service(`file-browser`)
+      .create({ fileName: 'FileName' })
+      .then((res) => {
+        if (res) renderProjectFiles(selectedDirectory)
+      })
+      .catch(() => {
+        console.log("Can't Create new Folder")
+      })
   }
 
   const onBackDirectory = () => {
     const pattern = /([a-z 0-9]+)/gi
-    console.log('Selected Directory is:' + selectedDirectory)
     const result = selectedDirectory.match(pattern)
     let newPath = '/'
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'
     }
-
-    console.log('Back Path is:' + newPath)
     setSelectedDirectory(newPath)
   }
 

@@ -28,36 +28,6 @@ export class LocalStorage implements StorageProviderInterface {
       })
     }
   }
-
-  listFolderContent = async (folderName: string): Promise<any> => {
-    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, folderName)
-    const files = glob.sync(path.join(filePath, '*.*')).map((result) => {
-      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const regexx = /(?<name>[0-9 a-z A-Z]*)\.((?<extension>[0-9 a-z A-Z]*))/g
-      const query = regexx.exec(key)
-      const res: FileBrowserContentType = {
-        key,
-        name: query.groups.name,
-        type: query.groups.extension
-      }
-      return res
-    })
-    const folder = glob.sync(path.join(filePath, '*/')).map((result) => {
-      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const name = key.replace(`${folderName}`, '').split('/')[0]
-      const res: FileBrowserContentType = {
-        key,
-        name,
-        type: 'folder'
-      }
-      return res
-    })
-    files.push(...folder)
-    return files
-  }
-
-  copyContent = async (to, from) => {}
-
   putObject = async (params: any): Promise<any> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key)
     const pathWithoutFileExec = keyPathRegex.exec(filePath)
@@ -82,9 +52,6 @@ export class LocalStorage implements StorageProviderInterface {
     })
   }
 
-  move = () => {
-    console.log('Moving the Project Files')
-  }
   getSignedUrl = (key: string, expiresAfter: number, conditions): any => {
     return {
       fields: {
@@ -125,6 +92,58 @@ export class LocalStorage implements StorageProviderInterface {
         })
       })
     )
+  }
+
+  /**
+   * @author Abhishek Pathak
+   * @param dir
+   * @returns
+   */
+  createDirectory = async (dir: string) => {
+    const folderPath = path.join(appRootPath.path, 'packages', 'server', this.path, dir)
+    try {
+      await fs.promises.mkdir(path.join(folderPath))
+    } catch {
+      return false
+    }
+    return true
+  }
+
+  /**
+   * @author Abhishek Pathak
+   * @param folderName
+   * @returns
+   */
+
+  listFolderContent = async (folderName: string): Promise<any> => {
+    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, folderName)
+    const files = glob.sync(path.join(filePath, '*.*')).map((result) => {
+      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
+      const regexx = /(?<name>[0-9 a-z A-Z]*)\.((?<extension>[0-9 a-z A-Z]*))/g
+      const query = regexx.exec(key)
+      const res: FileBrowserContentType = {
+        key,
+        name: query.groups.name,
+        type: query.groups.extension
+      }
+      return res
+    })
+    const folder = glob.sync(path.join(filePath, '*/')).map((result) => {
+      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
+      const name = key.replace(`${folderName}`, '').split('/')[0]
+      const res: FileBrowserContentType = {
+        key,
+        name,
+        type: 'folder'
+      }
+      return res
+    })
+    files.push(...folder)
+    return files
+  }
+
+  move = () => {
+    console.log('Moving the Project Files')
   }
 }
 export default LocalStorage

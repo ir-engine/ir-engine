@@ -10,6 +10,9 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 
 export class S3Provider implements StorageProviderInterface {
+  createDirectory(dir: any): Promise<boolean> {
+    throw new Error('Method not implemented.')
+  }
   bucket = config.aws.s3.staticResourceBucket
   cacheDomain = config.aws.cloudfront.domain
   provider: AWS.S3 = new AWS.S3({

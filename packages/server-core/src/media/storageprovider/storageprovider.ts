@@ -18,9 +18,11 @@ export class StorageProvider implements StorageProviderInterface {
   getStorage = (): any => this.provider.getStorage()
   getObject = (key: string): Promise<any> => this.provider.getObject(key)
   listObjects = (prefix: string): Promise<any> => this.provider.listObjects(prefix)
-  listFolderContent = (folderName: string): Promise<any> => this.provider.listFolderContent(folderName)
   putObject = (object: any): Promise<any> => this.provider.putObject(object)
   deleteResources = (keys: string[]): Promise<any> => this.provider.deleteResources(keys)
   createInvalidation = (params: any): Promise<any> => this.provider.createInvalidation(params)
+
+  listFolderContent = (folderName: string): Promise<any> => this.provider.listFolderContent(folderName)
+  createDirectory = (dir): Promise<boolean> => this.provider.createDirectory(dir)
 }
 export default StorageProvider

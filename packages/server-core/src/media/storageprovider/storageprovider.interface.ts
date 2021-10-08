@@ -6,6 +6,7 @@ export interface StorageProviderInterface {
   getProvider(): StorageProviderInterface // arrow function
   getSignedUrl(key: string, expiresAfter: number, conditions): Promise<any>
   getStorage(): any
+  createDirectory(dir): Promise<boolean>
   listObjects(prefix: string): Promise<any>
   putObject(object: any): Promise<any>
   deleteResources(keys: string[]): Promise<any>
